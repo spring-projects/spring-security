@@ -1,34 +1,32 @@
 package org.springframework.security.config;
 
-import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.beans.factory.xml.BeanDefinitionParser;
-import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.util.xml.DomUtils;
+import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.xml.BeanDefinitionParser;
+import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttributeEditor;
+import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.intercept.web.*;
+import org.springframework.security.ui.ExceptionTranslationFilter;
+import org.springframework.security.util.FilterChainProxy;
+import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.springframework.security.util.FilterChainProxy;
-import org.springframework.security.intercept.web.PathBasedFilterInvocationDefinitionMap;
-import org.springframework.security.intercept.web.FilterSecurityInterceptor;
-import org.springframework.security.intercept.web.FilterInvocationDefinitionMap;
-import org.springframework.security.ConfigAttributeEditor;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.ui.ExceptionTranslationFilter;
-import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
-import org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint;
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
-import java.util.List;
+import javax.servlet.Filter;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Sets up HTTP security: filter stack and protected URLs.
  *
  *
- * @author luke
+ * @author Luke Taylor
  * @version $Id$
  */
 public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
@@ -39,39 +37,23 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     public static final String DEFAULT_LOGOUT_FILTER_ID = "_logoutFilter";
     public static final String DEFAULT_EXCEPTION_TRANSLATION_FILTER_ID = "_exceptionTranslationFilter";
     public static final String DEFAULT_FILTER_SECURITY_INTERCEPTOR_ID = "_filterSecurityInterceptor";
-    public static final String DEFAULT_FORM_LOGIN_FILTER_ID = "_formLoginFilter";
-    public static final String DEFAULT_FORM_LOGIN_ENTRY_POINT_ID = "_formLoginEntryPoint";
 
     public static final String LOGOUT_ELEMENT = "logout";
     public static final String FORM_LOGIN_ELEMENT = "form-login";
+    public static final String BASIC_AUTH_ELEMENT = "http-basic";    
 
-    private static final String PATH_ATTRIBUTE = "path";
-    private static final String FILTERS_ATTRIBUTE = "filters";
+    static final String PATH_PATTERN_ATTRIBUTE = "pattern";
+    static final String PATTERN_TYPE_ATTRIBUTE = "pathType";
+    static final String PATTERN_TYPE_REGEX = "regex";
+
+    static final String FILTERS_ATTRIBUTE = "filters";
+    static final String NO_FILTERS_VALUE = "none";
+    static final Filter[] EMPTY_FILTER_CHAIN = new Filter[0];
+
     private static final String ACCESS_CONFIG_ATTRIBUTE = "access";
 
-    private static final String LOGIN_URL_ATTRIBUTE = "loginUrl";
-
-    private static final String FORM_LOGIN_TARGET_URL_ATTRIBUTE = "defaultTargetUrl";
-    private static final String DEFAULT_FORM_LOGIN_TARGET_URL = "/index";
-
-    private static final String FORM_LOGIN_AUTH_FAILURE_URL_ATTRIBUTE = "defaultTargetUrl";
-    // TODO: Change AbstractProcessingFilter to not need a failure URL and just write a failure message
-    // to the response if one isn't set.
-    private static final String DEFAULT_FORM_LOGIN_AUTH_FAILURE_URL = "/loginError";
-
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        // Create HttpSCIF, FilterInvocationInterceptor, ExceptionTranslationFilter
-
-        // Find other filter beans.
-
-        // Create appropriate bean list for config attributes to create FIDS
-
-        // Add any secure URLs with specific filter chains to FIDS as separate ConfigAttributes
-
-        // Add secure URLS with roles to objectDefinitionSource for FilterSecurityInterceptor
-
         RootBeanDefinition filterChainProxy = new RootBeanDefinition(FilterChainProxy.class);
-
         RootBeanDefinition httpSCIF = new RootBeanDefinition(HttpSessionContextIntegrationFilter.class);
 
         //TODO: Set session creation parameters based on session-creation attribute
@@ -79,22 +61,28 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         BeanDefinitionBuilder filterSecurityInterceptorBuilder
                 = BeanDefinitionBuilder.rootBeanDefinition(FilterSecurityInterceptor.class);
 
-
         BeanDefinitionBuilder exceptionTranslationFilterBuilder
                 = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
 
         // Autowire for entry point (for now)
+        // TODO: Examine entry point beans in post processing and pick the correct one
+        // i.e. form login or cas if defined, then any other non-basic, non-digest, then  basic or digest
         exceptionTranslationFilterBuilder.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
 
         // TODO: Get path type attribute and determine FilDefInvS class
-        PathBasedFilterInvocationDefinitionMap filterChainInvocationDefSource
-                = new PathBasedFilterInvocationDefinitionMap();
 
-        filterChainProxy.getPropertyValues().addPropertyValue("filterInvocationDefinitionSource",
-                filterChainInvocationDefSource);
+        FilterChainMap filterChainMap =  new FilterChainMap();
 
-        PathBasedFilterInvocationDefinitionMap interceptorFilterInvDefSource
-                = new PathBasedFilterInvocationDefinitionMap();
+        String patternType = element.getAttribute(PATTERN_TYPE_ATTRIBUTE);
+
+        FilterInvocationDefinitionMap interceptorFilterInvDefSource = new PathBasedFilterInvocationDefinitionMap();
+
+        if (patternType.equals(PATTERN_TYPE_REGEX)) {
+            filterChainMap.setUrlPathMatcher(new RegexUrlPathMatcher());
+            interceptorFilterInvDefSource = new RegExpBasedFilterInvocationDefinitionMap();
+        }
+
+        filterChainProxy.getPropertyValues().addPropertyValue("filterChainMap", filterChainMap);
 
         filterSecurityInterceptorBuilder.addPropertyValue("objectDefinitionSource", interceptorFilterInvDefSource);
 
@@ -102,7 +90,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         filterSecurityInterceptorBuilder.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
 
         parseInterceptUrls(DomUtils.getChildElementsByTagName(element, "intercept-url"),
-                filterChainInvocationDefSource, interceptorFilterInvDefSource);
+                filterChainMap, interceptorFilterInvDefSource);
         // TODO: if empty, set a default set a default /**, omitting login url
 
         BeanDefinitionRegistry registry = parserContext.getRegistry();
@@ -110,51 +98,20 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         Element logoutElt = DomUtils.getChildElementByTagName(element, LOGOUT_ELEMENT);
 
         if (logoutElt != null) {
-            BeanDefinition logoutFilter = new LogoutBeanDefinitionParser().parse(logoutElt, parserContext);
+            new LogoutBeanDefinitionParser().parse(logoutElt, parserContext);
         }
 
         Element formLoginElt = DomUtils.getChildElementByTagName(element, FORM_LOGIN_ELEMENT);
 
         if (formLoginElt != null) {
-            BeanDefinitionBuilder formLoginFilterBuilder =
-                    BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProcessingFilter.class);
-            BeanDefinitionBuilder formLoginEntryPointBuilder =
-                    BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProcessingFilterEntryPoint.class);
-
-            // Temporary login value
-            formLoginEntryPointBuilder.addPropertyValue("loginFormUrl", "/login");
-
-
-            String loginUrl = formLoginElt.getAttribute(LOGIN_URL_ATTRIBUTE);
-
-            if (StringUtils.hasText(loginUrl)) {
-                formLoginFilterBuilder.addPropertyValue("filterProcessesUrl", loginUrl);
-            }
-
-            String defaultTargetUrl = formLoginElt.getAttribute(FORM_LOGIN_TARGET_URL_ATTRIBUTE);
-
-            if (!StringUtils.hasText(defaultTargetUrl)) {
-                defaultTargetUrl = DEFAULT_FORM_LOGIN_TARGET_URL;
-            }
-
-            formLoginFilterBuilder.addPropertyValue("defaultTargetUrl", defaultTargetUrl);
-
-            String authenticationFailureUrl = formLoginElt.getAttribute(FORM_LOGIN_AUTH_FAILURE_URL_ATTRIBUTE);
-
-            if (!StringUtils.hasText(authenticationFailureUrl)) {
-                authenticationFailureUrl = DEFAULT_FORM_LOGIN_AUTH_FAILURE_URL;
-            }
-
-            formLoginFilterBuilder.addPropertyValue("authenticationFailureUrl", authenticationFailureUrl);
-            // Set autowire to pick up the authentication manager.
-            formLoginFilterBuilder.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
-
-
-            registry.registerBeanDefinition(DEFAULT_FORM_LOGIN_FILTER_ID,
-                    formLoginFilterBuilder.getBeanDefinition());
-            registry.registerBeanDefinition(DEFAULT_FORM_LOGIN_ENTRY_POINT_ID,
-                    formLoginEntryPointBuilder.getBeanDefinition());
+            new FormLoginBeanDefinitionParser().parse(formLoginElt, parserContext);
         }
+
+        Element basicAuthElt = DomUtils.getChildElementByTagName(element, BASIC_AUTH_ELEMENT);
+
+        if (basicAuthElt != null) {
+            new BasicAuthenticationBeanDefinitionParser().parse(basicAuthElt, parserContext);
+        }        
 
         registry.registerBeanDefinition(DEFAULT_FILTER_CHAIN_PROXY_ID, filterChainProxy);
         registry.registerBeanDefinition(DEFAULT_HTTP_SESSION_FILTER_ID, httpSCIF);
@@ -168,15 +125,16 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         // app context has been created and all beans are available.
 
         registry.registerBeanDefinition("__httpConfigBeanFactoryPostProcessor",
-                new RootBeanDefinition(HttpSecurityConfigPostProcessor.class));        
+                new RootBeanDefinition(HttpSecurityConfigPostProcessor.class));
 
         return null;
     }
 
     /**
-     * Parses the intercept-url elements and populates the FilterChainProxy's FilterInvocationDefinitionSource
+     * Parses the intercept-url elements and populates the FilterChainProxy's FilterChainMap and the
+     * FilterInvocationDefinitionSource used in FilterSecurityInterceptor.
      */
-    private void parseInterceptUrls(List urlElts, FilterInvocationDefinitionMap filterChainInvocationDefSource,
+    private void parseInterceptUrls(List urlElts, FilterChainMap filterChainMap,
             FilterInvocationDefinitionMap interceptorFilterInvDefSource) {
 
         Iterator urlEltsIterator = urlElts.iterator();
@@ -186,7 +144,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         while (urlEltsIterator.hasNext()) {
             Element urlElt = (Element) urlEltsIterator.next();
 
-            String path = urlElt.getAttribute(PATH_ATTRIBUTE);
+            String path = urlElt.getAttribute(PATH_PATTERN_ATTRIBUTE);
 
             Assert.hasText(path, "path attribute cannot be empty or null");
 
@@ -204,11 +162,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             String filters = urlElt.getAttribute(FILTERS_ATTRIBUTE);
 
             if (StringUtils.hasText(filters)) {
-                attributeEditor.setAsText(filters);
+                if (!filters.equals(NO_FILTERS_VALUE)) {
+                    throw new IllegalStateException("Currently only 'none' is supported as the custom filters attribute");
+                }
+
+                filterChainMap.addSecureUrl(path, EMPTY_FILTER_CHAIN);
             }
-
-
-
         }
     }
 }

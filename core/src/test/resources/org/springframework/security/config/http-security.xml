@@ -6,20 +6,22 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-    <security:autoconfig />    
+    <security:autoconfig />
 
     <security:http createSession="ifRequired" pathType="ant" lowerCaseComparisons="true">
-        <security:intercept-url path="/unprotected" filters="none"/>
-        <security:intercept-url path="/somepath" filters="filter1,filter2,filter3" access="ROLE_SPECIAL,ROLE_USER" />
-        <security:intercept-url path="/**" access="ROLE_USER" />
+        <security:intercept-url pattern="/unprotected" filters="none"/>
+        <security:intercept-url pattern="/somepath" access="ROLE_SPECIAL,ROLE_USER" />
+        <security:intercept-url pattern="/**" access="ROLE_USER" />
+
+        <!-- Default logout configuration -->
+        <security:logout logoutUrl="/j_spring_security_logout" logoutSuccessUrl="/" invalidateSession="true" />        
 
         <!-- Default form login configuration. Will create filter and entry point -->
         <security:form-login loginUrl="/j_spring_security_check"  />
 
-        <!-- Default logout configuration -->
-        <security:logout logoutUrl="/j_spring_security_logout" logoutSuccessUrl="/" invalidateSession="true" />
-
-    </security:http>    
+        <!-- Default basic auth configuration. Will create filter and entry point -->
+        <security:http-basic realm="NamespaceTestRealm"  />
+    </security:http>
 
 
     <security:authentication-provider>
@@ -27,6 +29,6 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
             <security:user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B" />
             <security:user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B,AUTH_OTHER" />
         </security:user-service>
-    </security:authentication-provider>    
+    </security:authentication-provider>
 
 </beans>
