@@ -131,6 +131,10 @@ public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvoca
         this.convertUrlToLowercaseBeforeComparison = convertUrlToLowercaseBeforeComparison;
     }
 
+    List getRequestMap() {
+        return requestMap;
+    }    
+
     //~ Inner Classes ==================================================================================================
 
     protected class EntryHolder {

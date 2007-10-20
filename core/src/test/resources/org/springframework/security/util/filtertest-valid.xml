@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
 <!--
  * Copyright 2004 Acegi Technology Pty Limited
  *
@@ -18,8 +18,11 @@
  *
  * $Id$
 -->
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:sec="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
 	<bean id="mockFilter" class="org.springframework.security.util.MockFilter"/>
 
@@ -38,5 +41,23 @@
          </value>
       </property>
     </bean>
+
+    <bean id="newFilterChainProxy" class="org.springframework.security.util.FilterChainProxy">
+        <sec:filter-chain-map pathType="ant">
+            <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
+            <sec:filter-chain pattern="/some/other/path/**" filters="sif,mockFilter,mockFilter2"/>
+            <sec:filter-chain pattern="/do/not/filter" filters="none"/>
+        </sec:filter-chain-map>
+    </bean>
+
+    <bean id="newFilterChainProxyRegex" class="org.springframework.security.util.FilterChainProxy">
+        <sec:filter-chain-map pathType="regex">
+            <sec:filter-chain pattern="\A/foo/.*\Z" filters="mockFilter"/>
+            <sec:filter-chain pattern="\A/some/other/path/.*\Z" filters="sif,mockFilter,mockFilter2"/>
+            <sec:filter-chain pattern="\A/do/not/filter\Z" filters="none"/>
+        </sec:filter-chain-map>
+    </bean>
+
+    <bean id="sif" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
 
 </beans>

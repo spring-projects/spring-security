@@ -118,6 +118,10 @@ public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvo
         this.convertUrlToLowercaseBeforeComparison = convertUrlToLowercaseBeforeComparison;
     }
 
+    List getRequestMap() {
+        return requestMap;
+    }
+
     //~ Inner Classes ==================================================================================================
 
     protected class EntryHolder {
