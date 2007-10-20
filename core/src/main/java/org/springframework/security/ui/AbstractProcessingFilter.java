@@ -50,12 +50,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -139,8 +135,8 @@ import javax.servlet.http.HttpSession;
  * @version $Id: AbstractProcessingFilter.java 1909 2007-06-19 04:08:19Z
  * vishalpuri $
  */
-public abstract class AbstractProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware,
-		MessageSourceAware {
+public abstract class AbstractProcessingFilter extends SpringSecurityFilter implements InitializingBean,
+        ApplicationEventPublisherAware, MessageSourceAware {
 	//~ Static fields/initializers =====================================================================================
 
 	public static final String SPRING_SECURITY_SAVED_REQUEST_KEY = "SPRING_SECURITY_SAVED_REQUEST_KEY";
@@ -239,26 +235,10 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 	 */
 	public abstract Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException;
 
-	/**
-	 * Does nothing. We use IoC container lifecycle services instead.
-	 */
-	public void destroy() {
-	}
-
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+	public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException,
 			ServletException {
-		if (!(request instanceof HttpServletRequest)) {
-			throw new ServletException("Can only process HttpServletRequest");
-		}
 
-		if (!(response instanceof HttpServletResponse)) {
-			throw new ServletException("Can only process HttpServletResponse");
-		}
-
-		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-		if (requiresAuthentication(httpRequest, httpResponse)) {
+		if (requiresAuthentication(request, response)) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Request is to process authentication");
 			}
@@ -266,12 +246,12 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 			Authentication authResult;
 
 			try {
-				onPreAuthentication(httpRequest, httpResponse);
-				authResult = attemptAuthentication(httpRequest);
+				onPreAuthentication(request, response);
+				authResult = attemptAuthentication(request);
 			}
 			catch (AuthenticationException failed) {
 				// Authentication failed
-				unsuccessfulAuthentication(httpRequest, httpResponse, failed);
+				unsuccessfulAuthentication(request, response, failed);
 
 				return;
 			}
@@ -281,7 +261,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 				chain.doFilter(request, response);
 			}
 
-			successfulAuthentication(httpRequest, httpResponse, authResult);
+			successfulAuthentication(request, response, authResult);
 
 			return;
 		}
@@ -328,16 +308,6 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 
 	public RememberMeServices getRememberMeServices() {
 		return rememberMeServices;
-	}
-
-	/**
-	 * Does nothing. We use IoC container lifecycle services instead.
-	 *
-	 * @param arg0 ignored
-	 *
-	 * @throws ServletException ignored
-	 */
-	public void init(FilterConfig arg0) throws ServletException {
 	}
 
 	public boolean isAlwaysUseDefaultTargetUrl() {

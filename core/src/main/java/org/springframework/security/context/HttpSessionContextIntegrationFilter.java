@@ -18,12 +18,8 @@ package org.springframework.security.context;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
@@ -34,6 +30,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.ui.FilterChainOrderUtils;
 
 /**
  * Populates the {@link SecurityContextHolder} with information obtained from
@@ -99,7 +97,7 @@ import org.springframework.util.ReflectionUtils;
  *
  * @version $Id$
  */
-public class HttpSessionContextIntegrationFilter implements InitializingBean, Filter {
+public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter implements InitializingBean {
     //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(HttpSessionContextIntegrationFilter.class);
@@ -174,8 +172,8 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
     public void afterPropertiesSet() throws Exception {
         if ((this.context == null) || (!SecurityContext.class.isAssignableFrom(this.context))) {
             throw new IllegalArgumentException("context must be defined and implement SecurityContext "
-                    + "(typically use org.springframework.security.context.SecurityContextImpl; existing class is " + this.context
-                    + ")");
+                    + "(typically use org.springframework.security.context.SecurityContextImpl; existing class is "
+                    + this.context + ")");
         }
 
         if (forceEagerSessionCreation && !allowSessionCreation) {
@@ -184,14 +182,8 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         }
     }
 
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException,
-            ServletException {
-
-        Assert.isInstanceOf(HttpServletRequest.class, req, "ServletRequest must be an instance of HttpServletRequest");
-        Assert.isInstanceOf(HttpServletResponse.class, res, "ServletResponse must be an instance of HttpServletResponse");
-
-        HttpServletRequest request = (HttpServletRequest) req;
-        HttpServletResponse response = (HttpServletResponse) res;
+    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
 
         if (request.getAttribute(FILTER_APPLIED) != null) {
             // ensure that filter is only applied once per request
@@ -261,7 +253,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
             // if something in the chain called sendError() or sendRedirect(). This ensures we only call it
             // once per request.
             if ( !responseWrapper.isSessionUpdateDone() ) {
-              storeSecurityContextInSession(contextAfterChainExecution, request,
+                storeSecurityContextInSession(contextAfterChainExecution, request,
                       httpSessionExistedAtStartOfRequest, contextHashBeforeChainExecution);
             }
 
@@ -425,21 +417,6 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         }
     }
 
-    /**
-     * Does nothing. We use IoC container lifecycle services instead.
-     *
-     * @param filterConfig ignored
-     * @throws ServletException ignored
-     */
-    public void init(FilterConfig filterConfig) throws ServletException {
-    }
-
-    /**
-     * Does nothing. We use IoC container lifecycle services instead.
-     */
-    public void destroy() {
-    }
-
     public boolean isAllowSessionCreation() {
         return allowSessionCreation;
     }
@@ -464,6 +441,9 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         this.forceEagerSessionCreation = forceEagerSessionCreation;
     }
 
+    public int getOrder() {
+        return FilterChainOrderUtils.HTTP_SESSION_CONTEXT_FILTER_ORDER;
+    }
 
     //~ Inner Classes ==================================================================================================
 

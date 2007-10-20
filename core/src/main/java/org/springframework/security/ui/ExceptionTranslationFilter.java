@@ -21,11 +21,8 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.AuthenticationTrustResolverImpl;
 import org.springframework.security.InsufficientAuthenticationException;
-
 import org.springframework.security.context.SecurityContextHolder;
-
 import org.springframework.security.ui.savedrequest.SavedRequest;
-
 import org.springframework.security.util.PortResolver;
 import org.springframework.security.util.PortResolverImpl;
 
@@ -38,9 +35,7 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -85,7 +80,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author colin sampaleanu
  * @version $Id$
  */
-public class ExceptionTranslationFilter implements Filter, InitializingBean {
+public class ExceptionTranslationFilter extends SpringSecurityFilter implements InitializingBean {
 
     //~ Static fields/initializers =====================================================================================
 
@@ -107,15 +102,8 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
 		Assert.notNull(authenticationTrustResolver, "authenticationTrustResolver must be specified");
 	}
 
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+	public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException,
 			ServletException {
-		if (!(request instanceof HttpServletRequest)) {
-			throw new ServletException("HttpServletRequest required");
-		}
-
-		if (!(response instanceof HttpServletResponse)) {
-			throw new ServletException("HttpServletResponse required");
-		}
 
 		try {
 			chain.doFilter(request, response);
@@ -223,7 +211,7 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
 		// existing Authentication is no longer considered valid
 		SecurityContextHolder.getContext().setAuthentication(null);
 
-		authenticationEntryPoint.commence(httpRequest, (HttpServletResponse) response, reason);
+		authenticationEntryPoint.commence(httpRequest, response, reason);
 	}
 
 	public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
@@ -247,9 +235,7 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
 		this.portResolver = portResolver;
 	}
 
-    public void init(FilterConfig filterConfig) throws ServletException {
-    }
-
-    public void destroy() {
+    public int getOrder() {
+        return FilterChainOrderUtils.EXCEPTION_TRANSLATION_FILTER_ORDER;
     }
 }

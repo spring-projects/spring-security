@@ -18,6 +18,8 @@ package org.springframework.security.intercept.web;
 import org.springframework.security.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.intercept.InterceptorStatusToken;
 import org.springframework.security.intercept.ObjectDefinitionSource;
+import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.core.Ordered;
 
 import java.io.IOException;
 
@@ -33,12 +35,12 @@ import javax.servlet.ServletResponse;
  * Performs security handling of HTTP resources via a filter implementation.<p>The
  * <code>ObjectDefinitionSource</code> required by this security interceptor is of type {@link
  * FilterInvocationDefinitionSource}.</p>
- *  <P>Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
+ *  <p>Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter {
+public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter, Ordered {
     //~ Static fields/initializers =====================================================================================
 
     private static final String FILTER_APPLIED = "__spring_security_filterSecurityInterceptor_filterApplied";
@@ -49,6 +51,15 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
     private boolean observeOncePerRequest = true;
 
     //~ Methods ========================================================================================================
+
+    /**
+     * Not used (we rely on IoC container lifecycle services instead)
+     *
+     * @param arg0 ignored
+     *
+     * @throws ServletException never thrown
+     */
+    public void init(FilterConfig arg0) throws ServletException {}
 
     /**
      * Not used (we rely on IoC container lifecycle services instead)
@@ -79,15 +90,6 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
     public Class getSecureObjectClass() {
         return FilterInvocation.class;
     }
-
-    /**
-     * Not used (we rely on IoC container lifecycle services instead)
-     *
-     * @param arg0 ignored
-     *
-     * @throws ServletException never thrown
-     */
-    public void init(FilterConfig arg0) throws ServletException {}
 
     public void invoke(FilterInvocation fi) throws IOException, ServletException {
         if ((fi.getRequest() != null) && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
@@ -135,5 +137,9 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 
     public void setObserveOncePerRequest(boolean observeOncePerRequest) {
         this.observeOncePerRequest = observeOncePerRequest;
+    }
+
+    public int getOrder() {
+        return FilterChainOrderUtils.FILTER_SECURITY_INTERCEPTOR_ORDER;
     }
 }

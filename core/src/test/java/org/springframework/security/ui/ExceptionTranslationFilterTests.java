@@ -46,8 +46,7 @@ import javax.servlet.ServletResponse;
  * benalex $
  */
 public class ExceptionTranslationFilterTests extends TestCase {
-	// ~ Constructors
-	// ===================================================================================================
+	//~ Constructors ===================================================================================================
 
 	public ExceptionTranslationFilterTests() {
 		super();
@@ -57,16 +56,8 @@ public class ExceptionTranslationFilterTests extends TestCase {
 		super(arg0);
 	}
 
-	// ~ Methods
-	// ========================================================================================================
+	//~ Methods ========================================================================================================
 
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(ExceptionTranslationFilterTests.class);
-	}
-
-	public final void setUp() throws Exception {
-		super.setUp();
-	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -139,7 +130,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 			fail("Should have thrown ServletException");
 		}
 		catch (ServletException expected) {
-			assertEquals("HttpServletRequest required", expected.getMessage());
+			assertEquals("Can only process HttpServletRequest", expected.getMessage());
 		}
 	}
 
@@ -152,7 +143,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 			fail("Should have thrown ServletException");
 		}
 		catch (ServletException expected) {
-			assertEquals("HttpServletResponse required", expected.getMessage());
+			assertEquals("Can only process HttpServletResponse", expected.getMessage());
 		}
 	}
 

@@ -27,6 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.Authentication;
+import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.ui.FilterChainOrderUtils;
 import org.springframework.security.util.RedirectUtils;
 import org.springframework.security.context.SecurityContextHolder;
 import org.apache.commons.logging.Log;
@@ -51,7 +53,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class LogoutFilter implements Filter {
+public class LogoutFilter extends SpringSecurityFilter {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(LogoutFilter.class);
@@ -74,26 +76,10 @@ public class LogoutFilter implements Filter {
 
     //~ Methods ========================================================================================================
 
-    /**
-     * Not used. Use IoC container lifecycle methods instead.
-     */
-    public void destroy() {
-    }
-
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException,
             ServletException {
-        if (!(request instanceof HttpServletRequest)) {
-            throw new ServletException("Can only process HttpServletRequest");
-        }
 
-        if (!(response instanceof HttpServletResponse)) {
-            throw new ServletException("Can only process HttpServletResponse");
-        }
-
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-        if (requiresLogout(httpRequest, httpResponse)) {
+        if (requiresLogout(request, response)) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
             if (logger.isDebugEnabled()) {
@@ -101,26 +87,16 @@ public class LogoutFilter implements Filter {
             }
 
             for (int i = 0; i < handlers.length; i++) {
-                handlers[i].logout(httpRequest, httpResponse, auth);
+                handlers[i].logout(request, response, auth);
             }
 
-            sendRedirect(httpRequest, httpResponse, logoutSuccessUrl);
+            sendRedirect(request, response, logoutSuccessUrl);
 
             return;
         }
 
         chain.doFilter(request, response);
     }
-
-    /**
-     * Not used. Use IoC container lifecycle methods instead.
-     *
-     * @param arg0 ignored
-     *
-     * @throws ServletException ignored
-     */
-    public void init(FilterConfig arg0) throws ServletException {
-	}
 
     /**
      * Allow subclasses to modify when a logout should take place.
@@ -179,5 +155,9 @@ public class LogoutFilter implements Filter {
 
     public void setUseRelativeContext(boolean useRelativeContext) {
         this.useRelativeContext = useRelativeContext;
+    }
+
+    public int getOrder() {
+        return FilterChainOrderUtils.LOGOUT_FILTER_ORDER;
     }
 }

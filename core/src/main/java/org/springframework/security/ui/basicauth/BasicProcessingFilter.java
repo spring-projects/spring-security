@@ -17,12 +17,8 @@ package org.springframework.security.ui.basicauth;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -34,6 +30,8 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
 import org.springframework.security.ui.AuthenticationEntryPoint;
+import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.ui.FilterChainOrderUtils;
 import org.springframework.security.ui.rememberme.RememberMeServices;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -72,7 +70,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilter implements Filter, InitializingBean {
+public class BasicProcessingFilter extends SpringSecurityFilter implements InitializingBean {
     //~ Static fields/initializers =====================================================================================
 
 	private static final Log logger = LogFactory.getLog(BasicProcessingFilter.class);
@@ -92,21 +90,8 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
         Assert.notNull(this.authenticationEntryPoint, "An AuthenticationEntryPoint is required");
     }
 
-    public void destroy() {}
-
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilterHttp(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain)
             throws IOException, ServletException {
-
-        if (!(request instanceof HttpServletRequest)) {
-            throw new ServletException("Can only process HttpServletRequest");
-        }
-
-        if (!(response instanceof HttpServletResponse)) {
-            throw new ServletException("Can only process HttpServletResponse");
-        }
-
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String header = httpRequest.getHeader("Authorization");
 
@@ -130,7 +115,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
             if (authenticationIsRequired(username)) {
                 UsernamePasswordAuthenticationToken authRequest =
                         new UsernamePasswordAuthenticationToken(username, password);
-                authRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
+                authRequest.setDetails(authenticationDetailsSource.buildDetails(httpRequest));
 
                 Authentication authResult;
 
@@ -149,9 +134,9 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                     }
 
                     if (ignoreFailure) {
-                        chain.doFilter(request, response);
+                        chain.doFilter(httpRequest, httpResponse);
                     } else {
-                        authenticationEntryPoint.commence(request, response, failed);
+                        authenticationEntryPoint.commence(httpRequest, httpResponse, failed);
                     }
 
                     return;
@@ -170,7 +155,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
             }
         }
 
-        chain.doFilter(request, response);
+        chain.doFilter(httpRequest, httpResponse);
     }
 
     private boolean authenticationIsRequired(String username) {
@@ -200,8 +185,6 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
         return authenticationManager;
     }
 
-    public void init(FilterConfig arg0) throws ServletException {}
-
     public boolean isIgnoreFailure() {
         return ignoreFailure;
     }
@@ -227,4 +210,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
         this.rememberMeServices = rememberMeServices;
     }
 
+    public int getOrder() {
+        return FilterChainOrderUtils.BASIC_PROCESSING_FILTER_ORDER;
+    }
 }

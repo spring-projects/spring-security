@@ -21,10 +21,9 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.FilterChainOrderUtils;
 import org.springframework.util.Assert;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -90,8 +89,6 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
         return "/j_spring_security_check";
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {}
-
     /**
      * Enables subclasses to override the composition of the password, such as by including additional values
      * and a separator.<p>This might be used for example if a postcode/zipcode was required in addition to the
@@ -149,5 +146,17 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
     public void setPasswordParameter(String passwordParameter) {
         Assert.hasText(passwordParameter, "Password parameter must not be empty or null");
         this.passwordParameter = passwordParameter;
+    }
+
+    public int getOrder() {
+        return FilterChainOrderUtils.AUTH_PROCESSING_FILTER_ORDER;
+    }
+
+    String getUsernameParameter() {
+        return usernameParameter;
+    }
+
+    String getPasswordParameter() {
+        return passwordParameter;
     }
 }

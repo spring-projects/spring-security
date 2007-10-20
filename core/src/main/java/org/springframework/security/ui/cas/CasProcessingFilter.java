@@ -21,6 +21,7 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.FilterChainOrderUtils;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -71,7 +72,7 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
 
-        authRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
+        authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }
@@ -85,5 +86,7 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
         return "/j_spring_cas_security_check";
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {}
+    public int getOrder() {
+        return FilterChainOrderUtils.CAS_PROCESSING_FILTER_ORDER;
+    }
 }
