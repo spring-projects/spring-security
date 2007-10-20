@@ -2,7 +2,6 @@ package org.springframework.security.config;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.context.SecurityContext;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -13,7 +12,7 @@ import static org.junit.Assert.*;
 import org.junit.*;
 
 /**
- * @author luke
+ * @author Luke Taylor
  * @version $Id$
  */
 public class InterceptMethodsBeanDefinitionDecoratorTests {
@@ -45,12 +44,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests {
 
     @Test
     public void targetShouldAllowUnprotectedMethodInvocationWithNoContext() {
-
-//        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-//        new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
-
         target.unprotected();
-
     }
 
     @Test
@@ -84,6 +78,4 @@ public class InterceptMethodsBeanDefinitionDecoratorTests {
         } catch (AccessDeniedException expected) {
         }
     }
-
-
 }

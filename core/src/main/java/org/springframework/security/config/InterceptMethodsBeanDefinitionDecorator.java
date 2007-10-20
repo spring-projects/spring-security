@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Iterator;
 
 /**
- * @author luke
+ * @author Luke Taylor
  * @version $Id$
  */
 public class InterceptMethodsBeanDefinitionDecorator extends AbstractInterceptorDrivenBeanDefinitionDecorator {
