@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns="http://www.springframework.org/schema/security"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://www.springframework.org/schema/security"
-	xmlns:beans="http://www.springframework.org/schema/beans"
-	elementFormDefault="qualified" attributeFormDefault="unqualified">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.springframework.org/schema/security"
+  xmlns:beans="http://www.springframework.org/schema/beans"
+  elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <!-- default namespace = "http://www.springframework.org/schema/security" -->
+  <xs:attributeGroup name="path-type">
+    <xs:attribute name="pathType" use="required">
+      <xs:annotation>
+        <xs:documentation>Defines the type types of pattern used to specify URL paths. Defaults to "ant"</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="regex"/>
+          <xs:enumeration value="ant"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="autoconfig">
     <xs:annotation>
       <xs:documentation>Provides automatic security configration for a application</xs:documentation>
@@ -64,8 +78,9 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element maxOccurs="unbounded" ref="intercept-url"/>
-        <xs:element minOccurs="0" ref="form-login"/>
         <xs:element minOccurs="0" ref="logout"/>
+        <xs:element minOccurs="0" ref="form-login"/>
+        <xs:element minOccurs="0" ref="http-basic"/>
       </xs:sequence>
       <xs:attributeGroup ref="http.attlist"/>
     </xs:complexType>
@@ -83,9 +98,9 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="pathType" default="ant">
+    <xs:attribute name="pathType">
       <xs:annotation>
-        <xs:documentation>Defines the type of path used to define URLs in child elements. </xs:documentation>
+        <xs:documentation>Defines the type types of pattern used to specify URL paths. Defaults to "ant"</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -101,20 +116,33 @@
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="true"/>
-          <xs:enumeration value="true"/>
+          <xs:enumeration value="false"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="intercept-url">
+    <xs:annotation>
+      <xs:documentation>Specifies the access attributes and/or filter list for a particular set of URLs.</xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:attributeGroup ref="intercept-url.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="intercept-url.attlist">
-    <xs:attribute name="path" use="required" type="xs:string"/>
-    <xs:attribute name="access" type="xs:string"/>
-    <xs:attribute name="filters" type="xs:string"/>
+    <xs:attribute name="pattern" use="required" type="xs:string"/>
+    <xs:attribute name="access" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The access configuration attributes that apply for the configured path.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="filters">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="none"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="logout">
     <xs:complexType>
@@ -147,6 +175,53 @@
         <xs:documentation>The URL that the form is submitted to</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="loginPage" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The URL for the login page</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="filter-chain-map">
+    <xs:annotation>
+      <xs:documentation>Used to explicitly configure a FilterChainProxy instance with a FilterChainMap</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="filter-chain"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="filter-chain-map.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="filter-chain-map.attlist">
+    <xs:attributeGroup ref="path-type"/>
+  </xs:attributeGroup>
+  <xs:element name="filter-chain">
+    <xs:complexType>
+      <xs:attributeGroup ref="filter-chain.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="filter-chain.attlist">
+    <xs:attribute name="pattern" use="required" type="xs:string"/>
+    <xs:attribute name="filters" use="required" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:element name="http-basic">
+    <xs:annotation>
+      <xs:documentation>Adds support for basic authentication</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="http-basic.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="http-basic.attlist">
+    <xs:attribute name="realm" use="required" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:element name="concurrent-sessions">
+    <xs:complexType>
+      <xs:attributeGroup ref="concurrent-sessions.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="concurrent-sessions.attlist">
+    <xs:attribute name="maxSessions" type="xs:positiveInteger"/>
   </xs:attributeGroup>
   <xs:element name="authentication-provider">
     <xs:complexType>

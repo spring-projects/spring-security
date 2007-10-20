@@ -3,6 +3,14 @@ namespace beans = "http://www.springframework.org/schema/beans"
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 
+#default namespace = "http://www.springframework.org/schema/security"
+
+path-type =
+    ## Defines the type types of pattern used to specify URL paths. Defaults to "ant"
+    [ a:defaultValue = "ant" ] attribute pathType {"regex" | "ant"}
+
+
+
 autoconfig = 
     ## Provides automatic security configration for a application
     element autoconfig {autoconfig.attlist, empty}
@@ -39,25 +47,31 @@ protect.attlist &=
 
 http =
     ## Container element for HTTP security configuration
-   element http {http.attlist, intercept-url+, form-login?, logout? }
+   element http {http.attlist, intercept-url+, logout?, form-login?, http-basic? }
 http.attlist &=
     ## Controls the eagerness with which an HTTP session is created.
     [ a:defaultValue = "ifRequired" ] attribute createSession {"ifRequired" | "always" | "never" }?
 http.attlist &=
-    ## Defines the type of path used to define URLs in child elements. 
-    [ a:defaultValue = "ant" ] attribute pathType {"regex" | "ant"}?
+    ## The path format used to define the paths used in child elements. 
+    path-type?
 http.attlist &=
     ## Whether test URLs should be converted to lower case prior to comparing with defined path patterns.
-    [ a:defaultValue = "true" ] attribute lowerCaseComparisons {"true" | "true"}?
+    [ a:defaultValue = "true" ] attribute lowerCaseComparisons {"true" | "false"}?
 
 intercept-url =
+    ## Specifies the access attributes and/or filter list for a particular set of URLs.
     element intercept-url {intercept-url.attlist, empty}
 intercept-url.attlist &=
-    attribute path {xsd:string} 
+    ## The pattern which defines the URL path. The content will depend on the type set in the containing http element, so will
+    ## default to ant path syntax.    
+    attribute pattern {xsd:string} 
 intercept-url.attlist &=
+    ## The access configuration attributes that apply for the configured path.
     attribute access {xsd:string}?
+    ## The filter list for the path. Currently can be set to "none" to remove a path from having any filters applied.
+    ## The full filter stack (consisting of all defined filters, will be applied to any other paths).
 intercept-url.attlist &=
-    attribute filters {xsd:string}?
+    attribute filters {"none"}?
 
 logout =
     element logout {logout.attlist, empty}
@@ -74,6 +88,40 @@ form-login =
 form-login.attlist &=
     ## The URL that the form is submitted to
     [ a:defaultValue = "/j_spring_security_check" ] attribute loginUrl {xsd:string}?   
+form-login.attlist &=
+    ## The URL for the login page
+    attribute loginPage {xsd:string}?   
+
+filter-chain-map = 
+    ## Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
+    element filter-chain-map {filter-chain-map.attlist, filter-chain+}
+filter-chain-map.attlist &=
+    path-type    
+
+filter-chain =
+    ## Used within filter-chain-map to define a specific URL pattern and the list of filters 
+    ## which apply to the URLs matching that pattern. When multiple filter-chain elements are used within a
+    ## filter-chain-map element, the most specific patterns must be placed at the top of the list, with 
+    ## most general ones at the bottom.
+    element filter-chain {filter-chain.attlist, empty}
+filter-chain.attlist &= 
+    attribute pattern {xsd:string}
+filter-chain.attlist &= 
+    attribute filters {xsd:string}
+
+http-basic =
+    ## Adds support for basic authentication
+    element http-basic {http-basic.attlist, empty}
+http-basic.attlist &= 
+    attribute realm {xsd:string}
+
+concurrent-sessions =
+    ## Adds support for concurrent session control, allowing limits to be placed on the number of sessions a
+    ## user can have.
+    element concurrent-sessions {concurrent-sessions.attlist, empty}
+concurrent-sessions.attlist &=
+    attribute maxSessions {xsd:positiveInteger}?
+
 
 authentication-provider =
     element authentication-provider {authentication-provider.attlist, (user-service | jdbc-user-service)}
