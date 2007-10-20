@@ -20,7 +20,7 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-			/WEB-INF/applicationContext-acegi-security.xml
+			/WEB-INF/applicationContext-security-ns.xml
 		</param-value>
 	</context-param>
 

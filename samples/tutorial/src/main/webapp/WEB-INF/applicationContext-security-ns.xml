@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  - Sample namespace-based configuration
+  -
+  - $Id$
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
+    <security:autoconfig />
+
+    <security:http>        
+        <security:intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
+        <security:intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
+        <security:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+
+        <security:logout />
+        <security:form-login />
+        <security:http-basic realm="SpringSecurityTutorialApp"  />
+
+    </security:http>
+
+
+    <security:authentication-provider>
+        <security:user-service>
+            <security:user name="bob" password="bobspassword" authorities="ROLE_SUPERVISOR" />
+            <security:user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B" />
+        </security:user-service>
+    </security:authentication-provider>
+
+</beans>
