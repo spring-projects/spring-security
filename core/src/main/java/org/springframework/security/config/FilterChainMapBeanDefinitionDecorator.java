@@ -21,7 +21,7 @@ import org.w3c.dom.Node;
 import java.util.*;
 
 /**
- * Sets the FilterChainMap for a FilterChainProxy bean declaration.
+ * Sets the filter chain Map for a FilterChainProxy bean declaration.
  *
  * @author Luke Taylor
  * @version $Id$
