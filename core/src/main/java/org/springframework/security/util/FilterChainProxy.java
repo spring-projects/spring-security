@@ -15,30 +15,18 @@
 
 package org.springframework.security.util;
 
-import org.springframework.security.intercept.web.FilterInvocation;
-import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
-import org.springframework.security.intercept.web.FilterChainMap;
-import org.springframework.security.intercept.web.FIDSToFilterChainMapConverter;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-
+import org.springframework.security.intercept.web.*;
 import org.springframework.util.Assert;
 
+import javax.servlet.*;
 import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import java.util.*;
 
 
 /**
@@ -53,10 +41,11 @@ import javax.servlet.ServletResponse;
  * #doFilter(ServletRequest, ServletResponse, FilterChain)} invocations through to each <code>Filter</code> defined
  * against <code>FilterChainProxy</code>.</p>
  *
- * <p>As of version 2.0, <tt>FilterChainProxy</tt> is configured using a {@link FilterChainMap}. In previous
+ * <p>As of version 2.0, <tt>FilterChainProxy</tt> is configured using an ordered Map of path patterns to <tt>List</tt>s
+ * of <tt>Filter</tt> objects. In previous
  * versions, a {@link FilterInvocationDefinitionSource} was used. This is now deprecated in favour of namespace-based
- * configuration which provides a more robust and simplfied syntax.  The <tt>FilterChainMap</tt> instance will be
- * created while parsing the namespace configuration, so it doesn't require an explicit bean declaration.
+ * configuration which provides a more robust and simplfied syntax.  The Map instance will normally be
+ * created while parsing the namespace configuration, so doesn't have to be set explicitly.
  * Instead the &lt;filter-chain-map&gt; element should be used within the FilterChainProxy bean declaration.
  * This in turn should have a list of child &lt;filter-chain&gt; elements which each define a URI pattern and the list
  * of filters (as comma-separated bean names) which should be applied to requests which match the pattern.
@@ -92,7 +81,7 @@ import javax.servlet.ServletResponse;
  * container. As per {@link org.springframework.security.util.FilterToBeanProxy} JavaDocs, we recommend you allow the IoC
  * container to manage lifecycle instead of the servlet container. By default the <code>FilterToBeanProxy</code> will
  * never call this class' {@link #init(FilterConfig)} and {@link #destroy()} methods, meaning each of the filters
- * defined in the FilterChainMap will not be called. If you do need your filters to be
+ * defined in the filter chain map will not be called. If you do need your filters to be
  * initialized and destroyed, please set the <code>lifecycle</code> initialization parameter against the
  * <code>FilterToBeanProxy</code> to specify servlet container lifecycle management.</p>
  *
@@ -111,22 +100,41 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
     //~ Instance fields ================================================================================================
 
     private ApplicationContext applicationContext;
-    private FilterChainMap filterChainMap;
+    /** Map of the original pattern Strings to filter chains */
+    private Map uncompiledFilterChainMap;
+    /** Compiled pattern version of the filter chain map */
+    private Map filterChainMap;
+    private UrlMatcher matcher = new AntUrlPathMatcher();
     private FilterInvocationDefinitionSource fids;
+    
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         // Convert the FilterDefinitionSource to a filterChainMap if set
         if (fids != null) {
-            Assert.isNull(filterChainMap, "Set the FilterChainMap or FilterInvocationDefinitionSource but not both");
+            Assert.isNull(uncompiledFilterChainMap, "Set the FilterChainMap or FilterInvocationDefinitionSource but not both");
             setFilterChainMap(new FIDSToFilterChainMapConverter(fids, applicationContext).getFilterChainMap());
         }
 
-        Assert.notNull(filterChainMap, "A FilterChainMap must be supplied");
+        Assert.notNull(uncompiledFilterChainMap, "A FilterChainMap must be supplied");
     }
 
+    public void init(FilterConfig filterConfig) throws ServletException {
+        Filter[] filters = obtainAllDefinedFilters();
+
+        for (int i = 0; i < filters.length; i++) {
+            if (filters[i] != null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Initializing Filter defined in ApplicationContext: '" + filters[i].toString() + "'");
+                }
+
+                filters[i].init(filterConfig);
+            }
+        }
+    }    
+
     public void destroy() {
-        Filter[] filters = filterChainMap.getAllDefinedFilters();
+        Filter[] filters = obtainAllDefinedFilters();
 
         for (int i = 0; i < filters.length; i++) {
             if (filters[i] != null) {
@@ -143,10 +151,9 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
             throws IOException, ServletException {
 
         FilterInvocation fi = new FilterInvocation(request, response, chain);
+        List filters = getFilters(fi.getRequestUrl());
 
-        Filter[] filters = filterChainMap.getFilters(fi.getRequestUrl());
-
-        if (filters == null || filters.length == 0) {
+        if (filters == null || filters.size() == 0) {
             if (logger.isDebugEnabled()) {
                 logger.debug(fi.getRequestUrl() +
                         filters == null ? " has no matching filters" : " has an empty filter list");
@@ -161,34 +168,54 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
         virtualFilterChain.doFilter(fi.getRequest(), fi.getResponse());
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {
-        Filter[] filters = filterChainMap.getAllDefinedFilters();
+    /**
+     * Returns the first filter chain matching the supplied URL.
+     * TODO: Change tests and make package protected access.
+     *
+     * @param url the request URL
+     * @return an ordered array of Filters defining the filter chain
+     */
+    public List getFilters(String url)  {
+        Iterator filterChains = filterChainMap.entrySet().iterator();
 
-        for (int i = 0; i < filters.length; i++) {
-            if (filters[i] != null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Initializing Filter defined in ApplicationContext: '" + filters[i].toString() + "'");
-                }
+        while (filterChains.hasNext()) {
+            Map.Entry entry = (Map.Entry) filterChains.next();
+            Object path = entry.getKey();
 
-                filters[i].init(filterConfig);
+            boolean matched = matcher.pathMatchesUrl(path, url);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Candidate is: '" + url + "'; pattern is " + path + "; matched=" + matched);
+            }
+
+            if (matched) {
+                return (List) entry.getValue();
             }
         }
+
+        return null;
     }
 
     /**
-     * Obtains all of the <b>unique</b><code>Filter</code> instances registered in the
-     * <code>FilterChainMap</code>.
-     * <p>This is useful in ensuring a <code>Filter</code> is not
-     * initialized or destroyed twice.</p>
+     * Obtains all of the <b>unique</b><code>Filter</code> instances registered in the map of
+     * filter chains.
+     * <p>This is useful in ensuring a <code>Filter</code> is not initialized or destroyed twice.</p>
      *
-     * @deprecated
      * @return all of the <code>Filter</code> instances in the application context which have an entry
-     *         in the <code>FilterChainMap</code> (only one entry is included in the array for
+     *         in the map (only one entry is included in the array for
      *         each <code>Filter</code> that actually exists in application context, even if a given
      *         <code>Filter</code> is defined multiples times by the <code>FilterChainMap</code>)
      */
     protected Filter[] obtainAllDefinedFilters() {
-        return filterChainMap.getAllDefinedFilters();
+        Set allFilters = new HashSet();
+
+        Iterator it = filterChainMap.values().iterator();
+
+        while (it.hasNext()) {
+            allFilters.addAll((List) it.next());
+        }
+
+        return (Filter[]) new ArrayList(allFilters).toArray(new Filter[0]);
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -200,15 +227,69 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
      * @deprecated Use namespace configuration or call setFilterChainMap instead.
      */
     public void setFilterInvocationDefinitionSource(FilterInvocationDefinitionSource fids) {
+        if( fids instanceof RegExpBasedFilterInvocationDefinitionMap) {
+            matcher = new RegexUrlPathMatcher();
+        }
         this.fids = fids;
     }
 
-    public void setFilterChainMap(FilterChainMap filterChainMap) {
-        this.filterChainMap = filterChainMap;
+    /**
+     * Sets the mapping of URL patterns to filter chains.
+     *
+     * The map keys should be the paths and the values should be arrays of <tt>Filter</tt> objects.
+     * It's VERY important that the type of map used preserves ordering - the order in which the iterator
+     * returns the entries must be the same as the order they were added to the map, otherwise you have no way
+     * of guaranteeing that the most specific patterns are returned before the more general ones. So make sure
+     * the Map used is an instance of <tt>LinkedHashMap</tt> or an equivalent, rather than a plain <tt>HashMap</tt>, for
+     * example.
+     *
+     * @param filterChainMap the map of path Strings to <tt>Filter[]</tt>s.
+     */
+    public void setFilterChainMap(Map filterChainMap) {
+        uncompiledFilterChainMap = new LinkedHashMap(filterChainMap);
+        createCompiledMap();
     }
 
-    public FilterChainMap getFilterChainMap() {
-        return filterChainMap;
+    private void createCompiledMap() {
+        Iterator paths = uncompiledFilterChainMap.keySet().iterator();
+        filterChainMap = new LinkedHashMap(uncompiledFilterChainMap.size());
+
+        while (paths.hasNext()) {
+            Object path = paths.next();
+            Assert.isInstanceOf(String.class, path, "Path pattern must be a String");
+            Object compiledPath = matcher.compile((String)path);
+            Object filters = uncompiledFilterChainMap.get(path);
+
+            Assert.isInstanceOf(List.class, filters);
+            // Check the contents
+            Iterator filterIterator = ((List)filters).iterator();
+
+            while (filterIterator.hasNext()) {
+                Object filter = filterIterator.next();
+                Assert.isInstanceOf(Filter.class, filter, "Objects in filter chain must be of type Filter. ");
+            }
+
+            filterChainMap.put(compiledPath, filters);
+        }
+    }
+    
+
+    /**
+     * Returns a copy of the underlying filter chain map. Modifications to the map contents
+     * will not affect the FilterChainProxy state - to change the map call <tt>setFilterChainMap</tt>.
+     *
+     * @return the map of path pattern Strings to filter chain arrays (with ordering guaranteed).
+     */
+    public Map getFilterChainMap() {
+        return new LinkedHashMap(uncompiledFilterChainMap);
+    }
+
+    public void setMatcher(UrlMatcher matcher) {
+        this.matcher = matcher;
+    }
+
+    public UrlMatcher getMatcher() {
+        return matcher;
     }
 
     //~ Inner Classes ==================================================================================================
@@ -221,17 +302,17 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
      */
     private static class VirtualFilterChain implements FilterChain {
         private FilterInvocation fi;
-        private Filter[] additionalFilters;
+        private List additionalFilters;
         private int currentPosition = 0;
 
-        public VirtualFilterChain(FilterInvocation filterInvocation, Filter[] additionalFilters) {
+        private VirtualFilterChain(FilterInvocation filterInvocation, List additionalFilters) {
             this.fi = filterInvocation;
             this.additionalFilters = additionalFilters;
         }
 
         public void doFilter(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
-            if (currentPosition == additionalFilters.length) {
+            if (currentPosition == additionalFilters.size()) {
                 if (logger.isDebugEnabled()) {
                     logger.debug(fi.getRequestUrl()
                         + " reached end of additional filter chain; proceeding with original chain");
@@ -241,13 +322,15 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
             } else {
                 currentPosition++;
 
+                Filter nextFilter = (Filter) additionalFilters.get(currentPosition - 1);
+
                 if (logger.isDebugEnabled()) {
                     logger.debug(fi.getRequestUrl() + " at position " + currentPosition + " of "
-                        + additionalFilters.length + " in additional filter chain; firing Filter: '"
-                        + additionalFilters[currentPosition - 1] + "'");
+                        + additionalFilters.size() + " in additional filter chain; firing Filter: '"
+                        + nextFilter + "'");
                 }
 
-                additionalFilters[currentPosition - 1].doFilter(request, response, this);
+               nextFilter.doFilter(request, response, this);
             }
         }
     }

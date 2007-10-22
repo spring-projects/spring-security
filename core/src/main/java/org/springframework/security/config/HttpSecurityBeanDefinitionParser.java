@@ -9,7 +9,10 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.ConfigAttributeEditor;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
-import org.springframework.security.intercept.web.*;
+import org.springframework.security.intercept.web.FilterInvocationDefinitionMap;
+import org.springframework.security.intercept.web.FilterSecurityInterceptor;
+import org.springframework.security.intercept.web.PathBasedFilterInvocationDefinitionMap;
+import org.springframework.security.intercept.web.RegExpBasedFilterInvocationDefinitionMap;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.RegexUrlPathMatcher;
@@ -19,8 +22,7 @@ import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 import javax.servlet.Filter;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Sets up HTTP security: filter stack and protected URLs.
@@ -48,7 +50,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     static final String FILTERS_ATTRIBUTE = "filters";
     static final String NO_FILTERS_VALUE = "none";
-    static final Filter[] EMPTY_FILTER_CHAIN = new Filter[0];
 
     private static final String ACCESS_CONFIG_ATTRIBUTE = "access";
 
@@ -71,14 +72,14 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         // TODO: Get path type attribute and determine FilDefInvS class
 
-        FilterChainMap filterChainMap =  new FilterChainMap();
+        Map filterChainMap =  new LinkedHashMap();
 
         String patternType = element.getAttribute(PATTERN_TYPE_ATTRIBUTE);
 
         FilterInvocationDefinitionMap interceptorFilterInvDefSource = new PathBasedFilterInvocationDefinitionMap();
 
         if (patternType.equals(PATTERN_TYPE_REGEX)) {
-            filterChainMap.setUrlPathMatcher(new RegexUrlPathMatcher());
+            filterChainProxy.getPropertyValues().addPropertyValue("matcher", new RegexUrlPathMatcher());
             interceptorFilterInvDefSource = new RegExpBasedFilterInvocationDefinitionMap();
         }
 
@@ -131,10 +132,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     /**
-     * Parses the intercept-url elements and populates the FilterChainProxy's FilterChainMap and the
+     * Parses the intercept-url elements and populates the FilterChainProxy's filter chain Map and the
      * FilterInvocationDefinitionSource used in FilterSecurityInterceptor.
      */
-    private void parseInterceptUrls(List urlElts, FilterChainMap filterChainMap,
+    private void parseInterceptUrls(List urlElts, Map filterChainMap,
             FilterInvocationDefinitionMap interceptorFilterInvDefSource) {
 
         Iterator urlEltsIterator = urlElts.iterator();
@@ -166,7 +167,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                     throw new IllegalStateException("Currently only 'none' is supported as the custom filters attribute");
                 }
 
-                filterChainMap.addSecureUrl(path, EMPTY_FILTER_CHAIN);
+                filterChainMap.put(path, Collections.EMPTY_LIST);
             }
         }
     }

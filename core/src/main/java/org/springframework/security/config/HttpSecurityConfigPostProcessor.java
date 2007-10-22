@@ -79,11 +79,14 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
         // Set the default match
         List defaultFilterChain = orderFilters(beanFactory);
 
-        FilterChainMap filterMap = filterChainProxy.getFilterChainMap();
+        // Note that this returns a copy
+        Map filterMap = filterChainProxy.getFilterChainMap();
 
-        String allUrlsMatch = filterMap.getMatcher().getUniversalMatchPattern();
+        String allUrlsMatch = filterChainProxy.getMatcher().getUniversalMatchPattern();
 
-        filterMap.addSecureUrl(allUrlsMatch, (Filter[]) defaultFilterChain.toArray(new Filter[0]));
+        filterMap.put(allUrlsMatch, defaultFilterChain);
+
+        filterChainProxy.setFilterChainMap(filterMap);        
     }
        
     private List orderFilters(ConfigurableListableBeanFactory beanFactory) {

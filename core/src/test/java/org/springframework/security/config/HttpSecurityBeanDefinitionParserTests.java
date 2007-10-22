@@ -6,7 +6,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
-import org.springframework.security.intercept.web.FilterChainMap;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
@@ -15,7 +14,8 @@ import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FilterChainProxy;
 
-import javax.servlet.Filter;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Luke Taylor
@@ -41,11 +41,9 @@ public class HttpSecurityBeanDefinitionParserTests {
         FilterChainProxy filterChainProxy =
                 (FilterChainProxy) appContext.getBean(HttpSecurityBeanDefinitionParser.DEFAULT_FILTER_CHAIN_PROXY_ID);
 
-        FilterChainMap filterChainMap = filterChainProxy.getFilterChainMap();
+        List filters = filterChainProxy.getFilters("/unprotected");
 
-        Filter[] filters = filterChainMap.getFilters("/unprotected");
-
-        assertTrue(filters.length == 0);
+        assertTrue(filters.size() == 0);
     }
 
     @Test
@@ -53,20 +51,18 @@ public class HttpSecurityBeanDefinitionParserTests {
         FilterChainProxy filterChainProxy =
                 (FilterChainProxy) appContext.getBean(HttpSecurityBeanDefinitionParser.DEFAULT_FILTER_CHAIN_PROXY_ID);
 
-        FilterChainMap filterChainMap = filterChainProxy.getFilterChainMap();
-
-        Filter[] filters = filterChainMap.getFilters("/someurl");
-
-
+        List filterList = filterChainProxy.getFilters("/someurl");
         
-        assertTrue("Expected 7 filters in chain", filters.length == 7);
+        assertTrue("Expected 7 filterList in chain", filterList.size() == 7);
 
-        assertTrue(filters[0] instanceof HttpSessionContextIntegrationFilter);
-        assertTrue(filters[1] instanceof LogoutFilter);
-        assertTrue(filters[2] instanceof AuthenticationProcessingFilter);
-        assertTrue(filters[3] instanceof DefaultLoginPageGeneratingFilter);
-        assertTrue(filters[4] instanceof BasicProcessingFilter);
-        assertTrue(filters[5] instanceof ExceptionTranslationFilter);
-        assertTrue(filters[6] instanceof FilterSecurityInterceptor);
+        Iterator filters = filterList.iterator();
+
+        assertTrue(filters.next() instanceof HttpSessionContextIntegrationFilter);
+        assertTrue(filters.next() instanceof LogoutFilter);
+        assertTrue(filters.next() instanceof AuthenticationProcessingFilter);
+        assertTrue(filters.next() instanceof DefaultLoginPageGeneratingFilter);
+        assertTrue(filters.next() instanceof BasicProcessingFilter);
+        assertTrue(filters.next() instanceof ExceptionTranslationFilter);
+        assertTrue(filters.next() instanceof FilterSecurityInterceptor);
     }
 }

@@ -15,10 +15,7 @@
 
 package org.springframework.security.util;
 
-import org.junit.After;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
+
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -26,9 +23,17 @@ import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockApplicationContext;
 import org.springframework.security.MockFilterConfig;
+import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.MockFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.PathBasedFilterInvocationDefinitionMap;
+import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+import java.util.List;
 
 /**
  * Tests {@link FilterChainProxy}.
@@ -123,17 +128,50 @@ public class FilterChainProxyTests {
 
     @Test    
     public void normalOperation() throws Exception {
-        doNormalOperation((FilterChainProxy) appCtx.getBean("filterChain", FilterChainProxy.class));
+        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain", FilterChainProxy.class);
+        doNormalOperation(filterChainProxy);
     }
 
     @Test
     public void normalOperationWithNewConfig() throws Exception {
-        doNormalOperation((FilterChainProxy) appCtx.getBean("newFilterChainProxy", FilterChainProxy.class));
+        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxy", FilterChainProxy.class);
+        checkPathAndFilterOrder(filterChainProxy);
+        doNormalOperation(filterChainProxy);
     }
 
     @Test
     public void normalOperationWithNewConfigRegex() throws Exception {
-        doNormalOperation((FilterChainProxy) appCtx.getBean("newFilterChainProxyRegex", FilterChainProxy.class));
+        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyRegex", FilterChainProxy.class);
+        checkPathAndFilterOrder(filterChainProxy);
+        doNormalOperation(filterChainProxy);
+    }
+
+    @Test
+    public void normalOperationWithNewConfigNonNamespace() throws Exception {
+        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNonNamespace", FilterChainProxy.class);
+        checkPathAndFilterOrder(filterChainProxy);
+        doNormalOperation(filterChainProxy);
+    }
+
+    private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) throws Exception {
+        List filters = filterChainProxy.getFilters("/foo/blah");
+        assertEquals(1, filters.size());
+        assertTrue(filters.get(0) instanceof MockFilter);
+
+        filters = filterChainProxy.getFilters("/some/other/path/blah");
+        assertEquals(3, filters.size());
+        assertTrue(filters.get(0) instanceof HttpSessionContextIntegrationFilter);
+        assertTrue(filters.get(1) instanceof MockFilter);
+        assertTrue(filters.get(2) instanceof MockFilter);
+
+        filters = filterChainProxy.getFilters("/do/not/filter");
+        assertEquals(0, filters.size());
+
+        filters = filterChainProxy.getFilters("/another/nonspecificmatch");
+        assertEquals(3, filters.size());
+        assertTrue(filters.get(0) instanceof HttpSessionContextIntegrationFilter);
+        assertTrue(filters.get(1) instanceof AuthenticationProcessingFilter);
+        assertTrue(filters.get(2) instanceof MockFilter);
     }
 
     private void doNormalOperation(FilterChainProxy filterChainProxy) throws Exception {
@@ -165,7 +203,6 @@ public class FilterChainProxyTests {
         assertTrue(filter.isWasInitialized());
         assertTrue(filter.isWasDoFiltered());
         assertTrue(filter.isWasDestroyed());
-
     }
 
     //~ Inner Classes ==================================================================================================

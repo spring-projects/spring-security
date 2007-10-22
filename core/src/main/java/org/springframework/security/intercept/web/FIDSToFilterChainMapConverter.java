@@ -4,26 +4,24 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.util.FilterChainProxy;
-import org.springframework.security.util.RegexUrlPathMatcher;
 
 import javax.servlet.Filter;
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Used internally to provide backward compatibility for configuration of FilterChainProxy using a
  * FilterInvocationDefinitionSource. This is deprecated in favour of namespace-based configuration.
  *
- * This class will convert a FilterInvocationDefinitionSource into a FilterChainMap, provided it is one of the
- * recognised implementations (ant path or regular expression).
+ * This class will convert a FilterInvocationDefinitionSource into a suitable Map, provided it is one of the
+ * recognised implementations (ant path or regular expression). The order of the mappings will be
+ * preserved in the Map.
  *
  * @author Luke Taylor
  * @version $Id$
  */
 public class FIDSToFilterChainMapConverter {
 
-    private FilterChainMap filterChainMap = new FilterChainMap();
+    private LinkedHashMap filterChainMap = new LinkedHashMap();
 
     public FIDSToFilterChainMapConverter(FilterInvocationDefinitionSource fids, ApplicationContext appContext) {
 
@@ -39,7 +37,6 @@ public class FIDSToFilterChainMapConverter {
             requestMap = ((PathBasedFilterInvocationDefinitionMap)fids).getRequestMap();
         } else if (fids instanceof RegExpBasedFilterInvocationDefinitionMap) {
             requestMap = ((RegExpBasedFilterInvocationDefinitionMap)fids).getRequestMap();
-            filterChainMap.setUrlPathMatcher(new RegexUrlPathMatcher());
         } else {
             throw new IllegalArgumentException("Can't handle FilterInvocationDefinitionSource type " + fids.getClass());
         }
@@ -77,11 +74,11 @@ public class FIDSToFilterChainMapConverter {
                 }
             }
 
-            filterChainMap.addSecureUrl(path, (Filter[]) filters.toArray(new Filter[filters.size()]));
+            filterChainMap.put(path, filters);
         }
     }
 
-    public FilterChainMap getFilterChainMap() {
+    public Map getFilterChainMap() {
         return filterChainMap;
     }
 }

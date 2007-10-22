@@ -28,7 +28,18 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
 	<bean id="mockFilter2" class="org.springframework.security.util.MockFilter"/>
 
-	<bean id="mockNotAFilter" class="org.springframework.security.util.MockNotAFilter"/>
+    <!-- These are just here so we have filters of a specfic type to check the ordering is as expected -->
+    <bean id="sif" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
+
+    <bean id="apf" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
+        <property name="defaultTargetUrl" value="/whocares"/>
+        <property name="authenticationFailureUrl" value="/whocares2"/>
+       <property name="authenticationManager">
+           <bean class="org.springframework.security.MockAuthenticationManager"/>
+       </property>
+    </bean>
+
+    <bean id="mockNotAFilter" class="org.springframework.security.util.MockNotAFilter"/>
 
 	<bean id="filterChain" class="org.springframework.security.util.FilterChainProxy">
       <property name="filterInvocationDefinitionSource">
@@ -47,6 +58,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
             <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
             <sec:filter-chain pattern="/some/other/path/**" filters="sif,mockFilter,mockFilter2"/>
             <sec:filter-chain pattern="/do/not/filter" filters="none"/>
+            <sec:filter-chain pattern="/**" filters="sif,apf,mockFilter"/>
         </sec:filter-chain-map>
     </bean>
 
@@ -55,9 +67,40 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
             <sec:filter-chain pattern="\A/foo/.*\Z" filters="mockFilter"/>
             <sec:filter-chain pattern="\A/some/other/path/.*\Z" filters="sif,mockFilter,mockFilter2"/>
             <sec:filter-chain pattern="\A/do/not/filter\Z" filters="none"/>
+            <sec:filter-chain pattern="\A/.*\Z" filters="sif,apf,mockFilter"/>
         </sec:filter-chain-map>
     </bean>
 
-    <bean id="sif" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
+    <bean id="newFilterChainProxyNonNamespace" class="org.springframework.security.util.FilterChainProxy">
+        <property name="matcher">
+            <bean class="org.springframework.security.util.AntUrlPathMatcher"/>
+        </property>
+        <property name="filterChainMap">
+            <map>
+                <entry key="/foo/**">
+                    <list>
+                      <ref local="mockFilter"/>
+                    </list>
+                </entry>
+                <entry key="/some/other/path/**">
+                    <list>
+                      <ref local="sif"/>
+                      <ref local="mockFilter"/>
+                      <ref local="mockFilter2"/>
+                    </list>
+                </entry>
+                <entry key="/do/not/filter">
+                    <list/>
+                </entry>
+                <entry key="/**">
+                    <list>
+                      <ref local="sif"/>
+                      <ref local="apf"/>
+                      <ref local="mockFilter"/>
+                    </list>
+                </entry>                
+            </map>
+        </property>
+    </bean>
 
 </beans>
