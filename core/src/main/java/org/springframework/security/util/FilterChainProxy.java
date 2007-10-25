@@ -112,11 +112,11 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
     public void afterPropertiesSet() throws Exception {
         // Convert the FilterDefinitionSource to a filterChainMap if set
         if (fids != null) {
-            Assert.isNull(uncompiledFilterChainMap, "Set the FilterChainMap or FilterInvocationDefinitionSource but not both");
+            Assert.isNull(uncompiledFilterChainMap, "Set the filterChainMap or FilterInvocationDefinitionSource but not both");
             setFilterChainMap(new FIDSToFilterChainMapConverter(fids, applicationContext).getFilterChainMap());
         }
 
-        Assert.notNull(uncompiledFilterChainMap, "A FilterChainMap must be supplied");
+        Assert.notNull(uncompiledFilterChainMap, "filterChainMap must be set");
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -204,7 +204,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
      * @return all of the <code>Filter</code> instances in the application context which have an entry
      *         in the map (only one entry is included in the array for
      *         each <code>Filter</code> that actually exists in application context, even if a given
-     *         <code>Filter</code> is defined multiples times by the <code>FilterChainMap</code>)
+     *         <code>Filter</code> is defined multiples times in the filter chain map)
      */
     protected Filter[] obtainAllDefinedFilters() {
         Set allFilters = new HashSet();

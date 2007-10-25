@@ -1,6 +1,5 @@
 package org.springframework.security.config;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -8,9 +7,6 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.security.intercept.web.FilterChainMap;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -26,7 +22,7 @@ import java.util.*;
  * @author Luke Taylor
  * @version $Id$
  */
-public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDecorator {
+class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDecorator {
     public static final String FILTER_CHAIN_ELT_NAME = "filter-chain";
 
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder, ParserContext parserContext) {
