@@ -10,7 +10,6 @@ import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
-import org.springframework.security.intercept.web.FilterChainMap;
 import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.util.Assert;
