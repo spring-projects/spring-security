@@ -38,8 +38,7 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractAccessDecisionManager implements AccessDecisionManager, InitializingBean,
         MessageSourceAware {
-    // ~ Instance fields
-    // ================================================================================================
+    //~ Instance fields ================================================================================================
 
     private List decisionVoters;
 
@@ -47,8 +46,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 
     private boolean allowIfAllAbstainDecisions = false;
 
-    // ~ Methods
-    // ========================================================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notEmpty(this.decisionVoters, "A list of AccessDecisionVoters is required");
@@ -81,8 +79,8 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 
         while (iter.hasNext()) {
             Object currentObject = iter.next();
-            Assert.isInstanceOf(AccessDecisionVoter.class, currentObject, "AccessDecisionVoter " + currentObject.getClass().getName()
-                    + " must implement AccessDecisionVoter");
+            Assert.isInstanceOf(AccessDecisionVoter.class, currentObject, "AccessDecisionVoter " +
+                    currentObject.getClass().getName() + " must implement AccessDecisionVoter");
         }
 
         this.decisionVoters = newList;
@@ -107,15 +105,13 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
     }
 
     /**
-     * Iterates through all <code>AccessDecisionVoter</code>s and ensures
-     * each can support the presented class.
+     * Iterates through all <code>AccessDecisionVoter</code>s and ensures each can support the presented class.
      * <p/>
-     * If one or more voters cannot support the presented class,
-     * <code>false</code> is returned.
+     * If one or more voters cannot support the presented class, <code>false</code> is returned.
      * </p>
      *
-     * @param clazz DOCUMENT ME!
-     * @return DOCUMENT ME!
+     * @param clazz the type of secured object being presented
+     * @return true if this type is supported
      */
     public boolean supports(Class clazz) {
         Iterator iter = this.decisionVoters.iterator();
