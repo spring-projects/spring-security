@@ -1,47 +1,58 @@
 package org.springframework.security.config;
 
-import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
-import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.xml.BeanDefinitionParser;
+import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.providers.dao.DaoAuthenticationProvider;
-import org.springframework.security.ui.logout.LogoutFilter;
 import org.springframework.util.xml.DomUtils;
-import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 /**
- * @author luke
+ * @author Luke Taylor
  * @version $Id$
  */
-public class AuthenticationProviderBeanDefinitionParser extends AbstractBeanDefinitionParser {
-    private static final String DEFAULT_PROVIDER_BEAN_ID = "_authenticationProvider";
+class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser {
+    public static final String DEFAULT_AUTH_MANAGER_ID = "_authenticationManager";
 
-    protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
-        RootBeanDefinition authProvider = new RootBeanDefinition(DaoAuthenticationProvider.class);
+    private BeanDefinition registerProviderManagerIfNecessary(ParserContext parserContext) {
+
+        if(parserContext.getRegistry().containsBeanDefinition(DEFAULT_AUTH_MANAGER_ID)) {
+            return parserContext.getRegistry().getBeanDefinition(DEFAULT_AUTH_MANAGER_ID);
+        }
+
+        BeanDefinition authManager = new RootBeanDefinition(ProviderManager.class);
+        authManager.getPropertyValues().addPropertyValue("providers", new ManagedList());
+        parserContext.getRegistry().registerBeanDefinition(DEFAULT_AUTH_MANAGER_ID, authManager);
+
+        return authManager;
+    }
+
+    private ManagedList getRegisteredProviders(ParserContext parserContext) {
+        BeanDefinition authManager = registerProviderManagerIfNecessary(parserContext);
+        return (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
+    }
+
+    public BeanDefinition parse(Element element, ParserContext parserContext) {
+        registerProviderManagerIfNecessary(parserContext);
+
+        RootBeanDefinition authProvider;
 
         // TODO: Proper implementation
         Element userServiceElt = DomUtils.getChildElementByTagName(element, "user-service");
 
-        BeanDefinition userDetailsService = new UserServiceBeanDefinitionParser().parse(userServiceElt, parserContext);
-        authProvider.getPropertyValues().addPropertyValue("userDetailsService", userDetailsService);
-
-        return authProvider;
-    }
-
-    protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) throws BeanDefinitionStoreException {
-        String id = super.resolveId(element, definition, parserContext);
-
-        if (StringUtils.hasText(id)) {
-            return id;
+        if (userServiceElt != null) {
+            authProvider = new RootBeanDefinition(DaoAuthenticationProvider.class);
+            BeanDefinition userDetailsService = new UserServiceBeanDefinitionParser().parse(userServiceElt, parserContext);
+            authProvider.getPropertyValues().addPropertyValue("userDetailsService", userDetailsService);
+        } else {
+            throw new IllegalArgumentException("Only support user-service provider at the moment.");
         }
 
-        // TODO: Check for duplicate using default id here.
+        getRegisteredProviders(parserContext).add(authProvider);
 
-        return DEFAULT_PROVIDER_BEAN_ID;
-    }    
-
+        return null;
+    }
 }
