@@ -40,10 +40,6 @@ import java.util.Date;
 public class ConcurrentSessionFilterTests extends TestCase {
     //~ Constructors ===================================================================================================
 
-    public ConcurrentSessionFilterTests() {
-        super();
-    }
-
     public ConcurrentSessionFilterTests(String arg0) {
         super(arg0);
     }
@@ -56,10 +52,6 @@ public class ConcurrentSessionFilterTests extends TestCase {
         filter.init(filterConfig);
         filter.doFilter(request, response, filterChain);
         filter.destroy();
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ConcurrentSessionFilterTests.class);
     }
 
     public void testDetectsExpiredSessions() throws Exception {
@@ -88,16 +80,27 @@ public class ConcurrentSessionFilterTests extends TestCase {
         assertEquals("/expired.jsp", response.getRedirectedUrl());
     }
 
-    public void testDetectsMissingExpiredUrl() throws Exception {
-        ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
-        filter.setSessionRegistry(new SessionRegistryImpl());
+    // As above, but with no expiredUrl set.
+    public void testReturnsExpectedMessageWhenNoExpiredUrlSet() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpSession session = new MockHttpSession();
+        request.setSession(session);
 
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IAE");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterConfig config = new MockFilterConfig(null, null);
+
+        MockFilterChain chain = new MockFilterChain(false);
+
+        ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
+        SessionRegistry registry = new SessionRegistryImpl();
+        registry.registerNewSession(session.getId(), "principal");
+        registry.getSessionInformation(session.getId()).expireNow();
+        filter.setSessionRegistry(registry);
+
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
+
+        assertEquals("This session has been expired (possibly due to multiple concurrent logins being " +
+                "attempted as the same user).", response.getContentAsString());
     }
 
     public void testDetectsMissingSessionRegistry() throws Exception {
