@@ -16,6 +16,11 @@
 package org.springframework.security.util;
 
 
+import org.junit.After;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -27,11 +32,6 @@ import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.MockFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.PathBasedFilterInvocationDefinitionMap;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.util.List;
 
@@ -124,6 +124,15 @@ public class FilterChainProxyTests {
         assertFalse(filter.isWasInitialized());
         assertFalse(filter.isWasDoFiltered());
         assertFalse(filter.isWasDestroyed());
+    }
+
+    @Test
+    public void misplacedUniversalPathShouldBeDetected() throws Exception {
+        try {
+            appCtx.getBean("newFilterChainProxyWrongPathOrder", FilterChainProxy.class);
+            fail("Expected BeanCreationException");
+        } catch (BeanCreationException expected) {
+        }
     }
 
     @Test    

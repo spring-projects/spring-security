@@ -117,6 +117,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
         }
 
         Assert.notNull(uncompiledFilterChainMap, "filterChainMap must be set");
+
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -247,7 +248,22 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
      */
     public void setFilterChainMap(Map filterChainMap) {
         uncompiledFilterChainMap = new LinkedHashMap(filterChainMap);
+        checkPathOrder();
         createCompiledMap();
+    }
+
+    private void checkPathOrder() {
+        // Check that the universal pattern is listed at the end, if at all
+        String[] paths = (String[]) uncompiledFilterChainMap.keySet().toArray(new String[0]);
+        String universalMatch = matcher.getUniversalMatchPattern();
+
+        for (int i=0; i < paths.length-1; i++) {
+            if (paths[i].equals(universalMatch)) {
+                throw new IllegalArgumentException("A universal match pattern " + universalMatch + " is defined " +
+                        " before other patterns in the filter chain, causing them to be ignored. Please check the " +
+                        "ordering in your <security:http> namespace or FilterChainProxy bean configuration");
+            }
+        }
     }
 
     private void createCompiledMap() {

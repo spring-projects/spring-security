@@ -18,7 +18,7 @@
  *
  * $Id$
 -->
-<beans xmlns="http://www.springframework.org/schema/beans"
+<beans default-lazy-init="true" xmlns="http://www.springframework.org/schema/beans"
     xmlns:sec="http://www.springframework.org/schema/security"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
@@ -59,6 +59,14 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
             <sec:filter-chain pattern="/some/other/path/**" filters="sif,mockFilter,mockFilter2"/>
             <sec:filter-chain pattern="/do/not/filter" filters="none"/>
             <sec:filter-chain pattern="/**" filters="sif,apf,mockFilter"/>
+        </sec:filter-chain-map>
+    </bean>
+
+    <bean id="newFilterChainProxyWrongPathOrder" class="org.springframework.security.util.FilterChainProxy">
+        <sec:filter-chain-map pathType="ant">
+            <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
+            <sec:filter-chain pattern="/**" filters="sif,apf,mockFilter"/>
+            <sec:filter-chain pattern="/some/other/path/**" filters="sif,mockFilter,mockFilter2"/>
         </sec:filter-chain-map>
     </bean>
 
