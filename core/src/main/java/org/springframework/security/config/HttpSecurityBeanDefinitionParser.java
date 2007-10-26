@@ -88,7 +88,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         filterSecurityInterceptorBuilder.addPropertyValue("objectDefinitionSource", interceptorFilterInvDefSource);
 
         // Again pick up auth manager
-        filterSecurityInterceptorBuilder.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
+        //filterSecurityInterceptorBuilder.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
 
         parseInterceptUrls(DomUtils.getChildElementsByTagName(element, "intercept-url"),
                 filterChainMap, interceptorFilterInvDefSource);

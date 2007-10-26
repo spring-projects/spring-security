@@ -8,6 +8,7 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
+import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.ui.AuthenticationEntryPoint;
@@ -15,7 +16,11 @@ import org.springframework.security.util.FilterChainProxy;
 import org.springframework.util.Assert;
 
 import javax.servlet.Filter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Responsible for tying up the HTTP security configuration - building ordered filter stack and linking up
@@ -26,16 +31,27 @@ import java.util.*;
  */
 public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor, Ordered {
     private Log logger = LogFactory.getLog(getClass());
+    private AuthenticationManager authManager;
 
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         HttpSessionContextIntegrationFilter httpSCIF = (HttpSessionContextIntegrationFilter)
                 beanFactory.getBean(HttpSecurityBeanDefinitionParser.DEFAULT_HTTP_SESSION_FILTER_ID);
-        AuthenticationManager authManager =
-                (AuthenticationManager) getBeanOfType(AuthenticationManager.class, beanFactory);
+        authManager = ConfigUtils.getAuthenticationManager(beanFactory);
 
         configureAuthenticationEntryPoint(beanFactory);
 
+        configureFilterSecurityInterceptor(beanFactory);
+
         configureFilterChain(beanFactory);
+    }
+
+    private void configureFilterSecurityInterceptor(ConfigurableListableBeanFactory beanFactory) {
+        ConfigUtils.registerAccessManagerIfNecessary(beanFactory);
+
+        BeanDefinition securityInterceptor =
+                beanFactory.getBeanDefinition(HttpSecurityBeanDefinitionParser.DEFAULT_FILTER_SECURITY_INTERCEPTOR_ID);
+
+        ConfigUtils.configureSecurityInterceptor(beanFactory, securityInterceptor);
     }
 
     /**
@@ -127,6 +143,6 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
     }
 
     public int getOrder() {
-        return 0;
+        return HIGHEST_PRECEDENCE;
     }
 }

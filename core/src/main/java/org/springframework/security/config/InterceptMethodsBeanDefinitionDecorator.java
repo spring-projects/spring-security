@@ -1,24 +1,78 @@
 package org.springframework.security.config;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.config.AbstractInterceptorDrivenBeanDefinitionDecorator;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor;
-import org.springframework.security.intercept.method.MethodDefinitionMap;
-import org.springframework.security.ConfigAttributeEditor;
+import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
+import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.core.Ordered;
 import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttributeEditor;
+import org.springframework.security.intercept.method.MethodDefinitionMap;
+import org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Node;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Luke Taylor
  * @version $Id$
  */
-public class InterceptMethodsBeanDefinitionDecorator extends AbstractInterceptorDrivenBeanDefinitionDecorator {
+public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDecorator {
+    private static final String POST_PROCESSOR_ID = "_interceptMethodsBeanfactoryPP";
+
+    private BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
+
+    public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
+        registerPostProcessorIfNecessary(parserContext.getRegistry());
+
+        return delegate.decorate(node, definition, parserContext);
+    }
+
+    private void registerPostProcessorIfNecessary(BeanDefinitionRegistry registry) {
+        if (registry.containsBeanDefinition(POST_PROCESSOR_ID)) {
+            return;
+        }
+
+        registry.registerBeanDefinition(POST_PROCESSOR_ID,
+                new RootBeanDefinition(MethodSecurityConfigPostProcessor.class));
+    }
+
+    public static class MethodSecurityConfigPostProcessor implements BeanFactoryPostProcessor, Ordered {
+
+        public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+            String[] interceptors = beanFactory.getBeanNamesForType(MethodSecurityInterceptor.class);
+
+            for (int i=0; i < interceptors.length; i++) {
+                BeanDefinition interceptor = beanFactory.getBeanDefinition(interceptors[i]);
+                ConfigUtils.configureSecurityInterceptor(beanFactory, interceptor);
+            }
+        }
+
+        public int getOrder() {
+            return HIGHEST_PRECEDENCE;
+        }
+
+    }
+}
+
+/**
+ * This is the real class which does the work. We need acccess to the ParserContext in order to register the
+ * post processor,
+ */
+class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractInterceptorDrivenBeanDefinitionDecorator {
+    private Log logger = LogFactory.getLog(getClass());
+
     protected BeanDefinition createInterceptorDefinition(Node node) {
         Element interceptMethodsElt = (Element)node;
         RootBeanDefinition interceptor = new RootBeanDefinition(MethodSecurityInterceptor.class);
@@ -52,8 +106,6 @@ public class InterceptMethodsBeanDefinitionDecorator extends AbstractInterceptor
         }
 
         interceptor.getPropertyValues().addPropertyValue("objectDefinitionSource", methodMap);
-
-        interceptor.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
 
         return interceptor;
     }
