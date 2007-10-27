@@ -8,7 +8,6 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
-import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.ui.AuthenticationEntryPoint;
@@ -31,27 +30,17 @@ import java.util.Map;
  */
 public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor, Ordered {
     private Log logger = LogFactory.getLog(getClass());
-    private AuthenticationManager authManager;
 
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        HttpSessionContextIntegrationFilter httpSCIF = (HttpSessionContextIntegrationFilter)
-                beanFactory.getBean(HttpSecurityBeanDefinitionParser.DEFAULT_HTTP_SESSION_FILTER_ID);
-        authManager = ConfigUtils.getAuthenticationManager(beanFactory);
-
-        configureAuthenticationEntryPoint(beanFactory);
-
-        configureFilterSecurityInterceptor(beanFactory);
-
-        configureFilterChain(beanFactory);
-    }
-
-    private void configureFilterSecurityInterceptor(ConfigurableListableBeanFactory beanFactory) {
         ConfigUtils.registerAccessManagerIfNecessary(beanFactory);
-
         BeanDefinition securityInterceptor =
                 beanFactory.getBeanDefinition(HttpSecurityBeanDefinitionParser.DEFAULT_FILTER_SECURITY_INTERCEPTOR_ID);
 
         ConfigUtils.configureSecurityInterceptor(beanFactory, securityInterceptor);
+
+        configureAuthenticationEntryPoint(beanFactory);
+
+        configureFilterChain(beanFactory);
     }
 
     /**
@@ -62,7 +51,6 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
      * <li>If more than one, check the default interactive login Ids in order of preference</li>
      * <li>throw an exception (for now). TODO: Examine additional beans and types and make decision</li>
      * </ol>
-     *
      *
      * @param beanFactory
      */
@@ -101,9 +89,9 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
 
         filterMap.put(allUrlsMatch, defaultFilterChain);
 
-        filterChainProxy.setFilterChainMap(filterMap);        
+        filterChainProxy.setFilterChainMap(filterMap);
     }
-       
+
     private List orderFilters(ConfigurableListableBeanFactory beanFactory) {
         Map filters = beanFactory.getBeansOfType(Filter.class);
 
