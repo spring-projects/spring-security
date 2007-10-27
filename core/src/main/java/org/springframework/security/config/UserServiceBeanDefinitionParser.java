@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Iterator;
 
 /**
- * @author luke
+ * @author Luke Taylor
  * @version $Id$
  */
 public class UserServiceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
@@ -43,8 +43,6 @@ public class UserServiceBeanDefinitionParser extends AbstractSingleBeanDefinitio
         }
 
         builder.addPropertyValue("userMap", users);
-
-
     }
 
     protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) throws BeanDefinitionStoreException {
