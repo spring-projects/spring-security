@@ -11,14 +11,16 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         <security:intercept-url pattern="/somepath" access="ROLE_SPECIAL,ROLE_USER" />
         <security:intercept-url pattern="/**" access="ROLE_USER" />
 
-        <!-- Default logout configuration -->
-        <security:logout logoutUrl="/j_spring_security_logout" logoutSuccessUrl="/" invalidateSession="true" />        
-
         <!-- Default form login configuration. Will create filter and entry point -->
         <security:form-login loginUrl="/j_spring_security_check"  />
 
         <!-- Default basic auth configuration. Will create filter and entry point -->
         <security:http-basic realm="NamespaceTestRealm"  />
+
+        <!-- Default logout configuration -->
+        <security:logout logoutUrl="/j_spring_security_logout" logoutSuccessUrl="/" invalidateSession="true" />        
+
+        <security:concurrent-session-control maxSessions="1"/>
     </security:http>
 
     <security:authentication-provider>

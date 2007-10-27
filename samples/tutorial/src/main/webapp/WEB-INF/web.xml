@@ -47,7 +47,15 @@
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 
- 	<welcome-file-list>
+	<!--
+	  - Publishes events for session creation and destruction through the application
+	  - context. Optional unless concurrent session control is being used.
+      -->
+    <listener>
+      <listener-class>org.springframework.security.ui.session.HttpSessionEventPublisher</listener-class>
+    </listener>
+
+     <welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
 

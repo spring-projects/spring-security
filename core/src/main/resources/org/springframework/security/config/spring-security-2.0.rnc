@@ -1,15 +1,16 @@
 
 namespace beans = "http://www.springframework.org/schema/beans"
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace security = "http://www.springframework.org/schema/security"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 
-#default namespace = "http://www.springframework.org/schema/security"
+default namespace = "http://www.springframework.org/schema/security"
+
+# targetNamespace="http://www.springframework.org/schema/security"
 
 path-type =
     ## Defines the type types of pattern used to specify URL paths. Defaults to "ant"
     [ a:defaultValue = "ant" ] attribute pathType {"regex" | "ant"}
-
-
 
 autoconfig = 
     ## Provides automatic security configration for a application
@@ -47,7 +48,7 @@ protect.attlist &=
 
 http =
     ## Container element for HTTP security configuration
-   element http {http.attlist, intercept-url+, logout?, form-login?, http-basic? }
+   element http {http.attlist, intercept-url+, form-login?, http-basic?, logout?, concurrent-session-control? }
 http.attlist &=
     ## Controls the eagerness with which an HTTP session is created.
     [ a:defaultValue = "ifRequired" ] attribute createSession {"ifRequired" | "always" | "never" }?
@@ -57,6 +58,11 @@ http.attlist &=
 http.attlist &=
     ## Whether test URLs should be converted to lower case prior to comparing with defined path patterns.
     [ a:defaultValue = "true" ] attribute lowerCaseComparisons {"true" | "false"}?
+http.attlist &=
+    ## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be
+    ## used for authorizing HTTP requests.
+    attribute accessDecisionManager {xsd:string}?
+
 
 intercept-url =
     ## Specifies the access attributes and/or filter list for a particular set of URLs.
@@ -72,6 +78,9 @@ intercept-url.attlist &=
     ## The full filter stack (consisting of all defined filters, will be applied to any other paths).
 intercept-url.attlist &=
     attribute filters {"none"}?
+intercept-url.attlist &=
+    ## Used to specify that a URL must be accessed over http or https
+    attribute requiresChannel {"http" | "https"}?
 
 logout =
     element logout {logout.attlist, empty}
@@ -115,13 +124,16 @@ http-basic =
 http-basic.attlist &= 
     attribute realm {xsd:string}
 
-concurrent-sessions =
+concurrent-session-control =
     ## Adds support for concurrent session control, allowing limits to be placed on the number of sessions a
     ## user can have.
-    element concurrent-sessions {concurrent-sessions.attlist, empty}
+    element concurrent-session-control {concurrent-sessions.attlist, empty}
 concurrent-sessions.attlist &=
     attribute maxSessions {xsd:positiveInteger}?
-
+concurrent-sessions.attlist &=
+    attribute expiredUrl {xsd:string}?
+concurrent-sessions.attlist &=
+    attribute exceptionIfMaximumExceeded {"true" | "false"}?
 
 authentication-provider =
     element authentication-provider {authentication-provider.attlist, (user-service | jdbc-user-service)}

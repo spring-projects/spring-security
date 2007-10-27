@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns="http://www.springframework.org/schema/security"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="http://www.springframework.org/schema/security"
-  xmlns:beans="http://www.springframework.org/schema/beans"
-  elementFormDefault="qualified" attributeFormDefault="unqualified">
-  <!-- default namespace = "http://www.springframework.org/schema/security" -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.springframework.org/schema/security" xmlns:security="http://www.springframework.org/schema/security">
+  <!-- targetNamespace="http://www.springframework.org/schema/security" -->
   <xs:attributeGroup name="path-type">
     <xs:attribute name="pathType" use="required">
       <xs:annotation>
@@ -29,7 +25,7 @@
       <xs:documentation>Sets up an ldap authentication provider, optionally with an embedded ldap server</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attributeGroup ref="ldap.attlist"/>
+      <xs:attributeGroup ref="security:ldap.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="ldap.attlist">
@@ -47,7 +43,7 @@
   <xs:element name="intercept-methods">
     <xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="protect"/>
+        <xs:element maxOccurs="unbounded" ref="security:protect"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -56,7 +52,7 @@
       <xs:documentation>Defines a protected method and the access control configuration attributes that apply to it</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attributeGroup ref="protect.attlist"/>
+      <xs:attributeGroup ref="security:protect.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="protect.attlist">
@@ -77,12 +73,13 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="intercept-url"/>
-        <xs:element minOccurs="0" ref="logout"/>
-        <xs:element minOccurs="0" ref="form-login"/>
-        <xs:element minOccurs="0" ref="http-basic"/>
+        <xs:element maxOccurs="unbounded" ref="security:intercept-url"/>
+        <xs:element minOccurs="0" ref="security:form-login"/>
+        <xs:element minOccurs="0" ref="security:http-basic"/>
+        <xs:element minOccurs="0" ref="security:logout"/>
+        <xs:element minOccurs="0" ref="security:concurrent-session-control"/>
       </xs:sequence>
-      <xs:attributeGroup ref="http.attlist"/>
+      <xs:attributeGroup ref="security:http.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="http.attlist">
@@ -120,13 +117,14 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
+    <xs:attribute name="accessDecisionManager" type="xs:string"/>
   </xs:attributeGroup>
   <xs:element name="intercept-url">
     <xs:annotation>
       <xs:documentation>Specifies the access attributes and/or filter list for a particular set of URLs.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attributeGroup ref="intercept-url.attlist"/>
+      <xs:attributeGroup ref="security:intercept-url.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="intercept-url.attlist">
@@ -143,10 +141,21 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
+    <xs:attribute name="requiresChannel">
+      <xs:annotation>
+        <xs:documentation>Used to specify that a URL must be accessed over http or https</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="http"/>
+          <xs:enumeration value="https"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="logout">
     <xs:complexType>
-      <xs:attributeGroup ref="logout.attlist"/>
+      <xs:attributeGroup ref="security:logout.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="logout.attlist">
@@ -166,7 +175,7 @@
       <xs:documentation>Sets up a form login configuration</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attributeGroup ref="form-login.attlist"/>
+      <xs:attributeGroup ref="security:form-login.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="form-login.attlist">
@@ -187,17 +196,17 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="filter-chain"/>
+        <xs:element maxOccurs="unbounded" ref="security:filter-chain"/>
       </xs:sequence>
-      <xs:attributeGroup ref="filter-chain-map.attlist"/>
+      <xs:attributeGroup ref="security:filter-chain-map.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="filter-chain-map.attlist">
-    <xs:attributeGroup ref="path-type"/>
+    <xs:attributeGroup ref="security:path-type"/>
   </xs:attributeGroup>
   <xs:element name="filter-chain">
     <xs:complexType>
-      <xs:attributeGroup ref="filter-chain.attlist"/>
+      <xs:attributeGroup ref="security:filter-chain.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="filter-chain.attlist">
@@ -209,35 +218,44 @@
       <xs:documentation>Adds support for basic authentication</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attributeGroup ref="http-basic.attlist"/>
+      <xs:attributeGroup ref="security:http-basic.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="http-basic.attlist">
     <xs:attribute name="realm" use="required" type="xs:string"/>
   </xs:attributeGroup>
-  <xs:element name="concurrent-sessions">
+  <xs:element name="concurrent-session-control">
     <xs:complexType>
-      <xs:attributeGroup ref="concurrent-sessions.attlist"/>
+      <xs:attributeGroup ref="security:concurrent-sessions.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="concurrent-sessions.attlist">
     <xs:attribute name="maxSessions" type="xs:positiveInteger"/>
+    <xs:attribute name="expiredUrl" type="xs:string"/>
+    <xs:attribute name="exceptionIfMaximumExceeded">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="true"/>
+          <xs:enumeration value="false"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="authentication-provider">
     <xs:complexType>
       <xs:choice>
-        <xs:element ref="user-service"/>
-        <xs:element ref="jdbc-user-service"/>
+        <xs:element ref="security:user-service"/>
+        <xs:element ref="security:jdbc-user-service"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>
   <xs:element name="user-service">
     <xs:complexType>
       <xs:choice>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="user"/>
-        <xs:element ref="jdbc-user-service"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:user"/>
+        <xs:element ref="security:jdbc-user-service"/>
       </xs:choice>
-      <xs:attributeGroup ref="user-service.attlist"/>
+      <xs:attributeGroup ref="security:user-service.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="user-service.attlist">
@@ -245,7 +263,7 @@
   </xs:attributeGroup>
   <xs:element name="user">
     <xs:complexType>
-      <xs:attributeGroup ref="user.attlist"/>
+      <xs:attributeGroup ref="security:user.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="user.attlist">

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.security.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.ui.ExceptionTranslationFilter;
@@ -52,11 +53,12 @@ public class HttpSecurityBeanDefinitionParserTests {
                 (FilterChainProxy) appContext.getBean(HttpSecurityBeanDefinitionParser.DEFAULT_FILTER_CHAIN_PROXY_ID);
 
         List filterList = filterChainProxy.getFilters("/someurl");
-        
-        assertTrue("Expected 7 filterList in chain", filterList.size() == 7);
+
+        assertTrue("Expected 8 filters in chain", filterList.size() == 8);
 
         Iterator filters = filterList.iterator();
 
+        assertTrue(filters.next() instanceof ConcurrentSessionFilter);
         assertTrue(filters.next() instanceof HttpSessionContextIntegrationFilter);
         assertTrue(filters.next() instanceof LogoutFilter);
         assertTrue(filters.next() instanceof AuthenticationProcessingFilter);

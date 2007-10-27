@@ -40,9 +40,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     public static final String DEFAULT_EXCEPTION_TRANSLATION_FILTER_ID = "_exceptionTranslationFilter";
     public static final String DEFAULT_FILTER_SECURITY_INTERCEPTOR_ID = "_filterSecurityInterceptor";
 
+    public static final String CONCURRENT_SESSIONS_ELEMENT = "concurrent-session-control";
     public static final String LOGOUT_ELEMENT = "logout";
     public static final String FORM_LOGIN_ELEMENT = "form-login";
-    public static final String BASIC_AUTH_ELEMENT = "http-basic";    
+    public static final String BASIC_AUTH_ELEMENT = "http-basic";
 
     static final String PATH_PATTERN_ATTRIBUTE = "pattern";
     static final String PATTERN_TYPE_ATTRIBUTE = "pathType";
@@ -92,7 +93,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         parseInterceptUrls(DomUtils.getChildElementsByTagName(element, "intercept-url"),
                 filterChainMap, interceptorFilterInvDefSource);
-        // TODO: if empty, set a default set a default /**, omitting login url
+
+        Element sessionControlElt = DomUtils.getChildElementByTagName(element, CONCURRENT_SESSIONS_ELEMENT);
+
+        if (sessionControlElt != null) {
+            new ConcurrentSessionsBeanDefinitionParser().parse(sessionControlElt, parserContext);
+        }
 
         BeanDefinitionRegistry registry = parserContext.getRegistry();
 
@@ -112,7 +118,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         if (basicAuthElt != null) {
             new BasicAuthenticationBeanDefinitionParser().parse(basicAuthElt, parserContext);
-        }        
+        }
 
         registry.registerBeanDefinition(DEFAULT_FILTER_CHAIN_PROXY_ID, filterChainProxy);
         registry.registerBeanDefinition(DEFAULT_HTTP_SESSION_FILTER_ID, httpSCIF);
