@@ -135,28 +135,6 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 		Assert.notNull(userDetailsService);
 	}
 
-	/**
-	 * Introspects the <code>Applicationcontext</code> for the single instance
-	 * of {@link AccessDeniedHandler}. If found invoke
-	 * setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) method by
-	 * providing the found instance of accessDeniedHandler as a method
-	 * parameter. If more than one instance of <code>AccessDeniedHandler</code>
-	 * is found, the method throws <code>IllegalStateException</code>.
-	 *
-	 * @param applicationContext to locate the instance
-	 */
-	private void autoDetectAndUseAnyUserDetailsService(ApplicationContext applicationContext) {
-		Map map = applicationContext.getBeansOfType(UserDetailsService.class);
-		if (map.size() > 1) {
-			throw new IllegalArgumentException(
-					"More than one UserDetailsService beans detected please refer to the one using "
-							+ " [ principalRepositoryBeanRef  ] attribute");
-		}
-		else if (map.size() == 1) {
-			setUserDetailsService((UserDetailsService) map.values().iterator().next());
-		}
-	}
-
 	public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
 		Cookie[] cookies = request.getCookies();
 
