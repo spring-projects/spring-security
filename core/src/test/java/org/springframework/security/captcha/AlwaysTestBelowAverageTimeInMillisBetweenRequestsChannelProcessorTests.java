@@ -22,7 +22,7 @@ import junit.framework.TestCase;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision$
+ * @version $Revision: 2142 $
  */
 public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessorTests extends TestCase {
     //~ Instance fields ================================================================================================

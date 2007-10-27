@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
  * org.springframework.security.context.SecurityContextHolderStrategy}.
  *
  * @author Ben Alex
- * @version $Id: SecurityContextHolder.java 1324 2006-02-12 06:29:53Z benalex $
+ * @version $Id$
  *
  * @see java.lang.ThreadLocal
  * @see org.springframework.security.context.HttpSessionContextIntegrationFilter

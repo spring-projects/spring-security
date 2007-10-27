@@ -24,7 +24,7 @@ import javax.naming.ldap.Control;
  *
  * @author Stefan Zoerner
  * @author Luke Taylor
- * @version $Id: PasswordPolicyControl.java 1496 2006-05-23 13:38:33Z benalex $
+ * @version $Id$
  *
  * @see PasswordPolicyResponseControl
  * @see <a href="http://www.ietf.org/internet-drafts/draft-behera-ldap-password-policy-09.txt">Password Policy for LDAP

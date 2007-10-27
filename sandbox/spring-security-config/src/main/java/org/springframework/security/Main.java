@@ -32,7 +32,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 DOCUMENT ME!
  *
  * @author Mark St.Godard
- * @version $Id: Main.java 1496 2006-05-23 13:38:33Z benalex $
+ * @version $Id$
  */
 public class Main {
     //~ Methods ========================================================================================================

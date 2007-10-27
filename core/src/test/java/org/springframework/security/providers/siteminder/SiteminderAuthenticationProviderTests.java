@@ -45,7 +45,7 @@ import org.springframework.dao.DataRetrievalFailureException;
  * Tests {@link SiteminderAuthenticationProvider}.
  *
  * @author Ben Alex
- * @version $Id: SiteminderAuthenticationProviderTests.java 1582 2006-07-15 15:18:51Z smccrory $
+ * @version $Id$
  */
 public class SiteminderAuthenticationProviderTests extends TestCase {
     //~ Methods ========================================================================================================

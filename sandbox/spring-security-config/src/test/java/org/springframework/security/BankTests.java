@@ -35,7 +35,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * Tests security objects.
  *
  * @author Ben Alex
- * @version $Id: BankTests.java 1496 2006-05-23 13:38:33Z benalex $
+ * @version $Id$
  */
 public class BankTests extends TestCase {
     //~ Instance fields ================================================================================================

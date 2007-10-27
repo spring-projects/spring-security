@@ -71,7 +71,7 @@ import org.springframework.util.Assert;
  * org.acegisecurity.util.FilterToBeanProxy}.</p>
  *
  * @author Ben Alex
- * @version $Id: BasicProcessingFilter.java 1783 2007-02-23 19:21:44Z luke_t $
+ * @version $Id$
  */
 public class BasicProcessingFilter implements Filter, InitializingBean, Ordered {
     //~ Static fields/initializers =====================================================================================

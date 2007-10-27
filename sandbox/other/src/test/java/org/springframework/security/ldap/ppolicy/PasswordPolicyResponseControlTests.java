@@ -25,7 +25,7 @@ import javax.naming.ldap.Control;
  * Tests for <tt>PasswordPolicyResponse</tt>.
  *
  * @author Luke Taylor
- * @version $Id: PasswordPolicyResponseControlTests.java 1496 2006-05-23 13:38:33Z benalex $
+ * @version $Id$
  */
 public class PasswordPolicyResponseControlTests extends TestCase {
     //~ Methods ========================================================================================================

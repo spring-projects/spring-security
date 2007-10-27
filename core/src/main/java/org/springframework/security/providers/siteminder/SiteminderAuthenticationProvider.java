@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
  * An {@link AuthenticationProvider} implementation that retrieves user details from an {@link UserDetailsService}.
  *
  * @author Scott McCrory
- * @version $Id: SiteminderAuthenticationProvider.java 1582 2006-07-15 15:18:51Z smccrory $
+ * @version $Id$
  */
 public class SiteminderAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 

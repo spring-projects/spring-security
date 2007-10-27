@@ -22,7 +22,7 @@ import org.springframework.security.annotation.Secured;
  * <code>BankService</code> sample using Java 5 Annotations.
  *
  * @author Mark St.Godard
- * @version $Id: BankService.java 1496 2006-05-23 13:38:33Z benalex $
+ * @version $Id$
  * 
  * @see org.springframework.security.annotation.Secured
  */

@@ -29,7 +29,7 @@ import javax.security.auth.login.LoginException;
  * org.springframework.security.BadCredentialsException}.
  *
  * @author Ray Krueger
- * @version $Revision$
+ * @version $Revision: 2176 $
  */
 public interface LoginExceptionResolver {
     //~ Methods ========================================================================================================

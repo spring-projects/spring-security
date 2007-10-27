@@ -19,7 +19,7 @@ package org.springframework.security;
  * <code>BankService</code> sample implementation.
  *
  * @author Mark St.Godard
- * @version $Id: BankServiceImpl.java 1496 2006-05-23 13:38:33Z benalex $
+ * @version $Id$
  */
 public class BankServiceImpl implements BankService {
     //~ Methods ========================================================================================================

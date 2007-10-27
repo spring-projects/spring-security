@@ -19,7 +19,7 @@ package org.springframework.security.annotation;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision$
+ * @version $Revision: 2145 $
   */
 @Secured({"ROLE_USER"})
 public interface BusinessService {

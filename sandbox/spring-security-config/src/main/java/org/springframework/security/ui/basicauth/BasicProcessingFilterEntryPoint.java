@@ -40,7 +40,7 @@ import org.springframework.util.Assert;
  * the browser its credentials are no longer authorized, causing it to prompt the user to login again.</p>
  *
  * @author Ben Alex
- * @version $Id: BasicProcessingFilterEntryPoint.java 1822 2007-05-17 12:20:16Z vishalpuri $
+ * @version $Id$
  */
 public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered, ApplicationContextAware {
     //~ Instance fields ================================================================================================

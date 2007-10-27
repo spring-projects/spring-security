@@ -48,7 +48,7 @@ import java.io.InputStream;
  *
  * @author Stefan Zoerner
  * @author Luke Taylor
- * @version $Id: PasswordPolicyResponseControl.java 1496 2006-05-23 13:38:33Z benalex $
+ * @version $Id$
  *
  * @see org.springframework.security.ldap.ppolicy.PasswordPolicyControl
  * @see <a href="http://www.ibm.com/developerworks/tivoli/library/t-ldap-controls/">Stefan Zoerner's IBM developerworks
