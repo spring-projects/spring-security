@@ -15,28 +15,14 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser {
-    public static final String DEFAULT_AUTH_MANAGER_ID = "_authenticationManager";
-
-    private BeanDefinition registerProviderManagerIfNecessary(ParserContext parserContext) {
-
-        if(parserContext.getRegistry().containsBeanDefinition(DEFAULT_AUTH_MANAGER_ID)) {
-            return parserContext.getRegistry().getBeanDefinition(DEFAULT_AUTH_MANAGER_ID);
-        }
-
-        BeanDefinition authManager = new RootBeanDefinition(ProviderManager.class);
-        authManager.getPropertyValues().addPropertyValue("providers", new ManagedList());
-        parserContext.getRegistry().registerBeanDefinition(DEFAULT_AUTH_MANAGER_ID, authManager);
-
-        return authManager;
-    }
 
     private ManagedList getRegisteredProviders(ParserContext parserContext) {
-        BeanDefinition authManager = registerProviderManagerIfNecessary(parserContext);
+        BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         return (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
     }
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        registerProviderManagerIfNecessary(parserContext);
+        ConfigUtils.registerProviderManagerIfNecessary(parserContext);
 
         RootBeanDefinition authProvider;
 

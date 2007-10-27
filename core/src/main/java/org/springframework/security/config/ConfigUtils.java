@@ -4,8 +4,12 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AuthenticationManager;
+import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.vote.AffirmativeBased;
 import org.springframework.security.vote.AuthenticatedVoter;
 import org.springframework.security.vote.RoleVoter;
@@ -15,51 +19,64 @@ import java.util.Arrays;
 import java.util.Map;
 
 /**
+ * Utitily methods used internally by the Spring Security namespace configuration code.
+ *
  * @author Luke Taylor
  * @version $Id$
  */
 public abstract class ConfigUtils {
     public static final String DEFAULT_ACCESS_MANAGER_ID = "_accessManager";
+    public static final String DEFAULT_AUTH_MANAGER_ID = "_authenticationManager";
 
     static void registerAccessManagerIfNecessary(ConfigurableListableBeanFactory bf) {
         if (bf.getBeanNamesForType(AccessDecisionManager.class).length > 0) {
             return;
         }
 
-        Assert.isInstanceOf(BeanDefinitionRegistry.class, bf, " Auto-registration of default AccessManager will only work " +
-                "with a BeanFactory which implements BeanDefinitionRegistry");
+        Assert.isInstanceOf(BeanDefinitionRegistry.class, bf, " Auto-registration of default AccessManager will " +
+                "only work with a BeanFactory which implements BeanDefinitionRegistry");
 
         BeanDefinitionRegistry registry = (BeanDefinitionRegistry)bf;
 
         if (!registry.containsBeanDefinition(DEFAULT_ACCESS_MANAGER_ID)) {
             BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
             accessMgrBuilder.addPropertyValue("decisionVoters",
-                            Arrays.asList(new Object[] {new RoleVoter(), new AuthenticatedVoter()}));    
+                            Arrays.asList(new Object[] {new RoleVoter(), new AuthenticatedVoter()}));
             BeanDefinition accessMgr = accessMgrBuilder.getBeanDefinition();
 
             registry.registerBeanDefinition(DEFAULT_ACCESS_MANAGER_ID, accessMgr);
         }
     }
 
-    static AuthenticationManager getAuthenticationManager(ConfigurableListableBeanFactory bf) {
-        Map authManagers = bf.getBeansOfType(AuthenticationManager.class);
-
-        if (authManagers.size() == 0) {
-            throw new IllegalArgumentException("No AuthenticationManager registered. " +
-                    "Make sure you have configured at least one AuthenticationProvider?");
-
-        } else if (authManagers.size() > 1) {
-            throw new IllegalArgumentException("More than one AuthenticationManager registered.");
+    /**
+     * Creates and registers the bean definition for the default ProviderManager instance and returns
+     * the BeanDefinition for it. This method will typically be called when registering authentication providers
+     * using the &lt;security:provider /> tag or by other beans which have a dependency on the
+     * authentication manager.
+     */
+    static BeanDefinition registerProviderManagerIfNecessary(ParserContext parserContext) {
+        if(parserContext.getRegistry().containsBeanDefinition(DEFAULT_AUTH_MANAGER_ID)) {
+            return parserContext.getRegistry().getBeanDefinition(DEFAULT_AUTH_MANAGER_ID);
         }
 
-        AuthenticationManager accessMgr = (AuthenticationManager) authManagers.values().toArray()[0];
+        BeanDefinition authManager = new RootBeanDefinition(ProviderManager.class);
+        authManager.getPropertyValues().addPropertyValue("providers", new ManagedList());
+        parserContext.getRegistry().registerBeanDefinition(DEFAULT_AUTH_MANAGER_ID, authManager);
 
-        return accessMgr;
+        return authManager;
     }
 
+
+    /**
+     * Supplies the BeanDefinition for an instance of AbstractSecurityInterceptor with the default
+     * AccessDecisionManager and AuthenticationManager.
+     *
+     * @param beanFactory
+     * @param securityInterceptor
+     */
     static void configureSecurityInterceptor(ConfigurableListableBeanFactory beanFactory,
             BeanDefinition securityInterceptor) {
-        
+
         ConfigUtils.registerAccessManagerIfNecessary(beanFactory);
 
         Map accessManagers = beanFactory.getBeansOfType(AccessDecisionManager.class);
@@ -75,4 +92,21 @@ public abstract class ConfigUtils {
         securityInterceptor.getPropertyValues().addPropertyValue("authenticationManager",
                 getAuthenticationManager(beanFactory));
     }
+
+    private static AuthenticationManager getAuthenticationManager(ConfigurableListableBeanFactory bf) {
+        Map authManagers = bf.getBeansOfType(AuthenticationManager.class);
+
+        if (authManagers.size() == 0) {
+            throw new IllegalArgumentException("No AuthenticationManager registered. " +
+                    "Make sure you have configured at least one AuthenticationProvider?");
+
+        } else if (authManagers.size() > 1) {
+            throw new IllegalArgumentException("More than one AuthenticationManager registered.");
+        }
+
+        AuthenticationManager accessMgr = (AuthenticationManager) authManagers.values().toArray()[0];
+
+        return accessMgr;
+    }
+
 }
