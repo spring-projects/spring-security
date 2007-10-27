@@ -1,14 +1,16 @@
 package org.springframework.security.config;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.util.StringUtils;
+
 import org.w3c.dom.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,7 +24,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
 
     public static final String DEFAULT_FORM_LOGIN_FILTER_ID = "_formLoginFilter";
     public static final String DEFAULT_FORM_LOGIN_ENTRY_POINT_ID = "_formLoginEntryPoint";
-    
+
     private static final String LOGIN_URL_ATTRIBUTE = "loginUrl";
     private static final String LOGIN_PAGE_ATTRIBUTE = "loginPage";
 
@@ -41,7 +43,6 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         BeanDefinitionBuilder entryPointBuilder =
                 BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProcessingFilterEntryPoint.class);
 
-
         String loginPage = elt.getAttribute(LOGIN_PAGE_ATTRIBUTE);
 
         // If no login page has been defined, add in the default page generator.
@@ -50,7 +51,8 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
                     "the 'loginPage' attribute to specify the URL of the login page.");
             loginPage = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL;
             RootBeanDefinition loginPageFilter = new RootBeanDefinition(DefaultLoginPageGeneratingFilter.class);
-            loginPageFilter.getConstructorArgumentValues().addGenericArgumentValue(filterBean);
+            loginPageFilter.getConstructorArgumentValues().addGenericArgumentValue(
+                    new RuntimeBeanReference(DEFAULT_FORM_LOGIN_FILTER_ID));
             parserContext.getRegistry().registerBeanDefinition("_springSecurityLoginPageFilter", loginPageFilter);
         }
 
