@@ -16,7 +16,6 @@
 package org.springframework.security.ui.rememberme;
 
 import java.util.Date;
-import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.providers.rememberme.RememberMeAuthenticationToken;
-import org.springframework.security.ui.AccessDeniedHandler;
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
 import org.springframework.security.ui.logout.LogoutHandler;
@@ -36,7 +34,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.RequestUtils;
@@ -143,108 +140,105 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 		}
 
 		for (int i = 0; i < cookies.length; i++) {
-			if (cookieName.equals(cookies[i].getName())) {
-				String cookieValue = cookies[i].getValue();
+			if (!cookieName.equals(cookies[i].getName())) {
+                continue;
+            }
 
-				for (int j = 0; j < cookieValue.length() % 4; j++) {
-					cookieValue = cookieValue + "=";
-				}
+            // We have the spring security cookie
+            String cookieValue = cookies[i].getValue();
 
-				if (Base64.isArrayByteBase64(cookieValue.getBytes())) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Remember-me cookie detected");
-					}
+            if (logger.isDebugEnabled()) {
+                logger.debug("Remember-me cookie detected");
+            }
 
-					// Decode token from Base64
-					// format of token is:
-					// username + ":" + expiryTime + ":" +
-					// Md5Hex(username + ":" + expiryTime + ":" + password + ":"
-					// + key)
-					String cookieAsPlainText = new String(Base64.decodeBase64(cookieValue.getBytes()));
-					String[] cookieTokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, ":");
+            for (int j = 0; j < cookieValue.length() % 4; j++) {
+                cookieValue = cookieValue + "=";
+            }
 
-					if (cookieTokens.length == 3) {
+            if (!Base64.isArrayByteBase64(cookieValue.getBytes())) {
+                cancelCookie(request, response, "Cookie token was not Base64 encoded; value was '" + cookieValue + "'");
 
-						long tokenExpiryTime;
+                return null;
+            }
 
-						try {
-							tokenExpiryTime = new Long(cookieTokens[1]).longValue();
-						}
-						catch (NumberFormatException nfe) {
-							cancelCookie(request, response,
-									"Cookie token[1] did not contain a valid number (contained '" + cookieTokens[1]
-											+ "')");
+            // Decode token from Base64
+            // format of token is:
+            // username + ":" + expiryTime + ":" + Md5Hex(username + ":" + expiryTime + ":" + password + ":" + key)
+            String cookieAsPlainText = new String(Base64.decodeBase64(cookieValue.getBytes()));
+            String[] cookieTokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, ":");
 
-							return null;
-						}
+            if (cookieTokens.length != 3) {
+                cancelCookie(request, response, "Cookie token did not contain 3 tokens; decoded value was '"
+                        + cookieAsPlainText + "'");
 
-						if (isTokenExpired(tokenExpiryTime)) {
-							cancelCookie(request, response, "Cookie token[1] has expired (expired on '"
-									+ new Date(tokenExpiryTime) + "'; current time is '" + new Date() + "')");
+                return null;
+            }
 
-							return null;
-						}
+            long tokenExpiryTime;
 
-						// Check the user exists
-						// Defer lookup until after expiry time checked, to
-						// possibly avoid expensive lookup
-						UserDetails userDetails = loadUserDetails(request, response, cookieTokens);
+            try {
+                tokenExpiryTime = new Long(cookieTokens[1]).longValue();
+            }
+            catch (NumberFormatException nfe) {
+                cancelCookie(request, response,
+                        "Cookie token[1] did not contain a valid number (contained '" + cookieTokens[1] + "')");
 
-						if (userDetails == null) {
-							cancelCookie(request, response, "Cookie token[0] contained username '" + cookieTokens[0]
-									+ "' but was not found");
-							return null;
-						}
+                return null;
+            }
 
-						if (!isValidUserDetails(request, response, userDetails, cookieTokens)) {
-							return null;
-						}
+            if (isTokenExpired(tokenExpiryTime)) {
+                cancelCookie(request, response, "Cookie token[1] has expired (expired on '"
+                        + new Date(tokenExpiryTime) + "'; current time is '" + new Date() + "')");
 
-						// Check signature of token matches remaining details
-						// Must do this after user lookup, as we need the
-						// DAO-derived password
-						// If efficiency was a major issue, just add in a
-						// UserCache implementation,
-						// but recall this method is usually only called one per
-						// HttpSession
-						// (as if the token is valid, it will cause
-						// SecurityContextHolder population, whilst
-						// if invalid, will cause the cookie to be cancelled)
-						String expectedTokenSignature = makeTokenSignature(tokenExpiryTime, userDetails);
+                return null;
+            }
 
-						if (!expectedTokenSignature.equals(cookieTokens[2])) {
-							cancelCookie(request, response, "Cookie token[2] contained signature '" + cookieTokens[2]
-									+ "' but expected '" + expectedTokenSignature + "'");
+            // Check the user exists
+            // Defer lookup until after expiry time checked, to
+            // possibly avoid expensive lookup
+            UserDetails userDetails = loadUserDetails(request, response, cookieTokens);
 
-							return null;
-						}
+            if (userDetails == null) {
+                cancelCookie(request, response, "Cookie token[0] contained username '" + cookieTokens[0]
+                        + "' but was not found");
+                return null;
+            }
 
-						// By this stage we have a valid token
-						if (logger.isDebugEnabled()) {
-							logger.debug("Remember-me cookie accepted");
-						}
+            if (!isValidUserDetails(request, response, userDetails, cookieTokens)) {
+                return null;
+            }
 
-						RememberMeAuthenticationToken auth = new RememberMeAuthenticationToken(this.key, userDetails,
-								userDetails.getAuthorities());
-						auth.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
+            // Check signature of token matches remaining details
+            // Must do this after user lookup, as we need the
+            // DAO-derived password
+            // If efficiency was a major issue, just add in a
+            // UserCache implementation,
+            // but recall this method is usually only called one per
+            // HttpSession
+            // (as if the token is valid, it will cause
+            // SecurityContextHolder population, whilst
+            // if invalid, will cause the cookie to be cancelled)
+            String expectedTokenSignature = makeTokenSignature(tokenExpiryTime, userDetails);
 
-						return auth;
-					}
-					else {
-						cancelCookie(request, response, "Cookie token did not contain 3 tokens; decoded value was '"
-								+ cookieAsPlainText + "'");
+            if (!expectedTokenSignature.equals(cookieTokens[2])) {
+                cancelCookie(request, response, "Cookie token[2] contained signature '" + cookieTokens[2]
+                        + "' but expected '" + expectedTokenSignature + "'");
 
-						return null;
-					}
-				}
-				else {
-					cancelCookie(request, response, "Cookie token was not Base64 encoded; value was '" + cookieValue
-							+ "'");
+                return null;
+            }
 
-					return null;
-				}
-			}
-		}
+            // By this stage we have a valid token
+            if (logger.isDebugEnabled()) {
+                logger.debug("Remember-me cookie accepted");
+            }
+
+            RememberMeAuthenticationToken auth = new RememberMeAuthenticationToken(this.key, userDetails,
+                    userDetails.getAuthorities());
+            auth.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
+
+            return auth;
+        }
+
 
 		return null;
 	}
