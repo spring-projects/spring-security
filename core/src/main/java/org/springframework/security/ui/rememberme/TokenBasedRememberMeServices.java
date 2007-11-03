@@ -95,8 +95,7 @@ import org.springframework.web.bind.RequestUtils;
  * </p>
  *
  * @author Ben Alex
- * @version $Id: TokenBasedRememberMeServices.java 1871 2007-05-25 03:12:49Z
- * benalex $
+ * @version $Id$
  */
 public class TokenBasedRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
 	//~ Static fields/initializers =====================================================================================
