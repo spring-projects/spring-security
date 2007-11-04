@@ -211,7 +211,8 @@ public abstract class AbstractRememberMeServices implements RememberMeServices {
      * The default is to return true if <tt>alwaysRemember</tt> is set or the configured parameter name has
      * been included in the request and is set to the value "true".
      *
-     * @param request the request which may include
+     * @param request the request submitted from an interactive login, which may include additional information
+     * indicating that a persistent login is desired.
      * @param parameter the configured remember-me parameter name.
      *
      * @return true if the request includes information indicating that a persistent login has been

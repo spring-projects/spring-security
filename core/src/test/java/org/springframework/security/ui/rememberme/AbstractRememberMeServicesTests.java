@@ -220,7 +220,6 @@ public class AbstractRememberMeServicesTests {
 
     }
 
-
     private Cookie[] createLoginCookie(String cookieToken) {
         MockRememberMeServices services = new MockRememberMeServices();
         Cookie cookie = new Cookie(AbstractRememberMeServices.SPRING_SECURITY_PERSISTENT_REMEMBER_ME_COOKIE_KEY,
