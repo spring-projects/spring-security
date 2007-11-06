@@ -18,31 +18,23 @@ package org.springframework.security.ui.rememberme;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
-
 import org.springframework.security.context.SecurityContextHolder;
-
 import org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent;
+import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.util.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-
-import org.springframework.util.Assert;
-
-import java.io.IOException;
-
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 
 /**
@@ -64,7 +56,8 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class RememberMeProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware {
+public class RememberMeProcessingFilter extends SpringSecurityFilter implements InitializingBean,
+        ApplicationEventPublisherAware {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(RememberMeProcessingFilter.class);
@@ -73,35 +66,20 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean, App
 
     private ApplicationEventPublisher eventPublisher;
     private AuthenticationManager authenticationManager;
-    private RememberMeServices rememberMeServices = new NullRememberMeServices();
+    private RememberMeServices rememberMeServices;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
 		Assert.notNull(authenticationManager, "authenticationManager must be specified");
-		Assert.notNull(this.rememberMeServices);
+		Assert.notNull(rememberMeServices, "rememberMeServices must be specified");
 	}
 
-    /**
-     * Does nothing - we rely on IoC lifecycle services instead.
-     */
-    public void destroy() {}
-
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws IOException, ServletException {
-        if (!(request instanceof HttpServletRequest)) {
-            throw new ServletException("Can only process HttpServletRequest");
-        }
-
-        if (!(response instanceof HttpServletResponse)) {
-            throw new ServletException("Can only process HttpServletResponse");
-        }
-
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            Authentication rememberMeAuth = rememberMeServices.autoLogin(httpRequest, httpResponse);
+            Authentication rememberMeAuth = rememberMeServices.autoLogin(request, response);
 
             if (rememberMeAuth != null) {
                 // Attempt authenticaton via AuthenticationManager
@@ -128,7 +106,7 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean, App
                                 + rememberMeAuth + "'; invalidating remember-me token", authenticationException);
                     }
 
-                    rememberMeServices.loginFail(httpRequest, httpResponse);
+                    rememberMeServices.loginFail(request, response);
                 }
             }
 
@@ -147,15 +125,6 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean, App
         return rememberMeServices;
     }
 
-    /**
-     * Does nothing - we rely on IoC lifecycle services instead.
-     *
-     * @param ignored not used
-     *
-     * @throws ServletException DOCUMENT ME!
-     */
-    public void init(FilterConfig ignored) throws ServletException {}
-
     public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
@@ -168,4 +137,7 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean, App
         this.rememberMeServices = rememberMeServices;
     }
 
+    public int getOrder() {
+        return FilterChainOrderUtils.REMEMBER_ME_FILTER_ORDER;
+    }
 }

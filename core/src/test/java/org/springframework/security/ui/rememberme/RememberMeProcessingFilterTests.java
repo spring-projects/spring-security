@@ -15,22 +15,17 @@
 
 package org.springframework.security.ui.rememberme;
 
-import junit.framework.TestCase;
-
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockFilterConfig;
-
 import org.springframework.security.context.SecurityContextHolder;
-
 import org.springframework.security.providers.TestingAuthenticationToken;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import java.io.IOException;
+import junit.framework.TestCase;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -40,6 +35,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 
 /**
@@ -69,10 +65,6 @@ public class RememberMeProcessingFilterTests extends TestCase {
         filter.destroy();
     }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(RememberMeProcessingFilterTests.class);
-    }
-
     protected void setUp() throws Exception {
         super.setUp();
         SecurityContextHolder.clearContext();
@@ -83,10 +75,10 @@ public class RememberMeProcessingFilterTests extends TestCase {
         SecurityContextHolder.clearContext();
     }
 
-    public void testDetectsAuthenticationManagerProperty()
-        throws Exception {
+    public void testDetectsAuthenticationManagerProperty() throws Exception {
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
         filter.setAuthenticationManager(new MockAuthenticationManager());
+        filter.setRememberMeServices(new NullRememberMeServices());
 
         filter.afterPropertiesSet();
         assertTrue(true);
@@ -101,13 +93,12 @@ public class RememberMeProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testDetectsRememberMeServicesProperty()
-        throws Exception {
+    public void testDetectsRememberMeServicesProperty() throws Exception {
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
         filter.setAuthenticationManager(new MockAuthenticationManager());
 
         // check default is NullRememberMeServices
-        assertEquals(NullRememberMeServices.class, filter.getRememberMeServices().getClass());
+        // assertEquals(NullRememberMeServices.class, filter.getRememberMeServices().getClass());
 
         // check getter/setter
         filter.setRememberMeServices(new TokenBasedRememberMeServices());
