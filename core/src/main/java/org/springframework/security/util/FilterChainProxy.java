@@ -106,7 +106,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
     private Map filterChainMap;
     private UrlMatcher matcher = new AntUrlPathMatcher();
     private FilterInvocationDefinitionSource fids;
-    
+
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
@@ -114,6 +114,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
         if (fids != null) {
             Assert.isNull(uncompiledFilterChainMap, "Set the filterChainMap or FilterInvocationDefinitionSource but not both");
             setFilterChainMap(new FIDSToFilterChainMapConverter(fids, applicationContext).getFilterChainMap());
+            fids = null;
         }
 
         Assert.notNull(uncompiledFilterChainMap, "filterChainMap must be set");
@@ -132,7 +133,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
                 filters[i].init(filterConfig);
             }
         }
-    }    
+    }
 
     public void destroy() {
         Filter[] filters = obtainAllDefinedFilters();
@@ -288,7 +289,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
             filterChainMap.put(compiledPath, filters);
         }
     }
-    
+
 
     /**
      * Returns a copy of the underlying filter chain map. Modifications to the map contents
