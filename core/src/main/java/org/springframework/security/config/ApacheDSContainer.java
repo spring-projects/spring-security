@@ -61,17 +61,15 @@ class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, 
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (workingDir != null) {
-            return;
+        if (workingDir == null) {
+            String apacheWorkDir = System.getProperty("apacheDSWorkDir");
+
+            if (apacheWorkDir == null) {
+                apacheWorkDir = System.getProperty("java.io.tmpdir") + File.separator + "apacheds-spring-security";
+            }
+
+            setWorkingDirectory(new File(apacheWorkDir));
         }
-
-        String apacheWorkDir = System.getProperty("apacheDSWorkDir");
-
-        if (apacheWorkDir == null) {
-            apacheWorkDir = System.getProperty("java.io.tmpdir") + File.separator + "apacheds-spring-security";
-        }
-
-        setWorkingDirectory(new File(apacheWorkDir));
         start();
     }
 
