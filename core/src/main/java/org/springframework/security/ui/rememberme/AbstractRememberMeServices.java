@@ -3,17 +3,20 @@ package org.springframework.security.ui.rememberme;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.Authentication;
 import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.providers.rememberme.RememberMeAuthenticationToken;
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
+import org.springframework.security.ui.logout.LogoutHandler;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.context.support.MessageSourceAccessor;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Luke Taylor
  * @version $Id$
  */
-public abstract class AbstractRememberMeServices implements RememberMeServices {
+public abstract class AbstractRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
 
     protected final Log logger = LogFactory.getLog(getClass());
 
@@ -42,7 +45,14 @@ public abstract class AbstractRememberMeServices implements RememberMeServices {
 	private String parameter = DEFAULT_PARAMETER;
     private boolean alwaysRemember;
     private String key;
-    private long tokenValiditySeconds = 1209600; // 14 days
+    private int tokenValiditySeconds = 1209600; // 14 days
+
+    public void afterPropertiesSet() throws Exception {
+        Assert.hasLength(key);        
+        Assert.hasLength(parameter);
+        Assert.hasLength(cookieName);
+        Assert.notNull(userDetailsService);        
+    }
 
     /**
      * Template implementation which locates the Spring Security cookie, decodes it into
@@ -261,12 +271,20 @@ public abstract class AbstractRememberMeServices implements RememberMeServices {
         return cookie;
     }
 
-    protected Cookie makeValidCookie(String value, HttpServletRequest request, long maxAge) {
+    protected Cookie makeValidCookie(String value, HttpServletRequest request, int maxAge) {
         Cookie cookie = new Cookie(cookieName, value);
-        cookie.setMaxAge(new Long(maxAge).intValue());
+        cookie.setMaxAge(maxAge);
         cookie.setPath(StringUtils.hasLength(request.getContextPath()) ? request.getContextPath() : "/");
 
         return cookie;
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        if (logger.isDebugEnabled()) {
+            logger.debug( "Logout of user "
+                    + (authentication == null ? "Unknown" : authentication.getName()));
+        }
+        cancelCookie(request, response);
     }
     
     public void setCookieName(String cookieName) {
@@ -281,6 +299,10 @@ public abstract class AbstractRememberMeServices implements RememberMeServices {
         this.parameter = parameter;
     }
 
+    public String getParameter() {
+        return parameter;
+    }
+
     protected UserDetailsService getUserDetailsService() {
         return userDetailsService;
     }
@@ -293,11 +315,11 @@ public abstract class AbstractRememberMeServices implements RememberMeServices {
         this.key = key;
     }
 
-    public void setTokenValiditySeconds(long tokenValiditySeconds) {
+    public void setTokenValiditySeconds(int tokenValiditySeconds) {
         this.tokenValiditySeconds = tokenValiditySeconds;
     }
 
-    public long getTokenValiditySeconds() {
+    public int getTokenValiditySeconds() {
         return tokenValiditySeconds;
     }
     

@@ -72,13 +72,14 @@
       <xs:documentation>Container element for HTTP security configuration</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="security:intercept-url"/>
-        <xs:element minOccurs="0" ref="security:form-login"/>
-        <xs:element minOccurs="0" ref="security:http-basic"/>
-        <xs:element minOccurs="0" ref="security:logout"/>
-        <xs:element minOccurs="0" ref="security:concurrent-session-control"/>
-      </xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="security:intercept-url"/>
+        <xs:element ref="security:form-login"/>
+        <xs:element ref="security:http-basic"/>
+        <xs:element ref="security:logout"/>
+        <xs:element ref="security:concurrent-session-control"/>
+        <xs:element ref="security:remember-me"/>
+      </xs:choice>
       <xs:attributeGroup ref="security:http.attlist"/>
     </xs:complexType>
   </xs:element>
@@ -240,6 +241,16 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="remember-me">
+    <xs:complexType>
+      <xs:attributeGroup ref="security:remember-me.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="remember-me.attlist">
+    <xs:attribute name="key" use="required" type="xs:string"/>
+    <xs:attribute name="tokenRepository" type="xs:string"/>
+    <xs:attribute name="datasource" type="xs:string"/>
   </xs:attributeGroup>
   <xs:element name="authentication-provider">
     <xs:complexType>

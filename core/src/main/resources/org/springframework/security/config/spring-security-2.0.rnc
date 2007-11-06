@@ -48,7 +48,7 @@ protect.attlist &=
 
 http =
     ## Container element for HTTP security configuration
-   element http {http.attlist, intercept-url+, form-login?, http-basic?, logout?, concurrent-session-control? }
+   element http {http.attlist, (intercept-url+ & form-login? & http-basic? & logout? & concurrent-session-control? & remember-me?) }
 http.attlist &=
     ## Controls the eagerness with which an HTTP session is created.
     [ a:defaultValue = "ifRequired" ] attribute createSession {"ifRequired" | "always" | "never" }?
@@ -135,6 +135,13 @@ concurrent-sessions.attlist &=
 concurrent-sessions.attlist &=
     attribute exceptionIfMaximumExceeded {"true" | "false"}?
 
+remember-me = 
+    element remember-me {remember-me.attlist}
+remember-me.attlist &= 
+    attribute key {xsd:string}
+remember-me.attlist &= 
+    (attribute tokenRepository {xsd:string} | attribute datasource {xsd:string})?        
+    
 authentication-provider =
     element authentication-provider {authentication-provider.attlist, (user-service | jdbc-user-service)}
 authentication-provider.attlist &= empty
@@ -143,7 +150,6 @@ user-service =
     element user-service {user-service.attlist, (user* | jdbc-user-service)}
 user-service.attlist &=
     attribute properties {xsd:string}*
-
 
 user =
     element user {user.attlist, empty}

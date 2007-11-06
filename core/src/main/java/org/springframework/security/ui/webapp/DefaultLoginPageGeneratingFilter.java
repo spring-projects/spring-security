@@ -4,6 +4,7 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.FilterChainOrderUtils;
 import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.ui.rememberme.AbstractRememberMeServices;
 import org.springframework.security.ui.rememberme.TokenBasedRememberMeServices;
 import org.springframework.util.StringUtils;
 
@@ -35,8 +36,8 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
         usernameParameter = authFilter.getUsernameParameter();
         passwordParameter = authFilter.getPasswordParameter();
 
-        if (authFilter.getRememberMeServices() instanceof TokenBasedRememberMeServices) {
-            rememberMeParameter = ((TokenBasedRememberMeServices)authFilter.getRememberMeServices()).getParameter();
+        if (authFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
+            rememberMeParameter = ((AbstractRememberMeServices)authFilter.getRememberMeServices()).getParameter();
         }
     }
 

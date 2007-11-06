@@ -29,7 +29,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
     private static final String LOGIN_PAGE_ATTRIBUTE = "loginPage";
 
     private static final String FORM_LOGIN_TARGET_URL_ATTRIBUTE = "defaultTargetUrl";
-    private static final String DEFAULT_FORM_LOGIN_TARGET_URL = "/index";
+    private static final String DEFAULT_FORM_LOGIN_TARGET_URL = "/";
 
     private static final String FORM_LOGIN_AUTH_FAILURE_URL_ATTRIBUTE = "defaultTargetUrl";
     // TODO: Change AbstractProcessingFilter to not need a failure URL and just write a failure message
@@ -38,7 +38,12 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
 
 
     public BeanDefinition parse(Element elt, ParserContext parserContext) {
+        ConfigUtils.registerProviderManagerIfNecessary(parserContext);
+
         BeanDefinition filterBean = createFilterBean(elt);
+
+        filterBean.getPropertyValues().addPropertyValue("authenticationManager",
+                new RuntimeBeanReference(ConfigUtils.DEFAULT_AUTH_MANAGER_ID));
 
         BeanDefinitionBuilder entryPointBuilder =
                 BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProcessingFilterEntryPoint.class);
@@ -90,8 +95,6 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         filterBuilder.addPropertyValue("authenticationFailureUrl", authenticationFailureUrl);
-        // Set autowire to pick up the authentication manager.
-        filterBuilder.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
 
         return filterBuilder.getBeanDefinition();
     }

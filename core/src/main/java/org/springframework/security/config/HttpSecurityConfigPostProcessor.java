@@ -3,14 +3,17 @@ package org.springframework.security.config;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
-import org.springframework.security.AuthenticationManager;
+import org.springframework.security.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.AuthenticationEntryPoint;
+import org.springframework.security.ui.rememberme.RememberMeServices;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.util.Assert;
 
@@ -38,9 +41,53 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
 
         ConfigUtils.configureSecurityInterceptor(beanFactory, securityInterceptor);
 
+        configureRememberMeSerices(beanFactory);
+
         configureAuthenticationEntryPoint(beanFactory);
 
+        configureAuthenticationFilter(beanFactory);        
+
         configureFilterChain(beanFactory);
+    }
+
+    private void configureRememberMeSerices(ConfigurableListableBeanFactory beanFactory) {
+        try {           
+            BeanDefinition rememberMeServices =
+                    beanFactory.getBeanDefinition(RememberMeBeanDefinitionParser.DEFAULT_REMEMBER_ME_SERVICES_ID);
+            rememberMeServices.getPropertyValues().addPropertyValue("userDetailsService",
+                    ConfigUtils.getUserDetailsService(beanFactory));
+
+            BeanDefinition logoutFilter =
+                    beanFactory.getBeanDefinition(HttpSecurityBeanDefinitionParser.DEFAULT_FILTER_SECURITY_INTERCEPTOR_ID);
+
+        } catch (NoSuchBeanDefinitionException e) {
+            // ignore
+        }
+    }
+
+    /**
+     * Sets the authentication manager, (and remember-me services, if required) on any instances of
+     * AbstractProcessingFilter
+     */
+    private void configureAuthenticationFilter(ConfigurableListableBeanFactory beanFactory) {
+        Map beans = beanFactory.getBeansOfType(RememberMeServices.class);
+
+        RememberMeServices rememberMeServices = null;
+
+        if (beans.size() > 0) {
+            rememberMeServices = (RememberMeServices) beans.values().toArray()[0];
+        }
+
+        Iterator authFilters = beanFactory.getBeansOfType(AbstractProcessingFilter.class).values().iterator();
+
+        while (authFilters.hasNext()) {
+            AbstractProcessingFilter filter = (AbstractProcessingFilter) authFilters.next();
+
+            if (rememberMeServices != null) {
+                logger.info("Using RememberMeServices " + rememberMeServices + " with filter " + filter);
+                filter.setRememberMeServices(rememberMeServices);
+            }
+        }
     }
 
     /**
@@ -52,7 +99,6 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
      * <li>throw an exception (for now). TODO: Examine additional beans and types and make decision</li>
      * </ol>
      *
-     * @param beanFactory
      */
     private void configureAuthenticationEntryPoint(ConfigurableListableBeanFactory beanFactory) {
         logger.info("Selecting AuthenticationEntryPoint for use in ExceptionTranslationFilter");
@@ -90,6 +136,15 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
         filterMap.put(allUrlsMatch, defaultFilterChain);
 
         filterChainProxy.setFilterChainMap(filterMap);
+
+        Map sessionFilters = beanFactory.getBeansOfType(ConcurrentSessionFilter.class);
+
+        if (!sessionFilters.isEmpty()) {
+            logger.info("Concurrent session filter in use, setting 'forceEagerSessionCreation' to true");
+            HttpSessionContextIntegrationFilter scif = (HttpSessionContextIntegrationFilter)
+                    beanFactory.getBean(HttpSecurityBeanDefinitionParser.DEFAULT_HTTP_SESSION_FILTER_ID);
+            scif.setForceEagerSessionCreation(true);
+        }
     }
 
     private List orderFilters(ConfigurableListableBeanFactory beanFactory) {

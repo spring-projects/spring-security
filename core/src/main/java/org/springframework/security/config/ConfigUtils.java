@@ -4,12 +4,13 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.providers.ProviderManager;
+import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.vote.AffirmativeBased;
 import org.springframework.security.vote.AuthenticatedVoter;
 import org.springframework.security.vote.RoleVoter;
@@ -91,6 +92,20 @@ public abstract class ConfigUtils {
         securityInterceptor.getPropertyValues().addPropertyValue("accessDecisionManager", accessMgr);
         securityInterceptor.getPropertyValues().addPropertyValue("authenticationManager",
                 getAuthenticationManager(beanFactory));
+    }
+
+    static UserDetailsService getUserDetailsService(ConfigurableListableBeanFactory bf) {
+        Map services = bf.getBeansOfType(UserDetailsService.class);
+
+        if (services.size() == 0) {
+            throw new IllegalArgumentException("No UserDetailsService registered.");
+
+        } else if (services.size() > 1) {
+            throw new IllegalArgumentException("More than one UserDetailsService registered. Please" +
+                    "use a specific Id in yur configuration");
+        }
+
+        return (UserDetailsService) services.values().toArray()[0];        
     }
 
     private static AuthenticationManager getAuthenticationManager(ConfigurableListableBeanFactory bf) {

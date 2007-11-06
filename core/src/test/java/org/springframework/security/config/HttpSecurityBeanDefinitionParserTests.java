@@ -1,19 +1,21 @@
 package org.springframework.security.config;
 
-import org.junit.AfterClass;
-import static org.junit.Assert.assertTrue;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.ui.ExceptionTranslationFilter;
+import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FilterChainProxy;
+
+import org.junit.AfterClass;
+import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.List;
@@ -54,7 +56,7 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         List filterList = filterChainProxy.getFilters("/someurl");
 
-        assertTrue("Expected 8 filters in chain", filterList.size() == 8);
+        assertEquals("Expected 9 filters in chain", 9, filterList.size());
 
         Iterator filters = filterList.iterator();
 
@@ -64,6 +66,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof AuthenticationProcessingFilter);
         assertTrue(filters.next() instanceof DefaultLoginPageGeneratingFilter);
         assertTrue(filters.next() instanceof BasicProcessingFilter);
+        assertTrue(filters.next() instanceof RememberMeProcessingFilter);        
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
         assertTrue(filters.next() instanceof FilterSecurityInterceptor);
     }

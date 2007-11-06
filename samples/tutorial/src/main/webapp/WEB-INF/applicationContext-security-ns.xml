@@ -22,8 +22,10 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         <security:logout />
         <security:concurrent-session-control maxSessions="1" exceptionIfMaximumExceeded="true"/>
 
+        <security:remember-me key="doesntmatter" tokenRepository="tokenRepo"/>
     </security:http>
 
+    <bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
 
     <security:authentication-provider>
         <security:user-service>

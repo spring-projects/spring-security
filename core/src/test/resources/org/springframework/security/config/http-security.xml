@@ -7,20 +7,22 @@
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
     <security:http createSession="ifRequired" pathType="ant" lowerCaseComparisons="true">
-        <security:intercept-url pattern="/unprotected" filters="none"/>
+        <security:intercept-url pattern="/unprotected" filters="none" />
         <security:intercept-url pattern="/somepath" access="ROLE_SPECIAL,ROLE_USER" />
         <security:intercept-url pattern="/**" access="ROLE_USER" />
 
         <!-- Default form login configuration. Will create filter and entry point -->
-        <security:form-login loginUrl="/j_spring_security_check"  />
+        <security:form-login loginUrl="/j_spring_security_check" />
 
         <!-- Default basic auth configuration. Will create filter and entry point -->
-        <security:http-basic realm="NamespaceTestRealm"  />
+        <security:http-basic realm="NamespaceTestRealm" />
 
         <!-- Default logout configuration -->
         <security:logout logoutUrl="/j_spring_security_logout" logoutSuccessUrl="/" invalidateSession="true" />        
 
         <security:concurrent-session-control maxSessions="1"/>
+
+        <security:remember-me key="doesntmatter" tokenRepository="tokenRepo"/>
     </security:http>
 
     <security:authentication-provider>
@@ -29,4 +31,9 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
             <security:user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B,AUTH_OTHER" />
         </security:user-service>
     </security:authentication-provider>
+
+    <bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
+
+    <!-- bean name="rememberMeServices" class="org.springframework.security.ui.rememberme.NullRememberMeServices"/ -->
+
 </beans>

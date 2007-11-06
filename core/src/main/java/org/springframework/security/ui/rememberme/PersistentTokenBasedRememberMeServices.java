@@ -109,7 +109,10 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
     }
 
     private PersistentRememberMeToken createNewToken(String username, String series) {
-        logger.debug("Creating new persistent login token for user " + username);
+        if (logger.isDebugEnabled()) {
+            logger.debug(series == null ? "Creating new" : "Renewing" +
+                    " persistent login token for user " + username);
+        }
 
         if (series == null) {
             byte[] newSeries = new byte[seriesLength];
@@ -131,8 +134,7 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 
     private void addCookie(PersistentRememberMeToken token, HttpServletRequest request, HttpServletResponse response) {
         String cookieValue = encodeCookie(new String[] {token.getSeries(), token.getTokenValue()});
-        long maxAge = System.currentTimeMillis() + getTokenValiditySeconds() * 1000;
-        response.addCookie(makeValidCookie(cookieValue, request, maxAge));
+        response.addCookie(makeValidCookie(cookieValue, request, getTokenValiditySeconds()));
     }
 
     public void setTokenRepository(PersistentTokenRepository tokenRepository) {
