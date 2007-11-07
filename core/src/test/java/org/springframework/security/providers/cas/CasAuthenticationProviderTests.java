@@ -239,6 +239,8 @@ public class CasAuthenticationProviderTests extends TestCase {
     public void testDetectsMissingStatelessTicketCache()
         throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        // set this explicitly to null to test failure
+        cap.setStatelessTicketCache(null);
         cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setKey("qwerty");
