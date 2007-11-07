@@ -22,6 +22,7 @@ import org.springframework.security.BadCredentialsException;
 
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.cas.cache.NullStatelessTicketCache;
 
 import org.springframework.security.ui.cas.CasProcessingFilter;
 
@@ -59,7 +60,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     private CasAuthoritiesPopulator casAuthoritiesPopulator;
     private CasProxyDecider casProxyDecider;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-    private StatelessTicketCache statelessTicketCache;
+    private StatelessTicketCache statelessTicketCache = new NullStatelessTicketCache();
     private String key;
     private TicketValidator ticketValidator;
 
