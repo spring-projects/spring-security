@@ -274,7 +274,7 @@
         <title>History</title>
 
         <para>Spring Security began in late 2003 as "The Acegi Security System for Spring".
-        A question was posed on the Spring Developers' mailing list asking 
+        A question was posed on the Spring Developers' mailing list asking
         whether there had been any consideration given to a Spring-based security
         implementation. At the time the Spring community was relatively small
         (especially by today's size!), and indeed Spring itself had only existed
@@ -1404,7 +1404,14 @@ if (obj instanceof UserDetails) {
 
         <para>Now that you've configured the tag libraries, refer to the
         individual reference guide sections for details on how to use
-        them.</para>
+        them. Note that when using the tags, you should include the
+        taglib reference in your JSP:
+        <programlisting><![CDATA[
+            <%@ taglib prefix='authz' uri='http://acegisecurity.org/authz' %>
+            ]]>
+        </programlisting>
+
+        </para>
       </sect1>
     </chapter>
   </part>
