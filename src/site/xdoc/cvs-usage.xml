@@ -15,17 +15,27 @@
             </subsection>
             <subsection name="Subversion Command-Line Access">
                 <p>
-                    The code can be checked out anonymously with the following command:
+    If you want to get a copy of the source code to experiment with the latest changes or to build the sample
+    applications, it can be checked out anonymously using the subversion command-line client:
                 </p>
                 <p>
-                    svn co http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/
+    svn co http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/branches/1.0.x-branch/
+                </p>
+                <p>
+    This will pull down a copy of the latest development source for the 1.0 branch of the project, which
+    should be pretty stable and suitable for new users. For the latest new features, you can
+    check out the cutting-edge trunk source, using the command:
+                </p>
+                <p>
+    svn co http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/
                 </p>
 
             </subsection>
             <subsection name="Nightly Snapshots">
                 <p>If you'd prefer not to use subversion directly, please see our
                     <a href="downloads.html">downloads page</a>
-                    for nightly snapshots.
+                    for nightly snapshots. Note that these are from the project trunk and may not be suitable
+                    for new users
                 </p>
             </subsection>
         </section>

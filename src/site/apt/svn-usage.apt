@@ -11,7 +11,18 @@ Subversion Usage
 
 * Subversion Access
 
-    The code can be checked out anonymously using the subversion command-line client:
+    If you want to get a copy of the source code to experiment with the latest changes or to build the sample
+    applications, it can be checked out anonymously using the subversion command-line client:
+
++----------------------------------------------------------------------------------------------------------------------+
+
+          svn co http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/branches/1.0.x-branch/
+
++----------------------------------------------------------------------------------------------------------------------+
+
+    This will pull down a copy of the latest development source for the 1.0 branch of the project, which
+    should be pretty stable and suitable for new users. For the latest new features, you can
+    check out the cutting-edge trunk source, using the command:
 
 +----------------------------------------------------------------------------------------------------------------------+
 
@@ -19,10 +30,12 @@ Subversion Usage
 
 +----------------------------------------------------------------------------------------------------------------------+
 
+    This isn't recommended for new users.
+
 * Nightly Snapshots
 
     If you'd prefer not to use the subversion client directly, please see our {{{"downloads.html"}downloads page}} for
-    nightly snapshots.
+    nightly snapshots. Note that these are from the project trunk and may not be entirely suitable for new users.
 
 
 
