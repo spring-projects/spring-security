@@ -22,6 +22,7 @@ import org.acegisecurity.BadCredentialsException;
 
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.cas.cache.NullStatelessTicketCache;
 
 import org.acegisecurity.ui.cas.CasProcessingFilter;
 
@@ -59,7 +60,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     private CasAuthoritiesPopulator casAuthoritiesPopulator;
     private CasProxyDecider casProxyDecider;
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
-    private StatelessTicketCache statelessTicketCache;
+    private StatelessTicketCache statelessTicketCache = new NullStatelessTicketCache();
     private String key;
     private TicketValidator ticketValidator;
 
