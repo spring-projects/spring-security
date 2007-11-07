@@ -30,11 +30,15 @@ Subversion Usage
 
 +----------------------------------------------------------------------------------------------------------------------+
 
+    Specific tagged releases can be checked out from the URL
+    {{{"http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/tags/}http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/tags/}.
+
+
 
 * Nightly Snapshots
 
     If you'd prefer not to use the subversion client directly, please see our {{{"downloads.html"}downloads page}} for
-    nightly snapshots.
+    nightly snapshots. Note that these are taken from the trunk and may not be suitable for new users.
 
 
 
