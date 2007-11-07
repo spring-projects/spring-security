@@ -21,10 +21,10 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
-    protected final Log logger = LogFactory.getLog(getClass());    
+    protected final Log logger = LogFactory.getLog(getClass());
 
     public static final String DEFAULT_REMEMBER_ME_FILTER_ID = "_rememberMeFilter";
-    public static final String DEFAULT_REMEMBER_ME_SERVICES_ID = "_rememberMeServices";   
+    public static final String DEFAULT_REMEMBER_ME_SERVICES_ID = "_rememberMeServices";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinition filter = new RootBeanDefinition(RememberMeProcessingFilter.class);
@@ -34,24 +34,39 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
                 new RuntimeBeanReference(ConfigUtils.DEFAULT_AUTH_MANAGER_ID));
 
         String tokenRepository = element.getAttribute("tokenRepository");
-        String dataSource = element.getAttribute("dataSource");
+        String dataSource      = element.getAttribute("dataSource");
+        String key             = element.getAttribute("key");
 
-        if (StringUtils.hasText(tokenRepository)) {
-            if (StringUtils.hasText(dataSource)) {
-                throw new SecurityConfigurationException("Specify tokenRepository or dataSource but not both");
-            }
+        boolean dataSourceSet = StringUtils.hasText(dataSource);
+        boolean tokenRepoSet = StringUtils.hasText(tokenRepository);
 
-            services.getPropertyValues().addPropertyValue("tokenRepository", new RuntimeBeanReference(tokenRepository));
-
-        } else if (StringUtils.hasText(dataSource)) {
-            BeanDefinition tokenRepo = new RootBeanDefinition(JdbcTokenRepositoryImpl.class);
-            tokenRepo.getPropertyValues().addPropertyValue("dataSource", new RuntimeBeanReference(dataSource));
-        } else {
-            // Not persistent
-            services = new RootBeanDefinition(TokenBasedRememberMeServices.class);
+        if (dataSourceSet && tokenRepoSet) {
+            throw new SecurityConfigurationException("Specify tokenRepository or dataSource but not both");
         }
 
-        String key = element.getAttribute("key");
+        boolean isPersistent = dataSourceSet | tokenRepoSet;
+
+        if (isPersistent) {
+            Object tokenRepo;
+
+            if (tokenRepoSet) {
+                tokenRepo = new RuntimeBeanReference(tokenRepository);
+            } else {
+                tokenRepo = new RootBeanDefinition(JdbcTokenRepositoryImpl.class);
+                ((BeanDefinition)tokenRepo).getPropertyValues().addPropertyValue("dataSource",
+                        new RuntimeBeanReference(dataSource));
+            }
+            services.getPropertyValues().addPropertyValue("tokenRepository", tokenRepo);
+        } else {
+            isPersistent = false;
+            services = new RootBeanDefinition(TokenBasedRememberMeServices.class);
+        }
+        
+        if (StringUtils.hasText(key) && isPersistent) {
+            logger.warn("The attribute 'key' ('" + key + "') is not required for persistent remember-me services and " +
+                    "will be ignored.");
+        }
+
         services.getPropertyValues().addPropertyValue("key", key);
 
         BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);

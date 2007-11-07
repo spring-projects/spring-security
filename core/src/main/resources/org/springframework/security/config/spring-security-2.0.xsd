@@ -248,7 +248,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="remember-me.attlist">
-    <xs:attribute name="key" use="required" type="xs:string"/>
+    <xs:attribute name="key" type="xs:string"/>
     <xs:attribute name="tokenRepository" type="xs:string"/>
     <xs:attribute name="datasource" type="xs:string"/>
   </xs:attributeGroup>

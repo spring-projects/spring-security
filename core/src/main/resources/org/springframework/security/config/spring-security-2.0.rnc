@@ -136,11 +136,10 @@ concurrent-sessions.attlist &=
     attribute exceptionIfMaximumExceeded {"true" | "false"}?
 
 remember-me = 
-    element remember-me {remember-me.attlist}
+    element remember-me {remember-me.attlist} 
+    
 remember-me.attlist &= 
-    attribute key {xsd:string}
-remember-me.attlist &= 
-    (attribute tokenRepository {xsd:string} | attribute datasource {xsd:string})?        
+    (attribute key {xsd:string} | (attribute tokenRepository {xsd:string} | attribute datasource {xsd:string}))        
     
 authentication-provider =
     element authentication-provider {authentication-provider.attlist, (user-service | jdbc-user-service)}
