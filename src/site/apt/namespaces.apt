@@ -17,10 +17,8 @@ Overview
     change.
 
     The {{{http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/core/src/main/resources/org/springframework/security/config/}schema files}}
-    can be found in the core package.
-
-    For simplicity, a relax NG compact schema (the rnc file) has been used as it is easier to work with.
-    This is then coverted into a W3C schema using trang.
+    can be found in the core package. For simplicity, a relax NG compact schema (the rnc file) has been used as it is
+    easier to work with. This is then coverted into a W3C schema using trang.
 
 * Design
 
@@ -29,9 +27,10 @@ Overview
     The focus should be mainly on providing high-level components which logically match the different aspects of
     securing an application. While it is also useful to have namespace options for simplifying the configuration of
     existing framework beans, this is a somewhat orthogonal requirement, with different target users, and will be dealt
-    with separately. Only the most obvious customizations will be implemented to start with.
+    with separately. Only the most obvious customizations will be implemented to start with. It should also be possible
+    to add new features witout affecti the existing design.
 
-    With these aims in mind, the design is largely based around the large-scale dependencies within the framework.
+    Keeping these aims in mind, the design is largely based around the large-scale dependencies within the framework.
     It can be divided up into the following areas:
 
     * <<Web/HTTP Security>> - this is by far the largest and most complex area, consisting of
@@ -86,8 +85,8 @@ Overview
 
 * Http Security
 
-   Probably the best starting point here is to look at the namespace configuration which is currently in use in the
-   sample application:
+   Probably the best starting point here is to look at the {{{http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/samples/tutorial/src/main/webapp/WEB-INF/applicationContext-security-ns.xml}namespace configuration file}}
+   which is in use in the tutorial sample application:
 
 +--------------------------------------------------------------------------------------------------------------------
 
@@ -107,7 +106,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         <security:logout />
         <security:concurrent-session-control maxSessions="1" exceptionIfMaximumExceeded="true"/>
 
-        <security:remember-me key="doesntmatter" tokenRepository="tokenRepo"/>
+        <security:remember-me tokenRepository="tokenRepo"/>
     </security:http>
 
     <bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
@@ -137,7 +136,8 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     by Spring Security and will typically each create a filter and possibly one or more other beans.
 
     Finally a post processor (HttpSecurityConfigPostProcessor) is registered to handle issues which can't be done
-    until the application context has been completed. This includes assembling and ordering the filter chain. The core
+    until the application context has been completed. This includes assembling and ordering the filter chain
+    and the strategy for selecting which authentication entry point should be used to trigger login. The core
     filters now implement Ordered and a standard ordering has been established for them. Other filters in the
     context must also implement Ordered to be considered, so it may be necessary to provide an element which can be
     used to decorate filter beans to achieve this, if the user can't (or doesn't want to) make their code implement
@@ -157,3 +157,76 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     than by allowing Ids to be set on the various child elements). Channel security should be straightforward.
 
     
+* Method Security
+
+    An example use of the \<security:intercept-methods /\> decorator is:
+
++-----------------------------------------------------------------------------------------------------------------------
+
+<bean id="target" class="org.springframework.security.config.TestBusinessBeanImpl">
+    <security:intercept-methods>
+        <security:protect method="org.springframework.security.config.TestBusinessBean.set*" access="ROLE_ADMIN" />
+        <security:protect method="org.springframework.security.config.TestBusinessBean.get*" access="ROLE_ADMIN,ROLE_USER" />
+        <security:protect method="org.springframework.security.config.TestBusinessBean.doSomething" access="ROLE_USER" />
+    </security:intercept-methods>
+</bean>
+
++-----------------------------------------------------------------------------------------------------------------------
+
+    Spring's AbstractInterceptorDrivenBeanDefinitionDecorator is used to add a MethodSecurityInterceptor to the bean.
+    Ideally we would just have the method names here rather than fully-qualified names (any ideas??).
+
+
+* Authentication Manager and Providers
+
+    At least one authentication provider must be defined for things to work. No providers defined as
+    beans will currently be added to the authentication manager, but this could be done with a post
+    processor. Alternatively, \<security:authentication-provider /\> could be used round a bean declaration, or
+    supplied with a reference to a provider bean.
+
+* Configuration of Specific Beans
+
+    As mentioned above, it is also useful to be able to use namespaces to simplify the configuration of existing beans,
+    especially where the existing configuration is complicated. This would typically be done with bean decorators.
+    An example of this is the simplification of FilterChainProxy configuration.
+
+** FilterChainProxy Configuration
+
+    The \<security:filter-chain-map /\> decorator sets the configuration map of paths to filter lists for FilterChainProxy. The 
+    syntax is similar to that described above for the HTTP security features.
+
++-----------------------------------------------------------------------------------------------------------------------
+
+<bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
+    <sec:filter-chain-map pathType="ant">
+        <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
+        <sec:filter-chain pattern="/some/other/path/**" filters="httpSessionFilter,mockFilter,mockFilter2"/>
+        <sec:filter-chain pattern="/do/not/filter" filters="none"/>
+        <sec:filter-chain pattern="/**" filters="sif,apf,mockFilter"/>
+    </sec:filter-chain-map>
+</bean>
+
++-----------------------------------------------------------------------------------------------------------------------
+    
+    This kind of functionality can be added as requested/required without having an impact on other areas, so it is of
+    lower priority than the design of "higher-level" namespace components.
+
+
+
+
+* LDAP Configuration Example
+
+    As an example of what is possible in terms of reducing configuration requirements, the \<security:ldap /\>
+    element is an excellent example of the use of high-level namespace components. It can be used to set up a complete
+    LDAP authentication provider with or without an external server.
+    The optional <<<url>>> attribute specifies the URL of an external LDAP server. Without this, it will create
+    an embedded Apache Directory instance and attempt to load any ldif files found on the classpath. Doing this
+    with Spring beans would involve potentially hundreds of lines of configuration and is a difficult task for an
+    inexperienced user. Ultimately the user should be able to configure authentication and group membership strategy,
+    server details (e.g. port number) and the structure of the directory.
+
+
+
+
+
+
