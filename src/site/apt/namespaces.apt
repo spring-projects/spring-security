@@ -156,7 +156,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     filter chain entirely. It's not clear how or if additional filter order customization should be implemented (other
     than by allowing Ids to be set on the various child elements). Channel security should be straightforward.
 
-    
+
 * Method Security
 
     An example use of the \<security:intercept-methods /\> decorator is:
@@ -192,7 +192,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
 ** FilterChainProxy Configuration
 
-    The \<security:filter-chain-map /\> decorator sets the configuration map of paths to filter lists for FilterChainProxy. The 
+    The \<security:filter-chain-map /\> decorator sets the configuration map of paths to filter lists for FilterChainProxy. The
     syntax is similar to that described above for the HTTP security features.
 
 +-----------------------------------------------------------------------------------------------------------------------
@@ -207,7 +207,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 </bean>
 
 +-----------------------------------------------------------------------------------------------------------------------
-    
+
     This kind of functionality can be added as requested/required without having an impact on other areas, so it is of
     lower priority than the design of "higher-level" namespace components.
 
@@ -220,10 +220,15 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     element is an excellent example of the use of high-level namespace components. It can be used to set up a complete
     LDAP authentication provider with or without an external server.
     The optional <<<url>>> attribute specifies the URL of an external LDAP server. Without this, it will create
-    an embedded Apache Directory instance and attempt to load any ldif files found on the classpath. Doing this
+    an embedded Apache Directory server instance and attempt to load any ldif files found on the classpath. Doing this
     with Spring beans would involve potentially hundreds of lines of configuration and is a difficult task for an
-    inexperienced user. Ultimately the user should be able to configure authentication and group membership strategy,
-    server details (e.g. port number) and the structure of the directory.
+    inexperienced user (or indeed any user). Ultimately the user should be able to configure authentication and group
+    membership strategy, server details (e.g. port number) and the structure of the directory.
+
+    {{{http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/core/src/main/java/org/springframework/security/config/LdapBeanDefinitionParser.java}LdapBeanDefinitionParser}}
+    does the parsing work here and there are currently no child elements.
+
+
 
 
 
