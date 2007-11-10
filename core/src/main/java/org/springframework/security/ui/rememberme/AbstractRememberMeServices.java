@@ -48,10 +48,10 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     private int tokenValiditySeconds = 1209600; // 14 days
 
     public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(key);        
+        Assert.hasLength(key);
         Assert.hasLength(parameter);
         Assert.hasLength(cookieName);
-        Assert.notNull(userDetailsService);        
+        Assert.notNull(userDetailsService);
     }
 
     /**
@@ -81,7 +81,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
             cancelCookie(request, response);
             throw cte;
         } catch (UsernameNotFoundException noUser) {
-            cancelCookie(request, response);            
+            cancelCookie(request, response);
             logger.debug("Remember-me login was valid but corresponding user not found.", noUser);
             return null;
         } catch (InvalidCookieException invalidCookie) {
@@ -90,7 +90,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
             return null;
         } catch (RememberMeAuthenticationException e) {
             cancelCookie(request, response);
-            logger.debug("autoLogin failed", e);
+            logger.debug(e.getMessage());
             return null;
         }
 
@@ -286,7 +286,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         }
         cancelCookie(request, response);
     }
-    
+
     public void setCookieName(String cookieName) {
         this.cookieName = cookieName;
     }
@@ -322,7 +322,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     public int getTokenValiditySeconds() {
         return tokenValiditySeconds;
     }
-    
+
     public AuthenticationDetailsSource getAuthenticationDetailsSource() {
         return authenticationDetailsSource;
     }

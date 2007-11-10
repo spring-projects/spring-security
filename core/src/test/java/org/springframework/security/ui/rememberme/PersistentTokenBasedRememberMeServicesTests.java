@@ -24,7 +24,7 @@ public class PersistentTokenBasedRememberMeServicesTests {
 
     @Test(expected = InvalidCookieException.class)
     public void loginIsRejectedWithWrongNumberOfCookieTokens() {
-        services.processAutoLoginCookie(new String[] {"series", "token", "extra"}, new MockHttpServletRequest(), 
+        services.processAutoLoginCookie(new String[] {"series", "token", "extra"}, new MockHttpServletRequest(),
                 new MockHttpServletResponse());
     }
 
@@ -101,15 +101,20 @@ public class PersistentTokenBasedRememberMeServicesTests {
             storedToken = token;
         }
 
-        public void saveToken(PersistentRememberMeToken token) {
+        public void createNewToken(PersistentRememberMeToken token) {
             storedToken = token;
+        }
+
+        public void updateToken(String series, String tokenValue, Date lastUsed) {
+            storedToken = new PersistentRememberMeToken(storedToken.getUsername(), storedToken.getSeries(),
+                    tokenValue, lastUsed);
         }
 
         public PersistentRememberMeToken getTokenForSeries(String seriesId) {
             return storedToken;
         }
 
-        public void removeAllTokens(String username) {
+        public void removeUserTokens(String username) {
         }
 
         PersistentRememberMeToken getStoredToken() {

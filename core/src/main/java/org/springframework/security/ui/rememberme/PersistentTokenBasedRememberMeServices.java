@@ -1,6 +1,7 @@
 package org.springframework.security.ui.rememberme;
 
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.Authentication;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,7 +11,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 /**
- * {@link RememberMeServices} implementation based on Barry Jaspan's 
+ * {@link RememberMeServices} implementation based on Barry Jaspan's
  * <a href="http://jaspan.com/improved_persistent_login_cookie_best_practice">Improved Persistent Login Cookie
  * Best Practice</a>.
  *
@@ -80,7 +81,7 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
         // We have a match for this user/series combination
         if (!presentedToken.equals(token.getTokenValue())) {
             // Token doesn't match series value. Delete all logins for this user and throw an exception to warn them.
-            tokenRepository.removeAllTokens(token.getUsername());
+            tokenRepository.removeUserTokens(token.getUsername());
 
             throw new CookieTheftException(messages.getMessage("PersistentTokenBasedRememberMeServices.cookieStolen",
                     "Invalid remember-me token (Series/token) mismatch. Implies previous cookie theft attack."));
@@ -90,10 +91,22 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
             throw new RememberMeAuthenticationException("Remember-me login has expired");
         }
 
-        // Token also matches, so login is valid. create and save new token with the *same* series number.
-        PersistentRememberMeToken newToken = createNewToken(token.getUsername(), token.getSeries());
+        // Token also matches, so login is valid. Update the token value, keeping the *same* series number.
+        if (logger.isDebugEnabled()) {
+            logger.debug("Refreshing persistent login token for user '" + token.getUsername() + "', series '" +
+                    token.getSeries() + "'");
+        }
 
-        addCookie(newToken, request, response);
+        PersistentRememberMeToken newToken = new PersistentRememberMeToken(token.getUsername(),
+                token.getSeries(), generateTokenData(), new Date());
+
+        try {
+            tokenRepository.updateToken(newToken.getSeries(), newToken.getTokenValue(), newToken.getDate());
+            addCookie(newToken, request, response);
+        } catch (DataAccessException e) {
+            logger.error("Failed to update token: ", e);
+            throw new RememberMeAuthenticationException("Autologin failed due to data access problem");
+        }
 
         return token.getUsername();
     }
@@ -104,32 +117,31 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
      *
      */
     protected void onLoginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication successfulAuthentication) {
-        PersistentRememberMeToken token = createNewToken(successfulAuthentication.getName(), null);
-        addCookie(token, request, response);
+        String username = successfulAuthentication.getName();
+
+        logger.debug("Creating new persistent login for user " + username);
+
+        PersistentRememberMeToken persistentToken = new PersistentRememberMeToken(username, generateSeriesData(),
+                generateTokenData(), new Date());
+        try {
+            tokenRepository.createNewToken(persistentToken);
+            addCookie(persistentToken, request, response);
+        } catch (DataAccessException e) {
+            logger.error("Failed to save persistent token ", e);
+
+        }
     }
 
-    private PersistentRememberMeToken createNewToken(String username, String series) {
-        if (logger.isDebugEnabled()) {
-            logger.debug(series == null ? "Creating new" : "Renewing" +
-                    " persistent login token for user " + username);
-        }
+    protected String generateSeriesData() {
+        byte[] newSeries = new byte[seriesLength];
+        random.nextBytes(newSeries);
+        return new String(Base64.encodeBase64(newSeries));
+    }
 
-        if (series == null) {
-            byte[] newSeries = new byte[seriesLength];
-            random.nextBytes(newSeries);
-            series = new String(Base64.encodeBase64(newSeries));
-            logger.debug("New series: " + series);
-        }
-
-        byte[] token = new byte[tokenLength];
-        random.nextBytes(token);
-
-        PersistentRememberMeToken persistentToken = new PersistentRememberMeToken(username, series,
-                new String(Base64.encodeBase64(token)), new Date());
-
-        tokenRepository.saveToken(persistentToken);
-
-        return persistentToken;
+    protected String generateTokenData() {
+        byte[] newToken = new byte[tokenLength];
+        random.nextBytes(newToken);
+        return new String(Base64.encodeBase64(newToken));
     }
 
     private void addCookie(PersistentRememberMeToken token, HttpServletRequest request, HttpServletResponse response) {
