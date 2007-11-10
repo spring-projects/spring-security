@@ -1,8 +1,10 @@
 package org.springframework.security.ui.rememberme;
 
-import org.apache.commons.codec.binary.Base64;
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.Authentication;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.dao.DataAccessException;
+
+import org.apache.commons.codec.binary.Base64;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,7 +63,7 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
      * @throws CookieTheftException if a presented series value is found, but the stored token is different from the
      * one presented.
      */
-    protected String processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request, HttpServletResponse response) {
+    protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request, HttpServletResponse response) {
 
         if (cookieTokens.length != 2) {
             throw new InvalidCookieException("Cookie token did not contain " + 2 +
@@ -108,7 +110,11 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
             throw new RememberMeAuthenticationException("Autologin failed due to data access problem");
         }
 
-        return token.getUsername();
+        UserDetails user = getUserDetailsService().loadUserByUsername(token.getUsername());
+
+        validateUserDetails(user);
+
+        return user;
     }
 
     /**

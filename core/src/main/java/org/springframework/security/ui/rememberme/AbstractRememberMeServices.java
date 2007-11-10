@@ -29,19 +29,23 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public abstract class AbstractRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
+	//~ Static fields/initializers =====================================================================================
 
+    public static final String SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
+    public static final String DEFAULT_PARAMETER = "_spring_security_remember_me";
+
+    private static final String DELIMITER = ":";
+
+	//~ Instance fields ================================================================================================
     protected final Log logger = LogFactory.getLog(getClass());
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-    public static final String DEFAULT_PARAMETER = "_spring_security_remember_me";
-    public static final String SPRING_SECURITY_PERSISTENT_REMEMBER_ME_COOKIE_KEY = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
-    private static final String DELIMITER = ":";
 
     private UserDetailsService userDetailsService;
     private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
 
-    private String cookieName = SPRING_SECURITY_PERSISTENT_REMEMBER_ME_COOKIE_KEY;
+    private String cookieName = SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
 	private String parameter = DEFAULT_PARAMETER;
     private boolean alwaysRemember;
     private String key;
@@ -75,8 +79,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
         try {
             String[] cookieTokens = decodeCookie(rememberMeCookie);
-            String username = processAutoLoginCookie(cookieTokens, request, response);
-            user = loadAndValidateUserDetails(username);
+            user = processAutoLoginCookie(cookieTokens, request, response);
         } catch (CookieTheftException cte) {
             cancelCookie(request, response);
             throw cte;
@@ -172,22 +175,23 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         return sb.toString();
     }
 
-    protected UserDetails loadAndValidateUserDetails(String username) throws UsernameNotFoundException,
+    /**
+     * Provided for subclass convenience to check the account status of a loaded user.
+     *
+     * @throws UsernameNotFoundException if the username could not be located by the configured UserDetailsService.
+     * @throws RememberMeAuthenticationException if the account is locked or disabled.
+     */
+    protected void validateUserDetails(UserDetails user) throws UsernameNotFoundException,
             RememberMeAuthenticationException {
-
-        UserDetails user;
-
-        user = this.userDetailsService.loadUserByUsername(username);
 
         if (!user.isAccountNonExpired() || !user.isCredentialsNonExpired() || !user.isEnabled()) {
             throw new RememberMeAuthenticationException("Remember-me login was valid for user " +
                     user.getUsername() + ", but account is expired, has expired credentials or is disabled");
         }
-
-        return user;
     }
 
     public final void loginFail(HttpServletRequest request, HttpServletResponse response) {
+        logger.debug("Interactive login attempt was unsuccessful.");
         cancelCookie(request, response);
         onLoginFail(request, response);
     }
@@ -202,6 +206,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
             Authentication successfulAuthentication) {
 
         if (!rememberMeRequested(request, parameter)) {
+            logger.debug("Remember-me login not requested.");
             return;
         }
 
@@ -250,12 +255,14 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
      * @param cookieTokens the decoded and tokenized cookie value
      * @param request the request
      * @param response the response, to allow the cookie to be modified if required.
-     * @return the name of the corresponding user account if the cookie was validated successfully.
+     * @return the UserDetails for the corresponding user account if the cookie was validated successfully.
      * @throws RememberMeAuthenticationException if the cookie is invalid or the login is invalid for some
      * other reason.
+     * @throws UsernameNotFoundException if the user account corresponding to the login cookie couldn't be found
+     * (for example if the user has been removed from the system).
      */
-    protected abstract String processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
-            HttpServletResponse response) throws RememberMeAuthenticationException;
+    protected abstract UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
+            HttpServletResponse response) throws RememberMeAuthenticationException, UsernameNotFoundException;
 
     protected void cancelCookie(HttpServletRequest request, HttpServletResponse response) {
         logger.debug("Cancelling cookie");
@@ -313,6 +320,10 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getKey() {
+        return key;
     }
 
     public void setTokenValiditySeconds(int tokenValiditySeconds) {

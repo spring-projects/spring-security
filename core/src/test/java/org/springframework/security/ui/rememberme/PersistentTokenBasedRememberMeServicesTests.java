@@ -1,11 +1,13 @@
 package org.springframework.security.ui.rememberme;
 
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.Test;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Date;
 
@@ -20,6 +22,8 @@ public class PersistentTokenBasedRememberMeServicesTests {
     public void setUpData() throws Exception {
         services = new PersistentTokenBasedRememberMeServices();
         services.setCookieName("mycookiename");
+        services.setUserDetailsService(
+                new AbstractRememberMeServicesTests.MockUserDetailsService(AbstractRememberMeServicesTests.joe, false));
     }
 
     @Test(expected = InvalidCookieException.class)
