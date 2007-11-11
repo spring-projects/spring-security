@@ -65,10 +65,6 @@ public class MockFilterInvocationDefinitionSource extends AbstractFilterInvocati
         }
     }
 
-    private MockFilterInvocationDefinitionSource() {
-        super();
-    }
-
     //~ Methods ========================================================================================================
 
     public Iterator getConfigAttributeDefinitions() {
