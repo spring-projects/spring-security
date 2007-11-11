@@ -43,7 +43,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     public static final String LOGOUT_ELEMENT = "logout";
     public static final String FORM_LOGIN_ELEMENT = "form-login";
     public static final String BASIC_AUTH_ELEMENT = "http-basic";
-    public static final String REMEMBER_ME_ELEMENT = "remember-me";    
+    public static final String REMEMBER_ME_ELEMENT = "remember-me";
 
     static final String PATH_PATTERN_ATTRIBUTE = "pattern";
     static final String PATTERN_TYPE_ATTRIBUTE = "pathType";
@@ -100,7 +100,14 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             new ConcurrentSessionsBeanDefinitionParser().parse(sessionControlElt, parserContext);
         }
 
+        // Parse remember me before logout as RememberMeServices is also a LogoutHandler implementation. 
         BeanDefinitionRegistry registry = parserContext.getRegistry();
+
+        Element rememberMeElt = DomUtils.getChildElementByTagName(element, REMEMBER_ME_ELEMENT);
+
+        if (rememberMeElt != null) {
+            new RememberMeBeanDefinitionParser().parse(rememberMeElt, parserContext);
+        }
 
         Element logoutElt = DomUtils.getChildElementByTagName(element, LOGOUT_ELEMENT);
 
@@ -119,12 +126,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (basicAuthElt != null) {
             new BasicAuthenticationBeanDefinitionParser().parse(basicAuthElt, parserContext);
         }
-
-        Element rememberMeElt = DomUtils.getChildElementByTagName(element, REMEMBER_ME_ELEMENT);
-
-        if (rememberMeElt != null) {
-            new RememberMeBeanDefinitionParser().parse(rememberMeElt, parserContext);
-        }        
 
         registry.registerBeanDefinition(DEFAULT_FILTER_CHAIN_PROXY_ID, filterChainProxy);
         registry.registerBeanDefinition(DEFAULT_HTTP_SESSION_FILTER_ID, httpSCIF);

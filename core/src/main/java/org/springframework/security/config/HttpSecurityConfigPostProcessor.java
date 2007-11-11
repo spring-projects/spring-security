@@ -1,7 +1,11 @@
 package org.springframework.security.config;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.springframework.security.concurrent.ConcurrentSessionFilter;
+import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.AuthenticationEntryPoint;
+import org.springframework.security.ui.rememberme.RememberMeServices;
+import org.springframework.security.util.FilterChainProxy;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -9,13 +13,10 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
-import org.springframework.security.concurrent.ConcurrentSessionFilter;
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
-import org.springframework.security.ui.AbstractProcessingFilter;
-import org.springframework.security.ui.AuthenticationEntryPoint;
-import org.springframework.security.ui.rememberme.RememberMeServices;
-import org.springframework.security.util.FilterChainProxy;
 import org.springframework.util.Assert;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.Filter;
 import java.util.ArrayList;
@@ -45,21 +46,17 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
 
         configureAuthenticationEntryPoint(beanFactory);
 
-        configureAuthenticationFilter(beanFactory);        
+        configureAuthenticationFilter(beanFactory);
 
         configureFilterChain(beanFactory);
     }
 
     private void configureRememberMeSerices(ConfigurableListableBeanFactory beanFactory) {
-        try {           
+        try {
             BeanDefinition rememberMeServices =
                     beanFactory.getBeanDefinition(RememberMeBeanDefinitionParser.DEFAULT_REMEMBER_ME_SERVICES_ID);
             rememberMeServices.getPropertyValues().addPropertyValue("userDetailsService",
                     ConfigUtils.getUserDetailsService(beanFactory));
-
-            BeanDefinition logoutFilter =
-                    beanFactory.getBeanDefinition(HttpSecurityBeanDefinitionParser.DEFAULT_FILTER_SECURITY_INTERCEPTOR_ID);
-
         } catch (NoSuchBeanDefinitionException e) {
             // ignore
         }

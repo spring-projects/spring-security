@@ -1,14 +1,16 @@
 package org.springframework.security.config;
 
+import org.springframework.security.ui.logout.LogoutFilter;
+import org.springframework.security.ui.logout.SecurityContextLogoutHandler;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.security.ui.logout.LogoutFilter;
-import org.springframework.security.ui.logout.LogoutHandler;
-import org.springframework.security.ui.logout.SecurityContextLogoutHandler;
 import org.springframework.util.StringUtils;
+
 import org.w3c.dom.Element;
 
 /**
@@ -22,7 +24,7 @@ public class LogoutBeanDefinitionParser extends AbstractSingleBeanDefinitionPars
         return LogoutFilter.class;
     }
 
-    protected void doParse(Element element, BeanDefinitionBuilder builder) {
+    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         String logoutUrl = element.getAttribute("logoutUrl");
 
         if (StringUtils.hasText(logoutUrl)) {
@@ -36,7 +38,15 @@ public class LogoutBeanDefinitionParser extends AbstractSingleBeanDefinitionPars
         }
 
         builder.addConstructorArg(logoutSuccessUrl);
-        builder.addConstructorArg(new LogoutHandler[] {new SecurityContextLogoutHandler()});
+        ManagedList handlers = new ManagedList();
+        handlers.add(new SecurityContextLogoutHandler());
+
+        if (parserContext.getRegistry().containsBeanDefinition(RememberMeBeanDefinitionParser.DEFAULT_REMEMBER_ME_SERVICES_ID)) {
+            handlers.add(new RuntimeBeanReference(RememberMeBeanDefinitionParser.DEFAULT_REMEMBER_ME_SERVICES_ID));
+        }
+
+        builder.addConstructorArg(handlers);
+
     }
 
     protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) throws BeanDefinitionStoreException {
