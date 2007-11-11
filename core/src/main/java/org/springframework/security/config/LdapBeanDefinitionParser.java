@@ -49,6 +49,10 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
      */
     public static final String LDIF_FILE_ATTRIBUTE = "ldif";
 
+    /** Defines the port the LDAP server should run on */
+    public static final String PORT_ATTRIBUTE = "port";
+    public static final String DEFAULT_LDAP_PORT = "33389";
+
     // Defaults
     private static final String DEFAULT_ROOT_SUFFIX = "dc=springframework,dc=org";
     private static final String DEFAULT_PROVIDER_BEAN_ID = "_ldapAuthenticationProvider";
@@ -146,15 +150,20 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
             partition.setSuffix(suffix);
         } catch (NamingException e) {
             // TODO: What exception should we be throwing here ?
-
-            logger.error("Failed to set root name suffix to " + suffix, e);
+            parserContext.getReaderContext().error("Failed to set root name suffix to " + suffix, element, e);
         }
 
         HashSet partitions = new HashSet(1);
         partitions.add(partition);
 
-        //TODO: Allow port configuration
-        configuration.setLdapPort(3389);
+        String port = element.getAttribute(PORT_ATTRIBUTE);
+
+        if (!StringUtils.hasText(port)) {
+            port = DEFAULT_LDAP_PORT;
+        }
+
+        configuration.setLdapPort(Integer.parseInt(port));
+
         // We shut down the server ourself when the app context is closed so we don't need
         // the extra shutdown hook from apache DS itself.
         configuration.setShutdownHookEnabled(false);
@@ -162,7 +171,8 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
         configuration.setContextPartitionConfigurations(partitions);
 
         RootBeanDefinition initialDirContextFactory = new RootBeanDefinition(DefaultInitialDirContextFactory.class);
-        initialDirContextFactory.getConstructorArgumentValues().addIndexedArgumentValue(0, "ldap://127.0.0.1:3389/" + suffix);
+        initialDirContextFactory.getConstructorArgumentValues().addIndexedArgumentValue(0,
+                "ldap://127.0.0.1:" + port + "/" + suffix);
 
         initialDirContextFactory.getPropertyValues().addPropertyValue("managerDn", "uid=admin,ou=system");
         initialDirContextFactory.getPropertyValues().addPropertyValue("managerPassword", "secret");
@@ -172,8 +182,8 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
         apacheDSStartStop.getConstructorArgumentValues().addGenericArgumentValue(initialDirContextFactory);
 
         if (parserContext.getRegistry().containsBeanDefinition("_apacheDSStartStopBean")) {
-            //TODO: Appropriate exception
-            throw new IllegalArgumentException("Only one embedded server bean is allowed per application context");
+            parserContext.getReaderContext().error("Only one embedded server bean is allowed per application context",
+                    element);
         }
 
         parserContext.getRegistry().registerBeanDefinition("_apacheDSStartStopBean", apacheDSStartStop);

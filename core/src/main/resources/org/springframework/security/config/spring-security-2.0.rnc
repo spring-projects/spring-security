@@ -6,11 +6,21 @@ datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 
 default namespace = "http://www.springframework.org/schema/security"
 
+start = http | ldap
+
 # targetNamespace="http://www.springframework.org/schema/security"
 
 path-type =
     ## Defines the type types of pattern used to specify URL paths. Defaults to "ant"
     [ a:defaultValue = "ant" ] attribute pathType {"regex" | "ant"}
+    
+port =
+    ## Specifies an IP port number. Used to configure an embedded LDAP server, for example. 
+    attribute port { xsd:integer } 
+    
+url =
+    ## Specifies a URL.
+    attribute url { xsd:string }
 
 autoconfig = 
     ## Provides automatic security configration for a application
@@ -21,10 +31,12 @@ ldap =
     ## Sets up an ldap authentication provider, optionally with an embedded ldap server
     element ldap {ldap.attlist, empty}
 ldap.attlist &=
-    ## Specifies the ldap server Url. If omitted, an embedded server will be created    
-    attribute url { xsd:string }?
+    ## The url indicates the server location. If omitted, an embedded server will be 
+    ## started, optionally with the configured port number.
+    (url | port)?
+        
 ldap.attlist &=
-    ## Explicitly specify an ldif file resource to load 
+    ## Explicitly specify an ldif file resource to load into the embedded server
     [ a:defaultValue = "classpath:*.ldif" ] attribute ldif { xsd:string }?
 
 intercept-methods = 

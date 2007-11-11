@@ -14,6 +14,20 @@
       </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:attributeGroup name="port">
+    <xs:attribute name="port" use="required" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP server, for example. </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="url">
+    <xs:attribute name="url" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Specifies a URL.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="autoconfig">
     <xs:annotation>
       <xs:documentation>Provides automatic security configration for a application</xs:documentation>
@@ -31,12 +45,17 @@
   <xs:attributeGroup name="ldap.attlist">
     <xs:attribute name="url" type="xs:string">
       <xs:annotation>
-        <xs:documentation>Specifies the ldap server Url. If omitted, an embedded server will be created    </xs:documentation>
+        <xs:documentation>Specifies a URL.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="port" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP server, for example. </xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="ldif" default="classpath:*.ldif" type="xs:string">
       <xs:annotation>
-        <xs:documentation>Explicitly specify an ldif file resource to load </xs:documentation>
+        <xs:documentation>Explicitly specify an ldif file resource to load into the embedded server</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
