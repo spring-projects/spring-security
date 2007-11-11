@@ -163,7 +163,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
 
             if (!(filter instanceof Ordered)) {
                 // TODO: Possibly log this as a warning and skip this filter.
-                throw new IllegalArgumentException("Filter " + id + " must implement the Ordered interface");
+                throw new SecurityConfigurationException("Filter " + id + " must implement the Ordered interface");
             }
 
             orderedFilters.add(filter);

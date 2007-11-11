@@ -8,7 +8,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <security:http createSession="ifRequired" pathType="ant" lowerCaseComparisons="true">
         <security:intercept-url pattern="/unprotected" filters="none" />
-        <security:intercept-url pattern="/somepath" access="ROLE_SPECIAL,ROLE_USER" />
+        <security:intercept-url pattern="/somepath" access="ROLE_SPECIAL,ROLE_USER" requiresChannel="http" />
         <security:intercept-url pattern="/**" access="ROLE_USER" />
 
         <!-- Default form login configuration. Will create filter and entry point -->
@@ -18,7 +18,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         <security:http-basic realm="NamespaceTestRealm" />
 
         <!-- Default logout configuration -->
-        <security:logout logoutUrl="/j_spring_security_logout" logoutSuccessUrl="/" invalidateSession="true" />        
+        <security:logout logoutUrl="/j_spring_security_logout" logoutSuccessUrl="/" invalidateSession="true" />
 
         <security:concurrent-session-control maxSessions="1"/>
 

@@ -48,14 +48,6 @@ import javax.servlet.ServletResponse;
 public class ChannelProcessingFilterTests extends TestCase {
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ChannelProcessingFilterTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testDetectsMissingChannelDecisionManager()
         throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
@@ -200,7 +192,6 @@ public class ChannelProcessingFilterTests extends TestCase {
             filter.doFilter(null, new MockHttpServletResponse(), new MockFilterChain());
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("HttpServletRequest required", expected.getMessage());
         }
     }
 
@@ -212,7 +203,6 @@ public class ChannelProcessingFilterTests extends TestCase {
             filter.doFilter(new MockHttpServletRequest(null, null), null, new MockFilterChain());
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("HttpServletResponse required", expected.getMessage());
         }
     }
 
