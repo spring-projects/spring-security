@@ -25,11 +25,7 @@ public class JdbcTokenRepositoryImplTests {
 
     @BeforeClass
     public static void createDataSource() {
-        dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
-        dataSource.setUrl("jdbc:hsqldb:mem:tokenrepotest");
-        dataSource.setUsername("sa");
-        dataSource.setPassword("");
+        dataSource = new DriverManagerDataSource("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:tokenrepotest", "sa", "");
     }
 
     @Before
