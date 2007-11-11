@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -26,6 +27,11 @@ public class JdbcTokenRepositoryImplTests {
     @BeforeClass
     public static void createDataSource() {
         dataSource = new DriverManagerDataSource("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:tokenrepotest", "sa", "");
+    }
+
+    @AfterClass
+    public static void clearDataSource() {
+        dataSource = null;
     }
 
     @Before
