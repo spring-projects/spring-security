@@ -46,17 +46,12 @@ public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvo
 
     private static final Log logger = LogFactory.getLog(RegExpBasedFilterInvocationDefinitionMap.class);
 
-    //~ Instance fields ================================================================================================
-
-    private List requestMap = new Vector();
-    private boolean convertUrlToLowercaseBeforeComparison = false;
-
     //~ Methods ========================================================================================================
 
     public void addSecureUrl(String regExp, ConfigAttributeDefinition attr) {
         Pattern pattern = Pattern.compile(regExp);
 
-        requestMap.add(new EntryHolder(pattern, attr));
+        getRequestMap().add(new EntryHolder(pattern, attr));
 
         if (logger.isDebugEnabled()) {
             logger.debug("Added regular expression: " + regExp + "; attributes: " + attr);
@@ -65,7 +60,7 @@ public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvo
 
     public Iterator getConfigAttributeDefinitions() {
         Set set = new HashSet();
-        Iterator iter = requestMap.iterator();
+        Iterator iter = getRequestMap().iterator();
 
         while (iter.hasNext()) {
             EntryHolder entryHolder = (EntryHolder) iter.next();
@@ -75,16 +70,8 @@ public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvo
         return set.iterator();
     }
 
-    public int getMapSize() {
-        return this.requestMap.size();
-    }
-
-    public boolean isConvertUrlToLowercaseBeforeComparison() {
-        return convertUrlToLowercaseBeforeComparison;
-    }
-
     public ConfigAttributeDefinition lookupAttributes(String url) {
-        Iterator iter = requestMap.iterator();
+        Iterator iter = getRequestMap().iterator();
 
         if (isConvertUrlToLowercaseBeforeComparison()) {
             url = url.toLowerCase();
@@ -112,14 +99,6 @@ public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvo
         }
 
         return null;
-    }
-
-    public void setConvertUrlToLowercaseBeforeComparison(boolean convertUrlToLowercaseBeforeComparison) {
-        this.convertUrlToLowercaseBeforeComparison = convertUrlToLowercaseBeforeComparison;
-    }
-
-    List getRequestMap() {
-        return requestMap;
     }
 
     //~ Inner Classes ==================================================================================================

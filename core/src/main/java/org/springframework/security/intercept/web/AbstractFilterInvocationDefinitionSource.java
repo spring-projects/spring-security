@@ -17,6 +17,9 @@ package org.springframework.security.intercept.web;
 
 import org.springframework.security.ConfigAttributeDefinition;
 
+import java.util.List;
+import java.util.Vector;
+
 
 /**
  * Abstract implementation of <Code>FilterInvocationDefinitionSource</code>.
@@ -25,6 +28,10 @@ import org.springframework.security.ConfigAttributeDefinition;
  * @version $Id$
  */
 public abstract class AbstractFilterInvocationDefinitionSource implements FilterInvocationDefinitionSource {
+
+    protected List requestMap = new Vector();
+
+    private boolean convertUrlToLowercaseBeforeComparison = false;
 
     //~ Methods ========================================================================================================
 
@@ -57,5 +64,21 @@ public abstract class AbstractFilterInvocationDefinitionSource implements Filter
 
     public boolean supports(Class clazz) {
         return FilterInvocation.class.isAssignableFrom(clazz);
+    }
+
+    public int getMapSize() {
+        return this.requestMap.size();
+    }
+
+    public boolean isConvertUrlToLowercaseBeforeComparison() {
+        return convertUrlToLowercaseBeforeComparison;
+    }
+
+    public void setConvertUrlToLowercaseBeforeComparison(boolean convertUrlToLowercaseBeforeComparison) {
+        this.convertUrlToLowercaseBeforeComparison = convertUrlToLowercaseBeforeComparison;
+    }
+
+    List getRequestMap() {
+        return requestMap;
     }
 }

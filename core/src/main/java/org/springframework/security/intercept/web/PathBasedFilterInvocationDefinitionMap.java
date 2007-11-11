@@ -49,22 +49,18 @@ public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvoca
 
     private static final Log logger = LogFactory.getLog(PathBasedFilterInvocationDefinitionMap.class);
 
-    //~ Instance fields ================================================================================================
-
-    private List requestMap = new Vector();
     private PathMatcher pathMatcher = new AntPathMatcher();
-    private boolean convertUrlToLowercaseBeforeComparison = false;
 
     //~ Methods ========================================================================================================
 
     public void addSecureUrl(String antPath, ConfigAttributeDefinition attr) {
         // SEC-501: If using lower case comparison, we should convert the paths to lower case
         // as any upper case characters included by mistake will prevent the URL from ever being matched.
-        if (convertUrlToLowercaseBeforeComparison) {
+        if (isConvertUrlToLowercaseBeforeComparison()) {
             antPath = antPath.toLowerCase();
         }
 
-        requestMap.add(new EntryHolder(antPath, attr));
+        getRequestMap().add(new EntryHolder(antPath, attr));
 
         if (logger.isDebugEnabled()) {
             logger.debug("Added Ant path: " + antPath + "; attributes: " + attr);
@@ -73,7 +69,7 @@ public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvoca
 
     public Iterator getConfigAttributeDefinitions() {
         Set set = new HashSet();
-        Iterator iter = requestMap.iterator();
+        Iterator iter = getRequestMap().iterator();
 
         while (iter.hasNext()) {
             EntryHolder entryHolder = (EntryHolder) iter.next();
@@ -81,14 +77,6 @@ public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvoca
         }
 
         return set.iterator();
-    }
-
-    public int getMapSize() {
-        return this.requestMap.size();
-    }
-
-    public boolean isConvertUrlToLowercaseBeforeComparison() {
-        return convertUrlToLowercaseBeforeComparison;
     }
 
     public ConfigAttributeDefinition lookupAttributes(String url) {
@@ -126,14 +114,6 @@ public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvoca
 
         return null;
     }
-
-    public void setConvertUrlToLowercaseBeforeComparison(boolean convertUrlToLowercaseBeforeComparison) {
-        this.convertUrlToLowercaseBeforeComparison = convertUrlToLowercaseBeforeComparison;
-    }
-
-    List getRequestMap() {
-        return requestMap;
-    }    
 
     //~ Inner Classes ==================================================================================================
 
