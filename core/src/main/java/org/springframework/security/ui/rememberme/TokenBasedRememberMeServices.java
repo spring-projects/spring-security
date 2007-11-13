@@ -158,12 +158,13 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 			return;
 		}
 
-		long expiryTime = System.currentTimeMillis() + getTokenValiditySeconds() * 1000;
+		int tokenLifetime = calculateLoginLifetime(request, successfulAuthentication);
+        long expiryTime = System.currentTimeMillis() + 1000*tokenLifetime;
 
-		String signatureValue = makeTokenSignature(expiryTime, username, password);
+        String signatureValue = makeTokenSignature(expiryTime, username, password);
         String cookieValue = encodeCookie(new String[] {username, Long.toString(expiryTime), signatureValue});
 
-		response.addCookie(makeValidCookie(cookieValue, request, getTokenValiditySeconds()));
+        response.addCookie(makeValidCookie(cookieValue, request, tokenLifetime));
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Added remember-me cookie for user '" + username + "', expiry: '"
@@ -171,7 +172,28 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		}
 	}
 
-	protected String retrieveUserName(Authentication authentication) {
+    /**
+     * Calculates the validity period in seconds for a newly generated remember-me login.
+     * After this period (from the current time) the remember-me login will be considered expired.
+     * This method allows customization based on request parameters supplied with the login or information in
+     * the <tt>Authentication</tt> object. The default value is just the token validity period property,
+     * <tt>tokenValiditySeconds</tt>.
+     * <p>
+     * The returned value will be used to work out the expiry time of the token and will also be
+     * used to set the <tt>maxAge</tt> property of the cookie.
+     * </p>
+     *
+     * See SEC-485.
+     *
+     * @param request the request passed to onLoginSuccess
+     * @param authentication the successful authentication object.
+     * @return the lifetime in seconds.
+     */
+    protected int calculateLoginLifetime(HttpServletRequest request, Authentication authentication) {
+        return getTokenValiditySeconds();
+    }
+
+    protected String retrieveUserName(Authentication authentication) {
 		if (isInstanceOfUserDetails(authentication)) {
 			return ((UserDetails) authentication.getPrincipal()).getUsername();
 		}
