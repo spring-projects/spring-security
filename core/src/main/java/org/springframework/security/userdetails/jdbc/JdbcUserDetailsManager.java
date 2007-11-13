@@ -90,7 +90,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     }
 
     public void createUser(UserDetails user) {
-        insertUser.update(new Object[] {user.getUsername(), user.getPassword(), user.isEnabled()});
+        insertUser.update(new Object[] {user.getUsername(), user.getPassword(), Boolean.valueOf(user.isEnabled())});
 
         for (int i=0; i < user.getAuthorities().length; i++) {
             insertAuthority.update(user.getUsername(), user.getAuthorities()[i].getAuthority());
@@ -98,7 +98,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     }
 
     public void updateUser(UserDetails user) {
-        updateUser.update(new Object[] {user.getPassword(), user.isEnabled(), user.getUsername()});
+        updateUser.update(new Object[] {user.getPassword(), Boolean.valueOf(user.isEnabled()), user.getUsername()});
         deleteUserAuthorities.update(user.getUsername());
 
         for (int i=0; i < user.getAuthorities().length; i++) {
