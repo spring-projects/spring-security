@@ -1,6 +1,7 @@
 package org.springframework.security.userdetails.jdbc;
 
 import org.springframework.security.AccessDeniedException;
+import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.context.SecurityContextHolder;
@@ -132,14 +133,17 @@ public class JdbcUserDetailsManagerTests {
     @Test
     public void changePasswordSucceedsWithIfReAuthenticationSucceeds() {
         insertJoe();
-        authenticateJoe();
+        Authentication currentAuth = authenticateJoe();
         manager.setAuthenticationManager(new MockAuthenticationManager(true));
         manager.changePassword("password", "newPassword");
         UserDetails newJoe = manager.loadUserByUsername("joe");
 
         assertEquals("newPassword", newJoe.getPassword());
         // The password in the context should also be altered
-        assertEquals("newPassword", SecurityContextHolder.getContext().getAuthentication().getCredentials());
+        Authentication newAuth = SecurityContextHolder.getContext().getAuthentication();
+        assertEquals("joe", newAuth.getName());
+        assertEquals(currentAuth.getDetails(), newAuth.getDetails());
+        assertEquals("newPassword", newAuth.getCredentials());
     }
 
     @Test
@@ -160,10 +164,12 @@ public class JdbcUserDetailsManagerTests {
         assertEquals("password", SecurityContextHolder.getContext().getAuthentication().getCredentials());
     }
 
-    private void authenticateJoe() {
+    private Authentication authenticateJoe() {
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken("joe","password", joe.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
+
+        return auth;
     }
 
     private void insertJoe() {
