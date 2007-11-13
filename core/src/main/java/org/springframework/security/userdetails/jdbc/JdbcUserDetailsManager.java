@@ -162,6 +162,41 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         this.authenticationManager = authenticationManager;
     }
 
+    public void setCreateUserSql(String createUserSql) {
+        Assert.hasText(createUserSql);
+        this.createUserSql = createUserSql;
+    }
+
+    public void setDeleteUserSql(String deleteUserSql) {
+        Assert.hasText(deleteUserSql);
+        this.deleteUserSql = deleteUserSql;
+    }
+
+    public void setUpdateUserSql(String updateUserSql) {
+        Assert.hasText(updateUserSql);
+        this.updateUserSql = updateUserSql;
+    }
+
+    public void setCreateAuthoritySql(String createAuthoritySql) {
+        Assert.hasText(createAuthoritySql);
+        this.createAuthoritySql = createAuthoritySql;
+    }
+
+    public void setDeleteUserAuthoritiesSql(String deleteUserAuthoritiesSql) {
+        Assert.hasText(deleteUserAuthoritiesSql);
+        this.deleteUserAuthoritiesSql = deleteUserAuthoritiesSql;
+    }
+
+    public void setUserExistsSql(String userExistsSql) {
+        Assert.hasText(userExistsSql);
+        this.userExistsSql = userExistsSql;
+    }
+
+    public void setChangePasswordSql(String changePasswordSql) {
+        Assert.hasText(changePasswordSql);
+        this.changePasswordSql = changePasswordSql;
+    }    
+
     //~ Inner Classes ==================================================================================================
 
     protected class InsertUser extends SqlUpdate {
@@ -231,40 +266,5 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         protected Object mapRow(ResultSet rs, int rowNum) throws SQLException {
             return rs.getString(1);
         }
-    }
-
-    public void setCreateUserSql(String createUserSql) {
-        Assert.hasText(createUserSql);
-        this.createUserSql = createUserSql;
-    }
-
-    public void setDeleteUserSql(String deleteUserSql) {
-        Assert.hasText(deleteUserSql);
-        this.deleteUserSql = deleteUserSql;
-    }
-
-    public void setUpdateUserSql(String updateUserSql) {
-        Assert.hasText(updateUserSql);
-        this.updateUserSql = updateUserSql;
-    }
-
-    public void setCreateAuthoritySql(String createAuthoritySql) {
-        Assert.hasText(createAuthoritySql);
-        this.createAuthoritySql = createAuthoritySql;
-    }
-
-    public void setDeleteUserAuthoritiesSql(String deleteUserAuthoritiesSql) {
-        Assert.hasText(deleteUserAuthoritiesSql);
-        this.deleteUserAuthoritiesSql = deleteUserAuthoritiesSql;
-    }
-
-    public void setUserExistsSql(String userExistsSql) {
-        Assert.hasText(userExistsSql);
-        this.userExistsSql = userExistsSql;
-    }
-
-    public void setChangePasswordSql(String changePasswordSql) {
-        Assert.hasText(changePasswordSql);
-        this.changePasswordSql = changePasswordSql;
     }
 }
