@@ -16,23 +16,18 @@
 package org.springframework.security.providers.ldap.authenticator;
 
 import org.springframework.security.SpringSecurityMessageSource;
-
 import org.springframework.security.ldap.InitialDirContextFactory;
 import org.springframework.security.ldap.LdapUserSearch;
-
 import org.springframework.security.providers.ldap.LdapAuthenticator;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -117,7 +112,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
      */
     protected List getUserDns(String username) {
         if (userDnFormat == null) {
-            return new ArrayList(0);
+            return Collections.EMPTY_LIST;
         }
 
         List userDns = new ArrayList(userDnFormat.length);
