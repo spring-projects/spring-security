@@ -48,7 +48,6 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
     //~ Static fields/initializers =====================================================================================
 
     private static final GrantedAuthority[] NO_AUTHORITIES = new GrantedAuthority[0];
-    private static final Control[] NO_CONTROLS = new Control[0];
 
     //~ Instance fields ================================================================================================
 
@@ -57,7 +56,6 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
     private String password;
     private String username;
     private GrantedAuthority[] authorities = NO_AUTHORITIES;
-    private Control[] controls = NO_CONTROLS;
     private boolean accountNonExpired = true;
     private boolean accountNonLocked = true;
     private boolean credentialsNonExpired = true;
@@ -75,10 +73,6 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
 
     public GrantedAuthority[] getAuthorities() {
         return authorities;
-    }
-
-    public Control[] getControls() {
-        return controls;
     }
 
     public String getDn() {
@@ -133,7 +127,6 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
             setAccountNonExpired(copyMe.isAccountNonExpired());
             setCredentialsNonExpired(copyMe.isCredentialsNonExpired());
             setAccountNonLocked(copyMe.isAccountNonLocked());
-            setControls(copyMe.getControls());
             setAuthorities(copyMe.getAuthorities());
         }
 
@@ -191,10 +184,6 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
 
         public void setAuthorities(GrantedAuthority[] authorities) {
             mutableAuthorities = new ArrayList(Arrays.asList(authorities));
-        }
-
-        public void setControls(Control[] controls) {
-            instance.controls = controls;
         }
 
         public void setCredentialsNonExpired(boolean credentialsNonExpired) {

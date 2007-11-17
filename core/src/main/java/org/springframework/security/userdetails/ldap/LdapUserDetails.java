@@ -40,13 +40,6 @@ public interface LdapUserDetails extends UserDetails {
     Attributes getAttributes();
 
     /**
-     * Returns any LDAP response controls (as part of a user authentication process, for example).
-     *
-     * @return an array of LDAP Control instances, never null
-     */
-    Control[] getControls();
-
-    /**
      * The DN of the entry for this user's account.
      *
      * @return the user's DN
