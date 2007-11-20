@@ -16,6 +16,7 @@
 package org.springframework.security.ldap;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.ldap.core.DistinguishedName;
 
 import javax.naming.directory.DirContext;
 
@@ -25,7 +26,7 @@ import javax.naming.directory.DirContext;
  * @author Luke Taylor
  * @version $Id$
  */
-public class MockInitialDirContextFactory implements InitialDirContextFactory {
+public class MockSpringSecurityContextSource implements SpringSecurityContextSource {
     //~ Instance fields ================================================================================================
 
     private DirContext ctx;
@@ -33,24 +34,12 @@ public class MockInitialDirContextFactory implements InitialDirContextFactory {
 
     //~ Constructors ===================================================================================================
 
-    public MockInitialDirContextFactory(DirContext ctx, String baseDn) {
+    public MockSpringSecurityContextSource(DirContext ctx, String baseDn) {
         this.baseDn = baseDn;
         this.ctx = ctx;
     }
 
     //~ Methods ========================================================================================================
-
-    public String getRootDn() {
-        return baseDn;
-    }
-
-    public DirContext newInitialDirContext() {
-        return ctx;
-    }
-
-    public DirContext newInitialDirContext(String username, String password) {
-        return ctx;
-    }
 
     public DirContext getReadOnlyContext() throws DataAccessException {
         return ctx;
@@ -58,5 +47,17 @@ public class MockInitialDirContextFactory implements InitialDirContextFactory {
 
     public DirContext getReadWriteContext() throws DataAccessException {
         return ctx;
+    }
+
+    public DirContext getReadWriteContext(String userDn, Object credentials) {
+        return ctx;
+    }
+
+    public DistinguishedName getBaseLdapPath() {
+        return new DistinguishedName(baseDn);
+    }
+
+    public String getBaseLdapPathAsString() {
+        return getBaseLdapPath().toString();
     }
 }

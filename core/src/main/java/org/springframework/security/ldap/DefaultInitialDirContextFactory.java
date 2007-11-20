@@ -28,6 +28,7 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.util.Assert;
 import org.springframework.ldap.UncategorizedLdapException;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
+import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.dao.DataAccessException;
 
 import java.util.Hashtable;
@@ -64,10 +65,14 @@ import javax.naming.directory.InitialDirContext;
  * @author Luke Taylor
  * @version $Id$
  *
+ *
+ * @deprecated use {@link DefaultSpringSecurityContextSource} instead.
+ *
  * @see <a href="http://java.sun.com/products/jndi/tutorial/ldap/connect/pool.html">The Java tutorial's guide to LDAP
  *      connection pooling</a>
  */
-public class DefaultInitialDirContextFactory implements InitialDirContextFactory, MessageSourceAware {
+public class DefaultInitialDirContextFactory implements InitialDirContextFactory,
+        SpringSecurityContextSource, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(DefaultInitialDirContextFactory.class);
@@ -343,5 +348,17 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     public void setDirObjectFactory(String dirObjectFactory) {
         this.dirObjectFactoryClass = dirObjectFactory;
+    }
+
+    public DirContext getReadWriteContext(String userDn, Object credentials) {
+        return newInitialDirContext(userDn, (String) credentials);
+    }
+
+    public DistinguishedName getBaseLdapPath() {
+        return new DistinguishedName(rootDn);
+    }
+
+    public String getBaseLdapPathAsString() {
+        return getBaseLdapPath().toString();
     }
 }

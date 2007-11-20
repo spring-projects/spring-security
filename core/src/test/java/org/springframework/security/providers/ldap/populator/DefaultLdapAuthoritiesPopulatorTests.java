@@ -18,7 +18,6 @@ package org.springframework.security.providers.ldap.populator;
 import org.springframework.security.GrantedAuthority;
 
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
-import org.springframework.security.ldap.InitialDirContextFactory;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
@@ -42,7 +41,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
     public void onSetUp() throws Exception {
         super.onSetUp();
 
-        populator = new DefaultLdapAuthoritiesPopulator((InitialDirContextFactory) getContextSource(), "ou=groups");
+        populator = new DefaultLdapAuthoritiesPopulator(getContextSource(), "ou=groups");
 
     }
 

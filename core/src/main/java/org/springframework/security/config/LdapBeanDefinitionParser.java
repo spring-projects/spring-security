@@ -1,22 +1,23 @@
 package org.springframework.security.config;
 
-import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
+import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
+import org.springframework.security.providers.ldap.LdapAuthenticationProvider;
+import org.springframework.security.providers.ldap.authenticator.BindAuthenticator;
+import org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.util.StringUtils;
-import org.springframework.util.Assert;
-import org.springframework.security.ldap.DefaultInitialDirContextFactory;
-import org.springframework.security.providers.ldap.LdapAuthenticationProvider;
-import org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator;
-import org.springframework.security.providers.ldap.authenticator.BindAuthenticator;
+import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
+import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.ldap.core.DirContextAdapter;
-import org.w3c.dom.Element;
-import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
+import org.w3c.dom.Element;
 
 import javax.naming.NamingException;
 import java.util.HashSet;
@@ -63,13 +64,13 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
     protected AbstractBeanDefinition parseInternal(Element elt, ParserContext parserContext) {
         String url = elt.getAttribute(URL_ATTRIBUTE);
 
-        RootBeanDefinition initialDirContextFactory;
+        RootBeanDefinition contextSource;
 
         if (!StringUtils.hasText(url)) {
-            initialDirContextFactory = createEmbeddedServer(elt, parserContext);
+            contextSource = createEmbeddedServer(elt, parserContext);
         } else {
-            initialDirContextFactory = new RootBeanDefinition(DefaultInitialDirContextFactory.class);
-            initialDirContextFactory.getConstructorArgumentValues().addIndexedArgumentValue(0, url);
+            contextSource = new RootBeanDefinition(DefaultSpringSecurityContextSource.class);
+            contextSource.getConstructorArgumentValues().addIndexedArgumentValue(0, url);
         }
 
         String managerDn = elt.getAttribute(PRINCIPAL_ATTRIBUTE);
@@ -79,14 +80,14 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
             Assert.hasText(managerPassword, "You must specify the " + PASSWORD_ATTRIBUTE +
                     " if you supply a " + managerDn);
 
-            initialDirContextFactory.getPropertyValues().addPropertyValue("managerDn", managerDn);
-            initialDirContextFactory.getPropertyValues().addPropertyValue("managerPassword", managerPassword);
+            contextSource.getPropertyValues().addPropertyValue("userDn", managerDn);
+            contextSource.getPropertyValues().addPropertyValue("password", managerPassword);
         }
 
 
         // TODO: Make these default values for 2.0
-        initialDirContextFactory.getPropertyValues().addPropertyValue("useLdapContext", Boolean.TRUE);
-        initialDirContextFactory.getPropertyValues().addPropertyValue("dirObjectFactory", "org.springframework.ldap.core.support.DefaultDirObjectFactory");
+//        contextSource.getPropertyValues().addPropertyValue("useLdapContext", Boolean.TRUE);
+//        contextSource.getPropertyValues().addPropertyValue("dirObjectFactory", "org.springframework.ldap.core.support.DefaultDirObjectFactory");
 
         String id = elt.getAttribute(ID_ATTRIBUTE);
         String contextSourceId = "contextSource";
@@ -99,13 +100,13 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
             logger.warn("Bean already exists with Id '" + contextSourceId + "'");
         }
 
-        parserContext.getRegistry().registerBeanDefinition(contextSourceId, initialDirContextFactory);
+        parserContext.getRegistry().registerBeanDefinition(contextSourceId, contextSource);
 
         RootBeanDefinition bindAuthenticator = new RootBeanDefinition(BindAuthenticator.class);
-        bindAuthenticator.getConstructorArgumentValues().addGenericArgumentValue(initialDirContextFactory);
+        bindAuthenticator.getConstructorArgumentValues().addGenericArgumentValue(contextSource);
         bindAuthenticator.getPropertyValues().addPropertyValue("userDnPatterns", new String[] {DEFAULT_DN_PATTERN});
         RootBeanDefinition authoritiesPopulator = new RootBeanDefinition(DefaultLdapAuthoritiesPopulator.class);
-        authoritiesPopulator.getConstructorArgumentValues().addGenericArgumentValue(initialDirContextFactory);
+        authoritiesPopulator.getConstructorArgumentValues().addGenericArgumentValue(contextSource);
         authoritiesPopulator.getConstructorArgumentValues().addGenericArgumentValue(DEFAULT_GROUP_CONTEXT);
 
         RootBeanDefinition ldapProvider = new RootBeanDefinition(LdapAuthenticationProvider.class);
@@ -170,16 +171,15 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
         configuration.setExitVmOnShutdown(false);
         configuration.setContextPartitionConfigurations(partitions);
 
-        RootBeanDefinition initialDirContextFactory = new RootBeanDefinition(DefaultInitialDirContextFactory.class);
-        initialDirContextFactory.getConstructorArgumentValues().addIndexedArgumentValue(0,
-                "ldap://127.0.0.1:" + port + "/" + suffix);
+        RootBeanDefinition contextSource = new RootBeanDefinition(DefaultSpringSecurityContextSource.class);
+        contextSource.getConstructorArgumentValues().addIndexedArgumentValue(0, "ldap://127.0.0.1:" + port + "/" + suffix);
 
-        initialDirContextFactory.getPropertyValues().addPropertyValue("managerDn", "uid=admin,ou=system");
-        initialDirContextFactory.getPropertyValues().addPropertyValue("managerPassword", "secret");
+        contextSource.getPropertyValues().addPropertyValue("userDn", "uid=admin,ou=system");
+        contextSource.getPropertyValues().addPropertyValue("password", "secret");
 
         RootBeanDefinition apacheDSStartStop = new RootBeanDefinition(ApacheDSContainer.class);
         apacheDSStartStop.getConstructorArgumentValues().addGenericArgumentValue(configuration);
-        apacheDSStartStop.getConstructorArgumentValues().addGenericArgumentValue(initialDirContextFactory);
+        apacheDSStartStop.getConstructorArgumentValues().addGenericArgumentValue(contextSource);
 
         if (parserContext.getRegistry().containsBeanDefinition("_apacheDSStartStopBean")) {
             parserContext.getReaderContext().error("Only one embedded server bean is allowed per application context",
@@ -188,7 +188,7 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
         parserContext.getRegistry().registerBeanDefinition("_apacheDSStartStopBean", apacheDSStartStop);
 
-        return initialDirContextFactory;
+        return contextSource;
     }
 
 

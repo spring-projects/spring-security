@@ -76,14 +76,18 @@
 
     <repositories>
         <repository>
-            <id>sourceforge.net</id>
+            <id>acegisnapshots</id>
             <name>Acegi snapshot repository</name>
-            <url>
-                http://acegisecurity.sourceforge.net/repository/snapshots
-            </url>
+            <url>http://acegisecurity.sourceforge.net/repository/snapshots</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
+        </repository>
+        <!-- TODO: Added for spring-ldap-1.2.1-SNAPSHOT -->
+        <repository>
+            <id>acegirepo</id>
+            <name>Acegi maven repository</name>
+            <url>http://acegisecurity.sourceforge.net/maven</url>
         </repository>
         <repository>
             <id>spring-milestone</id>

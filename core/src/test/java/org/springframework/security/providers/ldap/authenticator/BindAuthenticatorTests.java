@@ -15,19 +15,17 @@
 
 package org.springframework.security.providers.ldap.authenticator;
 
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.BadCredentialsException;
 import org.springframework.security.Authentication;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
-import org.springframework.security.ldap.InitialDirContextFactory;
-
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.DistinguishedName;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 
 /**
@@ -41,16 +39,16 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
     private BindAuthenticator authenticator;
     private Authentication bob;
-    private Authentication ben;
+//    private Authentication ben;
 
 
     //~ Methods ========================================================================================================
 
     public void onSetUp() {
-        authenticator = new BindAuthenticator((InitialDirContextFactory) getContextSource());
+        authenticator = new BindAuthenticator(getContextSource());
         authenticator.setMessageSource(new SpringSecurityMessageSource());
         bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
-        ben = new UsernamePasswordAuthenticationToken("ben", "benspassword");
+//        ben = new UsernamePasswordAuthenticationToken("ben", "benspassword");
 
     }
 
@@ -74,7 +72,7 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
     @Test
     public void testAuthenticationWithUserSearch() throws Exception {
-        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=bob,ou=people,dc=springframework,dc=org"));
+        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=bob,ou=people"));
 
         authenticator.setUserSearch(new MockUserSearch(ctx));
         authenticator.afterPropertiesSet();
@@ -94,6 +92,6 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
     @Test
     public void testUserDnPatternReturnsCorrectDn() {
         authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
-        assertEquals("cn=Joe,ou=people," + ((InitialDirContextFactory)getContextSource()).getRootDn(), authenticator.getUserDns("Joe").get(0));
+        assertEquals("cn=Joe,ou=people", authenticator.getUserDns("Joe").get(0));
     }
 }

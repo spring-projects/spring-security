@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.springframework.ldap</groupId>
             <artifactId>spring-ldap</artifactId>
-            <version>1.2</version>
+            <version>1.2.1-SNAPSHOT</version>
             <optional>true</optional>
         </dependency>
         <dependency>

@@ -36,22 +36,22 @@
       </property>
    </bean>
 
-   <bean id="initialDirContextFactory" class="org.springframework.security.ldap.DefaultInitialDirContextFactory">
+   <bean id="contextSource" class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
      <constructor-arg value="ldap://monkeymachine.co.uk:389/dc=springframework,dc=org"/>
-     <property name="managerDn" value="cn=manager,dc=springframework,dc=org" />
-     <property name="managerPassword" value="acegisecurity"/>
+     <property name="userDn" value="cn=manager,dc=springframework,dc=org" />
+     <property name="password" value="acegisecurity"/>
    </bean>
 
    <bean id="ldapAuthenticationProvider" class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
      <constructor-arg>
        <bean class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator">
-          <constructor-arg><ref local="initialDirContextFactory"/></constructor-arg>
+          <constructor-arg><ref local="contextSource"/></constructor-arg>
           <property name="userDnPatterns"><list><value>uid={0},ou=people</value></list></property>
        </bean>
      </constructor-arg>
      <constructor-arg>
        <bean class="org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
-          <constructor-arg><ref local="initialDirContextFactory"/></constructor-arg>
+          <constructor-arg><ref local="contextSource"/></constructor-arg>
           <constructor-arg><value>ou=groups</value></constructor-arg>
           <property name="groupRoleAttribute"><value>ou</value></property>
        </bean>

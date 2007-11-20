@@ -14,42 +14,46 @@
  */
 package org.springframework.security.userdetails.ldap;
 
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.userdetails.UserDetailsManager;
-import org.springframework.security.ldap.LdapUtils;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.ldap.LdapUsernameToDnMapper;
+import org.springframework.security.ldap.LdapUtils;
+import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsManager;
+import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.dao.DataAccessException;
-import org.springframework.util.Assert;
-import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.AttributesMapperCallbackHandler;
+import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.ContextExecutor;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.SearchExecutor;
-import org.springframework.ldap.core.AttributesMapperCallbackHandler;
+import org.springframework.util.Assert;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.naming.ldap.LdapContext;
+import javax.naming.Context;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.NameNotFoundException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.SearchControls;
-
-import java.util.*;
+import javax.naming.ldap.LdapContext;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * An Ldap implementation of UserDetailsManager.
@@ -71,13 +75,15 @@ import java.util.*;
 public class LdapUserDetailsManager implements UserDetailsManager {
     private final Log logger = LogFactory.getLog(LdapUserDetailsManager.class);
 
-    /** The DN under which users entries are stored */
-    private DistinguishedName userDnBase = new DistinguishedName("cn=users");
+    /**
+     * The strategy for mapping usernames to LDAP distinguished names.
+     * This will be used when building DNs for creating new users etc.
+     */
+    LdapUsernameToDnMapper usernameMapper = new DefaultLdapUsernameToDnMapper("cn=users", "uid");
+
     /** The DN under which groups are stored */
     private DistinguishedName groupSearchBase = new DistinguishedName("cn=groups");
 
-    /** The attribute which contains the user login name, and which is used by default to build the DN for new users */
-    private String usernameAttributeName = "uid";
     /** Password attribute name */
     private String passwordAttributeName = "userPassword";
 
@@ -120,7 +126,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
     }
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
-        DistinguishedName dn = buildDn(username);
+        DistinguishedName dn = usernameMapper.buildDn(username);
         GrantedAuthority[] authorities = getUserAuthorities(dn, username);
 
         logger.debug("Loading user '"+ username + "' with DN '" + dn + "'");
@@ -130,12 +136,12 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         return userDetailsMapper.mapUserFromContext(userCtx, username, authorities);
     }
 
-    private UserContext loadUserAsContext(final DistinguishedName dn, final String username) {
-        return (UserContext) template.executeReadOnly(new ContextExecutor() {
+    private DirContextAdapter loadUserAsContext(final DistinguishedName dn, final String username) {
+        return (DirContextAdapter) template.executeReadOnly(new ContextExecutor() {
             public Object executeWithContext(DirContext ctx) throws NamingException {
                 try {
                     Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
-                    return new UserContext(attrs, LdapUtils.getFullDn(dn, ctx));
+                    return new DirContextAdapter(attrs, LdapUtils.getFullDn(dn, ctx));
                 } catch(NameNotFoundException notFound) {
                     throw new UsernameNotFoundException("User " + username + " not found", notFound);
                 }
@@ -163,7 +169,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
         logger.debug("Changing password for user '"+ username);
 
-        final DistinguishedName dn = buildDn(username);
+        final DistinguishedName dn = usernameMapper.buildDn(username);
         final ModificationItem[] passwordChange = new ModificationItem[] {
                 new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName, newPassword))
         };
@@ -227,7 +233,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
     public void createUser(UserDetails user) {
         DirContextAdapter ctx = new DirContextAdapter();
         copyToContext(user, ctx);
-        DistinguishedName dn = buildDn(user.getUsername());
+        DistinguishedName dn = usernameMapper.buildDn(user.getUsername());
         // Check for any existing authorities which might be set for this DN
         GrantedAuthority[] authorities = getUserAuthorities(dn, user.getUsername());
 
@@ -244,13 +250,13 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
     public void updateUser(UserDetails user) {
 //        Assert.notNull(attributesToRetrieve, "Configuration must specify a list of attributes in order to use update.");
-        DistinguishedName dn = buildDn(user.getUsername());
+        DistinguishedName dn = usernameMapper.buildDn(user.getUsername());
 
         logger.debug("Updating user '"+ user.getUsername() + "' with DN '" + dn + "'");
 
         GrantedAuthority[] authorities = getUserAuthorities(dn, user.getUsername());
 
-        UserContext ctx = loadUserAsContext(dn, user.getUsername());
+        DirContextAdapter ctx = loadUserAsContext(dn, user.getUsername());
         ctx.setUpdateMode(true);
         copyToContext(user, ctx);
 
@@ -275,13 +281,13 @@ public class LdapUserDetailsManager implements UserDetailsManager {
     }
 
     public void deleteUser(String username) {
-        DistinguishedName dn = buildDn(username);
+        DistinguishedName dn = usernameMapper.buildDn(username);
         removeAuthorities(dn, getUserAuthorities(dn, username));
         template.unbind(dn);
     }
 
     public boolean userExists(String username) {
-        DistinguishedName dn = buildDn(username);
+        DistinguishedName dn = usernameMapper.buildDn(username);
 
         try {
             Object obj = template.lookup(dn);
@@ -292,25 +298,6 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         } catch(org.springframework.ldap.NameNotFoundException e) {
             return false;
         }
-    }
-
-    /**
-     * Constructs a DN from a username.
-     * <p>
-     * The default implementation appends a name component to the <tt>userDnBase</tt> context using the
-     * <tt>usernameAttributeName</tt> property. So if the <tt>uid</tt> attribute is used to store the username, and the
-     * base DN is <tt>cn=users</tt> and we are creating a new user called "sam", then the DN will be
-     * <tt>uid=sam,cn=users</tt>.
-     *
-     * @param username the user name used for authentication.
-     * @return the corresponding DN, relative to the base context.
-     */
-    protected DistinguishedName buildDn(String username) {
-        DistinguishedName dn = new DistinguishedName(userDnBase);
-
-        dn.add(usernameAttributeName, username);
-
-        return dn;
     }
 
     /**
@@ -365,8 +352,8 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         return group;
     }
 
-    public void setUsernameAttributeName(String usernameAttributeName) {
-        this.usernameAttributeName = usernameAttributeName;
+    public void setUsernameMapper(LdapUsernameToDnMapper usernameMapper) {
+        this.usernameMapper = usernameMapper;
     }
 
     public void setPasswordAttributeName(String passwordAttributeName) {
@@ -379,10 +366,6 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
     public void setGroupRoleAttributeName(String groupRoleAttributeName) {
         this.groupRoleAttributeName = groupRoleAttributeName;
-    }
-
-    public void setUserDnBase(String userDnBase) {
-        this.userDnBase = new DistinguishedName(userDnBase);
     }
 
     public void setAttributesToRetrieve(String[] attributesToRetrieve) {
@@ -410,19 +393,5 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
     public void setRoleMapper(AttributesMapper roleMapper) {
         this.roleMapper = roleMapper;
-    }
-
-    /**
-     * This class allows us to set the <tt>updateMode</tt> property of DirContextAdapter when updating existing users.
-     * TODO: No longer needed as of Ldap 1.2.
-     */
-    private static class UserContext extends DirContextAdapter {
-        public UserContext(Attributes pAttrs, Name dn) {
-            super(pAttrs, dn);
-        }
-
-        public void setUpdateMode(boolean mode) {
-            super.setUpdateMode(mode);
-        }
     }
 }

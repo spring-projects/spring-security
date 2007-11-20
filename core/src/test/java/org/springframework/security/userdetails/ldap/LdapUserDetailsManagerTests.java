@@ -14,20 +14,20 @@
  */
 package org.springframework.security.userdetails.ldap;
 
-import org.springframework.security.ldap.SpringSecurityLdapTemplate;
-import org.springframework.security.ldap.AbstractLdapIntegrationTests;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.BadCredentialsException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.context.SecurityContextHolder;
-
+import org.springframework.security.ldap.AbstractLdapIntegrationTests;
+import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
+import org.springframework.security.ldap.SpringSecurityLdapTemplate;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.ldap.core.DirContextAdapter;
 
-import static org.junit.Assert.*;
 import org.junit.After;
+import static org.junit.Assert.*;
 import org.junit.Test;
 
 /**
@@ -63,7 +63,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         group.setAttributeValue("cn", "acrobats");
         template.bind("cn=acrobats,ou=testgroups", group, null);
 
-        mgr.setUserDnBase("ou=testpeople");
+        mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=testpeople","uid"));
         mgr.setGroupSearchBase("ou=testgroups");
         mgr.setGroupRoleAttributeName("cn");
         mgr.setGroupMemberAttributeName("member");
@@ -88,7 +88,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 
     @Test
     public void testLoadUserByUsernameReturnsCorrectData() {
-        mgr.setUserDnBase("ou=people");
+        mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people","uid"));
         mgr.setGroupSearchBase("ou=groups");
         UserDetails bob = mgr.loadUserByUsername("bob");
         assertEquals("bob", bob.getUsername());
@@ -111,7 +111,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 
     @Test
     public void testUserExistsReturnsTrueForValidUser() {
-        mgr.setUserDnBase("ou=people");
+        mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people","uid"));
         assertTrue(mgr.userExists("bob"));
     }
 
@@ -156,7 +156,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         }
 
         // Check that no authorities are left
-        assertEquals(0, mgr.getUserAuthorities(mgr.buildDn("don"), "don").length);
+        assertEquals(0, mgr.getUserAuthorities(mgr.usernameMapper.buildDn("don"), "don").length);
     }
 
     @Test
@@ -175,7 +175,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 
         mgr.changePassword("yossarianspassword", "yossariansnewpassword");
 
-        assertTrue(template.compare("uid=johnyossarian,ou=testpeople,dc=springframework,dc=org",
+        assertTrue(template.compare("uid=johnyossarian,ou=testpeople",
                 "userPassword", "yossariansnewpassword"));
     }
 

@@ -71,6 +71,7 @@ public class LdapUtilsTests extends MockObjectTestCase {
 
     public void testRootDnsAreParsedFromUrlsCorrectly() {
         assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine"));
+        assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine:11389"));        
         assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/"));
         assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/"));
         assertEquals("dc=springframework,dc=org",
@@ -80,5 +81,7 @@ public class LdapUtilsTests extends MockObjectTestCase {
             LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/dc=springframework,dc=org"));
         assertEquals("dc=springframework,dc=org/ou=blah",
             LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/dc=springframework,dc=org/ou=blah"));
+        assertEquals("dc=springframework,dc=org/ou=blah",
+            LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk:389/dc=springframework,dc=org/ou=blah"));
     }
 }

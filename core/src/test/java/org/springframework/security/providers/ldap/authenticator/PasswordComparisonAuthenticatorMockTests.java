@@ -15,7 +15,7 @@
 
 package org.springframework.security.providers.ldap.authenticator;
 
-import org.springframework.security.ldap.MockInitialDirContextFactory;
+import org.springframework.security.ldap.MockSpringSecurityContextSource;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import org.jmock.Mock;
@@ -40,15 +40,15 @@ public class PasswordComparisonAuthenticatorMockTests extends MockObjectTestCase
         BasicAttributes attrs = new BasicAttributes();
         attrs.put(new BasicAttribute("uid", "bob"));
 
-        PasswordComparisonAuthenticator authenticator = new PasswordComparisonAuthenticator(new MockInitialDirContextFactory(
-                    (DirContext) mockCtx.proxy(), "dc=springframework,dc=org"));
+        PasswordComparisonAuthenticator authenticator = new PasswordComparisonAuthenticator(new MockSpringSecurityContextSource(
+                    (DirContext) mockCtx.proxy(), ""));
 
         authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
 
         // Get the mock to return an empty attribute set
-        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=springframework,dc=org"));
-        mockCtx.expects(once()).method("lookup").with(eq("cn=Bob, ou=people")).will(returnValue(true));
-        mockCtx.expects(once()).method("getAttributes").with(eq("cn=Bob, ou=people"), NULL)
+//        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=springframework,dc=org"));
+//        mockCtx.expects(once()).method("lookup").with(eq("cn=Bob,ou=people")).will(returnValue(true));
+        mockCtx.expects(once()).method("getAttributes").with(eq("cn=Bob,ou=people"), NULL)
                .will(returnValue(attrs));
 
         // Setup a single return value (i.e. success)

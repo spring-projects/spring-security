@@ -3,18 +3,19 @@
  */
 package org.springframework.security.ui.ntlm.ldap.authenticator;
 
-import java.util.Iterator;
-
-import org.springframework.security.BadCredentialsException;
 import org.springframework.security.Authentication;
-import org.springframework.security.ldap.InitialDirContextFactory;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.ldap.SpringSecurityContextSource;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.providers.ldap.authenticator.BindAuthenticator;
 import org.springframework.security.ui.ntlm.NtlmUsernamePasswordAuthenticationToken;
+import org.springframework.ldap.NameNotFoundException;
+import org.springframework.ldap.core.DirContextOperations;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.NameNotFoundException;
+
+import java.util.Iterator;
 
 /**
  * Loads the UserDetails if authentication was already performed by NTLM (indicated by the type of authentication
@@ -31,8 +32,8 @@ public class NtlmAwareLdapAuthenticator extends BindAuthenticator {
 
     //~ Constructors ===================================================================================================
 
-	public NtlmAwareLdapAuthenticator(InitialDirContextFactory initialDirContextFactory) {
-		super(initialDirContextFactory);
+	public NtlmAwareLdapAuthenticator(SpringSecurityContextSource contextSource) {
+		super(contextSource);
 	}
 
     //~ Methods ========================================================================================================
@@ -41,7 +42,7 @@ public class NtlmAwareLdapAuthenticator extends BindAuthenticator {
      * Loads the user context information without binding.
 	 */
 	protected DirContextOperations loadUser(String aUserDn, String aUserName) {
-		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(getInitialDirContextFactory());
+		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(getContextSource());
 
 		try {
 			DirContextOperations user =  template.retrieveEntry(aUserDn, getUserAttributes());

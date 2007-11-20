@@ -15,19 +15,19 @@
 
 package org.springframework.security.providers.ldap.authenticator;
 
-import org.springframework.security.BadCredentialsException;
 import org.springframework.security.Authentication;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
-import org.springframework.security.ldap.InitialDirContextFactory;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.ldap.SpringSecurityContextSource;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.dao.DataAccessException;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.util.Assert;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.naming.directory.DirContext;
 import java.util.Iterator;
@@ -49,12 +49,14 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
     //~ Constructors ===================================================================================================
 
     /**
-     * Create an initialized instance to the {@link InitialDirContextFactory} provided.
+     * Create an initialized instance using the {@link SpringSecurityContextSource} provided.
      *
-     * @param initialDirContextFactory
+     * @param contextSource the SpringSecurityContextSource instance against which bind operations will be
+     * performed.
+     *
      */
-    public BindAuthenticator(InitialDirContextFactory initialDirContextFactory) {
-        super(initialDirContextFactory);
+    public BindAuthenticator(SpringSecurityContextSource contextSource) {
+        super(contextSource);
     }
 
     //~ Methods ========================================================================================================
@@ -91,7 +93,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     private DirContextOperations bindWithDn(String userDn, String username, String password) {
         SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(
-                new BindWithSpecificDnContextSource(getInitialDirContextFactory(), userDn, password));
+                new BindWithSpecificDnContextSource((SpringSecurityContextSource) getContextSource(), userDn, password));
 
         try {
             return template.retrieveEntry(userDn, getUserAttributes());
@@ -110,25 +112,26 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
      * Allows subclasses to inspect the exception thrown by an attempt to bind with a particular DN.
      * The default implementation just reports the failure to the debug log.
      */
-    void handleBindException(String userDn, String username, Throwable cause) {
+    protected void handleBindException(String userDn, String username, Throwable cause) {
         if (logger.isDebugEnabled()) {
             logger.debug("Failed to bind as " + userDn + ": " + cause);
         }
     }
 
     private class BindWithSpecificDnContextSource implements ContextSource {
-        private InitialDirContextFactory ctxFactory;
-        private String userDn;
+        private SpringSecurityContextSource ctxFactory;
+        DistinguishedName userDn;
         private String password;
 
-        public BindWithSpecificDnContextSource(InitialDirContextFactory ctxFactory, String userDn, String password) {
+        public BindWithSpecificDnContextSource(SpringSecurityContextSource ctxFactory, String userDn, String password) {
             this.ctxFactory = ctxFactory;
-            this.userDn = userDn;
+            this.userDn = new DistinguishedName(userDn);
+            this.userDn.prepend(ctxFactory.getBaseLdapPath());
             this.password = password;
         }
 
         public DirContext getReadOnlyContext() throws DataAccessException {
-            return ctxFactory.newInitialDirContext(userDn, password);
+            return ctxFactory.getReadWriteContext(userDn.toString(), password);
         }
 
         public DirContext getReadWriteContext() throws DataAccessException {

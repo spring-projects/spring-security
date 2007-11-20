@@ -19,7 +19,6 @@ import org.springframework.security.BadCredentialsException;
 import org.springframework.security.Authentication;
 
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
-import org.springframework.security.ldap.InitialDirContextFactory;
 
 import org.springframework.security.providers.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
@@ -49,7 +48,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 
     public void onSetUp() throws Exception {
         super.onSetUp();
-        authenticator = new PasswordComparisonAuthenticator((InitialDirContextFactory) getContextSource());
+        authenticator = new PasswordComparisonAuthenticator(getContextSource());
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
         bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
         ben = new UsernamePasswordAuthenticationToken("ben", "benspassword");
@@ -64,7 +63,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 
     @Test
     public void testFailedSearchGivesUserNotFoundException() throws Exception {
-        authenticator = new PasswordComparisonAuthenticator((InitialDirContextFactory) getContextSource());
+        authenticator = new PasswordComparisonAuthenticator(getContextSource());
         assertTrue("User DN matches shouldn't be available", authenticator.getUserDns("Bob").isEmpty());
         authenticator.setUserSearch(new MockUserSearch(null));
         authenticator.afterPropertiesSet();
@@ -164,7 +163,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 
     @Test
     public void testWithUserSearch() {
-        authenticator = new PasswordComparisonAuthenticator((InitialDirContextFactory) getContextSource());
+        authenticator = new PasswordComparisonAuthenticator(getContextSource());
         assertTrue("User DN matches shouldn't be available", authenticator.getUserDns("Bob").isEmpty());
 
         DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=Bob,ou=people,dc=springframework,dc=org"));

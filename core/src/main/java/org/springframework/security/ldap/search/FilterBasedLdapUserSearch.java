@@ -15,7 +15,6 @@
 
 package org.springframework.security.ldap.search;
 
-import org.springframework.security.ldap.InitialDirContextFactory;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.LdapUserSearch;
 
@@ -30,6 +29,7 @@ import org.springframework.util.Assert;
 
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 
 import javax.naming.directory.SearchControls;
 
@@ -50,7 +50,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
     //~ Instance fields ================================================================================================
 
-    private ContextSource initialDirContextFactory;
+    private ContextSource contextSource;
 
     /**
      * The LDAP SearchControls object used for the search. Shared between searches so shouldn't be modified
@@ -58,14 +58,15 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
      */
     private SearchControls searchControls = new SearchControls();
 
-    /** Context name to search in, relative to the root DN of the configured InitialDirContextFactory. */
+    /** Context name to search in, relative to the base of the configured ContextSource. */
     private String searchBase = "";
 
     /**
      * The filter expression used in the user search. This is an LDAP search filter (as defined in 'RFC 2254')
      * with optional arguments. See the documentation for the <tt>search</tt> methods in {@link
-     * javax.naming.directory.DirContext DirContext} for more information.<p>In this case, the username is the
-     * only parameter.</p>
+     * javax.naming.directory.DirContext DirContext} for more information.
+     *
+     * <p>In this case, the username is the only parameter.</p>
      *  Possible examples are:
      *  <ul>
      *      <li>(uid={0}) - this would search for a username match on the uid attribute.</li>
@@ -75,19 +76,18 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
     //~ Constructors ===================================================================================================
 
-    public FilterBasedLdapUserSearch(String searchBase, String searchFilter,
-            InitialDirContextFactory initialDirContextFactory) {
-        Assert.notNull(initialDirContextFactory, "initialDirContextFactory must not be null");
+    public FilterBasedLdapUserSearch(String searchBase, String searchFilter, BaseLdapPathContextSource contextSource) {
+        Assert.notNull(contextSource, "contextSource must not be null");
         Assert.notNull(searchFilter, "searchFilter must not be null.");
         Assert.notNull(searchBase, "searchBase must not be null (an empty string is acceptable).");
 
         this.searchFilter = searchFilter;
-        this.initialDirContextFactory = initialDirContextFactory;
+        this.contextSource = contextSource;
         this.searchBase = searchBase;
 
         if (searchBase.length() == 0) {
             logger.info("SearchBase not set. Searches will be performed from the root: "
-                + initialDirContextFactory.getRootDn());
+                + contextSource.getBaseLdapPath());
         }
     }
 
@@ -104,11 +104,10 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
      */
     public DirContextOperations searchForUser(String username) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Searching for user '" + username + "', with user search "
-                + this.toString());
+            logger.debug("Searching for user '" + username + "', with user search " + this.toString());
         }
 
-        SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(initialDirContextFactory);
+        SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(contextSource);
 
         template.setSearchControls(searchControls);
 

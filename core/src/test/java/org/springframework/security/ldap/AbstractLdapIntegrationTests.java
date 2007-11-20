@@ -107,11 +107,11 @@ public abstract class AbstractLdapIntegrationTests {
             loader.execute();
         } finally {
             ctx.close();
-        }        
+        }
     }
 
-    public ContextSource getContextSource() {
-        return (ContextSource) appContext.getBean("contextSource");
+    public SpringSecurityContextSource getContextSource() {
+        return (SpringSecurityContextSource) appContext.getBean("contextSource");
     }
 
     /**

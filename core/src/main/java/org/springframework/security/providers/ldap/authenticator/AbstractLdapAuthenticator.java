@@ -16,13 +16,13 @@
 package org.springframework.security.providers.ldap.authenticator;
 
 import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.ldap.InitialDirContextFactory;
 import org.springframework.security.ldap.LdapUserSearch;
 import org.springframework.security.providers.ldap.LdapAuthenticator;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.ldap.core.ContextSource;
 import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
@@ -40,17 +40,11 @@ import java.util.List;
 public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, InitializingBean, MessageSourceAware {
     //~ Instance fields ================================================================================================
 
-    private InitialDirContextFactory initialDirContextFactory;
+    private ContextSource contextSource;
 
     /** Optional search object which can be used to locate a user when a simple DN match isn't sufficient */
     private LdapUserSearch userSearch;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-
-    /**
-     * The suffix to be added to the DN patterns, worked out internally from the root DN of the configured
-     * InitialDirContextFactory.
-     */
-    private String dnSuffix = "";
 
     /** The attributes which will be retrieved from the directory. Null means all attributes */
     private String[] userAttributes = null;
@@ -62,12 +56,13 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
     //~ Constructors ===================================================================================================
 
     /**
-     * Create an initialized instance to the {@link InitialDirContextFactory} provided.
+     * Create an initialized instance with the {@link ContextSource} provided.
      *
-     * @param initialDirContextFactory
+     * @param contextSource
      */
-    public AbstractLdapAuthenticator(InitialDirContextFactory initialDirContextFactory) {
-        this.setInitialDirContextFactory(initialDirContextFactory);
+    public AbstractLdapAuthenticator(ContextSource contextSource) {
+        Assert.notNull(contextSource, "contextSource must not be null.");
+        this.contextSource = contextSource;
     }
 
     //~ Methods ========================================================================================================
@@ -77,24 +72,8 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
                 "Either an LdapUserSearch or DN pattern (or both) must be supplied.");
     }
 
-    /**
-     * Set the {@link InitialDirContextFactory} and initialize this instance from its data.
-     *
-     * @param initialDirContextFactory
-     */
-    private void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
-        Assert.notNull(initialDirContextFactory, "initialDirContextFactory must not be null.");
-        this.initialDirContextFactory = initialDirContextFactory;
-
-        String rootDn = initialDirContextFactory.getRootDn();
-
-        if (rootDn.length() > 0) {
-            dnSuffix = "," + rootDn;
-        }
-    }
-
-    protected InitialDirContextFactory getInitialDirContextFactory() {
-        return initialDirContextFactory;
+    protected ContextSource getContextSource() {
+        return contextSource;
     }
 
     public String[] getUserAttributes() {
@@ -102,9 +81,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
     }
 
     /**
-     * Builds list of possible DNs for the user, worked out from the <tt>userDnPatterns</tt> property. The
-     * returned value includes the root DN of the provider URL used to configure the
-     * <tt>InitialDirContextfactory</tt>.
+     * Builds list of possible DNs for the user, worked out from the <tt>userDnPatterns</tt> property.
      *
      * @param username the user's login name
      *
@@ -120,7 +97,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 
         synchronized (userDnFormat) {
             for (int i = 0; i < userDnFormat.length; i++) {
-                userDns.add(userDnFormat[i].format(args) + dnSuffix);
+                userDns.add(userDnFormat[i].format(args));
             }
         }
 
@@ -150,8 +127,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
      * Sets the pattern which will be used to supply a DN for the user. The pattern should be the name relative
      * to the root DN. The pattern argument {0} will contain the username. An example would be "cn={0},ou=people".
      *
-     * @param dnPattern the array of patterns which will be tried when obtaining a username
-     * to a DN.
+     * @param dnPattern the array of patterns which will be tried when converting a username to a DN.
      */
     public void setUserDnPatterns(String[] dnPattern) {
         Assert.notNull(dnPattern, "The array of DN patterns cannot be set to null");

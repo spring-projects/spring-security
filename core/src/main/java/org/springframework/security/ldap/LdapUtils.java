@@ -15,17 +15,18 @@
 
 package org.springframework.security.ldap;
 
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.util.Assert;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.util.Assert;
-import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
-
-import java.io.UnsupportedEncodingException;
-
 import javax.naming.Context;
 import javax.naming.NamingException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 
 /**
@@ -156,20 +157,8 @@ public final class LdapUtils {
         String urlRootDn = "";
 
         if (url.startsWith("ldap:") || url.startsWith("ldaps:")) {
-//            URI uri = parseLdapUrl(url);
-
-//            urlRootDn = uri.getPath();
-            // skip past the "://"
-            int colon = url.indexOf(':');
-
-            url = url.substring(colon + 3);
-
-            // Match the slash at the end of the address (if there)
-            int slash = url.indexOf('/');
-
-            if (slash >= 0) {
-                urlRootDn = url.substring(slash);
-            }
+            URI uri = parseLdapUrl(url);
+            urlRootDn = uri.getPath();
         } else {
             // Assume it's an embedded server
             urlRootDn = url;
@@ -182,7 +171,6 @@ public final class LdapUtils {
         return urlRootDn;
     }
 
-    // removed for 1.3 compatibility
     /**
      * Parses the supplied LDAP URL.
      * @param url the URL (e.g. <tt>ldap://monkeymachine:11389/dc=springframework,dc=org</tt>).
@@ -190,15 +178,15 @@ public final class LdapUtils {
      * @throws IllegalArgumentException if the URL is null, empty or the URI syntax is invalid.
      */
 
-//    private static URI parseLdapUrl(String url) {
-//        Assert.hasLength(url);
-//
-//        try {
-//            return new URI(url);
-//        } catch (URISyntaxException e) {
-//            IllegalArgumentException iae = new IllegalArgumentException("Unable to parse url: " + url);
-//            iae.initCause(e);
-//            throw iae;
-//        }
-//    }
+    private static URI parseLdapUrl(String url) {
+        Assert.hasLength(url);
+
+        try {
+            return new URI(url);
+        } catch (URISyntaxException e) {
+            IllegalArgumentException iae = new IllegalArgumentException("Unable to parse url: " + url);
+            iae.initCause(e);
+            throw iae;
+        }
+    }
 }

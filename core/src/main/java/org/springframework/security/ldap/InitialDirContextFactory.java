@@ -28,7 +28,7 @@ import javax.naming.directory.DirContext;
  * @author Luke Taylor
  * @version $Id$
  */
-public interface InitialDirContextFactory extends ContextSource {
+public interface InitialDirContextFactory {
     //~ Methods ========================================================================================================
 
     /**

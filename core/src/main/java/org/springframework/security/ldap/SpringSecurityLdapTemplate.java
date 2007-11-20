@@ -18,7 +18,6 @@ package org.springframework.security.ldap;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -35,10 +34,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.text.MessageFormat;
 
-import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -97,9 +94,9 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
                 ctls.setReturningAttributes(NO_ATTRS);
                 ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
 
-                String relativeName = LdapUtils.getRelativeName(dn, ctx);
+//                String relativeName = LdapUtils.getRelativeName(dn, ctx);
 
-                NamingEnumeration results = ctx.search(relativeName, comparisonFilter, new Object[] {value}, ctls);
+                NamingEnumeration results = ctx.search(dn, comparisonFilter, new Object[] {value}, ctls);
 
                 return Boolean.valueOf(results.hasMore());
             }
@@ -110,25 +107,25 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
         return matches.booleanValue();
     }
 
-    public boolean nameExists(final String dn) {
-        Boolean exists = (Boolean) executeReadOnly(new ContextExecutor() {
-                public Object executeWithContext(DirContext ctx) throws NamingException {
-                    try {
-                        Object obj = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
-                        if (obj instanceof Context) {
-                            LdapUtils.closeContext((Context) obj);
-                        }
-
-                    } catch (NameNotFoundException nnfe) {
-                        return Boolean.FALSE;
-                    }
-
-                    return Boolean.TRUE;
-                }
-            });
-
-        return exists.booleanValue();
-    }
+//    public boolean nameExists(final String dn) {
+//        Boolean exists = (Boolean) executeReadOnly(new ContextExecutor() {
+//                public Object executeWithContext(DirContext ctx) throws NamingException {
+//                    try {
+//                        Object obj = ctx.lookup(dn);
+//                        if (obj instanceof Context) {
+//                            LdapUtils.closeContext((Context) obj);
+//                        }
+//
+//                    } catch (NameNotFoundException nnfe) {
+//                        return Boolean.FALSE;
+//                    }
+//
+//                    return Boolean.TRUE;
+//                }
+//            });
+//
+//        return exists.booleanValue();
+//    }
 
     /**
      * Composes an object from the attributes of the given DN.
@@ -142,7 +139,7 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
 
         return (DirContextOperations) executeReadOnly(new ContextExecutor() {
                 public Object executeWithContext(DirContext ctx) throws NamingException {
-                    Attributes attrs = ctx.getAttributes(LdapUtils.getRelativeName(dn, ctx), attributesToRetrieve);
+                    Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
 
                     // Object object = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
 
@@ -255,12 +252,12 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
                         dn.append(base);
                     }
 
-                    String nameInNamespace = ctx.getNameInNamespace();
-
-                    if (StringUtils.hasLength(nameInNamespace)) {
-                        dn.append(",");
-                        dn.append(nameInNamespace);
-                    }
+//                    String nameInNamespace = ctx.getNameInNamespace();
+//
+//                    if (StringUtils.hasLength(nameInNamespace)) {
+//                        dn.append(",");
+//                        dn.append(nameInNamespace);
+//                    }
 
                     return new DirContextAdapter(searchResult.getAttributes(), new DistinguishedName(dn.toString()));
                 }

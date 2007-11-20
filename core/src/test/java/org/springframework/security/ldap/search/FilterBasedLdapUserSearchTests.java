@@ -15,16 +15,15 @@
 
 package org.springframework.security.ldap.search;
 
-import org.springframework.security.ldap.DefaultInitialDirContextFactory;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
-
 import org.springframework.security.userdetails.UsernameNotFoundException;
-
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextOperations;
-import org.junit.Test;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  * Tests for FilterBasedLdapUserSearch.
@@ -35,13 +34,13 @@ import static org.junit.Assert.*;
 public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================
 
-    private DefaultInitialDirContextFactory dirCtxFactory;
+    private BaseLdapPathContextSource dirCtxFactory;
 
     //~ Methods ========================================================================================================
 
     public void onSetUp() throws Exception {
         super.onSetUp();
-        dirCtxFactory = (DefaultInitialDirContextFactory) getContextSource();
+        dirCtxFactory = getContextSource();
     }
 
     @Test
@@ -54,8 +53,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
         DirContextOperations bob = locator.searchForUser("bob");
         assertEquals("bob", bob.getStringAttribute("uid"));
 
-        // name is wrong with embedded apacheDS
-//        assertEquals("uid=bob,ou=people,dc=springframework,dc=org", bob.getDn());
+        assertEquals(new DistinguishedName("uid=bob,ou=people"), bob.getDn());
     }
 
     // Try some funny business with filters.
@@ -71,24 +69,16 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
 //        assertEquals("uid=ben,ou=people,"+ROOT_DN, ben.getDn());
     }
 
-    @Test
+    @Test(expected=IncorrectResultSizeDataAccessException.class)
     public void testFailsOnMultipleMatches() {
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(cn=*)", dirCtxFactory);
-
-        try {
-            locator.searchForUser("Ignored");
-            fail("Expected exception for multiple search matches.");
-        } catch (IncorrectResultSizeDataAccessException expected) {}
+        locator.searchForUser("Ignored");
     }
 
-    @Test
+    @Test(expected=UsernameNotFoundException.class)
     public void testSearchForInvalidUserFails() {
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", dirCtxFactory);
-
-        try {
-            locator.searchForUser("Joe");
-            fail("Expected UsernameNotFoundException for non-existent user.");
-        } catch (UsernameNotFoundException expected) {}
+        locator.searchForUser("Joe");
     }
 
     @Test
@@ -100,7 +90,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
         DirContextOperations ben = locator.searchForUser("Ben Alex");
         assertEquals("ben", ben.getStringAttribute("uid"));
 
-//        assertEquals("uid=ben,ou=people,dc=springframework,dc=org", ben.getDn());
+        assertEquals(new DistinguishedName("uid=ben,ou=people"), ben.getDn());
     }
 
     // TODO: Add test with non-uid username

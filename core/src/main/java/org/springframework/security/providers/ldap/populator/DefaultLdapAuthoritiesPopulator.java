@@ -17,23 +17,19 @@ package org.springframework.security.providers.ldap.populator;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-
-import org.springframework.security.ldap.InitialDirContextFactory;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
-
 import org.springframework.security.providers.ldap.LdapAuthoritiesPopulator;
+import org.springframework.ldap.core.ContextSource;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.util.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.util.Assert;
-import org.springframework.ldap.core.DirContextOperations;
-
+import javax.naming.directory.SearchControls;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import javax.naming.directory.SearchControls;
 
 
 /**
@@ -73,7 +69,7 @@ import javax.naming.directory.SearchControls;
  * <pre>
  * &lt;bean id="ldapAuthoritiesPopulator"
  *       class="org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
- *   &lt;constructor-arg>&lt;ref local="initialDirContextFactory"/>&lt;/constructor-arg>
+ *   &lt;constructor-arg>&lt;ref local="contextSource"/>&lt;/constructor-arg>
  *   &lt;constructor-arg>&lt;value>ou=groups&lt;/value>&lt;/constructor-arg>
  *   &lt;property name="groupRoleAttribute">&lt;value>ou&lt;/value>&lt;/property>
  * &lt;!-- the following properties are shown with their default values -->
@@ -104,10 +100,8 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      */
     private GrantedAuthority defaultRole = null;
 
-    /**
-     * An initial context factory is only required if searching for groups is required.
-     */
-    private InitialDirContextFactory initialDirContextFactory = null;
+    private ContextSource contextSource = null;
+
     private SpringSecurityLdapTemplate ldapTemplate;
 
     /**
@@ -145,12 +139,12 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
      * set as a property.
      *
-     * @param initialDirContextFactory supplies the contexts used to search for user roles.
+     * @param contextSource supplies the contexts used to search for user roles.
      * @param groupSearchBase          if this is an empty string the search will be performed from the root DN of the
      *                                 context factory.
      */
-    public DefaultLdapAuthoritiesPopulator(InitialDirContextFactory initialDirContextFactory, String groupSearchBase) {
-        this.setInitialDirContextFactory(initialDirContextFactory);
+    public DefaultLdapAuthoritiesPopulator(ContextSource contextSource, String groupSearchBase) {
+        this.setContextSource(contextSource);
         this.setGroupSearchBase(groupSearchBase);
     }
 
@@ -232,20 +226,20 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         return authorities;
     }
 
-    protected InitialDirContextFactory getInitialDirContextFactory() {
-        return initialDirContextFactory;
+    protected ContextSource getContextSource() {
+        return contextSource;
     }
 
     /**
-     * Set the {@link InitialDirContextFactory}
+     * Set the {@link ContextSource}
      *
-     * @param initialDirContextFactory supplies the contexts used to search for user roles.
+     * @param contextSource supplies the contexts used to search for user roles.
      */
-    private void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
-        Assert.notNull(initialDirContextFactory, "InitialDirContextFactory must not be null");
-        this.initialDirContextFactory = initialDirContextFactory;
+    private void setContextSource(ContextSource contextSource) {
+        Assert.notNull(contextSource, "contextSource must not be null");
+        this.contextSource = contextSource;
 
-        ldapTemplate = new SpringSecurityLdapTemplate(initialDirContextFactory);
+        ldapTemplate = new SpringSecurityLdapTemplate(contextSource);
         ldapTemplate.setSearchControls(searchControls);
     }
 
@@ -259,8 +253,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         Assert.notNull(groupSearchBase, "The groupSearchBase (name to search under), must not be null.");
         this.groupSearchBase = groupSearchBase;
         if (groupSearchBase.length() == 0) {
-            logger.info("groupSearchBase is empty. Searches will be performed from the root: "
-                    + getInitialDirContextFactory().getRootDn());
+            logger.info("groupSearchBase is empty. Searches will be performed from the context source base");
         }
     }
 
