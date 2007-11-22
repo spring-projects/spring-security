@@ -26,9 +26,9 @@ Overview
     common uses of framework, especially for inexperienced users who don't require much in the way of customization.
     The focus should be mainly on providing high-level components which logically match the different aspects of
     securing an application. While it is also useful to have namespace options for simplifying the configuration of
-    existing framework beans, this is a somewhat orthogonal requirement, with different target users, and will be dealt
+    existing framework beans, this is a somewhat orthogonal requirement, with different target users and will be dealt
     with separately. Only the most obvious customizations will be implemented to start with. It should also be possible
-    to add new features witout affecti the existing design.
+    to add new features without affecting the existing design.
 
     Keeping these aims in mind, the design is largely based around the large-scale dependencies within the framework.
     It can be divided up into the following areas:
@@ -135,7 +135,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     child elements. These encapsulate the functionality of separate web application concerns which are implemented
     by Spring Security and will typically each create a filter and possibly one or more other beans.
 
-    Finally a post processor (HttpSecurityConfigPostProcessor) is registered to handle issues which can't be done
+    Finally a post processor (HttpSecurityConfigPostProcessor) is registered to handle things which can't be done
     until the application context has been completed. This includes assembling and ordering the filter chain
     and the strategy for selecting which authentication entry point should be used to trigger login. The core
     filters now implement Ordered and a standard ordering has been established for them. Other filters in the
