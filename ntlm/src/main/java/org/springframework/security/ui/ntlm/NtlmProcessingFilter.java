@@ -15,15 +15,19 @@
 
 package org.springframework.security.ui.ntlm;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.Enumeration;
-import java.util.Properties;
-
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationManager;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.InsufficientAuthenticationException;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
+import org.springframework.security.ui.WebAuthenticationDetails;
+import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import jcifs.Config;
 import jcifs.UniAddress;
@@ -36,22 +40,17 @@ import jcifs.smb.SmbAuthException;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbSession;
 import jcifs.util.Base64;
-
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.InsufficientAuthenticationException;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.ui.WebAuthenticationDetails;
-import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
+
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
+import java.util.Properties;
 
 /**
  * A clean-room implementation for Spring Security of an NTLM HTTP filter
@@ -59,7 +58,7 @@ import org.springframework.util.Assert;
  * <p>
  * NTLM is a Microsoft-developed protocol providing single sign-on capabilities
  * to web applications and other integrated applications.  It allows a web
- * server to automatcially discover the username of a browser client when that
+ * server to automatically discover the username of a browser client when that
  * client is logged into a Windows domain and is using an NTLM-aware browser.
  * A web application can then reuse the user's Windows credentials without
  * having to ask for them again.
@@ -90,7 +89,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	private static final Integer COMPLETE = new Integer(2);
 	private static final Integer DELAYED = new Integer(3);
 
-	//~ Instance fields ================================================================================================
+    //~ Instance fields ================================================================================================
 
 	/** Should the filter load balance among multiple domain controllers, default <code>false</code> */
 	private boolean	loadBalance;
@@ -495,4 +494,4 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
         return SmbSession.getChallenge(dcAddress);
 	}
 
-}	// End NtlmProcessingFilter
+}
