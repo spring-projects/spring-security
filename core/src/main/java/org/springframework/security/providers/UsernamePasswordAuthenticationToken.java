@@ -20,9 +20,10 @@ import org.springframework.security.GrantedAuthority;
 
 /**
  * An {@link org.springframework.security.Authentication} implementation that is designed for simple presentation of a
- * username and password.<p>The <code>principal</code> and <code>credentials</code> should be set with an
- * <code>Object</code> that provides the respective property via its <code>Object.toString()</code> method. The
- * simplest such <code>Object</code> to use is <code>String</code>.</p>
+ * username and password.
+ * <p>The <code>principal</code> and <code>credentials</code> should be set with an <code>Object</code> that provides
+ * the respective property via its <code>Object.toString()</code> method. The simplest such <code>Object</code> to use
+ * is <code>String</code>.</p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -36,13 +37,11 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * This constructor can be safely used by any code that wishes to create a
      * <code>UsernamePasswordAuthenticationToken</code>, as the {@link
      * #isAuthenticated()} will return <code>false</code>.
      *
-     * @param principal DOCUMENT ME!
-     * @param credentials DOCUMENT ME!
      */
     public UsernamePasswordAuthenticationToken(Object principal, Object credentials) {
         super(null);
@@ -51,12 +50,10 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
         setAuthenticated(false);
     }
 
-/**
-     * This constructor should only be used by
-     * <code>AuthenticationManager</code> or
-     * <code>AuthenticationProvider</code> implementations that are satisfied
-     * with producing a trusted (ie {@link #isAuthenticated()} =
-     * <code>true</code>) authentication token.
+    /**
+     * This constructor should only be used by <code>AuthenticationManager</code> or <code>AuthenticationProvider</code>
+     * implementations that are satisfied with producing a trusted (ie {@link #isAuthenticated()} = <code>true</code>)
+     * authentication token.
      *
      * @param principal
      * @param credentials
@@ -79,8 +76,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
         return this.principal;
     }
 
-    public void setAuthenticated(boolean isAuthenticated)
-        throws IllegalArgumentException {
+    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
         if (isAuthenticated) {
             throw new IllegalArgumentException(
                 "Cannot set this token to trusted - use constructor containing GrantedAuthority[]s instead");

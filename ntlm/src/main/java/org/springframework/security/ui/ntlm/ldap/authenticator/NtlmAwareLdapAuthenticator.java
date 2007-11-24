@@ -69,6 +69,10 @@ public class NtlmAwareLdapAuthenticator extends BindAuthenticator {
             return super.authenticate(authentication);
         }
 
+        if (!authentication.isAuthenticated()) {
+            throw new BadCredentialsException("Unauthenticated NTLM authentication token found");
+        }
+
         if (logger.isDebugEnabled()) {
 			logger.debug("authenticate(NtlmUsernamePasswordAuthenticationToken) - start"); //$NON-NLS-1$
 		}
