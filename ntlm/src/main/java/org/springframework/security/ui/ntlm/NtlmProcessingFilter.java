@@ -24,7 +24,9 @@ import org.springframework.security.InsufficientAuthenticationException;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
+import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.WebAuthenticationDetails;
+import org.springframework.security.ui.FilterChainOrderUtils;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -77,7 +79,7 @@ import java.util.Properties;
  * @author Edward Smith
  * @version $Id$
  */
-public class NtlmProcessingFilter extends HttpFilter implements InitializingBean {
+public class NtlmProcessingFilter extends SpringSecurityFilter implements InitializingBean {
 	//~ Static fields/initializers =====================================================================================
 
 	private static Log	logger = LogFactory.getLog(NtlmProcessingFilter.class);
@@ -293,7 +295,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 		this.retryOnAuthFailure = retryOnFailure;
 	}
 
-	protected void doFilter(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain) throws IOException {
+	protected void doFilterHttp(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain) throws IOException {
 		final HttpSession session = request.getSession();
 		Integer ntlmState = (Integer) session.getAttribute(STATE_ATTR);
 
@@ -494,4 +496,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
         return SmbSession.getChallenge(dcAddress);
 	}
 
+    public int getOrder() {
+        return FilterChainOrderUtils.NTLM_FILTER_ORDER;
+    }
 }
