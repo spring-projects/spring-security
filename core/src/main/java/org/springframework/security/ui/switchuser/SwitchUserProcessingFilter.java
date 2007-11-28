@@ -69,27 +69,34 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Switch User processing filter responsible for user context switching.<p>This filter is similar to Unix 'su'
- * however for Spring Security-managed web applications.  A common use-case for this feature is the ability to allow
- * higher-authority users (i.e. ROLE_ADMIN) to switch to a regular user (i.e. ROLE_USER).</p>
- *  <p>This filter assumes that the user performing the switch will be required to be logged in as normal (i.e.
+ * Switch User processing filter responsible for user context switching.
+ * <p>
+ * This filter is similar to Unix 'su' however for Spring Security-managed web applications.
+ * A common use-case for this feature is the ability to allow higher-authority users (i.e. ROLE_ADMIN) to switch to a
+ * regular user (i.e. ROLE_USER).
+ * <p>
+ * This filter assumes that the user performing the switch will be required to be logged in as normal (i.e.
  * ROLE_ADMIN user). The user will then access a page/controller that enables the administrator to specify who they
  * wish to become (see <code>switchUserUrl</code>). <br>
  * <b>Note: This URL will be required to have to appropriate security contraints configured so that  only users of that
- * role can access (i.e. ROLE_ADMIN).</b></p>
- *  <p>On successful switch, the user's  <code>SecurityContextHolder</code> will be updated to reflect the
- * specified user and will also contain an additinal {@link org.springframework.security.ui.switchuser.SwitchUserGrantedAuthority
- * } which contains the original user.</p>
- *  <p>To 'exit' from a user context, the user will then need to access a URL (see <code>exitUserUrl</code>)  that
- * will switch back to the original user as identified by the <code>SWITCH_USER_GRANTED_AUTHORITY</code>.</p>
- *  <p>To configure the Switch User Processing Filter, create a bean definition for the Switch User processing
+ * role can access (i.e. ROLE_ADMIN).</b>
+ * <p>
+ * On successful switch, the user's  <code>SecurityContextHolder</code> will be updated to reflect the
+ * specified user and will also contain an additinal
+ * {@link org.springframework.security.ui.switchuser.SwitchUserGrantedAuthority} which contains the original user.
+ * <p>
+ * To 'exit' from a user context, the user will then need to access a URL (see <code>exitUserUrl</code>)  that
+ * will switch back to the original user as identified by the <code>SWITCH_USER_GRANTED_AUTHORITY</code>.
+ * <p>
+ * To configure the Switch User Processing Filter, create a bean definition for the Switch User processing
  * filter and add to the filterChainProxy. <br>
  * Example:<pre>
  * &lt;bean id="switchUserProcessingFilter" class="org.springframework.security.ui.switchuser.SwitchUserProcessingFilter">
  *    &lt;property name="authenticationDao" ref="jdbcDaoImpl" />
  *    &lt;property name="switchUserUrl">&lt;value>/j_spring_security_switch_user&lt;/value>&lt;/property>
  *    &lt;property name="exitUserUrl">&lt;value>/j_spring_security_exit_user&lt;/value>&lt;/property>
- *    &lt;property name="targetUrl">&lt;value>/index.jsp&lt;/value>&lt;/property>&lt;/bean></pre></p>
+ *    &lt;property name="targetUrl">&lt;value>/index.jsp&lt;/value>&lt;/property>&lt;/bean>
+ * </pre>
  *
  * @author Mark St.Godard
  * @version $Id$
@@ -102,8 +109,6 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
 
     private static final Log logger = LogFactory.getLog(SwitchUserProcessingFilter.class);
 
-    // ~ Static fields/initializers
-    // =============================================
     public static final String SPRING_SECURITY_SWITCH_USERNAME_KEY = "j_username";
     public static final String ROLE_PREVIOUS_ADMINISTRATOR = "ROLE_PREVIOUS_ADMINISTRATOR";
 
@@ -116,9 +121,6 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
     private String switchUserUrl = "/j_spring_security_switch_user";
     private String targetUrl;
     private SwitchUserAuthorityChanger switchUserAuthorityChanger;
-
-    // ~ Instance fields
-    // ========================================================
     private UserDetailsService userDetailsService;
 
     //~ Methods ========================================================================================================
