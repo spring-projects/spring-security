@@ -35,7 +35,7 @@ import java.util.Iterator;
 
 /**
  * An {@link org.springframework.security.providers.ldap.LdapAuthenticator LdapAuthenticator} which compares the login
- * password with the value stored in the directory.
+ * password with the value stored in the directory using an LDAP "compare" operation.
  *
  * <p>
  * This can be achieved either by retrieving the password attribute for the user and comparing it locally,
@@ -98,20 +98,9 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
             throw new UsernameNotFoundException(username);
         }
 
-        Object retrievedPassword = user.getObjectAttribute(passwordAttributeName);
-
-        if (retrievedPassword != null) {
-            if (!verifyPassword(password, retrievedPassword)) {
-                throw new BadCredentialsException(messages.getMessage(
-                        "PasswordComparisonAuthenticator.badCredentials", "Bad credentials"));
-            }
-
-            return user;
-        }
-
         if (logger.isDebugEnabled()) {
-            logger.debug("Password attribute wasn't retrieved for user '" + authentication
-                    + "'. Performing LDAP compare of password attribute '" + passwordAttributeName + "'");
+            logger.debug("Performing LDAP compare of password attribute '" + passwordAttributeName + "' for user '" +
+                    user.getDn() +"'");
         }
 
         String encodedPassword = passwordEncoder.encodePassword(password, null);
@@ -133,30 +122,5 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         Assert.notNull(passwordEncoder, "passwordEncoder must not be null.");
         this.passwordEncoder = passwordEncoder;
-    }
-
-    /**
-     * Allows the use of both simple and hashed passwords in the directory.
-     *
-     * @param password the password supplied by the user
-     * @param ldapPassword the (possibly hashed) password (from the directory)
-     *
-     * @return true if they match
-     */
-    protected boolean verifyPassword(String password, Object ldapPassword) {
-        if (!(ldapPassword instanceof String)) {
-            // Assume it's binary
-            ldapPassword = new String((byte[]) ldapPassword);
-        }
-
-        if (ldapPassword.equals(password)) {
-            return true;
-        }
-
-        if (passwordEncoder.isPasswordValid((String)ldapPassword, password, null)) {
-            return true;
-        }
-
-        return false;
     }
 }
