@@ -63,8 +63,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
                     includeDetailsObject ? userDetails : null);
         }
 
-        String presentedPassword = authentication.getCredentials() == null ? "" : authentication.getCredentials()
-                .toString();
+        String presentedPassword = authentication.getCredentials().toString();
 
         if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), presentedPassword, salt)) {
             throw new BadCredentialsException(messages.getMessage(

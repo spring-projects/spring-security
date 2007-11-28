@@ -55,14 +55,6 @@ import java.util.Map;
 public class DaoAuthenticationProviderTests extends TestCase {
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(DaoAuthenticationProviderTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testAuthenticateFailsForIncorrectPasswordCase() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa", "KOala");
 
@@ -86,7 +78,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
     	UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken("marissa", null);
     	try {
-    		provider.authenticate(authenticationToken); // null pointer exception
+    		provider.authenticate(authenticationToken);
     		fail("Expected BadCredenialsException");
     	} catch (BadCredentialsException expected) {
     		assertTrue(true);
