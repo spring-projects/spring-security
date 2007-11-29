@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:security="http://www.springframework.org/schema/security"
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-    <security:http createSession="ifRequired" pathType="ant" lowerCaseComparisons="true">
-        <security:intercept-url pattern="/unprotected" filters="none" />
-        <security:intercept-url pattern="/somepath" access="ROLE_SPECIAL,ROLE_USER" requiresChannel="http" />
-        <security:intercept-url pattern="/**" access="ROLE_USER" />
+    <http createSession="ifRequired" pathType="ant" lowerCaseComparisons="true">
+        <intercept-url pattern="/unprotected" filters="none" />
+        <intercept-url pattern="/somepath" access="ROLE_SPECIAL,ROLE_USER" requiresChannel="http" />
+        <intercept-url pattern="/**" access="ROLE_USER" />
 
         <!-- Default form login configuration. Will create filter and entry point -->
-        <security:form-login loginUrl="/j_spring_security_check" />
+        <form-login loginUrl="/j_spring_security_check" />
 
         <!-- Default basic auth configuration. Will create filter and entry point -->
-        <security:http-basic realm="NamespaceTestRealm" />
+        <http-basic realm="NamespaceTestRealm" />
 
         <!-- Default logout configuration -->
-        <security:logout logoutUrl="/j_spring_security_logout" logoutSuccessUrl="/" invalidateSession="true" />
+        <logout logoutUrl="/j_spring_security_logout" logoutSuccessUrl="/" invalidateSession="true" />
 
-        <security:concurrent-session-control maxSessions="1"/>
+        <concurrent-session-control maxSessions="1"/>
 
-        <security:remember-me key="doesntmatter" tokenRepository="tokenRepo"/>
-    </security:http>
+        <remember-me key="doesntmatter" tokenRepository="tokenRepo"/>
+    </http>
 
-    <security:authentication-provider>
-        <security:user-service>
-            <security:user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B" />
-            <security:user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B,AUTH_OTHER" />
-        </security:user-service>
-    </security:authentication-provider>
+    <authentication-provider>
+        <user-service>
+            <user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B" />
+            <user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B,AUTH_OTHER" />
+        </user-service>
+    </authentication-provider>
 
-    <bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
+    <beans:bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
 
     <!-- bean name="rememberMeServices" class="org.springframework.security.ui.rememberme.NullRememberMeServices"/ -->
 
-</beans>
+</beans:beans>

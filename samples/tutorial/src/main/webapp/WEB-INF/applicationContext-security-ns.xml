@@ -6,32 +6,32 @@
   - $Id$
   -->
 
-<beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:security="http://www.springframework.org/schema/security"
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-    <security:http>
-        <security:intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
-        <security:intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
-        <security:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+    <http>
+        <intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
+        <intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
+        <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
-        <security:form-login />
-        <security:http-basic realm="SpringSecurityTutorialApp"  />
-        <security:logout />
-        <security:concurrent-session-control maxSessions="1" exceptionIfMaximumExceeded="true"/>
+        <form-login />
+        <http-basic realm="SpringSecurityTutorialApp"  />
+        <logout />
+        <concurrent-session-control maxSessions="1" exceptionIfMaximumExceeded="true"/>
 
-        <security:remember-me key="doesntmatter" tokenRepository="tokenRepo"/>
-    </security:http>
+        <remember-me key="doesntmatter" tokenRepository="tokenRepo"/>
+    </http>
 
-    <bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
+    <beans:bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
 
-    <security:authentication-provider>
-        <security:user-service>
-            <security:user name="bob" password="bobspassword" authorities="ROLE_SUPERVISOR" />
-            <security:user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B" />
-        </security:user-service>
-    </security:authentication-provider>
+    <authentication-provider>
+        <user-service>
+            <user name="bob" password="bobspassword" authorities="ROLE_SUPERVISOR" />
+            <user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B" />
+        </user-service>
+    </authentication-provider>
 
-</beans>
+</beans:beans>

@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:security="http://www.springframework.org/schema/security"
+<b:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:b="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-    <bean id="target" class="org.springframework.security.config.TestBusinessBeanImpl">
+    <b:bean id="target" class="org.springframework.security.config.TestBusinessBeanImpl">
         <!-- This will add a security interceptor to the bean -->
-        <security:intercept-methods>
+        <intercept-methods>
             <!-- TODO: It would be better if we didn't need the package/interface names here -->
-            <security:protect method="org.springframework.security.config.TestBusinessBean.set*" access="ROLE_ADMIN" />
-            <security:protect method="org.springframework.security.config.TestBusinessBean.get*" access="ROLE_ADMIN,ROLE_USER" />
-            <security:protect method="org.springframework.security.config.TestBusinessBean.doSomething" access="ROLE_USER" />
-        </security:intercept-methods>
-    </bean>
+            <protect method="org.springframework.security.config.TestBusinessBean.set*" access="ROLE_ADMIN" />
+            <protect method="org.springframework.security.config.TestBusinessBean.get*" access="ROLE_ADMIN,ROLE_USER" />
+            <protect method="org.springframework.security.config.TestBusinessBean.doSomething" access="ROLE_USER" />
+        </intercept-methods>
+    </b:bean>
 
-    <security:authentication-provider>
-        <security:user-service>
-            <security:user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B" />
-            <security:user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B,AUTH_OTHER" />
-        </security:user-service>
-    </security:authentication-provider>
+    <authentication-provider>
+        <user-service>
+            <user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B" />
+            <user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B,AUTH_OTHER" />
+        </user-service>
+    </authentication-provider>
 
-</beans>
+</b:beans>
