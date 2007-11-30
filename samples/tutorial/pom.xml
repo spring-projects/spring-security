@@ -8,7 +8,7 @@
     </parent>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-samples-tutorial</artifactId>
-    <name>Acegi Security Samples - Tutorial</name>
+    <name>Spring Security Samples - Tutorial</name>
     <packaging>war</packaging>
     <dependencies>
         <dependency>
