@@ -31,6 +31,7 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 import org.acegisecurity.ui.AuthenticationDetailsSource;
 import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
 import org.acegisecurity.ui.AuthenticationEntryPoint;
@@ -187,6 +188,17 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
 
         if (existingAuth instanceof UsernamePasswordAuthenticationToken && !existingAuth.getName().equals(username)) {
             return true;
+        }
+        
+        // Handle unusual condition where an AnonymousAuthenticationToken is already present
+        // This shouldn't happen very often, as BasicProcessingFitler is meant to be earlier in the filter
+        // chain than AnonymousProcessingFilter. Nevertheless, presence of both an AnonymousAuthenticationToken
+        // together with a BASIC authentication request header should indicate reauthentication using the
+        // BASIC protocol is desirable. This behaviour is also consistent with that provided by form and digest,
+        // both of which force re-authentication if the respective header is detected (and in doing so replace
+        // any existing AnonymousAuthenticationToken). See SEC-610.
+        if (existingAuth instanceof AnonymousAuthenticationToken) {
+        	return true;
         }
 
         return false;
