@@ -35,7 +35,8 @@ Key Features
         every web application to have its own authentication database. Nor are
         you restricted to single sign on across a single web container. Advanced
         single sign on features like proxy support and forced refresh of logins
-        are supported by both CAS and Spring Security.
+        are supported by both CAS and Spring Security. Several other SSO solutions
+	are also provided by third party projects, including JOSSO and CAS.
 
     * <<Reuses your Spring expertise:>> We use Spring application
         contexts for all configuration, which should help Spring developers get

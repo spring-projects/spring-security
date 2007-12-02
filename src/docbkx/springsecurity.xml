@@ -158,7 +158,7 @@
         standards bodies such as the Internet Engineering Task Force. In
         addition, Spring Security provides its own set of authentication
         features. Specifically, Spring Security currently supports
-        authentication with all of these technologies:</para>
+        authentication integration with all of these technologies:</para>
 
         <itemizedlist spacing="compact">
           <listitem>
@@ -228,15 +228,55 @@
           </listitem>
 
           <listitem>
-            <para>Java Single Sign On (JOSSO) (<ulink
-            url="http://www.josso.org/confluence/x/TwAI ">integration</ulink>
-            is provided by the JOSSO project)</para>
+            <para>Java Open Source Single Sign On (JOSSO) *</para>
           </listitem>
 
           <listitem>
-            <para>Atlassian Crowd (<ulink
-            url="http://confluence.atlassian.com/display/CROWD/3.2.09+Integrating+Crowd+with+Acegi+Security">integration</ulink>
-            is provided by the Atlassian Crowd product)</para>
+            <para>OpenNMS Network Management Platform *</para>
+          </listitem>
+
+          <listitem>
+            <para>AppFuse *</para>
+          </listitem>
+
+          <listitem>
+            <para>AndroMDA *</para>
+          </listitem>
+
+          <listitem>
+            <para>Mule ESB *</para>
+          </listitem>
+
+          <listitem>
+            <para>Direct Web Request (DWR) *</para>
+          </listitem>
+
+          <listitem>
+            <para>Grails *</para>
+          </listitem>
+
+          <listitem>
+            <para>Tapestry *</para>
+          </listitem>
+
+          <listitem>
+            <para>JTrac *</para>
+          </listitem>
+
+          <listitem>
+            <para>Jasypt *</para>
+          </listitem>
+
+          <listitem>
+            <para>Roller *</para>
+          </listitem>
+
+          <listitem>
+            <para>Elastic Plath *</para>
+          </listitem>
+
+          <listitem>
+            <para>Atlassian Crowd *</para>
           </listitem>
 
           <listitem>
@@ -244,17 +284,21 @@
           </listitem>
         </itemizedlist>
 
+        <para>(* Denotes provided by a third party; check our <ulink
+        url="http://acegisecurity.org/powering.html">integration pag</ulink>e
+        for links to the latest details)</para>
+
         <para>Many independent software vendors (ISVs) adopt Spring Security
-        because of this rich choice of authentication models. Doing so allows
-        them to quickly integrate their solutions with whatever their end
-        clients need, without undertaking a lot of engineering or requiring
-        the client to change their environment. If none of the above
-        authentication mechanisms suit your needs, Spring Security is an open
-        platform and it is quite simple to write your own authentication
-        mechanism. Many corporate users of Spring Security need to integrate
-        with "legacy" systems that don't follow any particular security
-        standards, and Spring Security is happy to "play nicely" with such
-        systems.</para>
+        because of this significant choice of flexible authentication models.
+        Doing so allows them to quickly integrate their solutions with
+        whatever their end clients need, without undertaking a lot of
+        engineering or requiring the client to change their environment. If
+        none of the above authentication mechanisms suit your needs, Spring
+        Security is an open platform and it is quite simple to write your own
+        authentication mechanism. Many corporate users of Spring Security need
+        to integrate with "legacy" systems that don't follow any particular
+        security standards, and Spring Security is happy to "play nicely" with
+        such systems.</para>
 
         <para>Sometimes the mere process of authentication isn't enough.
         Sometimes you need to also differentiate security based on the way a

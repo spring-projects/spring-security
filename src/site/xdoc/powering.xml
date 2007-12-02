@@ -11,6 +11,7 @@
     <li><b><a href="http://www.ja-sig.org/products/cas/">JA-SIG CAS</a></b>: Single Sign On system.<br></br><br></br></li>
     <li><b><a href="http://www3.ca.com/Solutions/Product.asp?ID=5262">SiteMinder</a></b>: Single Sign On system.<br></br><br></br></li>
   </ul></subsection><subsection name="Open Source Projects"><ul>
+    <li><b><a href="http://www.josso.org/">JOSSO</a></b>: Open source Single Sign On system. <a href="http://www.josso.org/confluence/x/TwAI">Integration details</a>.<br></br><br></br></li>
     <li><b><a href="http://www.opennms.org/">OpenNMS</a></b>: An open source network management platform <a href="http://www.opennms.org/index.php/Acegi_Security_and_LDAP">Integration details</a>.<br></br><br></br></li>
     <li><b><a href="http://appfuse.org/">AppFuse</a></b>: Helps jump-start application development. <a href="http://raibledesigns.com/wiki/Wiki.jsp?page=AppFuseSecurity">Integration details</a>.<br></br><br></br></li>
     <li><b><a href="http://www.andromda.org">AndroMDA</a></b>: Code generation framework that uses model driven architecture (MDA). <a href="http://team.andromda.org/docs/andromda-spring-cartridge/howto8.html">Integration details</a>.<br></br><br></br></li>
@@ -29,11 +30,12 @@
     <li><b><a href="http://jtrac.info/">JTrac</a></b>: A Java-based issue management system. <a href="http://jtrac.info/doc/html/faq.html">Integration details</a>.<br></br><br></br></li>
     <li><b><a href="http://plazma.sourceforge.net/">Plazma</a></b>: Swing-based ERP and CRM system for SMEs.<br></br><br></br></li>
     <li><b><a href="http://www.jasypt.org/">Jasypt</a></b>: Java encryption project. <a href="http://www.jasypt.org/faq.html#i-am-already-using-spring-security-for-encrypting-passwords">Integration details</a>.<br></br><br></br></li>
-  </ul></subsection><subsection name="Commercial Deployments"><ul>
+  </ul></subsection><subsection name="Commercial Products and Deployments"><ul>
+    <li><b><a href="http://www.atlassian.com/software/crowd/">Atlassian Crowd</a></b>: Single Sign On system. <a href="http://confluence.atlassian.com/display/CROWD/3.2.09+Integrating+Crowd+with+Acegi+Security">Integration details</a>.<br></br><br></br></li>
     <li>A global financial institution uses Spring Security's SiteMinder integration in a physical security management application.<br></br><br></br></li>
+	<li><a href="http://www.elasticpath.com/ecommerce/architecture/soa.jsp">Elastic Path</a> uses Spring Security for security.<br></br><br></br></li>
     <li>A central bank that uses Spring Security for many of its internal applications with the CAS integration.<br></br><br></br></li>
     <li>Several Australian Government departments use Spring Security for securing SOAP-based web services and web applications.<br></br><br></br></li>
     <li>Enterprise Systems and Services at Rutgers University uses Spring Security in conjunction with JA-SIG Central Authentication Service to provide authentication and authorization capabilities to its applications including those used by staff and students as well as those utilized by web services.<br></br><br></br></li>
-	<li><a href="http://www.elasticpath.com/ecommerce/architecture/soa.jsp">Elastic Path</a> uses Spring Security for security.<br></br><br></br></li>
 	<li>Plus many more... ;-)<br></br><br></br></li>
   </ul></subsection></section></body></document>
