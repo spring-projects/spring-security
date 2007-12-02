@@ -20,7 +20,6 @@
     <module>webwork</module>
     <module>openid</module>
     <module>other</module>
-    <!-- module>spring-security-config</module-->
   </modules>
 
   <dependencies>
