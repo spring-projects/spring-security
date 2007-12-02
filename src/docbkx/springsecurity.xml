@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-               "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
-
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <!--
  * ========================================================================
  *
@@ -81,19 +80,19 @@
     performance benchmarking, load monitoring, centralised logging, incident
     response procedures etc.</para>
 
-    <para>With Spring Security being focused on helping you with the enterprise
-    application security layer, you will find that there are as many different
-    requirements as there are business problem domains. A banking application
-    has different needs from an ecommerce application. An ecommerce
-    application has different needs from a corporate sales force automation
-    tool. These custom requirements make application security interesting,
-    challenging and rewarding.</para>
+    <para>With Spring Security being focused on helping you with the
+    enterprise application security layer, you will find that there are as
+    many different requirements as there are business problem domains. A
+    banking application has different needs from an ecommerce application. An
+    ecommerce application has different needs from a corporate sales force
+    automation tool. These custom requirements make application security
+    interesting, challenging and rewarding.</para>
 
     <para>This reference guide has been largely restructured for the 1.0.0
-    release of Spring Security (then called Acegi Security). Please read Part I, <link
-    linkend="overall-architecture">Overall Architecture</link>, in its
-    entirety. The remaining parts of the reference guide are structured in a
-    more traditional reference style, designed to be read on an as-required
+    release of Spring Security (then called Acegi Security). Please read Part
+    I, <link linkend="overall-architecture">Overall Architecture</link>, in
+    its entirety. The remaining parts of the reference guide are structured in
+    a more traditional reference style, designed to be read on an as-required
     basis.</para>
 
     <para>We hope that you find this reference guide useful, and we welcome
@@ -107,11 +106,11 @@
     <title>Overall Architecture</title>
 
     <partintro>
-      <para>Like most software, Spring Security has certain central interfaces,
-      classes and conceptual abstractions that are commonly used throughout
-      the framework. In this part of the reference guide we will introduce
-      Spring Security, before examining these central elements that are
-      necessary to successfully planning and executing a Spring Security
+      <para>Like most software, Spring Security has certain central
+      interfaces, classes and conceptual abstractions that are commonly used
+      throughout the framework. In this part of the reference guide we will
+      introduce Spring Security, before examining these central elements that
+      are necessary to successfully planning and executing a Spring Security
       integration.</para>
     </partintro>
 
@@ -138,9 +137,9 @@
         it's important to recognise that they are not portable at a WAR or EAR
         level. Therefore, if you switch server environments, it is typically a
         lot of work to reconfigure your application's security in the new
-        target environment. Using Spring Security overcomes these problems, and
-        also brings you dozens of other useful, entirely customisable security
-        features.</para>
+        target environment. Using Spring Security overcomes these problems,
+        and also brings you dozens of other useful, entirely customisable
+        security features.</para>
 
         <para>As you probably know, security comprises two major operations.
         The first is known as "authentication", which is the process of
@@ -153,9 +152,9 @@
         established by the authentication process. These concepts are common,
         and not at all specific to Spring Security.</para>
 
-        <para>At an authentication level, Spring Security supports a wide range
-        of authentication models. Most of these authentication models are
-        either provided by third parties, or are developed by relevant
+        <para>At an authentication level, Spring Security supports a wide
+        range of authentication models. Most of these authentication models
+        are either provided by third parties, or are developed by relevant
         standards bodies such as the Internet Engineering Task Force. In
         addition, Spring Security provides its own set of authentication
         features. Specifically, Spring Security currently supports
@@ -229,6 +228,18 @@
           </listitem>
 
           <listitem>
+            <para>Java Single Sign On (JOSSO) (<ulink
+            url="http://www.josso.org/confluence/x/TwAI ">integration</ulink>
+            is provided by the JOSSO project)</para>
+          </listitem>
+
+          <listitem>
+            <para>Atlassian Crowd (<ulink
+            url="http://confluence.atlassian.com/display/CROWD/3.2.09+Integrating+Crowd+with+Acegi+Security">integration</ulink>
+            is provided by the Atlassian Crowd product)</para>
+          </listitem>
+
+          <listitem>
             <para>Your own authentication systems (see below)</para>
           </listitem>
         </itemizedlist>
@@ -265,22 +276,22 @@
         authorizing access to individual domain object instances. To help you
         understand the differences, consider the authorization capabilities
         found in the Servlet Specification web pattern security, EJB Container
-        Managed Security and file system security respectively. Spring Security
-        provides deep capabilities in all of these important areas, which
-        we'll explore later in this reference guide.</para>
+        Managed Security and file system security respectively. Spring
+        Security provides deep capabilities in all of these important areas,
+        which we'll explore later in this reference guide.</para>
       </sect1>
 
       <sect1 id="history">
         <title>History</title>
 
-        <para>Spring Security began in late 2003 as "The Acegi Security System for Spring".
-        A question was posed on the Spring Developers' mailing list asking
-        whether there had been any consideration given to a Spring-based security
-        implementation. At the time the Spring community was relatively small
-        (especially by today's size!), and indeed Spring itself had only existed
-        as a SourceForge project from early 2003. The response to the question
-        was that it was a worthwhile area, although a lack of time currently prevented its
-        exploration.</para>
+        <para>Spring Security began in late 2003 as "The Acegi Security System
+        for Spring". A question was posed on the Spring Developers' mailing
+        list asking whether there had been any consideration given to a
+        Spring-based security implementation. At the time the Spring community
+        was relatively small (especially by today's size!), and indeed Spring
+        itself had only existed as a SourceForge project from early 2003. The
+        response to the question was that it was a worthwhile area, although a
+        lack of time currently prevented its exploration.</para>
 
         <para>With that in mind, a simple security implementation was built
         and not released. A few weeks later another member of the Spring
@@ -301,20 +312,19 @@
         misconfiguration.</para>
 
         <para>Acegi Security-specific authentication services were
-        subsequently introduced. Around a year later, Acegi Security
-        became an official Spring Framework subproject. The 1.0.0 final
-        release was published in May 2006 - after more than two and a half
-        years of active use in numerous production software projects and many
-        hundreds of improvements and community contributions.</para>
+        subsequently introduced. Around a year later, Acegi Security became an
+        official Spring Framework subproject. The 1.0.0 final release was
+        published in May 2006 - after more than two and a half years of active
+        use in numerous production software projects and many hundreds of
+        improvements and community contributions.</para>
 
         <para>Since work began on the 2.0 release, the project has been
-        rebranded as "Spring Security".
-        </para>
+        rebranded as "Spring Security".</para>
 
         <para>Today Spring Security enjoys a strong and active open source
-        community. There are thousands of messages about Spring Security on the
-        support forums. Fourteen developers work on the code itself, with an
-        active community who also regularly share patches and support their
+        community. There are thousands of messages about Spring Security on
+        the support forums. Fourteen developers work on the code itself, with
+        an active community who also regularly share patches and support their
         peers.</para>
       </sect1>
 
@@ -367,11 +377,11 @@
         <title>Shared Components</title>
 
         <para>Let's explore some of the most important shared components in
-        Spring Security. Components are considered "shared" if they are central
-        to the framework and the framework cannot operate without them. These
-        Java types represent the building blocks of the remaining system, so
-        it's important to understand that they're there, even if you don't
-        need to directly interact with them.</para>
+        Spring Security. Components are considered "shared" if they are
+        central to the framework and the framework cannot operate without
+        them. These Java types represent the building blocks of the remaining
+        system, so it's important to understand that they're there, even if
+        you don't need to directly interact with them.</para>
 
         <para>The most fundamental object is
         <literal>SecurityContextHolder</literal>. This is where we store
@@ -440,8 +450,8 @@ if (obj instanceof UserDetails) {
         can obtain a principal from the <literal>Authentication</literal>
         object. The principal is just an <literal>Object</literal>. Most of
         the time this can be cast into a <literal>UserDetails</literal>
-        object. <literal>UserDetails</literal> is a central interface in Spring
-        Security. It represents a principal, but in an extensible and
+        object. <literal>UserDetails</literal> is a central interface in
+        Spring Security. It represents a principal, but in an extensible and
         application-specific way. Think of <literal>UserDetails</literal> as
         the adapter between your own user database and what Spring Security
         needs inside the <literal>SecurityContextHolder</literal>. Being a
@@ -484,8 +494,8 @@ if (obj instanceof UserDetails) {
         configured for web authorization, method authorization and domain
         object authorization. Other parts of Spring Security are capable of
         interpreting these authorities, and expect them to be present.
-        <literal>GrantedAuthority</literal> objects are usually loaded by
-        the <literal>UserDetailsService</literal>.</para>
+        <literal>GrantedAuthority</literal> objects are usually loaded by the
+        <literal>UserDetailsService</literal>.</para>
 
         <para>Usually the <literal>GrantedAuthority</literal> objects are
         application-wide permissions. They are not specific to a given domain
@@ -590,8 +600,8 @@ if (obj instanceof UserDetails) {
           <listitem>
             <para>As you're not presently authenticated, the server sends back
             a response indicating that you must authenticate. The response
-            will either be an HTTP response code, or a redirect to a particular
-            web page.</para>
+            will either be an HTTP response code, or a redirect to a
+            particular web page.</para>
           </listitem>
 
           <listitem>
@@ -658,14 +668,15 @@ if (obj instanceof UserDetails) {
         three.</para>
 
         <para>After your browser decides to submit your authentication
-        credentials (either as an HTTP form post or HTTP header) there needs to
-        be something on the server that "collects" these authentication
-        details. By now we're at step six in the above list. In Spring Security
-        we have a special name for the function of collecting authentication
-        details from a user agent (usually a web browser), and that name is
-        "authentication mechanism". After the authentication details are
-        collected from the user agent, an "<literal>Authentication</literal>
-        request" object is built and then presented to an
+        credentials (either as an HTTP form post or HTTP header) there needs
+        to be something on the server that "collects" these authentication
+        details. By now we're at step six in the above list. In Spring
+        Security we have a special name for the function of collecting
+        authentication details from a user agent (usually a web browser), and
+        that name is "authentication mechanism". After the authentication
+        details are collected from the user agent, an
+        "<literal>Authentication</literal> request" object is built and then
+        presented to an
         <interfacename>AuthenticationProvider</interfacename>.</para>
 
         <para>The last played in the Spring Security authentication process is
@@ -736,8 +747,8 @@ if (obj instanceof UserDetails) {
         standard Filter.</para>
 
         <para>For those not familiar with AOP, the key point to understand is
-        that Spring Security can help you protect method invocations as well as
-        web requests. Most people are interested in securing method
+        that Spring Security can help you protect method invocations as well
+        as web requests. Most people are interested in securing method
         invocations on their services layer. This is because the services
         layer is where most business logic resides in current-generation J2EE
         applications (for clarification, the author disapproves of this design
@@ -773,11 +784,12 @@ if (obj instanceof UserDetails) {
         String that has special meaning to the classes used by
         <literal>AbstractSecurityInterceptor</literal>. They're normally
         configured against your <literal>AbstractSecurityInterceptor</literal>
-        using XML. Anyway, the <literal>AbstractSecurityInterceptor</literal> will ask an
-        <literal>AccessDecisionManager</literal> "here's the configuration
-        attributes, here's the current <literal>Authentication</literal>
-        object, and here's details of the current request - is this particular
-        principal allowed to perform this particular operation?".</para>
+        using XML. Anyway, the <literal>AbstractSecurityInterceptor</literal>
+        will ask an <literal>AccessDecisionManager</literal> "here's the
+        configuration attributes, here's the current
+        <literal>Authentication</literal> object, and here's details of the
+        current request - is this particular principal allowed to perform this
+        particular operation?".</para>
 
         <para>Assuming <literal>AccessDecisionManager</literal> decides to
         allow the request, the <literal>AbstractSecurityInterceptor</literal>
@@ -789,10 +801,10 @@ if (obj instanceof UserDetails) {
         <literal>AccessDecisionManager</literal> calling a
         <literal>RunAsManager</literal>. This might be useful in reasonably
         unusual situations, such as if a services layer method needs to call a
-        remote system and present a different identity. Because Spring Security
-        automatically propagates security identity from one server to another
-        (assuming you're using a properly-configured RMI or HttpInvoker
-        remoting protocol client), this may be useful.</para>
+        remote system and present a different identity. Because Spring
+        Security automatically propagates security identity from one server to
+        another (assuming you're using a properly-configured RMI or
+        HttpInvoker remoting protocol client), this may be useful.</para>
 
         <para>Following the secure object proceeding and then returning -
         which may mean a method invocation completing or a filter chain
@@ -816,14 +828,14 @@ if (obj instanceof UserDetails) {
               <imagedata align="center"
                          fileref="images/SecurityInterception.gif"
                          format="GIF" />
-
             </imageobject>
+
             <imageobject role="fo">
               <imagedata align="center"
                          fileref="images/SecurityInterception.gif"
                          format="GIF" />
-
             </imageobject>
+
             <caption>
               <para>Figure 1: The key "secure object" model</para>
             </caption>
@@ -860,17 +872,17 @@ if (obj instanceof UserDetails) {
 
       <para>This chapter introduces some of the supplementary and supporting
       infrastructure used by Spring Security. If a capability is not directly
-      related to security, yet included in the Spring Security project, we will
-      discuss it in this chapter.</para>
+      related to security, yet included in the Spring Security project, we
+      will discuss it in this chapter.</para>
 
       <sect1 id="localization">
         <title>Localization</title>
 
         <para>Spring Security supports localization of exception messages that
         end users are likely to see. If your application is designed for
-        English users, you don't need to do anything as by default all Security
-        Security messages are in English. If you need to support other
-        locales, everything you need to know is contained in this
+        English users, you don't need to do anything as by default all
+        Security Security messages are in English. If you need to support
+        other locales, everything you need to know is contained in this
         section.</para>
 
         <para>All exception messages can be localized, including messages
@@ -879,18 +891,19 @@ if (obj instanceof UserDetails) {
         developers or system deployers (including incorrect attributes,
         interface contract violations, using incorrect constructors, startup
         time validation, debug-level logging) etc are not localized and
-        instead are hard-coded in English within Spring Security's code.</para>
+        instead are hard-coded in English within Spring Security's
+        code.</para>
 
         <para>Shipping in the <literal>acegi-security-xx.jar</literal> you
-        will find an <literal>org.springframework.security</literal> package that in turn
-        contains a <literal>messages.properties</literal> file. This should be
-        referred to by your <literal>ApplicationContext</literal>, as Acegi
-        Security classes implement Spring's
-        <literal>MessageSourceAware</literal> interface and expect the message
-        resolver to be dependency injected at application context startup
-        time. Usually all you need to do is register a bean inside your
-        application context to refer to the messages. An example is shown
-        below:</para>
+        will find an <literal>org.springframework.security</literal> package
+        that in turn contains a <literal>messages.properties</literal> file.
+        This should be referred to by your
+        <literal>ApplicationContext</literal>, as Acegi Security classes
+        implement Spring's <literal>MessageSourceAware</literal> interface and
+        expect the message resolver to be dependency injected at application
+        context startup time. Usually all you need to do is register a bean
+        inside your application context to refer to the messages. An example
+        is shown below:</para>
 
         <para><programlisting>&lt;bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource"&gt;
   &lt;property name="basename"&gt;&lt;value&gt;org/acegisecurity/messages&lt;/value&gt;&lt;/property&gt;
@@ -898,10 +911,10 @@ if (obj instanceof UserDetails) {
 
         <para>The <literal>messages.properties</literal> is named in
         accordance with standard resource bundles and represents the default
-        language supported by Spring Security messages. This default file is in
-        English. If you do not register a message source, Spring Security will
-        still work correctly and fallback to hard-coded English versions of
-        the messages.</para>
+        language supported by Spring Security messages. This default file is
+        in English. If you do not register a message source, Spring Security
+        will still work correctly and fallback to hard-coded English versions
+        of the messages.</para>
 
         <para>If you wish to customize the
         <literal>messages.properties</literal> file, or support other
@@ -1009,9 +1022,9 @@ if (obj instanceof UserDetails) {
         <literal>FilterChainProxy</literal> class. It is wired using a
         <literal>FilterToBeanProxy</literal> (just like in the example above),
         but the target class is
-        <literal>org.springframework.security.util.FilterChainProxy</literal>. The filter
-        chain is then declared in the application context, using code such as
-        this:</para>
+        <literal>org.springframework.security.util.FilterChainProxy</literal>.
+        The filter chain is then declared in the application context, using
+        code such as this:</para>
 
         <para><programlisting>&lt;bean id="filterChainProxy"
             class="org.springframework.security.util.FilterChainProxy"&gt;
@@ -1081,16 +1094,15 @@ if (obj instanceof UserDetails) {
 
         <para>You can also omit a URI pattern from the filter chain by using
         the token <literal>#NONE#</literal> on the right-hand side of the
-        <literal>&lt;URI Pattern&gt; = &lt;Filter Chain&gt;</literal> expression. For example, using
-         the example above, if you wanted to exclude the <filename>/webservices</filename>
-         location completely, you would modify the corresponding line in the bean declaration to be
+        <literal>&lt;URI Pattern&gt; = &lt;Filter Chain&gt;</literal>
+        expression. For example, using the example above, if you wanted to
+        exclude the <filename>/webservices</filename> location completely, you
+        would modify the corresponding line in the bean declaration to be
         <programlisting>
 /webServices/**=#NONE#
-        </programlisting>
-          Note that anything matching this path will then have no authentication
-          or authorization services applied and will be freely accessible.
-        </para>
-
+        </programlisting> Note that anything matching this path will then have
+        no authentication or authorization services applied and will be freely
+        accessible.</para>
 
         <para>The order that filters are defined in <literal>web.xml</literal>
         is very important. Irrespective of which filters you are actually
@@ -1158,8 +1170,8 @@ if (obj instanceof UserDetails) {
 
           <listitem>
             <para><literal>ExceptionTranslationFilter</literal>, to catch any
-            Spring Security exceptions so that either an HTTP error response can
-            be returned or an appropriate
+            Spring Security exceptions so that either an HTTP error response
+            can be returned or an appropriate
             <literal>AuthenticationEntryPoint</literal> can be launched</para>
           </listitem>
 
@@ -1372,8 +1384,8 @@ if (obj instanceof UserDetails) {
       <sect1 id="taglib-overview">
         <title>Overview</title>
 
-        <para>Spring Security comes bundled with several JSP tag libraries that
-        eases JSP writing. The tag libraries are known as
+        <para>Spring Security comes bundled with several JSP tag libraries
+        that eases JSP writing. The tag libraries are known as
         <literal>authz</literal> and provide a range of different
         services.</para>
       </sect1>
@@ -1403,15 +1415,12 @@ if (obj instanceof UserDetails) {
         <title>Usage</title>
 
         <para>Now that you've configured the tag libraries, refer to the
-        individual reference guide sections for details on how to use
-        them. Note that when using the tags, you should include the
-        taglib reference in your JSP:
-        <programlisting><![CDATA[
-            <%@ taglib prefix='authz' uri='http://acegisecurity.org/authz' %>
-            ]]>
-        </programlisting>
-
-        </para>
+        individual reference guide sections for details on how to use them.
+        Note that when using the tags, you should include the taglib reference
+        in your JSP: <programlisting>
+            &lt;%@ taglib prefix='authz' uri='http://acegisecurity.org/authz' %&gt;
+            
+        </programlisting></para>
       </sect1>
     </chapter>
   </part>
@@ -1463,13 +1472,13 @@ if (obj instanceof UserDetails) {
 
         <para>The above declarations will cause every web request to be passed
         through to Spring Security's FilterChainProxy. As explained in the
-        filters section of this reference guide, the <classname>FilterChainProxy</classname> is a
-        generally-useful class that enables web requests to be passed to
-        different filters based on the URL patterns. Those delegated filters
-        are managed inside the application context, so they can benefit from
-        dependency injection. Let's have a look at what the FilterChainProxy
-        bean definition would look like inside your application
-        context:</para>
+        filters section of this reference guide, the
+        <classname>FilterChainProxy</classname> is a generally-useful class
+        that enables web requests to be passed to different filters based on
+        the URL patterns. Those delegated filters are managed inside the
+        application context, so they can benefit from dependency injection.
+        Let's have a look at what the FilterChainProxy bean definition would
+        look like inside your application context:</para>
 
         <para><programlisting>&lt;bean id="filterChainProxy"
             class="org.springframework.security.util.FilterChainProxy"&gt;
@@ -1545,12 +1554,13 @@ if (obj instanceof UserDetails) {
         <literal>AuthenticationManager</literal>?". We haven't explored it
         before, but we have discussed the concept of an
         <literal>AuthenticationProvider</literal>. Quite simply, an
-        <interfacename>AuthenticationManager</interfacename> is responsible for passing requests through a
-        chain of AuthenticationProviders. It's a little like the filter chain
-        we discussed earlier, although there are some differences. There is
-        only one <interfacename>AuthenticationManager</interfacename> implementation shipped with Spring
-        Security, so let's look at how it's configured for the example we're
-        using in this chapter:</para>
+        <interfacename>AuthenticationManager</interfacename> is responsible
+        for passing requests through a chain of AuthenticationProviders. It's
+        a little like the filter chain we discussed earlier, although there
+        are some differences. There is only one
+        <interfacename>AuthenticationManager</interfacename> implementation
+        shipped with Spring Security, so let's look at how it's configured for
+        the example we're using in this chapter:</para>
 
         <para><programlisting>&lt;bean id="authenticationManager"
             class="org.springframework.security.providers.ProviderManager"&gt;
@@ -1797,8 +1807,8 @@ if (obj instanceof UserDetails) {
           certain <literal>UserDetails</literal> implementation returned),
           you'd be better off writing your own
           <literal>UserDetailsService</literal>. The base implementation
-          provided with Spring Security is intended for typical situations, and
-          does not offer infinite configuration flexibility.</para>
+          provided with Spring Security is intended for typical situations,
+          and does not offer infinite configuration flexibility.</para>
         </sect2>
       </sect1>
 
@@ -1823,9 +1833,9 @@ if (obj instanceof UserDetails) {
         <para>In addition, you will need to add the
         <literal>org.springframework.security.concurrent.ConcurrentSessionFilter</literal>
         to your <literal>FilterChainProxy</literal>. The
-        <classname>ConcurrentSessionFilter</classname> requires two properties,
-        <literal>sessionRegistry</literal>, which generally points to an
-        instance of <literal>SessionRegistryImpl</literal>, and
+        <classname>ConcurrentSessionFilter</classname> requires two
+        properties, <literal>sessionRegistry</literal>, which generally points
+        to an instance of <literal>SessionRegistryImpl</literal>, and
         <literal>expiredUrl</literal>, which points to the page to display
         when a session has expired.</para>
 
@@ -1925,14 +1935,14 @@ if (obj instanceof UserDetails) {
         A <literal>SaltSource</literal> enables the passwords to be populated
         with a "salt", which enhances the security of the passwords in the
         authentication repository. <literal>PasswordEncoder</literal>
-        implementations are provided with Spring Security covering MD5, SHA and
-        cleartext encodings. Two <literal>SaltSource</literal> implementations
-        are also provided: <literal>SystemWideSaltSource</literal> which
-        encodes all passwords with the same salt, and
-        <literal>ReflectionSaltSource</literal>, which inspects a given
-        property of the returned <literal>UserDetails</literal> object to
-        obtain the salt. Please refer to the JavaDocs for further details on
-        these optional features.</para>
+        implementations are provided with Spring Security covering MD5, SHA
+        and cleartext encodings. Two <literal>SaltSource</literal>
+        implementations are also provided:
+        <literal>SystemWideSaltSource</literal> which encodes all passwords
+        with the same salt, and <literal>ReflectionSaltSource</literal>, which
+        inspects a given property of the returned
+        <literal>UserDetails</literal> object to obtain the salt. Please refer
+        to the JavaDocs for further details on these optional features.</para>
 
         <para>In addition to the properties above, the
         <literal>DaoAuthenticationProvider</literal> supports optional caching
@@ -2077,12 +2087,13 @@ if (obj instanceof UserDetails) {
           of some sort. These callbacks are usually used to obtain the
           username and password from the user.</para>
 
-          <para>In a Spring Security deployment, Spring Security is responsible
-          for this user interaction (via the authentication mechanism). Thus,
-          by the time the authentication request is delegated through to JAAS,
-          Spring Security's authentication mechanism will already have
-          fully-populated an <literal>Authentication</literal> object
-          containing all the information required by the JAAS
+          <para>In a Spring Security deployment, Spring Security is
+          responsible for this user interaction (via the authentication
+          mechanism). Thus, by the time the authentication request is
+          delegated through to JAAS, Spring Security's authentication
+          mechanism will already have fully-populated an
+          <literal>Authentication</literal> object containing all the
+          information required by the JAAS
           <literal>LoginModule</literal>.</para>
 
           <para>Therefore, the JAAS package for Spring Security provides two
@@ -2182,12 +2193,13 @@ if (obj instanceof UserDetails) {
       <sect1 id="siteminder-config">
         <title>Configuration</title>
 
-        <para>The first step in setting up Spring Security's Siteminder support
-        is to define the authentication mechanism that will inspect the HTTP
-        header discussed earlier. It will be responsible for generating a
-        <literal>UsernamePasswordAuthenticationToken</literal> that is later
-        sent to the <literal>SiteminderAuthenticationProvider</literal>. Let's
-        look at an example:</para>
+        <para>The first step in setting up Spring Security's Siteminder
+        support is to define the authentication mechanism that will inspect
+        the HTTP header discussed earlier. It will be responsible for
+        generating a <literal>UsernamePasswordAuthenticationToken</literal>
+        that is later sent to the
+        <literal>SiteminderAuthenticationProvider</literal>. Let's look at an
+        example:</para>
 
         <para><programlisting>&lt;bean id="authenticationProcessingFilter"
             class="org.springframework.security.ui.webapp.SiteminderAuthenticationProcessingFilter"&gt;
@@ -2203,8 +2215,8 @@ if (obj instanceof UserDetails) {
         <literal>AuthenticationManager</literal>, as is normally needed by
         authentication mechanisms. Several URLs are also specified, with the
         values being self-explanatory. It's important to also specify the HTTP
-        header that Spring Security should inspect. If you additionally want to
-        support form-based authentication (i.e. in your development
+        header that Spring Security should inspect. If you additionally want
+        to support form-based authentication (i.e. in your development
         environment where Siteminder is not installed), specify the form's
         username parameter as well - just don't do this in production!</para>
 
@@ -2860,12 +2872,13 @@ key:              A private key to prevent modification of the remember-me token
         part of the SSL handshake. The server will authenticate the client by
         checking that it's certificate is signed by an acceptable authority.
         If a valid certificate has been provided, it can be obtained through
-        the servlet API in an application. Spring Security X509 module extracts
-        the certificate using a filter and passes it to the configured X509
-        authentication provider to allow any additional application-specific
-        checks to be applied. It also maps the certificate to an application
-        user and loads that user's set of granted authorities for use with the
-        standard Spring Security infrastructure.</para>
+        the servlet API in an application. Spring Security X509 module
+        extracts the certificate using a filter and passes it to the
+        configured X509 authentication provider to allow any additional
+        application-specific checks to be applied. It also maps the
+        certificate to an application user and loads that user's set of
+        granted authorities for use with the standard Spring Security
+        infrastructure.</para>
 
         <para>You should be familiar with using certificates and setting up
         client authentication for your servlet container before attempting to
@@ -2997,15 +3010,15 @@ key:              A private key to prevent modification of the remember-me token
         to store the role information for application users.</para>
 
         <para>There are many different scenarios for how an LDAP server may be
-        configured so Spring Security's LDAP provider is fully configurable. It uses
-        separate strategy interfaces for authentication and role retrieval and
-        provides default implementations which can be configured to handle a
-        wide range of situations.</para>
+        configured so Spring Security's LDAP provider is fully configurable.
+        It uses separate strategy interfaces for authentication and role
+        retrieval and provides default implementations which can be configured
+        to handle a wide range of situations.</para>
 
         <para>You should be familiar with LDAP before trying to use it with
-        Spring Security. The following link provides a good introduction to the concepts
-        involved and a guide to setting up a directory using the free LDAP
-        server OpenLDAP: <ulink
+        Spring Security. The following link provides a good introduction to
+        the concepts involved and a guide to setting up a directory using the
+        free LDAP server OpenLDAP: <ulink
         url="http://www.zytrax.com/books/ldap/"></ulink>. Some familiarity
         with the JNDI APIs used to access LDAP from Java may also be useful.
         We don't use any third-party LDAP libraries (Mozilla/Netscape, JLDAP
@@ -3224,9 +3237,9 @@ key:              A private key to prevent modification of the remember-me token
         <literal>uid=&lt;user-login-name&gt;,ou=people,dc=springframework,dc=org</literal>.
         After successful authentication, roles will be assigned to the user by
         searching under the DN
-        <literal>ou=groups,dc=springframework,dc=org</literal> with the default
-        filter <literal>(member=&lt;user's-DN&gt;)</literal>. The role name
-        will be taken from the <quote>ou</quote> attribute of each
+        <literal>ou=groups,dc=springframework,dc=org</literal> with the
+        default filter <literal>(member=&lt;user's-DN&gt;)</literal>. The role
+        name will be taken from the <quote>ou</quote> attribute of each
         match.</para>
 
         <para>We've also included the configuration for a user search object,
@@ -3268,8 +3281,8 @@ key:              A private key to prevent modification of the remember-me token
 
         <para>Whilst the CAS web site above contains two documents that detail
         the architecture of CAS, we present the general overview again here
-        within the context of Spring Security. The following refers to both CAS
-        2.0 (produced by Yale) and CAS 3.0 (produced by JA-SIG), being the
+        within the context of Spring Security. The following refers to both
+        CAS 2.0 (produced by Yale) and CAS 3.0 (produced by JA-SIG), being the
         versions of CAS that Spring Security supports.</para>
 
         <para>Somewhere in your enterprise you will need to setup a CAS
@@ -3315,8 +3328,8 @@ key:              A private key to prevent modification of the remember-me token
         you will have already established an
         <literal>AuthenticationHandler</literal>. If you do not already have
         an <literal>AuthenticationHandler</literal>, you might prefer to use
-        Spring Security <literal>CasAuthenticationHandler</literal> class. This
-        class delegates through to the standard Spring Security
+        Spring Security <literal>CasAuthenticationHandler</literal> class.
+        This class delegates through to the standard Spring Security
         <literal>AuthenticationManager</literal>, enabling you to use a
         security configuration you might already have in place. You do not
         need to use the <literal>CasAuthenticationHandler</literal> class on
@@ -3474,8 +3487,8 @@ key:              A private key to prevent modification of the remember-me token
             a configured <literal>CasProxyDecider</literal>. The
             <literal>CasProxyDecider</literal> indicates whether the proxy
             list in the <literal>TicketResponse</literal> is acceptable to the
-            service. Several implementations are provided with Spring Security:
-            <literal>RejectProxyTickets</literal>,
+            service. Several implementations are provided with Spring
+            Security: <literal>RejectProxyTickets</literal>,
             <literal>AcceptAnyCasProxy</literal> and
             <literal>NamedCasProxyDecider</literal>. These names are largely
             self-explanatory, except <literal>NamedCasProxyDecider</literal>
@@ -3487,9 +3500,9 @@ key:              A private key to prevent modification of the remember-me token
             <para><literal>CasAuthenticationProvider</literal> will next
             request a <literal>CasAuthoritiesPopulator</literal> to advise the
             <literal>GrantedAuthority</literal> objects that apply to the user
-            contained in the <literal>TicketResponse</literal>. Spring Security
-            includes a <literal>DaoCasAuthoritiesPopulator</literal> which
-            simply uses the <literal>UserDetailsService</literal>
+            contained in the <literal>TicketResponse</literal>. Spring
+            Security includes a <literal>DaoCasAuthoritiesPopulator</literal>
+            which simply uses the <literal>UserDetailsService</literal>
             infrastructure to find the <literal>UserDetails</literal> and
             their associated <literal>GrantedAuthority</literal>s. Note that
             the password and enabled/disabled status of
@@ -3528,10 +3541,10 @@ key:              A private key to prevent modification of the remember-me token
             <para>As the <literal>Authentication</literal> object is now in
             the well-known location, it is handled like any other
             authentication approach. Usually the
-            <literal>HttpSessionContextIntegrationFilter</literal> will be used to
-            associate the <literal>Authentication</literal> object with the
-            <literal>SecurityContextHolder</literal> for the duration of each
-            request.</para>
+            <literal>HttpSessionContextIntegrationFilter</literal> will be
+            used to associate the <literal>Authentication</literal> object
+            with the <literal>SecurityContextHolder</literal> for the duration
+            of each request.</para>
           </listitem>
         </orderedlist>
 
@@ -3909,8 +3922,8 @@ key:              A private key to prevent modification of the remember-me token
 
         <para>This completes the configuration of CAS. If you haven't made any
         mistakes, your web application should happily work within the
-        framework of CAS single sign on. No other parts of Spring Security need
-        to be concerned about the fact CAS handled authentication.</para>
+        framework of CAS single sign on. No other parts of Spring Security
+        need to be concerned about the fact CAS handled authentication.</para>
 
         <para>There is also a <literal>contacts-cas.war</literal> file in the
         sample applications directory. This sample application uses the above
@@ -3986,12 +3999,12 @@ key:              A private key to prevent modification of the remember-me token
       <sect1 id="ca-overview">
         <title>Overview</title>
 
-        <para>Very early versions of Spring Security exclusively used Container
-        Adapters for interfacing authentication with end users. Whilst this
-        worked well, it required considerable time to support multiple
-        container versions and the configuration itself was relatively
-        time-consuming for developers. For this reason the HTTP Form
-        Authentication and HTTP Basic Authentication approaches were
+        <para>Very early versions of Spring Security exclusively used
+        Container Adapters for interfacing authentication with end users.
+        Whilst this worked well, it required considerable time to support
+        multiple container versions and the configuration itself was
+        relatively time-consuming for developers. For this reason the HTTP
+        Form Authentication and HTTP Basic Authentication approaches were
         developed, and are today recommended for almost all
         applications.</para>
 
@@ -4437,55 +4450,58 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <title>Rationale</title>
 
         <para>Spring Security does provide transparent propagation of security
-        context information in specific remoting scenarios. That means that the
-        security context of the invoker is passed along with each method
-        invocation to the server. There the context is being reestablished so that
-        a service method can take place in the security context of the invoker.
-        There is out-of-the-box support for RMI or Spring's own HttpInvoker
-        protocol. Now many applications around are based on EJB remoting because
-        of requirements or policy, which are precluded from that benefit. </para>
+        context information in specific remoting scenarios. That means that
+        the security context of the invoker is passed along with each method
+        invocation to the server. There the context is being reestablished so
+        that a service method can take place in the security context of the
+        invoker. There is out-of-the-box support for RMI or Spring's own
+        HttpInvoker protocol. Now many applications around are based on EJB
+        remoting because of requirements or policy, which are precluded from
+        that benefit.</para>
 
-        <para>If you have an EJB application you have two options for integrating
-        Spring Security:</para>
+        <para>If you have an EJB application you have two options for
+        integrating Spring Security:</para>
 
         <itemizedlist>
           <listitem>
-            <para>Use a container adapter for integrating with that application
-            server's proprietary security mechanism (Spring Security provides some
-            ready usable adapters for use in legacy scenarios)</para>
+            <para>Use a container adapter for integrating with that
+            application server's proprietary security mechanism (Spring
+            Security provides some ready usable adapters for use in legacy
+            scenarios)</para>
           </listitem>
 
           <listitem>
-            <para>Create wrappers on the client side (and on the server side when
-            using POJO delegation) to propagate the security context</para>
+            <para>Create wrappers on the client side (and on the server side
+            when using POJO delegation) to propagate the security
+            context</para>
           </listitem>
         </itemizedlist>
 
         <para>Both approaches have the benefit that the implementation of your
         service, as well as its clients, are agnostic to remoting and security
-        context propagation taking place. The drawback of the first approach is,
-        that you have to reimplement parts of your security infrastructure when
-        switching the container (or maybe upgrading it, as sometimes the security
-        strategy changes over time). That issue does not arise in the second
-        approach, but the problem here is the implementation overhead of creating
-        according wrappers to hide the context propagation.</para>
+        context propagation taking place. The drawback of the first approach
+        is, that you have to reimplement parts of your security infrastructure
+        when switching the container (or maybe upgrading it, as sometimes the
+        security strategy changes over time). That issue does not arise in the
+        second approach, but the problem here is the implementation overhead
+        of creating according wrappers to hide the context propagation.</para>
 
         <para>The following chapters describe the infrastructure classes which
-        wrap the context propagation and abstract it away from both client usage
-        and service implementation.</para>
+        wrap the context propagation and abstract it away from both client
+        usage and service implementation.</para>
       </section>
 
       <section>
         <title>How it works</title>
 
-        <para>See figure 1 which describes the recommended POJO delegation model,
-        where an EJB session bean only serves as remoting wrapper. The actual
-        service implementation resides inside a POJO that implements the given
-        business interface. The EJB implementation does nothing more than just
-        delegating invocations of service operations to the POJO. Using Spring's
-        support classes for wiring the POJO to the EJB is simple. Spring also
-        allows wiring the service interface to the client by transparently
-        wrapping the remote interface.</para>
+        <para>See figure 1 which describes the recommended POJO delegation
+        model, where an EJB session bean only serves as remoting wrapper. The
+        actual service implementation resides inside a POJO that implements
+        the given business interface. The EJB implementation does nothing more
+        than just delegating invocations of service operations to the POJO.
+        Using Spring's support classes for wiring the POJO to the EJB is
+        simple. Spring also allows wiring the service interface to the client
+        by transparently wrapping the remote interface.</para>
 
         <para><figure>
             <title>Figure 1: Using EJB as remoting wrapper</title>
@@ -4500,12 +4516,13 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para>This concept is now slightly enhanced by the context propagation
         module. As it is not possible to intercept the invocation of a remote
         interface in a portable manner, we have to extend the remote interface
-        methods to include an additional parameter that holdes the SecurityContext
-        we wish to propagate. In consequence we also have to modify the method
-        implementations in the EJB implementation class to take that additional
-        argument. This is depicted in figure 2. Note however, that the client
-        still works with the plain business interface we had before and that the
-        actual service implementation class is still the same.</para>
+        methods to include an additional parameter that holdes the
+        SecurityContext we wish to propagate. In consequence we also have to
+        modify the method implementations in the EJB implementation class to
+        take that additional argument. This is depicted in figure 2. Note
+        however, that the client still works with the plain business interface
+        we had before and that the actual service implementation class is
+        still the same.</para>
 
         <para><figure>
             <title>Figure 2: Using EJB as enhanced remoting wrapper</title>
@@ -4518,19 +4535,19 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
           </figure></para>
 
         <para>Now how does this work? On the client side a proxy translates
-        invocations from the business interface (Service) to invocations of the
-        extended business interface (XService) which is actually exposed by the
-        remote interface. The current security context is extracted and passed
-        into the additionally provided method parameter.</para>
+        invocations from the business interface (Service) to invocations of
+        the extended business interface (XService) which is actually exposed
+        by the remote interface. The current security context is extracted and
+        passed into the additionally provided method parameter.</para>
 
-        <para>On the server side the EJB implementation refers to a delegate which
-        also exposes the extended service interface (XService). Behind that
-        service interface hides a proxy which extracts the passed-in
+        <para>On the server side the EJB implementation refers to a delegate
+        which also exposes the extended service interface (XService). Behind
+        that service interface hides a proxy which extracts the passed-in
         SecurityContext and establishes it in the current thread. Then it
         delegates the invocation to the actual delegate class (ServiceImpl),
-        translating the method invocation as the target does not know about the
-        SecurityContext parameter. The invocation chain is exemplified in figure
-        3.</para>
+        translating the method invocation as the target does not know about
+        the SecurityContext parameter. The invocation chain is exemplified in
+        figure 3.</para>
 
         <para><figure>
             <title>Figure 3: Invocation chain</title>
@@ -4560,8 +4577,8 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             <para><programlisting format="linespecific">public interface Service {
 
         Result operation(Parameter param);
-    }</programlisting>How the business interface looks like depends just on, well,
-            your business requirements. Nothing special about it.</para>
+    }</programlisting>How the business interface looks like depends just on,
+            well, your business requirements. Nothing special about it.</para>
           </section>
 
           <section>
@@ -4589,26 +4606,27 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             <para><programlisting>// Remote interface
     public interface ServiceRemote extends XService, EJBObject {}</programlisting>The
             extended business interface introduces an additional parameter for
-            each method (which is by convention the first parameter). Besides that
-            augmentation of the parameter list we have to consider that this
-            interface is being used in an EJB remoting scenario, so we specify a
-            "throws RemoteException" for each method. This is not strictly
-            necessary but it allows us to greatly simplify the definition of the
-            actual remote interface as could be seen in the second listing.
-            </para>
+            each method (which is by convention the first parameter). Besides
+            that augmentation of the parameter list we have to consider that
+            this interface is being used in an EJB remoting scenario, so we
+            specify a "throws RemoteException" for each method. This is not
+            strictly necessary but it allows us to greatly simplify the
+            definition of the actual remote interface as could be seen in the
+            second listing.</para>
 
             <para>In addition to the RemoteException, each method also should
             declare throwing a
-            org.springframework.security.ejb.server.SecurityServiceException. This
-            is because of the EJB spec: If an EJB method throws an unchecked
-            exception (all Spring Security exceptions are unchecked) that
-            exception will be wrapped into a RemoteException and the bean instance
-            will be dropped from the container. As this is unwanted and negatively
-            impacts performance we declare the SecurityServiceException to be
-            thrown. So any security exceptions will be wrapped into a
-            SecurityServiceException to be passed to the client. Note that
-            everything still works when that declaration is omitted, but consider
-            the negative consequences for the EJB in question.</para>
+            org.springframework.security.ejb.server.SecurityServiceException.
+            This is because of the EJB spec: If an EJB method throws an
+            unchecked exception (all Spring Security exceptions are unchecked)
+            that exception will be wrapped into a RemoteException and the bean
+            instance will be dropped from the container. As this is unwanted
+            and negatively impacts performance we declare the
+            SecurityServiceException to be thrown. So any security exceptions
+            will be wrapped into a SecurityServiceException to be passed to
+            the client. Note that everything still works when that declaration
+            is omitted, but consider the negative consequences for the EJB in
+            question.</para>
           </section>
 
           <section>
@@ -4691,29 +4709,30 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             &lt;/property&gt;
 
         &lt;/bean&gt;
-    &lt;/beans&gt;</programlisting>The above listing shows how the the service is
-          being wired to the client. Instead of using a
+    &lt;/beans&gt;</programlisting>The above listing shows how the the service
+          is being wired to the client. Instead of using a
           SimpleRemoteStatelessSessionProxyFactoryBean we use a
-          SecurityContextInjectingRemoteSlsbProxyFactoryBean which provides the
-          same functionality but is enhanced for hiding context
+          SecurityContextInjectingRemoteSlsbProxyFactoryBean which provides
+          the same functionality but is enhanced for hiding context
           propagation.</para>
 
-          <para>The specified "businessInterface" property designates the actual
-          business interface while the property "slsbBusinessInterface" specifies
-          the extended business interface (it conforms to the
+          <para>The specified "businessInterface" property designates the
+          actual business interface while the property "slsbBusinessInterface"
+          specifies the extended business interface (it conforms to the
           SimpleRemoteStatelessSessionProxyFactoryBean#businessInterface
           property).</para>
 
-          <para>The "extraArgumentPosition" and "methodRegexpPatterns" properties
-          are optional. The former specifies the index of the parameter to insert.
-          The default is 0 which means that the SecurityContext parameter will be
-          the first one in the parameter list. The latter parameter specifies
-          which methods to enhance by an additional SecurityContext parameter. By
-          default all exposed methods are enhanced.</para>
+          <para>The "extraArgumentPosition" and "methodRegexpPatterns"
+          properties are optional. The former specifies the index of the
+          parameter to insert. The default is 0 which means that the
+          SecurityContext parameter will be the first one in the parameter
+          list. The latter parameter specifies which methods to enhance by an
+          additional SecurityContext parameter. By default all exposed methods
+          are enhanced.</para>
 
           <para>Most other properties correspond to those in
-          SimpleRemoteStatelessSessionProxyFactoryBean. Please refer to the API
-          documentation for more details.</para>
+          SimpleRemoteStatelessSessionProxyFactoryBean. Please refer to the
+          API documentation for more details.</para>
         </section>
 
         <section>
@@ -4764,35 +4783,35 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
     &lt;/beans&gt;</programlisting></para>
 
-          <para>The definition of the EJB's delegate bean (xService) is actually a
-          SecurityContextExtractingProxyFactoryBean which creates a proxy that
-          takes care of extracting the SecurityContext, establishing it, and
-          delegating to the target bean (serviceTarget).</para>
+          <para>The definition of the EJB's delegate bean (xService) is
+          actually a SecurityContextExtractingProxyFactoryBean which creates a
+          proxy that takes care of extracting the SecurityContext,
+          establishing it, and delegating to the target bean
+          (serviceTarget).</para>
 
-          <para>The "businessInterface" property is again the extended business
-          interface exposed by proxies created by the factory bean. The "target"
-          refers to the actual target bean, while the "interceptorNames" property
-          refers to a list of interceptor names which have to be defined in the
-          application context. </para>
+          <para>The "businessInterface" property is again the extended
+          business interface exposed by proxies created by the factory bean.
+          The "target" refers to the actual target bean, while the
+          "interceptorNames" property refers to a list of interceptor names
+          which have to be defined in the application context.</para>
 
           <para>Note that the security interceptor is of type
           "TranslatingMethodSecurityInterceptor". It is a subclass of
           org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor
           and additionaly wraps all security exceptions into a
-          SecurityServiceException, if possible. For its parameterization refer to
-          the documentation of MethodSecurityInterceptor.</para>
+          SecurityServiceException, if possible. For its parameterization
+          refer to the documentation of MethodSecurityInterceptor.</para>
 
-          <para>The "extraArgumentPosition" and "methodRegexpPatterns" properties
-          are again optional, specifying the position of the additional
-          SecurityContext parameter and which methods will be augmented by it. It
-          is important that both properties are specified the same on client and
-          server. As recommendation just omit specifying these properties and
-          stick with the default values.</para>
+          <para>The "extraArgumentPosition" and "methodRegexpPatterns"
+          properties are again optional, specifying the position of the
+          additional SecurityContext parameter and which methods will be
+          augmented by it. It is important that both properties are specified
+          the same on client and server. As recommendation just omit
+          specifying these properties and stick with the default
+          values.</para>
         </section>
       </section>
     </chapter>
-
-
   </part>
 
   <part id="authorization">
@@ -4946,8 +4965,8 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>ACCESS_GRANTED</literal>.</para>
 
         <para>There are three concrete
-        <literal>AccessDecisionManager</literal>s provided with Spring Security
-        that tally the votes. The <literal>ConsensusBased</literal>
+        <literal>AccessDecisionManager</literal>s provided with Spring
+        Security that tally the votes. The <literal>ConsensusBased</literal>
         implementation will grant or deny access based on the consensus of
         non-abstain votes. Properties are provided to control behavior in the
         event of an equality of votes or if all votes are abstain. The
@@ -5094,14 +5113,14 @@ public boolean supports(Class clazz);</programlisting></para>
 
         <para>Like many other parts of Spring Security,
         <literal>AfterInvocationManager</literal> has a single concrete
-        implementation, <literal>AfterInvocationProviderManager</literal>, which
-        polls a list of <literal>AfterInvocationProvider</literal>s. Each
-        <literal>AfterInvocationProvider</literal> is allowed to modify the
-        return object or throw an <literal>AccessDeniedException</literal>.
-        Indeed multiple providers can modify the object, as the result of the
-        previous provider is passed to the next in the list. Let's now
-        consider our ACL-aware implementations of
-        <literal>AfterInvocationProvider</literal>.</para>
+        implementation, <literal>AfterInvocationProviderManager</literal>,
+        which polls a list of <literal>AfterInvocationProvider</literal>s.
+        Each <literal>AfterInvocationProvider</literal> is allowed to modify
+        the return object or throw an
+        <literal>AccessDeniedException</literal>. Indeed multiple providers
+        can modify the object, as the result of the previous provider is
+        passed to the next in the list. Let's now consider our ACL-aware
+        implementations of <literal>AfterInvocationProvider</literal>.</para>
 
         <para>Please be aware that if you're using
         <literal>AfterInvocationManager</literal>, you will still need
@@ -5131,8 +5150,9 @@ public boolean supports(Class clazz);</programlisting></para>
           <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
           ACL module. The new ACL module is a significant rewrite of the
           existing ACL module. The new module can be found under the
-          <literal>org.springframework.security.acls</literal> package, with the old ACL
-          module under <literal>org.springframework.security.acl</literal>. We encourage
+          <literal>org.springframework.security.acls</literal> package, with
+          the old ACL module under
+          <literal>org.springframework.security.acl</literal>. We encourage
           users to consider testing with the new ACL module and build
           applications with it. The old ACL module should be considered
           deprecated and may be removed from a future release. The following
@@ -5216,8 +5236,9 @@ public boolean supports(Class clazz);</programlisting></para>
           <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
           ACL module. The new ACL module is a significant rewrite of the
           existing ACL module. The new module can be found under the
-          <literal>org.springframework.security.acls</literal> package, with the old ACL
-          module under <literal>org.springframework.security.acl</literal>. We encourage
+          <literal>org.springframework.security.acls</literal> package, with
+          the old ACL module under
+          <literal>org.springframework.security.acl</literal>. We encourage
           users to consider testing with the new ACL module and build
           applications with it. The old ACL module should be considered
           deprecated and may be removed from a future release.</para>
@@ -5512,8 +5533,8 @@ public boolean supports(Class clazz);</programlisting></para>
     public float getBalance(int id);
 }</programlisting>
 
-        <para>If you are using the Spring Security Java 5 Annotations approach,
-        your bean context will be configured as follows:</para>
+        <para>If you are using the Spring Security Java 5 Annotations
+        approach, your bean context will be configured as follows:</para>
 
         <programlisting>&lt;bean id="attributes"
             class="org.springframework.security.annotation.SecurityAnnotationAttributes"/&gt;
@@ -5531,12 +5552,12 @@ public boolean supports(Class clazz);</programlisting></para>
   &lt;property name="objectDefinitionSource"&gt;&lt;ref bean="objectDefinitionSource"/&gt;&lt;/property&gt;
 &lt;/bean&gt;        </programlisting>
 
-        <para>In addition, your source code will contain Spring Security Java 5 Security
-        Annotations that represent the <literal>ConfigAttribute</literal>. The
-        following example uses the <literal>@Secured</literal> annotations to
-        represent the configuration attributes, and results in the same
-        security configuration as provided by the property editor
-        approach:</para>
+        <para>In addition, your source code will contain Spring Security Java
+        5 Security Annotations that represent the
+        <literal>ConfigAttribute</literal>. The following example uses the
+        <literal>@Secured</literal> annotations to represent the configuration
+        attributes, and results in the same security configuration as provided
+        by the property editor approach:</para>
 
         <programlisting>import org.springframework.security.annotation.Secured;
 
@@ -5906,8 +5927,9 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
         ACL module. The new ACL module is a significant rewrite of the
         existing ACL module. The new module can be found under the
-        <literal>org.springframework.security.acls</literal> package, with the old ACL
-        module under <literal>org.springframework.security.acl</literal>. We encourage
+        <literal>org.springframework.security.acls</literal> package, with the
+        old ACL module under
+        <literal>org.springframework.security.acl</literal>. We encourage
         users to consider testing with the new ACL module and build
         applications with it. The old ACL module should be considered
         deprecated and may be removed from a future release.</para>
@@ -5992,8 +6014,8 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
       <section id="domain-acls-key-concepts">
         <title>Key Concepts</title>
 
-        <para>The org.springframework.security.acls package should be consulted for its
-        major interfaces. The key interfaces are:</para>
+        <para>The org.springframework.security.acls package should be
+        consulted for its major interfaces. The key interfaces are:</para>
 
         <itemizedlist spacing="compact">
           <listitem>
@@ -6082,8 +6104,9 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
         ACL module. The new ACL module is a significant rewrite of the
         existing ACL module. The new module can be found under the
-        <literal>org.springframework.security.acls</literal> package, with the old ACL
-        module under <literal>org.springframework.security.acl</literal>. We encourage
+        <literal>org.springframework.security.acls</literal> package, with the
+        old ACL module under
+        <literal>org.springframework.security.acl</literal>. We encourage
         users to consider testing with the new ACL module and build
         applications with it. The old ACL module should be considered
         deprecated and may be removed from a future release.</para>
@@ -6175,10 +6198,10 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         in the planning stages. The Basic ACL services will be deprecated from
         release 1.1.0.</para>
 
-        <para>The <literal>org.springframework.security.acl</literal> package is very
-        simple, comprising only a handful of interfaces and a single class, as
-        shown in Figure 6. It provides the basic foundation for access control
-        list (ACL) lookups.</para>
+        <para>The <literal>org.springframework.security.acl</literal> package
+        is very simple, comprising only a handful of interfaces and a single
+        class, as shown in Figure 6. It provides the basic foundation for
+        access control list (ACL) lookups.</para>
 
         <para><mediaobject>
             <imageobject role="html">
@@ -6220,9 +6243,10 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
         need to provide an implementation that reflects that ACL permissions
         for your application.</para>
 
-        <para>Rounding out the <literal>org.springframework.security.acl</literal>
-        package is an <literal>AclProviderManager</literal> class, with a
-        corresponding <literal>AclProvider</literal> interface.
+        <para>Rounding out the
+        <literal>org.springframework.security.acl</literal> package is an
+        <literal>AclProviderManager</literal> class, with a corresponding
+        <literal>AclProvider</literal> interface.
         <literal>AclProviderManager</literal> is a concrete implementation of
         <literal>AclManager</literal>, which iterates through registered
         <literal>AclProvider</literal>s. The first
@@ -6305,8 +6329,8 @@ public java.lang.Object getRecipient();</programlisting></para>
         a <literal>BasicAclDao</literal> against the provider, so different
         ACL repository types can be accessed in a pluggable manner. The
         <literal>BasicAclProvider</literal> also supports pluggable cache
-        providers (with Spring Security including an implementation that fronts
-        EH-CACHE).</para>
+        providers (with Spring Security including an implementation that
+        fronts EH-CACHE).</para>
 
         <para>The <literal>BasicAclDao</literal> interface is very simple to
         implement:</para>
@@ -6571,8 +6595,8 @@ END;
         includes three deployable versions:
         <literal>spring-security-sample-contacts-filter.war</literal> is
         configured with the HTTP Session Authentication approach.
-        <literal>spring-security-sample-contacts-ca.war</literal>
-        is configured to use a Container Adapter. Finally,
+        <literal>spring-security-sample-contacts-ca.war</literal> is
+        configured to use a Container Adapter. Finally,
         <literal>spring-security-sample-contacts-cas.war</literal> is designed
         to work with a JA-SIG CAS server. If you're just wanting to see how
         the sample application works, please use
@@ -6580,8 +6604,8 @@ END;
         as it does not require special configuration of your container. This
         is also the artifact included in official release ZIPs.</para>
 
-        <para>To deploy, simply copy the relevant WAR file from Spring Security
-        distribution into your container’s <literal>webapps</literal>
+        <para>To deploy, simply copy the relevant WAR file from Spring
+        Security distribution into your container’s <literal>webapps</literal>
         directory.</para>
 
         <para>After starting your container, check the application can load.
@@ -6599,19 +6623,17 @@ END;
 
         <blockquote>
           <para>Context on SecurityContextHolder is of type:
-              org.springframework.security.context.SecurityContextImpl
-          </para>
+          org.springframework.security.context.SecurityContextImpl</para>
 
           <para>The Context implements SecurityContext.</para>
 
           <para>Authentication object is of type:
-              org.springframework.security.adapters.PrincipalSpringSecurityUserToken
-          </para>
+          org.springframework.security.adapters.PrincipalSpringSecurityUserToken</para>
 
           <para>Authentication object as a String:
-              org.springframework.security.adapters.PrincipalSpringSecurityUserToken@e9a7c2: Username:
-          marissa; Password: [PROTECTED]; Authenticated: true; Granted
-          Authorities: ROLE_TELLER, ROLE_SUPERVISOR</para>
+          org.springframework.security.adapters.PrincipalSpringSecurityUserToken@e9a7c2:
+          Username: marissa; Password: [PROTECTED]; Authenticated: true;
+          Granted Authorities: ROLE_TELLER, ROLE_SUPERVISOR</para>
 
           <para>Authentication object holds the following granted
           authorities:</para>
@@ -6636,9 +6658,9 @@ END;
         <literal>ROLE_SUPERVISOR</literal> are granted access to delete their
         contacts. Behind the scenes, the
         <literal>MethodSecurityInterceptor</literal> is securing the business
-        objects. If you're using
-            or <literal>spring-security-sample-contacts-cas.war</literal>, the
-            <literal><literal>spring-security-sample-contacts-filter.war</literal></literal>
+        objects. If you're using or
+        <literal>spring-security-sample-contacts-cas.war</literal>, the
+        <literal><literal>spring-security-sample-contacts-filter.war</literal></literal>
         <literal>FilterSecurityInterceptor</literal> is also securing the HTTP
         requests. If using either of these WARs, be sure to try visiting
         <literal>http://localhost:8080/contacts/secure/super</literal>, which
@@ -6754,8 +6776,8 @@ END;
       <sect1 id="further-info">
         <title>Further Information</title>
 
-        <para>Questions and comments on Spring Security are welcome. Please use
-        the Spring Community Forum web site at <ulink
+        <para>Questions and comments on Spring Security are welcome. Please
+        use the Spring Community Forum web site at <ulink
         url="http://forum.springframework.org"></ulink> for all support
         issues. Remember to use JIRA for bug reports, as explained above.
         Everyone is also welcome to join the Acegisecurity-developer mailing
