@@ -40,7 +40,7 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
     //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
-    private SessionRegistry sessionRegistry = new SessionRegistryImpl();
+    private SessionRegistry sessionRegistry;
     private boolean exceptionIfMaximumExceeded = false;
     private int maximumSessions = 1;
 
