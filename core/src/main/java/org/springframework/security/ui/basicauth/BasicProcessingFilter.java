@@ -22,21 +22,22 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
 import org.springframework.security.ui.AuthenticationEntryPoint;
-import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.rememberme.RememberMeServices;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 
@@ -172,6 +173,17 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
 
         if (existingAuth instanceof UsernamePasswordAuthenticationToken && !existingAuth.getName().equals(username)) {
             return true;
+        }
+
+        // Handle unusual condition where an AnonymousAuthenticationToken is already present
+        // This shouldn't happen very often, as BasicProcessingFitler is meant to be earlier in the filter
+        // chain than AnonymousProcessingFilter. Nevertheless, presence of both an AnonymousAuthenticationToken
+        // together with a BASIC authentication request header should indicate reauthentication using the
+        // BASIC protocol is desirable. This behaviour is also consistent with that provided by form and digest,
+        // both of which force re-authentication if the respective header is detected (and in doing so replace
+        // any existing AnonymousAuthenticationToken). See SEC-610.
+        if (existingAuth instanceof AnonymousAuthenticationToken) {
+        	return true;
         }
 
         return false;
