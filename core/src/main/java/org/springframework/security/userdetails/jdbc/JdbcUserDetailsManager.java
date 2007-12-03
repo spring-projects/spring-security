@@ -6,6 +6,8 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.dao.UserCache;
+import org.springframework.security.providers.dao.cache.NullUserCache;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsManager;
 import org.springframework.context.ApplicationContextException;
@@ -71,6 +73,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
     private AuthenticationManager authenticationManager;
 
+    private UserCache userCache = new NullUserCache();
+
     //~ Methods ========================================================================================================
 
     protected void initDao() throws ApplicationContextException {
@@ -104,11 +108,14 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         for (int i=0; i < user.getAuthorities().length; i++) {
             insertAuthority.update(user.getUsername(), user.getAuthorities()[i].getAuthority());
         }
+
+        userCache.removeUserFromCache(user.getUsername());
     }
 
     public void deleteUser(String username) {
         deleteUserAuthorities.update(username);
         deleteUser.update(username);
+        userCache.removeUserFromCache(username);
     }
 
     public void changePassword(String oldPassword, String newPassword) throws AuthenticationException {
@@ -136,6 +143,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         changePassword.update(new String[] {newPassword, username});
 
         SecurityContextHolder.getContext().setAuthentication(createNewAuthentication(currentUser, newPassword));
+
+        userCache.removeUserFromCache(username);
     }
 
     protected Authentication createNewAuthentication(Authentication currentAuth, String newPassword) {
@@ -195,7 +204,18 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     public void setChangePasswordSql(String changePasswordSql) {
         Assert.hasText(changePasswordSql);
         this.changePasswordSql = changePasswordSql;
-    }    
+    }
+
+    /**
+     * Optionally sets the UserCache if one is in use in the application.
+     * This allows the user to be removed from the cache after updates have taken place to avoid stale data.
+     *
+     * @param userCache the cache used by the AuthenticationManager.
+     */
+    public void setUserCache(UserCache userCache) {
+        Assert.notNull(userCache, "userCache cannot be null");
+        this.userCache = userCache;
+    }
 
     //~ Inner Classes ==================================================================================================
 

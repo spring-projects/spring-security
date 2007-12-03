@@ -6,6 +6,7 @@ import org.springframework.security.BadCredentialsException;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.dao.UserCache;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.util.AuthorityUtils;
@@ -18,6 +19,9 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Tests for {@link JdbcUserDetailsManager}
@@ -34,6 +38,7 @@ public class JdbcUserDetailsManagerTests {
 
     private static DriverManagerDataSource dataSource;
     private JdbcUserDetailsManager manager;
+    private MockUserCache cache;
     private JdbcTemplate template;
 
     @BeforeClass
@@ -49,6 +54,8 @@ public class JdbcUserDetailsManagerTests {
     @Before
     public void initializeManagerAndCreateTables() {
         manager = new JdbcUserDetailsManager();
+        cache = new MockUserCache();
+        manager.setUserCache(cache);
         manager.setDataSource(dataSource);
         manager.setCreateUserSql(JdbcUserDetailsManager.DEF_CREATE_USER_SQL);
         manager.setUpdateUserSql(JdbcUserDetailsManager.DEF_UPDATE_USER_SQL);
@@ -83,16 +90,17 @@ public class JdbcUserDetailsManagerTests {
     }
 
     @Test
-    public void deleteUserRemovesUserDataAndAuthorities() {
+    public void deleteUserRemovesUserDataAndAuthoritiesAndClearsCache() {
         insertJoe();
         manager.deleteUser("joe");
 
         assertEquals(0, template.queryForList(SELECT_JOE_SQL).size());
         assertEquals(0, template.queryForList(SELECT_JOE_AUTHORITIES_SQL).size());
+        assertFalse(cache.getUserMap().containsKey("joe"));
     }
 
     @Test
-    public void updateUserChangesDataCorrectly() {
+    public void updateUserChangesDataCorrectlyAndClearsCache() {
         insertJoe();
         User newJoe = new User("joe","newpassword",false,true,true,true,
                 AuthorityUtils.stringArrayToAuthorityArray(new String[]{"D","E","F"}));
@@ -102,6 +110,7 @@ public class JdbcUserDetailsManagerTests {
         UserDetails joe = manager.loadUserByUsername("joe");
 
         assertEquals(newJoe, joe);
+        assertFalse(cache.getUserMap().containsKey("joe"));
     }
 
     @Test
@@ -113,6 +122,7 @@ public class JdbcUserDetailsManagerTests {
     public void userExistsReturnsTrueForExistingUsername() {
         insertJoe();
         assertTrue(manager.userExists("joe"));
+        assertTrue(cache.getUserMap().containsKey("joe"));
     }
 
     @Test(expected = AccessDeniedException.class)
@@ -128,6 +138,7 @@ public class JdbcUserDetailsManagerTests {
         UserDetails newJoe = manager.loadUserByUsername("joe");
 
         assertEquals("newPassword", newJoe.getPassword());
+        assertFalse(cache.getUserMap().containsKey("joe"));
     }
 
     @Test
@@ -144,6 +155,7 @@ public class JdbcUserDetailsManagerTests {
         assertEquals("joe", newAuth.getName());
         assertEquals(currentAuth.getDetails(), newAuth.getDetails());
         assertEquals("newPassword", newAuth.getCredentials());
+        assertFalse(cache.getUserMap().containsKey("joe"));
     }
 
     @Test
@@ -162,6 +174,7 @@ public class JdbcUserDetailsManagerTests {
         UserDetails newJoe = manager.loadUserByUsername("joe");
         assertEquals("password", newJoe.getPassword());
         assertEquals("password", SecurityContextHolder.getContext().getAuthentication().getCredentials());
+        assertTrue(cache.getUserMap().containsKey("joe"));
     }
 
     private Authentication authenticateJoe() {
@@ -177,5 +190,26 @@ public class JdbcUserDetailsManagerTests {
         template.execute("insert into authorities (username, authority) values ('joe','A')");
         template.execute("insert into authorities (username, authority) values ('joe','B')");
         template.execute("insert into authorities (username, authority) values ('joe','C')");
+        cache.putUserInCache(joe);
+    }
+
+    private class MockUserCache implements UserCache {
+        private Map cache = new HashMap();
+
+        public UserDetails getUserFromCache(String username) {
+            return (User) cache.get(username);
+        }
+
+        public void putUserInCache(UserDetails user) {
+            cache.put(user.getUsername(), user);
+        }
+
+        public void removeUserFromCache(String username) {
+            cache.remove(username);
+        }
+
+        Map getUserMap() {
+            return cache;
+        }
     }
 }
