@@ -28,13 +28,13 @@ public abstract class SpringSecurityFilter implements Filter, Ordered {
      * @param filterConfig ignored
      * @throws ServletException ignored
      */
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public final void init(FilterConfig filterConfig) throws ServletException {
     }
 
     /**
      * Does nothing. We use IoC container lifecycle services instead.
      */
-    public void destroy() {
+    public final void destroy() {
     }
 
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
