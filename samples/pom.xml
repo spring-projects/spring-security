@@ -17,5 +17,6 @@
 -->
    <module>contacts</module>
    <module>tutorial</module>
+   <module>dms</module>
  </modules>
 </project>
