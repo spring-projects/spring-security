@@ -475,8 +475,6 @@ public class AbstractProcessingFilterTests extends TestCase {
             return "/j_mock_post";
         }
 
-        public void init(FilterConfig arg0) throws ServletException {}
-
         public boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
             return super.requiresAuthentication(request, response);
         }
