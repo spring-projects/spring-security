@@ -65,10 +65,10 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
             }
         }
 
-        return "<html><head><title>Login Page</title></head><body>\n" +
+        return "<html><head><title>Login Page</title></head><body onload='document.f.j_username.focus();'>\n" +
                 (loginError ? ("<font color='red'>Your login attempt was not successful, try again.<br/><br/>Reason: " +
                         errorMsg + "</font>") : "") +
-                " <form action='" + request.getContextPath() + authenticationUrl + "' method='POST'>\n" +
+                " <form name='f' action='" + request.getContextPath() + authenticationUrl + "' method='POST'>\n" +
                 "   <table>\n" +
                 "     <tr><td>User:</td><td><input type='text' name='" + usernameParameter + "'  value='" + lastUser +
                 "'></td></tr>\n" +

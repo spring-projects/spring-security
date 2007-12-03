@@ -8,7 +8,7 @@
     <title>Login</title>
   </head>
 
-  <body>
+  <body onload="document.f.j_username.focus();">
     <h1>Login</h1>
 
 	<P>Valid users:
@@ -32,7 +32,7 @@
       </font>
     </c:if>
 
-    <form action="<c:url value='j_spring_security_check'/>" method="POST">
+    <form name="f" action="<c:url value='j_spring_security_check'/>" method="POST">
       <table>
         <tr><td>User:</td><td><input type='text' name='j_username' <c:if test="${not empty param.login_error}">value='<%= session.getAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY) %>'</c:if>></td></tr>
         <tr><td>Password:</td><td><input type='password' name='j_password'></td></tr>
