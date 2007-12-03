@@ -7,7 +7,7 @@
 	</parent>
 	<packaging>jar</packaging>
 	<artifactId>spring-security-ntlm</artifactId>
-	<name>Spring Security - NTLM Support</name>
+	<name>Spring Security - NTLM support</name>
 
 	<dependencies>
 		<dependency>
