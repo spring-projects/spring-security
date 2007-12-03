@@ -5,11 +5,11 @@
 <taglib>
 	<tlib-version>1.0</tlib-version>
 	<jsp-version>1.2</jsp-version>
-	<short-name>authz</short-name>
-	<uri>http://acegisecurity.org/authz</uri>
+	<short-name>security</short-name>
+	<uri>http://www.springframework.org/security/tags</uri>
 	<description>
         Spring Securitys Authorization Tag Library
-		$Id$
+		$Id: authz.tld 2176 2007-10-03 14:02:39Z luke_t $
 	</description>
 
 	<tag>

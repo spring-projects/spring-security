@@ -1429,8 +1429,7 @@ if (obj instanceof UserDetails) {
         <title>Overview</title>
 
         <para>Spring Security comes bundled with several JSP tag libraries
-        that eases JSP writing. The tag libraries are known as
-        <literal>authz</literal> and provide a range of different
+        that eases JSP writing. The tag libraries provide a range of different
         services.</para>
       </sect1>
 
@@ -1439,19 +1438,19 @@ if (obj instanceof UserDetails) {
 
         <para>All taglib classes are included in the core
         <literal>spring-security-xx.jar</literal> file, with the
-        <literal>authz.tld</literal> located in the JAR's
+        <literal>security.tld</literal> located in the JAR's
         <literal>META-INF</literal> directory. This means for JSP 1.2+ web
         containers you can simply include the JAR in the WAR's
         <literal>WEB-INF/lib</literal> directory and it will be available. If
         you're using a JSP 1.1 container, you'll need to declare the JSP
         taglib in your <literal>web.xml file</literal>, and include
-        <literal>authz.tld</literal> in the <literal>WEB-INF/lib</literal>
+        <literal>security.tld</literal> in the <literal>WEB-INF/lib</literal>
         directory. The following fragment is added to
         <literal>web.xml</literal>:</para>
 
         <para><programlisting>&lt;taglib&gt;
-  &lt;taglib-uri&gt;http://acegisecurity.org/authz&lt;/taglib-uri&gt;
-  &lt;taglib-location&gt;/WEB-INF/authz.tld&lt;/taglib-location&gt;
+  &lt;taglib-uri&gt;http://www.springframework.org/security/tags&lt;/taglib-uri&gt;
+  &lt;taglib-location&gt;/WEB-INF/security.tld&lt;/taglib-location&gt;
 &lt;/taglib&gt;       </programlisting></para>
       </sect1>
 
@@ -1462,7 +1461,7 @@ if (obj instanceof UserDetails) {
         individual reference guide sections for details on how to use them.
         Note that when using the tags, you should include the taglib reference
         in your JSP: <programlisting>
-            &lt;%@ taglib prefix='authz' uri='http://acegisecurity.org/authz' %&gt;
+            &lt;%@ taglib prefix='security' uri='http://www.springframework.org/security/tags' %&gt;
             
         </programlisting></para>
       </sect1>
@@ -1923,7 +1922,7 @@ if (obj instanceof UserDetails) {
         <para>The following JSP fragment illustrates how to use the
         <literal>AuthenticationTag</literal>:</para>
 
-        <para><programlisting>&lt;authz:authentication operation="username"/&gt;</programlisting></para>
+        <para><programlisting>&lt;security:authentication operation="username"/&gt;</programlisting></para>
 
         <para>This tag would cause the principal's name to be output. Here we
         are assuming the <literal>Authentication.getPrincipal()</literal> is a
@@ -5365,16 +5364,16 @@ public boolean supports(Class clazz);</programlisting></para>
         <para>The following JSP fragment illustrates how to use the
         <literal>AuthorizeTag</literal>:</para>
 
-        <para><programlisting>&lt;authz:authorize ifAllGranted="ROLE_SUPERVISOR"&gt;
+        <para><programlisting>&lt;security:authorize ifAllGranted="ROLE_SUPERVISOR"&gt;
   &lt;td&gt;
     &lt;A HREF="del.htm?id=&lt;c:out value="${contact.id}"/&gt;"&gt;Del&lt;/A&gt;
   &lt;/td&gt;
-&lt;/authz:authorize&gt;          </programlisting></para>
+&lt;/security:authorize&gt;          </programlisting></para>
 
         <para>This tag would cause the tag's body to be output if the
         principal has been granted ROLE_SUPERVISOR.</para>
 
-        <para>The <literal>authz:authorize</literal> tag declares the
+        <para>The <literal>security:authorize</literal> tag declares the
         following attributes:</para>
 
         <para><itemizedlist spacing="compact">
@@ -5428,9 +5427,9 @@ public boolean supports(Class clazz);</programlisting></para>
         <para>The following JSP fragment illustrates how to use the
         <literal>AccessControlListTag</literal>:</para>
 
-        <para><programlisting>&lt;authz:accesscontrollist domainObject="${contact}" hasPermission="8,16"&gt;
+        <para><programlisting>&lt;security:accesscontrollist domainObject="${contact}" hasPermission="8,16"&gt;
   &lt;td&gt;&lt;A HREF="&lt;c:url value="del.htm"&gt;&lt;c:param name="contactId" value="${contact.id}"/&gt;&lt;/c:url&gt;"&gt;Del&lt;/A&gt;&lt;/td&gt;
-&lt;/authz:accesscontrollist&gt;</programlisting></para>
+&lt;/security:accesscontrollist&gt;</programlisting></para>
 
         <para>This tag would cause the tag's body to be output if the
         principal holds either permission 16 or permission 1 for the "contact"
