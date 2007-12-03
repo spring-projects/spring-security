@@ -40,6 +40,7 @@ import java.util.Map;
  *
  *
  * @author Luke Taylor
+ * @author Ben Alex
  * @version $Id$
  */
 public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
@@ -58,6 +59,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     public static final String FORM_LOGIN_ELEMENT = "form-login";
     public static final String BASIC_AUTH_ELEMENT = "http-basic";
     public static final String REMEMBER_ME_ELEMENT = "remember-me";
+    public static final String ANONYMOUS_ELEMENT = "anonymous";
 
     static final String PATH_PATTERN_ATTRIBUTE = "pattern";
     static final String PATTERN_TYPE_ATTRIBUTE = "pathType";
@@ -138,6 +140,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             new ConcurrentSessionsBeanDefinitionParser().parse(sessionControlElt, parserContext);
         }
 
+        Element anonymousElt = DomUtils.getChildElementByTagName(element, ANONYMOUS_ELEMENT);
+        
+        if (anonymousElt != null) {
+            new AnonymousBeanDefinitionParser().parse(anonymousElt, parserContext);
+        }
+        
         // Parse remember me before logout as RememberMeServices is also a LogoutHandler implementation.
 
 

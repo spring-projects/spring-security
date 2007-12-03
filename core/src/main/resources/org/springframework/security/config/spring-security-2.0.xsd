@@ -60,6 +60,9 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="intercept-methods">
+    <xs:annotation>
+      <xs:documentation>Can be used inside a bean definition to add a security interceptor to the bean and set up access configuration attributes for the bean's methods</xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:sequence>
         <xs:element maxOccurs="unbounded" ref="security:protect"/>
@@ -98,6 +101,7 @@
         <xs:element ref="security:logout"/>
         <xs:element ref="security:concurrent-session-control"/>
         <xs:element ref="security:remember-me"/>
+        <xs:element ref="security:anonymous"/>
       </xs:choice>
       <xs:attributeGroup ref="security:http.attlist"/>
     </xs:complexType>
@@ -137,7 +141,11 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="accessDecisionManager" type="xs:string"/>
+    <xs:attribute name="accessDecisionManager" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="intercept-url">
     <xs:annotation>
@@ -148,13 +156,20 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="intercept-url.attlist">
-    <xs:attribute name="pattern" use="required" type="xs:string"/>
+    <xs:attribute name="pattern" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The pattern which defines the URL path. The content will depend on the type set in the containing http element, so will default to ant path syntax.    </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="access" type="xs:string">
       <xs:annotation>
         <xs:documentation>The access configuration attributes that apply for the configured path.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="filters">
+      <xs:annotation>
+        <xs:documentation>The filter list for the path. Currently can be set to "none" to remove a path from having any filters applied. The full filter stack (consisting of all defined filters, will be applied to any other paths).</xs:documentation>
+      </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="none"/>
@@ -225,6 +240,9 @@
     <xs:attributeGroup ref="security:path-type"/>
   </xs:attributeGroup>
   <xs:element name="filter-chain">
+    <xs:annotation>
+      <xs:documentation>Used within filter-chain-map to define a specific URL pattern and the list of filters which apply to the URLs matching that pattern. When multiple filter-chain elements are used within a filter-chain-map element, the most specific patterns must be placed at the top of the list, with  most general ones at the bottom.</xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:attributeGroup ref="security:filter-chain.attlist"/>
     </xs:complexType>
@@ -245,6 +263,9 @@
     <xs:attribute name="realm" use="required" type="xs:string"/>
   </xs:attributeGroup>
   <xs:element name="concurrent-session-control">
+    <xs:annotation>
+      <xs:documentation>Adds support for concurrent session control, allowing limits to be placed on the number of sessions a user can have.</xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:attributeGroup ref="security:concurrent-sessions.attlist"/>
     </xs:complexType>
@@ -270,6 +291,31 @@
     <xs:attribute name="key" type="xs:string"/>
     <xs:attribute name="tokenRepository" type="xs:string"/>
     <xs:attribute name="datasource" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:element name="anonymous">
+    <xs:annotation>
+      <xs:documentation>Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="security:anonymous.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="anonymous.attlist">
+    <xs:attribute name="key" default="doesNotMatter" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The key used between the provider and filter. This generally does not need to be set.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="username" default="anonymousUser" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The username that should be assigned to the anonymous request. This allows the principal to be identified, which may be important for logging and auditing. </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="grantedAuthority" default="ROLE_ANONYMOUS" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="authentication-provider">
     <xs:complexType>
