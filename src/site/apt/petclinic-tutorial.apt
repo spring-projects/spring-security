@@ -19,9 +19,9 @@ Tutorial: Adding Security to Spring Petclinic
 
     You will also need to download:
 
-    * Spring 2.0 M4 with dependencies ZIP file
+    * Spring 2.0.6 with dependencies ZIP file
 
-    * Spring Security 1.0.2
+    * Spring Security 2.0 M1
 
 
     Unzip both files. After unzipping Spring Security, you'll need to unzip the
