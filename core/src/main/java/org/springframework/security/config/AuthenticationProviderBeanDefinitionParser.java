@@ -1,11 +1,9 @@
 package org.springframework.security.config;
 
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.providers.dao.DaoAuthenticationProvider;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -15,11 +13,6 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser {
-
-    private ManagedList getRegisteredProviders(ParserContext parserContext) {
-        BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
-        return (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
-    }
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         ConfigUtils.registerProviderManagerIfNecessary(parserContext);
@@ -37,7 +30,7 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
             throw new IllegalArgumentException("Only support user-service provider at the moment.");
         }
 
-        getRegisteredProviders(parserContext).add(authProvider);
+        ConfigUtils.getRegisteredProviders(parserContext).add(authProvider);
 
         return null;
     }

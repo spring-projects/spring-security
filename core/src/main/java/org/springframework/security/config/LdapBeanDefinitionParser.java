@@ -4,10 +4,10 @@ import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.providers.ldap.LdapAuthenticationProvider;
 import org.springframework.security.providers.ldap.authenticator.BindAuthenticator;
 import org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
+import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.util.Assert;
@@ -30,7 +30,7 @@ import java.util.HashSet;
  * @version $Id$
  * @since 2.0
  */
-public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
+public class LdapBeanDefinitionParser implements BeanDefinitionParser {
     private Log logger = LogFactory.getLog(getClass());
 
     /** Defines the Url of the ldap server to use. If not specified, an embedded apache DS instance will be created */
@@ -56,12 +56,12 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
     // Defaults
     private static final String DEFAULT_ROOT_SUFFIX = "dc=springframework,dc=org";
-    private static final String DEFAULT_PROVIDER_BEAN_ID = "_ldapAuthenticationProvider";
+//    private static final String DEFAULT_PROVIDER_BEAN_ID = "_ldapAuthenticationProvider";
     private static final String DEFAULT_DN_PATTERN = "uid={0},ou=people";
     private static final String DEFAULT_GROUP_CONTEXT = "ou=groups";
 
 
-    protected AbstractBeanDefinition parseInternal(Element elt, ParserContext parserContext) {
+    public BeanDefinition parse(Element elt, ParserContext parserContext) {
         String url = elt.getAttribute(URL_ATTRIBUTE);
 
         RootBeanDefinition contextSource;
@@ -84,12 +84,7 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
             contextSource.getPropertyValues().addPropertyValue("password", managerPassword);
         }
 
-
-        // TODO: Make these default values for 2.0
-//        contextSource.getPropertyValues().addPropertyValue("useLdapContext", Boolean.TRUE);
-//        contextSource.getPropertyValues().addPropertyValue("dirObjectFactory", "org.springframework.ldap.core.support.DefaultDirObjectFactory");
-
-        String id = elt.getAttribute(ID_ATTRIBUTE);
+        String id = elt.getAttribute(AbstractBeanDefinitionParser.ID_ATTRIBUTE);
         String contextSourceId = "contextSource";
 
         if (StringUtils.hasText(id)) {
@@ -113,7 +108,9 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
         ldapProvider.getConstructorArgumentValues().addGenericArgumentValue(bindAuthenticator);
         ldapProvider.getConstructorArgumentValues().addGenericArgumentValue(authoritiesPopulator);
 
-        return ldapProvider;
+        ConfigUtils.getRegisteredProviders(parserContext).add(ldapProvider);
+
+        return null;
     }
 
 
@@ -189,18 +186,5 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
         parserContext.getRegistry().registerBeanDefinition("_apacheDSStartStopBean", apacheDSStartStop);
 
         return contextSource;
-    }
-
-
-    protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) throws BeanDefinitionStoreException {
-        String id = super.resolveId(element, definition, parserContext);
-
-        if (StringUtils.hasText(id)) {
-            return id;
-        }
-
-        // TODO: Check for duplicate using default id here.
-
-        return DEFAULT_PROVIDER_BEAN_ID;
     }
 }

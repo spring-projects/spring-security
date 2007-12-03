@@ -105,7 +105,7 @@ public abstract class ConfigUtils {
                     "use a specific Id in yur configuration");
         }
 
-        return (UserDetailsService) services.values().toArray()[0];        
+        return (UserDetailsService) services.values().toArray()[0];
     }
 
     private static AuthenticationManager getAuthenticationManager(ConfigurableListableBeanFactory bf) {
@@ -124,4 +124,8 @@ public abstract class ConfigUtils {
         return accessMgr;
     }
 
+    static ManagedList getRegisteredProviders(ParserContext parserContext) {
+        BeanDefinition authManager = registerProviderManagerIfNecessary(parserContext);
+        return (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
+    }
 }
