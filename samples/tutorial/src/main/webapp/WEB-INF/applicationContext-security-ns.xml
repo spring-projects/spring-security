@@ -10,7 +10,7 @@
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
     <http>
         <intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
@@ -18,13 +18,14 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
         <form-login />
+        <anonymous />
         <http-basic realm="SpringSecurityTutorialApp"  />
         <logout />
         <concurrent-session-control maxSessions="1" exceptionIfMaximumExceeded="true"/>
 
         <remember-me key="doesntmatter" tokenRepository="tokenRepo"/>
     </http>
-
+ 
     <beans:bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
 
     <authentication-provider>
