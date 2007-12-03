@@ -75,7 +75,7 @@ import java.util.*;
  * additional <code>Filter</code>s.</p>
  *  <p><code>FilterChainProxy</code> respects normal handling of <code>Filter</code>s that elect not to call {@link
  * javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse,
- * javax.servlet.FilterChain)}, in that the remainder of the origial or <code>FilterChainProxy</code>-declared filter
+ * javax.servlet.FilterChain)}, in that the remainder of the original or <code>FilterChainProxy</code>-declared filter
  * chain will not be called.</p>
  *  <p>It is particularly noted the <code>Filter</code> lifecycle mismatch between the servlet container and IoC
  * container. As per {@link org.springframework.security.util.FilterToBeanProxy} JavaDocs, we recommend you allow the IoC
