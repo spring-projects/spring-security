@@ -21,6 +21,8 @@ import org.springframework.security.context.SecurityContextHolder;
 
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
+import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.SpringSecurityFilter;
 
 import org.springframework.security.userdetails.memory.UserAttribute;
 
@@ -33,13 +35,11 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -50,7 +50,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Ben Alex
  * @version $Id$
  */
-public class AnonymousProcessingFilter implements Filter, InitializingBean {
+public class AnonymousProcessingFilter  extends SpringSecurityFilter  implements InitializingBean {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(AnonymousProcessingFilter.class);
@@ -80,14 +80,11 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
      *         doesn't already have some other <code>Authentication</code> inside it), or <code>false</code> if no
      *         anonymous token should be setup for this request
      */
-    protected boolean applyAnonymousForThisRequest(ServletRequest request) {
+    protected boolean applyAnonymousForThisRequest(HttpServletRequest request) {
         return true;
     }
 
-    protected Authentication createAuthentication(ServletRequest request) {
-        Assert.isInstanceOf(HttpServletRequest.class, request,
-            "ServletRequest must be an instance of HttpServletRequest");
-
+    protected Authentication createAuthentication(HttpServletRequest request) {
         AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key, userAttribute.getPassword(),
                 userAttribute.getAuthorities());
         auth.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
@@ -95,13 +92,7 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
         return auth;
     }
 
-    /**
-     * Does nothing - we reply on IoC lifecycle services instead.
-     */
-    public void destroy() {}
-
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-        throws IOException, ServletException {
+	protected void doFilterHttp(HttpServletRequest request,HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         boolean addedToken = false;
 
         if (applyAnonymousForThisRequest(request)) {
@@ -129,7 +120,11 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
                 SecurityContextHolder.getContext().setAuthentication(null);
             }
         }
-    }
+	}
+
+	public int getOrder() {
+        return FilterChainOrderUtils.ANON_PROCESSING_FILTER_ORDER;
+	}
 
     public String getKey() {
         return key;
@@ -138,15 +133,6 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
     public UserAttribute getUserAttribute() {
         return userAttribute;
     }
-
-    /**
-     * Does nothing - we reply on IoC lifecycle services instead.
-     *
-     * @param ignored not used
-     *
-     * @throws ServletException DOCUMENT ME!
-     */
-    public void init(FilterConfig ignored) throws ServletException {}
 
     public boolean isRemoveAfterRequest() {
         return removeAfterRequest;
