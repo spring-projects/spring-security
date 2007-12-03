@@ -103,7 +103,7 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
      */
     public void testFormNormalOperation() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(SiteminderAuthenticationProcessingFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "marissa");
+        request.addParameter(SiteminderAuthenticationProcessingFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
         request.addParameter(SiteminderAuthenticationProcessingFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
 
         MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
@@ -124,7 +124,7 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
      */
     public void testFormNullPasswordHandledGracefully() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(SiteminderAuthenticationProcessingFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "marissa");
+        request.addParameter(SiteminderAuthenticationProcessingFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
 
         MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
 

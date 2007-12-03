@@ -120,7 +120,7 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
     }
 
     public void testAuthenticateFailsWhenUserDetailsServiceHasBackendFailure() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa", "koala");
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("rod", "koala");
 
         SiteminderAuthenticationProvider provider = new SiteminderAuthenticationProvider();
         provider.setUserDetailsService(new MockUserDetailsServiceSimulateBackendError());
@@ -138,7 +138,7 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(null, "koala");
 
         SiteminderAuthenticationProvider provider = new SiteminderAuthenticationProvider();
-        provider.setUserDetailsService(new MockUserDetailsServiceUserMarissa());
+        provider.setUserDetailsService(new MockUserDetailsServiceUserrod());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -154,7 +154,7 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
 
         SiteminderAuthenticationProvider provider = new SiteminderAuthenticationProvider();
         provider.setHideUserNotFoundExceptions(false); // we want UsernameNotFoundExceptions
-        provider.setUserDetailsService(new MockUserDetailsServiceUserMarissa());
+        provider.setUserDetailsService(new MockUserDetailsServiceUserrod());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -170,7 +170,7 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
 
         SiteminderAuthenticationProvider provider = new SiteminderAuthenticationProvider();
         assertTrue(provider.isHideUserNotFoundExceptions());
-        provider.setUserDetailsService(new MockUserDetailsServiceUserMarissa());
+        provider.setUserDetailsService(new MockUserDetailsServiceUserrod());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -182,10 +182,10 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
     }
 
     public void testAuthenticateFailsWithMixedCaseUsernameIfDefaultChanged() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("MaRiSSA", "koala");
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("RDd", "koala");
 
         SiteminderAuthenticationProvider provider = new SiteminderAuthenticationProvider();
-        provider.setUserDetailsService(new MockUserDetailsServiceUserMarissa());
+        provider.setUserDetailsService(new MockUserDetailsServiceUserrod());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -197,11 +197,11 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
     }
 
     public void testAuthenticates() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa", "koala");
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("rod", "koala");
         token.setDetails("192.168.0.1");
 
         SiteminderAuthenticationProvider provider = new SiteminderAuthenticationProvider();
-        provider.setUserDetailsService(new MockUserDetailsServiceUserMarissa());
+        provider.setUserDetailsService(new MockUserDetailsServiceUserrod());
         provider.setUserCache(new MockUserCache());
 
         Authentication result = provider.authenticate(token);
@@ -219,10 +219,10 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
     }
 
     public void testAuthenticatesASecondTime() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa", "koala");
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("rod", "koala");
 
         SiteminderAuthenticationProvider provider = new SiteminderAuthenticationProvider();
-        provider.setUserDetailsService(new MockUserDetailsServiceUserMarissa());
+        provider.setUserDetailsService(new MockUserDetailsServiceUserrod());
         provider.setUserCache(new MockUserCache());
 
         Authentication result = provider.authenticate(token);
@@ -242,10 +242,10 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
     }
 
     public void testAuthenticatesWithForcePrincipalAsString() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa", "koala");
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("rod", "koala");
 
         SiteminderAuthenticationProvider provider = new SiteminderAuthenticationProvider();
-        provider.setUserDetailsService(new MockUserDetailsServiceUserMarissa());
+        provider.setUserDetailsService(new MockUserDetailsServiceUserrod());
         provider.setUserCache(new MockUserCache());
         provider.setForcePrincipalAsString(true);
 
@@ -257,11 +257,11 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
 
         UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
         assertEquals(String.class, castResult.getPrincipal().getClass());
-        assertEquals("marissa", castResult.getPrincipal());
+        assertEquals("rod", castResult.getPrincipal());
     }
 
     public void testDetectsNullBeingReturnedFromUserDetailsService() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa", "koala");
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("rod", "koala");
 
         SiteminderAuthenticationProvider provider = new SiteminderAuthenticationProvider();
         provider.setUserDetailsService(new MockUserDetailsServiceReturnsNull());
@@ -299,7 +299,7 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
 
     public void testStartupFailsIfNoUserCacheSet() throws Exception {
         SiteminderAuthenticationProvider provider = new SiteminderAuthenticationProvider();
-        provider.setUserDetailsService(new MockUserDetailsServiceUserMarissa());
+        provider.setUserDetailsService(new MockUserDetailsServiceUserrod());
         assertEquals(NullUserCache.class, provider.getUserCache().getClass());
         provider.setUserCache(null);
 
@@ -313,7 +313,7 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
 
     public void testStartupSuccess() throws Exception {
         SiteminderAuthenticationProvider provider = new SiteminderAuthenticationProvider();
-        UserDetailsService userDetailsService = new MockUserDetailsServiceUserMarissa();
+        UserDetailsService userDetailsService = new MockUserDetailsServiceUserrod();
         provider.setUserDetailsService(userDetailsService);
         provider.setUserCache(new MockUserCache());
         assertEquals(userDetailsService, provider.getUserDetailsService());
@@ -341,12 +341,12 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
         }
     }
 
-    private class MockUserDetailsServiceUserMarissa implements UserDetailsService {
+    private class MockUserDetailsServiceUserrod implements UserDetailsService {
         private String password = "koala";
 
         public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
-            if ("marissa".equals(username)) {
-                return new User("marissa", password, true, true, true, true, new GrantedAuthority[] {
+            if ("rod".equals(username)) {
+                return new User("rod", password, true, true, true, true, new GrantedAuthority[] {
                         new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO") });
             } else {
                 throw new UsernameNotFoundException("Could not find: " + username);
@@ -358,10 +358,10 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
         }
     }
 
-    private class MockUserDetailsServiceUserMarissaWithSalt implements UserDetailsService {
+    private class MockUserDetailsServiceUserrodWithSalt implements UserDetailsService {
         public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
-            if ("marissa".equals(username)) {
-                return new User("marissa", "koala{SYSTEM_SALT_VALUE}", true, true, true, true, new GrantedAuthority[] {
+            if ("rod".equals(username)) {
+                return new User("rod", "koala{SYSTEM_SALT_VALUE}", true, true, true, true, new GrantedAuthority[] {
                         new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO") });
             } else {
                 throw new UsernameNotFoundException("Could not find: " + username);

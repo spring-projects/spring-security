@@ -50,22 +50,22 @@ public class UserMapEditorTests extends TestCase {
 
     public void testConvertedIntoUserSuccessfullyWhenDisabled() {
         UserMapEditor editor = new UserMapEditor();
-        editor.setAsText("marissa=koala,ROLE_ONE,ROLE_TWO,disabled");
+        editor.setAsText("rod=koala,ROLE_ONE,ROLE_TWO,disabled");
 
         UserMap map = (UserMap) editor.getValue();
-        assertTrue(!map.getUser("marissa").isEnabled());
+        assertTrue(!map.getUser("rod").isEnabled());
     }
 
     public void testConvertedIntoUserSuccessfullyWhenEnabled() {
         UserMapEditor editor = new UserMapEditor();
-        editor.setAsText("marissa=koala,ROLE_ONE,ROLE_TWO");
+        editor.setAsText("rod=koala,ROLE_ONE,ROLE_TWO");
 
         UserMap map = (UserMap) editor.getValue();
-        assertEquals("marissa", map.getUser("marissa").getUsername());
-        assertEquals("koala", map.getUser("marissa").getPassword());
-        assertEquals("ROLE_ONE", map.getUser("marissa").getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", map.getUser("marissa").getAuthorities()[1].getAuthority());
-        assertTrue(map.getUser("marissa").isEnabled());
+        assertEquals("rod", map.getUser("rod").getUsername());
+        assertEquals("koala", map.getUser("rod").getPassword());
+        assertEquals("ROLE_ONE", map.getUser("rod").getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_TWO", map.getUser("rod").getAuthorities()[1].getAuthority());
+        assertTrue(map.getUser("rod").isEnabled());
     }
 
     public void testEmptyStringReturnsEmptyMap() {
@@ -86,10 +86,10 @@ public class UserMapEditorTests extends TestCase {
 
     public void testMultiUserParsing() {
         UserMapEditor editor = new UserMapEditor();
-        editor.setAsText("marissa=koala,ROLE_ONE,ROLE_TWO,enabled\r\nscott=wombat,ROLE_ONE,ROLE_TWO,enabled");
+        editor.setAsText("rod=koala,ROLE_ONE,ROLE_TWO,enabled\r\nscott=wombat,ROLE_ONE,ROLE_TWO,enabled");
 
         UserMap map = (UserMap) editor.getValue();
-        assertEquals("marissa", map.getUser("marissa").getUsername());
+        assertEquals("rod", map.getUser("rod").getUsername());
         assertEquals("scott", map.getUser("scott").getUsername());
     }
 

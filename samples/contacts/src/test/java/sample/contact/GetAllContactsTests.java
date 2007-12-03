@@ -110,7 +110,7 @@ public class GetAllContactsTests extends AbstractTransactionalSpringContextTests
     protected void makeActiveUser(String username) {
         String password = "";
 
-        if ("marissa".equals(username)) {
+        if ("rod".equals(username)) {
             password = "koala";
         } else if ("dianne".equals(username)) {
             password = "emu";
@@ -148,8 +148,8 @@ public class GetAllContactsTests extends AbstractTransactionalSpringContextTests
         assertNotContainsContact(Long.toString(3), contacts);
     }
 
-    public void testMarissa() {
-        makeActiveUser("marissa"); // has ROLE_SUPERVISOR
+    public void testrod() {
+        makeActiveUser("rod"); // has ROLE_SUPERVISOR
 
         List contacts = contactManager.getAll();
 

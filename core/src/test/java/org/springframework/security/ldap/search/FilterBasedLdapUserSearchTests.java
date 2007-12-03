@@ -60,7 +60,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
     @Test
     public void testExtraFilterPartToExcludeBob() throws Exception {
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
-                "(&(cn=*)(!(|(uid={0})(uid=marissa))))", dirCtxFactory);
+                "(&(cn=*)(!(|(uid={0})(uid=rod))))", dirCtxFactory);
 
         // Search for bob, get back ben...
         DirContextOperations ben = locator.searchForUser("bob");

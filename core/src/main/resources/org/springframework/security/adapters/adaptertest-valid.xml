@@ -25,7 +25,7 @@
 	<bean id="inMemoryDaoImpl" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
   		<property name="userMap">
 			<value>
-				marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
+				rod=koala,ROLE_TELLER,ROLE_SUPERVISOR
 				dianne=emu,ROLE_TELLER
 				scott=wombat,ROLE_TELLER
 				peter=opal,disabled,ROLE_TELLER

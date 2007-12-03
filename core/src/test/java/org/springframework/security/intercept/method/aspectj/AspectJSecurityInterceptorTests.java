@@ -88,7 +88,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         MockAspectJCallback aspectJCallback = new MockAspectJCallback();
 
         SecurityContextHolder.getContext()
-                             .setAuthentication(new TestingAuthenticationToken("marissa", "koala",
+                             .setAuthentication(new TestingAuthenticationToken("rod", "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_ONE")}));
 
         Object result = si.invoke(joinPoint, aspectJCallback);
@@ -120,7 +120,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         aspectJCallback.setThrowExceptionIfInvoked(true);
 
         SecurityContextHolder.getContext()
-                             .setAuthentication(new TestingAuthenticationToken("marissa", "koala",
+                             .setAuthentication(new TestingAuthenticationToken("rod", "koala",
                 new GrantedAuthority[] {}));
 
         try {

@@ -144,7 +144,7 @@ public class JettyAcegiUserRealmTests extends TestCase {
     public void testAuthenticationFailsForIncorrectPassword()
         throws Exception {
         JettySpringSecurityUserRealm adapter = makeAdapter("adaptertest-valid.xml");
-        assertEquals(null, adapter.authenticate("marissa", "kangaroo", null));
+        assertEquals(null, adapter.authenticate("rod", "kangaroo", null));
     }
 
     public void testAuthenticationFailsForIncorrectUserName()
@@ -155,14 +155,14 @@ public class JettyAcegiUserRealmTests extends TestCase {
 
     public void testAuthenticationSuccess() throws Exception {
         JettySpringSecurityUserRealm adapter = makeAdapter("adaptertest-valid.xml");
-        UserPrincipal result = adapter.authenticate("marissa", "koala", null);
+        UserPrincipal result = adapter.authenticate("rod", "koala", null);
 
         if (!(result instanceof JettySpringSecurityUserToken)) {
             fail("Should have returned JettySpringSecurityUserToken");
         }
 
         JettySpringSecurityUserToken castResult = (JettySpringSecurityUserToken) result;
-        assertEquals("marissa", castResult.getPrincipal());
+        assertEquals("rod", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
@@ -172,7 +172,7 @@ public class JettyAcegiUserRealmTests extends TestCase {
     public void testAuthenticationWithNullPasswordHandledGracefully()
         throws Exception {
         JettySpringSecurityUserRealm adapter = makeAdapter("adaptertest-valid.xml");
-        assertEquals(null, adapter.authenticate("marissa", null, null));
+        assertEquals(null, adapter.authenticate("rod", null, null));
     }
 
     public void testAuthenticationWithNullUserNameHandledGracefully()

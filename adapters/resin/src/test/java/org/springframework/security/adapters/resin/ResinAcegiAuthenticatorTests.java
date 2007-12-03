@@ -144,7 +144,7 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
         adapter.setAppContextLocation("org/springframework/security/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
-        assertEquals(null, adapter.loginImpl("marissa", "kangaroo"));
+        assertEquals(null, adapter.loginImpl("rod", "kangaroo"));
     }
 
     public void testAuthenticationFailsForIncorrectUserName()
@@ -162,14 +162,14 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
 
-        Principal result = adapter.loginImpl("marissa", "koala");
+        Principal result = adapter.loginImpl("rod", "koala");
 
         if (!(result instanceof PrincipalSpringSecurityUserToken)) {
             fail("Should have returned PrincipalSpringSecurityUserToken");
         }
 
         PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) result;
-        assertEquals("marissa", castResult.getPrincipal());
+        assertEquals("rod", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
@@ -183,14 +183,14 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
 
-        Principal result = adapter.loginImpl(null, null, null, "marissa", "koala");
+        Principal result = adapter.loginImpl(null, null, null, "rod", "koala");
 
         if (!(result instanceof PrincipalSpringSecurityUserToken)) {
             fail("Should have returned PrincipalSpringSecurityUserToken");
         }
 
         PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) result;
-        assertEquals("marissa", castResult.getPrincipal());
+        assertEquals("rod", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
@@ -203,7 +203,7 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
         adapter.setAppContextLocation("org/springframework/security/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
-        assertEquals(null, adapter.loginImpl("marissa", null));
+        assertEquals(null, adapter.loginImpl("rod", null));
     }
 
     public void testAuthenticationWithNullUserNameHandledGracefully()

@@ -49,34 +49,34 @@ public class AuthenticationTagTests extends TestCase {
 
     public void testOperationAndMethodPrefixWhenPrincipalIsAUserDetailsInstance()
         throws JspException {
-        Authentication auth = new TestingAuthenticationToken(new User("marissaUserDetails", "koala", true, true, true,
+        Authentication auth = new TestingAuthenticationToken(new User("rodUserDetails", "koala", true, true, true,
                     true, new GrantedAuthority[] {}), "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         authenticationTag.setOperation("username");
         authenticationTag.setMethodPrefix("get");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
-        assertEquals("marissaUserDetails", authenticationTag.getLastMessage());
+        assertEquals("rodUserDetails", authenticationTag.getLastMessage());
     }
 
     public void testOperationWhenPrincipalIsAString() throws JspException {
-        Authentication auth = new TestingAuthenticationToken("marissaAsString", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rodAsString", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         authenticationTag.setOperation("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
-        assertEquals("marissaAsString", authenticationTag.getLastMessage());
+        assertEquals("rodAsString", authenticationTag.getLastMessage());
     }
 
     public void testOperationWhenPrincipalIsAUserDetailsInstance()
         throws JspException {
-        Authentication auth = new TestingAuthenticationToken(new User("marissaUserDetails", "koala", true, true, true,
+        Authentication auth = new TestingAuthenticationToken(new User("rodUserDetails", "koala", true, true, true,
                     true, new GrantedAuthority[] {}), "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         authenticationTag.setOperation("username");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
-        assertEquals("marissaUserDetails", authenticationTag.getLastMessage());
+        assertEquals("rodUserDetails", authenticationTag.getLastMessage());
     }
 
     public void testOperationWhenPrincipalIsNull() throws JspException {
@@ -102,7 +102,7 @@ public class AuthenticationTagTests extends TestCase {
     }
 
     public void testThrowsExceptionForUnrecognisedMethodPrefix() {
-        Authentication auth = new TestingAuthenticationToken(new User("marissaUserDetails", "koala", true, true, true,
+        Authentication auth = new TestingAuthenticationToken(new User("rodUserDetails", "koala", true, true, true,
                     true, new GrantedAuthority[] {}), "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
         authenticationTag.setOperation("username");
@@ -117,7 +117,7 @@ public class AuthenticationTagTests extends TestCase {
     }
 
     public void testThrowsExceptionForUnrecognisedOperation() {
-        Authentication auth = new TestingAuthenticationToken(new User("marissaUserDetails", "koala", true, true, true,
+        Authentication auth = new TestingAuthenticationToken(new User("rodUserDetails", "koala", true, true, true,
                     true, new GrantedAuthority[] {}), "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
         authenticationTag.setOperation("qsq");

@@ -30,7 +30,7 @@
 	<bean id="inMemoryDaoImpl" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
   		<property name="userMap">
 			<value>
-				marissa=koala,ROLES_IGNORED_BY_CAS
+				rod=koala,ROLES_IGNORED_BY_CAS
 				dianne=emu,ROLES_IGNORED_BY_CAS
 				scott=wombat,ROLES_IGNORED_BY_CAS
 				peter=opal,disabled,ROLES_IGNORED_BY_CAS

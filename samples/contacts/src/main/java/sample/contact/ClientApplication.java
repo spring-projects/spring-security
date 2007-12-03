@@ -129,9 +129,9 @@ public class ClientApplication {
         if ("".equals(username) || "".equals(password)) {
             System.out.println(
                 "You need to specify the user ID to use, the password to use, and optionally a number of calls "
-                + "using the username, password, and nrOfCalls system properties respectively. eg for user marissa, "
-                + "use: -Dusername=marissa -Dpassword=koala' for a single call per service and "
-                + "use: -Dusername=marissa -Dpassword=koala -DnrOfCalls=10 for ten calls per service.");
+                + "using the username, password, and nrOfCalls system properties respectively. eg for user rod, "
+                + "use: -Dusername=rod -Dpassword=koala' for a single call per service and "
+                + "use: -Dusername=rod -Dpassword=koala -DnrOfCalls=10 for ten calls per service.");
             System.exit(-1);
         } else {
             int nrOfCalls = 1;

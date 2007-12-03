@@ -175,7 +175,7 @@ public class CatalinaSpringSecurityUserRealmTests extends TestCase {
     public void testAuthenticationFailsForIncorrectPassword()
         throws Exception {
         CatalinaSpringSecurityUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
-        assertEquals(null, adapter.authenticate("marissa", "kangaroo"));
+        assertEquals(null, adapter.authenticate("rod", "kangaroo"));
     }
 
     public void testAuthenticationFailsForIncorrectUserName()
@@ -188,14 +188,14 @@ public class CatalinaSpringSecurityUserRealmTests extends TestCase {
         throws Exception {
         CatalinaSpringSecurityUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         byte[] credentials = {'k', 'o', 'a', 'l', 'a'};
-        Principal result = adapter.authenticate("marissa", credentials);
+        Principal result = adapter.authenticate("rod", credentials);
 
         if (!(result instanceof PrincipalSpringSecurityUserToken)) {
             fail("Should have returned PrincipalSpringSecurityUserToken");
         }
 
         PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) result;
-        assertEquals("marissa", castResult.getPrincipal());
+        assertEquals("rod", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
@@ -205,14 +205,14 @@ public class CatalinaSpringSecurityUserRealmTests extends TestCase {
     public void testAuthenticationUsingStringForCredentials()
         throws Exception {
         CatalinaSpringSecurityUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
-        Principal result = adapter.authenticate("marissa", "koala");
+        Principal result = adapter.authenticate("rod", "koala");
 
         if (!(result instanceof PrincipalSpringSecurityUserToken)) {
             fail("Should have returned PrincipalSpringSecurityUserToken");
         }
 
         PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) result;
-        assertEquals("marissa", castResult.getPrincipal());
+        assertEquals("rod", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
@@ -222,7 +222,7 @@ public class CatalinaSpringSecurityUserRealmTests extends TestCase {
     public void testAuthenticationWithNullPasswordHandledGracefully()
         throws Exception {
         CatalinaSpringSecurityUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
-        assertEquals(null, adapter.authenticate("marissa", (String) null));
+        assertEquals(null, adapter.authenticate("rod", (String) null));
     }
 
     public void testAuthenticationWithNullUserNameHandledGracefully()

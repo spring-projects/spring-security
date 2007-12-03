@@ -50,7 +50,7 @@ public class InMemoryDaoTests extends TestCase {
 
     private UserMap makeUserMap() {
         UserMapEditor editor = new UserMapEditor();
-        editor.setAsText("marissa=koala,ROLE_ONE,ROLE_TWO,enabled\r\nscott=wombat,ROLE_ONE,ROLE_TWO,enabled");
+        editor.setAsText("rod=koala,ROLE_ONE,ROLE_TWO,enabled\r\nscott=wombat,ROLE_ONE,ROLE_TWO,enabled");
 
         return (UserMap) editor.getValue();
     }
@@ -76,7 +76,7 @@ public class InMemoryDaoTests extends TestCase {
         InMemoryDaoImpl dao = new InMemoryDaoImpl();
         dao.setUserMap(makeUserMap());
         dao.afterPropertiesSet();
-        assertEquals("koala", dao.loadUserByUsername("marissa").getPassword());
+        assertEquals("koala", dao.loadUserByUsername("rod").getPassword());
         assertEquals("wombat", dao.loadUserByUsername("scott").getPassword());
     }
 
@@ -84,7 +84,7 @@ public class InMemoryDaoTests extends TestCase {
         InMemoryDaoImpl dao = new InMemoryDaoImpl();
         dao.setUserMap(makeUserMap());
         dao.afterPropertiesSet();
-        assertEquals("koala", dao.loadUserByUsername("MaRiSSA").getPassword());
+        assertEquals("koala", dao.loadUserByUsername("rod").getPassword());
         assertEquals("wombat", dao.loadUserByUsername("ScOTt").getPassword());
     }
 
@@ -121,10 +121,10 @@ public class InMemoryDaoTests extends TestCase {
     public void testUseOfExternalPropertiesObject() throws Exception {
         InMemoryDaoImpl dao = new InMemoryDaoImpl();
         Properties props = new Properties();
-        props.put("marissa", "koala,ROLE_ONE,ROLE_TWO,enabled");
+        props.put("rod", "koala,ROLE_ONE,ROLE_TWO,enabled");
         props.put("scott", "wombat,ROLE_ONE,ROLE_TWO,enabled");
         dao.setUserProperties(props);
-        assertEquals("koala", dao.loadUserByUsername("marissa").getPassword());
+        assertEquals("koala", dao.loadUserByUsername("rod").getPassword());
         assertEquals("wombat", dao.loadUserByUsername("scott").getPassword());
     }
 }

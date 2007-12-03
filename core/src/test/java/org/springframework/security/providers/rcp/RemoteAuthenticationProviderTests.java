@@ -46,7 +46,7 @@ public class RemoteAuthenticationProviderTests extends TestCase {
         provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
 
         try {
-            provider.authenticate(new UsernamePasswordAuthenticationToken("marissa", "password"));
+            provider.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
             fail("Should have thrown RemoteAuthenticationException");
         } catch (RemoteAuthenticationException expected) {
             assertTrue(true);
@@ -79,8 +79,8 @@ public class RemoteAuthenticationProviderTests extends TestCase {
         RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
         provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
 
-        Authentication result = provider.authenticate(new UsernamePasswordAuthenticationToken("marissa", "password"));
-        assertEquals("marissa", result.getPrincipal());
+        Authentication result = provider.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
+        assertEquals("rod", result.getPrincipal());
         assertEquals("password", result.getCredentials());
         assertEquals("foo", result.getAuthorities()[0].getAuthority());
     }

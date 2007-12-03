@@ -52,7 +52,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
     public void testNormalOperation() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(AuthenticationProcessingFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "marissa");
+        request.addParameter(AuthenticationProcessingFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
         request.addParameter(AuthenticationProcessingFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
 
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
@@ -66,7 +66,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
     public void testNullPasswordHandledGracefully() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(AuthenticationProcessingFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "marissa");
+        request.addParameter(AuthenticationProcessingFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
 
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
         filter.setAuthenticationManager(new MockAuthenticationManager(true));
@@ -96,7 +96,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         filter.init(null);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter("x", "marissa");
+        request.addParameter("x", "rod");
         request.addParameter("y", "koala");
 
         Authentication result = filter.attemptAuthentication(request);
@@ -106,7 +106,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
     public void testSpacesAreTrimmedCorrectlyFromUsername() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(AuthenticationProcessingFilter.SPRING_SECURITY_FORM_USERNAME_KEY, " marissa ");
+        request.addParameter(AuthenticationProcessingFilter.SPRING_SECURITY_FORM_USERNAME_KEY, " rod ");
         request.addParameter(AuthenticationProcessingFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
 
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
@@ -114,6 +114,6 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         filter.init(null);
 
         Authentication result = filter.attemptAuthentication(request);
-        assertEquals("marissa", result.getName());
+        assertEquals("rod", result.getName());
     }
 }

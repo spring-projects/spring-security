@@ -102,7 +102,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         // Create User Details Service, provider and authentication manager
         InMemoryDaoImpl dao = new InMemoryDaoImpl();
         UserMapEditor editor = new UserMapEditor();
-        editor.setAsText("marissa=koala,ROLE_ONE,ROLE_TWO,enabled\r\n");
+        editor.setAsText("rod=koala,ROLE_ONE,ROLE_TWO,enabled\r\n");
         dao.setUserMap((UserMap) editor.getValue());
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -185,7 +185,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
 
     public void testNormalOperation() throws Exception {
         // Setup our HTTP request
-        String token = "marissa:koala";
+        String token = "rod:koala";
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
@@ -196,7 +196,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         executeFilterInContainerSimulator(filter, request, true);
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals("marissa",
+        assertEquals("rod",
             ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
     }
 
@@ -240,7 +240,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
     public void testSuccessLoginThenFailureLoginResultsInSessionLoosingToken()
         throws Exception {
         // Setup our HTTP request
-        String token = "marissa:koala";
+        String token = "rod:koala";
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
@@ -250,7 +250,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         executeFilterInContainerSimulator(filter, request, true);
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals("marissa",
+        assertEquals("rod",
             ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
 
         // NOW PERFORM FAILED AUTHENTICATION
@@ -271,7 +271,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
     public void testWrongPasswordContinuesFilterChainIfIgnoreFailureIsTrue()
         throws Exception {
         // Setup our HTTP request
-        String token = "marissa:WRONG_PASSWORD";
+        String token = "rod:WRONG_PASSWORD";
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
@@ -289,7 +289,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
     public void testWrongPasswordReturnsForbiddenIfIgnoreFailureIsFalse()
         throws Exception {
         // Setup our HTTP request
-        String token = "marissa:WRONG_PASSWORD";
+        String token = "rod:WRONG_PASSWORD";
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");

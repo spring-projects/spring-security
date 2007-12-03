@@ -13,7 +13,7 @@
 
 	<P>Valid users:
 	<P>
-	<P>username <b>marissa</b>, password <b>koala</b>
+	<P>username <b>rod</b>, password <b>koala</b>
 	<P>username <b>dianne</b>, password <b>emu</b>
 	<p>username <b>scott</b>, password <b>wombat</b>
 	<p>username <b>peter</b>, password <b>opal</b> (user disabled)

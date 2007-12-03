@@ -75,7 +75,7 @@ public class AclProviderManagerTests extends TestCase {
 
     public void testAclLookupForGivenAuthenticationSuccess() {
         AclProviderManager mgr = makeProviderManager();
-        assertNotNull(mgr.getAcls("STRING", new UsernamePasswordAuthenticationToken("marissa", "not used")));
+        assertNotNull(mgr.getAcls("STRING", new UsernamePasswordAuthenticationToken("rod", "not used")));
     }
 
     public void testAclLookupSuccess() {
@@ -94,7 +94,7 @@ public class AclProviderManagerTests extends TestCase {
         }
 
         try {
-            mgr.getAcls(null, new UsernamePasswordAuthenticationToken("marissa", "not used"));
+            mgr.getAcls(null, new UsernamePasswordAuthenticationToken("rod", "not used"));
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -110,7 +110,7 @@ public class AclProviderManagerTests extends TestCase {
 
     public void testReturnsNullIfNoSupportingProvider() {
         AclProviderManager mgr = makeProviderManager();
-        assertNull(mgr.getAcls(new Integer(4), new UsernamePasswordAuthenticationToken("marissa", "not used")));
+        assertNull(mgr.getAcls(new Integer(4), new UsernamePasswordAuthenticationToken("rod", "not used")));
         assertNull(mgr.getAcls(new Integer(4)));
     }
 
@@ -162,10 +162,10 @@ public class AclProviderManagerTests extends TestCase {
     //~ Inner Classes ==================================================================================================
 
     private class MockProvider implements AclProvider {
-        private UsernamePasswordAuthenticationToken marissa = new UsernamePasswordAuthenticationToken("marissa",
+        private UsernamePasswordAuthenticationToken rod = new UsernamePasswordAuthenticationToken("rod",
                 "not used",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FOO"), new GrantedAuthorityImpl("ROLE_BAR")});
-        private SimpleAclEntry entry100Marissa = new SimpleAclEntry(marissa.getPrincipal(),
+        private SimpleAclEntry entry100rod = new SimpleAclEntry(rod.getPrincipal(),
                 new NamedEntityObjectIdentity("OBJECT", "100"), null, 2);
         private UsernamePasswordAuthenticationToken scott = new UsernamePasswordAuthenticationToken("scott",
                 "not used",
@@ -181,15 +181,15 @@ public class AclProviderManagerTests extends TestCase {
                 return new AclEntry[] {entry100Scott};
             }
 
-            if (authentication.getPrincipal().equals(marissa.getPrincipal())) {
-                return new AclEntry[] {entry100Marissa};
+            if (authentication.getPrincipal().equals(rod.getPrincipal())) {
+                return new AclEntry[] {entry100rod};
             }
 
             return null;
         }
 
         public AclEntry[] getAcls(Object domainInstance) {
-            return new AclEntry[] {entry100Marissa, entry100Scott};
+            return new AclEntry[] {entry100rod, entry100Scott};
         }
 
         /**

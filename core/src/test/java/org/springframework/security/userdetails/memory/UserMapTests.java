@@ -54,19 +54,19 @@ public class UserMapTests extends TestCase {
     }
 
     public void testAddAndRetrieveUser() {
-        UserDetails marissa = new User("marissa", "koala", true, true, true, true,
+        UserDetails rod = new User("rod", "koala", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         UserDetails scott = new User("scott", "wombat", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_THREE")});
         UserDetails peter = new User("peter", "opal", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_FOUR")});
         UserMap map = new UserMap();
-        map.addUser(marissa);
+        map.addUser(rod);
         map.addUser(scott);
         map.addUser(peter);
         assertEquals(3, map.getUserCount());
 
-        assertEquals(marissa, map.getUser("marissa"));
+        assertEquals(rod, map.getUser("rod"));
         assertEquals(scott, map.getUser("scott"));
         assertEquals(peter, map.getUser("peter"));
     }
@@ -84,11 +84,11 @@ public class UserMapTests extends TestCase {
     }
 
     public void testUnknownUserIsNotRetrieved() {
-        UserDetails marissa = new User("marissa", "koala", true, true, true, true,
+        UserDetails rod = new User("rod", "koala", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         UserMap map = new UserMap();
         assertEquals(0, map.getUserCount());
-        map.addUser(marissa);
+        map.addUser(rod);
         assertEquals(1, map.getUserCount());
 
         try {

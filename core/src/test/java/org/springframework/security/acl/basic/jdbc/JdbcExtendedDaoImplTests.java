@@ -79,7 +79,7 @@ public class JdbcExtendedDaoImplTests extends TestCase {
         AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "1");
 
         // Create a BasicAclEntry for this AclObjectIdentity
-        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity, parentIdentity, SimpleAclEntry.CREATE);
+        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("rod", identity, parentIdentity, SimpleAclEntry.CREATE);
         dao.create(simpleAcl1);
 
         // Create another BasicAclEntry for this AclObjectIdentity
@@ -93,11 +93,11 @@ public class JdbcExtendedDaoImplTests extends TestCase {
         assertEquals(SimpleAclEntry.READ, acls[1].getMask());
 
         // Attempt to change mask
-        dao.changeMask(identity, "marissa", new Integer(SimpleAclEntry.ADMINISTRATION));
+        dao.changeMask(identity, "rod", new Integer(SimpleAclEntry.ADMINISTRATION));
         dao.changeMask(identity, "scott", new Integer(SimpleAclEntry.NOTHING));
         acls = dao.getAcls(identity);
         assertEquals(2, acls.length);
-        assertEquals("marissa", acls[0].getRecipient());
+        assertEquals("rod", acls[0].getRecipient());
         assertEquals(SimpleAclEntry.ADMINISTRATION, acls[0].getMask());
         assertEquals("scott", acls[1].getRecipient());
         assertEquals(SimpleAclEntry.NOTHING, acls[1].getMask());
@@ -110,7 +110,7 @@ public class JdbcExtendedDaoImplTests extends TestCase {
         AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "1");
 
         // Create at least one record for this AclObjectIdentity
-        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity, parentIdentity, SimpleAclEntry.CREATE);
+        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("rod", identity, parentIdentity, SimpleAclEntry.CREATE);
         dao.create(simpleAcl1);
 
         // Attempt to change mask, but for a recipient we don't have
@@ -156,7 +156,7 @@ public class JdbcExtendedDaoImplTests extends TestCase {
         AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "203");
 
         // Create a BasicAclEntry for this AclObjectIdentity
-        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity, null, SimpleAclEntry.CREATE);
+        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("rod", identity, null, SimpleAclEntry.CREATE);
         dao.create(simpleAcl1);
 
         // Create another BasicAclEntry for this AclObjectIdentity
@@ -178,7 +178,7 @@ public class JdbcExtendedDaoImplTests extends TestCase {
         AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "1");
 
         // Create a BasicAclEntry for this AclObjectIdentity
-        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity, parentIdentity, SimpleAclEntry.CREATE);
+        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("rod", identity, parentIdentity, SimpleAclEntry.CREATE);
         dao.create(simpleAcl1);
 
         // Create another BasicAclEntry for this AclObjectIdentity
@@ -263,7 +263,7 @@ public class JdbcExtendedDaoImplTests extends TestCase {
         AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "1");
 
         // Create a BasicAclEntry for this AclObjectIdentity
-        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity, parentIdentity, SimpleAclEntry.CREATE);
+        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("rod", identity, parentIdentity, SimpleAclEntry.CREATE);
         dao.create(simpleAcl1);
 
         // Create another BasicAclEntry for this AclObjectIdentity
@@ -291,7 +291,7 @@ public class JdbcExtendedDaoImplTests extends TestCase {
         JdbcExtendedDaoImpl dao = makePopulatedJdbcDao();
         AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "201");
         AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "987987987987986");
-        SimpleAclEntry simpleAcl = new SimpleAclEntry("marissa", identity, parentIdentity, SimpleAclEntry.CREATE);
+        SimpleAclEntry simpleAcl = new SimpleAclEntry("rod", identity, parentIdentity, SimpleAclEntry.CREATE);
 
         try {
             dao.create(simpleAcl);

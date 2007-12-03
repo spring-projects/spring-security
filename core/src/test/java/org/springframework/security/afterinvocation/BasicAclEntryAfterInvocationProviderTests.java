@@ -87,12 +87,12 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
     public void testCorrectOperationWhenPrincipalHasNoPermissionToDomainObject()
         throws Exception {
         // Create an AclManager
-        AclManager aclManager = new MockAclManager("belmont", "marissa",
+        AclManager aclManager = new MockAclManager("belmont", "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
@@ -115,12 +115,12 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
     public void testCorrectOperationWhenPrincipalIsAuthorised()
         throws Exception {
         // Create an AclManager
-        AclManager aclManager = new MockAclManager("belmont", "marissa",
+        AclManager aclManager = new MockAclManager("belmont", "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
@@ -129,7 +129,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
         provider.afterPropertiesSet();
 
         // Create the Authentication and Config Attribs we'll be presenting
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("marissa", "NOT_USED");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
         ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
         attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
 
@@ -140,11 +140,11 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
     public void testGrantsAccessIfReturnedObjectIsNull()
         throws Exception {
         // Create an AclManager
-        AclManager aclManager = new MockAclManager("belmont", "marissa",
+        AclManager aclManager = new MockAclManager("belmont", "rod",
                 new AclEntry[] {
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE),
                     new MockAclEntry()
                 });
 
@@ -153,7 +153,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
         provider.afterPropertiesSet();
 
         // Create the Authentication and Config Attribs we'll be presenting
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("marissa", "NOT_USED");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
         ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
         attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
 
@@ -164,9 +164,9 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
     public void testRespectsModificationsToProcessConfigAttribute()
         throws Exception {
         // Create an AclManager
-        AclManager aclManager = new MockAclManager("sydney", "marissa",
+        AclManager aclManager = new MockAclManager("sydney", "rod",
                 new AclEntry[] {
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
                     new MockAclEntry()
                 });
 
@@ -178,7 +178,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
         provider.afterPropertiesSet();
 
         // Create the Authentication and Config Attribs we'll be presenting
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("marissa", "NOT_USED");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
         ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
         attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
 
@@ -193,9 +193,9 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
     public void testRespectsModificationsToRequirePermissions()
         throws Exception {
         // Create an AclManager
-        AclManager aclManager = new MockAclManager("sydney", "marissa",
+        AclManager aclManager = new MockAclManager("sydney", "rod",
                 new AclEntry[] {
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
                     new MockAclEntry()
                 });
 
@@ -207,7 +207,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
         provider.afterPropertiesSet();
 
         // Create the Authentication and Config Attribs we'll be presenting
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("marissa", "NOT_USED");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
         ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
         attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
 
@@ -229,9 +229,9 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
     public void testStartupDetectsMissingProcessConfigAttribute()
         throws Exception {
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
-        AclManager aclManager = new MockAclManager("sydney", "marissa",
+        AclManager aclManager = new MockAclManager("sydney", "rod",
                 new AclEntry[] {
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
                     new MockAclEntry()
                 });
         provider.setAclManager(aclManager);
@@ -249,9 +249,9 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
     public void testStartupDetectsMissingRequirePermission()
         throws Exception {
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
-        AclManager aclManager = new MockAclManager("sydney", "marissa",
+        AclManager aclManager = new MockAclManager("sydney", "rod",
                 new AclEntry[] {
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
                     new MockAclEntry()
                 });
         provider.setAclManager(aclManager);

@@ -51,11 +51,11 @@ public class StringSplitUtilsTests extends TestCase {
 
     public void testSplitEachArrayElementAndCreateMapNormalOperation() {
         // note it ignores malformed entries (ie those without an equals sign)
-        String unsplit = "username=\"marissa\", invalidEntryThatHasNoEqualsSign, realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
+        String unsplit = "username=\"rod\", invalidEntryThatHasNoEqualsSign, realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
         Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
-        assertEquals("marissa", headerMap.get("username"));
+        assertEquals("rod", headerMap.get("username"));
         assertEquals("Contacts Realm", headerMap.get("realm"));
         assertEquals("MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==", headerMap.get("nonce"));
         assertEquals("/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4",
@@ -68,11 +68,11 @@ public class StringSplitUtilsTests extends TestCase {
     }
 
     public void testSplitEachArrayElementAndCreateMapRespectsInstructionNotToRemoveCharacters() {
-        String unsplit = "username=\"marissa\", realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
+        String unsplit = "username=\"rod\", realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
         Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", null);
 
-        assertEquals("\"marissa\"", headerMap.get("username"));
+        assertEquals("\"rod\"", headerMap.get("username"));
         assertEquals("\"Contacts Realm\"", headerMap.get("realm"));
         assertEquals("\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"", headerMap.get("nonce"));
         assertEquals("\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"",
@@ -90,9 +90,9 @@ public class StringSplitUtilsTests extends TestCase {
     }
 
     public void testSplitNormalOperation() {
-        String unsplit = "username=\"marissa==\"";
+        String unsplit = "username=\"rod==\"";
         assertEquals("username", StringSplitUtils.split(unsplit, "=")[0]);
-        assertEquals("\"marissa==\"", StringSplitUtils.split(unsplit, "=")[1]); // should not remove quotes or extra equals
+        assertEquals("\"rod==\"", StringSplitUtils.split(unsplit, "=")[1]); // should not remove quotes or extra equals
     }
 
     public void testSplitRejectsNullsAndIncorrectLengthStrings() {
@@ -133,11 +133,11 @@ public class StringSplitUtilsTests extends TestCase {
     }
 
     public void testSplitWorksWithDifferentDelimiters() {
-        assertEquals(2, StringSplitUtils.split("18/marissa", "/").length);
-        assertNull(StringSplitUtils.split("18/marissa", "!"));
+        assertEquals(2, StringSplitUtils.split("18/rod", "/").length);
+        assertNull(StringSplitUtils.split("18/rod", "!"));
 
         // only guarantees to split at FIRST delimiter, not EACH delimiter
-        assertEquals(2, StringSplitUtils.split("18|marissa|foo|bar", "|").length);
+        assertEquals(2, StringSplitUtils.split("18|rod|foo|bar", "|").length);
     }
 
 

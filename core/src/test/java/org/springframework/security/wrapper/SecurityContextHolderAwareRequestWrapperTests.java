@@ -51,7 +51,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
     }
 
     public void testCorrectOperationWithStringBasedPrincipal() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("marissa", "koala",
+        Authentication auth = new TestingAuthenticationToken("rod", "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FOO")});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -60,14 +60,14 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 
         SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl(), "");
 
-        assertEquals("marissa", wrapper.getRemoteUser());
+        assertEquals("rod", wrapper.getRemoteUser());
         assertTrue(wrapper.isUserInRole("ROLE_FOO"));
         assertFalse(wrapper.isUserInRole("ROLE_NOT_GRANTED"));
         assertEquals(auth, wrapper.getUserPrincipal());
     }
 
     public void testUseOfRolePrefixMeansItIsntNeededWhenCallngIsUserInRole() {
-        Authentication auth = new TestingAuthenticationToken("marissa", "koala",
+        Authentication auth = new TestingAuthenticationToken("rod", "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FOO")});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -80,7 +80,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
     }
 
     public void testCorrectOperationWithUserDetailsBasedPrincipal() throws Exception {
-        Authentication auth = new TestingAuthenticationToken(new User("marissaAsUserDetails", "koala", true, true,
+        Authentication auth = new TestingAuthenticationToken(new User("rodAsUserDetails", "koala", true, true,
                     true, true, new GrantedAuthority[] {}), "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_HELLO"), new GrantedAuthorityImpl("ROLE_FOOBAR")});
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -90,7 +90,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 
         SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl(), "");
 
-        assertEquals("marissaAsUserDetails", wrapper.getRemoteUser());
+        assertEquals("rodAsUserDetails", wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_FOO"));
         assertFalse(wrapper.isUserInRole("ROLE_NOT_GRANTED"));
         assertTrue(wrapper.isUserInRole("ROLE_FOOBAR"));

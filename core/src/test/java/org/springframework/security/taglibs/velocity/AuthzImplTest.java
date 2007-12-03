@@ -55,11 +55,11 @@ public class AuthzImplTest extends TestCase {
         ctx = new StaticApplicationContext();
 
         // Create an AclManager
-        AclManager aclManager = new MockAclManager("object1", "marissa",
+        AclManager aclManager = new MockAclManager("object1", "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ)
                 });
 
         // Register the AclManager into our ApplicationContext
@@ -84,7 +84,7 @@ public class AuthzImplTest extends TestCase {
     }
 
     public void testInclusionDeniedWhenAclManagerUnawareOfObject() {
-        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rod", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         authz.setAppCtx(ctx);
@@ -97,7 +97,7 @@ public class AuthzImplTest extends TestCase {
     }
 
     public void testInclusionDeniedWhenNoListOfPermissionsGiven() {
-        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rod", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
         authz.setAppCtx(ctx);
 
@@ -124,7 +124,7 @@ public class AuthzImplTest extends TestCase {
     }
 
     public void testInclusionDeniedWhenPrincipalDoesNotHoldRequiredPermissions() {
-        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rod", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
         authz.setAppCtx(ctx);
 
@@ -162,7 +162,7 @@ public class AuthzImplTest extends TestCase {
     }
 
     public void testOperationWhenPrincipalHoldsPermissionOfMultipleList() {
-        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rod", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         authz.setAppCtx(ctx);
@@ -177,7 +177,7 @@ public class AuthzImplTest extends TestCase {
     }
 
     public void testOperationWhenPrincipalHoldsPermissionOfSingleList() {
-        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rod", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         authz.setAppCtx(ctx);
@@ -194,18 +194,18 @@ public class AuthzImplTest extends TestCase {
      * Test method for 'com.alibaba.exodus2.web.common.security.pulltool.AuthzImpl.getPrincipal()'
      */
     public void testOperationWhenPrincipalIsAString() {
-        Authentication auth = new TestingAuthenticationToken("marissaAsString", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rodAsString", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        assertEquals("marissaAsString", authz.getPrincipal());
+        assertEquals("rodAsString", authz.getPrincipal());
     }
 
     public void testOperationWhenPrincipalIsAUserDetailsInstance() {
-        Authentication auth = new TestingAuthenticationToken(new User("marissaUserDetails", "koala", true, true, true,
+        Authentication auth = new TestingAuthenticationToken(new User("rodUserDetails", "koala", true, true, true,
                     true, new GrantedAuthority[] {}), "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        assertEquals("marissaUserDetails", authz.getPrincipal());
+        assertEquals("rodUserDetails", authz.getPrincipal());
     }
 
     public void testOperationWhenPrincipalIsNull() {

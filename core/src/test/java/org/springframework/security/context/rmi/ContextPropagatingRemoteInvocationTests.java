@@ -69,7 +69,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
     public void testContextIsResetEvenIfExceptionOccurs()
         throws Exception {
         // Setup client-side context
-        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("marissa", "koala");
+        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", "koala");
         SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
         ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
@@ -88,7 +88,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 
     public void testNormalOperation() throws Exception {
         // Setup client-side context
-        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("marissa", "koala");
+        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", "koala");
         SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
         ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();

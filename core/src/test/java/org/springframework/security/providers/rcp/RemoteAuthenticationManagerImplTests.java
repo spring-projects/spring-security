@@ -43,7 +43,7 @@ public class RemoteAuthenticationManagerImplTests extends TestCase {
         manager.setAuthenticationManager(new MockAuthenticationManager(false));
 
         try {
-            manager.attemptAuthentication("marissa", "password");
+            manager.attemptAuthentication("rod", "password");
             fail("Should have thrown RemoteAuthenticationException");
         } catch (RemoteAuthenticationException expected) {
             assertTrue(true);
@@ -76,7 +76,7 @@ public class RemoteAuthenticationManagerImplTests extends TestCase {
         RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
         manager.setAuthenticationManager(new MockAuthenticationManager(true));
 
-        GrantedAuthority[] result = manager.attemptAuthentication("marissa", "password");
+        GrantedAuthority[] result = manager.attemptAuthentication("rod", "password");
         assertTrue(true);
     }
 }

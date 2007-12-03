@@ -187,7 +187,7 @@ public class JbossSpringSecurityLoginModuleTests extends TestCase {
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
-        CallbackHandler callback = new MockCallbackHandler("marissa", "kangaroo");
+        CallbackHandler callback = new MockCallbackHandler("rod", "kangaroo");
 
         adapter.initialize(subject, callback, null, props);
 
@@ -226,7 +226,7 @@ public class JbossSpringSecurityLoginModuleTests extends TestCase {
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
-        CallbackHandler callback = new MockCallbackHandler("marissa", "koala");
+        CallbackHandler callback = new MockCallbackHandler("rod", "koala");
 
         adapter.initialize(subject, callback, null, props);
         assertTrue(adapter.login());
@@ -238,7 +238,7 @@ public class JbossSpringSecurityLoginModuleTests extends TestCase {
         }
 
         PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) result;
-        assertEquals("marissa", castResult.getPrincipal());
+        assertEquals("rod", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
@@ -253,7 +253,7 @@ public class JbossSpringSecurityLoginModuleTests extends TestCase {
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
-        CallbackHandler callback = new MockCallbackHandler("marissa", null);
+        CallbackHandler callback = new MockCallbackHandler("rod", null);
 
         adapter.initialize(subject, callback, null, props);
 
@@ -312,7 +312,7 @@ public class JbossSpringSecurityLoginModuleTests extends TestCase {
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
-        CallbackHandler callback = new MockCallbackHandler("marissa", "koala");
+        CallbackHandler callback = new MockCallbackHandler("rod", "koala");
 
         adapter.initialize(subject, callback, null, props);
         assertTrue(adapter.login());

@@ -57,9 +57,9 @@ public class SecurityContextImplTests extends TestCase {
 
     public void testSecurityContextCorrectOperation() {
         SecurityContext context = new SecurityContextImpl();
-        Authentication auth = new UsernamePasswordAuthenticationToken("marissa", "koala");
+        Authentication auth = new UsernamePasswordAuthenticationToken("rod", "koala");
         context.setAuthentication(auth);
         assertEquals(auth, context.getAuthentication());
-        assertTrue(context.toString().lastIndexOf("marissa") != -1);
+        assertTrue(context.toString().lastIndexOf("rod") != -1);
     }
 }

@@ -51,7 +51,7 @@ public class NullStatelessTicketCacheTests extends TestCase {
         List<String> proxyList = new ArrayList<String>();
         proxyList.add("https://localhost/newPortal/j_spring_cas_security_check");
 
-        User user = new User("marissa", "password", true, true, true, true,
+        User user = new User("rod", "password", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
         return new CasAuthenticationToken("key", user, "ST-0-ER94xMJmn6pha35CQRoZ",

@@ -56,7 +56,7 @@ public class EhCacheBasedX509UserCacheTests extends TestCase {
     }
 
     private UserDetails getUser() {
-        return new User("marissa", "password", true, true, true, true,
+        return new User("rod", "password", true, true, true, true,
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
     }
 

@@ -29,6 +29,6 @@ CREATE TABLE acl_permission (
 
 --INSERT INTO acl_permission (acl_object_identity, recipient, mask) VALUES (1, 'ROLE_ADMIN', 1);
 --INSERT INTO acl_permission (acl_object_identity, recipient, mask) VALUES (2, 'ROLE_ADMIN', 0);
---INSERT INTO acl_permission (acl_object_identity, recipient, mask) VALUES (2, 'marissa', 2);
+--INSERT INTO acl_permission (acl_object_identity, recipient, mask) VALUES (2, 'rod', 2);
 --INSERT INTO acl_permission (acl_object_identity, recipient, mask) VALUES (3, 'scott', 14);
 --INSERT INTO acl_permission (acl_object_identity, recipient, mask) VALUES (6, 'scott', 1);

@@ -80,7 +80,7 @@ public class DataSourcePopulator implements InitializingBean {
         Assert.notNull(tt, "platformTransactionManager required");
 
         // Set a user account that will initially own all the created data
-        Authentication authRequest = new UsernamePasswordAuthenticationToken("marissa", "koala",
+        Authentication authRequest = new UsernamePasswordAuthenticationToken("rod", "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_IGNORED")});
         SecurityContextHolder.getContext().setAuthentication(authRequest);
 
@@ -104,7 +104,7 @@ public class DataSourcePopulator implements InitializingBean {
 
         /*
            Passwords encoded using MD5, NOT in Base64 format, with null as salt
-           Encoded password for marissa is "koala"
+           Encoded password for rod is "koala"
            Encoded password for dianne is "emu"
            Encoded password for scott is "wombat"
            Encoded password for peter is "opal" (but user is disabled)
@@ -113,15 +113,15 @@ public class DataSourcePopulator implements InitializingBean {
            Encoded password for jane is "wombat"
 
          */
-        template.execute("INSERT INTO USERS VALUES('marissa','a564de63c2d0da68cf47586ee05984d7',TRUE);");
+        template.execute("INSERT INTO USERS VALUES('rod','a564de63c2d0da68cf47586ee05984d7',TRUE);");
         template.execute("INSERT INTO USERS VALUES('dianne','65d15fe9156f9c4bbffd98085992a44e',TRUE);");
         template.execute("INSERT INTO USERS VALUES('scott','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
         template.execute("INSERT INTO USERS VALUES('peter','22b5c9accc6e1ba628cedc63a72d57f8',FALSE);");
         template.execute("INSERT INTO USERS VALUES('bill','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
         template.execute("INSERT INTO USERS VALUES('bob','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
         template.execute("INSERT INTO USERS VALUES('jane','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-        template.execute("INSERT INTO AUTHORITIES VALUES('marissa','ROLE_USER');");
-        template.execute("INSERT INTO AUTHORITIES VALUES('marissa','ROLE_SUPERVISOR');");
+        template.execute("INSERT INTO AUTHORITIES VALUES('rod','ROLE_USER');");
+        template.execute("INSERT INTO AUTHORITIES VALUES('rod','ROLE_SUPERVISOR');");
         template.execute("INSERT INTO AUTHORITIES VALUES('dianne','ROLE_USER');");
         template.execute("INSERT INTO AUTHORITIES VALUES('scott','ROLE_USER');");
         template.execute("INSERT INTO AUTHORITIES VALUES('peter','ROLE_USER');");
@@ -158,12 +158,12 @@ public class DataSourcePopulator implements InitializingBean {
         }
 
         // Now grant some permissions
-        grantPermissions(1, "marissa", BasePermission.ADMINISTRATION);
-        grantPermissions(2, "marissa", BasePermission.READ);
-        grantPermissions(3, "marissa", BasePermission.READ);
-        grantPermissions(3, "marissa", BasePermission.WRITE);
-        grantPermissions(3, "marissa", BasePermission.DELETE);
-        grantPermissions(4, "marissa", BasePermission.ADMINISTRATION);
+        grantPermissions(1, "rod", BasePermission.ADMINISTRATION);
+        grantPermissions(2, "rod", BasePermission.READ);
+        grantPermissions(3, "rod", BasePermission.READ);
+        grantPermissions(3, "rod", BasePermission.WRITE);
+        grantPermissions(3, "rod", BasePermission.DELETE);
+        grantPermissions(4, "rod", BasePermission.ADMINISTRATION);
         grantPermissions(4, "dianne", BasePermission.ADMINISTRATION);
         grantPermissions(4, "scott", BasePermission.READ);
         grantPermissions(5, "dianne", BasePermission.ADMINISTRATION);
@@ -182,7 +182,7 @@ public class DataSourcePopulator implements InitializingBean {
         grantPermissions(9, "scott", BasePermission.DELETE);
 
         // Now expressly change the owner of the first ten contacts
-        // We have to do this last, because "marissa" owns all of them (doing it sooner would prevent ACL updates)
+        // We have to do this last, because "rod" owns all of them (doing it sooner would prevent ACL updates)
         // Note that ownership has no impact on permissions - they're separate (ownership only allows ACl editing)
         changeOwner(5, "dianne");
         changeOwner(6, "dianne");

@@ -49,12 +49,12 @@ public class TicketResponseTests extends TestCase {
     }
 
     public void testConstructorAcceptsNullProxyGrantingTicketIOU() {
-        TicketResponse ticket = new TicketResponse("marissa", new Vector(), null);
+        TicketResponse ticket = new TicketResponse("rod", new Vector(), null);
         assertEquals("", ticket.getProxyGrantingTicketIou());
     }
 
     public void testConstructorAcceptsNullProxyList() {
-        TicketResponse ticket = new TicketResponse("marissa", null,
+        TicketResponse ticket = new TicketResponse("rod", null,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
         assertEquals(new Vector(), ticket.getProxyList());
     }
@@ -73,9 +73,9 @@ public class TicketResponseTests extends TestCase {
         List proxyList = new Vector();
         proxyList.add("https://localhost/newPortal/j_spring_cas_security_check");
 
-        TicketResponse ticket = new TicketResponse("marissa", proxyList,
+        TicketResponse ticket = new TicketResponse("rod", proxyList,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
-        assertEquals("marissa", ticket.getUser());
+        assertEquals("rod", ticket.getUser());
         assertEquals(proxyList, ticket.getProxyList());
         assertEquals("PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt", ticket.getProxyGrantingTicketIou());
     }
@@ -92,7 +92,7 @@ public class TicketResponseTests extends TestCase {
     }
 
     public void testToString() {
-        TicketResponse ticket = new TicketResponse("marissa", null,
+        TicketResponse ticket = new TicketResponse("rod", null,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
         String result = ticket.toString();
         assertTrue(result.lastIndexOf("Proxy List:") != -1);

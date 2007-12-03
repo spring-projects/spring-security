@@ -390,7 +390,7 @@ public class CasAuthenticationProviderTests extends TestCase {
                 List list = new Vector();
                 list.add("https://localhost/portal/j_spring_cas_security_check");
 
-                return new TicketResponse("marissa", list, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                return new TicketResponse("rod", list, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
             }
 
             throw new BadCredentialsException("As requested from mock");

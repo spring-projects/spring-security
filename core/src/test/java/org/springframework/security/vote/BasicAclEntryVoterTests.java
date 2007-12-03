@@ -72,12 +72,12 @@ public class BasicAclEntryVoterTests extends TestCase {
         SomeDomainObject domainObject = new SomeDomainObject("foo");
 
         // Setup an AclManager
-        AclManager aclManager = new MockAclManager(domainObject, "marissa",
+        AclManager aclManager = new MockAclManager(domainObject, "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
@@ -100,7 +100,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         MethodInvocation mi = getMethodInvocation(domainObject);
 
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
-            voter.vote(new UsernamePasswordAuthenticationToken("marissa", null), mi, attr));
+            voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
     }
 
     public void testOnlySupportsMethodInvocationAndJoinPoint() {
@@ -111,12 +111,12 @@ public class BasicAclEntryVoterTests extends TestCase {
     }
 
     public void testStartupRejectsMissingAclManager() throws Exception {
-        AclManager aclManager = new MockAclManager("domain1", "marissa",
+        AclManager aclManager = new MockAclManager("domain1", "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
@@ -135,12 +135,12 @@ public class BasicAclEntryVoterTests extends TestCase {
 
     public void testStartupRejectsMissingProcessConfigAttribute()
         throws Exception {
-        AclManager aclManager = new MockAclManager("domain1", "marissa",
+        AclManager aclManager = new MockAclManager("domain1", "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
@@ -171,12 +171,12 @@ public class BasicAclEntryVoterTests extends TestCase {
 
     public void testStartupRejectsMissingRequirePermission()
         throws Exception {
-        AclManager aclManager = new MockAclManager("domain1", "marissa",
+        AclManager aclManager = new MockAclManager("domain1", "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
@@ -205,12 +205,12 @@ public class BasicAclEntryVoterTests extends TestCase {
         SomeDomainObject domainObject = new SomeDomainObject("foo");
 
         // Setup an AclManager
-        AclManager aclManager = new MockAclManager(domainObject, "marissa",
+        AclManager aclManager = new MockAclManager(domainObject, "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
@@ -229,7 +229,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         MethodInvocation mi = getMethodInvocation(domainObject);
 
         assertEquals(AccessDecisionVoter.ACCESS_ABSTAIN,
-            voter.vote(new UsernamePasswordAuthenticationToken("marissa", null), mi, attr));
+            voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
     }
 
     public void testVoterAbstainsIfNotMatchingConfigAttribute()
@@ -238,12 +238,12 @@ public class BasicAclEntryVoterTests extends TestCase {
         SomeDomainObject domainObject = null;
 
         // Setup an AclManager
-        AclManager aclManager = new MockAclManager(domainObject, "marissa",
+        AclManager aclManager = new MockAclManager(domainObject, "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
@@ -262,7 +262,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         MethodInvocation mi = getMethodInvocation(domainObject);
 
         assertEquals(AccessDecisionVoter.ACCESS_ABSTAIN,
-            voter.vote(new UsernamePasswordAuthenticationToken("marissa", null), mi, attr));
+            voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
     }
 
     public void testVoterCanDenyAccessBasedOnInternalMethodOfDomainObject()
@@ -271,10 +271,10 @@ public class BasicAclEntryVoterTests extends TestCase {
         SomeDomainObject domainObject = new SomeDomainObject("foo");
 
         // Setup an AclManager
-        AclManager aclManager = new MockAclManager(domainObject.getParent(), "marissa",
+        AclManager aclManager = new MockAclManager(domainObject.getParent(), "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
@@ -294,7 +294,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         MethodInvocation mi = getMethodInvocation(domainObject);
 
         assertEquals(AccessDecisionVoter.ACCESS_DENIED,
-            voter.vote(new UsernamePasswordAuthenticationToken("marissa", null), mi, attr));
+            voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
     }
 
     public void testVoterCanDenyAccessIfPrincipalHasNoPermissionsAtAllToDomainObject()
@@ -303,10 +303,10 @@ public class BasicAclEntryVoterTests extends TestCase {
         SomeDomainObject domainObject = new SomeDomainObject("foo");
 
         // Setup an AclManager
-        AclManager aclManager = new MockAclManager(domainObject, "marissa",
+        AclManager aclManager = new MockAclManager(domainObject, "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
@@ -325,7 +325,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         MethodInvocation mi = getMethodInvocation(domainObject);
 
-        // NB: scott is the principal, not marissa
+        // NB: scott is the principal, not rod
         assertEquals(AccessDecisionVoter.ACCESS_DENIED,
             voter.vote(new UsernamePasswordAuthenticationToken("scott", null), mi, attr));
     }
@@ -336,12 +336,12 @@ public class BasicAclEntryVoterTests extends TestCase {
         SomeDomainObject domainObject = new SomeDomainObject("foo");
 
         // Setup an AclManager
-        AclManager aclManager = new MockAclManager(domainObject.getParent(), "marissa",
+        AclManager aclManager = new MockAclManager(domainObject.getParent(), "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
@@ -363,7 +363,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         MethodInvocation mi = getMethodInvocation(domainObject);
 
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
-            voter.vote(new UsernamePasswordAuthenticationToken("marissa", null), mi, attr));
+            voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
     }
 
     public void testVoterThrowsExceptionIfInvalidInternalMethodOfDomainObject()
@@ -372,12 +372,12 @@ public class BasicAclEntryVoterTests extends TestCase {
         SomeDomainObject domainObject = new SomeDomainObject("foo");
 
         // Setup an AclManager
-        AclManager aclManager = new MockAclManager(domainObject.getParent(), "marissa",
+        AclManager aclManager = new MockAclManager(domainObject.getParent(), "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
@@ -398,7 +398,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         MethodInvocation mi = getMethodInvocation(domainObject);
 
         try {
-            voter.vote(new UsernamePasswordAuthenticationToken("marissa", null), mi, attr);
+            voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr);
             fail("Should have thrown AuthorizationServiceException");
         } catch (AuthorizationServiceException expected) {
             assertTrue(true);
@@ -411,12 +411,12 @@ public class BasicAclEntryVoterTests extends TestCase {
         SomeDomainObject domainObject = new SomeDomainObject("foo");
 
         // Setup an AclManager
-        AclManager aclManager = new MockAclManager(domainObject.getParent(), "marissa",
+        AclManager aclManager = new MockAclManager(domainObject.getParent(), "rod",
                 new AclEntry[] {
                     new MockAclEntry(),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
@@ -438,7 +438,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         MethodInvocation mi = new SimpleMethodInvocation(method, new Object[] {domainObject});
 
         try {
-            voter.vote(new UsernamePasswordAuthenticationToken("marissa", null), mi, attr);
+            voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr);
             fail("Should have thrown AuthorizationServiceException");
         } catch (AuthorizationServiceException expected) {
             assertTrue(true);

@@ -67,8 +67,8 @@ public class JdbcDaoImplTests extends TestCase {
 
     public void testCheckDaoAccessUserSuccess() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
-        UserDetails user = dao.loadUserByUsername("marissa");
-        assertEquals("marissa", user.getUsername());
+        UserDetails user = dao.loadUserByUsername("rod");
+        assertEquals("rod", user.getUsername());
         assertEquals("koala", user.getPassword());
         assertTrue(user.isEnabled());
 
@@ -128,7 +128,7 @@ public class JdbcDaoImplTests extends TestCase {
 
     public void testLookupSuccessWithMixedCase() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
-        assertEquals("koala", dao.loadUserByUsername("MaRiSSA").getPassword());
+        assertEquals("koala", dao.loadUserByUsername("rod").getPassword());
         assertEquals("wombat", dao.loadUserByUsername("ScOTt").getPassword());
     }
 
@@ -136,8 +136,8 @@ public class JdbcDaoImplTests extends TestCase {
         JdbcDaoImpl dao = makePopulatedJdbcDaoWithRolePrefix();
         assertEquals("ARBITRARY_PREFIX_", dao.getRolePrefix());
 
-        UserDetails user = dao.loadUserByUsername("marissa");
-        assertEquals("marissa", user.getUsername());
+        UserDetails user = dao.loadUserByUsername("rod");
+        assertEquals("rod", user.getUsername());
         assertEquals(2, user.getAuthorities().length);
 
         HashSet authorities = new HashSet(2);

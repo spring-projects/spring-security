@@ -67,12 +67,12 @@ public class InterceptorStatusTokenTests extends TestCase {
 
         MethodInvocation mi = new SimpleMethodInvocation();
 
-        InterceptorStatusToken token = new InterceptorStatusToken(new UsernamePasswordAuthenticationToken("marissa",
+        InterceptorStatusToken token = new InterceptorStatusToken(new UsernamePasswordAuthenticationToken("rod",
                     "koala"), true, attr, mi);
 
         assertTrue(token.isContextHolderRefreshRequired());
         assertEquals(attr, token.getAttr());
         assertEquals(mi, token.getSecureObject());
-        assertEquals("marissa", token.getAuthentication().getPrincipal());
+        assertEquals("rod", token.getAuthentication().getPrincipal());
     }
 }

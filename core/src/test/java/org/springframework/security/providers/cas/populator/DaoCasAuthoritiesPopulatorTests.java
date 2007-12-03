@@ -70,7 +70,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
     public void testGetGrantedAuthoritiesForInvalidUsername()
         throws Exception {
         DaoCasAuthoritiesPopulator populator = new DaoCasAuthoritiesPopulator();
-        populator.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
+        populator.setUserDetailsService(new MockAuthenticationDaoUserrod());
         populator.afterPropertiesSet();
 
         try {
@@ -84,10 +84,10 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
     public void testGetGrantedAuthoritiesForValidUsername()
         throws Exception {
         DaoCasAuthoritiesPopulator populator = new DaoCasAuthoritiesPopulator();
-        populator.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
+        populator.setUserDetailsService(new MockAuthenticationDaoUserrod());
         populator.afterPropertiesSet();
 
-        UserDetails results = populator.getUserDetails("marissa");
+        UserDetails results = populator.getUserDetails("rod");
         assertEquals(2, results.getAuthorities().length);
         assertEquals(new GrantedAuthorityImpl("ROLE_ONE"), results.getAuthorities()[0]);
         assertEquals(new GrantedAuthorityImpl("ROLE_TWO"), results.getAuthorities()[1]);
@@ -109,7 +109,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
 
     public void testGettersSetters() {
         DaoCasAuthoritiesPopulator populator = new DaoCasAuthoritiesPopulator();
-        UserDetailsService dao = new MockAuthenticationDaoUserMarissa();
+        UserDetailsService dao = new MockAuthenticationDaoUserrod();
         populator.setUserDetailsService(dao);
         assertEquals(dao, populator.getUserDetailsService());
     }
@@ -127,15 +127,15 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
         }
     }
 
-    private class MockAuthenticationDaoUserMarissa implements UserDetailsService {
+    private class MockAuthenticationDaoUserrod implements UserDetailsService {
         public long getRefreshDuration() {
             return 0;
         }
 
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
-            if ("marissa".equals(username)) {
-                return new User("marissa", "koala", true, true, true, true,
+            if ("rod".equals(username)) {
+                return new User("rod", "koala", true, true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
             } else {
                 throw new UsernameNotFoundException("Could not find: " + username);

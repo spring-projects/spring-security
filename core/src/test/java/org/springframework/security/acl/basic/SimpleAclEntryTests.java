@@ -45,7 +45,7 @@ public class SimpleAclEntryTests extends TestCase {
     }
 
     public void testCorrectOperation() {
-        String recipient = "marissa";
+        String recipient = "rod";
         AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "12");
         SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity, null, 0);
 
@@ -86,7 +86,7 @@ public class SimpleAclEntryTests extends TestCase {
     }
 
     public void testDetectsNullOnMainConstructor() {
-        String recipient = "marissa";
+        String recipient = "rod";
         AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "12");
 
         try {
@@ -123,7 +123,7 @@ public class SimpleAclEntryTests extends TestCase {
     }
 
     public void testRejectsInvalidMasksInAddMethod() {
-        String recipient = "marissa";
+        String recipient = "rod";
         AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "12");
         SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity, null, 4);
 
@@ -136,7 +136,7 @@ public class SimpleAclEntryTests extends TestCase {
     }
 
     public void testRejectsInvalidMasksInDeleteMethod() {
-        String recipient = "marissa";
+        String recipient = "rod";
         AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "12");
         SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity, null, 0);
         acl.addPermissions(new int[] {SimpleAclEntry.READ, SimpleAclEntry.WRITE, SimpleAclEntry.CREATE});
@@ -150,7 +150,7 @@ public class SimpleAclEntryTests extends TestCase {
     }
 
     public void testRejectsInvalidMasksInTogglePermissionMethod() {
-        String recipient = "marissa";
+        String recipient = "rod";
         AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "12");
         SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity, null, 0);
         acl.addPermissions(new int[] {SimpleAclEntry.READ, SimpleAclEntry.WRITE, SimpleAclEntry.CREATE});
@@ -164,11 +164,11 @@ public class SimpleAclEntryTests extends TestCase {
     }
 
     public void testToString() {
-        String recipient = "marissa";
+        String recipient = "rod";
         AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "12");
         SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity, null, 0);
         acl.addPermissions(new int[] {SimpleAclEntry.READ, SimpleAclEntry.WRITE, SimpleAclEntry.CREATE});
-        assertTrue(acl.toString().endsWith("marissa=-RWC- ............................111. (14)]"));
+        assertTrue(acl.toString().endsWith("rod=-RWC- ............................111. (14)]"));
     }
 
     public void testParsePermission() {

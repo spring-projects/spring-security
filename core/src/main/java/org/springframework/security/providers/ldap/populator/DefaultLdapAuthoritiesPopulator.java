@@ -40,7 +40,7 @@ import java.util.Set;
  * (or <tt>groupOfUniqueNames</tt>) LDAP objectClass and the user's DN is listed in the <tt>member</tt> (or
  * <tt>uniqueMember</tt>) attribute to indicate that they should be assigned that role. The following LDIF sample has
  * the groups stored under the DN <tt>ou=groups,dc=springframework,dc=org</tt> and a group called "developers" with
- * "ben" and "marissa" as members:
+ * "ben" and "luke" as members:
  * <pre>
  * dn: ou=groups,dc=springframework,dc=org
  * objectClass: top
@@ -53,7 +53,7 @@ import java.util.Set;
  * cn: developers
  * description: Spring Security Developers
  * member: uid=ben,ou=people,dc=springframework,dc=org
- * member: uid=marissa,ou=people,dc=springframework,dc=org
+ * member: uid=luke,ou=people,dc=springframework,dc=org
  * ou: developer
  * </pre>
  * </p>

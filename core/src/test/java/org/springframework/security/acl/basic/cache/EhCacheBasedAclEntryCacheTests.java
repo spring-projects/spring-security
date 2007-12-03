@@ -40,7 +40,7 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
 
     private static final AclObjectIdentity OBJECT_100 = new NamedEntityObjectIdentity("OBJECT", "100");
     private static final AclObjectIdentity OBJECT_200 = new NamedEntityObjectIdentity("OBJECT", "200");
-    private static final BasicAclEntry OBJECT_100_MARISSA = new SimpleAclEntry("marissa", OBJECT_100, null, 2);
+    private static final BasicAclEntry OBJECT_100_ROD = new SimpleAclEntry("rod", OBJECT_100, null, 2);
     private static final BasicAclEntry OBJECT_100_SCOTT = new SimpleAclEntry("scott", OBJECT_100, null, 4);
     private static final BasicAclEntry OBJECT_200_PETER = new SimpleAclEntry("peter", OBJECT_200, null, 4);
 
@@ -71,12 +71,12 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
         cache.setCache(getCache());
         cache.afterPropertiesSet();
 
-        cache.putEntriesInCache(new BasicAclEntry[] {OBJECT_100_SCOTT, OBJECT_100_MARISSA});
+        cache.putEntriesInCache(new BasicAclEntry[] {OBJECT_100_SCOTT, OBJECT_100_ROD});
         cache.putEntriesInCache(new BasicAclEntry[] {OBJECT_200_PETER});
 
         // Check we can get them from cache again
         assertEquals(OBJECT_100_SCOTT, cache.getEntriesFromCache(new NamedEntityObjectIdentity("OBJECT", "100"))[0]);
-        assertEquals(OBJECT_100_MARISSA, cache.getEntriesFromCache(new NamedEntityObjectIdentity("OBJECT", "100"))[1]);
+        assertEquals(OBJECT_100_ROD, cache.getEntriesFromCache(new NamedEntityObjectIdentity("OBJECT", "100"))[1]);
         assertEquals(OBJECT_200_PETER, cache.getEntriesFromCache(new NamedEntityObjectIdentity("OBJECT", "200"))[0]);
         assertNull(cache.getEntriesFromCache(new NamedEntityObjectIdentity("OBJECT", "NOT_IN_CACHE")));
 

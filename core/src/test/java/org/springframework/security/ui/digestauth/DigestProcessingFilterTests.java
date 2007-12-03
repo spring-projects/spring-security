@@ -65,7 +65,7 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
     private static final String REALM = "The Actual, Correct Realm Name";
     private static final String KEY = "springsecurity";
     private static final String QOP = "auth";
-    private static final String USERNAME = "marissa,ok";
+    private static final String USERNAME = "rod,ok";
     private static final String PASSWORD = "koala";
     private static final String REQUEST_URI = "/some_file.html";
 
@@ -128,7 +128,7 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
         // Create User Details Service
         InMemoryDaoImpl dao = new InMemoryDaoImpl();
         UserMapEditor editor = new UserMapEditor();
-        editor.setAsText("marissa,ok=koala,ROLE_ONE,ROLE_TWO,enabled\r\n");
+        editor.setAsText("rod,ok=koala,ROLE_ONE,ROLE_TWO,enabled\r\n");
         dao.setUserMap((UserMap) editor.getValue());
 
         DigestProcessingFilterEntryPoint ep = new DigestProcessingFilterEntryPoint();

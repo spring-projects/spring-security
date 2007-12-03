@@ -79,8 +79,8 @@ public class CasPasswordHandlerProxyTests extends TestCase {
     public void testNormalOperation() {
         CasPasswordHandlerProxy proxy = new MockCasPasswordHandlerProxy(
                 "org/springframework/security/adapters/cas/applicationContext-valid.xml");
-        assertTrue(proxy.authenticate(new MockHttpServletRequest(), "marissa", "koala"));
-        assertFalse(proxy.authenticate(new MockHttpServletRequest(), "marissa", "WRONG_PASSWORD"));
+        assertTrue(proxy.authenticate(new MockHttpServletRequest(), "rod", "koala"));
+        assertFalse(proxy.authenticate(new MockHttpServletRequest(), "rod", "WRONG_PASSWORD"));
         assertFalse(proxy.authenticate(new MockHttpServletRequest(), "INVALID_USER_NAME", "WRONG_PASSWORD"));
     }
 

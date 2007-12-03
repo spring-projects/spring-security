@@ -47,10 +47,10 @@ public class GrantedAuthorityEffectiveAclsResolverTests extends TestCase {
     private SimpleAclEntry entry100Scott = new SimpleAclEntry(scott.getPrincipal(),
             new NamedEntityObjectIdentity("OBJECT", "100"), null, 4);
     private UsernamePasswordAuthenticationToken dianne = new UsernamePasswordAuthenticationToken("dianne", "not used");
-    private UsernamePasswordAuthenticationToken marissa = new UsernamePasswordAuthenticationToken("marissa",
+    private UsernamePasswordAuthenticationToken rod = new UsernamePasswordAuthenticationToken("rod",
             "not used",
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_EVERYBODY"), new GrantedAuthorityImpl("ROLE_ONE")});
-    private SimpleAclEntry entry100Marissa = new SimpleAclEntry(marissa.getPrincipal(),
+    private SimpleAclEntry entry100rod = new SimpleAclEntry(rod.getPrincipal(),
             new NamedEntityObjectIdentity("OBJECT", "100"), null, 2);
     private UsernamePasswordAuthenticationToken scottWithUserDetails = new UsernamePasswordAuthenticationToken(new User(
                 "scott", "NOT_USED", true, true, true, true,
@@ -59,7 +59,7 @@ public class GrantedAuthorityEffectiveAclsResolverTests extends TestCase {
 
     // convenience group
     private SimpleAclEntry[] acls = {
-            entry100Marissa, entry100Scott, entry100RoleEverybody, entry100RoleOne, entry100RoleTwo
+            entry100rod, entry100Scott, entry100RoleEverybody, entry100RoleOne, entry100RoleTwo
         };
 
     //~ Constructors ===================================================================================================
@@ -87,12 +87,12 @@ public class GrantedAuthorityEffectiveAclsResolverTests extends TestCase {
         assertNull(resolver.resolveEffectiveAcls(acls, dianne));
     }
 
-    public void testResolveAclsForMarissa() {
+    public void testResolveAclsForrod() {
         GrantedAuthorityEffectiveAclsResolver resolver = new GrantedAuthorityEffectiveAclsResolver();
-        assertEquals(3, resolver.resolveEffectiveAcls(acls, marissa).length);
-        assertEquals(entry100Marissa, resolver.resolveEffectiveAcls(acls, marissa)[0]);
-        assertEquals(entry100RoleEverybody, resolver.resolveEffectiveAcls(acls, marissa)[1]);
-        assertEquals(entry100RoleOne, resolver.resolveEffectiveAcls(acls, marissa)[2]);
+        assertEquals(3, resolver.resolveEffectiveAcls(acls, rod).length);
+        assertEquals(entry100rod, resolver.resolveEffectiveAcls(acls, rod)[0]);
+        assertEquals(entry100RoleEverybody, resolver.resolveEffectiveAcls(acls, rod)[1]);
+        assertEquals(entry100RoleOne, resolver.resolveEffectiveAcls(acls, rod)[2]);
     }
 
     public void testResolveAclsForScottWithStringObjectAsPrincipal() {
@@ -119,9 +119,9 @@ public class GrantedAuthorityEffectiveAclsResolverTests extends TestCase {
     public void testSkipsNonBasicAclEntryObjects() {
         GrantedAuthorityEffectiveAclsResolver resolver = new GrantedAuthorityEffectiveAclsResolver();
         AclEntry[] basicAcls = {
-                entry100Marissa, entry100Scott, entry100RoleEverybody, entry100RoleOne, new MockAcl(), entry100RoleTwo
+                entry100rod, entry100Scott, entry100RoleEverybody, entry100RoleOne, new MockAcl(), entry100RoleTwo
             };
-        assertEquals(3, resolver.resolveEffectiveAcls(basicAcls, marissa).length);
+        assertEquals(3, resolver.resolveEffectiveAcls(basicAcls, rod).length);
     }
 
     //~ Inner Classes ==================================================================================================
