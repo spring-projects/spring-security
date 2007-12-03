@@ -23,13 +23,13 @@ CREATE UNIQUE INDEX ix_auth_username ON authorities ( username, authority );
 
 ALTER TABLE authorities ADD CONSTRAINT fk_authorities_users foreign key (username) REFERENCES users(username);
 
-INSERT INTO users VALUES ('marissa', 'koala', true);
+INSERT INTO users VALUES ('rod', 'koala', true);
 INSERT INTO users VALUES ('dianne', 'emu', true);
 INSERT INTO users VALUES ('scott', 'wombat', true);
 INSERT INTO users VALUES ('peter', 'opal', false);
 
-INSERT INTO authorities VALUES ('marissa', 'ROLE_TELLER');
-INSERT INTO authorities VALUES ('marissa', 'ROLE_SUPERVISOR');
+INSERT INTO authorities VALUES ('rod', 'ROLE_TELLER');
+INSERT INTO authorities VALUES ('rod', 'ROLE_SUPERVISOR');
 INSERT INTO authorities VALUES ('dianne', 'ROLE_TELLER');
 INSERT INTO authorities VALUES ('scott', 'ROLE_TELLER');
 INSERT INTO authorities VALUES ('peter', 'ROLE_TELLER');
@@ -66,7 +66,7 @@ CREATE TABLE acl_permission (
 ---------------------------------------------------------------------
 ---    1      ROLE_SUPERVISOR   Administer
 ---    2      ROLE_SUPERVISOR   None (overrides parent #1)
----           marissa           Read
+---           rod               Read
 ---    3      ROLE_SUPERVISOR   Administer (from parent #1)
 ---           scott             Read, Write, Create
 ---    4      ROLE_SUPERVISOR   Administer (from parent #1)
@@ -85,7 +85,7 @@ INSERT INTO acl_object_identity VALUES (6, 'org.springframework.security.acl.Dom
 
 INSERT INTO acl_permission VALUES (null, 1, 'ROLE_SUPERVISOR', 1);
 INSERT INTO acl_permission VALUES (null, 2, 'ROLE_SUPERVISOR', 0);
-INSERT INTO acl_permission VALUES (null, 2, 'marissa', 2);
+INSERT INTO acl_permission VALUES (null, 2, 'rod', 2);
 INSERT INTO acl_permission VALUES (null, 3, 'scott', 14);
 INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);
 

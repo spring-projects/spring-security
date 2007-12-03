@@ -189,7 +189,7 @@ copy dist\petclinic.war %TOMCAT_HOME%\webapps
 
     Redeploy your web application. Use the earlier process to do that. Be careful to
     ensure that the old Petclinic WAR is replaced by the new Petclinic WAR in your
-    servlet container. Login as "marissa", who has ROLE_SUPERVISOR. You will be able to
+    servlet container. Login as "rod", who has ROLE_SUPERVISOR. You will be able to
     then view a customer and add a visit. Logout, then login as anyone other than Marissa.
     You will receive an access denied error when you attempt to add a visit.
 

@@ -1771,7 +1771,7 @@ if (obj instanceof UserDetails) {
               class="org.springframework.security.userdetails.memory.InMemoryDaoImpl"&gt;
   &lt;property name="userMap"&gt;
     &lt;value&gt;
-      marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
+      rod=koala,ROLE_TELLER,ROLE_SUPERVISOR
       dianne=emu,ROLE_TELLER
       scott=wombat,ROLE_TELLER
       peter=opal,disabled,ROLE_TELLER
@@ -3002,10 +3002,10 @@ key:              A private key to prevent modification of the remember-me token
         certificates is also included which you can use to configure your
         server. These are <itemizedlist>
             <listitem>
-              <para><filename>marissa.p12</filename>: A PKCS12 format file
+              <para><filename>user.p12</filename>: A PKCS12 format file
               containing the client key and certificate. These should be
-              installed in your browser. It maps to the user
-              <quote>marissa</quote> in the application.</para>
+              installed in your browser. It maps to a use in the
+              application.</para>
             </listitem>
 
             <listitem>
@@ -3015,7 +3015,7 @@ key:              A private key to prevent modification of the remember-me token
 
             <listitem>
               <para><filename>ca.jks</filename>: A Java keystore containing
-              the certificate for the authority which issued marissa's
+              the certificate for the authority which issued the user's
               certificate. This will be used by the container to validate
               client certificates.</para>
             </listitem>
@@ -3627,7 +3627,7 @@ key:              A private key to prevent modification of the remember-me token
 &lt;bean id="inMemoryDaoImpl" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl"&gt;
   &lt;property name="userMap"&gt;
     &lt;value&gt;
-      marissa=koala,ROLES_IGNORED_BY_CAS
+      rod=koala,ROLES_IGNORED_BY_CAS
       dianne=emu,ROLES_IGNORED_BY_CAS
       scott=wombat,ROLES_IGNORED_BY_CAS
       peter=opal,disabled,ROLES_IGNORED_BY_CAS
@@ -3743,7 +3743,7 @@ key:              A private key to prevent modification of the remember-me token
 		&lt;bean id="inMemoryDaoImpl" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl"&gt;
 	  		&lt;property name="userMap"&gt;
 				&lt;value&gt;
-					marissa=koala,ROLES_IGNORED_BY_CAS
+					rod=koala,ROLES_IGNORED_BY_CAS
 					dianne=emu,ROLES_IGNORED_BY_CAS
 					scott=wombat,ROLES_IGNORED_BY_CAS
 					peter=opal,disabled,ROLES_IGNORED_BY_CAS
@@ -6428,7 +6428,7 @@ INSERT INTO acl_object_identity VALUES (1, 'corp.DomainObject:1', null,
 
             INSERT INTO acl_permission VALUES (null, 1, 'ROLE_SUPERVISOR', 1);
 INSERT INTO acl_permission VALUES (null, 2, 'ROLE_SUPERVISOR', 0);
-INSERT INTO acl_permission VALUES (null, 2, 'marissa', 2);
+INSERT INTO acl_permission VALUES (null, 2, 'rod', 2);
 INSERT INTO acl_permission VALUES (null, 3, 'scott', 14);
 INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
 
@@ -6563,7 +6563,7 @@ END;
 ---------------------------------------------------------------------
 ---    1      ROLE_SUPERVISOR   Administer
 ---    2      ROLE_SUPERVISOR   None (overrides parent #1)
----           marissa           Read
+---           rod               Read
 ---    3      ROLE_SUPERVISOR   Administer (from parent #1)
 ---           scott             Read, Write, Create
 ---    4      ROLE_SUPERVISOR   Administer (from parent #1)
@@ -6675,8 +6675,8 @@ END;
 
           <para>Authentication object as a String:
           org.springframework.security.adapters.PrincipalSpringSecurityUserToken@e9a7c2:
-          Username: marissa; Password: [PROTECTED]; Authenticated: true;
-          Granted Authorities: ROLE_TELLER, ROLE_SUPERVISOR</para>
+          Username: rod; Password: [PROTECTED]; Authenticated: true; Granted
+          Authorities: ROLE_TELLER, ROLE_SUPERVISOR</para>
 
           <para>Authentication object holds the following granted
           authorities:</para>
@@ -6720,9 +6720,9 @@ END;
         web services protocols. This demonstrates how to use Spring Security
         for authentication with Spring remoting protocols. To try this client,
         ensure your servlet container is still running the Contacts sample
-        application, and then execute <literal>client marissa koala</literal>.
-        The command-line parameters respectively represent the username to
-        use, and the password to use. Note that you may need to edit
+        application, and then execute <literal>client rod koala</literal>. The
+        command-line parameters respectively represent the username to use,
+        and the password to use. Note that you may need to edit
         <literal>client.properties</literal> to use a different target
         URL.</para>
 
