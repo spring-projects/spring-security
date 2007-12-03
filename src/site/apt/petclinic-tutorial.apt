@@ -19,9 +19,9 @@ Tutorial: Adding Security to Spring Petclinic
 
     You will also need to download:
 
-    * Spring 2.0 M4 with dependencies ZIP file
-    
-    * Acegi Security 1.0.2
+    * Spring 2.0.6 with dependencies ZIP file
+
+    * Acegi Security 1.0.6
 
 
     Unzip both files. After unzipping Acegi Security, you'll need to unzip the
@@ -118,7 +118,7 @@ copy %acegi%\WEB-INF\lib\commons-codec-1.3.jar %spring%\samples\petclinic\war\WE
 * Start Petclinic's database
 
     Start the Hypersonic server (this is just normal Petclinic configuration):
-    
+
 +------------------------------------------------------
 cd %spring%\samples\petclinic\db\hsqldb
 server
@@ -203,7 +203,7 @@ copy dist\petclinic.war %TOMCAT_HOME%\webapps
 +------------------------------------------------------
 
     Next, scroll down and find the link to "add visit". Modify it as follows:
-    
+
 +------------------------------------------------------
 
 <authz:authorize ifAllGranted="ROLE_SUPERVISOR">
