@@ -12,8 +12,8 @@
         <module>core-tiger</module>
         <module>adapters</module>
         <module>portlet</module>
-        <module>samples</module>
         <module>ntlm</module>
+        <module>samples</module>
     </modules>
 
     <description>Spring Security</description>
