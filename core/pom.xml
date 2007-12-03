@@ -8,7 +8,7 @@
     </parent>
     <packaging>jar</packaging>
     <artifactId>spring-security-core</artifactId>
-    <name>Spring Security Core</name>
+    <name>Spring Security - Core</name>
 
     <scm>
         <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/core
