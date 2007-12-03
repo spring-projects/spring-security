@@ -1,4 +1,4 @@
-import org.acegisecurity.acls.AclService;
+import org.springframework.security.acls.AclService;
 
 
 
@@ -31,7 +31,7 @@ public class SecureDmsIntegrationTests extends DmsIntegrationTests {
     }
     /*
     public void testItOut() {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("marissa", "password", new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SUPERVISOR")}));
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("rod", "password", new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SUPERVISOR")}));
 
 
         AbstractElement[] elements = documentDao.findElements(Directory.ROOT_DIRECTORY);
@@ -43,7 +43,7 @@ public class SecureDmsIntegrationTests extends DmsIntegrationTests {
     }*/
 
     public void testMarissaRetrieval() {
-        process("marissa", "koala", true);
+        process("rod", "koala", true);
     }
 
 

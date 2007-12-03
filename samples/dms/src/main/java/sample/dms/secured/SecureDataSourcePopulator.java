@@ -2,17 +2,17 @@ package sample.dms.secured;
 
 import javax.sql.DataSource;
 
-import org.acegisecurity.acls.MutableAcl;
-import org.acegisecurity.acls.MutableAclService;
-import org.acegisecurity.acls.NotFoundException;
-import org.acegisecurity.acls.Permission;
-import org.acegisecurity.acls.domain.BasePermission;
-import org.acegisecurity.acls.objectidentity.ObjectIdentity;
-import org.acegisecurity.acls.objectidentity.ObjectIdentityImpl;
-import org.acegisecurity.acls.sid.GrantedAuthoritySid;
-import org.acegisecurity.acls.sid.PrincipalSid;
-import org.acegisecurity.acls.sid.Sid;
-import org.acegisecurity.context.SecurityContextHolder;
+import org.springframework.security.acls.MutableAcl;
+import org.springframework.security.acls.MutableAclService;
+import org.springframework.security.acls.NotFoundException;
+import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.objectidentity.ObjectIdentity;
+import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
+import org.springframework.security.acls.sid.GrantedAuthoritySid;
+import org.springframework.security.acls.sid.PrincipalSid;
+import org.springframework.security.acls.sid.Sid;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.Assert;
 

@@ -3,14 +3,14 @@ package sample.dms.secured;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.acegisecurity.acls.MutableAcl;
-import org.acegisecurity.acls.MutableAclService;
-import org.acegisecurity.acls.domain.BasePermission;
-import org.acegisecurity.acls.objectidentity.ObjectIdentity;
-import org.acegisecurity.acls.objectidentity.ObjectIdentityImpl;
-import org.acegisecurity.acls.sid.PrincipalSid;
-import org.acegisecurity.context.SecurityContextHolder;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.security.acls.MutableAcl;
+import org.springframework.security.acls.MutableAclService;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.objectidentity.ObjectIdentity;
+import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
+import org.springframework.security.acls.sid.PrincipalSid;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
 import sample.dms.AbstractElement;

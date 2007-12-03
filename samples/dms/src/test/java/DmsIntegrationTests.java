@@ -1,5 +1,5 @@
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
 
 import sample.dms.AbstractElement;
@@ -20,9 +20,9 @@ public class DmsIntegrationTests extends AbstractTransactionalDataSourceSpringCo
         return new String[] {"classpath:applicationContext-dms-shared.xml", "classpath:applicationContext-dms-insecure.xml"};
     }
 
-    public void tearDown() {
+	protected void onTearDown() throws Exception {
         SecurityContextHolder.clearContext();
-    }
+	}
 
     public void setDocumentDao(DocumentDao documentDao) {
         this.documentDao = documentDao;
@@ -35,7 +35,7 @@ public class DmsIntegrationTests extends AbstractTransactionalDataSourceSpringCo
     }
 
     public void testMarissaRetrieval() {
-        process("marissa", "koala", false);
+        process("rod", "koala", false);
     }
 
     public void testScottRetrieval() {

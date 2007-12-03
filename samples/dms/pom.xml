@@ -8,18 +8,38 @@
    <artifactId>spring-security-samples</artifactId>
    <version>2.0-SNAPSHOT</version>
  </parent>
- <artifactId>spring-security-sample-dms</artifactId>
- <name>Spring Security - dms sample</name>
+ <artifactId>spring-security-samples-dms</artifactId>
+ <name>Spring Security - DMS sample</name>
   <dependencies>
      <dependency>
        <groupId>org.springframework.security</groupId>
        <artifactId>spring-security-core</artifactId>
        <version>${project.version}</version>
      </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-aop</artifactId>
+        <scope>runtime</scope>
+    </dependency>
      <dependency>
        <groupId>org.springframework</groupId>
        <artifactId>spring-mock</artifactId>
        <version>${spring.version}</version>
      </dependency>
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>1.2.4</version>
+      <scope>runtime</scope>
+    </dependency>
  </dependencies>
 </project>
