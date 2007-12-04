@@ -9,6 +9,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider;
 import org.springframework.security.providers.anonymous.AnonymousProcessingFilter;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -17,17 +18,40 @@ import org.w3c.dom.Element;
  */
 public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_KEY = "key";
+    static final String DEF_KEY = "doesNotMatter";
+    
 	static final String ATT_USERNAME = "username";
+	static final String DEF_USERNAME = "roleAnonymous";
+	
 	static final String ATT_GRANTED_AUTHORITY = "grantedAuthority";
+	static final String DEF_GRANTED_AUTHORITY = "ROLE_ANONYMOUS";
+	
 	protected final Log logger = LogFactory.getLog(getClass());
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
+        String grantedAuthority = null;
+        String username = null;
+        String key = null;
+        
+        if (element != null) {
+            grantedAuthority = element.getAttribute(ATT_GRANTED_AUTHORITY);
+            username = element.getAttribute(ATT_USERNAME);
+            key = element.getAttribute(ATT_KEY);
+        }
+
+        if (!StringUtils.hasText(grantedAuthority)) {
+        	grantedAuthority = DEF_GRANTED_AUTHORITY;
+        }
+    	
+        if (!StringUtils.hasText(username)) {
+        	username = DEF_USERNAME;
+        }
+
+        if (!StringUtils.hasText(key)) {
+        	key = DEF_KEY;
+        }
+
         BeanDefinition filter = new RootBeanDefinition(AnonymousProcessingFilter.class);
-
-        String grantedAuthority = element.getAttribute(ATT_GRANTED_AUTHORITY);
-        String username         = element.getAttribute(ATT_USERNAME);
-        String key              = element.getAttribute(ATT_KEY);
-
         filter.getPropertyValues().addPropertyValue("userAttribute", username + "," + grantedAuthority);
         filter.getPropertyValues().addPropertyValue(ATT_KEY, key);
 

@@ -1,16 +1,14 @@
 package org.springframework.security.config;
 
-import org.springframework.security.ui.logout.LogoutFilter;
-import org.springframework.security.ui.logout.SecurityContextLogoutHandler;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
-import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
+import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.ui.logout.LogoutFilter;
+import org.springframework.security.ui.logout.SecurityContextLogoutHandler;
 import org.springframework.util.StringUtils;
-
 import org.w3c.dom.Element;
 
 /**
@@ -18,47 +16,60 @@ import org.w3c.dom.Element;
  * @author Ben Alex
  * @version $Id$
  */
-public class LogoutBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+public class LogoutBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_LOGOUT_SUCCESS_URL = "logoutSuccessUrl";
+	static final String DEF_LOGOUT_SUCCESS_URL = "/";
+
+	static final String ATT_INVALIDATE_SESSION = "invalidateSession";
+	static final String DEF_INVALIDATE_SESSION  = "true";
+	
 	static final String ATT_LOGOUT_URL = "logoutUrl";
-	public static final String DEF_LOGOUT_SUCCESS_URL = "/";
+	static final String DEF_LOGOUT_URL = "/j_spring_security_logout";
 
-    protected Class getBeanClass(Element element) {
-        return LogoutFilter.class;
-    }
+	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		String logoutUrl = null;
+        String logoutSuccessUrl = null;
+        String invalidateSession = null;
 
-    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        String logoutUrl = element.getAttribute(ATT_LOGOUT_URL);
-
-        if (StringUtils.hasText(logoutUrl)) {
-            builder.addPropertyValue("filterProcessesUrl", logoutUrl);
+        if (element != null) {
+            logoutUrl = element.getAttribute(ATT_LOGOUT_URL);
+            logoutSuccessUrl = element.getAttribute(ATT_LOGOUT_SUCCESS_URL);
+            invalidateSession = element.getAttribute(ATT_INVALIDATE_SESSION);
         }
 
-        String logoutSuccessUrl = element.getAttribute(ATT_LOGOUT_SUCCESS_URL);
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(LogoutFilter.class);
+        
+        if (!StringUtils.hasText(logoutUrl)) {
+        	logoutUrl = DEF_LOGOUT_URL;
+        }
+        builder.addPropertyValue("filterProcessesUrl", logoutUrl);
 
         if (!StringUtils.hasText(logoutSuccessUrl)) {
             logoutSuccessUrl = DEF_LOGOUT_SUCCESS_URL;
         }
-
         builder.addConstructorArg(logoutSuccessUrl);
+        
+        if (!StringUtils.hasText(invalidateSession)) {
+        	invalidateSession = DEF_INVALIDATE_SESSION;
+        }
+        
         ManagedList handlers = new ManagedList();
-        handlers.add(new SecurityContextLogoutHandler());
+        SecurityContextLogoutHandler sclh = new SecurityContextLogoutHandler();
+        if ("true".equals(invalidateSession)) {
+        	sclh.setInvalidateHttpSession(true);
+        } else {
+        	sclh.setInvalidateHttpSession(false);
+        }
+        handlers.add(sclh);
 
         if (parserContext.getRegistry().containsBeanDefinition(BeanIds.REMEMBER_ME_SERVICES)) {
             handlers.add(new RuntimeBeanReference(BeanIds.REMEMBER_ME_SERVICES));
         }
 
         builder.addConstructorArg(handlers);
+        
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.LOGOUT_FILTER, builder.getBeanDefinition());
 
-    }
-
-    protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) throws BeanDefinitionStoreException {
-        String id = super.resolveId(element, definition, parserContext);
-
-        if (StringUtils.hasText(id)) {
-            return id;
-        }
-
-        return BeanIds.LOGOUT_FILTER;
-    }
+        return null;
+	}
 }

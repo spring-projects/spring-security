@@ -6,19 +6,19 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-    <http createSession="ifRequired" pathType="ant" lowerCaseComparisons="true">
+    <http>
         <intercept-url pattern="/unprotected" filters="none" />
         <intercept-url pattern="/somepath" access="ROLE_SPECIAL,ROLE_USER" requiresChannel="http" />
         <intercept-url pattern="/**" access="ROLE_USER" />
 
         <!-- Default form login configuration. Will create filter and entry point -->
-        <form-login loginUrl="/j_spring_security_check" />
+        <form-login />
 
         <!-- Default basic auth configuration. Will create filter and entry point -->
         <http-basic/>
 
         <!-- Default logout configuration -->
-        <logout logoutUrl="/j_spring_security_logout" logoutSuccessUrl="/" invalidateSession="true" />
+        <logout />
 
         <concurrent-session-control maxSessions="1"/>
 

@@ -10,9 +10,9 @@ start = http | ldap | repository
 
 # targetNamespace="http://www.springframework.org/schema/security"
 
-path-type =
-    ## Defines the type types of pattern used to specify URL paths. Defaults to "ant"
-    [ a:defaultValue = "ant" ] attribute pathType {"regex" | "ant"}
+pathType =
+    ## Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.
+    attribute pathType {"ant" | "regex"}
     
 port =
     ## Specifies an IP port number. Used to configure an embedded LDAP server, for example. 
@@ -21,11 +21,6 @@ port =
 url =
     ## Specifies a URL.
     attribute url { xsd:string }
-
-autoconfig = 
-    ## Provides automatic security configration for a application
-    element autoconfig {autoconfig.attlist, empty}
-autoconfig.attlist = empty
 
 ldap = 
     ## Sets up an ldap authentication provider, optionally with an embedded ldap server
@@ -60,14 +55,17 @@ http =
     ## Container element for HTTP security configuration
    element http {http.attlist, (intercept-url+ & form-login? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous?) }
 http.attlist &=
-    ## Controls the eagerness with which an HTTP session is created.
-    [ a:defaultValue = "ifRequired" ] attribute createSession {"ifRequired" | "always" | "never" }?
+    ## Automatically registers a login form, BASIC authentication, anonymous authentication, logout services and remember-me. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".
+    attribute autoConfig {"true" | "false" }?
 http.attlist &=
-    ## The path format used to define the paths used in child elements. 
-    path-type?
+    ## Controls the eagerness with which an HTTP session is created. If not set, defaults to "ifRequired".
+    attribute createSession {"ifRequired" | "always" | "never" }?
 http.attlist &=
-    ## Whether test URLs should be converted to lower case prior to comparing with defined path patterns.
-    [ a:defaultValue = "true" ] attribute lowerCaseComparisons {"true" | "false"}?
+    ## The path format used to define the paths in child elements. 
+    pathType?
+http.attlist &=
+    ## Whether test URLs should be converted to lower case prior to comparing with defined path patterns. If unspecified, defaults to "true".
+    attribute lowercaseComparisons {"true" | "false"}?
 http.attlist &=
     ## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.
     attribute accessDecisionManager {xsd:string}?
@@ -93,13 +91,17 @@ intercept-url.attlist &=
     attribute requiresChannel {"http" | "https"}?
 
 logout =
+	## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.
     element logout {logout.attlist, empty}
 logout.attlist &=
-    [ a:defaultValue = "/j_spring_security_logout" ] attribute logoutUrl {xsd:string}?
+	## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /j_spring_security_logout if unspecified.
+    attribute logoutUrl {xsd:string}?
 logout.attlist &=
-    [ a:defaultValue = "/" ] attribute logoutSuccessUrl {xsd:string}?
+	## Specifies the URL to display once the user has logged out. If not specified, defaults to /.
+    attribute logoutSuccessUrl {xsd:string}?
 logout.attlist &=
-    [ a:defaultValue = "true" ] attribute invalidateSession {"true" | "false"}?
+	## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
+    attribute invalidateSession {"true" | "false"}?
 
 form-login =
     ## Sets up a form login configuration
@@ -121,7 +123,7 @@ filter-chain-map =
     ## Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
     element filter-chain-map {filter-chain-map.attlist, filter-chain+}
 filter-chain-map.attlist &=
-    path-type    
+    pathType    
 
 filter-chain =
     ## Used within filter-chain-map to define a specific URL pattern and the list of filters which apply to the URLs matching that pattern. When multiple filter-chain elements are used within a filter-chain-map element, the most specific patterns must be placed at the top of the list, with  most general ones at the bottom.
@@ -155,14 +157,14 @@ anonymous =
 	## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
     element anonymous {anonymous.attlist} 
 anonymous.attlist &=
-	## The key used between the provider and filter. This generally does not need to be set.
-    [ a:defaultValue = "doesNotMatter" ] attribute key {xsd:string}?
+	## The key used between the provider and filter. This generally does not need to be set. If unset, it will default to "doesNotMatter".
+    attribute key {xsd:string}?
 anonymous.attlist &=
-	## The username that should be assigned to the anonymous request. This allows the principal to be identified, which may be important for logging and auditing. 
-    [ a:defaultValue = "anonymousUser" ] attribute username {xsd:string}?
+	## The username that should be assigned to the anonymous request. This allows the principal to be identified, which may be important for logging and auditing. if unset, defaults to "anonymousUser". 
+    attribute username {xsd:string}?
 anonymous.attlist &=
-	## The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions.
-    [ a:defaultValue = "ROLE_ANONYMOUS" ] attribute grantedAuthority {xsd:string}?
+	## The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions. If unset, defaults to "ROLE_ANONYMOUS".
+    attribute grantedAuthority {xsd:string}?
 
 repository =
      element repository {repository.attlist, (user-service | jdbc-user-service | custom-user-service)}

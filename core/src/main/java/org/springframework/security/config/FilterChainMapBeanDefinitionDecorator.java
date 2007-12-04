@@ -29,9 +29,9 @@ class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDecorator {
         Map filterChainMap = new LinkedHashMap();
         Element elt = (Element)node;
 
-        String pathType = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATTERN_TYPE);
+        String pathType = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_TYPE);
 
-        if (HttpSecurityBeanDefinitionParser.ATT_PATTERN_TYPE_REGEX.equals(pathType)) {
+        if (HttpSecurityBeanDefinitionParser.OPT_PATH_TYPE_REGEX.equals(pathType)) {
             filterChainProxy.getPropertyValues().addPropertyValue("matcher", new RegexUrlPathMatcher());
         }
 
@@ -46,7 +46,7 @@ class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDecorator {
             Assert.hasText(filters, "The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS +
                     "'must not be empty");
 
-            if (filters.equals(HttpSecurityBeanDefinitionParser.NO_FILTERS_VALUE)) {
+            if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {
                 filterChainMap.put(path, Collections.EMPTY_LIST);
             } else {
                 String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");

@@ -23,20 +23,28 @@ import org.w3c.dom.Element;
  */
 public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_KEY = "key";
+    static final String DEF_KEY = "doesNotMatter";
+    
 	static final String ATT_DATA_SOURCE = "dataSource";
 	static final String ATT_TOKEN_REPOSITORY = "tokenRepository";
 	protected final Log logger = LogFactory.getLog(getClass());
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
+        String tokenRepository = null;
+        String dataSource = null;
+        String key = null;
+
+        if (element != null) {
+            tokenRepository = element.getAttribute(ATT_TOKEN_REPOSITORY);
+            dataSource = element.getAttribute(ATT_DATA_SOURCE);
+            key = element.getAttribute(ATT_KEY);
+        }
+
         BeanDefinition filter = new RootBeanDefinition(RememberMeProcessingFilter.class);
         BeanDefinition services = new RootBeanDefinition(PersistentTokenBasedRememberMeServices.class);
 
         filter.getPropertyValues().addPropertyValue("authenticationManager",
                 new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
-
-        String tokenRepository = element.getAttribute(ATT_TOKEN_REPOSITORY);
-        String dataSource      = element.getAttribute(ATT_DATA_SOURCE);
-        String key             = element.getAttribute(ATT_KEY);
 
         boolean dataSourceSet = StringUtils.hasText(dataSource);
         boolean tokenRepoSet = StringUtils.hasText(tokenRepository);
@@ -63,16 +71,15 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             services = new RootBeanDefinition(TokenBasedRememberMeServices.class);
         }
         
-        if (StringUtils.hasText(key) && isPersistent) {
-            logger.warn("The attribute 'key' ('" + key + "') is not required for persistent remember-me services and " +
-                    "will be ignored.");
+        if (!StringUtils.hasText(key) && !isPersistent) {
+        	key = DEF_KEY;
         }
-
-        services.getPropertyValues().addPropertyValue(ATT_KEY, key);
 
         BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         BeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
+        
         provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
+        services.getPropertyValues().addPropertyValue(ATT_KEY, key);
 
         ManagedList providers = (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
         providers.add(provider);

@@ -17,17 +17,21 @@
         <intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
         <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
+		<!-- All of this is unnecessary if autoConfig="true"-->
         <form-login />
         <anonymous />
         <http-basic />
         <logout />
+        <remember-me />
+ 		
         <concurrent-session-control maxSessions="1" exceptionIfMaximumExceeded="true"/>
 
-        <remember-me key="doesntmatter"/>
     </http>
- <!--
+
+	<!--    
     <beans:bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
--->
+	-->
+
 	<repository>
 	    <user-service>
 	        <user name="bob" password="bobspassword" authorities="ROLE_SUPERVISOR" />

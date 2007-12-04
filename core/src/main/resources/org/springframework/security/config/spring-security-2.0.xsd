@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.springframework.org/schema/security" xmlns:security="http://www.springframework.org/schema/security">
   <!-- targetNamespace="http://www.springframework.org/schema/security" -->
-  <xs:attributeGroup name="path-type">
+  <xs:attributeGroup name="pathType">
     <xs:attribute name="pathType" use="required">
       <xs:annotation>
-        <xs:documentation>Defines the type types of pattern used to specify URL paths. Defaults to "ant"</xs:documentation>
+        <xs:documentation>Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
-          <xs:enumeration value="regex"/>
           <xs:enumeration value="ant"/>
+          <xs:enumeration value="regex"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -28,12 +28,6 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
-  <xs:element name="autoconfig">
-    <xs:annotation>
-      <xs:documentation>Provides automatic security configration for a application</xs:documentation>
-    </xs:annotation>
-    <xs:complexType/>
-  </xs:element>
   <xs:element name="ldap">
     <xs:annotation>
       <xs:documentation>Sets up an ldap authentication provider, optionally with an embedded ldap server</xs:documentation>
@@ -107,9 +101,20 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="http.attlist">
-    <xs:attribute name="createSession" default="ifRequired">
+    <xs:attribute name="autoConfig">
       <xs:annotation>
-        <xs:documentation>Controls the eagerness with which an HTTP session is created.</xs:documentation>
+        <xs:documentation>Automatically registers a login form, BASIC authentication, anonymous authentication, logout services and remember-me. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="true"/>
+          <xs:enumeration value="false"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="createSession">
+      <xs:annotation>
+        <xs:documentation>Controls the eagerness with which an HTTP session is created. If not set, defaults to "ifRequired".</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -121,18 +126,18 @@
     </xs:attribute>
     <xs:attribute name="pathType">
       <xs:annotation>
-        <xs:documentation>Defines the type types of pattern used to specify URL paths. Defaults to "ant"</xs:documentation>
+        <xs:documentation>Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
-          <xs:enumeration value="regex"/>
           <xs:enumeration value="ant"/>
+          <xs:enumeration value="regex"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="lowerCaseComparisons" default="true">
+    <xs:attribute name="lowercaseComparisons">
       <xs:annotation>
-        <xs:documentation>Whether test URLs should be converted to lower case prior to comparing with defined path patterns.</xs:documentation>
+        <xs:documentation>Whether test URLs should be converted to lower case prior to comparing with defined path patterns. If unspecified, defaults to "true".</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -194,14 +199,28 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="logout">
+    <xs:annotation>
+      <xs:documentation>Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.</xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:attributeGroup ref="security:logout.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="logout.attlist">
-    <xs:attribute name="logoutUrl" default="/j_spring_security_logout" type="xs:string"/>
-    <xs:attribute name="logoutSuccessUrl" default="/" type="xs:string"/>
-    <xs:attribute name="invalidateSession" default="true">
+    <xs:attribute name="logoutUrl" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /j_spring_security_logout if unspecified.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="logoutSuccessUrl" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Specifies the URL to display once the user has logged out. If not specified, defaults to /.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="invalidateSession">
+      <xs:annotation>
+        <xs:documentation>Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.</xs:documentation>
+      </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="true"/>
@@ -252,7 +271,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="filter-chain-map.attlist">
-    <xs:attributeGroup ref="security:path-type"/>
+    <xs:attributeGroup ref="security:pathType"/>
   </xs:attributeGroup>
   <xs:element name="filter-chain">
     <xs:annotation>
@@ -311,19 +330,19 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="anonymous.attlist">
-    <xs:attribute name="key" default="doesNotMatter" type="xs:string">
+    <xs:attribute name="key" type="xs:string">
       <xs:annotation>
-        <xs:documentation>The key used between the provider and filter. This generally does not need to be set.</xs:documentation>
+        <xs:documentation>The key used between the provider and filter. This generally does not need to be set. If unset, it will default to "doesNotMatter".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="username" default="anonymousUser" type="xs:string">
+    <xs:attribute name="username" type="xs:string">
       <xs:annotation>
-        <xs:documentation>The username that should be assigned to the anonymous request. This allows the principal to be identified, which may be important for logging and auditing. </xs:documentation>
+        <xs:documentation>The username that should be assigned to the anonymous request. This allows the principal to be identified, which may be important for logging and auditing. if unset, defaults to "anonymousUser". </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="grantedAuthority" default="ROLE_ANONYMOUS" type="xs:string">
+    <xs:attribute name="grantedAuthority" type="xs:string">
       <xs:annotation>
-        <xs:documentation>The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions.</xs:documentation>
+        <xs:documentation>The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions. If unset, defaults to "ROLE_ANONYMOUS".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
