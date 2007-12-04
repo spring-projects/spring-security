@@ -58,7 +58,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_ACCESS_CONFIG = "access";
     static final String ATT_REQUIRES_CHANNEL = "requiresChannel";
 
-    static final String ATT_CREATE_SESSION = "create-session";
+    static final String ATT_CREATE_SESSION = "createSession";
     static final String DEF_CREATE_SESSION_IF_REQUIRED = "ifRequired";
     static final String OPT_CREATE_SESSION_ALWAYS = "always";
     static final String OPT_CREATE_SESSION_NEVER = "never";
