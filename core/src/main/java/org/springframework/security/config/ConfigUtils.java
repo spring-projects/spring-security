@@ -34,7 +34,7 @@ public abstract class ConfigUtils {
             return;
         }
 
-        Assert.isInstanceOf(BeanDefinitionRegistry.class, bf, " Auto-registration of default AccessManager will " +
+        Assert.isInstanceOf(BeanDefinitionRegistry.class, bf, "Auto-registration of default AccessManager will " +
                 "only work with a BeanFactory which implements BeanDefinitionRegistry");
 
         BeanDefinitionRegistry registry = (BeanDefinitionRegistry)bf;
@@ -102,7 +102,7 @@ public abstract class ConfigUtils {
 
         } else if (services.size() > 1) {
             throw new IllegalArgumentException("More than one UserDetailsService registered. Please" +
-                    "use a specific Id in yur configuration");
+                    "use a specific Id in your configuration");
         }
 
         return (UserDetailsService) services.values().toArray()[0];
