@@ -6,7 +6,7 @@ datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 
 default namespace = "http://www.springframework.org/schema/security"
 
-start = http | ldap
+start = http | ldap | repository
 
 # targetNamespace="http://www.springframework.org/schema/security"
 
@@ -156,12 +156,14 @@ anonymous.attlist &=
 	## The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions.
     [ a:defaultValue = "ROLE_ANONYMOUS" ] attribute grantedAuthority {xsd:string}?
 
-authentication-provider =
-    element authentication-provider {authentication-provider.attlist, (user-service | jdbc-user-service)}
-authentication-provider.attlist &= empty
+repository =
+     element repository {repository.attlist, (user-service | jdbc-user-service | custom-user-service)}
+repository.attlist &=
+	## Indicates the repository should have an authentication provider created. If unspecified, defaults to true.
+    attribute createProvider {"true" | "false"}?
 
 user-service =
-    element user-service {user-service.attlist, (user* | jdbc-user-service)}
+    element user-service {user-service.attlist, (user*)}
 user-service.attlist &=
     attribute properties {xsd:string}*
 
@@ -175,6 +177,15 @@ user.attlist &=
     attribute authorities {xsd:string}
 
 jdbc-user-service =
-    element jdbc-user-service {jdbc-users.attlist, empty}
-jdbc-users.attlist &= empty
+	## Causes creation of a JDBC-based UserDetailsService.
+    element jdbc-user-service {jdbc-user-service.attlist}
+jdbc-user-service.attlist &=
+	## The bean ID of the DataSource which provides the required tables.
+    attribute dataSource {xsd:string}
+
+custom-user-service =
+    element custom-user-service {custom-user-service.attlist}
+custom-user-service.attlist &=
+	## The bean ID of your custom UserDetailsService implementation.
+    attribute id {xsd:string}
 

@@ -25,12 +25,12 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         <remember-me key="doesntmatter" tokenRepository="tokenRepo"/>
     </http>
 
-    <authentication-provider>
+    <repository>
         <user-service>
             <user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B" />
             <user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B,AUTH_OTHER" />
         </user-service>
-    </authentication-provider>
+    </repository>
 
     <beans:bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
 

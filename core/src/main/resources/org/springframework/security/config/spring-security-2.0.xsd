@@ -317,20 +317,34 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
-  <xs:element name="authentication-provider">
+  <xs:element name="repository">
     <xs:complexType>
       <xs:choice>
         <xs:element ref="security:user-service"/>
         <xs:element ref="security:jdbc-user-service"/>
+        <xs:element ref="security:custom-user-service"/>
       </xs:choice>
+      <xs:attributeGroup ref="security:repository.attlist"/>
     </xs:complexType>
   </xs:element>
+  <xs:attributeGroup name="repository.attlist">
+    <xs:attribute name="createProvider">
+      <xs:annotation>
+        <xs:documentation>Indicates the repository should have an authentication provider created. If unspecified, defaults to true.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="true"/>
+          <xs:enumeration value="false"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="user-service">
     <xs:complexType>
-      <xs:choice>
+      <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:user"/>
-        <xs:element ref="security:jdbc-user-service"/>
-      </xs:choice>
+      </xs:sequence>
       <xs:attributeGroup ref="security:user-service.attlist"/>
     </xs:complexType>
   </xs:element>
@@ -348,6 +362,30 @@
     <xs:attribute name="authorities" use="required" type="xs:string"/>
   </xs:attributeGroup>
   <xs:element name="jdbc-user-service">
-    <xs:complexType/>
+    <xs:annotation>
+      <xs:documentation>Causes creation of a JDBC-based UserDetailsService.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="security:jdbc-user-service.attlist"/>
+    </xs:complexType>
   </xs:element>
+  <xs:attributeGroup name="jdbc-user-service.attlist">
+    <xs:attribute name="dataSource" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The bean ID of the DataSource which provides the required tables.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="custom-user-service">
+    <xs:complexType>
+      <xs:attributeGroup ref="security:custom-user-service.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="custom-user-service.attlist">
+    <xs:attribute name="id" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The bean ID of your custom UserDetailsService implementation.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
 </xs:schema>

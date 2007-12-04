@@ -23,16 +23,18 @@
         <logout />
         <concurrent-session-control maxSessions="1" exceptionIfMaximumExceeded="true"/>
 
-        <remember-me key="doesntmatter" tokenRepository="tokenRepo"/>
+        <remember-me key="doesntmatter"/>
     </http>
- 
+ <!--
     <beans:bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
+-->
+	<repository>
+	    <user-service>
+	        <user name="bob" password="bobspassword" authorities="ROLE_SUPERVISOR" />
+	        <user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B" />
+	    </user-service>
+	</repository>
 
-    <authentication-provider>
-        <user-service>
-            <user name="bob" password="bobspassword" authorities="ROLE_SUPERVISOR" />
-            <user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B" />
-        </user-service>
-    </authentication-provider>
+	
 
 </beans:beans>

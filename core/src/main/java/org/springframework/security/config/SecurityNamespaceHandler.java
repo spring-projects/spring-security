@@ -14,7 +14,8 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("ldap", new LdapBeanDefinitionParser());
         registerBeanDefinitionParser("http", new HttpSecurityBeanDefinitionParser());
         registerBeanDefinitionParser("user-service", new UserServiceBeanDefinitionParser());
-        registerBeanDefinitionParser("authentication-provider", new AuthenticationProviderBeanDefinitionParser());
+        registerBeanDefinitionParser("repository", new RepositoryBeanDefinitionParser());
+        //registerBeanDefinitionParser("authentication-provider", new AuthenticationProviderBeanDefinitionParser());
         registerBeanDefinitionDecorator("intercept-methods", new InterceptMethodsBeanDefinitionDecorator());
         registerBeanDefinitionDecorator("filter-chain-map", new FilterChainMapBeanDefinitionDecorator());        
     }
