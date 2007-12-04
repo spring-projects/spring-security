@@ -71,6 +71,9 @@ http.attlist &=
 http.attlist &=
     ## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.
     attribute accessDecisionManager {xsd:string}?
+http.attlist &=
+    ## Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Spring Security Application".
+    attribute realm {xsd:string}?
 
 
 intercept-url =
@@ -129,10 +132,9 @@ filter-chain.attlist &=
     attribute filters {xsd:string}
 
 http-basic =
-    ## Adds support for basic authentication
-    element http-basic {http-basic.attlist, empty}
-http-basic.attlist &= 
-    attribute realm {xsd:string}
+    ## Adds support for basic authentication (this is an element to permit future expansion, such as supporting an "ignoreFailure" attribute)
+    element http-basic {empty}
+
 
 concurrent-session-control =
     ## Adds support for concurrent session control, allowing limits to be placed on the number of sessions a user can have.

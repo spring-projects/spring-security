@@ -1,11 +1,15 @@
 package org.springframework.security.config;
 
-import org.springframework.security.concurrent.ConcurrentSessionFilter;
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
-import org.springframework.security.ui.AbstractProcessingFilter;
-import org.springframework.security.ui.AuthenticationEntryPoint;
-import org.springframework.security.ui.rememberme.RememberMeServices;
-import org.springframework.security.util.FilterChainProxy;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.Filter;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -13,23 +17,21 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
+import org.springframework.security.concurrent.ConcurrentSessionFilter;
+import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.AuthenticationEntryPoint;
+import org.springframework.security.ui.basicauth.BasicProcessingFilter;
+import org.springframework.security.ui.rememberme.RememberMeServices;
+import org.springframework.security.util.FilterChainProxy;
 import org.springframework.util.Assert;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.Filter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Responsible for tying up the HTTP security configuration - building ordered filter stack and linking up
  * with other beans.
  *
  * @author Luke Taylor
+ * @author Ben Alex
  * @version $Id$
  */
 public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor, Ordered {
@@ -42,16 +44,16 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
 
         ConfigUtils.configureSecurityInterceptor(beanFactory, securityInterceptor);
 
-        configureRememberMeSerices(beanFactory);
+        injectUserDetailsServiceIntoRememberMeServices(beanFactory);
 
-        configureAuthenticationEntryPoint(beanFactory);
+        injectAuthenticationEntryPointIntoExceptionTranslationFilter(beanFactory);
 
-        configureAuthenticationFilter(beanFactory);
+        injectRememberMeServicesIntoFiltersRequiringIt(beanFactory);
 
         configureFilterChain(beanFactory);
     }
 
-    private void configureRememberMeSerices(ConfigurableListableBeanFactory beanFactory) {
+    private void injectUserDetailsServiceIntoRememberMeServices(ConfigurableListableBeanFactory beanFactory) {
         try {
             BeanDefinition rememberMeServices =
                     beanFactory.getBeanDefinition(BeanIds.REMEMBER_ME_SERVICES);
@@ -66,7 +68,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
      * Sets the authentication manager, (and remember-me services, if required) on any instances of
      * AbstractProcessingFilter
      */
-    private void configureAuthenticationFilter(ConfigurableListableBeanFactory beanFactory) {
+    private void injectRememberMeServicesIntoFiltersRequiringIt(ConfigurableListableBeanFactory beanFactory) {
         Map beans = beanFactory.getBeansOfType(RememberMeServices.class);
 
         RememberMeServices rememberMeServices = null;
@@ -75,29 +77,43 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
             rememberMeServices = (RememberMeServices) beans.values().toArray()[0];
         }
 
-        Iterator authFilters = beanFactory.getBeansOfType(AbstractProcessingFilter.class).values().iterator();
+        // Address AbstractProcessingFilter instances
+        Iterator filters = beanFactory.getBeansOfType(AbstractProcessingFilter.class).values().iterator();
 
-        while (authFilters.hasNext()) {
-            AbstractProcessingFilter filter = (AbstractProcessingFilter) authFilters.next();
+        while (filters.hasNext()) {
+            AbstractProcessingFilter filter = (AbstractProcessingFilter) filters.next();
 
             if (rememberMeServices != null) {
                 logger.info("Using RememberMeServices " + rememberMeServices + " with filter " + filter);
                 filter.setRememberMeServices(rememberMeServices);
             }
         }
+        
+        // Address BasicProcessingFilter instance, if it exists
+        // NB: For remember-me to be sent back, a user must submit a "_spring_security_remember_me" with their login request. 
+        // Most of the time a user won't present such a parameter with their BASIC authentication request. 
+        // In the future we might support setting the AbstractRememberMeServices.alwaysRemember = true, but I am reluctant to
+        // do so because it seems likely to lead to lower security for 99.99% of users if they set the property to true.
+       	BasicProcessingFilter filter = (BasicProcessingFilter) getBeanOfType(BasicProcessingFilter.class, beanFactory);
+
+        if (filter != null && rememberMeServices != null) {
+            logger.info("Using RememberMeServices " + rememberMeServices + " with filter " + filter);
+            filter.setRememberMeServices(rememberMeServices);
+        }
+        
     }
 
     /**
      * Selects the entry point that should be used in ExceptionTranslationFilter. Strategy is
      *
      * <ol>
-     * <li>If only one use that.</li>
-     * <li>If more than one, check the default interactive login Ids in order of preference</li>
-     * <li>throw an exception (for now). TODO: Examine additional beans and types and make decision</li>
+     * <li>If only one, use that one.</li>
+     * <li>If more than one, use the form login entry point (if form login is being used)</li>
+     * <li>If still ambiguous, throw an exception (for now). TODO: Examine additional beans and types and make decision</li>
      * </ol>
      *
      */
-    private void configureAuthenticationEntryPoint(ConfigurableListableBeanFactory beanFactory) {
+    private void injectAuthenticationEntryPointIntoExceptionTranslationFilter(ConfigurableListableBeanFactory beanFactory) {
         logger.info("Selecting AuthenticationEntryPoint for use in ExceptionTranslationFilter");
 
         BeanDefinition etf =

@@ -44,6 +44,9 @@ import java.util.Map;
  */
 public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
+    static final String ATT_REALM = "realm";
+    static final String DEF_REALM = "Spring Security Application";
+
     static final String ATT_PATH_PATTERN = "pattern";
     static final String ATT_PATTERN_TYPE = "pathType";
     static final String ATT_PATTERN_TYPE_REGEX = "regex";
@@ -149,11 +152,16 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (formLoginElt != null) {
             new FormLoginBeanDefinitionParser().parse(formLoginElt, parserContext);
         }
+        
+        String realm = element.getAttribute(ATT_REALM);
+        if (!StringUtils.hasText(realm)) {
+        	realm = DEF_REALM;
+        }
 
         Element basicAuthElt = DomUtils.getChildElementByTagName(element, Elements.BASIC_AUTH);
 
         if (basicAuthElt != null) {
-            new BasicAuthenticationBeanDefinitionParser().parse(basicAuthElt, parserContext);
+            new BasicAuthenticationBeanDefinitionParser(realm).parse(basicAuthElt, parserContext);
         }
 
         registry.registerBeanDefinition(BeanIds.FILTER_CHAIN_PROXY, filterChainProxy);

@@ -19,7 +19,7 @@
 
         <form-login />
         <anonymous />
-        <http-basic realm="SpringSecurityTutorialApp"  />
+        <http-basic />
         <logout />
         <concurrent-session-control maxSessions="1" exceptionIfMaximumExceeded="true"/>
 

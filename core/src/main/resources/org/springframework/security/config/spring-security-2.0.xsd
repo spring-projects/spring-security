@@ -146,6 +146,11 @@
         <xs:documentation>Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="realm" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Spring Security Application".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="intercept-url">
     <xs:annotation>
@@ -263,15 +268,10 @@
   </xs:attributeGroup>
   <xs:element name="http-basic">
     <xs:annotation>
-      <xs:documentation>Adds support for basic authentication</xs:documentation>
+      <xs:documentation>Adds support for basic authentication (this is an element to permit future expansion, such as supporting an "ignoreFailure" attribute)</xs:documentation>
     </xs:annotation>
-    <xs:complexType>
-      <xs:attributeGroup ref="security:http-basic.attlist"/>
-    </xs:complexType>
+    <xs:complexType/>
   </xs:element>
-  <xs:attributeGroup name="http-basic.attlist">
-    <xs:attribute name="realm" use="required" type="xs:string"/>
-  </xs:attributeGroup>
   <xs:element name="concurrent-session-control">
     <xs:annotation>
       <xs:documentation>Adds support for concurrent session control, allowing limits to be placed on the number of sessions a user can have.</xs:documentation>

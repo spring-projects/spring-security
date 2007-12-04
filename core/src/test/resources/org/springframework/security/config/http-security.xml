@@ -15,7 +15,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         <form-login loginUrl="/j_spring_security_check" />
 
         <!-- Default basic auth configuration. Will create filter and entry point -->
-        <http-basic realm="NamespaceTestRealm" />
+        <http-basic/>
 
         <!-- Default logout configuration -->
         <logout logoutUrl="/j_spring_security_logout" logoutSuccessUrl="/" invalidateSession="true" />
