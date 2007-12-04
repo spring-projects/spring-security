@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
+	<beans:bean id="populator" class="org.springframework.security.config.DataSourcePopulator">
+		<beans:property name="dataSource" ref="dataSource"/>
+	</beans:bean>
+
+	<beans:bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<beans:property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+		<beans:property name="url" value="jdbc:hsqldb:mem:jdbcnamespaces"/>
+		<beans:property name="username" value="sa"/>
+		<beans:property name="password" value=""/>
+	</beans:bean>
+
+    <repository>
+        <jdbc-user-service dataSource="dataSource"/>
+    </repository>
+
+</beans:beans>
