@@ -39,7 +39,7 @@ public class JdbcUserDetailsTests {
     
     @Test
     public void testProviderManagerSetup() {
-    	ProviderManager manager = (ProviderManager) appContext.getBean(ConfigUtils.DEFAULT_AUTH_MANAGER_ID);
+    	ProviderManager manager = (ProviderManager) appContext.getBean(BeanIds.AUTHENTICATION_MANAGER);
     	List providers = manager.getProviders();
     	assertTrue(providers.size() == 1);
     	assertTrue(providers.iterator().next() instanceof DaoAuthenticationProvider);

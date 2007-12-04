@@ -18,24 +18,25 @@ import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor
+ * @author Ben Alex
  * @version $Id$
  */
 public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
-    protected final Log logger = LogFactory.getLog(getClass());
-
-    public static final String DEFAULT_REMEMBER_ME_FILTER_ID = "_rememberMeFilter";
-    public static final String DEFAULT_REMEMBER_ME_SERVICES_ID = "_rememberMeServices";
+    static final String ATT_KEY = "key";
+	static final String ATT_DATA_SOURCE = "dataSource";
+	static final String ATT_TOKEN_REPOSITORY = "tokenRepository";
+	protected final Log logger = LogFactory.getLog(getClass());
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinition filter = new RootBeanDefinition(RememberMeProcessingFilter.class);
         BeanDefinition services = new RootBeanDefinition(PersistentTokenBasedRememberMeServices.class);
 
         filter.getPropertyValues().addPropertyValue("authenticationManager",
-                new RuntimeBeanReference(ConfigUtils.DEFAULT_AUTH_MANAGER_ID));
+                new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
 
-        String tokenRepository = element.getAttribute("tokenRepository");
-        String dataSource      = element.getAttribute("dataSource");
-        String key             = element.getAttribute("key");
+        String tokenRepository = element.getAttribute(ATT_TOKEN_REPOSITORY);
+        String dataSource      = element.getAttribute(ATT_DATA_SOURCE);
+        String key             = element.getAttribute(ATT_KEY);
 
         boolean dataSourceSet = StringUtils.hasText(dataSource);
         boolean tokenRepoSet = StringUtils.hasText(tokenRepository);
@@ -53,10 +54,10 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
                 tokenRepo = new RuntimeBeanReference(tokenRepository);
             } else {
                 tokenRepo = new RootBeanDefinition(JdbcTokenRepositoryImpl.class);
-                ((BeanDefinition)tokenRepo).getPropertyValues().addPropertyValue("dataSource",
+                ((BeanDefinition)tokenRepo).getPropertyValues().addPropertyValue(ATT_DATA_SOURCE,
                         new RuntimeBeanReference(dataSource));
             }
-            services.getPropertyValues().addPropertyValue("tokenRepository", tokenRepo);
+            services.getPropertyValues().addPropertyValue(ATT_TOKEN_REPOSITORY, tokenRepo);
         } else {
             isPersistent = false;
             services = new RootBeanDefinition(TokenBasedRememberMeServices.class);
@@ -67,20 +68,20 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
                     "will be ignored.");
         }
 
-        services.getPropertyValues().addPropertyValue("key", key);
+        services.getPropertyValues().addPropertyValue(ATT_KEY, key);
 
         BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         BeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
-        provider.getPropertyValues().addPropertyValue("key", key);
+        provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
 
         ManagedList providers = (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
         providers.add(provider);
 
         filter.getPropertyValues().addPropertyValue("rememberMeServices",
-                new RuntimeBeanReference(DEFAULT_REMEMBER_ME_SERVICES_ID));
+                new RuntimeBeanReference(BeanIds.REMEMBER_ME_SERVICES));
 
-        parserContext.getRegistry().registerBeanDefinition(DEFAULT_REMEMBER_ME_SERVICES_ID, services);
-        parserContext.getRegistry().registerBeanDefinition(DEFAULT_REMEMBER_ME_FILTER_ID, filter);
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES, services);
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_FILTER, filter);
 
         return null;
     }

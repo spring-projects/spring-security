@@ -14,29 +14,30 @@ import org.w3c.dom.Element;
  * registers them in the application context.
  *
  * @author Luke Taylor
+ * @author Ben Alex
  * @version $Id$
  */
 public class BasicAuthenticationBeanDefinitionParser implements BeanDefinitionParser {
-    public static final String DEFAULT_BASIC_AUTH_FILTER_ID = "_basicAuthenticationFilter";
-    public static final String DEFAULT_BASIC_AUTH_ENTRY_POINT_ID = "_basicAuthenticationEntryPoint";
+    static final String ATT_REALM = "realm";
 
-
-    public BeanDefinition parse(Element elt, ParserContext parserContext) {
+	public BeanDefinition parse(Element elt, ParserContext parserContext) {
         BeanDefinitionBuilder filterBuilder =
                 BeanDefinitionBuilder.rootBeanDefinition(BasicProcessingFilter.class);
         RootBeanDefinition entryPoint = new RootBeanDefinition(BasicProcessingFilterEntryPoint.class);
 
-        String realm = elt.getAttribute("realm");
+        String realm = elt.getAttribute(ATT_REALM);
 
         entryPoint.getPropertyValues().addPropertyValue("realmName", realm);
 
         filterBuilder.addPropertyValue("authenticationEntryPoint", entryPoint);
+        
+        // TODO: Remove autowiring approach from here.
         // Detect auth manager
         filterBuilder.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
 
-        parserContext.getRegistry().registerBeanDefinition(DEFAULT_BASIC_AUTH_FILTER_ID,
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.BASIC_AUTHENTICATION_FILTER,
                 filterBuilder.getBeanDefinition());
-        parserContext.getRegistry().registerBeanDefinition(DEFAULT_BASIC_AUTH_ENTRY_POINT_ID, entryPoint);
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT, entryPoint);
 
         return null;
     }

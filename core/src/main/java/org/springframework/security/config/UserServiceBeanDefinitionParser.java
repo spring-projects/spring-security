@@ -18,28 +18,31 @@ import java.util.Iterator;
 
 /**
  * @author Luke Taylor
+ * @author Ben Alex
  * @version $Id$
  */
 public class UserServiceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
-    public static final String DEFAULT_ID = "_userDetailsService";
+    static final String ATT_PASSWORD = "password";
+	static final String ATT_NAME = "name";
+	static final String ELT_USER = "user";
+	static final String ATT_AUTHORITIES = "authorities";
 
-    protected Class getBeanClass(Element element) {
+	protected Class getBeanClass(Element element) {
         return InMemoryDaoImpl.class;
     }
 
-
     protected void doParse(Element element, BeanDefinitionBuilder builder) {
-        List userElts = DomUtils.getChildElementsByTagName(element, "user");
+        List userElts = DomUtils.getChildElementsByTagName(element, ELT_USER);
         UserMap users = new UserMap();
 
         for (Iterator i = userElts.iterator(); i.hasNext();) {
             Element userElt = (Element) i.next();
-            String userName = userElt.getAttribute("name");
-            String password = userElt.getAttribute("password");
+            String userName = userElt.getAttribute(ATT_NAME);
+            String password = userElt.getAttribute(ATT_PASSWORD);
 
             users.addUser(new User(userName, password, true, true, true, true,
-                    AuthorityUtils.commaSeparatedStringToAuthorityArray(userElt.getAttribute("authorities"))));
+                    AuthorityUtils.commaSeparatedStringToAuthorityArray(userElt.getAttribute(ATT_AUTHORITIES))));
         }
 
         builder.addPropertyValue("userMap", users);
@@ -54,6 +57,6 @@ public class UserServiceBeanDefinitionParser extends AbstractSingleBeanDefinitio
 
         // TODO: Check for duplicate using default id here.
 
-        return DEFAULT_ID;
+        return BeanIds.USER_DETAILS_SERVICE;
     }
 }

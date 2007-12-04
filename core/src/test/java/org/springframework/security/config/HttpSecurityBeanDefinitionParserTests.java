@@ -44,7 +44,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void filterChainProxyShouldReturnEmptyFilterListForUnprotectedUrl() {
         FilterChainProxy filterChainProxy =
-                (FilterChainProxy) appContext.getBean(HttpSecurityBeanDefinitionParser.DEFAULT_FILTER_CHAIN_PROXY_ID);
+                (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
 
         List filters = filterChainProxy.getFilters("/unprotected");
 
@@ -54,7 +54,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void filterChainProxyShouldReturnCorrectFilterListForProtectedUrl() {
         FilterChainProxy filterChainProxy =
-                (FilterChainProxy) appContext.getBean(HttpSecurityBeanDefinitionParser.DEFAULT_FILTER_CHAIN_PROXY_ID);
+                (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
 
         List filterList = filterChainProxy.getFilters("/someurl");
 

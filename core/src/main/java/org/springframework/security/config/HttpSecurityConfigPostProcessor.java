@@ -38,7 +38,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         ConfigUtils.registerAccessManagerIfNecessary(beanFactory);
         BeanDefinition securityInterceptor =
-                beanFactory.getBeanDefinition(HttpSecurityBeanDefinitionParser.DEFAULT_FILTER_SECURITY_INTERCEPTOR_ID);
+                beanFactory.getBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR);
 
         ConfigUtils.configureSecurityInterceptor(beanFactory, securityInterceptor);
 
@@ -54,7 +54,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
     private void configureRememberMeSerices(ConfigurableListableBeanFactory beanFactory) {
         try {
             BeanDefinition rememberMeServices =
-                    beanFactory.getBeanDefinition(RememberMeBeanDefinitionParser.DEFAULT_REMEMBER_ME_SERVICES_ID);
+                    beanFactory.getBeanDefinition(BeanIds.REMEMBER_ME_SERVICES);
             rememberMeServices.getPropertyValues().addPropertyValue("userDetailsService",
                     ConfigUtils.getUserDetailsService(beanFactory));
         } catch (NoSuchBeanDefinitionException e) {
@@ -101,14 +101,14 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
         logger.info("Selecting AuthenticationEntryPoint for use in ExceptionTranslationFilter");
 
         BeanDefinition etf =
-                beanFactory.getBeanDefinition(HttpSecurityBeanDefinitionParser.DEFAULT_EXCEPTION_TRANSLATION_FILTER_ID);
+                beanFactory.getBeanDefinition(BeanIds.EXCEPTION_TRANSLATION_FILTER);
         Map entryPointMap = beanFactory.getBeansOfType(AuthenticationEntryPoint.class);
         List entryPoints = new ArrayList(entryPointMap.values());
 
         Assert.isTrue(entryPoints.size() > 0, "No AuthenticationEntryPoint instances defined");
 
         AuthenticationEntryPoint mainEntryPoint = (AuthenticationEntryPoint)
-                entryPointMap.get(FormLoginBeanDefinitionParser.DEFAULT_FORM_LOGIN_ENTRY_POINT_ID);
+                entryPointMap.get(BeanIds.FORM_LOGIN_ENTRY_POINT);
 
         if (mainEntryPoint == null) {
             throw new SecurityConfigurationException("Failed to resolve authentication entry point");
@@ -121,7 +121,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
 
     private void configureFilterChain(ConfigurableListableBeanFactory beanFactory) {
         FilterChainProxy filterChainProxy =
-                (FilterChainProxy) beanFactory.getBean(HttpSecurityBeanDefinitionParser.DEFAULT_FILTER_CHAIN_PROXY_ID);
+                (FilterChainProxy) beanFactory.getBean(BeanIds.FILTER_CHAIN_PROXY);
         // Set the default match
         List defaultFilterChain = orderFilters(beanFactory);
 
@@ -139,7 +139,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
         if (!sessionFilters.isEmpty()) {
             logger.info("Concurrent session filter in use, setting 'forceEagerSessionCreation' to true");
             HttpSessionContextIntegrationFilter scif = (HttpSessionContextIntegrationFilter)
-                    beanFactory.getBean(HttpSecurityBeanDefinitionParser.DEFAULT_HTTP_SESSION_FILTER_ID);
+                    beanFactory.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER);
             scif.setForceEagerSessionCreation(true);
         }
     }

@@ -26,11 +26,11 @@ import java.util.List;
 
 /**
  * @author Luke Taylor
+ * @author Ben Alex
+ * 
  * @version $Id$
  */
 public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDecorator {
-    private static final String POST_PROCESSOR_ID = "_interceptMethodsBeanfactoryPP";
-
     private BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
 
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
@@ -40,11 +40,11 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
     }
 
     private void registerPostProcessorIfNecessary(BeanDefinitionRegistry registry) {
-        if (registry.containsBeanDefinition(POST_PROCESSOR_ID)) {
+        if (registry.containsBeanDefinition(BeanIds.INTERCEPT_METHODS_BEAN_FACTORY_POST_PROCESSOR)) {
             return;
         }
 
-        registry.registerBeanDefinition(POST_PROCESSOR_ID,
+        registry.registerBeanDefinition(BeanIds.INTERCEPT_METHODS_BEAN_FACTORY_POST_PROCESSOR,
                 new RootBeanDefinition(MethodSecurityConfigPostProcessor.class));
     }
 
@@ -71,7 +71,10 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
  * post processor,
  */
 class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractInterceptorDrivenBeanDefinitionDecorator {
-    private Log logger = LogFactory.getLog(getClass());
+    static final String ATT_CLASS = "class";
+	static final String ATT_METHOD = "method";
+	static final String ATT_ACCESS = "access";
+	private Log logger = LogFactory.getLog(getClass());
 
     protected BeanDefinition createInterceptorDefinition(Node node) {
         Element interceptMethodsElt = (Element)node;
@@ -79,7 +82,7 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
 
         Element beanNode = (Element)interceptMethodsElt.getParentNode();
         // Get the class from the parent bean...
-        String targetClassName = beanNode.getAttribute("class");
+        String targetClassName = beanNode.getAttribute(ATT_CLASS);
         Class targetClass;
 
         try {
@@ -89,19 +92,19 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
         }
 
         // Parse the included methods
-        List methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, "protect");
+        List methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);
         MethodDefinitionMap methodMap = new MethodDefinitionMap();
         ConfigAttributeEditor attributeEditor = new ConfigAttributeEditor();
 
         for (Iterator i = methods.iterator(); i.hasNext();) {
             Element protectmethodElt = (Element) i.next();
-            String accessConfig = protectmethodElt.getAttribute("access");
+            String accessConfig = protectmethodElt.getAttribute(ATT_ACCESS);
             attributeEditor.setAsText(accessConfig);
 
 // TODO: We want to use just the method names, but MethodDefinitionMap won't work that way.            
 //            methodMap.addSecureMethod(targetClass, protectmethodElt.getAttribute("method"),
 //                    (ConfigAttributeDefinition) attributeEditor.getValue());
-            methodMap.addSecureMethod(protectmethodElt.getAttribute("method"), 
+            methodMap.addSecureMethod(protectmethodElt.getAttribute(ATT_METHOD), 
                     (ConfigAttributeDefinition) attributeEditor.getValue());
         }
 

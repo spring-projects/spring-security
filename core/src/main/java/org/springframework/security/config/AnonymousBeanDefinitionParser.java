@@ -16,29 +16,29 @@ import org.w3c.dom.Element;
  * @version $Id: RememberMeBeanDefinitionParser.java 2231 2007-11-07 13:29:15Z luke_t $
  */
 public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
-    protected final Log logger = LogFactory.getLog(getClass());
-
-    public static final String DEFAULT_ANONYMOUS_FILTER_ID = "_anonymousProcessingFilter";
-    public static final String DEFAULT_ANONYMOUS_AUTHENTICATION_PROVIDER_ID = "_anonymousAuthenticationProvider";
+    static final String ATT_KEY = "key";
+	static final String ATT_USERNAME = "username";
+	static final String ATT_GRANTED_AUTHORITY = "grantedAuthority";
+	protected final Log logger = LogFactory.getLog(getClass());
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinition filter = new RootBeanDefinition(AnonymousProcessingFilter.class);
 
-        String grantedAuthority = element.getAttribute("grantedAuthority");
-        String username         = element.getAttribute("username");
-        String key              = element.getAttribute("key");
+        String grantedAuthority = element.getAttribute(ATT_GRANTED_AUTHORITY);
+        String username         = element.getAttribute(ATT_USERNAME);
+        String key              = element.getAttribute(ATT_KEY);
 
         filter.getPropertyValues().addPropertyValue("userAttribute", username + "," + grantedAuthority);
-        filter.getPropertyValues().addPropertyValue("key", key);
+        filter.getPropertyValues().addPropertyValue(ATT_KEY, key);
 
         BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         BeanDefinition provider = new RootBeanDefinition(AnonymousAuthenticationProvider.class);
-        provider.getPropertyValues().addPropertyValue("key", key);
+        provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
 
         ManagedList authMgrProviderList = (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
         authMgrProviderList.add(provider);
 
-        parserContext.getRegistry().registerBeanDefinition(DEFAULT_ANONYMOUS_FILTER_ID, filter);
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.ANONYMOUS_PROCESSING_FILTER, filter);
 
         return null;
     }

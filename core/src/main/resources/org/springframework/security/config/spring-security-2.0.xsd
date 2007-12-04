@@ -214,14 +214,24 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="form-login.attlist">
-    <xs:attribute name="loginUrl" default="/j_spring_security_check" type="xs:string">
+    <xs:attribute name="loginUrl" type="xs:string">
       <xs:annotation>
-        <xs:documentation>The URL that the form is submitted to</xs:documentation>
+        <xs:documentation>The URL that the login form is posted to. If unspecified, it defaults to /j_spring_security_check.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="defaultTargetUrl" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The URL that will be redirected to after successful authentication, if the user's previous action could not be resumed. This generally happens if the user visits a login page without having first requested a secured operation that triggers authentication. If unspecified, defaults to the root of the application.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="loginPage" type="xs:string">
       <xs:annotation>
         <xs:documentation>The URL for the login page. If no login URL is specified, Spring Security will automatically create a login URL at /spring_security_login and a corresponding filter to render that login URL when requested.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="authenticationFailureUrl" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The URL for the login failure page. If no login failure URL is specified, Spring Security will automatically create a failure login URL at /spring_security_login?login_error and a corresponding filter to render that login failure URL when requested.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>

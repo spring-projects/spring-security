@@ -23,12 +23,10 @@ import java.util.Map;
  * Utitily methods used internally by the Spring Security namespace configuration code.
  *
  * @author Luke Taylor
+ * @author Ben Alex
  * @version $Id$
  */
 public abstract class ConfigUtils {
-    public static final String DEFAULT_ACCESS_MANAGER_ID = "_accessManager";
-    public static final String DEFAULT_AUTH_MANAGER_ID = "_authenticationManager";
-
     static void registerAccessManagerIfNecessary(ConfigurableListableBeanFactory bf) {
         if (bf.getBeanNamesForType(AccessDecisionManager.class).length > 0) {
             return;
@@ -39,13 +37,13 @@ public abstract class ConfigUtils {
 
         BeanDefinitionRegistry registry = (BeanDefinitionRegistry)bf;
 
-        if (!registry.containsBeanDefinition(DEFAULT_ACCESS_MANAGER_ID)) {
+        if (!registry.containsBeanDefinition(BeanIds.ACCESS_MANAGER)) {
             BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
             accessMgrBuilder.addPropertyValue("decisionVoters",
                             Arrays.asList(new Object[] {new RoleVoter(), new AuthenticatedVoter()}));
             BeanDefinition accessMgr = accessMgrBuilder.getBeanDefinition();
 
-            registry.registerBeanDefinition(DEFAULT_ACCESS_MANAGER_ID, accessMgr);
+            registry.registerBeanDefinition(BeanIds.ACCESS_MANAGER, accessMgr);
         }
     }
 
@@ -56,13 +54,13 @@ public abstract class ConfigUtils {
      * authentication manager.
      */
     static BeanDefinition registerProviderManagerIfNecessary(ParserContext parserContext) {
-        if(parserContext.getRegistry().containsBeanDefinition(DEFAULT_AUTH_MANAGER_ID)) {
-            return parserContext.getRegistry().getBeanDefinition(DEFAULT_AUTH_MANAGER_ID);
+        if(parserContext.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER)) {
+            return parserContext.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
         }
 
         BeanDefinition authManager = new RootBeanDefinition(ProviderManager.class);
         authManager.getPropertyValues().addPropertyValue("providers", new ManagedList());
-        parserContext.getRegistry().registerBeanDefinition(DEFAULT_AUTH_MANAGER_ID, authManager);
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.AUTHENTICATION_MANAGER, authManager);
 
         return authManager;
     }

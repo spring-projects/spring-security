@@ -38,38 +38,21 @@ import java.util.Map;
 /**
  * Sets up HTTP security: filter stack and protected URLs.
  *
- *
  * @author Luke Taylor
  * @author Ben Alex
  * @version $Id$
  */
 public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
-    public static final String DEFAULT_FILTER_CHAIN_PROXY_ID = "_filterChainProxy";
+    static final String ATT_PATH_PATTERN = "pattern";
+    static final String ATT_PATTERN_TYPE = "pathType";
+    static final String ATT_PATTERN_TYPE_REGEX = "regex";
 
-    public static final String DEFAULT_HTTP_SESSION_FILTER_ID = "_httpSessionContextIntegrationFilter";
-    public static final String DEFAULT_LOGOUT_FILTER_ID = "_logoutFilter";
-    public static final String DEFAULT_EXCEPTION_TRANSLATION_FILTER_ID = "_exceptionTranslationFilter";
-    public static final String DEFAULT_FILTER_SECURITY_INTERCEPTOR_ID = "_filterSecurityInterceptor";
-    public static final String DEFAULT_CHANNEL_PROCESSING_FILTER_ID = "_channelProcessingFilter";
-    public static final String DEFAULT_CHANNEL_DECISION_MANAGER_ID = "_channelDecisionManager";
-
-    public static final String CONCURRENT_SESSIONS_ELEMENT = "concurrent-session-control";
-    public static final String LOGOUT_ELEMENT = "logout";
-    public static final String FORM_LOGIN_ELEMENT = "form-login";
-    public static final String BASIC_AUTH_ELEMENT = "http-basic";
-    public static final String REMEMBER_ME_ELEMENT = "remember-me";
-    public static final String ANONYMOUS_ELEMENT = "anonymous";
-
-    static final String PATH_PATTERN_ATTRIBUTE = "pattern";
-    static final String PATTERN_TYPE_ATTRIBUTE = "pathType";
-    static final String PATTERN_TYPE_REGEX = "regex";
-
-    static final String FILTERS_ATTRIBUTE = "filters";
+    static final String ATT_FILTERS = "filters";
     static final String NO_FILTERS_VALUE = "none";
 
-    private static final String ACCESS_CONFIG_ATTRIBUTE = "access";
-    private static final String REQUIRES_CHANNEL_ATTRIBUTE = "requiresChannel";
+    static final String ATT_ACCESS_CONFIG = "access";
+    static final String ATT_REQUIRES_CHANNEL = "requiresChannel";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         RootBeanDefinition filterChainProxy = new RootBeanDefinition(FilterChainProxy.class);
@@ -92,12 +75,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         Map filterChainMap =  new LinkedHashMap();
 
-        String patternType = element.getAttribute(PATTERN_TYPE_ATTRIBUTE);
+        String patternType = element.getAttribute(ATT_PATTERN_TYPE);
 
         FilterInvocationDefinitionMap interceptorFilterInvDefSource = new PathBasedFilterInvocationDefinitionMap();
         FilterInvocationDefinitionMap channelFilterInvDefSource = new PathBasedFilterInvocationDefinitionMap();
 
-        if (patternType.equals(PATTERN_TYPE_REGEX)) {
+        if (patternType.equals(ATT_PATTERN_TYPE_REGEX)) {
             filterChainProxy.getPropertyValues().addPropertyValue("matcher", new RegexUrlPathMatcher());
             interceptorFilterInvDefSource = new RegExpBasedFilterInvocationDefinitionMap();
             channelFilterInvDefSource = new RegExpBasedFilterInvocationDefinitionMap();
@@ -120,7 +103,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             // At least one channel requirement has been specified
             RootBeanDefinition channelFilter = new RootBeanDefinition(ChannelProcessingFilter.class);
             channelFilter.getPropertyValues().addPropertyValue("channelDecisionManager",
-                    new RuntimeBeanReference(DEFAULT_CHANNEL_DECISION_MANAGER_ID));
+                    new RuntimeBeanReference(BeanIds.CHANNEL_DECISION_MANAGER));
 
             channelFilter.getPropertyValues().addPropertyValue("filterInvocationDefinitionSource",
                     channelFilterInvDefSource);
@@ -130,17 +113,17 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             channelProcessors.add(new InsecureChannelProcessor());
             channelDecisionManager.getPropertyValues().addPropertyValue("channelProcessors", channelProcessors);
 
-            registry.registerBeanDefinition(DEFAULT_CHANNEL_PROCESSING_FILTER_ID, channelFilter);
-            registry.registerBeanDefinition(DEFAULT_CHANNEL_DECISION_MANAGER_ID, channelDecisionManager);
+            registry.registerBeanDefinition(BeanIds.CHANNEL_PROCESSING_FILTER, channelFilter);
+            registry.registerBeanDefinition(BeanIds.CHANNEL_DECISION_MANAGER, channelDecisionManager);
         }
 
-        Element sessionControlElt = DomUtils.getChildElementByTagName(element, CONCURRENT_SESSIONS_ELEMENT);
+        Element sessionControlElt = DomUtils.getChildElementByTagName(element, Elements.CONCURRENT_SESSIONS);
 
         if (sessionControlElt != null) {
             new ConcurrentSessionsBeanDefinitionParser().parse(sessionControlElt, parserContext);
         }
 
-        Element anonymousElt = DomUtils.getChildElementByTagName(element, ANONYMOUS_ELEMENT);
+        Element anonymousElt = DomUtils.getChildElementByTagName(element, Elements.ANONYMOUS);
         
         if (anonymousElt != null) {
             new AnonymousBeanDefinitionParser().parse(anonymousElt, parserContext);
@@ -149,35 +132,35 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         // Parse remember me before logout as RememberMeServices is also a LogoutHandler implementation.
 
 
-        Element rememberMeElt = DomUtils.getChildElementByTagName(element, REMEMBER_ME_ELEMENT);
+        Element rememberMeElt = DomUtils.getChildElementByTagName(element, Elements.REMEMBER_ME);
 
         if (rememberMeElt != null) {
             new RememberMeBeanDefinitionParser().parse(rememberMeElt, parserContext);
         }
 
-        Element logoutElt = DomUtils.getChildElementByTagName(element, LOGOUT_ELEMENT);
+        Element logoutElt = DomUtils.getChildElementByTagName(element, Elements.LOGOUT);
 
         if (logoutElt != null) {
             new LogoutBeanDefinitionParser().parse(logoutElt, parserContext);
         }
 
-        Element formLoginElt = DomUtils.getChildElementByTagName(element, FORM_LOGIN_ELEMENT);
+        Element formLoginElt = DomUtils.getChildElementByTagName(element, Elements.FORM_LOGIN);
 
         if (formLoginElt != null) {
             new FormLoginBeanDefinitionParser().parse(formLoginElt, parserContext);
         }
 
-        Element basicAuthElt = DomUtils.getChildElementByTagName(element, BASIC_AUTH_ELEMENT);
+        Element basicAuthElt = DomUtils.getChildElementByTagName(element, Elements.BASIC_AUTH);
 
         if (basicAuthElt != null) {
             new BasicAuthenticationBeanDefinitionParser().parse(basicAuthElt, parserContext);
         }
 
-        registry.registerBeanDefinition(DEFAULT_FILTER_CHAIN_PROXY_ID, filterChainProxy);
-        registry.registerBeanDefinition(DEFAULT_HTTP_SESSION_FILTER_ID, httpSCIF);
-        registry.registerBeanDefinition(DEFAULT_EXCEPTION_TRANSLATION_FILTER_ID,
+        registry.registerBeanDefinition(BeanIds.FILTER_CHAIN_PROXY, filterChainProxy);
+        registry.registerBeanDefinition(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER, httpSCIF);
+        registry.registerBeanDefinition(BeanIds.EXCEPTION_TRANSLATION_FILTER,
                 exceptionTranslationFilterBuilder.getBeanDefinition());
-        registry.registerBeanDefinition(DEFAULT_FILTER_SECURITY_INTERCEPTOR_ID,
+        registry.registerBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR,
                 filterSecurityInterceptorBuilder.getBeanDefinition());
 
 
@@ -205,11 +188,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         while (urlEltsIterator.hasNext()) {
             Element urlElt = (Element) urlEltsIterator.next();
 
-            String path = urlElt.getAttribute(PATH_PATTERN_ATTRIBUTE);
+            String path = urlElt.getAttribute(ATT_PATH_PATTERN);
 
             Assert.hasText(path, "path attribute cannot be empty or null");
 
-            String access = urlElt.getAttribute(ACCESS_CONFIG_ATTRIBUTE);
+            String access = urlElt.getAttribute(ATT_ACCESS_CONFIG);
 
             // Convert the comma-separated list of access attributes to a ConfigAttributeDefinition
             if (StringUtils.hasText(access)) {
@@ -217,7 +200,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 interceptorFilterInvDefSource.addSecureUrl(path, (ConfigAttributeDefinition) editor.getValue());
             }
 
-            String requiredChannel = urlElt.getAttribute(REQUIRES_CHANNEL_ATTRIBUTE);
+            String requiredChannel = urlElt.getAttribute(ATT_REQUIRES_CHANNEL);
 
             if (StringUtils.hasText(requiredChannel)) {
                 String channelConfigAttribute = null;
@@ -234,7 +217,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 channelFilterInvDefSource.addSecureUrl(path, (ConfigAttributeDefinition) editor.getValue());
             }
 
-            String filters = urlElt.getAttribute(FILTERS_ATTRIBUTE);
+            String filters = urlElt.getAttribute(ATT_FILTERS);
 
             if (StringUtils.hasText(filters)) {
                 if (!filters.equals(NO_FILTERS_VALUE)) {

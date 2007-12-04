@@ -23,10 +23,6 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionParser {
-    static final String DEFAULT_SESSION_REGISTRY_ID = "_sessionRegistry";
-    static final String DEFAULT_CONCURRENT_SESSION_FILTER_ID = "_concurrentSessionFilter";
-    static final String DEFAULT_SESSION_CONTROLLER_ID = "_concurrentSessionController";
-
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinitionRegistry beanRegistry = parserContext.getRegistry();
 
@@ -35,8 +31,8 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
                 BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionFilter.class);
         BeanDefinitionBuilder controllerBuilder
                 = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControllerImpl.class);
-        controllerBuilder.addPropertyValue("sessionRegistry", new RuntimeBeanReference(DEFAULT_SESSION_REGISTRY_ID));
-        filterBuilder.addPropertyValue("sessionRegistry", new RuntimeBeanReference(DEFAULT_SESSION_REGISTRY_ID));
+        controllerBuilder.addPropertyValue("sessionRegistry", new RuntimeBeanReference(BeanIds.SESSION_REGISTRY));
+        filterBuilder.addPropertyValue("sessionRegistry", new RuntimeBeanReference(BeanIds.SESSION_REGISTRY));
 
         String expiryUrl = element.getAttribute("expiryUrl");
 
@@ -57,9 +53,9 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
         }
 
         BeanDefinition controller = controllerBuilder.getBeanDefinition();
-        beanRegistry.registerBeanDefinition(DEFAULT_SESSION_REGISTRY_ID, sessionRegistry);
-        beanRegistry.registerBeanDefinition(DEFAULT_SESSION_CONTROLLER_ID, controller);
-        beanRegistry.registerBeanDefinition(DEFAULT_CONCURRENT_SESSION_FILTER_ID, filterBuilder.getBeanDefinition());
+        beanRegistry.registerBeanDefinition(BeanIds.SESSION_REGISTRY, sessionRegistry);
+        beanRegistry.registerBeanDefinition(BeanIds.CONCURRENT_SESSION_CONTROLLER, controller);
+        beanRegistry.registerBeanDefinition(BeanIds.CONCURRENT_SESSION_FILTER, filterBuilder.getBeanDefinition());
 
         BeanDefinition providerManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
 

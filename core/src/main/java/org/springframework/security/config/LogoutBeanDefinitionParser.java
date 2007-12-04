@@ -15,34 +15,37 @@ import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor
+ * @author Ben Alex
  * @version $Id$
  */
 public class LogoutBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
-    public static final String DEFAULT_LOGOUT_SUCCESS_URL = "/";
+    static final String ATT_LOGOUT_SUCCESS_URL = "logoutSuccessUrl";
+	static final String ATT_LOGOUT_URL = "logoutUrl";
+	public static final String DEF_LOGOUT_SUCCESS_URL = "/";
 
     protected Class getBeanClass(Element element) {
         return LogoutFilter.class;
     }
 
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        String logoutUrl = element.getAttribute("logoutUrl");
+        String logoutUrl = element.getAttribute(ATT_LOGOUT_URL);
 
         if (StringUtils.hasText(logoutUrl)) {
             builder.addPropertyValue("filterProcessesUrl", logoutUrl);
         }
 
-        String logoutSuccessUrl = element.getAttribute("logoutSuccessUrl");
+        String logoutSuccessUrl = element.getAttribute(ATT_LOGOUT_SUCCESS_URL);
 
         if (!StringUtils.hasText(logoutSuccessUrl)) {
-            logoutSuccessUrl = DEFAULT_LOGOUT_SUCCESS_URL;
+            logoutSuccessUrl = DEF_LOGOUT_SUCCESS_URL;
         }
 
         builder.addConstructorArg(logoutSuccessUrl);
         ManagedList handlers = new ManagedList();
         handlers.add(new SecurityContextLogoutHandler());
 
-        if (parserContext.getRegistry().containsBeanDefinition(RememberMeBeanDefinitionParser.DEFAULT_REMEMBER_ME_SERVICES_ID)) {
-            handlers.add(new RuntimeBeanReference(RememberMeBeanDefinitionParser.DEFAULT_REMEMBER_ME_SERVICES_ID));
+        if (parserContext.getRegistry().containsBeanDefinition(BeanIds.REMEMBER_ME_SERVICES)) {
+            handlers.add(new RuntimeBeanReference(BeanIds.REMEMBER_ME_SERVICES));
         }
 
         builder.addConstructorArg(handlers);
@@ -56,6 +59,6 @@ public class LogoutBeanDefinitionParser extends AbstractSingleBeanDefinitionPars
             return id;
         }
 
-        return HttpSecurityBeanDefinitionParser.DEFAULT_LOGOUT_FILTER_ID;
+        return BeanIds.LOGOUT_FILTER;
     }
 }

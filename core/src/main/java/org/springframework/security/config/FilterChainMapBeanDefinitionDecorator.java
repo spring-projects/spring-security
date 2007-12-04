@@ -23,29 +23,27 @@ import java.util.*;
  * @version $Id$
  */
 class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDecorator {
-    public static final String FILTER_CHAIN_ELT_NAME = "filter-chain";
-
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder, ParserContext parserContext) {
         BeanDefinition filterChainProxy = holder.getBeanDefinition();
 
         Map filterChainMap = new LinkedHashMap();
         Element elt = (Element)node;
 
-        String pathType = elt.getAttribute(HttpSecurityBeanDefinitionParser.PATTERN_TYPE_ATTRIBUTE);
+        String pathType = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATTERN_TYPE);
 
-        if (HttpSecurityBeanDefinitionParser.PATTERN_TYPE_REGEX.equals(pathType)) {
+        if (HttpSecurityBeanDefinitionParser.ATT_PATTERN_TYPE_REGEX.equals(pathType)) {
             filterChainProxy.getPropertyValues().addPropertyValue("matcher", new RegexUrlPathMatcher());
         }
 
-        Iterator filterChainElts = DomUtils.getChildElementsByTagName(elt, FILTER_CHAIN_ELT_NAME).iterator();
+        Iterator filterChainElts = DomUtils.getChildElementsByTagName(elt, Elements.FILTER_CHAIN).iterator();
 
         while (filterChainElts.hasNext()) {
             Element chain = (Element) filterChainElts.next();
-            String path = chain.getAttribute(HttpSecurityBeanDefinitionParser.PATH_PATTERN_ATTRIBUTE);
-            Assert.hasText(path, "The attribute '" + HttpSecurityBeanDefinitionParser.PATH_PATTERN_ATTRIBUTE +
+            String path = chain.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);
+            Assert.hasText(path, "The attribute '" + HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN +
                     "' must not be empty");
-            String filters = chain.getAttribute(HttpSecurityBeanDefinitionParser.FILTERS_ATTRIBUTE);
-            Assert.hasText(filters, "The attribute '" + HttpSecurityBeanDefinitionParser.FILTERS_ATTRIBUTE +
+            String filters = chain.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS);
+            Assert.hasText(filters, "The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS +
                     "'must not be empty");
 
             if (filters.equals(HttpSecurityBeanDefinitionParser.NO_FILTERS_VALUE)) {

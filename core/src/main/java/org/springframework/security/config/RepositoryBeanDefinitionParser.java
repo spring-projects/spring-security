@@ -21,10 +21,10 @@ import org.w3c.dom.Element;
  */
 class RepositoryBeanDefinitionParser implements BeanDefinitionParser {
 
-	private static final String ATT_CREATE_PROVIDER = "createProvider";
-	private static final String DEF_CREATE_PROVIDER = "true";
-	private static final String ATT_DATA_SOURCE = "dataSource";
-	private static final String ATT_ID = "id";
+	static final String ATT_CREATE_PROVIDER = "createProvider";
+	static final String ATT_DATA_SOURCE = "dataSource";
+	static final String ATT_ID = "id";
+	static final String DEF_CREATE_PROVIDER = "true";
 	
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         boolean createProvider = true;
@@ -37,9 +37,9 @@ class RepositoryBeanDefinitionParser implements BeanDefinitionParser {
             ConfigUtils.registerProviderManagerIfNecessary(parserContext);
     	}
 
-        Element userServiceElt = DomUtils.getChildElementByTagName(element, Elements.ELT_USER_SERVICE);
-        Element jdbcUserServiceElt = DomUtils.getChildElementByTagName(element, Elements.ELT_JDBC_USER_SERVICE);
-        Element customUserServiceElt = DomUtils.getChildElementByTagName(element, Elements.ELT_CUSTOM_USER_SERVICE);
+        Element userServiceElt = DomUtils.getChildElementByTagName(element, Elements.USER_SERVICE);
+        Element jdbcUserServiceElt = DomUtils.getChildElementByTagName(element, Elements.JDBC_USER_SERVICE);
+        Element customUserServiceElt = DomUtils.getChildElementByTagName(element, Elements.CUSTOM_USER_SERVICE);
 
         if (userServiceElt != null) {
             BeanDefinition userDetailsService = new UserServiceBeanDefinitionParser().parse(userServiceElt, parserContext);
