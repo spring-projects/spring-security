@@ -141,11 +141,15 @@ public final class BasePermission implements Permission {
     }
 
     public boolean equals(Object arg0) {
-        if (!(arg0 instanceof BasePermission)) {
+        if (arg0 == null) {
             return false;
         }
 
-        BasePermission rhs = (BasePermission) arg0;
+        if (!(arg0 instanceof Permission)) {
+            return false;
+        }
+
+        Permission rhs = (Permission) arg0;
 
         return (this.mask == rhs.getMask());
     }

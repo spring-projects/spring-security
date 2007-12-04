@@ -47,12 +47,18 @@ public class CumulativePermission implements Permission {
         return this;
     }
 
+    
     public boolean equals(Object arg0) {
-        if (!(arg0 instanceof CumulativePermission)) {
+        if (arg0 == null)
+        {
+            return false;
+        }
+        
+        if (!(arg0 instanceof Permission)) {
             return false;
         }
 
-        CumulativePermission rhs = (CumulativePermission) arg0;
+        Permission rhs = (Permission) arg0;
 
         return (this.mask == rhs.getMask());
     }
