@@ -26,5 +26,6 @@ class Elements {
 	public static final String ANONYMOUS = "anonymous";
 	public static final String FILTER_CHAIN = "filter-chain";
 	public static final String SERVLET_API_INTEGRATION = "servlet-api-integration";
+	public static final String ANNOTATION_DRIVEN = "annotation-driven";
 
 }

@@ -101,6 +101,12 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="annotation-driven">
+    <xs:annotation>
+      <xs:documentation>Activates security annotation scanning. All beans registered in the Spring application context will be scanned for Spring Security annotations. Where found, the beans will automatically be proxied and security authorization applied to the methods accordingly. Please ensure you have the spring-security-tiger-XXX.jar on your classpath.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
+  </xs:element>
   <xs:element name="http">
     <xs:annotation>
       <xs:documentation>Container element for HTTP security configuration</xs:documentation>

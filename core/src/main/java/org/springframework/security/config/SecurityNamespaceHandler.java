@@ -12,11 +12,15 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 public class SecurityNamespaceHandler extends NamespaceHandlerSupport {    
 
     public void init() {
-        registerBeanDefinitionParser(Elements.LDAP, new LdapBeanDefinitionParser());
+        // Parsers
+    	registerBeanDefinitionParser(Elements.LDAP, new LdapBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.USER_SERVICE, new UserServiceBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.REPOSITORY, new RepositoryBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.AUTHENTICATION_PROVIDER, new AuthenticationProviderBeanDefinitionParser());
+        registerBeanDefinitionParser(Elements.ANNOTATION_DRIVEN, new AnnotationDrivenBeanDefinitionParser());        
+
+        // Decorators
         registerBeanDefinitionDecorator(Elements.INTERCEPT_METHODS, new InterceptMethodsBeanDefinitionDecorator());
         registerBeanDefinitionDecorator(Elements.FILTER_CHAIN_MAP, new FilterChainMapBeanDefinitionDecorator());        
     }

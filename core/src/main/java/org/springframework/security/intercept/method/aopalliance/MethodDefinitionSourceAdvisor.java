@@ -15,15 +15,16 @@
 
 package org.springframework.security.intercept.method.aopalliance;
 
-import org.springframework.security.intercept.method.MethodDefinitionSource;
-
-import org.aopalliance.intercept.MethodInvocation;
-
-import org.springframework.aop.framework.AopConfigException;
-import org.springframework.aop.support.StaticMethodMatcherPointcutAdvisor;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
+
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.aop.Pointcut;
+import org.springframework.aop.framework.AopConfigException;
+import org.springframework.aop.support.AbstractPointcutAdvisor;
+import org.springframework.aop.support.StaticMethodMatcherPointcut;
+import org.springframework.security.intercept.method.MethodDefinitionSource;
 
 
 /**
@@ -39,34 +40,47 @@ import java.lang.reflect.Method;
  * @author Ben Alex
  * @version $Id$
  */
-public class MethodDefinitionSourceAdvisor extends StaticMethodMatcherPointcutAdvisor {
+public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor {
     //~ Instance fields ================================================================================================
 
-    private MethodDefinitionSource transactionAttributeSource;
+    private MethodDefinitionSource attributeSource;
+    private MethodSecurityInterceptor interceptor;
+    private Pointcut pointcut;
 
     //~ Constructors ===================================================================================================
 
     public MethodDefinitionSourceAdvisor(MethodSecurityInterceptor advice) {
-        super(advice);
+    	this.interceptor = advice;
 
         if (advice.getObjectDefinitionSource() == null) {
             throw new AopConfigException("Cannot construct a MethodDefinitionSourceAdvisor using a "
                 + "MethodSecurityInterceptor that has no ObjectDefinitionSource configured");
         }
 
-        this.transactionAttributeSource = advice.getObjectDefinitionSource();
+        this.attributeSource = advice.getObjectDefinitionSource();
+        this.pointcut = new MethodDefinitionSourcePointcut();
     }
 
     //~ Methods ========================================================================================================
 
-    public boolean matches(Method m, Class targetClass) {
-        MethodInvocation methodInvocation = new InternalMethodInvocation(m);
+	public Pointcut getPointcut() {
+		return pointcut;
+	}
 
-        return (this.transactionAttributeSource.getAttributes(methodInvocation) != null);
-    }
+	public Advice getAdvice() {
+		return interceptor;
+	}
 
     //~ Inner Classes ==================================================================================================
+    
+    class MethodDefinitionSourcePointcut extends StaticMethodMatcherPointcut {
+        public boolean matches(Method m, Class targetClass) {
+            MethodInvocation methodInvocation = new InternalMethodInvocation(m);
 
+            return attributeSource.getAttributes(methodInvocation) != null;
+        }
+    }
+    
     /**
      * Represents a <code>MethodInvocation</code>.
      * <p>Required as <code>MethodDefinitionSource</code> only supports lookup of configuration attributes for

@@ -36,4 +36,6 @@ public interface BusinessService {
 
     @Secured({"ROLE_USER"})
     public void someUserMethod2();
+    
+    public int someOther(int input);
 }

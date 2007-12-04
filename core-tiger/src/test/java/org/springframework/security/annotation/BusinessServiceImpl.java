@@ -25,4 +25,8 @@ public class BusinessServiceImpl<E extends Entity> implements BusinessService {
     public E someUserMethod3(final E entity) {
         return entity;
     }
+
+	public int someOther(int input) {
+		return input;
+	}
 }

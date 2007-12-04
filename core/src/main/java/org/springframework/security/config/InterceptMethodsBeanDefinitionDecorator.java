@@ -3,16 +3,11 @@ package org.springframework.security.config;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.config.AbstractInterceptorDrivenBeanDefinitionDecorator;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.core.Ordered;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.ConfigAttributeEditor;
 import org.springframework.security.intercept.method.MethodDefinitionMap;
@@ -34,35 +29,9 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
     private BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
 
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
-        registerPostProcessorIfNecessary(parserContext.getRegistry());
+        MethodSecurityInterceptorUtils.registerPostProcessorIfNecessary(parserContext.getRegistry());
 
         return delegate.decorate(node, definition, parserContext);
-    }
-
-    private void registerPostProcessorIfNecessary(BeanDefinitionRegistry registry) {
-        if (registry.containsBeanDefinition(BeanIds.INTERCEPT_METHODS_BEAN_FACTORY_POST_PROCESSOR)) {
-            return;
-        }
-
-        registry.registerBeanDefinition(BeanIds.INTERCEPT_METHODS_BEAN_FACTORY_POST_PROCESSOR,
-                new RootBeanDefinition(MethodSecurityConfigPostProcessor.class));
-    }
-
-    public static class MethodSecurityConfigPostProcessor implements BeanFactoryPostProcessor, Ordered {
-
-        public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-            String[] interceptors = beanFactory.getBeanNamesForType(MethodSecurityInterceptor.class);
-
-            for (int i=0; i < interceptors.length; i++) {
-                BeanDefinition interceptor = beanFactory.getBeanDefinition(interceptors[i]);
-                ConfigUtils.configureSecurityInterceptor(beanFactory, interceptor);
-            }
-        }
-
-        public int getOrder() {
-            return HIGHEST_PRECEDENCE;
-        }
-
     }
 }
 

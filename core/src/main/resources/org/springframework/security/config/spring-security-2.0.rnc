@@ -43,6 +43,7 @@ intercept-methods =
 
 intercept-methods.attlist = empty
 
+
 protect = 
     ## Defines a protected method and the access control configuration attributes that apply to it
     element protect {protect.attlist, empty}
@@ -53,6 +54,13 @@ protect.attlist &=
 protect.attlist &=
     ## Access configuration attributes list that applies to the method, e.g. "ROLE_A,ROLE_B"
     attribute access {xsd:string}
+
+
+annotation-driven =
+	## Activates security annotation scanning. All beans registered in the Spring application context will be scanned for Spring Security annotations. Where found, the beans will automatically be proxied and security authorization applied to the methods accordingly. Please ensure you have the spring-security-tiger-XXX.jar on your classpath.
+	element annotation-driven {annotation-driven.attlist} 
+
+annotation-driven.attlist = empty
 
 
 http =
