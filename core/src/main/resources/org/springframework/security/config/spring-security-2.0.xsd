@@ -221,7 +221,7 @@
     </xs:attribute>
     <xs:attribute name="loginPage" type="xs:string">
       <xs:annotation>
-        <xs:documentation>The URL for the login page</xs:documentation>
+        <xs:documentation>The URL for the login page. If no login URL is specified, Spring Security will automatically create a login URL at /spring_security_login and a corresponding filter to render that login URL when requested.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>

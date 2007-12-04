@@ -105,7 +105,7 @@ form-login.attlist &=
     ## The URL that the form is submitted to
     [ a:defaultValue = "/j_spring_security_check" ] attribute loginUrl {xsd:string}?   
 form-login.attlist &=
-    ## The URL for the login page
+    ## The URL for the login page. If no login URL is specified, Spring Security will automatically create a login URL at /spring_security_login and a corresponding filter to render that login URL when requested.
     attribute loginPage {xsd:string}?   
 
 filter-chain-map = 

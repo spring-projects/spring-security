@@ -1,19 +1,18 @@
 package org.springframework.security.ui.webapp;
 
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.ui.AbstractProcessingFilter;
-import org.springframework.security.ui.FilterChainOrderUtils;
-import org.springframework.security.ui.SpringSecurityFilter;
-import org.springframework.security.ui.rememberme.AbstractRememberMeServices;
-import org.springframework.security.ui.rememberme.TokenBasedRememberMeServices;
-import org.springframework.util.StringUtils;
+import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
+
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.ui.rememberme.AbstractRememberMeServices;
 
 /**
  * For internal use with namespace configuration in the case where a user doesn't configure a login page.
@@ -25,7 +24,8 @@ import java.io.IOException;
  * @version $Id$
  */
 public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
-    public static final String DEFAULT_LOGIN_PAGE_URL = "/login";
+    public static final String DEFAULT_LOGIN_PAGE_URL = "/spring_security_login";
+    public static final String ERROR_PARAMETER_NAME = "login_error";
     private String authenticationUrl;
     private String usernameParameter;
     private String passwordParameter;
@@ -52,7 +52,7 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
     }
 
     private String generateLoginPageHtml(HttpServletRequest request) {
-        boolean loginError = StringUtils.hasText(request.getParameter("login_error"));
+        boolean loginError = request.getParameter(ERROR_PARAMETER_NAME) != null;
         String errorMsg = "none";
         String lastUser = "";
 
@@ -60,8 +60,12 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
             HttpSession session = request.getSession(false);
 
             if(session != null) {
-                 errorMsg = ((AuthenticationException)
-                        session.getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY)).getMessage();
+            	lastUser = (String) session.getAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY);
+            	AuthenticationException ex = (AuthenticationException) session.getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY);
+                errorMsg = ex != null ? ex.getMessage() : "none";
+                if (lastUser == null) {
+                	lastUser = "";
+                }
             }
         }
 

@@ -32,10 +32,6 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
     private static final String DEFAULT_FORM_LOGIN_TARGET_URL = "/";
 
     private static final String FORM_LOGIN_AUTH_FAILURE_URL_ATTRIBUTE = "defaultTargetUrl";
-    // TODO: Change AbstractProcessingFilter to not need a failure URL and just write a failure message
-    // to the response if one isn't set.
-    private static final String DEFAULT_FORM_LOGIN_AUTH_FAILURE_URL = "/loginError";
-
 
     public BeanDefinition parse(Element elt, ParserContext parserContext) {
         ConfigUtils.registerProviderManagerIfNecessary(parserContext);
@@ -91,7 +87,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         String authenticationFailureUrl = elt.getAttribute(FORM_LOGIN_AUTH_FAILURE_URL_ATTRIBUTE);
 
         if (!StringUtils.hasText(authenticationFailureUrl)) {
-            authenticationFailureUrl = DEFAULT_FORM_LOGIN_AUTH_FAILURE_URL;
+            authenticationFailureUrl = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL + "?" + DefaultLoginPageGeneratingFilter.ERROR_PARAMETER_NAME;
         }
 
         filterBuilder.addPropertyValue("authenticationFailureUrl", authenticationFailureUrl);
