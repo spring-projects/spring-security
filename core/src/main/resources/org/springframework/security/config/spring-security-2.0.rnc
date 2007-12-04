@@ -10,6 +10,10 @@ start = http | ldap | repository
 
 # targetNamespace="http://www.springframework.org/schema/security"
 
+hash =
+    ## Defines the type of hashing used on user passwords. If unspecified, "plaintext" is nominated, which indicates that the passwords are not hashed. We recommend strongly against using MD4, as it is a very weak hashing algorithm.
+    attribute hash {"plaintext" | "sha:hex" | "sha:base64" | "md5:hex" | "md5:base64" | "md4:hex" | "md4:base64"}
+
 pathType =
     ## Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.
     attribute pathType {"ant" | "regex"}
@@ -175,26 +179,37 @@ repository.attlist &=
 user-service =
     element user-service {user-service.attlist, (user*)}
 user-service.attlist &=
+    hash?
+user-service.attlist &=
     attribute properties {xsd:string}*
 
 user =
+	## Represents a user in the application.
     element user {user.attlist, empty}
 user.attlist &=
+	## The username assigned to the user.
     attribute name {xsd:string}
 user.attlist &=
+	## The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element).
     attribute password {xsd:string}
 user.attlist &=
+	## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR" 
     attribute authorities {xsd:string}
 
 jdbc-user-service =
 	## Causes creation of a JDBC-based UserDetailsService.
     element jdbc-user-service {jdbc-user-service.attlist}
 jdbc-user-service.attlist &=
+    hash?
+jdbc-user-service.attlist &=
 	## The bean ID of the DataSource which provides the required tables.
     attribute dataSource {xsd:string}
 
 custom-user-service =
+	## Represents a UserDetailsService implementation that has been provided by you. Registration here will automate the creation of a DaoAuthenticationProvider that delegates to your UserDetailsService implementation.
     element custom-user-service {custom-user-service.attlist}
+custom-user-service.attlist &=
+    hash?
 custom-user-service.attlist &=
 	## The bean ID of your custom UserDetailsService implementation.
     attribute id {xsd:string}

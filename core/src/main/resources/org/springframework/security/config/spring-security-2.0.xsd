@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.springframework.org/schema/security" xmlns:security="http://www.springframework.org/schema/security">
   <!-- targetNamespace="http://www.springframework.org/schema/security" -->
+  <xs:attributeGroup name="hash">
+    <xs:attribute name="hash" use="required">
+      <xs:annotation>
+        <xs:documentation>Defines the type of hashing used on user passwords. If unspecified, "plaintext" is nominated, which indicates that the passwords are not hashed. We recommend strongly against using MD4, as it is a very weak hashing algorithm.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="plaintext"/>
+          <xs:enumeration value="sha:hex"/>
+          <xs:enumeration value="sha:base64"/>
+          <xs:enumeration value="md5:hex"/>
+          <xs:enumeration value="md5:base64"/>
+          <xs:enumeration value="md4:hex"/>
+          <xs:enumeration value="md4:base64"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:attributeGroup name="pathType">
     <xs:attribute name="pathType" use="required">
       <xs:annotation>
@@ -378,17 +396,48 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="user-service.attlist">
+    <xs:attribute name="hash">
+      <xs:annotation>
+        <xs:documentation>Defines the type of hashing used on user passwords. If unspecified, "plaintext" is nominated, which indicates that the passwords are not hashed. We recommend strongly against using MD4, as it is a very weak hashing algorithm.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="plaintext"/>
+          <xs:enumeration value="sha:hex"/>
+          <xs:enumeration value="sha:base64"/>
+          <xs:enumeration value="md5:hex"/>
+          <xs:enumeration value="md5:base64"/>
+          <xs:enumeration value="md4:hex"/>
+          <xs:enumeration value="md4:base64"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="properties" type="xs:string"/>
   </xs:attributeGroup>
   <xs:element name="user">
+    <xs:annotation>
+      <xs:documentation>Represents a user in the application.</xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:attributeGroup ref="security:user.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="user.attlist">
-    <xs:attribute name="name" use="required" type="xs:string"/>
-    <xs:attribute name="password" use="required" type="xs:string"/>
-    <xs:attribute name="authorities" use="required" type="xs:string"/>
+    <xs:attribute name="name" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The username assigned to the user.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="password" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="authorities" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR" </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="jdbc-user-service">
     <xs:annotation>
@@ -399,6 +448,22 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="jdbc-user-service.attlist">
+    <xs:attribute name="hash">
+      <xs:annotation>
+        <xs:documentation>Defines the type of hashing used on user passwords. If unspecified, "plaintext" is nominated, which indicates that the passwords are not hashed. We recommend strongly against using MD4, as it is a very weak hashing algorithm.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="plaintext"/>
+          <xs:enumeration value="sha:hex"/>
+          <xs:enumeration value="sha:base64"/>
+          <xs:enumeration value="md5:hex"/>
+          <xs:enumeration value="md5:base64"/>
+          <xs:enumeration value="md4:hex"/>
+          <xs:enumeration value="md4:base64"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="dataSource" use="required" type="xs:string">
       <xs:annotation>
         <xs:documentation>The bean ID of the DataSource which provides the required tables.</xs:documentation>
@@ -406,11 +471,30 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="custom-user-service">
+    <xs:annotation>
+      <xs:documentation>Represents a UserDetailsService implementation that has been provided by you. Registration here will automate the creation of a DaoAuthenticationProvider that delegates to your UserDetailsService implementation.</xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:attributeGroup ref="security:custom-user-service.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="custom-user-service.attlist">
+    <xs:attribute name="hash">
+      <xs:annotation>
+        <xs:documentation>Defines the type of hashing used on user passwords. If unspecified, "plaintext" is nominated, which indicates that the passwords are not hashed. We recommend strongly against using MD4, as it is a very weak hashing algorithm.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="plaintext"/>
+          <xs:enumeration value="sha:hex"/>
+          <xs:enumeration value="sha:base64"/>
+          <xs:enumeration value="md5:hex"/>
+          <xs:enumeration value="md5:base64"/>
+          <xs:enumeration value="md4:hex"/>
+          <xs:enumeration value="md4:base64"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="id" use="required" type="xs:string">
       <xs:annotation>
         <xs:documentation>The bean ID of your custom UserDetailsService implementation.</xs:documentation>
