@@ -48,7 +48,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
 
     public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "j_username";
     public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "j_password";
-    public static final String SPRING_SECURITY_LAST_USERNAME_KEY = "SECURITY_SECURITY_LAST_USERNAME";
+    public static final String SPRING_SECURITY_LAST_USERNAME_KEY = "SPRING_SECURITY_LAST_USERNAME";
 
     private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
