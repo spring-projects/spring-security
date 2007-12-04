@@ -32,8 +32,7 @@ import org.springframework.util.Assert;
  * from an {@link UserDetailsService}.
  *
  * @author Ben Alex
- * @version $Id: DaoAuthenticationProvider.java 1857 2007-05-24 00:47:12Z
- *          benalex $
+ * @version $Id$
  */
 public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
