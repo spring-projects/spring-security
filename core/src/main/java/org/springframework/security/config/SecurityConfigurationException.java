@@ -1,11 +1,14 @@
 package org.springframework.security.config;
 
+import org.springframework.security.SpringSecurityException;
+
 
 /**
  * @author Luke Taylor
+ * @author Ben Alex
  * @version $Id$
  */
-public class SecurityConfigurationException extends RuntimeException {
+public class SecurityConfigurationException extends SpringSecurityException {
     public SecurityConfigurationException(String s) {
         super(s);
     }
