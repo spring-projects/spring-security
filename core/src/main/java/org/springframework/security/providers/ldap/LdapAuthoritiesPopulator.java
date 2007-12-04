@@ -38,11 +38,11 @@ public interface LdapAuthoritiesPopulator {
     /**
      * Get the list of authorities for the user.
      *
-     * @param user the context object which was returned by the LDAP authenticator.
+     * @param userData the context object which was returned by the LDAP authenticator.
      *
      * @return the granted authorities for the given user.
      *
      * @throws LdapDataAccessException if there is a problem accessing the directory.
      */
-    GrantedAuthority[] getGrantedAuthorities(DirContextOperations user, String username) throws LdapDataAccessException;
+    GrantedAuthority[] getGrantedAuthorities(DirContextOperations userData, String username);
 }
