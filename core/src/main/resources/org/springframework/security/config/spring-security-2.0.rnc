@@ -57,9 +57,9 @@ protect.attlist &=
 
 http =
     ## Container element for HTTP security configuration
-   element http {http.attlist, (intercept-url+ & form-login? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous?) }
+   element http {http.attlist, (intercept-url+ & form-login? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous? & servlet-api-integration?) }
 http.attlist &=
-    ## Automatically registers a login form, BASIC authentication, anonymous authentication, logout services and remember-me. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".
+    ## Automatically registers a login form, BASIC authentication, anonymous authentication, logout services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".
     attribute autoConfig {"true" | "false" }?
 http.attlist &=
     ## Controls the eagerness with which an HTTP session is created. If not set, defaults to "ifRequired".
@@ -157,6 +157,10 @@ remember-me =
 remember-me.attlist &= 
     (attribute key {xsd:string} | (attribute tokenRepository {xsd:string} | attribute datasource {xsd:string}))        
     
+servlet-api-integration = 
+    element servlet-api-integration {servlet-api-integration.attlist} 
+servlet-api-integration.attlist = empty 
+
 anonymous = 
 	## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
     element anonymous {anonymous.attlist} 

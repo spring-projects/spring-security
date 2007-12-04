@@ -23,6 +23,7 @@
         <http-basic />
         <logout />
         <remember-me />
+ 		<servlet-api-integration/>
  		-->
  		
         <concurrent-session-control maxSessions="1" exceptionIfMaximumExceeded="true"/>

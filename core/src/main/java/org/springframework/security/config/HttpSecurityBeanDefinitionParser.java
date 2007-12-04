@@ -190,11 +190,15 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             new BasicAuthenticationBeanDefinitionParser(realm).parse(basicAuthElt, parserContext);
         }
 
+        Element servletApiIntegrationElt = DomUtils.getChildElementByTagName(element, Elements.SERVLET_API_INTEGRATION);
+        if (servletApiIntegrationElt != null || autoConfig) {
+            new ServletApiIntegrationBeanDefinitionParser().parse(servletApiIntegrationElt, parserContext);
+        }
+        
         registry.registerBeanDefinition(BeanIds.FILTER_CHAIN_PROXY, filterChainProxy);
         registry.registerBeanDefinition(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER, httpScif);
         registry.registerBeanDefinition(BeanIds.EXCEPTION_TRANSLATION_FILTER, exceptionTranslationFilterBuilder.getBeanDefinition());
         registry.registerBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR, filterSecurityInterceptorBuilder.getBeanDefinition());
-
 
         // Register the post processor which will tie up the loose ends in the configuration once the app context has been created and all beans are available.
         registry.registerBeanDefinition("__httpConfigBeanFactoryPostProcessor", new RootBeanDefinition(HttpSecurityConfigPostProcessor.class));

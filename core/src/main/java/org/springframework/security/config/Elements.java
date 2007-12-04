@@ -25,5 +25,6 @@ class Elements {
 	public static final String REMEMBER_ME = "remember-me";
 	public static final String ANONYMOUS = "anonymous";
 	public static final String FILTER_CHAIN = "filter-chain";
+	public static final String SERVLET_API_INTEGRATION = "servlet-api-integration";
 
 }

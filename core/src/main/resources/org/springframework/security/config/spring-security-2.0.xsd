@@ -114,6 +114,7 @@
         <xs:element ref="security:concurrent-session-control"/>
         <xs:element ref="security:remember-me"/>
         <xs:element ref="security:anonymous"/>
+        <xs:element ref="security:servlet-api-integration"/>
       </xs:choice>
       <xs:attributeGroup ref="security:http.attlist"/>
     </xs:complexType>
@@ -121,7 +122,7 @@
   <xs:attributeGroup name="http.attlist">
     <xs:attribute name="autoConfig">
       <xs:annotation>
-        <xs:documentation>Automatically registers a login form, BASIC authentication, anonymous authentication, logout services and remember-me. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".</xs:documentation>
+        <xs:documentation>Automatically registers a login form, BASIC authentication, anonymous authentication, logout services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -339,6 +340,9 @@
     <xs:attribute name="tokenRepository" type="xs:string"/>
     <xs:attribute name="datasource" type="xs:string"/>
   </xs:attributeGroup>
+  <xs:element name="servlet-api-integration">
+    <xs:complexType/>
+  </xs:element>
   <xs:element name="anonymous">
     <xs:annotation>
       <xs:documentation>Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.</xs:documentation>

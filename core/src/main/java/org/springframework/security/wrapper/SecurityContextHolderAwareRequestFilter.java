@@ -15,23 +15,20 @@
 
 package org.springframework.security.wrapper;
 
-import org.springframework.security.util.PortResolver;
-import org.springframework.security.util.PortResolverImpl;
-
-import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
-
 import java.io.IOException;
-
 import java.lang.reflect.Constructor;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.util.PortResolver;
+import org.springframework.security.util.PortResolverImpl;
+import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 
 
 /**
@@ -47,7 +44,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Ben Alex
  * @version $Id$
  */
-public class SecurityContextHolderAwareRequestFilter implements Filter {
+public class SecurityContextHolderAwareRequestFilter extends SpringSecurityFilter {
     //~ Instance fields ================================================================================================
 
     private Class wrapperClass = SavedRequestAwareWrapper.class;
@@ -57,12 +54,23 @@ public class SecurityContextHolderAwareRequestFilter implements Filter {
 
     //~ Methods ========================================================================================================
 
-    public void destroy() {}
+    public void setPortResolver(PortResolver portResolver) {
+        Assert.notNull(portResolver, "PortResolver required");
+        this.portResolver = portResolver;
+    }
 
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-        throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
+    public void setWrapperClass(Class wrapperClass) {
+        Assert.notNull(wrapperClass, "WrapperClass required");
+        Assert.isTrue(HttpServletRequest.class.isAssignableFrom(wrapperClass), "Wrapper must be a HttpServletRequest");
+        this.wrapperClass = wrapperClass;
+    }
 
+    public void setRolePrefix(String rolePrefix) {
+        Assert.notNull(rolePrefix, "Role prefix must not be null");
+        this.rolePrefix = rolePrefix.trim();
+    }
+
+	protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (!wrapperClass.isAssignableFrom(request.getClass())) {
             if (constructor == null) {
                 try {
@@ -80,24 +88,10 @@ public class SecurityContextHolderAwareRequestFilter implements Filter {
             }
         }
 
-        filterChain.doFilter(request, servletResponse);
-    }
+        chain.doFilter(request, response);
+	}
 
-    public void init(FilterConfig filterConfig) throws ServletException {}
-
-    public void setPortResolver(PortResolver portResolver) {
-        Assert.notNull(portResolver, "PortResolver required");
-        this.portResolver = portResolver;
-    }
-
-    public void setWrapperClass(Class wrapperClass) {
-        Assert.notNull(wrapperClass, "WrapperClass required");
-        Assert.isTrue(HttpServletRequest.class.isAssignableFrom(wrapperClass), "Wrapper must be a HttpServletRequest");
-        this.wrapperClass = wrapperClass;
-    }
-
-    public void setRolePrefix(String rolePrefix) {
-        Assert.notNull(rolePrefix, "Role prefix must not be null");
-        this.rolePrefix = rolePrefix.trim();
-    }
+	public int getOrder() {
+		return FilterChainOrderUtils.SECURITY_CONTEXT_HOLDER_AWARE_FILTER_ORDER;
+	}
 }

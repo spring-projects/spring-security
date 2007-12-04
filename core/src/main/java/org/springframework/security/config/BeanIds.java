@@ -34,7 +34,6 @@ public class BeanIds {
 	public static final String REMEMBER_ME_FILTER = "_rememberMeFilter";
 	public static final String REMEMBER_ME_SERVICES = "_rememberMeServices";
 	public static final String DEFAULT_LOGIN_PAGE_GENERATING_FILTER = "_defaultLoginPageFilter";
-
-	
+	public static final String SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER = "_securityContextHolderAwareRequestFilter";
 	
 }

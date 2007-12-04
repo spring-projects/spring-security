@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.springframework.security.MockFilterConfig;
 
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
@@ -54,11 +55,11 @@ public class SecurityContextHolderAwareRequestFilterTests extends TestCase {
     public void testCorrectOperation() throws Exception {
         SecurityContextHolderAwareRequestFilter filter = new SecurityContextHolderAwareRequestFilter();
         filter.init(new MockFilterConfig());
-        filter.doFilter(new MockHttpServletRequest(null, null), null,
+        filter.doFilter(new MockHttpServletRequest(null, null), new MockHttpServletResponse(),
             new MockFilterChain(SavedRequestAwareWrapper.class));
 
         // Now re-execute the filter, ensuring our replacement wrapper is still used
-        filter.doFilter(new MockHttpServletRequest(null, null), null,
+        filter.doFilter(new MockHttpServletRequest(null, null), new MockHttpServletResponse(),
             new MockFilterChain(SavedRequestAwareWrapper.class));
 
         filter.destroy();
