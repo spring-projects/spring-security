@@ -15,58 +15,57 @@
 
 package org.springframework.security.providers.ldap;
 
+import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.AuthenticationServiceException;
-
+import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder;
-import org.springframework.security.providers.encoding.PasswordEncoder;
-import org.springframework.security.providers.dao.AbstractUserDetailsAuthenticationProvider;
-
 import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsMapper;
+import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.ldap.NamingException;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-import org.springframework.dao.DataAccessException;
-import org.springframework.ldap.core.DirContextOperations;
-
 
 /**
- * An {@link org.springframework.security.providers.AuthenticationProvider} implementation that provides integration with an
- * LDAP server.
- *
- * <p>There are many ways in which an LDAP directory can be configured so this class delegates most of
+ * An {@link org.springframework.security.providers.AuthenticationProvider} implementation that provides integration
+ * with an LDAP server.
+ * <p>
+ * There are many ways in which an LDAP directory can be configured so this class delegates most of
  * its responsibilites to two separate strategy interfaces, {@link LdapAuthenticator}
- * and {@link LdapAuthoritiesPopulator}.</p>
+ * and {@link LdapAuthoritiesPopulator}.
  *
  * <h3>LdapAuthenticator</h3>
  * This interface is responsible for performing the user authentication and retrieving
  * the user's information from the directory. Example implementations are {@link
- * org.springframework.security.providers.ldap.authenticator.BindAuthenticator BindAuthenticator} which authenticates the user by
- * "binding" as that user, and {@link org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator
- * PasswordComparisonAuthenticator} which performs a comparison of the supplied password with the value stored in the
- * directory, either by retrieving the password or performing an LDAP "compare" operation.
- * <p>The task of retrieving the user attributes is delegated to the authenticator because the permissions on the
+ * org.springframework.security.providers.ldap.authenticator.BindAuthenticator BindAuthenticator} which authenticates
+ * the user by "binding" as that user, and
+ * {@link org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator PasswordComparisonAuthenticator}
+ * which compares the supplied password with the value stored in the directory, using an LDAP "compare"
+ * operation.
+ * <p>
+ * The task of retrieving the user attributes is delegated to the authenticator because the permissions on the
  * attributes may depend on the type of authentication being used; for example, if binding as the user, it may be
- * necessary to read them with the user's own permissions (using the same context used for the bind operation).</p>
+ * necessary to read them with the user's own permissions (using the same context used for the bind operation).
  *
  * <h3>LdapAuthoritiesPopulator</h3>
  * Once the user has been authenticated, this interface is called to obtain the set of granted authorities for the
  * user.
- * The
- * {@link org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator DefaultLdapAuthoritiesPopulator}
+ * The {@link org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator DefaultLdapAuthoritiesPopulator}
  * can be configured to obtain user role information from the user's attributes and/or to perform a search for
  * "groups" that the user is a member of and map these to roles.
  *
- * <p>A custom implementation could obtain the roles from a completely different source, for example from a database.
- * </p>
+ * <p>
+ * A custom implementation could obtain the roles from a completely different source, for example from a database.
  *
  * <h3>Configuration</h3>
  *
@@ -94,21 +93,22 @@ import org.springframework.ldap.core.DirContextOperations;
  *      &lt;/constructor-arg>
  *    &lt;/bean></pre>
  *
- * <p>This would set up the provider to access an LDAP server with URL
+ * <p>
+ * This would set up the provider to access an LDAP server with URL
  * <tt>ldap://monkeymachine:389/dc=springframework,dc=org</tt>. Authentication will be performed by attempting to bind
  * with the DN <tt>uid=&lt;user-login-name&gt;,ou=people,dc=springframework,dc=org</tt>. After successful
  * authentication, roles will be assigned to the user by searching under the DN
  * <tt>ou=groups,dc=springframework,dc=org</tt> with the default filter <tt>(member=&lt;user's-DN&gt;)</tt>. The role
- * name will be taken from the "ou" attribute of each match.</p>
+ * name will be taken from the "ou" attribute of each match.
  * <p>
  * The authenticate method will reject empty passwords outright. LDAP servers may allow an anonymous
  * bind operation with an empty password, even if a DN is supplied. In practice this means that if
- * the LDAP directory is configured to allow unauthenitcated access, it might be possible to
+ * the LDAP directory is configured to allow unauthenticated access, it might be possible to
  * authenticate as <i>any</i> user just by supplying an empty password.
  * More information on the misuse of unauthenticated access can be found in
  * <a href="http://www.ietf.org/internet-drafts/draft-ietf-ldapbis-authmeth-19.txt">
  * draft-ietf-ldapbis-authmeth-19.txt</a>.
- * </p>
+ *
  *
  * @author Luke Taylor
  * @version $Id$
@@ -116,18 +116,18 @@ import org.springframework.ldap.core.DirContextOperations;
  * @see org.springframework.security.providers.ldap.authenticator.BindAuthenticator
  * @see org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator
  */
-public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+public class LdapAuthenticationProvider implements AuthenticationProvider {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(LdapAuthenticationProvider.class);
 
     //~ Instance fields ================================================================================================
 
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
     private LdapAuthenticator authenticator;
     private LdapAuthoritiesPopulator authoritiesPopulator;
     private UserDetailsContextMapper userDetailsContextMapper = new LdapUserDetailsMapper();
-    private PasswordEncoder passwordEncoder = new LdapShaPasswordEncoder();
-    private boolean includeDetailsObject = true;
 
     //~ Constructors ===================================================================================================
 
@@ -184,27 +184,18 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         return userDetailsContextMapper;
     }
 
-    protected void additionalAuthenticationChecks(UserDetails userDetails,
-                                                  UsernamePasswordAuthenticationToken authentication)
-        throws AuthenticationException {
-		String presentedPassword = authentication.getCredentials() == null ? "" :
-                authentication.getCredentials().toString();
-        if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), presentedPassword, null)) {
-            throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
-                    includeDetailsObject ? userDetails : null);
-        }
-    }
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
+            messages.getMessage("AbstractUserDetailsAuthenticationProvider.onlySupports",
+                "Only UsernamePasswordAuthenticationToken is supported"));
 
-    protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
-            throws AuthenticationException {
+        UsernamePasswordAuthenticationToken userToken = (UsernamePasswordAuthenticationToken)authentication;
+
+        String username = userToken.getName();
+
         if (!StringUtils.hasLength(username)) {
             throw new BadCredentialsException(messages.getMessage("LdapAuthenticationProvider.emptyUsername",
                     "Empty Username"));
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Retrieving user " + username);
         }
 
         String password = (String) authentication.getCredentials();
@@ -217,23 +208,27 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         }
 
         try {
-            DirContextOperations user = getAuthenticator().authenticate(authentication);
+            DirContextOperations userData = getAuthenticator().authenticate(authentication);
 
-            GrantedAuthority[] extraAuthorities = getAuthoritiesPopulator().getGrantedAuthorities(user, username);
+            GrantedAuthority[] extraAuthorities = getAuthoritiesPopulator().getGrantedAuthorities(userData, username);
 
-            return userDetailsContextMapper.mapUserFromContext(user, username, extraAuthorities);
+            UserDetails user = userDetailsContextMapper.mapUserFromContext(userData, username, extraAuthorities);
 
-        } catch (DataAccessException ldapAccessFailure) {
+            return createSuccessfulAuthentication(userToken, user);
+
+        } catch (NamingException ldapAccessFailure) {
             throw new AuthenticationServiceException(ldapAccessFailure.getMessage(), ldapAccessFailure);
         }
     }
 
-    public boolean isIncludeDetailsObject() {
-        return includeDetailsObject;
+    protected Authentication createSuccessfulAuthentication(UsernamePasswordAuthenticationToken authentication,
+            UserDetails user) {
+
+        return new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
     }
 
-    public void setIncludeDetailsObject(boolean includeDetailsObject) {
-        this.includeDetailsObject = includeDetailsObject;
+    public boolean supports(Class authentication) {
+        return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
     }
 
     //~ Inner Classes ==================================================================================================

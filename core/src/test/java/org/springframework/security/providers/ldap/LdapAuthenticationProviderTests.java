@@ -51,22 +51,19 @@ public class LdapAuthenticationProviderTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public void testDifferentCacheValueCausesException() {
+
+    public void testSupportsUsernamePasswordAuthenticationToken() {
         LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
                 new MockAuthoritiesPopulator());
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben", "benspassword");
 
-        // User is authenticated here
-        UserDetails user = ldapProvider.retrieveUser("ben", authRequest);
-        // Assume the user details object is cached...
+        assertTrue(ldapProvider.supports(UsernamePasswordAuthenticationToken.class));
+    }
 
-        // And a subsequent authentication request comes in on the cached data
-        authRequest = new UsernamePasswordAuthenticationToken("ben", "wrongpassword");
+    public void testDefaultMapperIsSet() {
+        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
+                new MockAuthoritiesPopulator());
 
-        try {
-            ldapProvider.additionalAuthenticationChecks(user, authRequest);
-            fail("Expected BadCredentialsException should have failed with wrong password");
-        } catch (BadCredentialsException expected) {}
+        assertTrue(ldapProvider.getUserDetailsContextMapper() instanceof LdapUserDetailsMapper);
     }
 
     public void testEmptyOrNullUserNameThrowsException() {
@@ -74,12 +71,12 @@ public class LdapAuthenticationProviderTests extends TestCase {
                 new MockAuthoritiesPopulator());
 
         try {
-            ldapProvider.retrieveUser("", new UsernamePasswordAuthenticationToken("bob", "bobspassword"));
+            ldapProvider.authenticate(new UsernamePasswordAuthenticationToken(null, "password"));
             fail("Expected BadCredentialsException for empty username");
         } catch (BadCredentialsException expected) {}
 
         try {
-            ldapProvider.retrieveUser(null, new UsernamePasswordAuthenticationToken("bob", "bobspassword"));
+            ldapProvider.authenticate(new UsernamePasswordAuthenticationToken("", "bobspassword"));
             fail("Expected BadCredentialsException for null username");
         } catch (BadCredentialsException expected) {}
     }
@@ -87,7 +84,7 @@ public class LdapAuthenticationProviderTests extends TestCase {
     public void testEmptyPasswordIsRejected() {
         LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator());
         try {
-            ldapProvider.retrieveUser("jen", new UsernamePasswordAuthenticationToken("jen", ""));
+            ldapProvider.authenticate(new UsernamePasswordAuthenticationToken("jen", ""));
             fail("Expected BadCredentialsException for empty password");
         } catch (BadCredentialsException expected) {}
     }
@@ -102,7 +99,7 @@ public class LdapAuthenticationProviderTests extends TestCase {
         assertNotNull(ldapProvider.getAuthoritiesPopulator());
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben", "benspassword");
-        UserDetails user = ldapProvider.retrieveUser("ben", authRequest);
+        UserDetails user = (UserDetails) ldapProvider.authenticate(authRequest).getPrincipal();
         assertEquals(2, user.getAuthorities().length);
         assertEquals("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=", user.getPassword());
         assertEquals("ben", user.getUsername());
@@ -113,8 +110,6 @@ public class LdapAuthenticationProviderTests extends TestCase {
 
         assertTrue(authorities.contains("ROLE_FROM_ENTRY"));
         assertTrue(authorities.contains("ROLE_FROM_POPULATOR"));
-
-        ldapProvider.additionalAuthenticationChecks(user, authRequest);
     }
 
     public void testUseWithNullAuthoritiesPopulatorReturnsCorrectRole() {
@@ -123,7 +118,7 @@ public class LdapAuthenticationProviderTests extends TestCase {
         userMapper.setRoleAttributes(new String[] {"ou"});
         ldapProvider.setUserDetailsContextMapper(userMapper);
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben", "benspassword");
-        UserDetails user = ldapProvider.retrieveUser("ben", authRequest);
+        UserDetails user = (UserDetails) ldapProvider.authenticate(authRequest).getPrincipal();
         assertEquals(1, user.getAuthorities().length);
         assertEquals("ROLE_FROM_ENTRY", user.getAuthorities()[0].getAuthority());
     }
