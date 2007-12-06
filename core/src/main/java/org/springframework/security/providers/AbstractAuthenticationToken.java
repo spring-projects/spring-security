@@ -39,7 +39,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Retained for compatibility with subclasses written before the
      * <tt>AbstractAuthenticationToken(GrantedAuthority[])</tt> constructor
      * was introduced.
@@ -49,7 +49,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
      */
     public AbstractAuthenticationToken() {}
 
-/**
+    /**
      * Creates a token with the supplied array of authorities.
      *
      * @param authorities the list of <tt>GrantedAuthority</tt>s for the
