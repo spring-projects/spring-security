@@ -70,6 +70,7 @@ import javax.servlet.ServletResponse;
  * case, set the <code>lifecycle</code> initialization parameter to <code>servlet-container-managed</code>. If the
  * parameter is any other value, servlet container lifecycle methods will not be delegated through to the proxy.</p>
  *
+ * @deprecated use DelegatingFilterProxy instead
  * @author Ben Alex
  * @version $Id$
  */
