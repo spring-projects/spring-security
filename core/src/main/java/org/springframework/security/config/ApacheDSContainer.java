@@ -159,6 +159,7 @@ class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, 
         if(ldifs != null && ldifs.length > 0) {
             try {
                 String ldifFile = ldifs[0].getFile().getAbsolutePath();
+                logger.info("Loading LDIF file: " + ldifFile);
                 LdifFileLoader loader = new LdifFileLoader(dirContext, ldifFile);
                 loader.execute();
             } finally {
