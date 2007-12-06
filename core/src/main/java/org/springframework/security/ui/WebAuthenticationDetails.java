@@ -37,15 +37,11 @@ public class WebAuthenticationDetails implements SessionIdentifierAware, Seriali
 
     //~ Constructors ===================================================================================================
 
-/**
-     * Constructor.
-     *
-     * <p>
+    /**
      * NB: This constructor will cause a <code>HttpSession</code> to be created
      * (this is considered reasonable as all Spring Security authentication
      * requests rely on <code>HttpSession</code> to store the
-     * <code>Authentication</code> between requests
-     * </p>
+     * <code>Authentication</code> between requests.
      *
      * @param request that the authentication request was received from
      */
