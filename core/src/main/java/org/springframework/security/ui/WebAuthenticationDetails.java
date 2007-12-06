@@ -38,10 +38,8 @@ public class WebAuthenticationDetails implements SessionIdentifierAware, Seriali
     //~ Constructors ===================================================================================================
 
     /**
-     * NB: This constructor will cause a <code>HttpSession</code> to be created
-     * (this is considered reasonable as all Spring Security authentication
-     * requests rely on <code>HttpSession</code> to store the
-     * <code>Authentication</code> between requests.
+     * Records the remote address and will also set the session Id if a session
+     * already exists (it won't create one).
      *
      * @param request that the authentication request was received from
      */
@@ -52,10 +50,6 @@ public class WebAuthenticationDetails implements SessionIdentifierAware, Seriali
         this.sessionId = (session != null) ? session.getId() : null;
 
         doPopulateAdditionalInformation(request);
-    }
-
-    protected WebAuthenticationDetails() {
-        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ========================================================================================================
