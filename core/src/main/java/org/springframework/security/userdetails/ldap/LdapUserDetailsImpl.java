@@ -16,18 +16,16 @@
 package org.springframework.security.userdetails.ldap;
 
 import org.springframework.security.GrantedAuthority;
-
-import org.springframework.util.Assert;
+import org.springframework.security.util.AuthorityUtils;
 import org.springframework.ldap.core.DirContextOperations;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Iterator;
+import org.springframework.util.Assert;
 
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.ldap.Control;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -45,9 +43,6 @@ import javax.naming.ldap.Control;
  * @version $Id$
  */
 public class LdapUserDetailsImpl implements LdapUserDetails {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final GrantedAuthority[] NO_AUTHORITIES = new GrantedAuthority[0];
 
     //~ Instance fields ================================================================================================
 
@@ -55,7 +50,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
     private String dn;
     private String password;
     private String username;
-    private GrantedAuthority[] authorities = NO_AUTHORITIES;
+    private GrantedAuthority[] authorities = AuthorityUtils.NO_AUTHORITIES;
     private boolean accountNonExpired = true;
     private boolean accountNonLocked = true;
     private boolean credentialsNonExpired = true;
@@ -154,8 +149,9 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
         }
 
         public LdapUserDetails createUserDetails() {
-            //TODO: Validation of properties
             Assert.notNull(instance, "Essence can only be used to create a single instance");
+            Assert.notNull(instance.username, "username must not be null");
+            Assert.notNull(instance.getDn(), "Distinguished name must not be null");
 
             instance.authorities = getGrantedAuthorities();
 
