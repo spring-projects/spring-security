@@ -16,32 +16,27 @@
 package org.springframework.security.ldap;
 
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
-
-import org.springframework.util.Assert;
 import org.springframework.ldap.core.ContextExecutor;
+import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.AttributesMapperCallbackHandler;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.util.Assert;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
-import java.text.MessageFormat;
-
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.NameClassPair;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import java.text.MessageFormat;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Arrays;
 
 
 /**
@@ -94,8 +89,6 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
                 ctls.setReturningAttributes(NO_ATTRS);
                 ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
 
-//                String relativeName = LdapUtils.getRelativeName(dn, ctx);
-
                 NamingEnumeration results = ctx.search(dn, comparisonFilter, new Object[] {value}, ctls);
 
                 return Boolean.valueOf(results.hasMore());
@@ -106,26 +99,6 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
 
         return matches.booleanValue();
     }
-
-//    public boolean nameExists(final String dn) {
-//        Boolean exists = (Boolean) executeReadOnly(new ContextExecutor() {
-//                public Object executeWithContext(DirContext ctx) throws NamingException {
-//                    try {
-//                        Object obj = ctx.lookup(dn);
-//                        if (obj instanceof Context) {
-//                            LdapUtils.closeContext((Context) obj);
-//                        }
-//
-//                    } catch (NameNotFoundException nnfe) {
-//                        return Boolean.FALSE;
-//                    }
-//
-//                    return Boolean.TRUE;
-//                }
-//            });
-//
-//        return exists.booleanValue();
-//    }
 
     /**
      * Composes an object from the attributes of the given DN.
@@ -165,40 +138,18 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
 
         String formattedFilter = MessageFormat.format(filter, params);
 
-        // Returns either a string or list of strings from each match, depending on whether the
-        // specified attribute has one or more values.
-        AttributesMapper roleMapper = new AttributesMapper() {
-            public Object mapFromAttributes(Attributes attributes) throws NamingException {
-                Attribute attribute = attributes.get(attributeName);
+        final HashSet set = new HashSet();
 
-                if (attribute == null || attribute.size() == 0) {
+        ContextMapper roleMapper = new ContextMapper() {
+            public Object mapFromContext(Object ctx) {
+                DirContextAdapter adapter = (DirContextAdapter) ctx;
+                String[] values = adapter.getStringAttributes(attributeName);
+                if (values == null || values.length == 0) {
                     logger.debug("No attribute value found for '" + attributeName + "'");
-
-                    return null;
+                } else {
+                    set.addAll(Arrays.asList(values));
                 }
-
-                if (attribute.size() == 1) {
-                    return attribute.get();
-                }
-
-                NamingEnumeration ne = attribute.getAll();
-                List values = new ArrayList(attribute.size());
-                while (ne.hasMore()) {
-                    values.add(ne.next());
-                }
-                return values;
-            }
-        };
-
-        AttributesMapperCallbackHandler collector = new AttributesMapperCallbackHandler(roleMapper) {
-            public void handleNameClassPair(NameClassPair nameClassPair) {
-                Object roleObject = getObjectFromNameClassPair(nameClassPair);
-
-                if (roleObject instanceof String) {
-                    getList().add(roleObject);
-                } else if (roleObject instanceof List) {
-                    getList().addAll((List)roleObject);
-                }
+                return null;
             }
         };
 
@@ -207,9 +158,9 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
         ctls.setReturningAttributes(new String[] {attributeName});
         ctls.setReturningObjFlag(false);
 
-        search(base, formattedFilter, ctls, collector);
+        search(base, formattedFilter, ctls, roleMapper);
 
-        return new HashSet(collector.getList());
+        return set;
     }
 
     /**
@@ -251,13 +202,6 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
                         dn.append(",");
                         dn.append(base);
                     }
-
-//                    String nameInNamespace = ctx.getNameInNamespace();
-//
-//                    if (StringUtils.hasLength(nameInNamespace)) {
-//                        dn.append(",");
-//                        dn.append(nameInNamespace);
-//                    }
 
                     return new DirContextAdapter(searchResult.getAttributes(), new DistinguishedName(dn.toString()));
                 }
