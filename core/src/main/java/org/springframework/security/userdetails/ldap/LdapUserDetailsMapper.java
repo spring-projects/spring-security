@@ -28,7 +28,7 @@ import org.springframework.ldap.core.DirContextOperations;
 
 
 /**
- * The context mapper used by the authenticators to create an ldap user object.
+ * The context mapper used by the LDAP authentication provider to create an LDAP user object.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -89,7 +89,8 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
     }
 
     public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
-
+        throw new UnsupportedOperationException("LdapUserDetailsMapper only supports reading from a context. Please" +
+                "use a subclass if mapUserToContext() is required.");
     }
 
     /**
