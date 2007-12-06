@@ -15,9 +15,13 @@
 
 package org.springframework.security.concurrent;
 
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ui.FilterChainOrderUtils;
 import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.ui.logout.LogoutHandler;
+import org.springframework.security.ui.logout.SecurityContextLogoutHandler;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 import javax.servlet.FilterChain;
@@ -30,13 +34,15 @@ import java.io.IOException;
 
 /**
  * Filter required by concurrent session handling package.
- * <p>This filter performs two functions. First, it calls
- * {@link org.springframework.security.concurrent.SessionRegistry#refreshLastRequest(String)} for each request.
- * That way, registered sessions always have a correct "last update" date/time. Second, it retrieves
+ * <p>
+ * This filter performs two functions. First, it calls
+ * {@link org.springframework.security.concurrent.SessionRegistry#refreshLastRequest(String)} for each request
+ * so that registered sessions always have a correct "last update" date/time. Second, it retrieves a
  * {@link org.springframework.security.concurrent.SessionInformation} from the <code>SessionRegistry</code>
  * for each request and checks if the session has been marked as expired.
- * If it has been marked as expired, the session is invalidated. The invalidation of the session will also cause the
- * request to redirect to the URL specified, and a
+ * If it has been marked as expired, the configured logout handlers will be called (as happens with
+ * {@link org.springframework.security.ui.logout.LogoutFilter}), typically to invalidate the session.
+ * A redirect to the expiredURL specified will be performed, and the session invalidation will cause an
  * {@link org.springframework.security.ui.session.HttpSessionDestroyedEvent} to be published via the
  * {@link org.springframework.security.ui.session.HttpSessionEventPublisher} registered in <code>web.xml</code>.</p>
  *
@@ -48,6 +54,7 @@ public class ConcurrentSessionFilter extends SpringSecurityFilter implements Ini
 
     private SessionRegistry sessionRegistry;
     private String expiredUrl;
+    private LogoutHandler[] handlers = new LogoutHandler[] {new SecurityContextLogoutHandler()};
 
     //~ Methods ========================================================================================================
 
@@ -66,7 +73,7 @@ public class ConcurrentSessionFilter extends SpringSecurityFilter implements Ini
             if (info != null) {
                 if (info.isExpired()) {
                     // Expired - abort processing
-                    session.invalidate();
+                    doLogout(request, response);
 
                     if (expiredUrl != null) {
                         String targetUrl = request.getContextPath() + expiredUrl;
@@ -88,12 +95,25 @@ public class ConcurrentSessionFilter extends SpringSecurityFilter implements Ini
         chain.doFilter(request, response);
     }
 
+    private void doLogout(HttpServletRequest request, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        for (int i = 0; i < handlers.length; i++) {
+            handlers[i].logout(request, response, auth);
+        }
+    }
+
     public void setExpiredUrl(String expiredUrl) {
         this.expiredUrl = expiredUrl;
     }
 
     public void setSessionRegistry(SessionRegistry sessionRegistry) {
         this.sessionRegistry = sessionRegistry;
+    }
+
+    public void setLogoutHandlers(LogoutHandler[] handlers) {
+        Assert.notNull(handlers);        
+        this.handlers = handlers;
     }
 
     public int getOrder() {
