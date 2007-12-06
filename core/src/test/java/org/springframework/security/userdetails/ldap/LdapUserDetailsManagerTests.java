@@ -22,7 +22,6 @@ import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.ldap.core.DirContextAdapter;
 
@@ -90,23 +89,17 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
     public void testLoadUserByUsernameReturnsCorrectData() {
         mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people","uid"));
         mgr.setGroupSearchBase("ou=groups");
-        UserDetails bob = mgr.loadUserByUsername("bob");
+        LdapUserDetails bob = (LdapUserDetails) mgr.loadUserByUsername("bob");
         assertEquals("bob", bob.getUsername());
-        // password isn't read
-        //assertEquals("bobspassword", bob.getPassword());
+        assertEquals("uid=bob, ou=people, dc=springframework, dc=org", bob.getDn());
+        assertEquals("bobspassword", bob.getPassword());
 
         assertEquals(1, bob.getAuthorities().length);
     }
 
-    @Test
+    @Test(expected = UsernameNotFoundException.class)
     public void testLoadingInvalidUsernameThrowsUsernameNotFoundException() {
-
-        try {
-            mgr.loadUserByUsername("jim");
-            fail("Expected UsernameNotFoundException for user 'jim'");
-        } catch(UsernameNotFoundException expected) {
-            // expected
-        }
+        mgr.loadUserByUsername("jim");
     }
 
     @Test
@@ -123,6 +116,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
     @Test
     public void testCreateNewUserSucceeds() {
         InetOrgPerson.Essence p = new InetOrgPerson.Essence();
+        p.setDn("whocares");
         p.setCn(new String[] {"Joe Smeth"});
         p.setSn("Smeth");
         p.setUid("joe");
@@ -134,6 +128,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
     @Test
     public void testDeleteUserSucceeds() {
         InetOrgPerson.Essence p = new InetOrgPerson.Essence();
+        p.setDn("whocares");
         p.setCn(new String[] {"Don Smeth"});
         p.setSn("Smeth");
         p.setUid("don");
@@ -162,6 +157,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
     @Test
     public void testPasswordChangeWithCorrectOldPasswordSucceeds() {
         InetOrgPerson.Essence p = new InetOrgPerson.Essence();
+        p.setDn("whocares");
         p.setCn(new String[] {"John Yossarian"});
         p.setSn("Yossarian");
         p.setUid("johnyossarian");
@@ -179,9 +175,10 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
                 "userPassword", "yossariansnewpassword"));
     }
 
-    @Test
+    @Test(expected = BadCredentialsException.class)
     public void testPasswordChangeWithWrongOldPasswordFails() {
         InetOrgPerson.Essence p = new InetOrgPerson.Essence();
+        p.setDn("whocares");
         p.setCn(new String[] {"John Yossarian"});
         p.setSn("Yossarian");
         p.setUid("johnyossarian");
@@ -193,11 +190,6 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
 
-        try {
-            mgr.changePassword("wrongpassword", "yossariansnewpassword");
-            fail("Expected BadCredentialsException");
-        } catch (BadCredentialsException expected) {
-        }
-
+        mgr.changePassword("wrongpassword", "yossariansnewpassword");
     }
 }

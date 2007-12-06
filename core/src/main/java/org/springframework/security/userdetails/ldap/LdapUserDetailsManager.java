@@ -119,7 +119,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         }
     };
 
-    private String[] attributesToRetrieve = null;
+    private String[] attributesToRetrieve;
 
     public LdapUserDetailsManager(ContextSource contextSource) {
         template = new LdapTemplate(contextSource);
@@ -186,6 +186,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
                 ctx.removeFromEnvironment("com.sun.jndi.ldap.connect.pool");
                 ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, LdapUtils.getFullDn(dn, ctx).toUrl());
                 ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, oldPassword);
+                // TODO: reconnect doesn't appear to actually change the credentials
                 try {
                     ctx.reconnect(null);
                 } catch (javax.naming.AuthenticationException e) {
@@ -317,11 +318,11 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         userDetailsMapper.mapUserToContext(user, ctx);
     }
 
-    private void addAuthorities(DistinguishedName userDn, GrantedAuthority[] authorities) {
+    protected void addAuthorities(DistinguishedName userDn, GrantedAuthority[] authorities) {
         modifyAuthorities(userDn, authorities, DirContext.ADD_ATTRIBUTE);
     }
 
-    private void removeAuthorities(DistinguishedName userDn, GrantedAuthority[] authorities) {
+    protected void removeAuthorities(DistinguishedName userDn, GrantedAuthority[] authorities) {
         modifyAuthorities(userDn, authorities, DirContext.REMOVE_ATTRIBUTE);
     }
 
