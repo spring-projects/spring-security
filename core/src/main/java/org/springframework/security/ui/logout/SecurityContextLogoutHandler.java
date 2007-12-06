@@ -25,56 +25,50 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * Performs a logout by modifying the
- * {@link org.springframework.security.context.SecurityContextHolder}.
- *
+ * Performs a logout by modifying the {@link org.springframework.security.context.SecurityContextHolder}.
  * <p>
- * Will also invalidate the {@link HttpSession} if
- * {@link #isInvalidateHttpSession()} is <code>true</code> and the session is
- * not <code>null</code>.
+ * Will also invalidate the {@link HttpSession} if {@link #isInvalidateHttpSession()} is <code>true</code> and the
+ * session is not <code>null</code>.
  *
  * @author Ben Alex
- * @version $Id: SecurityContextLogoutHandler.java 1784 2007-02-24 21:00:24Z
- * luke_t $
+ * @version $Id$
  */
 public class SecurityContextLogoutHandler implements LogoutHandler {
-	// ~ Methods
-	// ========================================================================================================
+    //~ Methods ========================================================================================================
 
-	private boolean invalidateHttpSession = true;
+    private boolean invalidateHttpSession = true;
 
-	/**
-	 * Requires the request to be passed in.
-	 *
-	 * @param request from which to obtain a HTTP session (cannot be null)
-	 * @param response not used (can be <code>null</code>)
-	 * @param authentication not used (can be <code>null</code>)
-	 */
-	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-		Assert.notNull(request, "HttpServletRequest required");
-		if (invalidateHttpSession) {
-			HttpSession session = request.getSession(false);
-			if (session != null) {
-				session.invalidate();
-			}
-		}
+    /**
+     * Requires the request to be passed in.
+     *
+     * @param request        from which to obtain a HTTP session (cannot be null)
+     * @param response       not used (can be <code>null</code>)
+     * @param authentication not used (can be <code>null</code>)
+     */
+    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        Assert.notNull(request, "HttpServletRequest required");
+        if (invalidateHttpSession) {
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
+        }
 
-		SecurityContextHolder.clearContext();
-	}
+        SecurityContextHolder.clearContext();
+    }
 
-	public boolean isInvalidateHttpSession() {
-		return invalidateHttpSession;
-	}
+    public boolean isInvalidateHttpSession() {
+        return invalidateHttpSession;
+    }
 
-	/**
-	 * Causes the {@link HttpSession} to be invalidated when this
-	 * {@link LogoutHandler} is invoked. Defaults to true.
-	 *
-	 * @param invalidateHttpSession true if you wish the session to be
-	 * invalidated (default) or false if it should not be
-	 */
-	public void setInvalidateHttpSession(boolean invalidateHttpSession) {
-		this.invalidateHttpSession = invalidateHttpSession;
+    /**
+     * Causes the {@link HttpSession} to be invalidated when this {@link LogoutHandler} is invoked. Defaults to true.
+     *
+     * @param invalidateHttpSession true if you wish the session to be invalidated (default) or false if it should
+     * not be.
+     */
+    public void setInvalidateHttpSession(boolean invalidateHttpSession) {
+        this.invalidateHttpSession = invalidateHttpSession;
 	}
 
 }
