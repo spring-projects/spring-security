@@ -37,8 +37,7 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
      *
      * @throws AuthenticationException if authentication fails
      */
-    public final Authentication authenticate(Authentication authRequest)
-        throws AuthenticationException {
+    public final Authentication authenticate(Authentication authRequest) throws AuthenticationException {
         try {
             return doAuthentication(authRequest);
         } catch (AuthenticationException e) {
@@ -51,7 +50,7 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
      * Concrete implementations of this class override this method to provide the authentication service.
      * <p>
      * The contract for this method is documented in the
-     * {@link AuthenticationManager#authenticate(org.springframework.security.Authentication)}.
+     * {@link AuthenticationManager#authenticate(Authentication)}.
      *
      * @param authentication the authentication request object
      *
@@ -59,6 +58,5 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
      *
      * @throws AuthenticationException if authentication fails
      */
-    protected abstract Authentication doAuthentication(Authentication authentication)
-        throws AuthenticationException;
+    protected abstract Authentication doAuthentication(Authentication authentication) throws AuthenticationException;
 }
