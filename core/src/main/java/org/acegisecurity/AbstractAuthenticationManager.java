@@ -15,8 +15,6 @@
 
 package org.acegisecurity;
 
-import org.acegisecurity.providers.AbstractAuthenticationToken;
-
 
 /**
  * An abstract implementation of the {@link AuthenticationManager}.
@@ -52,7 +50,7 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
     /**
      * <p>Concrete implementations of this class override this method to provide the authentication service.</p>
      *  <p>The contract for this method is documented in the {@link
-     * AuthenticationManager#authenticate(org.acegisecurity.Authentication)}.</p>
+     * AuthenticationManager#authenticate(Authentication)}.</p>
      *
      * @param authentication the authentication request object
      *
