@@ -42,28 +42,10 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
     public final Authentication authenticate(Authentication authRequest)
         throws AuthenticationException {
         try {
-            Authentication authResult = doAuthentication(authRequest);
-            copyDetails(authRequest, authResult);
-
-            return authResult;
+            return doAuthentication(authRequest);
         } catch (AuthenticationException e) {
             e.setAuthentication(authRequest);
             throw e;
-        }
-    }
-
-    /**
-     * Copies the authentication details from a source Authentication object to a destination one, provided the
-     * latter does not already have one set.
-     *
-     * @param source source authentication
-     * @param dest the destination authentication object
-     */
-    private void copyDetails(Authentication source, Authentication dest) {
-        if ((dest instanceof AbstractAuthenticationToken) && (dest.getDetails() == null)) {
-            AbstractAuthenticationToken token = (AbstractAuthenticationToken) dest;
-
-            token.setDetails(source.getDetails());
         }
     }
 
