@@ -15,9 +15,6 @@
 
 package org.springframework.security;
 
-import org.springframework.security.providers.AbstractAuthenticationToken;
-
-
 /**
  * An abstract implementation of the {@link AuthenticationManager}.
  *
@@ -43,10 +40,7 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
     public final Authentication authenticate(Authentication authRequest)
         throws AuthenticationException {
         try {
-            Authentication authResult = doAuthentication(authRequest);
-            copyDetails(authRequest, authResult);
-
-            return authResult;
+            return doAuthentication(authRequest);
         } catch (AuthenticationException e) {
             e.setAuthentication(authRequest);
             throw e;
@@ -54,24 +48,10 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
     }
 
     /**
-     * Copies the authentication details from a source Authentication object to a destination one, provided the
-     * latter does not already have one set.
-     *
-     * @param source source authentication
-     * @param dest the destination authentication object
-     */
-    private void copyDetails(Authentication source, Authentication dest) {
-        if ((dest instanceof AbstractAuthenticationToken) && (dest.getDetails() == null)) {
-            AbstractAuthenticationToken token = (AbstractAuthenticationToken) dest;
-
-            token.setDetails(source.getDetails());
-        }
-    }
-
-    /**
-     * <p>Concrete implementations of this class override this method to provide the authentication service.</p>
-     *  <p>The contract for this method is documented in the {@link
-     * AuthenticationManager#authenticate(org.springframework.security.Authentication)}.</p>
+     * Concrete implementations of this class override this method to provide the authentication service.
+     * <p>
+     * The contract for this method is documented in the
+     * {@link AuthenticationManager#authenticate(org.springframework.security.Authentication)}.
      *
      * @param authentication the authentication request object
      *

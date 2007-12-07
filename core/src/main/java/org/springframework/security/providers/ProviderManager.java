@@ -200,6 +200,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
 
                 try {
                     result = provider.authenticate(authentication);
+                    copyDetails(authentication, result);
                     sessionController.checkAuthenticationAllowed(result);
                 } catch (AuthenticationException ae) {
                     lastException = ae;
@@ -250,6 +251,21 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
 
         // Throw the exception
         throw lastException;
+    }
+
+    /**
+     * Copies the authentication details from a source Authentication object to a destination one, provided the
+     * latter does not already have one set.
+     *
+     * @param source source authentication
+     * @param dest the destination authentication object
+     */
+    private void copyDetails(Authentication source, Authentication dest) {
+        if ((dest instanceof AbstractAuthenticationToken) && (dest.getDetails() == null)) {
+            AbstractAuthenticationToken token = (AbstractAuthenticationToken) dest;
+
+            token.setDetails(source.getDetails());
+        }
     }
 
     public List getProviders() {
