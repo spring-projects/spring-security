@@ -87,6 +87,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
             LdapUserDetailsImpl.Essence user = (LdapUserDetailsImpl.Essence) template.retrieveEntry(userDn,
                     getUserDetailsMapper(), getUserAttributes());
             user.setUsername(username);
+            user.setPassword(password);
 
             return user.createUserDetails();
         } catch (BadCredentialsException e) {
