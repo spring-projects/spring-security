@@ -82,18 +82,23 @@ import java.util.Properties;
  * provides a non-null response, or a new <code>AuthenticationException</code>, the last
  * <code>AuthenticationException</code> received will be used. If no provider returns a non-null response, or indicates
  * it can even process an <code>Authentication</code>, the <code>ProviderManager</code> will throw a
- * <code>ProviderNotFoundException</code>.</p>
+ * <code>ProviderNotFoundException</code>.
  *
- * <p>If a valid <code>Authentication</code> is returned by an <code>AuthenticationProvider</code>, the
- * <code>ProviderManager</code> will publish an {@link
- * org.springframework.security.event.authentication.AuthenticationSuccessEvent}. If an <code>AuthenticationException</code> is
- * detected, the final <code>AuthenticationException</code> thrown will be used to publish an appropriate failure
- * event. By default <code>ProviderManager</code> maps common exceptions to events, but this can be fine-tuned by
- * providing a new <code>exceptionMappings</code><code>java.util.Properties</code> object. In the properties object,
- * each of the keys represent the fully qualified classname of the exception, and each of the values represent the
- * name of an event class which subclasses {@link
- * org.springframework.security.event.authentication.AbstractAuthenticationFailureEvent} and provides its constructor.</p>
+ * <p>
+ * If a valid <code>Authentication</code> is returned by an <code>AuthenticationProvider</code>, the
+ * <code>ProviderManager</code> will publish an
+ * {@link org.springframework.security.event.authentication.AuthenticationSuccessEvent}. If an
+ * <code>AuthenticationException</code> is detected, the final <code>AuthenticationException</code> thrown will be
+ * used to publish an appropriate failure event. By default <code>ProviderManager</code> maps common exceptions to
+ * events, but this can be fine-tuned by providing a new <code>exceptionMappings</code><code>java.util.Properties</code>
+ * object. In the properties object, each of the keys represent the fully qualified classname of the exception, and
+ * each of the values represent the name of an event class which subclasses
+ * {@link org.springframework.security.event.authentication.AbstractAuthenticationFailureEvent}
+ * and provides its constructor.
  *
+ *
+ * @author Ben Alex
+ * @version $Id$
  * @see ConcurrentSessionController
  */
 public class ProviderManager extends AbstractAuthenticationManager implements InitializingBean,
@@ -161,13 +166,16 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     protected void doAddExtraDefaultExceptionMappings(Properties exceptionMappings) {}
 
     /**
-     * Attempts to authenticate the passed {@link Authentication} object.<p>The list of {@link
-     * AuthenticationProvider}s will be successively tried until an <code>AuthenticationProvider</code> indicates it
-     * is  capable of authenticating the type of <code>Authentication</code> object passed. Authentication will then
-     * be attempted with that <code>AuthenticationProvider</code>.</p>
-     *  <p>If more than one <code>AuthenticationProvider</code> supports the passed <code>Authentication</code>
+     * Attempts to authenticate the passed {@link Authentication} object.
+     * <p>
+     * The list of {@link AuthenticationProvider}s will be successively tried until an
+     * <code>AuthenticationProvider</code> indicates it is  capable of authenticating the type of
+     * <code>Authentication</code> object passed. Authentication will then be attempted with that
+     * <code>AuthenticationProvider</code>.
+     * <p>
+     * If more than one <code>AuthenticationProvider</code> supports the passed <code>Authentication</code>
      * object, only the first <code>AuthenticationProvider</code> tried will determine the result. No subsequent
-     * <code>AuthenticationProvider</code>s will be tried.</p>
+     * <code>AuthenticationProvider</code>s will be tried.
      *
      * @param authentication the authentication request object.
      *
@@ -175,8 +183,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
      *
      * @throws AuthenticationException if authentication fails.
      */
-    public Authentication doAuthentication(Authentication authentication)
-        throws AuthenticationException {
+    public Authentication doAuthentication(Authentication authentication) throws AuthenticationException {
         Iterator iter = providers.iterator();
 
         Class toTest = authentication.getClass();
@@ -189,7 +196,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
             if (provider.supports(toTest)) {
                 logger.debug("Authentication attempt using " + provider.getClass().getName());
 
-                Authentication result = null;
+                Authentication result;
 
                 try {
                     result = provider.authenticate(authentication);
@@ -270,14 +277,15 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     /**
      * Sets the {@link AuthenticationProvider} objects to be used for authentication.
      *
-     * @param newList
+     * @param providers the list of authentication providers which will be used to process authentication requests.
      *
-     * @throws IllegalArgumentException DOCUMENT ME!
+     * @throws IllegalArgumentException if the list is empty or null, or any of the elements in the list is not an
+     * AuthenticationProvider instance.
      */
-    public void setProviders(List newList) {
-        checkIfValidList(newList);
+    public void setProviders(List providers) {
+        checkIfValidList(providers);
 
-        Iterator iter = newList.iterator();
+        Iterator iter = providers.iterator();
 
         while (iter.hasNext()) {
             Object currentObject = iter.next();
@@ -285,12 +293,12 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
                     "Can only provide AuthenticationProvider instances");
         }
 
-        this.providers = newList;
+        this.providers = providers;
     }
 
     /**
-     * Set the {@link ConcurrentSessionController} to be used for limiting user's sessions.  The {@link
-     * NullConcurrentSessionController} is used by default
+     * Set the {@link ConcurrentSessionController} to be used for limiting users' sessions. The {@link
+     * NullConcurrentSessionController} is used by default.
      *
      * @param sessionController {@link ConcurrentSessionController}
      */

@@ -28,10 +28,11 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
     //~ Methods ========================================================================================================
 
     /**
-     * <p>An implementation of the <code>authenticate</code> method that calls the abstract method
-     * <code>doAuthenticatation</code> to do its work.</p>
-     *  <p>If doAuthenticate throws an <code>AuthenticationException</code> then the exception is populated
-     * with the failed <code>Authentication</code> object that failed.</p>
+     * An implementation of the <code>authenticate</code> method that calls the abstract method
+     * <code>doAuthenticatation</code> to do its work.
+     * <p>
+     * If doAuthenticate throws an <code>AuthenticationException</code> then the exception is populated
+     * with the failed <code>Authentication</code> object that failed.
      *
      * @param authRequest the authentication request object
      *
