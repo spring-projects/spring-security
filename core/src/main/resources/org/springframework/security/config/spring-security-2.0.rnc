@@ -14,9 +14,9 @@ hash =
     ## Defines the type of hashing used on user passwords. If unspecified, "plaintext" is nominated, which indicates that the passwords are not hashed. We recommend strongly against using MD4, as it is a very weak hashing algorithm.
     attribute hash {"plaintext" | "sha:hex" | "sha:base64" | "md5:hex" | "md5:base64" | "md4:hex" | "md4:base64"}
 
-pathType =
+path-type =
     ## Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.
-    attribute pathType {"ant" | "regex"}
+    attribute path-type {"ant" | "regex"}
     
 port =
     ## Specifies an IP port number. Used to configure an embedded LDAP server, for example. 
@@ -68,19 +68,19 @@ http =
    element http {http.attlist, (intercept-url+ & form-login? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous? & servlet-api-integration?) }
 http.attlist &=
     ## Automatically registers a login form, BASIC authentication, anonymous authentication, logout services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".
-    attribute autoConfig {"true" | "false" }?
+    attribute auto-config {"true" | "false" }?
 http.attlist &=
     ## Controls the eagerness with which an HTTP session is created. If not set, defaults to "ifRequired".
-    attribute createSession {"ifRequired" | "always" | "never" }?
+    attribute create-session {"ifRequired" | "always" | "never" }?
 http.attlist &=
     ## The path format used to define the paths in child elements. 
-    pathType?
+    path-type?
 http.attlist &=
     ## Whether test URLs should be converted to lower case prior to comparing with defined path patterns. If unspecified, defaults to "true".
-    attribute lowercaseComparisons {"true" | "false"}?
+    attribute lowercase-comparisons {"true" | "false"}?
 http.attlist &=
     ## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.
-    attribute accessDecisionManager {xsd:string}?
+    attribute access-decision-manager {xsd:string}?
 http.attlist &=
     ## Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Spring Security Application".
     attribute realm {xsd:string}?
@@ -100,42 +100,42 @@ intercept-url.attlist &=
     attribute filters {"none"}?
 intercept-url.attlist &=
     ## Used to specify that a URL must be accessed over http or https
-    attribute requiresChannel {"http" | "https"}?
+    attribute requires-channel {"http" | "https"}?
 
 logout =
 	## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.
     element logout {logout.attlist, empty}
 logout.attlist &=
 	## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /j_spring_security_logout if unspecified.
-    attribute logoutUrl {xsd:string}?
+    attribute logout-url {xsd:string}?
 logout.attlist &=
 	## Specifies the URL to display once the user has logged out. If not specified, defaults to /.
-    attribute logoutSuccessUrl {xsd:string}?
+    attribute logout-success-url {xsd:string}?
 logout.attlist &=
 	## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
-    attribute invalidateSession {"true" | "false"}?
+    attribute invalidate-session {"true" | "false"}?
 
 form-login =
     ## Sets up a form login configuration
     element form-login {form-login.attlist, empty}    
 form-login.attlist &=
     ## The URL that the login form is posted to. If unspecified, it defaults to /j_spring_security_check.
-    attribute loginUrl {xsd:string}?   
+    attribute login-url {xsd:string}?   
 form-login.attlist &=
     ## The URL that will be redirected to after successful authentication, if the user's previous action could not be resumed. This generally happens if the user visits a login page without having first requested a secured operation that triggers authentication. If unspecified, defaults to the root of the application.
-    attribute defaultTargetUrl {xsd:string}?   
+    attribute default-target-url {xsd:string}?   
 form-login.attlist &=
     ## The URL for the login page. If no login URL is specified, Spring Security will automatically create a login URL at /spring_security_login and a corresponding filter to render that login URL when requested.
-    attribute loginPage {xsd:string}?   
+    attribute login-page {xsd:string}?   
 form-login.attlist &=
     ## The URL for the login failure page. If no login failure URL is specified, Spring Security will automatically create a failure login URL at /spring_security_login?login_error and a corresponding filter to render that login failure URL when requested.
-    attribute authenticationFailureUrl {xsd:string}?   
+    attribute authentication-failure-url {xsd:string}?   
 
 filter-chain-map = 
     ## Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
     element filter-chain-map {filter-chain-map.attlist, filter-chain+}
 filter-chain-map.attlist &=
-    pathType    
+    path-type    
 
 filter-chain =
     ## Used within filter-chain-map to define a specific URL pattern and the list of filters which apply to the URLs matching that pattern. When multiple filter-chain elements are used within a filter-chain-map element, the most specific patterns must be placed at the top of the list, with  most general ones at the bottom.
@@ -154,16 +154,16 @@ concurrent-session-control =
     ## Adds support for concurrent session control, allowing limits to be placed on the number of sessions a user can have.
     element concurrent-session-control {concurrent-sessions.attlist, empty}
 concurrent-sessions.attlist &=
-    attribute maxSessions {xsd:positiveInteger}?
+    attribute max-sessions {xsd:positiveInteger}?
 concurrent-sessions.attlist &=
-    attribute expiredUrl {xsd:string}?
+    attribute expired-url {xsd:string}?
 concurrent-sessions.attlist &=
-    attribute exceptionIfMaximumExceeded {"true" | "false"}?
+    attribute exception-if-maximum-exceeded {"true" | "false"}?
 
 remember-me = 
     element remember-me {remember-me.attlist} 
 remember-me.attlist &= 
-    (attribute key {xsd:string} | (attribute tokenRepository {xsd:string} | attribute datasource {xsd:string}))        
+    (attribute key {xsd:string} | (attribute token-repository {xsd:string} | attribute data-source {xsd:string}))        
     
 servlet-api-integration = 
     element servlet-api-integration {servlet-api-integration.attlist} 
@@ -180,13 +180,13 @@ anonymous.attlist &=
     attribute username {xsd:string}?
 anonymous.attlist &=
 	## The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions. If unset, defaults to "ROLE_ANONYMOUS".
-    attribute grantedAuthority {xsd:string}?
+    attribute granted-authority {xsd:string}?
 
 repository =
      element repository {repository.attlist, (user-service | jdbc-user-service | custom-user-service)}
 repository.attlist &=
 	## Indicates the repository should have an authentication provider created. If unspecified, defaults to true.
-    attribute createProvider {"true" | "false"}?
+    attribute create-provider {"true" | "false"}?
 
 user-service =
     element user-service {user-service.attlist, (user*)}
@@ -215,7 +215,7 @@ jdbc-user-service.attlist &=
     hash?
 jdbc-user-service.attlist &=
 	## The bean ID of the DataSource which provides the required tables.
-    attribute dataSource {xsd:string}
+    attribute data-source {xsd:string}
 
 custom-user-service =
 	## Represents a UserDetailsService implementation that has been provided by you. Registration here will automate the creation of a DaoAuthenticationProvider that delegates to your UserDetailsService implementation.

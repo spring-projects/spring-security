@@ -18,7 +18,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	</beans:bean>
 
     <repository>
-        <jdbc-user-service dataSource="dataSource"/>
+        <jdbc-user-service data-source="dataSource"/>
     </repository>
 
 </beans:beans>

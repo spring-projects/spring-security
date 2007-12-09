@@ -23,7 +23,7 @@ public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
 	static final String ATT_USERNAME = "username";
 	static final String DEF_USERNAME = "roleAnonymous";
 	
-	static final String ATT_GRANTED_AUTHORITY = "grantedAuthority";
+	static final String ATT_GRANTED_AUTHORITY = "granted-authority";
 	static final String DEF_GRANTED_AUTHORITY = "ROLE_ANONYMOUS";
 	
 	protected final Log logger = LogFactory.getLog(getClass());

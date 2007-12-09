@@ -36,8 +36,8 @@ public class LdapBeanDefinitionParser implements BeanDefinitionParser {
     /** Defines the Url of the ldap server to use. If not specified, an embedded apache DS instance will be created */
     private static final String URL_ATTRIBUTE = "url";
     private static final String AUTH_TYPE_ATTRIBUTE = "auth";
-    private static final String PRINCIPAL_ATTRIBUTE = "managerDn";
-    private static final String PASSWORD_ATTRIBUTE = "managerPassword";
+    private static final String PRINCIPAL_ATTRIBUTE = "manager-dn";
+    private static final String PASSWORD_ATTRIBUTE = "manager-password";
 
     // Properties which apply to embedded server only - when no Url is set
 

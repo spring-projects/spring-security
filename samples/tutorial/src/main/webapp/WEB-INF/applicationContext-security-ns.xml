@@ -12,21 +12,21 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-    <http autoConfig="true">
+    <http auto-config="true">
         <intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
         <intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
         <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
-		<!-- All of this is unnecessary if autoConfig="true"
+		<!-- All of this is unnecessary if auto-config="true"
         <form-login />
         <anonymous />
         <http-basic />
         <logout />
         <remember-me />
- 		<servlet-api-integration/>
+ 		<servlet-api-integration />
  		-->
  		
-        <concurrent-session-control maxSessions="1" exceptionIfMaximumExceeded="true"/>
+        <concurrent-session-control max-sessions="1" exception-if-maximum-exceeded="true"/>
 
     </http>
 

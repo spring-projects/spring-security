@@ -54,7 +54,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     </bean>
 
     <bean id="newFilterChainProxy" class="org.springframework.security.util.FilterChainProxy">
-        <sec:filter-chain-map pathType="ant">
+        <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
             <sec:filter-chain pattern="/some/other/path/**" filters="sif,mockFilter,mockFilter2"/>
             <sec:filter-chain pattern="/do/not/filter" filters="none"/>
@@ -63,7 +63,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     </bean>
 
     <bean id="newFilterChainProxyWrongPathOrder" class="org.springframework.security.util.FilterChainProxy">
-        <sec:filter-chain-map pathType="ant">
+        <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
             <sec:filter-chain pattern="/**" filters="sif,apf,mockFilter"/>
             <sec:filter-chain pattern="/some/other/path/**" filters="sif,mockFilter,mockFilter2"/>
@@ -71,7 +71,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     </bean>
 
     <bean id="newFilterChainProxyRegex" class="org.springframework.security.util.FilterChainProxy">
-        <sec:filter-chain-map pathType="regex">
+        <sec:filter-chain-map path-type="regex">
             <sec:filter-chain pattern="\A/foo/.*\Z" filters="mockFilter"/>
             <sec:filter-chain pattern="\A/some/other/path/.*\Z" filters="sif,mockFilter,mockFilter2"/>
             <sec:filter-chain pattern="\A/do/not/filter\Z" filters="none"/>

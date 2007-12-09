@@ -17,13 +17,13 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 public class LogoutBeanDefinitionParser implements BeanDefinitionParser {
-    static final String ATT_LOGOUT_SUCCESS_URL = "logoutSuccessUrl";
+    static final String ATT_LOGOUT_SUCCESS_URL = "logout-success-url";
 	static final String DEF_LOGOUT_SUCCESS_URL = "/";
 
-	static final String ATT_INVALIDATE_SESSION = "invalidateSession";
+	static final String ATT_INVALIDATE_SESSION = "invalidate-session";
 	static final String DEF_INVALIDATE_SESSION  = "true";
 	
-	static final String ATT_LOGOUT_URL = "logoutUrl";
+	static final String ATT_LOGOUT_URL = "logout-url";
 	static final String DEF_LOGOUT_URL = "/j_spring_security_logout";
 
 	public BeanDefinition parse(Element element, ParserContext parserContext) {

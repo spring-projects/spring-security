@@ -8,7 +8,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <http>
         <intercept-url pattern="/unprotected" filters="none" />
-        <intercept-url pattern="/somepath" access="ROLE_SPECIAL,ROLE_USER" requiresChannel="http" />
+        <intercept-url pattern="/somepath" access="ROLE_SPECIAL,ROLE_USER" requires-channel="http" />
         <intercept-url pattern="/**" access="ROLE_USER" />
 
         <!-- Default form login configuration. Will create filter and entry point -->
@@ -20,9 +20,9 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         <!-- Default logout configuration -->
         <logout />
 
-        <concurrent-session-control maxSessions="1"/>
+        <concurrent-session-control max-sessions="1"/>
 
-        <remember-me key="doesntmatter" tokenRepository="tokenRepo"/>
+        <remember-me key="doesntmatter" token-repository="tokenRepo"/>
     </http>
 
     <repository>

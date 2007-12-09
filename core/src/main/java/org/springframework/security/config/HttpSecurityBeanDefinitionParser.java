@@ -48,7 +48,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     static final String ATT_PATH_PATTERN = "pattern";
     
-    static final String ATT_PATH_TYPE = "pathType";
+    static final String ATT_PATH_TYPE = "path-type";
     static final String DEF_PATH_TYPE_ANT = "ant";
     static final String OPT_PATH_TYPE_REGEX = "regex";
 
@@ -56,17 +56,17 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String OPT_FILTERS_NONE = "none";
 
     static final String ATT_ACCESS_CONFIG = "access";
-    static final String ATT_REQUIRES_CHANNEL = "requiresChannel";
+    static final String ATT_REQUIRES_CHANNEL = "requires-channel";
 
-    static final String ATT_CREATE_SESSION = "createSession";
+    static final String ATT_CREATE_SESSION = "create-session";
     static final String DEF_CREATE_SESSION_IF_REQUIRED = "ifRequired";
     static final String OPT_CREATE_SESSION_ALWAYS = "always";
     static final String OPT_CREATE_SESSION_NEVER = "never";
     
-    static final String ATT_LOWERCASE_COMPARISONS = "lowercaseComparisons";
+    static final String ATT_LOWERCASE_COMPARISONS = "lowercase-comparisons";
     static final String DEF_LOWERCASE_COMPARISONS = "true";
     
-    static final String ATT_AUTO_CONFIG = "autoConfig";
+    static final String ATT_AUTO_CONFIG = "auto-config";
     static final String DEF_AUTO_CONFIG = "false";
     
     public BeanDefinition parse(Element element, ParserContext parserContext) {

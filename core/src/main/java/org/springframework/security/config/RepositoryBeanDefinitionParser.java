@@ -26,10 +26,10 @@ import org.w3c.dom.Element;
  */
 class RepositoryBeanDefinitionParser implements BeanDefinitionParser {
 
-	static final String ATT_DATA_SOURCE = "dataSource";
+	static final String ATT_DATA_SOURCE = "data-source";
 	static final String ATT_ID = "id";
 
-	static final String ATT_CREATE_PROVIDER = "createProvider";
+	static final String ATT_CREATE_PROVIDER = "create-provider";
 	static final String DEF_CREATE_PROVIDER = "true";
 
 	static final String ATT_HASH = "hash";

@@ -25,8 +25,8 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_KEY = "key";
     static final String DEF_KEY = "doesNotMatter";
     
-	static final String ATT_DATA_SOURCE = "dataSource";
-	static final String ATT_TOKEN_REPOSITORY = "tokenRepository";
+	static final String ATT_DATA_SOURCE = "data-source";
+	static final String ATT_TOKEN_REPOSITORY = "token-repository";
 	protected final Log logger = LogFactory.getLog(getClass());
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
@@ -65,7 +65,7 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
                 ((BeanDefinition)tokenRepo).getPropertyValues().addPropertyValue(ATT_DATA_SOURCE,
                         new RuntimeBeanReference(dataSource));
             }
-            services.getPropertyValues().addPropertyValue(ATT_TOKEN_REPOSITORY, tokenRepo);
+            services.getPropertyValues().addPropertyValue("tokenRepository", tokenRepo);
         } else {
             isPersistent = false;
             services = new RootBeanDefinition(TokenBasedRememberMeServices.class);

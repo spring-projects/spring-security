@@ -23,16 +23,16 @@ import org.apache.commons.logging.LogFactory;
 public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
     protected final Log logger = LogFactory.getLog(getClass());
 
-    static final String ATT_LOGIN_URL = "loginUrl";
+    static final String ATT_LOGIN_URL = "login-url";
     static final String DEF_LOGIN_URL = "/j_spring_security_check";
     
-    static final String ATT_LOGIN_PAGE = "loginPage";
+    static final String ATT_LOGIN_PAGE = "login-page";
     static final String DEF_LOGIN_PAGE = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL;
 
-    static final String ATT_FORM_LOGIN_TARGET_URL = "defaultTargetUrl";
+    static final String ATT_FORM_LOGIN_TARGET_URL = "default-target-url";
     static final String DEF_FORM_LOGIN_TARGET_URL = "/";
 
-    static final String ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = "authenticationFailureUrl";
+    static final String ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = "authentication-failure-url";
     static final String DEF_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL + "?" + DefaultLoginPageGeneratingFilter.ERROR_PARAMETER_NAME;
 
     public BeanDefinition parse(Element elt, ParserContext parserContext) {
