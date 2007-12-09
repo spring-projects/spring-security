@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package org.springframework.security.providers.ldap.populator;
+package org.springframework.security.ldap.populator;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
-import org.springframework.security.providers.ldap.LdapAuthoritiesPopulator;
+import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.util.Assert;
@@ -34,8 +34,9 @@ import java.util.Set;
 
 /**
  * The default strategy for obtaining user role information from the directory.
- * <p>It obtains roles by performing a search for "groups" the user is a member of.</p>
- * <p/>
+ * <p>
+ * It obtains roles by performing a search for "groups" the user is a member of.
+ * <p>
  * A typical group search scenario would be where each group/role is specified using the <tt>groupOfNames</tt>
  * (or <tt>groupOfUniqueNames</tt>) LDAP objectClass and the user's DN is listed in the <tt>member</tt> (or
  * <tt>uniqueMember</tt>) attribute to indicate that they should be assigned that role. The following LDIF sample has
@@ -48,7 +49,7 @@ import java.util.Set;
  * ou: groups
  *
  * dn: cn=developers,ou=groups,dc=springframework,dc=org
- * objectClass: groupOfNameso
+ * objectClass: groupOfNames
  * objectClass: top
  * cn: developers
  * description: Spring Security Developers
@@ -56,16 +57,15 @@ import java.util.Set;
  * member: uid=luke,ou=people,dc=springframework,dc=org
  * ou: developer
  * </pre>
- * </p>
- * <p/>
+ * <p>
  * The group search is performed within a DN specified by the <tt>groupSearchBase</tt> property, which should
  * be relative to the root DN of its <tt>InitialDirContextFactory</tt>. If the search base is null, group searching is
  * disabled. The filter used in the search is defined by the <tt>groupSearchFilter</tt> property, with the filter
  * argument {0} being the full DN of the user. You can also optionally use the parameter {1}, which will be substituted
  * with the username. You can also specify which attribute defines the role name by setting
- * the <tt>groupRoleAttribute</tt> property (the default is "cn").</p>
- * <p/>
- * <p>The configuration below shows how the group search might be performed with the above schema.
+ * the <tt>groupRoleAttribute</tt> property (the default is "cn").
+ * <p>
+ * The configuration below shows how the group search might be performed with the above schema.
  * <pre>
  * &lt;bean id="ldapAuthoritiesPopulator"
  *       class="org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
@@ -80,8 +80,7 @@ import java.util.Set;
  * </pre>
  * A search for roles for user "uid=ben,ou=people,dc=springframework,dc=org" would return the single granted authority
  * "ROLE_DEVELOPER".
- * </p>
- * <p/>
+ * <p>
  * The single-level search is performed by default. Setting the <tt>searchSubTree</tt> property to true will enable
  * a search of the entire subtree under <tt>groupSearchBase</tt>.
  *
@@ -98,9 +97,9 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     /**
      * A default role which will be assigned to all authenticated users if set
      */
-    private GrantedAuthority defaultRole = null;
+    private GrantedAuthority defaultRole;
 
-    private ContextSource contextSource = null;
+    private ContextSource contextSource;
 
     private SpringSecurityLdapTemplate ldapTemplate;
 
@@ -118,7 +117,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     /**
      * The base DN from which the search for group membership should be performed
      */
-    private String groupSearchBase = null;
+    private String groupSearchBase;
 
     /**
      * The pattern to be used for the user search. {0} is the user's DN

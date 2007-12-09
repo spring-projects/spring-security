@@ -33,6 +33,9 @@ public class MockUserSearch implements LdapUserSearch {
 
     //~ Constructors ===================================================================================================
 
+    public MockUserSearch() {
+    }
+
     public MockUserSearch(DirContextOperations user) {
         this.user = user;
     }

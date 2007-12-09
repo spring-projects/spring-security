@@ -21,6 +21,8 @@ import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.ldap.LdapAuthoritiesPopulator;
+import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UserDetails;
@@ -60,7 +62,7 @@ import org.apache.commons.logging.LogFactory;
  * <h3>LdapAuthoritiesPopulator</h3>
  * Once the user has been authenticated, this interface is called to obtain the set of granted authorities for the
  * user.
- * The {@link org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator DefaultLdapAuthoritiesPopulator}
+ * The {@link DefaultLdapAuthoritiesPopulator DefaultLdapAuthoritiesPopulator}
  * can be configured to obtain user role information from the user's attributes and/or to perform a search for
  * "groups" that the user is a member of and map these to roles.
  *
@@ -114,7 +116,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  *
  * @see org.springframework.security.providers.ldap.authenticator.BindAuthenticator
- * @see org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator
+ * @see DefaultLdapAuthoritiesPopulator
  */
 public class LdapAuthenticationProvider implements AuthenticationProvider {
     //~ Static fields/initializers =====================================================================================

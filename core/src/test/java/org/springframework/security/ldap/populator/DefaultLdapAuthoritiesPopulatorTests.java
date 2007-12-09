@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 
-package org.springframework.security.providers.ldap.populator;
+package org.springframework.security.ldap.populator;
 
 import org.springframework.security.GrantedAuthority;
 
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
+import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;

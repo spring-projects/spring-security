@@ -15,20 +15,19 @@
 
 package org.springframework.security.providers.ldap;
 
-import junit.framework.TestCase;
-
+import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.Authentication;
-
+import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsMapper;
-import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
+
+import junit.framework.TestCase;
 
 import java.util.ArrayList;
 

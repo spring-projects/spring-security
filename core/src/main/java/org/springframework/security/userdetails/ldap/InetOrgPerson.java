@@ -24,7 +24,6 @@ import org.springframework.ldap.core.DirContextOperations;
  *
  * <p>
  * The username will be mapped from the <tt>uid</tt> attribute by default.
- * </p>
  *
  * @author Luke
  * @version $Id$

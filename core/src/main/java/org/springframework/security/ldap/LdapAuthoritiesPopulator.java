@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.providers.ldap;
+package org.springframework.security.ldap;
 
 import org.springframework.security.GrantedAuthority;
 

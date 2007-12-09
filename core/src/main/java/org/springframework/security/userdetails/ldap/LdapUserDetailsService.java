@@ -2,7 +2,7 @@ package org.springframework.security.userdetails.ldap;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.ldap.LdapUserSearch;
-import org.springframework.security.providers.ldap.LdapAuthoritiesPopulator;
+import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;

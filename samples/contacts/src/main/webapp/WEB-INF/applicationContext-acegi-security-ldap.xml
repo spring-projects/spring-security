@@ -50,7 +50,7 @@
        </bean>
      </constructor-arg>
      <constructor-arg>
-       <bean class="org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
+       <bean class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
           <constructor-arg><ref local="contextSource"/></constructor-arg>
           <constructor-arg><value>ou=groups</value></constructor-arg>
           <property name="groupRoleAttribute"><value>ou</value></property>

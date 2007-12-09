@@ -34,6 +34,9 @@ public class MockSpringSecurityContextSource implements SpringSecurityContextSou
 
     //~ Constructors ===================================================================================================
 
+    public MockSpringSecurityContextSource() {
+    }
+
     public MockSpringSecurityContextSource(DirContext ctx, String baseDn) {
         this.baseDn = baseDn;
         this.ctx = ctx;

@@ -1462,7 +1462,7 @@ if (obj instanceof UserDetails) {
         Note that when using the tags, you should include the taglib reference
         in your JSP: <programlisting>
             &lt;%@ taglib prefix='security' uri='http://www.springframework.org/security/tags' %&gt;
-            
+
         </programlisting></para>
       </sect1>
     </chapter>
@@ -3265,7 +3265,7 @@ key:              A private key to prevent modification of the remember-me token
         &lt;/bean&gt;
       &lt;/constructor-arg&gt;
       &lt;constructor-arg&gt;
-        &lt;bean class="org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator"&gt;
+        &lt;bean class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator"&gt;
            &lt;constructor-arg&gt;&lt;ref local="initialDirContextFactory"/&gt;&lt;/constructor-arg&gt;
            &lt;constructor-arg&gt;&lt;value&gt;ou=groups&lt;/value&gt;&lt;/constructor-arg&gt;
            &lt;property name="groupRoleAttribute"&gt;&lt;value&gt;ou&lt;/value&gt;&lt;/property&gt;
