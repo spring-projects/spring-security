@@ -130,6 +130,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
     private LdapAuthenticator authenticator;
     private LdapAuthoritiesPopulator authoritiesPopulator;
     private UserDetailsContextMapper userDetailsContextMapper = new LdapUserDetailsMapper();
+    private boolean useAuthenticationRequestCredentials = true;
 
     //~ Constructors ===================================================================================================
 
@@ -186,6 +187,18 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
         return userDetailsContextMapper;
     }
 
+    /**
+     * Determines whether the supplied password will be used as the credentials in the successful authentication
+     * token. If set to false, then the password will be obtained from the UserDetails object
+     * created by the configured mapper. Often it will not be possible to read the password from the directory, so
+     * defaults to true.
+     *
+     * @param useAuthenticationRequestCredentials
+     */
+    public void setUseAuthenticationRequestCredentials(boolean useAuthenticationRequestCredentials) {
+        this.useAuthenticationRequestCredentials = useAuthenticationRequestCredentials;
+    }
+
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
             messages.getMessage("AbstractUserDetailsAuthenticationProvider.onlySupports",
@@ -225,8 +238,9 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
 
     protected Authentication createSuccessfulAuthentication(UsernamePasswordAuthenticationToken authentication,
             UserDetails user) {
+        Object password = useAuthenticationRequestCredentials ? authentication.getCredentials() : user.getPassword();
 
-        return new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
     }
 
     public boolean supports(Class authentication) {

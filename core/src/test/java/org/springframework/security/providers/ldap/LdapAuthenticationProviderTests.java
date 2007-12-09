@@ -98,7 +98,9 @@ public class LdapAuthenticationProviderTests extends TestCase {
         assertNotNull(ldapProvider.getAuthoritiesPopulator());
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben", "benspassword");
-        UserDetails user = (UserDetails) ldapProvider.authenticate(authRequest).getPrincipal();
+        Authentication authResult = ldapProvider.authenticate(authRequest);
+        assertEquals("benspassword", authResult.getCredentials());
+        UserDetails user = (UserDetails) authResult.getPrincipal();
         assertEquals(2, user.getAuthorities().length);
         assertEquals("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=", user.getPassword());
         assertEquals("ben", user.getUsername());
@@ -109,6 +111,17 @@ public class LdapAuthenticationProviderTests extends TestCase {
 
         assertTrue(authorities.contains("ROLE_FROM_ENTRY"));
         assertTrue(authorities.contains("ROLE_FROM_POPULATOR"));
+    }
+
+    public void testPasswordIsSetFromUserDataIfUseAuthenticationRequestCredentialsIsFalse() {
+        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
+                new MockAuthoritiesPopulator());
+        ldapProvider.setUseAuthenticationRequestCredentials(false);
+
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben", "benspassword");
+        Authentication authResult = ldapProvider.authenticate(authRequest);
+        assertEquals("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=", authResult.getCredentials());
+
     }
 
     public void testUseWithNullAuthoritiesPopulatorReturnsCorrectRole() {
@@ -148,26 +161,6 @@ public class LdapAuthenticationProviderTests extends TestCase {
         }
     }
 
-// This test kills apacheDS in embedded mode because the search returns an invalid DN
-//    public void testIntegration() throws Exception {
-//        BindAuthenticator authenticator = new BindAuthenticator(getInitialCtxFactory());
-//        //PasswordComparisonAuthenticator authenticator = new PasswordComparisonAuthenticator();
-//        //authenticator.setUserDnPatterns("cn={0},ou=people");
-//
-//        FilterBasedLdapUserSearch userSearch = new FilterBasedLdapUserSearch("ou=people", "(cn={0})", getInitialCtxFactory());
-//
-//        authenticator.setUserSearch(userSearch);
-//        authenticator.afterPropertiesSet();
-//
-//        DefaultLdapAuthoritiesPopulator populator;
-//        populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(), "ou=groups");
-//        populator.setRolePrefix("ROLE_");
-//
-//        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(authenticator, populator);
-//
-//        Authentication auth = ldapProvider.authenticate(new UsernamePasswordAuthenticationToken("Ben Alex","benspassword"));
-//        assertEquals(2, auth.getAuthorities().length);
-//    }
     class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {
         public GrantedAuthority[] getGrantedAuthorities(DirContextOperations userCtx, String username) {
             return new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FROM_POPULATOR")};
