@@ -249,7 +249,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     }
 
     /**
-     * Called from autoLogin to process the submitted pesistent login cookie. Subclasses should
+     * Called from autoLogin to process the submitted persistent login cookie. Subclasses should
      * validate the cookie and perform any additional management required.
      *
      * @param cookieTokens the decoded and tokenized cookie value
@@ -330,11 +330,11 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         this.tokenValiditySeconds = tokenValiditySeconds;
     }
 
-    public int getTokenValiditySeconds() {
+    protected int getTokenValiditySeconds() {
         return tokenValiditySeconds;
     }
 
-    public AuthenticationDetailsSource getAuthenticationDetailsSource() {
+    protected AuthenticationDetailsSource getAuthenticationDetailsSource() {
         return authenticationDetailsSource;
     }
 }
