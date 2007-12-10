@@ -25,6 +25,7 @@ import javax.naming.directory.DirContext;
  *
  * @see org.springframework.security.ldap.DefaultInitialDirContextFactory
  *
+ * @deprecated Use SpringSecurityContextSource instead
  * @author Luke Taylor
  * @version $Id$
  */
