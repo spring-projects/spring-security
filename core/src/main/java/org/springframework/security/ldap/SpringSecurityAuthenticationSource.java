@@ -59,11 +59,11 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
     public String getCredentials() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null) {
-            return (String) authentication.getCredentials();
-        } else {
+        if (authentication == null) {
             log.warn("No Authentication object set in SecurityContext - returning empty String as Credentials");
             return "";
         }
+
+        return (String) authentication.getCredentials();        
     }
 }

@@ -20,6 +20,7 @@ import org.springframework.security.util.AuthorityUtils;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.util.Assert;
 
+import javax.naming.Name;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import java.util.ArrayList;
@@ -110,7 +111,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
         public Essence() { }
 
         public Essence(DirContextOperations ctx) {
-            setDn(ctx.getDn().toString());
+            setDn(ctx.getDn());
         }
 
         public Essence(LdapUserDetails copyMe) {
@@ -188,6 +189,10 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
 
         public void setDn(String dn) {
             instance.dn = dn;
+        }
+
+        public void setDn(Name dn) {
+            instance.dn = dn.toString();
         }
 
         public void setEnabled(boolean enabled) {
