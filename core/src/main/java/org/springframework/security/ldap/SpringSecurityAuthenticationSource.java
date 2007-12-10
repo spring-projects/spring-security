@@ -10,10 +10,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * An AuthenticationSource to retrieve authentication information stored in Spring Security's
+ * {@link SecurityContextHolder}.
+ * <p>
  * This is a copy of Spring LDAP's AcegiAuthenticationSource, updated for use with Spring Security 2.0.
- *
- * An AuthenticationSource to retrieve authentication information stored in
- * Spring Security's {@link SecurityContextHolder}.
  *
  * @author Mattias Arthursson
  * @author Luke Taylor
@@ -33,8 +33,7 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null) {
-            log.warn("No Authentication object set in SecurityContext - "
-                    + "returning empty String as Principal");
+            log.warn("No Authentication object set in SecurityContext - returning empty String as Principal");
             return "";
         }
 
@@ -54,7 +53,7 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
         }
     }
 
-    /*
+    /**
      * @see org.springframework.ldap.core.AuthenticationSource#getCredentials()
      */
     public String getCredentials() {
