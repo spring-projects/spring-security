@@ -15,20 +15,19 @@
 
 package org.springframework.security.providers;
 
-import junit.framework.TestCase;
-
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-
 import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.concurrent.NullConcurrentSessionController;
-
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 
+import junit.framework.TestCase;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -43,7 +42,6 @@ public class ProviderManagerTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public ProviderManagerTests() {
-        super();
     }
 
     public ProviderManagerTests(String arg0) {
@@ -51,10 +49,6 @@ public class ProviderManagerTests extends TestCase {
     }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ProviderManagerTests.class);
-    }
 
     private ProviderManager makeProviderManager() throws Exception {
         MockProvider provider1 = new MockProvider();
@@ -80,10 +74,6 @@ public class ProviderManagerTests extends TestCase {
         mgr.setProviders(providers);
 
         return mgr;
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
     }
 
     public void testAuthenticationFails() throws Exception {
@@ -141,8 +131,7 @@ public class ProviderManagerTests extends TestCase {
         assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
     }
 
-    public void testConcurrentSessionControllerConfiguration()
-        throws Exception {
+    public void testConcurrentSessionControllerConfiguration() throws Exception {
         ProviderManager target = new ProviderManager();
 
         //The NullConcurrentSessionController should be the default
@@ -154,8 +143,7 @@ public class ProviderManagerTests extends TestCase {
         assertEquals(impl, target.getSessionController());
     }
 
-    public void testStartupFailsIfProviderListDoesNotContainingProviders()
-        throws Exception {
+    public void testStartupFailsIfProviderListDoesNotContainingProviders() throws Exception {
         List providers = new Vector();
         providers.add("THIS_IS_NOT_A_PROVIDER");
 
@@ -169,8 +157,7 @@ public class ProviderManagerTests extends TestCase {
         }
     }
 
-    public void testStartupFailsIfProviderListNotSet()
-        throws Exception {
+    public void testStartupFailsIfProviderListNotSet() throws Exception {
         ProviderManager mgr = new ProviderManager();
 
         try {
@@ -199,6 +186,46 @@ public class ProviderManagerTests extends TestCase {
         assertEquals(1, mgr.getProviders().size());
     }
 
+    public void testDetailsAreNotSetOnAuthenticationTokenIfAlreadySetByProvider() throws Exception {
+        Object requestDetails = new String("(Request Details)");
+        final Object resultDetails = new String("(Result Details)");
+        ProviderManager authMgr = makeProviderManager();
+
+        AuthenticationProvider provider = new AuthenticationProvider() {
+            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+                ((TestingAuthenticationToken)authentication).setDetails(resultDetails);
+                return authentication;
+            }
+
+            public boolean supports(Class authentication) {
+                return true;
+            }
+        };
+
+        authMgr.setProviders(Arrays.asList(new AuthenticationProvider[] {provider}));
+
+        TestingAuthenticationToken request = createAuthenticationToken();
+        request.setDetails(requestDetails);
+
+        Authentication result = authMgr.authenticate(request);
+        assertEquals(resultDetails, result.getDetails());
+    }
+
+    public void testDetailsAreSetOnAuthenticationTokenIfNotAlreadySetByProvider() throws Exception {
+        Object details = new Object();
+        ProviderManager authMgr = makeProviderManager();
+
+        TestingAuthenticationToken request = createAuthenticationToken();
+        request.setDetails(details);
+
+        Authentication result = authMgr.authenticate(request);
+        assertEquals(details, result.getDetails());
+    }
+
+    private TestingAuthenticationToken createAuthenticationToken() {
+        return new TestingAuthenticationToken("name", "password", new GrantedAuthorityImpl[0]);
+    }
+
     //~ Inner Classes ==================================================================================================
 
     private class MockApplicationEventPublisher implements ApplicationEventPublisher {
@@ -209,15 +236,14 @@ public class ProviderManagerTests extends TestCase {
         }
 
         public void publishEvent(ApplicationEvent event) {
-            if (expectedEvent == false) {
+            if (!expectedEvent) {
                 throw new IllegalStateException("The ApplicationEventPublisher did not expect to receive this event");
             }
         }
     }
 
     private class MockProvider implements AuthenticationProvider {
-        public Authentication authenticate(Authentication authentication)
-            throws AuthenticationException {
+        public Authentication authenticate(Authentication authentication) throws AuthenticationException {
             if (supports(authentication.getClass())) {
                 return authentication;
             } else {
@@ -235,8 +261,7 @@ public class ProviderManagerTests extends TestCase {
     }
 
     private class MockProviderWhichReturnsNull implements AuthenticationProvider {
-        public Authentication authenticate(Authentication authentication)
-            throws AuthenticationException {
+        public Authentication authenticate(Authentication authentication) throws AuthenticationException {
             if (supports(authentication.getClass())) {
                 return null;
             } else {
