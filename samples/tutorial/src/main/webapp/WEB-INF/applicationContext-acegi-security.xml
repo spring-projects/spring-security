@@ -23,7 +23,7 @@
 			<value><![CDATA[
 				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 				PATTERN_TYPE_APACHE_ANT
-				/**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
+				/**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
 			]]></value>
 		</property>
 	</bean>
@@ -47,6 +47,15 @@
 		<property name="filterProcessesUrl" value="/j_spring_security_check"/>
 		<property name="rememberMeServices" ref="rememberMeServices"/>
 	</bean>
+
+    <bean id="basicProcessingFilter" class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
+        <property name="authenticationManager"><ref local="authenticationManager"/></property>
+        <property name="authenticationEntryPoint"><ref local="basicProcessingFilterEntryPoint"/></property>
+    </bean>
+
+    <bean id="basicProcessingFilterEntryPoint" class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
+        <property name="realmName"><value>My Realm</value></property>
+    </bean>
 
 	<bean id="securityContextHolderAwareRequestFilter" class="org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter"/>
 
