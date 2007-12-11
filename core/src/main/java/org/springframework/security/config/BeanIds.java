@@ -39,6 +39,5 @@ public class BeanIds {
 	public static final String METHOD_DEFINITION_SOURCE_ADVISOR = "_methodDefinitionSourceAdvisor";
 	public static final String SECURITY_ANNOTATION_ATTRIBUTES = "_securityAnnotationAttributes";
 	public static final String METHOD_DEFINITION_ATTRIBUTES = "_methodDefinitionAttributes";
-	public static final String DEFAULT_ADVISOR_AUTO_PROXY_CREATOR = "_defaultAdvisorAutoProxyCreator";
 	
 }

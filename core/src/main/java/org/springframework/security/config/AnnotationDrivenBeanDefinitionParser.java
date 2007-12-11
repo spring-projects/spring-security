@@ -1,12 +1,11 @@
 package org.springframework.security.config;
 
-import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.aop.config.AopNamespaceUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.metadata.Attributes;
 import org.springframework.security.intercept.method.MethodDefinitionAttributes;
 import org.springframework.security.intercept.method.aopalliance.MethodDefinitionSourceAdvisor;
 import org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor;
@@ -53,9 +52,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
         advisor.getConstructorArgumentValues().addGenericArgumentValue(interceptor);
         parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_DEFINITION_SOURCE_ADVISOR, advisor);
         
-        RootBeanDefinition daapc = new RootBeanDefinition(DefaultAdvisorAutoProxyCreator.class);
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.DEFAULT_ADVISOR_AUTO_PROXY_CREATOR, daapc);
-        
+        AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
         
         return null;
     }
