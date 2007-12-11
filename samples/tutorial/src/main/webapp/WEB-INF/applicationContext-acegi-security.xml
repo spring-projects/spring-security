@@ -151,7 +151,7 @@
 	</bean>
 
 	<bean id="securityInterceptor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
-		<property name="authenticationManager"><ref local="authentication"/></property>
+		<property name="authenticationManager"><ref local="authenticationManager"/></property>
 		<property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
 		<property name="objectDefinitionSource">
 			<ref local="objectDefinitionSource"/>
