@@ -12,7 +12,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -88,27 +87,6 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource implem
             throw e;
         }
     }
-
-    /** Copied from parent <tt>AbstractContextSource</tt> as package private */
-    DirContext createContext(Hashtable environment) {
-		DirContext ctx = null;
-
-		try {
-			ctx = getDirContextInstance(environment);
-
-			if (logger.isInfoEnabled()) {
-				Hashtable ctxEnv = ctx.getEnvironment();
-				String ldapUrl = (String) ctxEnv.get(Context.PROVIDER_URL);
-				logger.debug("Got Ldap context on server '" + ldapUrl + "'");
-			}
-
-			return ctx;
-		}
-		catch (NamingException e) {
-			LdapUtils.closeContext(ctx);
-			throw org.springframework.ldap.support.LdapUtils.convertLdapException(e);
-		}
-	}
 
     public void setMessageSource(MessageSource messageSource) {
         this.messages = new MessageSourceAccessor(messageSource);

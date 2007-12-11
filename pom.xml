@@ -73,7 +73,7 @@
             <url>${siteDirectory}</url>
         </site>
     </distributionManagement>
-
+<!--
     <repositories>
         <repository>
             <id>acegisnapshots</id>
@@ -83,19 +83,13 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
-        <!-- TODO: Added for spring-ldap-1.2.1-SNAPSHOT -->
-        <repository>
-            <id>acegirepo</id>
-            <name>Acegi maven repository</name>
-            <url>http://acegisecurity.sourceforge.net/maven</url>
-        </repository>
         <repository>
             <id>spring-milestone</id>
             <name>Springframework Maven Milestone Repository</name>
             <url>http://s3.amazonaws.com/maven.springframework.org/milestone</url>
         </repository>
     </repositories>
-
+-->
     <mailingLists>
         <mailingList>
             <name>Acegi Developer List</name>

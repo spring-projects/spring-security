@@ -6,11 +6,13 @@
 #
 # 1.  Do clean check out of source from svn and note revision number.
 # 2.  Switch to 1.4 JVM and run 'mvn test' from core directory.
-# 3.  Set the version number in the pom.xml files of all the module.
+# 3.  Set the version number in the pom.xml files of all the modules.
 # 3a. If doing a release rather than snapshot build, run "find . -name pom.xml | xargs grep SNAPSHOT" and make sure
 #     there are no important snapshot dependencies.
 # 3b. Set the same version number in this script.
 # 4.  Set the correct spring version number in the pom.xml.
+# 4a. Make sure there are no snapshot dependencies in the release.
+# 4b. Remove any references to external maven repositories in the parent pom.xml (remove <repositories> element).
 # 5.  Run this script to generate the artifacts and web site in the 'release' directory.
 # 6.  Copy the archives and unpack them to check the contents.
 # 7.  The archives are tar archives. Create zip versions from the contents and check the internal paths are Ok.
@@ -185,7 +187,7 @@ tar --exclude='*/.svn' -cjf $PROJECT_NAME-$RELEASE_VERSION-src.tar.bz2 notice.tx
     -C ${PROJ_DIR}/adapters/jboss/main/java org \
     -C ${PROJ_DIR}/adapters/resin/main/java org \
     -C ${PROJ_DIR}/adapters/cas/main/java org \
-    -C ${PROJ_DIR}/adapters/catalina/main/java org    
+    -C ${PROJ_DIR}/adapters/catalina/main/java org
 
 
 
