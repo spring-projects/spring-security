@@ -83,19 +83,19 @@
 		</property>
 	</bean>
 
+	<bean id="accessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
+		<property name="allowIfAllAbstainDecisions" value="false"/>
+		<property name="decisionVoters">
+			<list>
+				<bean class="org.springframework.security.vote.RoleVoter"/>
+				<bean class="org.springframework.security.vote.AuthenticatedVoter"/>
+			</list>
+		</property>
+	</bean>
+
 	<bean id="filterInvocationInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
 		<property name="authenticationManager" ref="authenticationManager"/>
-		<property name="accessDecisionManager">
-			<bean class="org.springframework.security.vote.AffirmativeBased">
-				<property name="allowIfAllAbstainDecisions" value="false"/>
-				<property name="decisionVoters">
-					<list>
-						<bean class="org.springframework.security.vote.RoleVoter"/>
-						<bean class="org.springframework.security.vote.AuthenticatedVoter"/>
-					</list>
-				</property>
-			</bean>
-		</property>
+		<property name="accessDecisionManager" ref="accessDecisionManager"/>
 		<property name="objectDefinitionSource">
 			<value><![CDATA[
 				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -141,5 +141,21 @@
 
 	<!-- This bean is optional; it isn't used by any other bean as it only listens and logs -->
 	<bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
+
+	<bean id="daacc" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+
+	<bean id="attributes" class="org.springframework.security.annotation.SecurityAnnotationAttributes"/>
+
+	<bean id="objectDefinitionSource" class="org.springframework.security.intercept.method.MethodDefinitionAttributes">
+		<property name="attributes"><ref local="attributes"/></property>
+	</bean>
+
+	<bean id="securityInterceptor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+		<property name="authenticationManager"><ref local="authentication"/></property>
+		<property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
+		<property name="objectDefinitionSource">
+			<ref local="objectDefinitionSource"/>
+		</property>
+	</bean>
 
 </beans>
