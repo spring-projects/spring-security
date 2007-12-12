@@ -88,10 +88,10 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
                 filter.setRememberMeServices(rememberMeServices);
             }
         }
-        
+
         // Address BasicProcessingFilter instance, if it exists
-        // NB: For remember-me to be sent back, a user must submit a "_spring_security_remember_me" with their login request. 
-        // Most of the time a user won't present such a parameter with their BASIC authentication request. 
+        // NB: For remember-me to be sent back, a user must submit a "_spring_security_remember_me" with their login request.
+        // Most of the time a user won't present such a parameter with their BASIC authentication request.
         // In the future we might support setting the AbstractRememberMeServices.alwaysRemember = true, but I am reluctant to
         // do so because it seems likely to lead to lower security for 99.99% of users if they set the property to true.
        	BasicProcessingFilter filter = (BasicProcessingFilter) getBeanOfType(BasicProcessingFilter.class, beanFactory);
@@ -100,7 +100,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
             logger.info("Using RememberMeServices " + rememberMeServices + " with filter " + filter);
             filter.setRememberMeServices(rememberMeServices);
         }
-        
+
     }
 
     /**
@@ -108,8 +108,8 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
      *
      * <ol>
      * <li>If only one, use that one.</li>
-     * <li>If more than one, use the form login entry point (if form login is being used)</li>
-     * <li>If still ambiguous, throw an exception (for now). TODO: Examine additional beans and types and make decision</li>
+     * <li>If more than one, use the form login entry point (if form login is being used), then try basic</li>
+     * <li>If still null, throw an exception (for now). TODO: Examine additional beans and types and make decision</li>
      * </ol>
      *
      */
@@ -123,11 +123,20 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
 
         Assert.isTrue(entryPoints.size() > 0, "No AuthenticationEntryPoint instances defined");
 
-        AuthenticationEntryPoint mainEntryPoint = (AuthenticationEntryPoint)
-                entryPointMap.get(BeanIds.FORM_LOGIN_ENTRY_POINT);
+        AuthenticationEntryPoint mainEntryPoint;
 
-        if (mainEntryPoint == null) {
-            throw new SecurityConfigurationException("Failed to resolve authentication entry point");
+        if (entryPoints.size() == 1) {
+            mainEntryPoint = (AuthenticationEntryPoint) entryPoints.get(0);
+        } else {
+            mainEntryPoint = (AuthenticationEntryPoint) entryPointMap.get(BeanIds.FORM_LOGIN_ENTRY_POINT);
+
+            if (mainEntryPoint == null) {
+                mainEntryPoint = (AuthenticationEntryPoint)
+                    entryPointMap.get(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT);
+                if (mainEntryPoint == null) {
+                    throw new SecurityConfigurationException("Failed to resolve authentication entry point");
+                }
+            }
         }
 
         logger.info("Main AuthenticationEntryPoint set to " + mainEntryPoint);
