@@ -1,14 +1,15 @@
 package org.springframework.security.providers.ldap.authenticator;
 
-import org.springframework.security.ldap.InitialDirContextFactory;
-import org.springframework.security.ldap.ppolicy.PasswordExpiredException;
+import org.springframework.security.ldap.SpringSecurityContextSource;
 import org.springframework.security.ldap.ppolicy.AccountLockedException;
+import org.springframework.security.ldap.ppolicy.PasswordExpiredException;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -24,8 +25,8 @@ public class OracleIDBindAuthenticator extends BindAuthenticator {
 
     //~ Constructors ===================================================================================================
 
-    protected OracleIDBindAuthenticator(InitialDirContextFactory initialDirContextFactory) {
-        super(initialDirContextFactory);
+    protected OracleIDBindAuthenticator(SpringSecurityContextSource contextSource) {
+        super(contextSource);
     }
 
 /**

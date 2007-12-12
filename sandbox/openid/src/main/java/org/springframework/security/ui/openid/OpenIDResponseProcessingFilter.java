@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
  * Process the response from the OpenID server to the returnTo URL.
  *
  * @author Robin Bramley, Opsera Ltd
- * @version $Id:$
+ * @version $Id$
  */
 public class OpenIDResponseProcessingFilter extends AbstractProcessingFilter {
     //~ Instance fields ================================================================================================
@@ -80,5 +80,9 @@ public class OpenIDResponseProcessingFilter extends AbstractProcessingFilter {
      */
     public void setConsumer(OpenIDConsumer consumer) {
         this.consumer = consumer;
+    }
+
+    public int getOrder() {
+        throw new UnsupportedOperationException();
     }
 }

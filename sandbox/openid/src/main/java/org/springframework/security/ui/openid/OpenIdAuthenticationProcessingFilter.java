@@ -183,4 +183,8 @@ public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilt
 
         sendRedirect(request, response, failureUrl);
     }
+
+    public int getOrder() {
+        throw new UnsupportedOperationException();
+    }
 }
