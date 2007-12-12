@@ -50,18 +50,14 @@
 
     <distributionManagement>
         <repository>
-            <id>sourceforge.net</id>
-            <name>Acegi Releases Repository at Sourceforge</name>
-            <url>
-                scp://shell.sourceforge.net/home/groups/a/ac/acegisecurity/htdocs/repository/releases
-            </url>
+            <id>spring-milestone</id>
+            <name>Spring Milestone Repository</name>
+            <url>s3://maven.springframework.org/milestone</url>
         </repository>
         <snapshotRepository>
-            <id>sourceforge.net</id>
-            <name>Acegi Snapshots Repository at Sourceforge</name>
-            <url>
-                scp://shell.sourceforge.net/home/groups/a/ac/acegisecurity/htdocs/repository/snapshots
-            </url>
+            <id>spring-snapshot</id>
+            <name>Spring Snapshot Repository</name>
+            <url>s3://maven.springframework.org/snapshot</url>
         </snapshotRepository>
         <site>
             <id>local</id>
@@ -239,6 +235,13 @@
     </dependencies>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>org.springframework.aws</groupId>
+                <artifactId>spring-aws-maven</artifactId>
+                <version>1.2</version>
+            </extension>
+        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
