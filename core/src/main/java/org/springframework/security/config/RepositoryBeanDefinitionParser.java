@@ -27,19 +27,19 @@ import org.w3c.dom.Element;
 class RepositoryBeanDefinitionParser implements BeanDefinitionParser {
 
 	static final String ATT_DATA_SOURCE = "data-source";
-	static final String ATT_ID = "id";
+	static final String ATT_REF = "ref";
 
 	static final String ATT_CREATE_PROVIDER = "create-provider";
 	static final String DEF_CREATE_PROVIDER = "true";
 
 	static final String ATT_HASH = "hash";
 	static final String DEF_HASH_PLAINTEXT = "plaintext";
-	static final String OPT_HASH_SHA_HEX = "sha:hex";
-	static final String OPT_HASH_SHA_BASE64 = "sha:base64";
-	static final String OPT_HASH_MD4_HEX = "md4:hex";
-	static final String OPT_HASH_MD4_BASE64 = "md4:base64";
-	static final String OPT_HASH_MD5_HEX = "md5:hex";
-	static final String OPT_HASH_MD5_BASE64 = "md5:base64";
+	static final String OPT_HASH_SHA_HEX = "sha-hex";
+	static final String OPT_HASH_SHA_BASE64 = "sha-base64";
+	static final String OPT_HASH_MD4_HEX = "md4-hex";
+	static final String OPT_HASH_MD4_BASE64 = "md4-base64";
+	static final String OPT_HASH_MD5_HEX = "md5-hex";
+	static final String OPT_HASH_MD5_BASE64 = "md5-base64";
 	
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         boolean createProvider = true;
@@ -73,8 +73,8 @@ class RepositoryBeanDefinitionParser implements BeanDefinitionParser {
         }
         
         if (customUserServiceElt != null) {
-            String id = customUserServiceElt.getAttribute(ATT_ID);
-            BeanDefinition userDetailsService = parserContext.getRegistry().getBeanDefinition(id);
+            String ref = customUserServiceElt.getAttribute(ATT_REF);
+            BeanDefinition userDetailsService = parserContext.getRegistry().getBeanDefinition(ref);
             createDaoAuthenticationProviderIfRequired(createProvider, customUserServiceElt.getAttribute(ATT_HASH), userDetailsService, parserContext);
         }
         

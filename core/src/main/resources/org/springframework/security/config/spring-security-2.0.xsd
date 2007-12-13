@@ -9,12 +9,12 @@
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="plaintext"/>
-          <xs:enumeration value="sha:hex"/>
-          <xs:enumeration value="sha:base64"/>
-          <xs:enumeration value="md5:hex"/>
-          <xs:enumeration value="md5:base64"/>
-          <xs:enumeration value="md4:hex"/>
-          <xs:enumeration value="md4:base64"/>
+          <xs:enumeration value="sha-hex"/>
+          <xs:enumeration value="sha-base64"/>
+          <xs:enumeration value="md5-hex"/>
+          <xs:enumeration value="md5-base64"/>
+          <xs:enumeration value="md4-hex"/>
+          <xs:enumeration value="md4-base64"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -413,12 +413,12 @@
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="plaintext"/>
-          <xs:enumeration value="sha:hex"/>
-          <xs:enumeration value="sha:base64"/>
-          <xs:enumeration value="md5:hex"/>
-          <xs:enumeration value="md5:base64"/>
-          <xs:enumeration value="md4:hex"/>
-          <xs:enumeration value="md4:base64"/>
+          <xs:enumeration value="sha-hex"/>
+          <xs:enumeration value="sha-base64"/>
+          <xs:enumeration value="md5-hex"/>
+          <xs:enumeration value="md5-base64"/>
+          <xs:enumeration value="md4-hex"/>
+          <xs:enumeration value="md4-base64"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -465,12 +465,12 @@
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="plaintext"/>
-          <xs:enumeration value="sha:hex"/>
-          <xs:enumeration value="sha:base64"/>
-          <xs:enumeration value="md5:hex"/>
-          <xs:enumeration value="md5:base64"/>
-          <xs:enumeration value="md4:hex"/>
-          <xs:enumeration value="md4:base64"/>
+          <xs:enumeration value="sha-hex"/>
+          <xs:enumeration value="sha-base64"/>
+          <xs:enumeration value="md5-hex"/>
+          <xs:enumeration value="md5-base64"/>
+          <xs:enumeration value="md4-hex"/>
+          <xs:enumeration value="md4-base64"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -496,16 +496,16 @@
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="plaintext"/>
-          <xs:enumeration value="sha:hex"/>
-          <xs:enumeration value="sha:base64"/>
-          <xs:enumeration value="md5:hex"/>
-          <xs:enumeration value="md5:base64"/>
-          <xs:enumeration value="md4:hex"/>
-          <xs:enumeration value="md4:base64"/>
+          <xs:enumeration value="sha-hex"/>
+          <xs:enumeration value="sha-base64"/>
+          <xs:enumeration value="md5-hex"/>
+          <xs:enumeration value="md5-base64"/>
+          <xs:enumeration value="md4-hex"/>
+          <xs:enumeration value="md4-base64"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="id" use="required" type="xs:string">
+    <xs:attribute name="ref" use="required" type="xs:string">
       <xs:annotation>
         <xs:documentation>The bean ID of your custom UserDetailsService implementation.</xs:documentation>
       </xs:annotation>

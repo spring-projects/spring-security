@@ -31,7 +31,7 @@
     </http>
 
 	<repository>
-	    <user-service hash="md5:hex">
+	    <user-service hash="md5-hex">
 	        <user name="rod" password="a564de63c2d0da68cf47586ee05984d7" authorities="ROLE_SUPERVISOR,ROLE_USER" /> <!--  koala -->
 	        <user name="dianne" password="65d15fe9156f9c4bbffd98085992a44e" authorities="ROLE_USER" /> <!--  emu -->
 	        <user name="scott" password="2b58af6dddbd072ed27ffc86725d7d3a" authorities="ROLE_USER" /> <!--  wombat -->

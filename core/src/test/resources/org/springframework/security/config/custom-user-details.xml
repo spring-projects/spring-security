@@ -9,7 +9,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	<beans:bean id="myDetails" class="org.springframework.security.config.CustomUserDetailsService"/>
 
     <repository>
-        <custom-user-service id="myDetails"/>
+        <custom-user-service ref="myDetails"/>
     </repository>
 
 </beans:beans>

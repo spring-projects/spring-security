@@ -12,7 +12,7 @@ start = http | ldap | repository
 
 hash =
     ## Defines the type of hashing used on user passwords. If unspecified, "plaintext" is nominated, which indicates that the passwords are not hashed. We recommend strongly against using MD4, as it is a very weak hashing algorithm.
-    attribute hash {"plaintext" | "sha:hex" | "sha:base64" | "md5:hex" | "md5:base64" | "md4:hex" | "md4:base64"}
+    attribute hash {"plaintext" | "sha-hex" | "sha-base64" | "md5-hex" | "md5-base64" | "md4-hex" | "md4-base64"}
 
 path-type =
     ## Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.
@@ -224,5 +224,5 @@ custom-user-service.attlist &=
     hash?
 custom-user-service.attlist &=
 	## The bean ID of your custom UserDetailsService implementation.
-    attribute id {xsd:string}
+    attribute ref {xsd:string}
 
