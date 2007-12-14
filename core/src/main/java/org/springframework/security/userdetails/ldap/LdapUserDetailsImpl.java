@@ -99,6 +99,33 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
         return enabled;
     }
 
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(super.toString()).append(": ");
+        sb.append("Username: ").append(this.username).append("; ");
+        sb.append("Password: [PROTECTED]; ");
+        sb.append("Enabled: ").append(this.enabled).append("; ");
+        sb.append("AccountNonExpired: ").append(this.accountNonExpired).append("; ");
+        sb.append("credentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
+        sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
+
+        if (this.getAuthorities() != null) {
+            sb.append("Granted Authorities: ");
+
+            for (int i = 0; i < this.getAuthorities().length; i++) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+
+                sb.append(this.getAuthorities()[i].toString());
+            }
+        } else {
+            sb.append("Not granted any authorities");
+        }
+
+        return sb.toString();        
+    }
+
     //~ Inner Classes ==================================================================================================
 
     /**

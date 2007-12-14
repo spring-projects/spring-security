@@ -116,7 +116,8 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
 
                     // Object object = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
 
-                    return new DirContextAdapter(attrs, new DistinguishedName(dn));
+                    return new DirContextAdapter(attrs, new DistinguishedName(dn),
+                            new DistinguishedName(ctx.getNameInNamespace()));
                 }
             });
     }

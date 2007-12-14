@@ -1,5 +1,10 @@
 package org.springframework.security.config;
 
+import org.springframework.security.providers.ProviderManager;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.ldap.LdapAuthenticationProvider;
+import org.springframework.security.Authentication;
+import org.springframework.security.userdetails.ldap.LdapUserDetailsImpl;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
@@ -40,5 +45,17 @@ public class LdapBeanDefinitionParserTests {
         LdapTemplate template = new LdapTemplate(idcf);
 
         template.lookup("uid=ben,ou=people");
+
+        ProviderManager authManager = (ProviderManager) appContext.getBean(BeanIds.AUTHENTICATION_MANAGER);
+
+        assertEquals(1, authManager.getProviders().size());
+
+        LdapAuthenticationProvider provider = (LdapAuthenticationProvider) authManager.getProviders().get(0);
+
+        Authentication auth = provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "benspassword"));
+
+        LdapUserDetailsImpl ben = (LdapUserDetailsImpl) auth.getPrincipal();
+
+        assertEquals(2, ben.getAuthorities().length);
     }
 }

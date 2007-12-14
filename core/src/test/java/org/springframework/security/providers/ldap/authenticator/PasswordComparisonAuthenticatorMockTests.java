@@ -50,6 +50,7 @@ public class PasswordComparisonAuthenticatorMockTests extends MockObjectTestCase
 //        mockCtx.expects(once()).method("lookup").with(eq("cn=Bob,ou=people")).will(returnValue(true));
         mockCtx.expects(once()).method("getAttributes").with(eq("cn=Bob,ou=people"), NULL)
                .will(returnValue(attrs));
+        mockCtx.expects(once()).method("getNameInNamespace").will(returnValue("dc=springframework,dc=org"));
 
         // Setup a single return value (i.e. success)
         Attributes searchResults = new BasicAttributes("", null);

@@ -19,8 +19,10 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
+import org.springframework.security.ldap.LdapUtils;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.util.Assert;
 
 import org.apache.commons.logging.Log;
@@ -170,7 +172,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * @return the set of roles granted to the user.
      */
     public final GrantedAuthority[] getGrantedAuthorities(DirContextOperations user, String username) {
-        String userDn = user.getDn().toString();
+        String userDn = user.getNameInNamespace();
 
         if (logger.isDebugEnabled()) {
             logger.debug("Getting authorities for user " + userDn);
