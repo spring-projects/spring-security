@@ -225,7 +225,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
         try {
             DirContextOperations userData = getAuthenticator().authenticate(authentication);
 
-            GrantedAuthority[] extraAuthorities = getAuthoritiesPopulator().getGrantedAuthorities(userData, username);
+            GrantedAuthority[] extraAuthorities = loadUserAuthorities(userData, username, password);
 
             UserDetails user = userDetailsContextMapper.mapUserFromContext(userData, username, extraAuthorities);
 
@@ -234,6 +234,10 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
         } catch (NamingException ldapAccessFailure) {
             throw new AuthenticationServiceException(ldapAccessFailure.getMessage(), ldapAccessFailure);
         }
+    }
+
+    protected GrantedAuthority[] loadUserAuthorities(DirContextOperations userData, String username, String password) {
+        return getAuthoritiesPopulator().getGrantedAuthorities(userData, username);
     }
 
     protected Authentication createSuccessfulAuthentication(UsernamePasswordAuthenticationToken authentication,
