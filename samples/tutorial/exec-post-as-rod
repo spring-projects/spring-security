@@ -1,0 +1,5 @@
+#!/bin/bash
+rm -rf work
+mkdir work
+wget --http-user=rod --http-password=koala --directory-prefix=work --output-file=work/log.txt http://localhost:8080/spring-security-samples-tutorial/post.html?id=1\&amount=5.00
+cat -n work/* | less
