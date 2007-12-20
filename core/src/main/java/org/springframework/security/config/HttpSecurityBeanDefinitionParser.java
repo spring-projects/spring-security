@@ -16,6 +16,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.ConfigAttributeEditor;
+import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.AbstractFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.FilterInvocationDefinitionMap;
@@ -47,7 +48,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String DEF_REALM = "Spring Security Application";
 
     static final String ATT_PATH_PATTERN = "pattern";
-    
+
     static final String ATT_PATH_TYPE = "path-type";
     static final String DEF_PATH_TYPE_ANT = "ant";
     static final String OPT_PATH_TYPE_REGEX = "regex";
@@ -62,13 +63,16 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String DEF_CREATE_SESSION_IF_REQUIRED = "ifRequired";
     static final String OPT_CREATE_SESSION_ALWAYS = "always";
     static final String OPT_CREATE_SESSION_NEVER = "never";
-    
+
     static final String ATT_LOWERCASE_COMPARISONS = "lowercase-comparisons";
     static final String DEF_LOWERCASE_COMPARISONS = "true";
-    
+
     static final String ATT_AUTO_CONFIG = "auto-config";
     static final String DEF_AUTO_CONFIG = "false";
-    
+
+    static final String ATT_SERVLET_API_PROVISION = "servlet-api-provision";
+    static final String DEF_SERVLET_API_PROVISION = "true";
+
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         RootBeanDefinition filterChainProxy = new RootBeanDefinition(FilterChainProxy.class);
         RootBeanDefinition httpScif = new RootBeanDefinition(HttpSessionContextIntegrationFilter.class);
@@ -85,7 +89,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         	httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.TRUE);
         	httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
         }
-        
+
         BeanDefinitionBuilder filterSecurityInterceptorBuilder
                 = BeanDefinitionBuilder.rootBeanDefinition(FilterSecurityInterceptor.class);
 
@@ -120,7 +124,17 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         	interceptorFilterInvDefSource.setConvertUrlToLowercaseBeforeComparison(false);
         	channelFilterInvDefSource.setConvertUrlToLowercaseBeforeComparison(false);
         }
-        
+
+        // Add servlet-api integration filter if required
+        String provideServletApi = element.getAttribute(ATT_SERVLET_API_PROVISION);
+        if (!StringUtils.hasText(provideServletApi)) {
+        	provideServletApi = DEF_SERVLET_API_PROVISION;
+        }
+        if ("true".equals(provideServletApi)) {
+            parserContext.getRegistry().registerBeanDefinition(BeanIds.SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER,
+                    new RootBeanDefinition(SecurityContextHolderAwareRequestFilter.class));
+        }
+
         filterChainProxy.getPropertyValues().addPropertyValue("filterChainMap", filterChainMap);
 
         filterSecurityInterceptorBuilder.addPropertyValue("objectDefinitionSource", interceptorFilterInvDefSource);
@@ -148,7 +162,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             registry.registerBeanDefinition(BeanIds.CHANNEL_PROCESSING_FILTER, channelFilter);
             registry.registerBeanDefinition(BeanIds.CHANNEL_DECISION_MANAGER, channelDecisionManager);
         }
-        
+
         String realm = element.getAttribute(ATT_REALM);
         if (!StringUtils.hasText(realm)) {
         	realm = DEF_REALM;
@@ -158,17 +172,17 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (sessionControlElt != null) {
             new ConcurrentSessionsBeanDefinitionParser().parse(sessionControlElt, parserContext);
         }
-        
+
         boolean autoConfig = false;
         if ("true".equals(element.getAttribute(ATT_AUTO_CONFIG))) {
         	autoConfig = true;
         }
-        
+
         Element anonymousElt = DomUtils.getChildElementByTagName(element, Elements.ANONYMOUS);
         if (anonymousElt != null || autoConfig) {
             new AnonymousBeanDefinitionParser().parse(anonymousElt, parserContext);
         }
-        
+
         // Parse remember me before logout as RememberMeServices is also a LogoutHandler implementation.
         Element rememberMeElt = DomUtils.getChildElementByTagName(element, Elements.REMEMBER_ME);
         if (rememberMeElt != null || autoConfig) {
@@ -184,17 +198,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (formLoginElt != null || autoConfig) {
             new FormLoginBeanDefinitionParser().parse(formLoginElt, parserContext);
         }
-        
+
         Element basicAuthElt = DomUtils.getChildElementByTagName(element, Elements.BASIC_AUTH);
         if (basicAuthElt != null || autoConfig) {
             new BasicAuthenticationBeanDefinitionParser(realm).parse(basicAuthElt, parserContext);
         }
 
-        Element servletApiIntegrationElt = DomUtils.getChildElementByTagName(element, Elements.SERVLET_API_INTEGRATION);
-        if (servletApiIntegrationElt != null || autoConfig) {
-            new ServletApiIntegrationBeanDefinitionParser().parse(servletApiIntegrationElt, parserContext);
-        }
-        
         registry.registerBeanDefinition(BeanIds.FILTER_CHAIN_PROXY, filterChainProxy);
         registry.registerBeanDefinition(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER, httpScif);
         registry.registerBeanDefinition(BeanIds.EXCEPTION_TRANSLATION_FILTER, exceptionTranslationFilterBuilder.getBeanDefinition());

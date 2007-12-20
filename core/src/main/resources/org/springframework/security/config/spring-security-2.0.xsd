@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.springframework.org/schema/security" xmlns:security="http://www.springframework.org/schema/security">
-  <!-- targetNamespace="http://www.springframework.org/schema/security" -->
   <xs:attributeGroup name="hash">
     <xs:attribute name="hash" use="required">
       <xs:annotation>
@@ -35,7 +34,7 @@
   <xs:attributeGroup name="port">
     <xs:attribute name="port" use="required" type="xs:integer">
       <xs:annotation>
-        <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP server, for example. </xs:documentation>
+        <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP server, for example.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -62,7 +61,7 @@
     </xs:attribute>
     <xs:attribute name="port" type="xs:integer">
       <xs:annotation>
-        <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP server, for example. </xs:documentation>
+        <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP server, for example.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="ldif" default="classpath:*.ldif" type="xs:string">
@@ -92,7 +91,7 @@
   <xs:attributeGroup name="protect.attlist">
     <xs:attribute name="method" use="required" type="xs:string">
       <xs:annotation>
-        <xs:documentation>A method name </xs:documentation>
+        <xs:documentation>A method name</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="access" use="required" type="xs:string">
@@ -120,7 +119,6 @@
         <xs:element ref="security:concurrent-session-control"/>
         <xs:element ref="security:remember-me"/>
         <xs:element ref="security:anonymous"/>
-        <xs:element ref="security:servlet-api-integration"/>
       </xs:choice>
       <xs:attributeGroup ref="security:http.attlist"/>
     </xs:complexType>
@@ -171,6 +169,17 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
+    <xs:attribute name="servlet-api-provision">
+      <xs:annotation>
+        <xs:documentation>Provides versions of HttpServletRequest security methods such as isUserInRole() and getPrincipal() which are implemented by accessing the Spring SecurityContext. Defaults to "true".</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="true"/>
+          <xs:enumeration value="false"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="access-decision-manager" type="xs:string">
       <xs:annotation>
         <xs:documentation>Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.</xs:documentation>
@@ -193,7 +202,7 @@
   <xs:attributeGroup name="intercept-url.attlist">
     <xs:attribute name="pattern" use="required" type="xs:string">
       <xs:annotation>
-        <xs:documentation>The pattern which defines the URL path. The content will depend on the type set in the containing http element, so will default to ant path syntax.    </xs:documentation>
+        <xs:documentation>The pattern which defines the URL path. The content will depend on the type set in the containing http element, so will default to ant path syntax.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="access" type="xs:string">
@@ -346,9 +355,6 @@
     <xs:attribute name="token-repository" type="xs:string"/>
     <xs:attribute name="data-source" type="xs:string"/>
   </xs:attributeGroup>
-  <xs:element name="servlet-api-integration">
-    <xs:complexType/>
-  </xs:element>
   <xs:element name="anonymous">
     <xs:annotation>
       <xs:documentation>Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.</xs:documentation>
@@ -365,7 +371,7 @@
     </xs:attribute>
     <xs:attribute name="username" type="xs:string">
       <xs:annotation>
-        <xs:documentation>The username that should be assigned to the anonymous request. This allows the principal to be identified, which may be important for logging and auditing. if unset, defaults to "anonymousUser". </xs:documentation>
+        <xs:documentation>The username that should be assigned to the anonymous request. This allows the principal to be identified, which may be important for logging and auditing. if unset, defaults to "anonymousUser".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="granted-authority" type="xs:string">
@@ -445,7 +451,7 @@
     </xs:attribute>
     <xs:attribute name="authorities" use="required" type="xs:string">
       <xs:annotation>
-        <xs:documentation>One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR" </xs:documentation>
+        <xs:documentation>One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>

@@ -2,7 +2,7 @@ package org.springframework.security.config;
 
 /**
  * Contains all the element names used by Spring Security 2 namespace support.
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  */
@@ -25,7 +25,6 @@ class Elements {
 	public static final String REMEMBER_ME = "remember-me";
 	public static final String ANONYMOUS = "anonymous";
 	public static final String FILTER_CHAIN = "filter-chain";
-	public static final String SERVLET_API_INTEGRATION = "servlet-api-integration";
 	public static final String ANNOTATION_DRIVEN = "annotation-driven";
 
 }

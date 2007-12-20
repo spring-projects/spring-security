@@ -11,6 +11,7 @@ import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FilterChainProxy;
+import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import org.junit.AfterClass;
@@ -58,7 +59,7 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         List filterList = filterChainProxy.getFilters("/someurl");
 
-        assertEquals("Expected 10 filters in chain", 10, filterList.size());
+        assertEquals("Expected 11 filters in chain", 11, filterList.size());
 
         Iterator filters = filterList.iterator();
 
@@ -69,6 +70,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof AuthenticationProcessingFilter);
         assertTrue(filters.next() instanceof DefaultLoginPageGeneratingFilter);
         assertTrue(filters.next() instanceof BasicProcessingFilter);
+        assertTrue(filters.next() instanceof SecurityContextHolderAwareRequestFilter);        
         assertTrue(filters.next() instanceof RememberMeProcessingFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
         assertTrue(filters.next() instanceof FilterSecurityInterceptor);
