@@ -151,7 +151,7 @@ class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, 
 
     private void importLdifs() throws IOException, NamingException {
         // Import any ldif files
-        Resource[] ldifs = ctxt.getResources("classpath:*.ldif");
+        Resource[] ldifs = ctxt.getResources("classpath*:*.ldif");
 
         // Note that we can't just import using the ServerContext returned
         // from starting Apace DS, apparently because of the long-running issue DIRSERVER-169.
