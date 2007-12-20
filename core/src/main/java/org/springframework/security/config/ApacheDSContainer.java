@@ -81,7 +81,7 @@ class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, 
         ctxt = applicationContext;
     }
 
-    private static boolean deleteDir(File dir) {
+    private boolean deleteDir(File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
             for (int i=0; i < children.length; i++) {
@@ -97,6 +97,8 @@ class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, 
 
     public void setWorkingDirectory(File workingDir) {
         Assert.notNull(workingDir);
+
+        logger.info("Setting working directory for LDAP: " + workingDir.getAbsolutePath());
 
         if (workingDir.exists()) {
             throw new IllegalArgumentException("The specified working directory '" + workingDir.getAbsolutePath() +
