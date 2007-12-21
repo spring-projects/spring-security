@@ -6,11 +6,15 @@ datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 
 default namespace = "http://www.springframework.org/schema/security"
 
-start = http | ldap | repository
+start = http | ldap
 
 hash =
-    ## Defines the type of hashing used on user passwords. If unspecified, "plaintext" is nominated, which indicates that the passwords are not hashed. We recommend strongly against using MD4, as it is a very weak hashing algorithm.
-    attribute hash {"plaintext" | "sha-hex" | "sha-base64" | "md5-hex" | "md5-base64" | "md4-hex" | "md4-base64"}
+    ## Defines the hashing algorithm used on user passwords. We recommend strongly against using MD4, as it is a very weak hashing algorithm.
+    attribute hash {"sha" | "md5" | "md4" | "{sha}" | "{ssha}"}
+
+base64 = 
+    ## Whether a string should be base64 encoded
+    attribute base64 {"true" | "false"}
 
 path-type =
     ## Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.
@@ -23,6 +27,27 @@ port =
 url =
     ## Specifies a URL.
     attribute url { xsd:string }
+    
+id = 
+    ## A bean identifier, used for referring to the bean elsewhere in the context.
+    attribute id {xsd:ID}    
+ref =
+    ## Defines a reference to a Spring bean id.
+    attribute ref {xsd:IDREF}
+    
+password-encoder = 
+    ## element which defines a password encoding strategy. Used by an authentication provider to convert submitted passwords to hashed versions, for example.
+    element password-encoder {ref | (hash? & base64? & salt-source*)}  
+    
+salt-source =
+    element salt-source {user-property | system-wide}
+user-property =
+    ## A property of the UserDetails object which will be used as salt by a password encoder. Typically something like "username" might be used. 
+    attribute user-property {xsd:string}
+system-wide =
+    ## A single value that will be used as the salt for a password encoder. 
+    attribute system-wide {xsd:string}
+
 
 ldap =
     ## Sets up an ldap authentication provider, optionally with an embedded ldap server
@@ -33,7 +58,7 @@ ldap.attlist &=
 
 ldap.attlist &=
     ## Explicitly specify an ldif file resource to load into the embedded server
-    [ a:defaultValue = "classpath:*.ldif" ] attribute ldif { xsd:string }?
+    [ a:defaultValue = "classpath*:*.ldif" ] attribute ldif { xsd:string }?
 
 intercept-methods =
     ## Can be used inside a bean definition to add a security interceptor to the bean and set up access configuration attributes for the bean's methods
@@ -179,17 +204,15 @@ anonymous.attlist &=
 	## The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions. If unset, defaults to "ROLE_ANONYMOUS".
     attribute granted-authority {xsd:string}?
 
-repository =
-     element repository {repository.attlist, (user-service | jdbc-user-service | custom-user-service)}
-repository.attlist &=
-	## Indicates the repository should have an authentication provider created. If unspecified, defaults to true.
-    attribute create-provider {"true" | "false"}?
+authentication-provider =
+  ## Indicates that the contained user-service should be used as an authentication source. May either refer to an external UserDetailsService bean by id (using the "ref" attribute) or contain a child element which creates the service. 
+     element authentication-provider {(ref | (user-service | jdbc-user-service)) & password-encoder}
+ap.attlist &= 
+     attribute ref {xsd:IDREF} 
 
 user-service =
-    element user-service {user-service.attlist, (user*)}
-user-service.attlist &=
-    hash?
-user-service.attlist &=
+    element user-service {id? & (properties-file | (user*))}
+properties-file =
     attribute properties {xsd:string}*
 
 user =
@@ -207,19 +230,7 @@ user.attlist &=
 
 jdbc-user-service =
 	## Causes creation of a JDBC-based UserDetailsService.
-    element jdbc-user-service {jdbc-user-service.attlist}
-jdbc-user-service.attlist &=
-    hash?
+    element jdbc-user-service {id? & jdbc-user-service.attlist} 
 jdbc-user-service.attlist &=
 	## The bean ID of the DataSource which provides the required tables.
     attribute data-source {xsd:string}
-
-custom-user-service =
-	## Represents a UserDetailsService implementation that has been provided by you. Registration here will automate the creation of a DaoAuthenticationProvider that delegates to your UserDetailsService implementation.
-    element custom-user-service {custom-user-service.attlist}
-custom-user-service.attlist &=
-    hash?
-custom-user-service.attlist &=
-	## The bean ID of your custom UserDetailsService implementation.
-    attribute ref {xsd:string}
-

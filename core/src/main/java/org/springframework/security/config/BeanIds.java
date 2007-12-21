@@ -2,11 +2,11 @@ package org.springframework.security.config;
 
 /**
  * Contains all the default Bean IDs created by the namespace support in Spring Security 2.
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  */
-public class BeanIds {
+public abstract class BeanIds {
 
 	/** Package protected as end users shouldn't really be using this BFPP directly */
 	static final String INTERCEPT_METHODS_BEAN_FACTORY_POST_PROCESSOR = "_interceptMethodsBeanfactoryPP";
@@ -39,5 +39,5 @@ public class BeanIds {
 	public static final String METHOD_DEFINITION_SOURCE_ADVISOR = "_methodDefinitionSourceAdvisor";
 	public static final String SECURITY_ANNOTATION_ATTRIBUTES = "_securityAnnotationAttributes";
 	public static final String METHOD_DEFINITION_ATTRIBUTES = "_methodDefinitionAttributes";
-	
+
 }

@@ -8,11 +8,13 @@ import org.springframework.security.userdetails.ldap.LdapUserDetailsImpl;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
+import org.springframework.beans.BeansException;
 
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Assert;
 
 
 /**
@@ -24,7 +26,13 @@ public class LdapBeanDefinitionParserTests {
 
     @BeforeClass
     public static void loadContext() {
-        appContext = new ClassPathXmlApplicationContext("org/springframework/security/config/ldap-embedded-default.xml");
+
+        try {
+            appContext = new ClassPathXmlApplicationContext("org/springframework/security/config/ldap-embedded-default.xml");
+        } catch (BeansException e) {
+            e.printStackTrace();
+            Assert.fail("Exception loading context " + e);
+        }
     }
 
     @AfterClass

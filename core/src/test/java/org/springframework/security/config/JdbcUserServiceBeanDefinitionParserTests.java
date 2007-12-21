@@ -14,9 +14,10 @@ import org.springframework.security.userdetails.jdbc.JdbcUserDetailsManager;
 
 /**
  * @author Ben Alex
+ * @author Luke Taylor
  * @version $Id$
  */
-public class JdbcUserDetailsTests {
+public class JdbcUserServiceBeanDefinitionParserTests {
     private static ClassPathXmlApplicationContext appContext;
 
     @BeforeClass
@@ -32,18 +33,13 @@ public class JdbcUserDetailsTests {
     }
 
     @Test
-    public void testUsersFound() {
-    	JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext.getBean(BeanIds.JDBC_USER_DETAILS_MANAGER);
+    public void validUsernameIsFound() {
+    	JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext.getBean(BeanIds.USER_DETAILS_SERVICE);
     	assertTrue(mgr.loadUserByUsername("rod") != null);
     }
-    
+
     @Test
-    public void testProviderManagerSetup() {
-    	ProviderManager manager = (ProviderManager) appContext.getBean(BeanIds.AUTHENTICATION_MANAGER);
-    	List providers = manager.getProviders();
-    	assertTrue(providers.size() == 1);
-    	assertTrue(providers.iterator().next() instanceof DaoAuthenticationProvider);
-    	DaoAuthenticationProvider provider = (DaoAuthenticationProvider) providers.iterator().next();
-    	assertTrue(provider.getUserDetailsService() instanceof JdbcUserDetailsManager);
+    public void beanIdIsParsedCorrectly() {
+    	JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext.getBean("customUserService");
     }
 }

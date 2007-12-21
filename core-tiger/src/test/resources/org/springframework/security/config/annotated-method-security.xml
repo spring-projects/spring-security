@@ -10,11 +10,11 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
 	<annotation-driven/>
 
-    <repository>
+    <authentication-provider>
         <user-service>
             <user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B" />
             <user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B,AUTH_OTHER" />
         </user-service>
-    </repository>
+    </authentication-provider>
 
 </b:beans>

@@ -117,9 +117,7 @@ public abstract class ConfigUtils {
             throw new IllegalArgumentException("More than one AuthenticationManager registered.");
         }
 
-        AuthenticationManager accessMgr = (AuthenticationManager) authManagers.values().toArray()[0];
-
-        return accessMgr;
+        return (AuthenticationManager) authManagers.values().toArray()[0];
     }
 
     static ManagedList getRegisteredProviders(ParserContext parserContext) {

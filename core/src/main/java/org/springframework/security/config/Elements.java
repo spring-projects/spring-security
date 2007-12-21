@@ -6,15 +6,13 @@ package org.springframework.security.config;
  * @author Ben Alex
  * @version $Id$
  */
-class Elements {
+abstract class Elements {
 
 	public static final String USER_SERVICE = "user-service";
 	public static final String JDBC_USER_SERVICE = "jdbc-user-service";
-	public static final String CUSTOM_USER_SERVICE = "custom-user-service";
 	public static final String FILTER_CHAIN_MAP = "filter-chain-map";
 	public static final String INTERCEPT_METHODS = "intercept-methods";
 	public static final String AUTHENTICATION_PROVIDER = "authentication-provider";
-	public static final String REPOSITORY = "repository";
 	public static final String HTTP = "http";
 	public static final String LDAP = "ldap";
 	public static final String PROTECT = "protect";
@@ -26,5 +24,6 @@ class Elements {
 	public static final String ANONYMOUS = "anonymous";
 	public static final String FILTER_CHAIN = "filter-chain";
 	public static final String ANNOTATION_DRIVEN = "annotation-driven";
-
+	public static final String PASSWORD_ENCODER = "password-encoder";
+	public static final String SALT_SOURCE = "salt-source";
 }

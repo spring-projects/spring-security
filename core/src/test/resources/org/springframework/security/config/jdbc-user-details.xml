@@ -17,8 +17,8 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 		<beans:property name="password" value=""/>
 	</beans:bean>
 
-    <repository>
-        <jdbc-user-service data-source="dataSource"/>
-    </repository>
+    <jdbc-user-service data-source="dataSource"/>
+
+    <jdbc-user-service id="customUserService" data-source="dataSource"/>
 
 </beans:beans>

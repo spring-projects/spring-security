@@ -13,6 +13,7 @@ import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.beans.BeansException;
 
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -32,7 +33,11 @@ public class HttpSecurityBeanDefinitionParserTests {
 
     @BeforeClass
     public static void loadContext() {
-        appContext = new ClassPathXmlApplicationContext("org/springframework/security/config/http-security.xml");
+        try {
+            appContext = new ClassPathXmlApplicationContext("org/springframework/security/config/http-security.xml");
+        } catch (BeansException e) {
+            e.printStackTrace();
+        }
     }
 
     @AfterClass
@@ -70,7 +75,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof AuthenticationProcessingFilter);
         assertTrue(filters.next() instanceof DefaultLoginPageGeneratingFilter);
         assertTrue(filters.next() instanceof BasicProcessingFilter);
-        assertTrue(filters.next() instanceof SecurityContextHolderAwareRequestFilter);        
+        assertTrue(filters.next() instanceof SecurityContextHolderAwareRequestFilter);
         assertTrue(filters.next() instanceof RememberMeProcessingFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
         assertTrue(filters.next() instanceof FilterSecurityInterceptor);
