@@ -14,6 +14,7 @@
  */
 package org.springframework.security.ldap;
 
+import org.springframework.security.config.BeanIds;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.core.io.ClassPathResource;
@@ -42,7 +43,6 @@ import java.util.Set;
  */
 public abstract class AbstractLdapIntegrationTests {
     private static ClassPathXmlApplicationContext appContext;
-    private boolean dirty = false;
 
     protected AbstractLdapIntegrationTests() {
     }
@@ -77,19 +77,9 @@ public abstract class AbstractLdapIntegrationTests {
     public void onSetUp() throws Exception {
     }
 
-    /** Reloads the server data file */
-    protected void setDirty() {
-        dirty = true;
-    }
 
     @After
     public final void reloadServerDataIfDirty() throws Exception {
-//        if (!dirty) {
-//            return;
-//        }
-
-//        closeContext();
-//        loadContext();
         ClassPathResource ldifs = new ClassPathResource("test-server.ldif");
 
         if (!ldifs.getFile().exists()) {
@@ -111,7 +101,7 @@ public abstract class AbstractLdapIntegrationTests {
     }
 
     public SpringSecurityContextSource getContextSource() {
-        return (SpringSecurityContextSource) appContext.getBean("contextSource");
+        return (SpringSecurityContextSource) appContext.getBean(BeanIds.CONTEXT_SOURCE);
     }
 
     /**

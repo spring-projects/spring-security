@@ -28,7 +28,7 @@ import java.io.IOException;
 
 /**
  * Provides lifecycle services for the embedded apacheDS server defined by the supplied configuration.
- * Used by {@link LdapBeanDefinitionParser}. An instance will be stored in the application context for
+ * Used by {@link LdapServerBeanDefinitionParser}. An instance will be stored in the application context for
  * each embedded server instance. It will start the server when the context is initialized and shut it down when
  * it is closed. It is intended for temporary embedded use and will not retain changes across start/stop boundaries. The
  * working directory is deleted on shutdown.
@@ -39,8 +39,6 @@ import java.io.IOException;
  * application context is closed to allow the bean to be disposed of and the server shutdown
  * prior to attempting to start it again.
  * </p>
- *
- *
  *
  * @author Luke Taylor
  * @version $Id$
@@ -54,10 +52,12 @@ class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, 
 
     private ContextSource contextSource;
     private boolean running;
+    private String ldifResources;
 
-    public ApacheDSContainer(MutableServerStartupConfiguration configuration, ContextSource contextSource) {
-        this.configuration = configuration;
+    public ApacheDSContainer(MutableServerStartupConfiguration config, ContextSource contextSource, String ldifs) {
+        this.configuration = config;
         this.contextSource = contextSource;
+        this.ldifResources = ldifs;
     }
 
     public void afterPropertiesSet() throws Exception {
@@ -98,7 +98,7 @@ class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, 
     public void setWorkingDirectory(File workingDir) {
         Assert.notNull(workingDir);
 
-        logger.info("Setting working directory for LDAP: " + workingDir.getAbsolutePath());
+        logger.info("Setting working directory for LDAP_PROVIDER: " + workingDir.getAbsolutePath());
 
         if (workingDir.exists()) {
             throw new IllegalArgumentException("The specified working directory '" + workingDir.getAbsolutePath() +
@@ -151,7 +151,7 @@ class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, 
 
     private void importLdifs() throws IOException, NamingException {
         // Import any ldif files
-        Resource[] ldifs = ctxt.getResources("classpath*:*.ldif");
+        Resource[] ldifs = ctxt.getResources(ldifResources);
 
         // Note that we can't just import using the ServerContext returned
         // from starting Apace DS, apparently because of the long-running issue DIRSERVER-169.

@@ -138,15 +138,20 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
-  <xs:element name="ldap">
+  <xs:element name="ldap-server">
     <xs:annotation>
-      <xs:documentation>Sets up an ldap authentication provider, optionally with an embedded ldap server</xs:documentation>
+      <xs:documentation>Defines an LDAP server location or starts an embedded server. The url indicates the location of a remote server. If no url is given, an embedded server will be started, listening on the supplied port number. The port is optional and defaults to 33389. A Spring LDAP ContextSource bean will be registered for the server with the id supplied. </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attributeGroup ref="security:ldap.attlist"/>
+      <xs:attributeGroup ref="security:ldap-server.attlist"/>
     </xs:complexType>
   </xs:element>
-  <xs:attributeGroup name="ldap.attlist">
+  <xs:attributeGroup name="ldap-server.attlist">
+    <xs:attribute name="id" type="xs:ID">
+      <xs:annotation>
+        <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="url" type="xs:string">
       <xs:annotation>
         <xs:documentation>Specifies a URL.</xs:documentation>
@@ -157,9 +162,35 @@
         <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP server, for example.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="ldif" default="classpath*:*.ldif" type="xs:string">
+    <xs:attribute name="manager-dn" type="xs:string">
       <xs:annotation>
-        <xs:documentation>Explicitly specify an ldif file resource to load into the embedded server</xs:documentation>
+        <xs:documentation>Username (DN) of the "manager" user identity which will be used to authenticate to a (non-embedded) LDAP server. If omitted, anonymous access will be used. </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="manager-password" type="xs:string"/>
+    <xs:attribute name="ldif" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Explicitly specifies an ldif file resource to load into an embedded LDAP server</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="root" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Optional root suffix for the embedded LDAP server. Default is "dc=springframework,dc=org"</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="ldap-authentication-provider">
+    <xs:annotation>
+      <xs:documentation>Sets up an ldap authentication provider</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="security:ldap-ap.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="ldap-ap.attlist">
+    <xs:attribute name="server-ref" type="xs:IDREF">
+      <xs:annotation>
+        <xs:documentation>The server to authenticate against.  </xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -273,7 +304,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="access-decision-manager" type="xs:string">
+    <xs:attribute name="access-decision-manager" type="xs:IDREF">
       <xs:annotation>
         <xs:documentation>Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.</xs:documentation>
       </xs:annotation>
@@ -445,7 +476,7 @@
   </xs:element>
   <xs:attributeGroup name="remember-me.attlist">
     <xs:attribute name="key" type="xs:string"/>
-    <xs:attribute name="token-repository" type="xs:string"/>
+    <xs:attribute name="token-repository" type="xs:IDREF"/>
     <xs:attribute name="data-source" type="xs:string"/>
   </xs:attributeGroup>
   <xs:element name="anonymous">
@@ -475,7 +506,7 @@
   </xs:attributeGroup>
   <xs:element name="authentication-provider">
     <xs:annotation>
-      <xs:documentation>Indicates that the contained user-service should be used as an authentication source. May either refer to an external UserDetailsService bean by id (using the "ref" attribute) or contain a child element which creates the service. </xs:documentation>
+      <xs:documentation>Indicates that the contained user-service should be used as an authentication source. </xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -485,17 +516,20 @@
         </xs:choice>
         <xs:element ref="security:password-encoder"/>
       </xs:choice>
-      <xs:attribute name="ref" type="xs:IDREF">
-        <xs:annotation>
-          <xs:documentation>Defines a reference to a Spring bean id.</xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
+      <xs:attributeGroup ref="security:ap.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="ap.attlist">
-    <xs:attribute name="ref" use="required" type="xs:IDREF"/>
+    <xs:attribute name="user-service-ref" type="xs:IDREF">
+      <xs:annotation>
+        <xs:documentation>Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.  </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="user-service">
+    <xs:annotation>
+      <xs:documentation>Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.</xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:user"/>

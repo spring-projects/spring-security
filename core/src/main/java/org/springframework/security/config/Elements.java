@@ -14,8 +14,9 @@ abstract class Elements {
 	public static final String INTERCEPT_METHODS = "intercept-methods";
 	public static final String AUTHENTICATION_PROVIDER = "authentication-provider";
 	public static final String HTTP = "http";
-	public static final String LDAP = "ldap";
-	public static final String PROTECT = "protect";
+	public static final String LDAP_PROVIDER = "ldap-authentication-provider";
+	public static final String LDAP_SERVER = "ldap-server";
+    public static final String PROTECT = "protect";
 	public static final String CONCURRENT_SESSIONS = "concurrent-session-control";
 	public static final String LOGOUT = "logout";
 	public static final String FORM_LOGIN = "form-login";

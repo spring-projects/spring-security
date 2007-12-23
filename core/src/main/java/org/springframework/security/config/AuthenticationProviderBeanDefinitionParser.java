@@ -19,8 +19,7 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser {
-    private static String ATT_REF = "ref";
-    static final String ATT_DATA_SOURCE = "data-source";
+    private static String ATT_USER_DETAILS_REF = "user-service-ref";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         RootBeanDefinition authProvider = new RootBeanDefinition(DaoAuthenticationProvider.class);
@@ -28,12 +27,17 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
         Element passwordEncoderElt = DomUtils.getChildElementByTagName(element, Elements.PASSWORD_ENCODER);
 
         if (passwordEncoderElt != null) {
-            //TODO: Parse password encoder object and add to dao provider
+            PasswordEncoderParser pep = new PasswordEncoderParser(passwordEncoderElt, parserContext);
+            authProvider.getPropertyValues().addPropertyValue("passwordEncoder", pep.getPasswordEncoder());
+
+            if (pep.getSaltSource() != null) {
+                authProvider.getPropertyValues().addPropertyValue("saltSource", pep.getSaltSource());
+            }
         }
 
         ConfigUtils.getRegisteredProviders(parserContext).add(authProvider);
 
-        String ref = element.getAttribute(ATT_REF);
+        String ref = element.getAttribute(ATT_USER_DETAILS_REF);
         Element userServiceElt = DomUtils.getChildElementByTagName(element, Elements.USER_SERVICE);
         Element jdbcUserServiceElt = DomUtils.getChildElementByTagName(element, Elements.JDBC_USER_SERVICE);
 
@@ -57,7 +61,7 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
             userDetailsService = new UserServiceBeanDefinitionParser().parse(userServiceElt, parserContext);
         } else {
             throw new SecurityConfigurationException(Elements.AUTHENTICATION_PROVIDER
-                    + " requireds a UserDetailsService" );
+                    + " requires a UserDetailsService" );
         }
 
         authProvider.getPropertyValues().addPropertyValue("userDetailsService", userDetailsService);

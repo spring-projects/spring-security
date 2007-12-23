@@ -32,27 +32,31 @@ import java.io.InputStream;
 public class InMemoryResource extends AbstractResource {
     //~ Instance fields ================================================================================================
 
-    private ByteArrayInputStream in;
+    private byte[] source;
     private String description;
 
     //~ Constructors ===================================================================================================
+
+    public InMemoryResource(String source) {
+        this(source.getBytes());
+    }
 
     public InMemoryResource(byte[] source) {
         this(source, null);
     }
 
     public InMemoryResource(byte[] source, String description) {
-        in = new ByteArrayInputStream(source);
+        this.source = source;
         this.description = description;
     }
 
     //~ Methods ========================================================================================================
 
     public String getDescription() {
-        return (description == null) ? in.toString() : description;
+        return description;
     }
 
     public InputStream getInputStream() throws IOException {
-        return in;
+        return new ByteArrayInputStream(source);
     }
 }

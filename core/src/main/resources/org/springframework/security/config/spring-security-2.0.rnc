@@ -6,28 +6,23 @@ datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 
 default namespace = "http://www.springframework.org/schema/security"
 
-start = http | ldap
+start = http | ldap-server | authentication-provider | ldap-authentication-provider | user-service
 
 hash =
     ## Defines the hashing algorithm used on user passwords. We recommend strongly against using MD4, as it is a very weak hashing algorithm.
     attribute hash {"sha" | "md5" | "md4" | "{sha}" | "{ssha}"}
-
 base64 = 
     ## Whether a string should be base64 encoded
     attribute base64 {"true" | "false"}
-
 path-type =
     ## Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.
     attribute path-type {"ant" | "regex"}
-
 port =
     ## Specifies an IP port number. Used to configure an embedded LDAP server, for example.
     attribute port { xsd:integer }
-
 url =
     ## Specifies a URL.
     attribute url { xsd:string }
-    
 id = 
     ## A bean identifier, used for referring to the bean elsewhere in the context.
     attribute id {xsd:ID}    
@@ -49,28 +44,41 @@ system-wide =
     attribute system-wide {xsd:string}
 
 
-ldap =
-    ## Sets up an ldap authentication provider, optionally with an embedded ldap server
-    element ldap {ldap.attlist, empty}
-ldap.attlist &=
-    ## The url indicates the server location. If omitted, an embedded server will be started, optionally with the configured port number.
-    (url | port)?
+ldap-server =
+    ## Defines an LDAP server location or starts an embedded server. The url indicates the location of a remote server. If no url is given, an embedded server will be started, listening on the supplied port number. The port is optional and defaults to 33389. A Spring LDAP ContextSource bean will be registered for the server with the id supplied. 
+    element ldap-server {ldap-server.attlist}
+ldap-server.attlist &= id?
+ldap-server.attlist &= (url | port)?
+ldap-server.attlist &=
+    ## Username (DN) of the "manager" user identity which will be used to authenticate to a (non-embedded) LDAP server. If omitted, anonymous access will be used. 
+    attribute manager-dn {xsd:string}?
+    ## The password for the manager DN.
+ldap-server.attlist &=
+    attribute manager-password {xsd:string}?     
+ldap-server.attlist &=
+    ## Explicitly specifies an ldif file resource to load into an embedded LDAP server
+    attribute ldif { xsd:string }?
+ldap-server.attlist &=
+    ## Optional root suffix for the embedded LDAP server. Default is "dc=springframework,dc=org"
+    attribute root { xsd:string }?
 
-ldap.attlist &=
-    ## Explicitly specify an ldif file resource to load into the embedded server
-    [ a:defaultValue = "classpath*:*.ldif" ] attribute ldif { xsd:string }?
+
+ldap-authentication-provider =
+    ## Sets up an ldap authentication provider
+    element ldap-authentication-provider {ldap-ap.attlist, empty}
+ldap-ap.attlist &=
+    ## The server to authenticate against.  
+    attribute server-ref {xsd:IDREF}?
+
 
 intercept-methods =
     ## Can be used inside a bean definition to add a security interceptor to the bean and set up access configuration attributes for the bean's methods
     element intercept-methods {intercept-methods.attlist, protect+}
-
 intercept-methods.attlist = empty
-
 
 protect =
     ## Defines a protected method and the access control configuration attributes that apply to it
     element protect {protect.attlist, empty}
-
 protect.attlist &=
     ## A method name
     attribute method {xsd:string}
@@ -82,7 +90,6 @@ protect.attlist &=
 annotation-driven =
 	## Activates security annotation scanning. All beans registered in the Spring application context will be scanned for Spring Security annotations. Where found, the beans will automatically be proxied and security authorization applied to the methods accordingly. Please ensure you have the spring-security-tiger-XXX.jar on your classpath.
 	element annotation-driven {annotation-driven.attlist}
-
 annotation-driven.attlist = empty
 
 
@@ -106,7 +113,7 @@ http.attlist &=
     attribute servlet-api-provision {"true" | "false"}?
 http.attlist &=
     ## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.
-    attribute access-decision-manager {xsd:string}?
+    attribute access-decision-manager {xsd:IDREF}?
 http.attlist &=
     ## Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Spring Security Application".
     attribute realm {xsd:string}?
@@ -189,7 +196,7 @@ concurrent-sessions.attlist &=
 remember-me =
     element remember-me {remember-me.attlist}
 remember-me.attlist &=
-    (attribute key {xsd:string} | (attribute token-repository {xsd:string} | attribute data-source {xsd:string}))
+    (attribute key {xsd:string} | (attribute token-repository {xsd:IDREF} | attribute data-source {xsd:string}))
 
 anonymous =
 	## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
@@ -205,16 +212,18 @@ anonymous.attlist &=
     attribute granted-authority {xsd:string}?
 
 authentication-provider =
-  ## Indicates that the contained user-service should be used as an authentication source. May either refer to an external UserDetailsService bean by id (using the "ref" attribute) or contain a child element which creates the service. 
-     element authentication-provider {(ref | (user-service | jdbc-user-service)) & password-encoder}
-ap.attlist &= 
-     attribute ref {xsd:IDREF} 
+  ## Indicates that the contained user-service should be used as an authentication source. 
+     element authentication-provider {ap.attlist & (user-service | jdbc-user-service) & password-encoder}
+ap.attlist &=
+  ## Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.  
+     attribute user-service-ref {xsd:IDREF}?
 
 user-service =
+  ## Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.
     element user-service {id? & (properties-file | (user*))}
 properties-file =
-    attribute properties {xsd:string}*
-
+    attribute properties {xsd:string}?
+    
 user =
 	## Represents a user in the application.
     element user {user.attlist, empty}
@@ -227,6 +236,7 @@ user.attlist &=
 user.attlist &=
 	## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"
     attribute authorities {xsd:string}
+
 
 jdbc-user-service =
 	## Causes creation of a JDBC-based UserDetailsService.

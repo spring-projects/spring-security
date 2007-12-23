@@ -1,0 +1,16 @@
+dn: ou=gorillas,dc=monkeymachine,dc=co,dc=uk
+objectclass: top
+objectclass: organizationalUnit
+ou: gorillas
+
+dn: uid=pg,ou=gorillas,dc=monkeymachine,dc=co,dc=uk
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Pierre
+sn: Gorille
+uid: pg
+userPassword: password
+
+

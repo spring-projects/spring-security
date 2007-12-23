@@ -10,8 +10,9 @@ public abstract class BeanIds {
 
 	/** Package protected as end users shouldn't really be using this BFPP directly */
 	static final String INTERCEPT_METHODS_BEAN_FACTORY_POST_PROCESSOR = "_interceptMethodsBeanfactoryPP";
+    static final String CONTEXT_SOURCE_SETTING_POST_PROCESSOR = "_contextSettingPostProcessor";
 
-	public static final String JDBC_USER_DETAILS_MANAGER = "_jdbcUserDetailsManager";
+    public static final String JDBC_USER_DETAILS_MANAGER = "_jdbcUserDetailsManager";
 	public static final String USER_DETAILS_SERVICE = "_userDetailsService";
 	public static final String ANONYMOUS_PROCESSING_FILTER = "_anonymousProcessingFilter";
 	public static final String ANONYMOUS_AUTHENTICATION_PROVIDER = "_anonymousAuthenticationProvider";
@@ -39,5 +40,6 @@ public abstract class BeanIds {
 	public static final String METHOD_DEFINITION_SOURCE_ADVISOR = "_methodDefinitionSourceAdvisor";
 	public static final String SECURITY_ANNOTATION_ATTRIBUTES = "_securityAnnotationAttributes";
 	public static final String METHOD_DEFINITION_ATTRIBUTES = "_methodDefinitionAttributes";
-
+    public static final String EMBEDDED_APACHE_DS = "_apacheDirectoryServerContainer";
+    public static final String CONTEXT_SOURCE = "_securityContextSource";
 }

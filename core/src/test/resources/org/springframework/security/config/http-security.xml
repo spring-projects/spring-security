@@ -32,7 +32,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         </user-service>
     </authentication-provider>
 
-    <beans:bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
+    <beans:bean id="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
 
     <!-- bean name="rememberMeServices" class="org.springframework.security.ui.rememberme.NullRememberMeServices"/ -->
 
