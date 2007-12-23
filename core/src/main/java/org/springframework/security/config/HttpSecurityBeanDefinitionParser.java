@@ -73,6 +73,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_SERVLET_API_PROVISION = "servlet-api-provision";
     static final String DEF_SERVLET_API_PROVISION = "true";
 
+    static final String ATT_ACCESS_MGR = "access-decision-manager";
+
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         RootBeanDefinition filterChainProxy = new RootBeanDefinition(FilterChainProxy.class);
         RootBeanDefinition httpScif = new RootBeanDefinition(HttpSessionContextIntegrationFilter.class);
@@ -138,6 +140,19 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         filterChainProxy.getPropertyValues().addPropertyValue("filterChainMap", filterChainMap);
 
         filterSecurityInterceptorBuilder.addPropertyValue("objectDefinitionSource", interceptorFilterInvDefSource);
+
+        // Set up the access manager and authentication mananger references for http
+        String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
+
+        if (!StringUtils.hasText(accessManagerId)) {
+            ConfigUtils.registerDefaultAccessManagerIfNecessary(parserContext);
+            accessManagerId = BeanIds.ACCESS_MANAGER;
+        }
+
+        filterSecurityInterceptorBuilder.addPropertyValue("accessDecisionManager",
+                new RuntimeBeanReference(accessManagerId));
+        filterSecurityInterceptorBuilder.addPropertyValue("authenticationManager",
+                ConfigUtils.registerProviderManagerIfNecessary(parserContext));
 
         parseInterceptUrls(DomUtils.getChildElementsByTagName(element, "intercept-url"),
                 filterChainMap, interceptorFilterInvDefSource, channelFilterInvDefSource, parserContext);

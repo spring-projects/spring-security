@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <!--
   - Application context containing business beans.
@@ -9,7 +8,11 @@
   - $Id$
   -->
 
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
   <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
       <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
@@ -55,12 +58,12 @@
    </bean>
 
    <bean id="contactManagerTarget" class="sample.contact.ContactManagerBackend">
-	   <property name="contactDao">
-       <bean class="sample.contact.ContactDaoSpring">
-	       <property name="dataSource"><ref local="dataSource"/></property>
-       </bean>
-     </property>
-     <property name="mutableAclService" ref="aclService"/>
+       <property name="contactDao">
+            <bean class="sample.contact.ContactDaoSpring">
+               <property name="dataSource"><ref local="dataSource"/></property>
+            </bean>
+        </property>
+        <property name="mutableAclService" ref="aclService"/>
    </bean>
 
 </beans>

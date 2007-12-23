@@ -1,29 +1,32 @@
 package org.springframework.security.config;
 
+import static org.junit.Assert.fail;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.AccessDeniedException;
+import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.AccessDeniedException;
-
-import static org.junit.Assert.*;
-import org.junit.*;
+import org.springframework.security.annotation.BusinessService;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /**
- * @author Luke Taylor
- * @version $Id$
+ * @author Ben Alex
+ * @version $Id: InterceptMethodsBeanDefinitionDecoratorTests.java 2217 2007-10-27 00:45:30Z luke_t $
  */
-public class InterceptMethodsBeanDefinitionDecoratorTests {
+public class AnnotationDrivenBeanDefinitionParserTests {
     private ClassPathXmlApplicationContext appContext;
 
-    private TestBusinessBean target;
+    private BusinessService target;
 
     @Before
     public void loadContext() {
-        appContext = new ClassPathXmlApplicationContext("org/springframework/security/config/method-security.xml");
-        target = (TestBusinessBean) appContext.getBean("target");
+        appContext = new ClassPathXmlApplicationContext("org/springframework/security/config/annotated-method-security.xml");
+        target = (BusinessService) appContext.getBean("target");
     }
 
     @After
@@ -35,14 +38,9 @@ public class InterceptMethodsBeanDefinitionDecoratorTests {
     }
 
     @Test
-    public void targetShouldAllowUnprotectedMethodInvocationWithNoContext() {
-        target.unprotected();
-    }
-
-    @Test
     public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
         try {
-            target.doSomething();
+            target.someUserMethod1();
             fail("Expected AuthenticationCredentialsNotFoundException");
         } catch (AuthenticationCredentialsNotFoundException expected) {
         }
@@ -54,8 +52,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests {
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_USER")});
         SecurityContextHolder.getContext().setAuthentication(token);
 
-
-        target.doSomething();
+        target.someUserMethod1();
     }
 
     @Test
@@ -65,7 +62,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests {
         SecurityContextHolder.getContext().setAuthentication(token);
 
         try {
-            target.doSomething();
+            target.someAdminMethod();
             fail("Expected AccessDeniedException");
         } catch (AccessDeniedException expected) {
         }

@@ -38,12 +38,6 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
     private Log logger = LogFactory.getLog(getClass());
 
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        ConfigUtils.registerAccessManagerIfNecessary(beanFactory);
-        BeanDefinition securityInterceptor =
-                beanFactory.getBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR);
-
-        ConfigUtils.configureSecurityInterceptor(beanFactory, securityInterceptor);
-
         injectUserDetailsServiceIntoRememberMeServices(beanFactory);
 
         injectAuthenticationEntryPointIntoExceptionTranslationFilter(beanFactory);
@@ -55,8 +49,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
 
     private void injectUserDetailsServiceIntoRememberMeServices(ConfigurableListableBeanFactory beanFactory) {
         try {
-            BeanDefinition rememberMeServices =
-                    beanFactory.getBeanDefinition(BeanIds.REMEMBER_ME_SERVICES);
+            BeanDefinition rememberMeServices = beanFactory.getBeanDefinition(BeanIds.REMEMBER_ME_SERVICES);
             rememberMeServices.getPropertyValues().addPropertyValue("userDetailsService",
                     ConfigUtils.getUserDetailsService(beanFactory));
         } catch (NoSuchBeanDefinitionException e) {
