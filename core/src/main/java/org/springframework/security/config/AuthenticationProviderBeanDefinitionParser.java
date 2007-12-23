@@ -58,7 +58,7 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
         if (userServiceElt != null) {
             userDetailsService = new UserServiceBeanDefinitionParser().parse(userServiceElt, parserContext);
         } else if (jdbcUserServiceElt != null) {
-            userDetailsService = new UserServiceBeanDefinitionParser().parse(userServiceElt, parserContext);
+            userDetailsService = new JdbcUserServiceBeanDefinitionParser().parse(jdbcUserServiceElt, parserContext);
         } else {
             throw new SecurityConfigurationException(Elements.AUTHENTICATION_PROVIDER
                     + " requires a UserDetailsService" );
