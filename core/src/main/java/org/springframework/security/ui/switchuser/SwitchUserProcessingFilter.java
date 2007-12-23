@@ -33,6 +33,8 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
+import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.ui.FilterChainOrderUtils;
 
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -58,12 +60,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -103,8 +101,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @see org.springframework.security.ui.switchuser.SwitchUserGrantedAuthority
  */
-public class SwitchUserProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware,
-    MessageSourceAware {
+public class SwitchUserProcessingFilter extends SpringSecurityFilter implements InitializingBean,
+        ApplicationEventPublisherAware, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(SwitchUserProcessingFilter.class);
@@ -301,41 +299,30 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
         return targetUserRequest;
     }
 
-    public void destroy() {}
-
-    /**
-     *
-     * @see javax.servlet.Filter#doFilter
-     */
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-        throws IOException, ServletException {
-        Assert.isInstanceOf(HttpServletRequest.class, request);
-        Assert.isInstanceOf(HttpServletResponse.class, response);
-
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
+    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
 
         // check for switch or exit request
-        if (requiresSwitchUser(httpRequest)) {
+        if (requiresSwitchUser(request)) {
             // if set, attempt switch and store original
-            Authentication targetUser = attemptSwitchUser(httpRequest);
+            Authentication targetUser = attemptSwitchUser(request);
 
             // update the current context to the new target user
             SecurityContextHolder.getContext().setAuthentication(targetUser);
 
             // redirect to target url
-            httpResponse.sendRedirect(httpResponse.encodeRedirectURL(httpRequest.getContextPath() + targetUrl));
+            response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + targetUrl));
 
             return;
-        } else if (requiresExitUser(httpRequest)) {
+        } else if (requiresExitUser(request)) {
             // get the original authentication object (if exists)
-            Authentication originalUser = attemptExitUser(httpRequest);
+            Authentication originalUser = attemptExitUser(request);
 
             // update the current context back to the original user
             SecurityContextHolder.getContext().setAuthentication(originalUser);
 
             // redirect to target url
-            httpResponse.sendRedirect(httpResponse.encodeRedirectURL(httpRequest.getContextPath() + targetUrl));
+            response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + targetUrl));
 
             return;
         }
@@ -368,8 +355,6 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
 
         return original;
     }
-
-    public void init(FilterConfig ignored) throws ServletException {}
 
     /**
      * Checks the request URI for the presence of <tt>exitUserUrl</tt>.
@@ -445,7 +430,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
     /**
      * Sets the authentication data access object.
      *
-     * @param authenticationDao The authentication dao
+     * @param userDetailsService The authentication dao
      */
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -475,5 +460,9 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
      */
     public void setSwitchUserAuthorityChanger(SwitchUserAuthorityChanger switchUserAuthorityChanger) {
         this.switchUserAuthorityChanger = switchUserAuthorityChanger;
+    }
+
+    public int getOrder() {
+        return FilterChainOrderUtils.SWITCH_USER_FILTER_ORDER;
     }
 }
