@@ -19,7 +19,7 @@
         <intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
 		<!-- Disable web URI authorization, as we're using <annotation-driven> and have @Secured the services layer instead
         <intercept-url pattern="/listAccounts.html" access="IS_AUTHENTICATED_REMEMBERED" />
-        <intercept-url pattern="/post.html" access="ROLE_TELLER" /> 
+        <intercept-url pattern="/post.html" access="ROLE_TELLER" />
         -->
         <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
@@ -31,18 +31,19 @@
         <remember-me />
  		<servlet-api-integration />
  		-->
- 		
+
         <concurrent-session-control max-sessions="1" exception-if-maximum-exceeded="true"/>
 
     </http>
 
-	<repository>
-	    <user-service hash="md5-hex">
+	<authentication-provider>
+        <password-encoder hash="md5"/>
+        <user-service>
 	        <user name="rod" password="a564de63c2d0da68cf47586ee05984d7" authorities="ROLE_SUPERVISOR,ROLE_USER,ROLE_TELLER" /> <!--  koala -->
 	        <user name="dianne" password="65d15fe9156f9c4bbffd98085992a44e" authorities="ROLE_USER,ROLE_TELLER" /> <!--  emu -->
 	        <user name="scott" password="2b58af6dddbd072ed27ffc86725d7d3a" authorities="ROLE_USER" /> <!--  wombat -->
 	        <user name="peter" password="22b5c9accc6e1ba628cedc63a72d57f8" authorities="ROLE_USER" /> <!--  opal -->
 	    </user-service>
-	</repository>
+	</authentication-provider>
 
 </beans:beans>
