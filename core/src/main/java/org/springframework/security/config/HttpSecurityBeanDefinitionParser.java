@@ -210,7 +210,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         registry.registerBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR, filterSecurityInterceptorBuilder.getBeanDefinition());
 
         // Register the post processor which will tie up the loose ends in the configuration once the app context has been created and all beans are available.
-        registry.registerBeanDefinition("__httpConfigBeanFactoryPostProcessor", new RootBeanDefinition(HttpSecurityConfigPostProcessor.class));
+        registry.registerBeanDefinition(BeanIds.HTTP_POST_PROCESSOR, new RootBeanDefinition(HttpSecurityConfigPostProcessor.class));
 
         return null;
     }
