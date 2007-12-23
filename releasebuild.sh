@@ -5,7 +5,7 @@
 # Release Process.
 #
 # 1.  Do clean check out of source from svn and note revision number.
-# 2.  TODO: JDK - 1.4 compatibility checks.
+# 2.  Switch to JDK 1.4 and run "mvn compile" in core.
 # 3.  Set the version number in the pom.xml files of all the modules.
 # 3a. If doing a release rather than snapshot build, run "find . -name pom.xml | xargs grep SNAPSHOT" and make sure
 #     there are no important snapshot dependencies.
