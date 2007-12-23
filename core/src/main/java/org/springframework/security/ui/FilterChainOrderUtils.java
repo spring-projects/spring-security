@@ -8,7 +8,7 @@ import org.springframework.core.Ordered;
  * @author luke
  * @version $Id$
  */
-public class FilterChainOrderUtils {
+public abstract class FilterChainOrderUtils {
     /**
      * The first position at which a Spring Security filter will be found. Any filter with an order less than this will
      * be guaranteed to be placed before the Spring Security filters in the stack.
