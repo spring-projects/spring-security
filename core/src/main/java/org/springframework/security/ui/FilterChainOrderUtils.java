@@ -27,8 +27,8 @@ public class FilterChainOrderUtils {
     public static final int SECURITY_CONTEXT_HOLDER_AWARE_FILTER_ORDER = FILTER_CHAIN_FIRST + INTERVAL * 8;
     public static final int REMEMBER_ME_FILTER_ORDER                   = FILTER_CHAIN_FIRST + INTERVAL * 9;
     public static final int ANON_PROCESSING_FILTER_ORDER               = FILTER_CHAIN_FIRST + INTERVAL * 10;
-    public static final int SWITCH_USER_FILTER_ORDER                   = FILTER_CHAIN_FIRST + INTERVAL * 11;
-    public static final int EXCEPTION_TRANSLATION_FILTER_ORDER         = FILTER_CHAIN_FIRST + INTERVAL * 12;
-    public static final int NTLM_FILTER_ORDER                          = FILTER_CHAIN_FIRST + INTERVAL * 13;
-    public static final int FILTER_SECURITY_INTERCEPTOR_ORDER          = FILTER_CHAIN_FIRST + INTERVAL * 14;
+    public static final int EXCEPTION_TRANSLATION_FILTER_ORDER         = FILTER_CHAIN_FIRST + INTERVAL * 11;
+    public static final int NTLM_FILTER_ORDER                          = FILTER_CHAIN_FIRST + INTERVAL * 12;
+    public static final int FILTER_SECURITY_INTERCEPTOR_ORDER          = FILTER_CHAIN_FIRST + INTERVAL * 13;
+    public static final int SWITCH_USER_FILTER_ORDER                   = FILTER_CHAIN_FIRST + INTERVAL * 14;
 }
