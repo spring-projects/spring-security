@@ -8,12 +8,6 @@
   <artifactId>acegi-security-tiger</artifactId>
   <name>Acegi Security System for Spring - Java 5 (Tiger)</name>
 
-  <scm>
-    <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/release_1_0_6/core-tiger</connection>
-    <developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/release_1_0_6/core-tiger</developerConnection>
-    <url>https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/release_1_0_6core-tiger</url>
-  </scm>
-
   <dependencies>
     <dependency>
       <groupId>org.acegisecurity</groupId>

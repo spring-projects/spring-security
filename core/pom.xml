@@ -9,12 +9,6 @@
 	<artifactId>acegi-security</artifactId>
 	<name>Acegi Security Core</name>
 
-	<scm>
-		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/release_1_0_6/core</connection>
-		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/release_1_0_6/core</developerConnection>
-		<url>https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/release_1_0_6core</url>
-	</scm>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework</groupId>
