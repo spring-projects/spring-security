@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.acegisecurity</groupId>
 	<artifactId>acegi-security-parent</artifactId>
-	<version>1.0.6-SNAPSHOT</version>
+	<version>1.0.6</version>
 	<name>Acegi Security</name>
 	<packaging>pom</packaging>
 
@@ -32,9 +32,9 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</connection>
-		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</developerConnection>
-		<url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/</url>
+		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/release_1_0_6</connection>
+		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/release_1_0_6</developerConnection>
+		<url>https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/release_1_0_6</url>
 	</scm>
 
 	<issueManagement>
@@ -390,9 +390,9 @@
                             <postProcess>
                                 <copy todir="${docbook.target}/images">
                                     <fileset dir="${docbook.source}/images">
-                                        <include name="*.png"/>
-                                        <include name="*.gif"/>
-                                        <include name="*.jpg"/>
+                                        <include name="*.png" />
+                                        <include name="*.gif" />
+                                        <include name="*.jpg" />
                                     </fileset>
                                 </copy>
                             </postProcess>
