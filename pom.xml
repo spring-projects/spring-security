@@ -32,9 +32,9 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/release_1_0_6</connection>
-		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/release_1_0_6</developerConnection>
-		<url>https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/release_1_0_6</url>
+		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/branches/1.0.x-branch/</connection>
+		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/branches/1.0.x-branch/</developerConnection>
+		<url>http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/branches/1.0.x-branch/</url>
 	</scm>
 
 	<issueManagement>
