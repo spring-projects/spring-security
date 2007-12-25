@@ -185,7 +185,7 @@
   to the Contact presented as a method argument.
   -->
   <bean id="contactManagerSecurity" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
-    <property name="authenticationManager" ref="_authenticationManager"/>
+    <property name="authenticationManager" ref="authenticationManager"/>
     <property name="accessDecisionManager">
       <ref local="businessAccessDecisionManager"/>
     </property>
