@@ -20,10 +20,11 @@ import org.springframework.security.ConfigAttributeDefinition;
 
 
 /**
- * A return object received by {@link AbstractSecurityInterceptor} subclasses.<P>This class reflects the status of
- * the security interception, so that the final call to {@link
- * org.springframework.security.intercept.AbstractSecurityInterceptor#afterInvocation(InterceptorStatusToken, Object)} can tidy
- * up correctly.</p>
+ * A return object received by {@link AbstractSecurityInterceptor} subclasses.
+ * <p>
+ * This class reflects the status of the security interception, so that the final call to
+ * {@link org.springframework.security.intercept.AbstractSecurityInterceptor#afterInvocation(InterceptorStatusToken, Object)}
+ * can tidy up correctly.
  *
  * @author Ben Alex
  * @version $Id$
