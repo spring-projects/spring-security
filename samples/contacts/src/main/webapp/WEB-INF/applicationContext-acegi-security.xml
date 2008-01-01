@@ -24,7 +24,7 @@
         <intercept-url pattern="/**" access="ROLE_USER"/>
 
         <form-login login-page="/acegilogin.jsp" authentication-failure-url="/acegilogin.jsp?login_error=1"/>
-        <logout logout-url="/index.jsp"/>
+        <logout logout-success-url="/index.jsp"/>
     </http>
 
 <!--

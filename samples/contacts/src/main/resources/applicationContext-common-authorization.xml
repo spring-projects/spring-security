@@ -148,9 +148,7 @@
   <!-- Processes AFTER_ACL_COLLECTION_READ configuration settings -->
   <bean id="afterAclCollectionRead"
         class="org.springframework.security.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider">
-    <constructor-arg>
-      <ref bean="aclService"/>
-    </constructor-arg>
+    <constructor-arg ref="aclService"/>
     <constructor-arg>
       <list>
         <ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
@@ -161,9 +159,7 @@
 
   <!-- Processes AFTER_ACL_READ configuration settings -->
   <bean id="afterAclRead" class="org.springframework.security.afterinvocation.AclEntryAfterInvocationProvider">
-    <constructor-arg>
-      <ref bean="aclService"/>
-    </constructor-arg>
+    <constructor-arg ref="aclService"/>
     <constructor-arg>
       <list>
         <ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
@@ -183,15 +179,12 @@
   ensure the user is authenticated via their ACL_CONTACT_DELETE or
   ACL_CONTACT_READ attribute, which also ensures the user has permission
   to the Contact presented as a method argument.
+
+  Autowired to pick up authentication manager from namespace config.
   -->
-  <bean id="contactManagerSecurity" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
-    <property name="authenticationManager" ref="authenticationManager"/>
-    <property name="accessDecisionManager">
-      <ref local="businessAccessDecisionManager"/>
-    </property>
-    <property name="afterInvocationManager">
-      <ref local="afterInvocationManager"/>
-    </property>
+  <bean id="contactManagerSecurity" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor" autowire="byType">
+    <property name="accessDecisionManager" ref="businessAccessDecisionManager"/>
+    <property name="afterInvocationManager" ref="afterInvocationManager"/>
     <property name="objectDefinitionSource">
       <value>
         sample.contact.ContactManager.create=ROLE_USER
