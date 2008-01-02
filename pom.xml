@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-parent</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0-M1</version>
     <name>Spring Security</name>
     <packaging>pom</packaging>
 
@@ -36,12 +35,9 @@
 
     <!-- Note when doing releases: tagBase is set in release plugin configuration below -->
     <scm>
-        <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk
-        </connection>
-        <developerConnection>
-            scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk
-        </developerConnection>
-        <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/spring-security/trunk/</url>
+        <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurityspring-security/tags/release_2_0_M1</connection>
+        <developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurityspring-security/tags/release_2_0_M1</developerConnection>
+        <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurityspring-security/tags/release_2_0_M1</url>
     </scm>
 
     <issueManagement>
@@ -424,9 +420,9 @@
                             <postProcess>
                                 <copy todir="${docbook.target}/images">
                                     <fileset dir="${docbook.source}/images">
-                                        <include name="*.png"/>
-                                        <include name="*.gif"/>
-                                        <include name="*.jpg"/>
+                                        <include name="*.png" />
+                                        <include name="*.gif" />
+                                        <include name="*.jpg" />
                                     </fileset>
                                 </copy>
                             </postProcess>
