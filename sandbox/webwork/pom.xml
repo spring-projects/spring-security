@@ -10,12 +10,6 @@
   <description>Spring Security - Support for WebWork 2</description>
   <version>0.3-SNAPSHOT</version>
 
-  <scm>
-    <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox/webwork</connection>
-    <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox/webwork</developerConnection>
-    <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/sandbox/webwork/</url>
-  </scm>
-
   <dependencies>
     <dependency>
       <groupId>opensymphony</groupId>

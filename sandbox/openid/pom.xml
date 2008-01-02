@@ -22,15 +22,6 @@
         </repository>
     </repositories>
 
-    <scm>
-        <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox/openid
-        </connection>
-        <developerConnection>
-            scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox/openid
-        </developerConnection>
-        <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/sandbox/openid/</url>
-    </scm>
-
     <dependencies>
         <dependency>
           <groupId>org.springframework</groupId>

@@ -10,15 +10,6 @@
     <artifactId>spring-security-core</artifactId>
     <name>Spring Security - Core</name>
 
-    <scm>
-        <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/core
-        </connection>
-        <developerConnection>
-            scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/core
-        </developerConnection>
-        <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/spring-security/trunk/core/</url>
-    </scm>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
