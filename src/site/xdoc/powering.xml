@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<document><properties><title>Products Using Spring Security</title></properties><body><section name="Products Using Acegi Security"><p>Many open source and commercial products either use Acegi Security or at least
-	  support it. Following is a partial list of such products. If you've integrated Acegi
+<document><properties><title>Products Using Spring Security</title></properties><body><section name="Products Using Spring (Acegi) Security"><p>Many open source and commercial products either use Acegi Security or at least
+	  support it. Following is a partial list of such products. If you've integrated Spring
 	  Security with some other product, please let us know (preferably with a URL
 	  to some page explaining the integration/use)...
 
