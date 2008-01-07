@@ -19,6 +19,7 @@ import org.springframework.security.MockAuthenticationEntryPoint;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockFilterChain;
 import org.springframework.security.MockFilterConfig;
+import org.springframework.security.MockApplicationEventPublisher;
 
 import org.springframework.security.context.SecurityContextHolder;
 
@@ -34,9 +35,6 @@ import org.apache.commons.codec.binary.Base64;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -66,7 +64,6 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
     //~ Constructors ===================================================================================================
 
     public BasicProcessingFilterTests() {
-        super();
     }
 
     public BasicProcessingFilterTests(String arg0) {
@@ -89,10 +86,6 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         filter.destroy();
 
         return response;
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(BasicProcessingFilterTests.class);
     }
 
     protected void setUp() throws Exception {
@@ -123,8 +116,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         SecurityContextHolder.clearContext();
     }
 
-    public void testDoFilterWithNonHttpServletRequestDetected()
-        throws Exception {
+    public void testDoFilterWithNonHttpServletRequestDetected() throws Exception {
         BasicProcessingFilter filter = new BasicProcessingFilter();
 
         try {
@@ -135,8 +127,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         }
     }
 
-    public void testDoFilterWithNonHttpServletResponseDetected()
-        throws Exception {
+    public void testDoFilterWithNonHttpServletResponseDetected() throws Exception {
         BasicProcessingFilter filter = new BasicProcessingFilter();
 
         try {
@@ -147,8 +138,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         }
     }
 
-    public void testFilterIgnoresRequestsContainingNoAuthorizationHeader()
-        throws Exception {
+    public void testFilterIgnoresRequestsContainingNoAuthorizationHeader() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/some_file.html");
@@ -168,8 +158,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         assertTrue(filter.getAuthenticationEntryPoint() != null);
     }
 
-    public void testInvalidBasicAuthorizationTokenIsIgnored()
-        throws Exception {
+    public void testInvalidBasicAuthorizationTokenIsIgnored() throws Exception {
         // Setup our HTTP request
         String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -200,8 +189,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
             ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
     }
 
-    public void testOtherAuthorizationSchemeIsIgnored()
-        throws Exception {
+    public void testOtherAuthorizationSchemeIsIgnored() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "SOME_OTHER_AUTHENTICATION_SCHEME");
@@ -213,8 +201,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
-    public void testStartupDetectsMissingAuthenticationEntryPoint()
-        throws Exception {
+    public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
         try {
             BasicProcessingFilter filter = new BasicProcessingFilter();
             filter.setAuthenticationManager(new MockAuthenticationManager());
@@ -225,8 +212,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         }
     }
 
-    public void testStartupDetectsMissingAuthenticationManager()
-        throws Exception {
+    public void testStartupDetectsMissingAuthenticationManager() throws Exception {
         try {
             BasicProcessingFilter filter = new BasicProcessingFilter();
             filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("x"));
@@ -237,8 +223,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         }
     }
 
-    public void testSuccessLoginThenFailureLoginResultsInSessionLoosingToken()
-        throws Exception {
+    public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken() throws Exception {
         // Setup our HTTP request
         String token = "rod:koala";
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -268,8 +253,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         assertEquals(401, response.getStatus());
     }
 
-    public void testWrongPasswordContinuesFilterChainIfIgnoreFailureIsTrue()
-        throws Exception {
+    public void testWrongPasswordContinuesFilterChainIfIgnoreFailureIsTrue() throws Exception {
         // Setup our HTTP request
         String token = "rod:WRONG_PASSWORD";
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -286,8 +270,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
-    public void testWrongPasswordReturnsForbiddenIfIgnoreFailureIsFalse()
-        throws Exception {
+    public void testWrongPasswordReturnsForbiddenIfIgnoreFailureIsFalse() throws Exception {
         // Setup our HTTP request
         String token = "rod:WRONG_PASSWORD";
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -301,13 +284,5 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    private class MockApplicationEventPublisher implements ApplicationEventPublisher {
-        public MockApplicationEventPublisher() {}
-
-        public void publishEvent(ApplicationEvent event) {}
     }
 }

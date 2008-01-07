@@ -20,10 +20,9 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.MockApplicationEventPublisher;
 import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.concurrent.NullConcurrentSessionController;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
 
 import junit.framework.TestCase;
 
@@ -227,20 +226,6 @@ public class ProviderManagerTests extends TestCase {
     }
 
     //~ Inner Classes ==================================================================================================
-
-    private class MockApplicationEventPublisher implements ApplicationEventPublisher {
-        private boolean expectedEvent;
-
-        public MockApplicationEventPublisher(boolean expectedEvent) {
-            this.expectedEvent = expectedEvent;
-        }
-
-        public void publishEvent(ApplicationEvent event) {
-            if (!expectedEvent) {
-                throw new IllegalStateException("The ApplicationEventPublisher did not expect to receive this event");
-            }
-        }
-    }
 
     private class MockProvider implements AuthenticationProvider {
         public Authentication authenticate(Authentication authentication) throws AuthenticationException {

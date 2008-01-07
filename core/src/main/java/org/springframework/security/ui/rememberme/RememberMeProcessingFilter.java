@@ -89,6 +89,8 @@ public class RememberMeProcessingFilter extends SpringSecurityFilter implements 
                     // Store to SecurityContextHolder
                     SecurityContextHolder.getContext().setAuthentication(rememberMeAuth);
 
+                    onSuccessfulAuthentication(request, response, rememberMeAuth);                    
+
                     if (logger.isDebugEnabled()) {
                         logger.debug("SecurityContextHolder populated with remember-me token: '"
                             + SecurityContextHolder.getContext().getAuthentication() + "'");
@@ -107,6 +109,8 @@ public class RememberMeProcessingFilter extends SpringSecurityFilter implements 
                     }
 
                     rememberMeServices.loginFail(request, response);
+
+                    onUnsuccessfulAuthentication(request, response, authenticationException);
                 }
             }
 
@@ -119,6 +123,23 @@ public class RememberMeProcessingFilter extends SpringSecurityFilter implements 
 
             chain.doFilter(request, response);
         }
+    }
+
+    /**
+     * Called if a remember-me token is presented and successfully authenticated by the <tt>RememberMeServices</tt>
+     * <tt>autoLogin</tt> method and the <tt>AuthenticationManager</tt>.
+     */
+    protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+			Authentication authResult) {
+    }
+
+    /**
+     * Called if the <tt>AuthenticationManager</tt> rejects the authentication object returned from the
+     * <tt>RememberMeServices</tt> <tt>autoLogin</tt> method. This method will not be called when no remember-me
+     * token is present in the request and <tt>autoLogin</tt> returns null.
+     */
+    protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException failed) {
     }
 
     public RememberMeServices getRememberMeServices() {
