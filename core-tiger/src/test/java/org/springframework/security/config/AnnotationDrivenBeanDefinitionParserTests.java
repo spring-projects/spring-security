@@ -16,7 +16,7 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 
 /**
  * @author Ben Alex
- * @version $Id: InterceptMethodsBeanDefinitionDecoratorTests.java 2217 2007-10-27 00:45:30Z luke_t $
+ * @version $Id$
  */
 public class AnnotationDrivenBeanDefinitionParserTests {
     private ClassPathXmlApplicationContext appContext;
