@@ -63,15 +63,12 @@ import javax.servlet.http.HttpSession;
  * authentication is successful, the resulting {@link Authentication} object
  * will be placed into the <code>SecurityContext</code>, which is guaranteed
  * to have already been created by an earlier filter.
- * </p>
  * <p>
  * If authentication fails, the <code>AuthenticationException</code> will be
  * placed into the <code>HttpSession</code> with the attribute defined by
  * {@link #SPRING_SECURITY_LAST_EXCEPTION_KEY}.
- * </p>
  * <p>
  * To use this filter, it is necessary to specify the following properties:
- * </p>
  * <ul>
  * <li><code>defaultTargetUrl</code> indicates the URL that should be used
  * for redirection if the <code>HttpSession</code> attribute named
@@ -110,26 +107,24 @@ import javax.servlet.http.HttpSession;
  * The example above would redirect all
  * {@link org.springframework.security.BadCredentialsException}s thrown, to a page in the
  * web-application called /bad_credentials.jsp.
- * </p>
  * <p>
  * Any {@link AuthenticationException} thrown that cannot be matched in the
  * <code>exceptionMappings</code> will be redirected to the
  * <code>authenticationFailureUrl</code>
- * </p>
  * <p>
  * If authentication is successful, an {@link
  * org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent}
  * will be published to the application context. No events will be published if
  * authentication was unsuccessful, because this would generally be recorded via
  * an <code>AuthenticationManager</code>-specific application event.
- * </p>
- *  <p>The filter has an optional attribute <tt>invalidateSessionOnSuccessfulAuthentication</tt> that will invalidate
+ * <p>
+ * The filter has an optional attribute <tt>invalidateSessionOnSuccessfulAuthentication</tt> that will invalidate
  * the current session on successful authentication. This is to protect against session fixation attacks (see
  * <a href="http://en.wikipedia.org/wiki/Session_fixation">this Wikipedia article</a> for more information).
  * The behaviour is turned off by default. Additionally there is a property <tt>migrateInvalidatedSessionAttributes</tt>
  * which tells if on session invalidation we are to migrate all session attributes from the old session to a newly
  * created one. This is turned on by default, but not used unless <tt>invalidateSessionOnSuccessfulAuthentication</tt>
- * is true.</p>
+ * is true.
  *
  * @author Ben Alex
  * @version $Id: AbstractProcessingFilter.java 1909 2007-06-19 04:08:19Z
@@ -269,55 +264,6 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 		chain.doFilter(request, response);
 	}
 
-	public String getAuthenticationFailureUrl() {
-		return authenticationFailureUrl;
-	}
-
-	public AuthenticationManager getAuthenticationManager() {
-		return authenticationManager;
-	}
-
-	/**
-	 * Specifies the default <code>filterProcessesUrl</code> for the
-	 * implementation.
-	 *
-	 * @return the default <code>filterProcessesUrl</code>
-	 */
-	public abstract String getDefaultFilterProcessesUrl();
-
-	/**
-	 * Supplies the default target Url that will be used if no saved request is
-	 * found or the <tt>alwaysUseDefaultTargetUrl</tt> propert is set to true.
-	 * Override this method of you want to provide a customized default Url (for
-	 * example if you want different Urls depending on the authorities of the
-	 * user who has just logged in).
-	 *
-	 * @return the defaultTargetUrl property
-	 */
-	public String getDefaultTargetUrl() {
-		return defaultTargetUrl;
-	}
-
-	public Properties getExceptionMappings() {
-		return new Properties(exceptionMappings);
-	}
-
-	public String getFilterProcessesUrl() {
-		return filterProcessesUrl;
-	}
-
-	public RememberMeServices getRememberMeServices() {
-		return rememberMeServices;
-	}
-
-	public boolean isAlwaysUseDefaultTargetUrl() {
-		return alwaysUseDefaultTargetUrl;
-	}
-
-	public boolean isContinueChainBeforeSuccessfulAuthentication() {
-		return continueChainBeforeSuccessfulAuthentication;
-	}
-
 	public static String obtainFullRequestUrl(HttpServletRequest request) {
 		SavedRequest savedRequest = (SavedRequest) request.getSession().getAttribute(SPRING_SECURITY_SAVED_REQUEST_KEY);
 
@@ -379,63 +325,6 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
         RedirectUtils.sendRedirect(request, response, url, useRelativeContext);
 	}
-
-	public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
-		this.alwaysUseDefaultTargetUrl = alwaysUseDefaultTargetUrl;
-	}
-
-	public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
-		this.eventPublisher = eventPublisher;
-	}
-
-	public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
-		Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
-		this.authenticationDetailsSource = authenticationDetailsSource;
-	}
-
-	public void setAuthenticationFailureUrl(String authenticationFailureUrl) {
-		this.authenticationFailureUrl = authenticationFailureUrl;
-	}
-
-	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-		this.authenticationManager = authenticationManager;
-	}
-
-	public void setContinueChainBeforeSuccessfulAuthentication(boolean continueChainBeforeSuccessfulAuthentication) {
-		this.continueChainBeforeSuccessfulAuthentication = continueChainBeforeSuccessfulAuthentication;
-	}
-
-	public void setDefaultTargetUrl(String defaultTargetUrl) {
-		Assert.isTrue(defaultTargetUrl.startsWith("/") | defaultTargetUrl.startsWith("http"),
-				"defaultTarget must start with '/' or with 'http(s)'");
-		this.defaultTargetUrl = defaultTargetUrl;
-	}
-
-	public void setExceptionMappings(Properties exceptionMappings) {
-		this.exceptionMappings = exceptionMappings;
-	}
-
-	public void setFilterProcessesUrl(String filterProcessesUrl) {
-		this.filterProcessesUrl = filterProcessesUrl;
-	}
-
-	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
-	}
-
-	public void setRememberMeServices(RememberMeServices rememberMeServices) {
-		this.rememberMeServices = rememberMeServices;
-	}
-
-
-    public void setInvalidateSessionOnSuccessfulAuthentication(boolean invalidateSessionOnSuccessfulAuthentication) {
-        this.invalidateSessionOnSuccessfulAuthentication = invalidateSessionOnSuccessfulAuthentication;
-    }
-
-
-    public void setMigrateInvalidatedSessionAttributes(boolean migrateInvalidatedSessionAttributes) {
-        this.migrateInvalidatedSessionAttributes = migrateInvalidatedSessionAttributes;
-    }
 
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			Authentication authResult) throws IOException {
@@ -559,6 +448,106 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     protected String determineFailureUrl(HttpServletRequest request, AuthenticationException failed) {
         return exceptionMappings.getProperty(failed.getClass().getName(), authenticationFailureUrl);
+    }
+
+    public String getAuthenticationFailureUrl() {
+        return authenticationFailureUrl;
+    }
+
+    public void setAuthenticationFailureUrl(String authenticationFailureUrl) {
+        this.authenticationFailureUrl = authenticationFailureUrl;
+    }
+
+    protected AuthenticationManager getAuthenticationManager() {
+        return authenticationManager;
+    }
+
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
+
+    /**
+     * Specifies the default <code>filterProcessesUrl</code> for the
+     * implementation.
+     *
+     * @return the default <code>filterProcessesUrl</code>
+     */
+    public abstract String getDefaultFilterProcessesUrl();
+
+    /**
+     * Supplies the default target Url that will be used if no saved request is
+     * found or the <tt>alwaysUseDefaultTargetUrl</tt> propert is set to true.
+     * Override this method of you want to provide a customized default Url (for
+     * example if you want different Urls depending on the authorities of the
+     * user who has just logged in).
+     *
+     * @return the defaultTargetUrl property
+     */
+    public String getDefaultTargetUrl() {
+        return defaultTargetUrl;
+    }
+
+	public void setDefaultTargetUrl(String defaultTargetUrl) {
+		Assert.isTrue(defaultTargetUrl.startsWith("/") | defaultTargetUrl.startsWith("http"),
+				"defaultTarget must start with '/' or with 'http(s)'");
+		this.defaultTargetUrl = defaultTargetUrl;
+	}
+
+    Properties getExceptionMappings() {
+        return new Properties(exceptionMappings);
+    }
+
+    public void setExceptionMappings(Properties exceptionMappings) {
+		this.exceptionMappings = exceptionMappings;
+	}
+
+    public String getFilterProcessesUrl() {
+        return filterProcessesUrl;
+    }
+
+    public void setFilterProcessesUrl(String filterProcessesUrl) {
+        this.filterProcessesUrl = filterProcessesUrl;
+    }
+
+    public RememberMeServices getRememberMeServices() {
+        return rememberMeServices;
+    }
+
+    public void setRememberMeServices(RememberMeServices rememberMeServices) {
+        this.rememberMeServices = rememberMeServices;
+    }
+
+    boolean isAlwaysUseDefaultTargetUrl() {
+        return alwaysUseDefaultTargetUrl;
+    }
+
+    public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
+		this.alwaysUseDefaultTargetUrl = alwaysUseDefaultTargetUrl;
+	}
+
+    public void setContinueChainBeforeSuccessfulAuthentication(boolean continueChainBeforeSuccessfulAuthentication) {
+        this.continueChainBeforeSuccessfulAuthentication = continueChainBeforeSuccessfulAuthentication;
+    }
+
+    public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
+	}
+
+	public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+		Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
+		this.authenticationDetailsSource = authenticationDetailsSource;
+	}
+
+    public void setMessageSource(MessageSource messageSource) {
+		this.messages = new MessageSourceAccessor(messageSource);
+	}
+
+    public void setInvalidateSessionOnSuccessfulAuthentication(boolean invalidateSessionOnSuccessfulAuthentication) {
+        this.invalidateSessionOnSuccessfulAuthentication = invalidateSessionOnSuccessfulAuthentication;
+    }
+
+    public void setMigrateInvalidatedSessionAttributes(boolean migrateInvalidatedSessionAttributes) {
+        this.migrateInvalidatedSessionAttributes = migrateInvalidatedSessionAttributes;
     }
 
     public AuthenticationDetailsSource getAuthenticationDetailsSource() {

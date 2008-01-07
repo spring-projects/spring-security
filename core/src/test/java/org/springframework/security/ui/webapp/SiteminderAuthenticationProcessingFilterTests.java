@@ -28,7 +28,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  *
  * @author Ben Alex
  * @author <a href="mailto:scott@mccrory.us">Scott McCrory</a>
- * @version CVS $Id$
+ * @version $Id$
  */
 public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
     //~ Constructors ===================================================================================================
@@ -37,7 +37,6 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
      * Basic constructor.
      */
     public SiteminderAuthenticationProcessingFilterTests() {
-        super();
     }
 
     /**
@@ -52,42 +51,10 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
     //~ Methods ========================================================================================================
 
     /**
-     * Runs the tests as a command-line program.
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(SiteminderAuthenticationProcessingFilterTests.class);
-    }
-
-    /**
-     *
-     * @see junit.framework.TestCase#setUp()
-     */
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    /**
      * Tests the class' getters.
      */
     public void testAccessors() {
         SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
-
-        filter.setAlwaysUseDefaultTargetUrl(true);
-        assertTrue(filter.isAlwaysUseDefaultTargetUrl());
-
-        filter.setAuthenticationFailureUrl("foo");
-        assertEquals("foo", filter.getAuthenticationFailureUrl());
-
-        filter.setContinueChainBeforeSuccessfulAuthentication(true);
-        assertTrue(filter.isContinueChainBeforeSuccessfulAuthentication());
-
-        filter.setDefaultTargetUrl("/bar");
-        assertEquals("/bar", filter.getDefaultTargetUrl());
-
-        filter.setFilterProcessesUrl("foobar");
-        assertEquals("foobar", filter.getFilterProcessesUrl());
 
         filter.setFormUsernameParameterKey("usernameParamKey");
         assertEquals("usernameParamKey", filter.getFormUsernameParameterKey());
@@ -184,7 +151,7 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
         assertFalse(requiresAuthentication);
 
         // Requests for the filter processing URI SHOULD require (re)authentication
-        request.setRequestURI(request.getContextPath() + filter.getFilterProcessesUrl());
+        request.setRequestURI(request.getContextPath() + "/j_spring_security_check");
         requiresAuthentication = filter.requiresAuthentication(request, response);
         assertTrue(requiresAuthentication);
 

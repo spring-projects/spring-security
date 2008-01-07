@@ -34,8 +34,8 @@ public class SecurityContextHolderTests extends TestCase {
 
     private static int errors = 0;
 
-    private static final int NUM_OPS = 25;
-    private static final int NUM_THREADS = 10;
+    private static final int NUM_OPS = 5;
+    private static final int NUM_THREADS = 5;
 
     //~ Constructors ===================================================================================================
 
