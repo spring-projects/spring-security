@@ -24,6 +24,7 @@ import org.springframework.security.CredentialsExpiredException;
 import org.springframework.security.DisabledException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.LockedException;
+import org.springframework.security.util.RedirectUtils;
 
 import org.springframework.security.context.SecurityContextHolder;
 
@@ -35,6 +36,7 @@ import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.AbstractProcessingFilter;
 
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -120,6 +122,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
     private String targetUrl;
     private SwitchUserAuthorityChanger switchUserAuthorityChanger;
     private UserDetailsService userDetailsService;
+    private boolean useRelativeContext;
 
     //~ Methods ========================================================================================================
 
@@ -311,7 +314,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
             SecurityContextHolder.getContext().setAuthentication(targetUser);
 
             // redirect to target url
-            response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + targetUrl));
+            sendRedirect(request, response, targetUrl);
 
             return;
         } else if (requiresExitUser(request)) {
@@ -322,12 +325,18 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
             SecurityContextHolder.getContext().setAuthentication(originalUser);
 
             // redirect to target url
-            response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + targetUrl));
+            sendRedirect(request, response, targetUrl);
 
             return;
         }
 
         chain.doFilter(request, response);
+    }
+
+    protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
+            throws IOException {
+
+        RedirectUtils.sendRedirect(request, response, url, useRelativeContext);
     }
 
     /**
@@ -434,6 +443,16 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
      */
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
+    }
+
+    /**
+     * Analogous to the same property in {@link AbstractProcessingFilter}. If set, redirects will
+     * be context-relative (they won't include the context path).
+     *
+     * @param useRelativeContext
+     */
+    public void setUseRelativeContext(boolean useRelativeContext) {
+        this.useRelativeContext = useRelativeContext;
     }
 
     /**
