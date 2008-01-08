@@ -91,7 +91,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 		filter.doFilter(request, response, chain);
 		assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
 		assertEquals("http://www.example.com/mycontext/secure/page.html", AbstractProcessingFilter
-				.obtainFullRequestUrl(request));
+				.obtainFullSavedRequestUrl(request));
 	}
 
 	public void testAccessDeniedWhenNonAnonymous() throws Exception {
@@ -185,7 +185,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 		filter.doFilter(request, response, chain);
 		assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
 		assertEquals("http://www.example.com/mycontext/secure/page.html", AbstractProcessingFilter
-				.obtainFullRequestUrl(request));
+				.obtainFullSavedRequestUrl(request));
 	}
 
 	public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWithExoticPortWhenAuthenticationException()
@@ -217,7 +217,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 		filter.doFilter(request, response, chain);
 		assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
 		assertEquals("http://www.example.com:8080/mycontext/secure/page.html", AbstractProcessingFilter
-				.obtainFullRequestUrl(request));
+				.obtainFullSavedRequestUrl(request));
 	}
 
 	public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {

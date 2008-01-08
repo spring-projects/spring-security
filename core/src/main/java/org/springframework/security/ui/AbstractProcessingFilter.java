@@ -265,7 +265,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         chain.doFilter(request, response);
     }
 
-    public static String obtainFullRequestUrl(HttpServletRequest request) {
+    public static String obtainFullSavedRequestUrl(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
 
         if (session == null) {
@@ -418,7 +418,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     protected String determineTargetUrl(HttpServletRequest request) {
         // Don't attempt to obtain the url from the saved request if
         // alwaysUsedefaultTargetUrl is set
-        String targetUrl = alwaysUseDefaultTargetUrl ? null : obtainFullRequestUrl(request);
+        String targetUrl = alwaysUseDefaultTargetUrl ? null : obtainFullSavedRequestUrl(request);
 
         if (targetUrl == null) {
             targetUrl = getDefaultTargetUrl();
