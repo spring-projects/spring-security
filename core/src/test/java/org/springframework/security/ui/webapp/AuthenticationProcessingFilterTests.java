@@ -24,8 +24,6 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.ui.WebAuthenticationDetails;
 
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockFilterConfig;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.ServletException;
 
