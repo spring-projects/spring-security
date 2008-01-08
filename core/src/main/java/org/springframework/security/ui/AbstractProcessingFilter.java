@@ -131,64 +131,64 @@ import javax.servlet.http.HttpSession;
  */
 public abstract class AbstractProcessingFilter extends SpringSecurityFilter implements InitializingBean,
         ApplicationEventPublisherAware, MessageSourceAware {
-	//~ Static fields/initializers =====================================================================================
+    //~ Static fields/initializers =====================================================================================
 
-	public static final String SPRING_SECURITY_SAVED_REQUEST_KEY = "SPRING_SECURITY_SAVED_REQUEST_KEY";
+    public static final String SPRING_SECURITY_SAVED_REQUEST_KEY = "SPRING_SECURITY_SAVED_REQUEST_KEY";
 
-	public static final String SPRING_SECURITY_LAST_EXCEPTION_KEY = "SPRING_SECURITY_LAST_EXCEPTION";
+    public static final String SPRING_SECURITY_LAST_EXCEPTION_KEY = "SPRING_SECURITY_LAST_EXCEPTION";
 
-	//~ Instance fields ================================================================================================
+    //~ Instance fields ================================================================================================
 
-	protected ApplicationEventPublisher eventPublisher;
+    protected ApplicationEventPublisher eventPublisher;
 
-	protected AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+    protected AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
 
-	private AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
-	protected final Log logger = LogFactory.getLog(this.getClass());
+    protected final Log logger = LogFactory.getLog(this.getClass());
 
-	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-	private Properties exceptionMappings = new Properties();
+    private Properties exceptionMappings = new Properties();
 
-	private RememberMeServices rememberMeServices = new NullRememberMeServices();
+    private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
-	/** Where to redirect the browser to if authentication fails */
-	private String authenticationFailureUrl;
+    /** Where to redirect the browser to if authentication fails */
+    private String authenticationFailureUrl;
 
-	/**
-	 * Where to redirect the browser to if authentication is successful but
-	 * SPRING_SECURITY_SAVED_REQUEST_KEY is <code>null</code>
-	 */
-	private String defaultTargetUrl;
+    /**
+     * Where to redirect the browser to if authentication is successful but
+     * SPRING_SECURITY_SAVED_REQUEST_KEY is <code>null</code>
+     */
+    private String defaultTargetUrl;
 
-	/**
-	 * The URL destination that this filter intercepts and processes (usually
-	 * something like <code>/j_spring_security_check</code>)
-	 */
-	private String filterProcessesUrl = getDefaultFilterProcessesUrl();
+    /**
+     * The URL destination that this filter intercepts and processes (usually
+     * something like <code>/j_spring_security_check</code>)
+     */
+    private String filterProcessesUrl = getDefaultFilterProcessesUrl();
 
-	/**
-	 * If <code>true</code>, will always redirect to the value of
-	 * {@link #getDefaultTargetUrl} upon successful authentication, irrespective
-	 * of the page that caused the authentication request (defaults to
-	 * <code>false</code>).
-	 */
-	private boolean alwaysUseDefaultTargetUrl = false;
+    /**
+     * If <code>true</code>, will always redirect to the value of
+     * {@link #getDefaultTargetUrl} upon successful authentication, irrespective
+     * of the page that caused the authentication request (defaults to
+     * <code>false</code>).
+     */
+    private boolean alwaysUseDefaultTargetUrl = false;
 
-	/**
-	 * Indicates if the filter chain should be continued prior to delegation to
-	 * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse,
-	 * Authentication)}, which may be useful in certain environment (eg
-	 * Tapestry). Defaults to <code>false</code>.
-	 */
-	private boolean continueChainBeforeSuccessfulAuthentication = false;
+    /**
+     * Indicates if the filter chain should be continued prior to delegation to
+     * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse,
+     * Authentication)}, which may be useful in certain environment (eg
+     * Tapestry). Defaults to <code>false</code>.
+     */
+    private boolean continueChainBeforeSuccessfulAuthentication = false;
 
-	/**
-	 * If true, causes any redirection URLs to be calculated minus the protocol
-	 * and context path (defaults to false).
-	 */
-	private boolean useRelativeContext = false;
+    /**
+     * If true, causes any redirection URLs to be calculated minus the protocol
+     * and context path (defaults to false).
+     */
+    private boolean useRelativeContext = false;
 
 
     /**
@@ -211,61 +211,61 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     //~ Methods ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
-		Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
-		Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
-		Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
-		Assert.notNull(authenticationManager, "authenticationManager must be specified");
-		Assert.notNull(this.rememberMeServices);
-	}
+    public void afterPropertiesSet() throws Exception {
+        Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
+        Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
+        Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
+        Assert.notNull(authenticationManager, "authenticationManager must be specified");
+        Assert.notNull(this.rememberMeServices);
+    }
 
-	/**
-	 * Performs actual authentication.
-	 *
-	 * @param request from which to extract parameters and perform the
-	 * authentication
-	 *
-	 * @return the authenticated user
-	 *
-	 * @throws AuthenticationException if authentication fails
-	 */
-	public abstract Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException;
+    /**
+     * Performs actual authentication.
+     *
+     * @param request from which to extract parameters and perform the
+     * authentication
+     *
+     * @return the authenticated user
+     *
+     * @throws AuthenticationException if authentication fails
+     */
+    public abstract Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException;
 
-	public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException,
-			ServletException {
+    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException,
+            ServletException {
 
-		if (requiresAuthentication(request, response)) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Request is to process authentication");
-			}
+        if (requiresAuthentication(request, response)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Request is to process authentication");
+            }
 
-			Authentication authResult;
+            Authentication authResult;
 
-			try {
-				onPreAuthentication(request, response);
-				authResult = attemptAuthentication(request);
-			}
-			catch (AuthenticationException failed) {
-				// Authentication failed
-				unsuccessfulAuthentication(request, response, failed);
+            try {
+                onPreAuthentication(request, response);
+                authResult = attemptAuthentication(request);
+            }
+            catch (AuthenticationException failed) {
+                // Authentication failed
+                unsuccessfulAuthentication(request, response, failed);
 
-				return;
-			}
+                return;
+            }
 
-			// Authentication success
-			if (continueChainBeforeSuccessfulAuthentication) {
-				chain.doFilter(request, response);
-			}
+            // Authentication success
+            if (continueChainBeforeSuccessfulAuthentication) {
+                chain.doFilter(request, response);
+            }
 
-			successfulAuthentication(request, response, authResult);
+            successfulAuthentication(request, response, authResult);
 
-			return;
-		}
+            return;
+        }
 
-		chain.doFilter(request, response);
-	}
+        chain.doFilter(request, response);
+    }
 
-	public static String obtainFullRequestUrl(HttpServletRequest request) {
+    public static String obtainFullRequestUrl(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
 
         if (session == null) {
@@ -275,75 +275,75 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         SavedRequest savedRequest = (SavedRequest) session.getAttribute(SPRING_SECURITY_SAVED_REQUEST_KEY);
 
         return savedRequest == null ? null : savedRequest.getFullRequestUrl();
-	}
+    }
 
-	protected void onPreAuthentication(HttpServletRequest request, HttpServletResponse response)
-			throws AuthenticationException, IOException {
-	}
+    protected void onPreAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException, IOException {
+    }
 
-	protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-			Authentication authResult) throws IOException {
-	}
+    protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+            Authentication authResult) throws IOException {
+    }
 
-	protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException failed) throws IOException {
-	}
+    protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException failed) throws IOException {
+    }
 
-	/**
-	 * <p>
-	 * Indicates whether this filter should attempt to process a login request
-	 * for the current invocation.
-	 * </p>
-	 * <p>
-	 * It strips any parameters from the "path" section of the request URL (such
-	 * as the jsessionid parameter in
-	 * <em>http://host/myapp/index.html;jsessionid=blah</em>) before matching
-	 * against the <code>filterProcessesUrl</code> property.
-	 * </p>
-	 * <p>
-	 * Subclasses may override for special requirements, such as Tapestry
-	 * integration.
-	 * </p>
-	 *
-	 * @param request as received from the filter chain
-	 * @param response as received from the filter chain
-	 *
-	 * @return <code>true</code> if the filter should attempt authentication,
-	 * <code>false</code> otherwise
-	 */
-	protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
-		String uri = request.getRequestURI();
-		int pathParamIndex = uri.indexOf(';');
+    /**
+     * <p>
+     * Indicates whether this filter should attempt to process a login request
+     * for the current invocation.
+     * </p>
+     * <p>
+     * It strips any parameters from the "path" section of the request URL (such
+     * as the jsessionid parameter in
+     * <em>http://host/myapp/index.html;jsessionid=blah</em>) before matching
+     * against the <code>filterProcessesUrl</code> property.
+     * </p>
+     * <p>
+     * Subclasses may override for special requirements, such as Tapestry
+     * integration.
+     * </p>
+     *
+     * @param request as received from the filter chain
+     * @param response as received from the filter chain
+     *
+     * @return <code>true</code> if the filter should attempt authentication,
+     * <code>false</code> otherwise
+     */
+    protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
+        String uri = request.getRequestURI();
+        int pathParamIndex = uri.indexOf(';');
 
-		if (pathParamIndex > 0) {
-			// strip everything after the first semi-colon
-			uri = uri.substring(0, pathParamIndex);
-		}
+        if (pathParamIndex > 0) {
+            // strip everything after the first semi-colon
+            uri = uri.substring(0, pathParamIndex);
+        }
 
-		if ("".equals(request.getContextPath())) {
-			return uri.endsWith(filterProcessesUrl);
-		}
+        if ("".equals(request.getContextPath())) {
+            return uri.endsWith(filterProcessesUrl);
+        }
 
-		return uri.endsWith(request.getContextPath() + filterProcessesUrl);
-	}
+        return uri.endsWith(request.getContextPath() + filterProcessesUrl);
+    }
 
-	protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
-			throws IOException {
+    protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
+            throws IOException {
 
         RedirectUtils.sendRedirect(request, response, url, useRelativeContext);
-	}
+    }
 
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-			Authentication authResult) throws IOException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication success: " + authResult.toString());
-		}
+            Authentication authResult) throws IOException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Authentication success: " + authResult.toString());
+        }
 
-		SecurityContextHolder.getContext().setAuthentication(authResult);
+        SecurityContextHolder.getContext().setAuthentication(authResult);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Updated SecurityContextHolder to contain the following Authentication: '" + authResult + "'");
-		}
+        if (logger.isDebugEnabled()) {
+            logger.debug("Updated SecurityContextHolder to contain the following Authentication: '" + authResult + "'");
+        }
 
 
         if (invalidateSessionOnSuccessfulAuthentication) {
@@ -352,21 +352,21 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
         String targetUrl = determineTargetUrl(request);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Redirecting to target URL from HTTP Session (or default): " + targetUrl);
-		}
+        if (logger.isDebugEnabled()) {
+            logger.debug("Redirecting to target URL from HTTP Session (or default): " + targetUrl);
+        }
 
-		onSuccessfulAuthentication(request, response, authResult);
+        onSuccessfulAuthentication(request, response, authResult);
 
-		rememberMeServices.loginSuccess(request, response, authResult);
+        rememberMeServices.loginSuccess(request, response, authResult);
 
-		// Fire event
-		if (this.eventPublisher != null) {
-			eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
-		}
+        // Fire event
+        if (this.eventPublisher != null) {
+            eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
+        }
 
-		sendRedirect(request, response, targetUrl);
-	}
+        sendRedirect(request, response, targetUrl);
+    }
 
     private void startNewSessionIfRequired(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -416,47 +416,47 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     }
 
     protected String determineTargetUrl(HttpServletRequest request) {
-		// Don't attempt to obtain the url from the saved request if
-		// alwaysUsedefaultTargetUrl is set
-		String targetUrl = alwaysUseDefaultTargetUrl ? null : obtainFullRequestUrl(request);
+        // Don't attempt to obtain the url from the saved request if
+        // alwaysUsedefaultTargetUrl is set
+        String targetUrl = alwaysUseDefaultTargetUrl ? null : obtainFullRequestUrl(request);
 
-		if (targetUrl == null) {
-			targetUrl = getDefaultTargetUrl();
-		}
+        if (targetUrl == null) {
+            targetUrl = getDefaultTargetUrl();
+        }
 
-		return targetUrl;
-	}
+        return targetUrl;
+    }
 
-	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException failed) throws IOException {
-		SecurityContextHolder.getContext().setAuthentication(null);
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException failed) throws IOException {
+        SecurityContextHolder.getContext().setAuthentication(null);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Updated SecurityContextHolder to contain null Authentication");
-		}
+        if (logger.isDebugEnabled()) {
+            logger.debug("Updated SecurityContextHolder to contain null Authentication");
+        }
 
-		String failureUrl = determineFailureUrl(request, failed);
+        String failureUrl = determineFailureUrl(request, failed);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication request failed: " + failed.toString());
-		}
+        if (logger.isDebugEnabled()) {
+            logger.debug("Authentication request failed: " + failed.toString());
+        }
 
-		try {
+        try {
             HttpSession session = request.getSession(false);
 
-            if (session != null || allowSessionCreation) {            
+            if (session != null || allowSessionCreation) {
                 request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
             }
         }
-		catch (Exception ignored) {
-		}
+        catch (Exception ignored) {
+        }
 
-		onUnsuccessfulAuthentication(request, response, failed);
+        onUnsuccessfulAuthentication(request, response, failed);
 
-		rememberMeServices.loginFail(request, response);
+        rememberMeServices.loginFail(request, response);
 
-		sendRedirect(request, response, failureUrl);
-	}
+        sendRedirect(request, response, failureUrl);
+    }
 
     protected String determineFailureUrl(HttpServletRequest request, AuthenticationException failed) {
         return exceptionMappings.getProperty(failed.getClass().getName(), authenticationFailureUrl);
@@ -499,19 +499,19 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         return defaultTargetUrl;
     }
 
-	public void setDefaultTargetUrl(String defaultTargetUrl) {
-		Assert.isTrue(defaultTargetUrl.startsWith("/") | defaultTargetUrl.startsWith("http"),
-				"defaultTarget must start with '/' or with 'http(s)'");
-		this.defaultTargetUrl = defaultTargetUrl;
-	}
+    public void setDefaultTargetUrl(String defaultTargetUrl) {
+        Assert.isTrue(defaultTargetUrl.startsWith("/") | defaultTargetUrl.startsWith("http"),
+                "defaultTarget must start with '/' or with 'http(s)'");
+        this.defaultTargetUrl = defaultTargetUrl;
+    }
 
     Properties getExceptionMappings() {
         return new Properties(exceptionMappings);
     }
 
     public void setExceptionMappings(Properties exceptionMappings) {
-		this.exceptionMappings = exceptionMappings;
-	}
+        this.exceptionMappings = exceptionMappings;
+    }
 
     public String getFilterProcessesUrl() {
         return filterProcessesUrl;
@@ -534,25 +534,25 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     }
 
     public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
-		this.alwaysUseDefaultTargetUrl = alwaysUseDefaultTargetUrl;
-	}
+        this.alwaysUseDefaultTargetUrl = alwaysUseDefaultTargetUrl;
+    }
 
     public void setContinueChainBeforeSuccessfulAuthentication(boolean continueChainBeforeSuccessfulAuthentication) {
         this.continueChainBeforeSuccessfulAuthentication = continueChainBeforeSuccessfulAuthentication;
     }
 
     public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
-		this.eventPublisher = eventPublisher;
-	}
+        this.eventPublisher = eventPublisher;
+    }
 
-	public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
-		Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
-		this.authenticationDetailsSource = authenticationDetailsSource;
-	}
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
+        this.authenticationDetailsSource = authenticationDetailsSource;
+    }
 
     public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
-	}
+        this.messages = new MessageSourceAccessor(messageSource);
+    }
 
     public void setInvalidateSessionOnSuccessfulAuthentication(boolean invalidateSessionOnSuccessfulAuthentication) {
         this.invalidateSessionOnSuccessfulAuthentication = invalidateSessionOnSuccessfulAuthentication;
@@ -563,13 +563,13 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     }
 
     public AuthenticationDetailsSource getAuthenticationDetailsSource() {
-		// Required due to SEC-310
-		return authenticationDetailsSource;
-	}
+        // Required due to SEC-310
+        return authenticationDetailsSource;
+    }
 
-	public void setUseRelativeContext(boolean useRelativeContext) {
-		this.useRelativeContext = useRelativeContext;
-	}
+    public void setUseRelativeContext(boolean useRelativeContext) {
+        this.useRelativeContext = useRelativeContext;
+    }
 
     protected boolean getAllowSessionCreation() {
         return allowSessionCreation;
