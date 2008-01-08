@@ -207,6 +207,8 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
      */
     private boolean migrateInvalidatedSessionAttributes = true;
 
+    private boolean allowSessionCreation = true;
+
     //~ Methods ========================================================================================================
 
 	public void afterPropertiesSet() throws Exception {
@@ -264,9 +266,15 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 	}
 
 	public static String obtainFullRequestUrl(HttpServletRequest request) {
-		SavedRequest savedRequest = (SavedRequest) request.getSession().getAttribute(SPRING_SECURITY_SAVED_REQUEST_KEY);
+        HttpSession session = request.getSession(false);
 
-		return (savedRequest == null) ? null : savedRequest.getFullRequestUrl();
+        if (session == null) {
+            return null;
+        }
+
+        SavedRequest savedRequest = (SavedRequest) session.getAttribute(SPRING_SECURITY_SAVED_REQUEST_KEY);
+
+        return savedRequest == null ? null : savedRequest.getFullRequestUrl();
 	}
 
 	protected void onPreAuthentication(HttpServletRequest request, HttpServletResponse response)
@@ -434,8 +442,12 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 		}
 
 		try {
-			request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
-		}
+            HttpSession session = request.getSession(false);
+
+            if (session != null || allowSessionCreation) {            
+                request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
+            }
+        }
 		catch (Exception ignored) {
 		}
 
@@ -558,4 +570,12 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 	public void setUseRelativeContext(boolean useRelativeContext) {
 		this.useRelativeContext = useRelativeContext;
 	}
+
+    protected boolean getAllowSessionCreation() {
+        return allowSessionCreation;
+    }
+
+    public void setAllowSessionCreation(boolean allowSessionCreation) {
+        this.allowSessionCreation = allowSessionCreation;
+    }
 }

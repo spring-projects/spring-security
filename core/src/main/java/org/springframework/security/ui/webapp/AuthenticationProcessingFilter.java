@@ -25,6 +25,7 @@ import org.springframework.security.ui.FilterChainOrderUtils;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 
 /**
@@ -72,7 +73,11 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
 
         // Place the last username attempted into HttpSession for views
-        request.getSession().setAttribute(SPRING_SECURITY_LAST_USERNAME_KEY, username);
+        HttpSession session = request.getSession(false);
+
+        if (session != null || getAllowSessionCreation()) {
+            request.getSession().setAttribute(SPRING_SECURITY_LAST_USERNAME_KEY, username);
+        }
 
         // Allow subclasses to set the "details" property
         setDetails(request, authRequest);

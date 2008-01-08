@@ -471,11 +471,9 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = createMockRequest();
         HttpSession oldSession = request.getSession();
         MockFilterConfig config = new MockFilterConfig(null, null);
-
         MockFilterChain chain = new MockFilterChain(true);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        // Setup our test object, to grant access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
         filter.setInvalidateSessionOnSuccessfulAuthentication(true);
         filter.setMigrateInvalidatedSessionAttributes(false);
@@ -486,6 +484,27 @@ public class AbstractProcessingFilterTests extends TestCase {
         HttpSession newSession = request.getSession();
         assertFalse(newSession.getId().equals(oldSession.getId()));
         assertNull(newSession.getAttribute("test"));
+    }
+
+    /**
+     * SEC-571
+     */
+    public void testNoSessionIsCreatedIfAllowSessionCreationIsFalse() throws Exception {
+        MockHttpServletRequest request = createMockRequest();
+
+        MockFilterConfig config = new MockFilterConfig(null, null);
+        MockFilterChain chain = new MockFilterChain(true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        // Reject authentication, so exception would normally be stored in session
+        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
+        filter.setAllowSessionCreation(false);
+        filter.setAuthenticationFailureUrl("/");
+        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
+
+        assertNull(request.getSession(false));
     }
 
     //~ Inner Classes ==================================================================================================
