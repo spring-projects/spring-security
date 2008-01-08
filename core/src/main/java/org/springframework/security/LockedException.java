@@ -22,10 +22,10 @@ package org.springframework.security;
  * @author Ben Alex
  * @version $Id$
  */
-public class LockedException extends AuthenticationException {
+public class LockedException extends AccountStatusException {
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs a <code>LockedException</code> with the specified message.
      *
      * @param msg the detail message.
@@ -34,7 +34,7 @@ public class LockedException extends AuthenticationException {
         super(msg);
     }
 
-/**
+    /**
      * Constructs a <code>LockedException</code> with the specified message and
      * root cause.
      *

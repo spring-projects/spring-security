@@ -22,10 +22,10 @@ package org.springframework.security;
  * @author Ben Alex
  * @version $Id$
  */
-public class CredentialsExpiredException extends AuthenticationException {
+public class CredentialsExpiredException extends AccountStatusException {
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs a <code>CredentialsExpiredException</code> with the specified
      * message.
      *
@@ -35,7 +35,7 @@ public class CredentialsExpiredException extends AuthenticationException {
         super(msg);
     }
 
-/**
+    /**
      * Constructs a <code>CredentialsExpiredException</code> with the specified
      * message and root cause.
      *

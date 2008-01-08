@@ -25,6 +25,7 @@ import org.springframework.security.BadCredentialsException;
 import org.springframework.security.CredentialsExpiredException;
 import org.springframework.security.DisabledException;
 import org.springframework.security.LockedException;
+import org.springframework.security.AccountStatusException;
 
 import org.springframework.security.concurrent.ConcurrentLoginException;
 import org.springframework.security.concurrent.ConcurrentSessionController;
@@ -74,15 +75,18 @@ import java.util.Properties;
  * Can optionally be configured with a {@link ConcurrentSessionController} to limit the number of sessions a user can
  * have.
  * <p>
- * <code>AuthenticationProvider</code>s are tried in order until one provides a non-null response.
+ * <tt>AuthenticationProvider</tt>s are usually tried in order until one provides a non-null response.
  * A non-null response indicates the provider had authority to decide on the authentication request and no further
- * providers are tried. If an <code>AuthenticationException</code> is thrown by a provider, it is retained until
- * subsequent providers are tried. If a subsequent provider successfully authenticates the request, the earlier
- * authentication exception is disregarded and the successful authentication will be used. If no subsequent provider
- * provides a non-null response, or a new <code>AuthenticationException</code>, the last
- * <code>AuthenticationException</code> received will be used. If no provider returns a non-null response, or indicates
- * it can even process an <code>Authentication</code>, the <code>ProviderManager</code> will throw a
- * <code>ProviderNotFoundException</code>.
+ * providers are tried.
+ * If a subsequent provider successfully authenticates the request, the earlier authentication exception is disregarded
+ * and the successful authentication will be used. If no subsequent provider provides a non-null response, or a new
+ * <code>AuthenticationException</code>, the last <code>AuthenticationException</code> received will be used.
+ * If no provider returns a non-null response, or indicates it can even process an <code>Authentication</code>,
+ * the <code>ProviderManager</code> will throw a <code>ProviderNotFoundException</code>.
+ * <p>
+ * The exception to this process is when a provider throws an {@link AccountStatusException} or if the configured
+ * concurrent session controller throws a {@link ConcurrentLoginException}. In both these cases, no further providers
+ * in the list will be queried. 
  *
  * <p>
  * If a valid <code>Authentication</code> is returned by an <code>AuthenticationProvider</code>, the
@@ -101,8 +105,8 @@ import java.util.Properties;
  * @version $Id$
  * @see ConcurrentSessionController
  */
-public class ProviderManager extends AbstractAuthenticationManager implements InitializingBean,
-    ApplicationEventPublisherAware, MessageSourceAware {
+public class ProviderManager extends AbstractAuthenticationManager implements InitializingBean, MessageSourceAware,
+        ApplicationEventPublisherAware  {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(ProviderManager.class);
@@ -193,26 +197,34 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
         while (iter.hasNext()) {
             AuthenticationProvider provider = (AuthenticationProvider) iter.next();
 
-            if (provider.supports(toTest)) {
-                logger.debug("Authentication attempt using " + provider.getClass().getName());
+            if (!provider.supports(toTest)) {
+                continue;
+            }
 
-                Authentication result;
+            logger.debug("Authentication attempt using " + provider.getClass().getName());
 
-                try {
-                    result = provider.authenticate(authentication);
-                    copyDetails(authentication, result);
-                    sessionController.checkAuthenticationAllowed(result);
-                } catch (AuthenticationException ae) {
-                    lastException = ae;
-                    result = null;
-                }
+            Authentication result;
 
-                if (result != null) {
-                    sessionController.registerSuccessfulAuthentication(result);
-                    publishEvent(new AuthenticationSuccessEvent(result));
+            try {
+                result = provider.authenticate(authentication);
+                copyDetails(authentication, result);
+                sessionController.checkAuthenticationAllowed(result);
+            } catch (AuthenticationException ae) {
+                lastException = ae;
+                result = null;
+            }
 
-                    return result;
-                }
+            // SEC-546: Avoid polling additional providers if auth failure is due to invalid account status or
+            // disallowed concurrent login.            
+            if (lastException instanceof AccountStatusException || lastException instanceof ConcurrentLoginException) {
+                break;
+            }
+
+            if (result != null) {
+                sessionController.registerSuccessfulAuthentication(result);
+                publishEvent(new AuthenticationSuccessEvent(result));
+
+                return result;
             }
         }
 
@@ -221,8 +233,13 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
                         new Object[] {toTest.getName()}, "No AuthenticationProvider found for {0}"));
         }
 
-        // Publish the event
-        String className = exceptionMappings.getProperty(lastException.getClass().getName());
+        publishAuthenticationFailure(lastException, authentication);
+
+        throw lastException;
+    }
+
+    private void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
+        String className = exceptionMappings.getProperty(exception.getClass().getName());
         AbstractAuthenticationEvent event = null;
 
         if (className != null) {
@@ -231,7 +248,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
                 Constructor constructor = clazz.getConstructor(new Class[] {
                             Authentication.class, AuthenticationException.class
                         });
-                Object obj = constructor.newInstance(new Object[] {authentication, lastException});
+                Object obj = constructor.newInstance(new Object[] {authentication, exception});
                 Assert.isInstanceOf(AbstractAuthenticationEvent.class, obj, "Must be an AbstractAuthenticationEvent");
                 event = (AbstractAuthenticationEvent) obj;
             } catch (ClassNotFoundException ignored) {}
@@ -245,12 +262,10 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
             publishEvent(event);
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("No event was found for the exception " + lastException.getClass().getName());
+                logger.debug("No event was found for the exception " + exception.getClass().getName());
             }
         }
 
-        // Throw the exception
-        throw lastException;
     }
 
     /**
