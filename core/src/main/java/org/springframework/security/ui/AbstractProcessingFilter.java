@@ -127,8 +127,7 @@ import javax.servlet.http.HttpSession;
  * is true.
  *
  * @author Ben Alex
- * @version $Id: AbstractProcessingFilter.java 1909 2007-06-19 04:08:19Z
- * vishalpuri $
+ * @version $Id$
  */
 public abstract class AbstractProcessingFilter extends SpringSecurityFilter implements InitializingBean,
         ApplicationEventPublisherAware, MessageSourceAware {
@@ -364,45 +363,46 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     private void startNewSessionIfRequired(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
 
-        if (session != null) {
+        if (session == null) {
+            return;
+        }
 
-            if (!migrateInvalidatedSessionAttributes) {
+        if (!migrateInvalidatedSessionAttributes) {
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Invalidating session without migrating attributes.");
-                }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Invalidating session without migrating attributes.");
+            }
 
-                session.invalidate();
-                session = null;
+            session.invalidate();
+            session = null;
 
-                // this is probably not necessary, but seems cleaner since
-                // there already was a session going.
-                request.getSession(true);
+            // this is probably not necessary, but seems cleaner since
+            // there already was a session going.
+            request.getSession(true);
 
-            } else {
+        } else {
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Invalidating session and migrating attributes.");
-                }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Invalidating session and migrating attributes.");
+            }
 
-                HashMap migratedAttributes = new HashMap();
+            HashMap migratedAttributes = new HashMap();
 
-                Enumeration enumer = session.getAttributeNames();
+            Enumeration enumer = session.getAttributeNames();
 
-                while (enumer.hasMoreElements()) {
-                    String key = (String) enumer.nextElement();
-                    migratedAttributes.put(key, session.getAttribute(key));
-                }
+            while (enumer.hasMoreElements()) {
+                String key = (String) enumer.nextElement();
+                migratedAttributes.put(key, session.getAttribute(key));
+            }
 
-                session.invalidate();
-                session = request.getSession(true); // we now have a new session
+            session.invalidate();
+            session = request.getSession(true); // we now have a new session
 
-                Iterator iter = migratedAttributes.entrySet().iterator();
+            Iterator iter = migratedAttributes.entrySet().iterator();
 
-                while (iter.hasNext()) {
-                    Map.Entry entry = (Map.Entry) iter.next();
-                    session.setAttribute((String) entry.getKey(), entry.getValue());
-                }
+            while (iter.hasNext()) {
+                Map.Entry entry = (Map.Entry) iter.next();
+                session.setAttribute((String) entry.getKey(), entry.getValue());
             }
         }
     }
@@ -558,5 +558,4 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 	public void setUseRelativeContext(boolean useRelativeContext) {
 		this.useRelativeContext = useRelativeContext;
 	}
-
 }

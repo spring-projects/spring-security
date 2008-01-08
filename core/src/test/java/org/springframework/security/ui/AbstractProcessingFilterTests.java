@@ -31,6 +31,7 @@ import org.springframework.security.util.PortResolverImpl;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -40,6 +41,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -254,6 +256,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     public void testNormalOperationWithDefaultFilterProcessesUrl() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
+        HttpSession sessionPreAuth = request.getSession();
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null, null);
@@ -275,6 +278,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        // Should still have the same session
+        assertEquals(sessionPreAuth, request.getSession());
     }
 
     public void testStartupDetectsInvalidAuthenticationFailureUrl() throws Exception {
@@ -373,7 +378,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     }
 
     public void testSuccessfulAuthenticationButWithAlwaysUseDefaultTargetUrlCausesRedirectToDefaultTargetUrl()
-        throws Exception {
+            throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
         request.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
@@ -433,13 +438,54 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         // Setup our test object, to grant access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
-        filter.setFilterProcessesUrl("/j_mock_post");
         filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
         filter.setAlwaysUseDefaultTargetUrl(true);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals("http://monkeymachine.co.uk/", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    public void testNewSessionIsCreatedIfInvalidateSessionOnSuccessfulAuthenticationIsSet() throws Exception {
+        MockHttpServletRequest request = createMockRequest();
+        HttpSession oldSession = request.getSession();
+        oldSession.setAttribute("test","test");
+        MockFilterConfig config = new MockFilterConfig(null, null);
+
+        MockFilterChain chain = new MockFilterChain(true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        // Setup our test object, to grant access
+        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        filter.setInvalidateSessionOnSuccessfulAuthentication(true);
+        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
+
+        HttpSession newSession = request.getSession();
+        assertFalse(newSession.getId().equals(oldSession.getId()));
+        assertEquals("test", newSession.getAttribute("test"));
+    }
+
+    public void testAttributesAreNotMigratedToNewlyCreatedSessionIfMigrateAttributesIsFalse() throws Exception {
+        MockHttpServletRequest request = createMockRequest();
+        HttpSession oldSession = request.getSession();
+        MockFilterConfig config = new MockFilterConfig(null, null);
+
+        MockFilterChain chain = new MockFilterChain(true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        // Setup our test object, to grant access
+        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        filter.setInvalidateSessionOnSuccessfulAuthentication(true);
+        filter.setMigrateInvalidatedSessionAttributes(false);
+        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
+
+        HttpSession newSession = request.getSession();
+        assertFalse(newSession.getId().equals(oldSession.getId()));
+        assertNull(newSession.getAttribute("test"));
     }
 
     //~ Inner Classes ==================================================================================================
