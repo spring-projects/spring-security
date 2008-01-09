@@ -34,7 +34,7 @@ public class JdbcUserDetailsManagerTests {
     private static final String SELECT_JOE_AUTHORITIES_SQL = "select * from authorities where username = 'joe'";
 
     private static final UserDetails joe = new User("joe", "password", true, true, true, true,
-            AuthorityUtils.stringArrayToAuthorityArray(new String[]{"A","B","C"}));
+            AuthorityUtils.stringArrayToAuthorityArray(new String[]{"A","C","B"}));
 
     private static DriverManagerDataSource dataSource;
     private JdbcUserDetailsManager manager;
@@ -103,7 +103,7 @@ public class JdbcUserDetailsManagerTests {
     public void updateUserChangesDataCorrectlyAndClearsCache() {
         insertJoe();
         User newJoe = new User("joe","newpassword",false,true,true,true,
-                AuthorityUtils.stringArrayToAuthorityArray(new String[]{"D","E","F"}));
+                AuthorityUtils.stringArrayToAuthorityArray(new String[]{"D","F","E"}));
 
         manager.updateUser(newJoe);
 
