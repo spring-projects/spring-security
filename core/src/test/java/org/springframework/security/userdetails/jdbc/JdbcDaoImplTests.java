@@ -79,16 +79,14 @@ public class JdbcDaoImplTests extends TestCase {
         assertTrue(authorities.contains("ROLE_SUPERVISOR"));
     }
 
-    public void testCheckDaoOnlyReturnsGrantedAuthoritiesGrantedToUser()
-        throws Exception {
+    public void testCheckDaoOnlyReturnsGrantedAuthoritiesGrantedToUser() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
         UserDetails user = dao.loadUserByUsername("scott");
         assertEquals("ROLE_TELLER", user.getAuthorities()[0].getAuthority());
         assertEquals(1, user.getAuthorities().length);
     }
 
-    public void testCheckDaoReturnsCorrectDisabledProperty()
-        throws Exception {
+    public void testCheckDaoReturnsCorrectDisabledProperty() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
         UserDetails user = dao.loadUserByUsername("peter");
         assertTrue(!user.isEnabled());
@@ -103,8 +101,7 @@ public class JdbcDaoImplTests extends TestCase {
         assertEquals("SELECT USERS FROM FOO", dao.getUsersByUsernameQuery());
     }
 
-    public void testLookupFailsIfUserHasNoGrantedAuthorities()
-        throws Exception {
+    public void testLookupFailsIfUserHasNoGrantedAuthorities() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
 
         try {
@@ -147,6 +144,24 @@ public class JdbcDaoImplTests extends TestCase {
         assertTrue(authorities.contains("ARBITRARY_PREFIX_ROLE_SUPERVISOR"));
     }
 
+    public void testGroupAuthoritiesAreLoadedCorrectly() throws Exception {
+        JdbcDaoImpl dao = makePopulatedJdbcDao();
+        dao.setEnableAuthorities(false);
+        dao.setEnableGroups(true);
+
+        UserDetails jerry = dao.loadUserByUsername("jerry");
+        assertEquals(3, jerry.getAuthorities().length);
+    }
+
+    public void testDuplicateGroupAuthoritiesAreRemoved() throws Exception {
+        JdbcDaoImpl dao = makePopulatedJdbcDao();
+        dao.setEnableAuthorities(false);
+        dao.setEnableGroups(true);
+        // Tom has roles A, B, C and B, C duplicates
+        UserDetails tom = dao.loadUserByUsername("tom");
+        assertEquals(3, tom.getAuthorities().length);
+    }
+
     public void testStartupFailsIfDataSourceNotSet() throws Exception {
         JdbcDaoImpl dao = new JdbcDaoImpl();
 
@@ -173,8 +188,7 @@ public class JdbcDaoImplTests extends TestCase {
     //~ Inner Classes ==================================================================================================
 
     private class MockMappingSqlQuery extends MappingSqlQuery {
-        protected Object mapRow(ResultSet arg0, int arg1)
-            throws SQLException {
+        protected Object mapRow(ResultSet arg0, int arg1) throws SQLException {
             return null;
         }
     }

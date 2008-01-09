@@ -113,6 +113,8 @@ public class PopulatedDatabase {
         template.execute("INSERT INTO GROUPS VALUES (0, 'GROUP_ZERO')");
         template.execute("INSERT INTO GROUPS VALUES (1, 'GROUP_ONE')");
         template.execute("INSERT INTO GROUPS VALUES (2, 'GROUP_TWO')");
+        // Group 3 isn't used
+        template.execute("INSERT INTO GROUPS VALUES (3, 'GROUP_THREE')");
 
         template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (0, 'ROLE_A')");
         template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (1, 'ROLE_B')");
@@ -120,6 +122,9 @@ public class PopulatedDatabase {
         template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (2, 'ROLE_A')");
         template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (2, 'ROLE_B')");
         template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (2, 'ROLE_C')");
+        template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (3, 'ROLE_D')");
+        template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (3, 'ROLE_E')");
+
 
         template.execute("INSERT INTO GROUP_MEMBERS VALUES (0, 'jerry', 0)");
         template.execute("INSERT INTO GROUP_MEMBERS VALUES (1, 'jerry', 1)");
