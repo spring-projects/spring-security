@@ -28,7 +28,7 @@ import java.util.Iterator;
 
 /**
  * Provides {@link ConfigAttributeDefinition}s for a method signature (via the <tt>lookupAttributes</tt> method)
- * by delegating to a configured an {@link Attributes} object. The latter may use Java 5 annotations, Commons attributes
+ * by delegating to a configured {@link Attributes} object. The latter may use Java 5 annotations, Commons attributes
  * or some other approach to determine the <tt>ConfigAttribute</tt>s which apply. 
  * <p>
  * This class will only detect those attributes which are defined for:
