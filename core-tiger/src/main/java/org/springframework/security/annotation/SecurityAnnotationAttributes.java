@@ -18,7 +18,7 @@ import org.springframework.security.SecurityConfig;
 
 import org.springframework.metadata.Attributes;
 
-import org.springframework.util.ClassUtils;
+import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -32,20 +32,27 @@ import java.util.Set;
 /**
  * Java 5 Annotation <code>Attributes</code> metadata implementation used for  secure method interception.<p>This
  * <code>Attributes</code> implementation will return security  configuration for classes described using the
- * <code>Secured</code> Java 5 annotation.</p>
- *  <p>The <code>SecurityAnnotationAttributes</code> implementation can be used to configure a
- * <code>MethodDefinitionAttributes</code> and  <code>MethodSecurityInterceptor</code> bean definition (see below).</p>
- *  <p>For example:<pre>&lt;bean id="attributes"
- *     class="org.springframework.security.annotation.SecurityAnnotationAttributes"/>&lt;bean id="objectDefinitionSource"
- *     class="org.springframework.security.intercept.method.MethodDefinitionAttributes">    &lt;property name="attributes">
- *         &lt;ref local="attributes"/>    &lt;/property>&lt;/bean>&lt;bean id="securityInterceptor"
- *     class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">     . . .
- *      &lt;property name="objectDefinitionSource">         &lt;ref local="objectDefinitionSource"/>     &lt;/property>
- * &lt;/bean></pre></p>
- *  <p>These security annotations are similiar to the Commons Attributes approach, however they are using Java 5
- * language-level metadata support.</p>
- *  <p>This class should be used with Spring 2.0 or above, as it relies upon utility classes in Spring 2.0 for
- * correct introspection of annotations on bridge methods.</p>
+ * <code>Secured</code> Java 5 annotation.
+ * <p>
+ * The <code>SecurityAnnotationAttributes</code> implementation can be used to configure a
+ * <code>MethodDefinitionAttributes</code> and  <code>MethodSecurityInterceptor</code> bean definition (see below).
+ * <p>
+ * For example:
+ * <pre>
+ * &lt;bean id="attributes" class="org.springframework.security.annotation.SecurityAnnotationAttributes"/>
+ * &lt;bean id="objectDefinitionSource"
+ *     class="org.springframework.security.intercept.method.MethodDefinitionAttributes">
+ *         &lt;property name="attributes">&lt;ref local="attributes"/>&lt;/property>
+ * &lt;/bean>
+ * &lt;bean id="securityInterceptor"
+ *     class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+ *      . . .
+ *      &lt;property name="objectDefinitionSource">&lt;ref local="objectDefinitionSource"/>&lt;/property>
+ * &lt;/bean>
+ * </pre>
+ * <p>
+ * These security annotations are similiar to the Commons Attributes approach, however they are using Java 5
+ * language-level metadata support.
  *
  * @author Mark St.Godard
  * @version $Id$
@@ -83,10 +90,6 @@ public class SecurityAnnotationAttributes implements Attributes {
         return attributes;
     }
 
-    public Collection getAttributes(Class clazz, Class filter) {
-        throw new UnsupportedOperationException("Unsupported operation");
-    }
-
     /**
      * Get the <code>Secured</code> attributes for a given target method.
      *
@@ -98,18 +101,7 @@ public class SecurityAnnotationAttributes implements Attributes {
      */
     public Collection getAttributes(Method method) {
         Set<SecurityConfig> attributes = new HashSet<SecurityConfig>();
-
-        Annotation[] annotations = null;
-
-        // Use AnnotationUtils if in classpath (ie Spring 1.2.9+ deployment)
-        try {
-            Class clazz = ClassUtils.forName("org.springframework.core.annotation.AnnotationUtils");
-            Method m = clazz.getMethod("getAnnotations", new Class[] {Method.class});
-            annotations = (Annotation[]) m.invoke(null, new Object[] {method});
-        } catch (Exception ex) {
-            // Fallback to manual retrieval if no AnnotationUtils available
-            annotations = method.getAnnotations();
-        }
+        Annotation[] annotations = AnnotationUtils.getAnnotations(method);
 
         for (Annotation annotation : annotations) {
             // check for Secured annotations
@@ -127,15 +119,19 @@ public class SecurityAnnotationAttributes implements Attributes {
         return attributes;
     }
 
+    public Collection getAttributes(Class clazz, Class filter) {
+        throw new UnsupportedOperationException();
+    }
+
     public Collection getAttributes(Method method, Class clazz) {
-        throw new UnsupportedOperationException("Unsupported operation");
+        throw new UnsupportedOperationException();
     }
 
     public Collection getAttributes(Field field) {
-        throw new UnsupportedOperationException("Unsupported operation");
+        throw new UnsupportedOperationException();
     }
 
     public Collection getAttributes(Field field, Class clazz) {
-        throw new UnsupportedOperationException("Unsupported operation");
+        throw new UnsupportedOperationException();
     }
 }
