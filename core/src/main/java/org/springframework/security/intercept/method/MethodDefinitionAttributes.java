@@ -27,8 +27,11 @@ import java.util.Iterator;
 
 
 /**
- * Stores a {@link ConfigAttributeDefinition} for each method signature defined by Commons Attributes.<P>This class
- * will only detect those attributes which are defined for:
+ * Provides {@link ConfigAttributeDefinition}s for a method signature (via the <tt>lookupAttributes</tt> method)
+ * by delegating to a configured an {@link Attributes} object. The latter may use Java 5 annotations, Commons attributes
+ * or some other approach to determine the <tt>ConfigAttribute</tt>s which apply. 
+ * <p>
+ * This class will only detect those attributes which are defined for:
  *  <ul>
  *      <li>The class-wide attributes defined for the intercepted class.</li>
  *      <li>The class-wide attributes defined for interfaces explicitly implemented by the intercepted class.</li>
@@ -36,10 +39,11 @@ import java.util.Iterator;
  *      <li>The method-specific attributes defined by any explicitly implemented interface if that interface
  *      contains a method signature matching that of the intercepted method.</li>
  *  </ul>
- *  </p>
- *  <P>Note that attributes defined against parent classes (either for their methods or interfaces) are not
- * detected. The attributes must be defined against an explicit method or interface on the intercepted class.</p>
- *  <p>Attributes detected that do not implement {@link ConfigAttribute} will be ignored.</p>
+ * <p>
+ * Note that attributes defined against parent classes (either for their methods or interfaces) are not
+ * detected. The attributes must be defined against an explicit method or interface on the intercepted class.
+ * <p>
+ * Attributes detected that do not implement {@link ConfigAttribute} will be ignored.
  *
  * @author Cameron Braid
  * @author Ben Alex
@@ -54,7 +58,7 @@ public class MethodDefinitionAttributes extends AbstractMethodDefinitionSource {
 
     private void add(ConfigAttributeDefinition definition, Collection attribs) {
         for (Iterator iter = attribs.iterator(); iter.hasNext();) {
-            Object o = (Object) iter.next();
+            Object o = iter.next();
 
             if (o instanceof ConfigAttribute) {
                 definition.addConfigAttribute((ConfigAttribute) o);
