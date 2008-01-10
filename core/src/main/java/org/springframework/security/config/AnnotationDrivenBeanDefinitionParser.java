@@ -23,17 +23,22 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
-
-	public static final String SECURITY_ANNOTATION_ATTRIBUTES_CLASS = "org.springframework.security.annotation.SecurityAnnotationAttributes";
+    public static final String SECURITY_ANNOTATION_ATTRIBUTES_CLASS = "org.springframework.security.annotation.SecurityAnnotationAttributes";
+    public static final String JSR_250_SECURITY_ANNOTATION_ATTRIBUTES_CLASS = "org.springframework.security.annotation.Jsr250SecurityAnnotationAttributes";
     private static final String ATT_ACCESS_MGR = "access-decision-manager";
+    private static final String ATT_USE_JSR250 = "jsr250";    
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
+        String className = "true".equals(element.getAttribute(ATT_USE_JSR250)) ?
+                JSR_250_SECURITY_ANNOTATION_ATTRIBUTES_CLASS : SECURITY_ANNOTATION_ATTRIBUTES_CLASS;
+
         // Reflectively obtain the Annotation-based ObjectDefinitionSource.
     	// Reflection is used to avoid a compile-time dependency on SECURITY_ANNOTATION_ATTRIBUTES_CLASS, as this parser is in the Java 4 project whereas the dependency is in the Tiger project.
-    	Assert.isTrue(ClassUtils.isPresent(SECURITY_ANNOTATION_ATTRIBUTES_CLASS), "Could not locate class '" + SECURITY_ANNOTATION_ATTRIBUTES_CLASS + "' - please ensure the spring-security-tiger-xxx.jar is in your classpath and you are running Java 5 or above.");
+    	Assert.isTrue(ClassUtils.isPresent(className), "Could not locate class '" + className + "' - please ensure the spring-security-tiger-xxx.jar is in your classpath and you are running Java 5 or above.");
     	Class clazz = null;
-    	try {
-    		clazz = ClassUtils.forName(SECURITY_ANNOTATION_ATTRIBUTES_CLASS);
+
+        try {
+    		clazz = ClassUtils.forName(className);
     	} catch (Exception ex) {
     		ReflectionUtils.handleReflectionException(ex);
     	}

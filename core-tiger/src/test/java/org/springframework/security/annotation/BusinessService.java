@@ -15,26 +15,29 @@
 
 package org.springframework.security.annotation;
 
+import javax.annotation.security.RolesAllowed;
+
 /**
- * DOCUMENT ME!
- *
- * @author $author$
- * @version $Revision: 2145 $
-  */
+ * @version $Id$
+ */
 @Secured({"ROLE_USER"})
 public interface BusinessService {
     //~ Methods ========================================================================================================
 
     @Secured({"ROLE_ADMIN"})
+    @RolesAllowed({"ROLE_ADMIN"})
     public void someAdminMethod();
 
     @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @RolesAllowed({"ROLE_USER", "ROLE_ADMIN"})
     public void someUserAndAdminMethod();
 
     @Secured({"ROLE_USER"})
+    @RolesAllowed({"ROLE_USER"})
     public void someUserMethod1();
 
     @Secured({"ROLE_USER"})
+    @RolesAllowed({"ROLE_USER"})    
     public void someUserMethod2();
     
     public int someOther(int input);

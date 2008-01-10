@@ -228,8 +228,23 @@
     <xs:annotation>
       <xs:documentation>Activates security annotation scanning. All beans registered in the Spring application context will be scanned for Spring Security annotations. Where found, the beans will automatically be proxied and security authorization applied to the methods accordingly. Please ensure you have the spring-security-tiger-XXX.jar on your classpath.</xs:documentation>
     </xs:annotation>
-    <xs:complexType/>
+    <xs:complexType>
+      <xs:attributeGroup ref="security:annotation-driven.attlist"/>
+    </xs:complexType>
   </xs:element>
+  <xs:attributeGroup name="annotation-driven.attlist">
+    <xs:attribute name="jsr250">
+      <xs:annotation>
+        <xs:documentation>Specifies that JSR-250 style attributes are to be used (for example "RolesAllowed" instead of "Secured"). This will require the javax.annotation.security classes on the classpath. Defaults to false.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="true"/>
+          <xs:enumeration value="false"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="http">
     <xs:annotation>
       <xs:documentation>Container element for HTTP security configuration</xs:documentation>

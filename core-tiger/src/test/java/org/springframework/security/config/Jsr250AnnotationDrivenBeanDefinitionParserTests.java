@@ -13,17 +13,17 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /**
- * @author Ben Alex
+ * @author Luke Taylor
  * @version $Id$
  */
-public class AnnotationDrivenBeanDefinitionParserTests {
+public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
     private ClassPathXmlApplicationContext appContext;
 
     private BusinessService target;
 
     @Before
     public void loadContext() {
-        appContext = new ClassPathXmlApplicationContext("org/springframework/security/config/annotated-method-security.xml");
+        appContext = new ClassPathXmlApplicationContext("/org/springframework/security/config/jsr250-annotated-method-security.xml");
         target = (BusinessService) appContext.getBean("target");
     }
 

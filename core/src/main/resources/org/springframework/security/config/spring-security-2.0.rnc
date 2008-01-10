@@ -90,7 +90,9 @@ protect.attlist &=
 annotation-driven =
 	## Activates security annotation scanning. All beans registered in the Spring application context will be scanned for Spring Security annotations. Where found, the beans will automatically be proxied and security authorization applied to the methods accordingly. Please ensure you have the spring-security-tiger-XXX.jar on your classpath.
 	element annotation-driven {annotation-driven.attlist}
-annotation-driven.attlist = empty
+annotation-driven.attlist &=
+    ## Specifies that JSR-250 style attributes are to be used (for example "RolesAllowed" instead of "Secured"). This will require the javax.annotation.security classes on the classpath. Defaults to false.
+    attribute jsr250 {"true" | "false" }?
 
 
 http =
