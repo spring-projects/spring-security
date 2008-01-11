@@ -4,12 +4,14 @@ import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
+import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.dao.UserCache;
 import org.springframework.security.providers.dao.cache.NullUserCache;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsManager;
+import org.springframework.security.userdetails.GroupsManager;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.MappingSqlQuery;
@@ -31,10 +33,12 @@ import java.util.List;
  *
  * @author Luke Taylor
  * @version $Id$
+ * @since 2.0
  */
-public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager {
+public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupsManager {
     //~ Static fields/initializers =====================================================================================
 
+    // UserDetailsManager SQL
     public static final String DEF_CREATE_USER_SQL =
             "insert into users (username, password, enabled) values (?,?,?)";
     public static final String DEF_DELETE_USER_SQL =
@@ -50,6 +54,19 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     public static final String DEF_CHANGE_PASSWORD_SQL =
             "update users set password = ? where username = ?";
 
+    // GroupsManager SQL
+    public static final String DEF_FIND_GROUPS_SQL =
+            "select group_name from groups";
+    public static final String DEF_FIND_USERS_IN_GROUP_SQL =
+            "select username from group_members gm, groups g " +
+            "where gm.group_id = g.id" +
+            " and g.group_name = ?";
+    public static final String DEF_INSERT_GROUP_SQL =
+            "insert into groups (group_name) values (?)";
+    public static final String DEF_FIND_GROUP_ID_SQL =
+            "select id from groups where group_name = ?";
+    public static final String DEF_INSERT_GROUP_AUTHORITY_SQL =
+            "insert into group_authorities (group_id, authority) values (?,?)";
 
     //~ Instance fields ================================================================================================
 
@@ -63,6 +80,12 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     private String userExistsSql = DEF_USER_EXISTS_SQL;
     private String changePasswordSql = DEF_CHANGE_PASSWORD_SQL;
 
+    private String findAllGroupsSql = DEF_FIND_GROUPS_SQL;
+    private String findUsersInGroupSql = DEF_FIND_USERS_IN_GROUP_SQL;
+    private String insertGroupSql = DEF_INSERT_GROUP_SQL;
+    private String findGroupIdSql = DEF_FIND_GROUP_ID_SQL;
+    private String insertGroupAuthoritySql = DEF_INSERT_GROUP_AUTHORITY_SQL;
+
     protected SqlUpdate insertUser;
     protected SqlUpdate deleteUser;
     protected SqlUpdate updateUser;
@@ -70,6 +93,12 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     protected SqlUpdate deleteUserAuthorities;
     protected SqlQuery  userExistsQuery;
     protected SqlUpdate changePassword;
+
+    protected SqlQuery  findAllGroupsQuery;
+    protected SqlQuery  findUsersInGroupQuery;
+    protected SqlUpdate insertGroup;
+    protected SqlQuery  findGroupIdQuery;
+    protected SqlUpdate insertGroupAuthority;
 
     private AuthenticationManager authenticationManager;
 
@@ -90,8 +119,17 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         deleteUserAuthorities = new DeleteUserAuthorities(getDataSource());
         userExistsQuery = new UserExistsQuery(getDataSource());
         changePassword = new ChangePassword(getDataSource());
+
+        findAllGroupsQuery = new AllGroupsQuery(getDataSource());
+        findUsersInGroupQuery = new GroupMembersQuery(getDataSource());
+        insertGroup = new InsertGroup(getDataSource());
+        findGroupIdQuery = new FindGroupIdQuery(getDataSource());
+        insertGroupAuthority = new InsertGroupAuthority(getDataSource());
+
         super.initDao();
     }
+
+    //~ UserDetailsManager implementation ==============================================================================
 
     public void createUser(UserDetails user) {
         insertUser.update(new Object[] {user.getUsername(), user.getPassword(), Boolean.valueOf(user.isEnabled())});
@@ -167,6 +205,29 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         return users.size() == 1;
     }
 
+    //~ GroupManager implementation ====================================================================================
+
+    public List findAllGroups() {
+        return findAllGroupsQuery.execute();
+    }
+
+    public List findUsersInGroup(String groupName) {
+        Assert.hasText(groupName);
+        return findUsersInGroupQuery.execute(groupName);
+    }
+
+    public void createGroup(String groupName, GrantedAuthority[] authorities) {
+        Assert.hasText(groupName);
+        Assert.notNull(authorities);
+
+        insertGroup.update(groupName);
+        Integer key = (Integer) findGroupIdQuery.findObject(groupName);
+
+        for (int i=0; i < authorities.length; i++) {
+            insertGroupAuthority.update( new Object[] {key, authorities[i].getAuthority()});
+        }
+    }
+
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
@@ -204,6 +265,10 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     public void setChangePasswordSql(String changePasswordSql) {
         Assert.hasText(changePasswordSql);
         this.changePasswordSql = changePasswordSql;
+    }
+
+    public void setFindAllGroupsSql(String findAllGroupsSql) {
+        this.findAllGroupsSql = findAllGroupsSql;
     }
 
     /**
@@ -276,7 +341,6 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 
     protected class UserExistsQuery extends MappingSqlQuery {
-
         public UserExistsQuery(DataSource ds) {
             super(ds, userExistsSql);
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -285,6 +349,58 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
         protected Object mapRow(ResultSet rs, int rowNum) throws SQLException {
             return rs.getString(1);
+        }
+    }
+
+    protected class AllGroupsQuery extends MappingSqlQuery {
+        public AllGroupsQuery(DataSource ds) {
+            super(ds, findAllGroupsSql);
+            compile();
+        }
+
+        protected Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return rs.getString(1);
+        }
+    }
+
+    protected class GroupMembersQuery extends MappingSqlQuery {
+        public GroupMembersQuery(DataSource ds) {
+            super(ds, findUsersInGroupSql);
+            declareParameter(new SqlParameter(Types.VARCHAR));
+            compile();
+        }
+
+        protected Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return rs.getString(1);
+        }
+    }
+
+    protected class InsertGroup extends SqlUpdate {
+        public InsertGroup(DataSource ds) {
+            super(ds, insertGroupSql);
+            declareParameter(new SqlParameter(Types.VARCHAR));
+            compile();
+        }
+    }
+
+    private class FindGroupIdQuery extends MappingSqlQuery {
+        public FindGroupIdQuery(DataSource ds) {
+            super(ds, findGroupIdSql);
+            declareParameter(new SqlParameter(Types.INTEGER));
+            compile();
+        }
+
+        protected Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return Integer.valueOf(rs.getInt(1));
+        }
+    }
+
+    protected class InsertGroupAuthority extends SqlUpdate {
+        public InsertGroupAuthority(DataSource ds) {
+            super(ds, insertGroupAuthoritySql);
+            declareParameter(new SqlParameter(Types.INTEGER));
+            declareParameter(new SqlParameter(Types.VARCHAR));
+            compile();
         }
     }
 }

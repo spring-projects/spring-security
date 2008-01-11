@@ -4,6 +4,9 @@ import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.MockAuthenticationManager;
+import org.springframework.security.PopulatedDatabase;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.dao.UserCache;
@@ -22,6 +25,8 @@ import org.junit.Test;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Collections;
 
 /**
  * Tests for {@link JdbcUserDetailsManager}
@@ -43,7 +48,7 @@ public class JdbcUserDetailsManagerTests {
 
     @BeforeClass
     public static void createDataSource() {
-        dataSource = new DriverManagerDataSource("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:tokenrepotest", "sa", "");
+        dataSource = new DriverManagerDataSource("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:jdbcusermgrtest", "sa", "");
     }
 
     @AfterClass
@@ -71,12 +76,17 @@ public class JdbcUserDetailsManagerTests {
                 "password varchar(20) not null, enabled boolean not null)");
         template.execute("create table authorities (username varchar(20) not null, authority varchar(20) not null, " +
                 "constraint fk_authorities_users foreign key(username) references users(username))");
+        PopulatedDatabase.createGroupTables(template);
+        PopulatedDatabase.insertGroupData(template);
     }
 
     @After
     public void dropTablesAndClearContext() {
         template.execute("drop table authorities");
         template.execute("drop table users");
+        template.execute("drop table group_authorities");
+        template.execute("drop table group_members");
+        template.execute("drop table groups");
         SecurityContextHolder.clearContext();
     }
 
@@ -175,6 +185,39 @@ public class JdbcUserDetailsManagerTests {
         assertEquals("password", newJoe.getPassword());
         assertEquals("password", SecurityContextHolder.getContext().getAuthentication().getCredentials());
         assertTrue(cache.getUserMap().containsKey("joe"));
+    }
+
+    @Test
+    public void findAllGroupsReturnsExpectedGroupNames() {
+        List<String> groups = manager.findAllGroups();
+        assertEquals(4, groups.size());
+
+        Collections.sort(groups);
+        assertEquals("GROUP_0", groups.get(0));
+        assertEquals("GROUP_1", groups.get(1));
+        assertEquals("GROUP_2", groups.get(2));
+        assertEquals("GROUP_3", groups.get(3));
+    }
+
+    @Test
+    public void findGroupMembersReturnsCorrectData() {
+        List<String> groupMembers = manager.findUsersInGroup("GROUP_0");
+        assertEquals(1, groupMembers.size());
+        assertEquals("jerry", groupMembers.get(0));
+        groupMembers = manager.findUsersInGroup("GROUP_1");
+        assertEquals(2, groupMembers.size());
+    }
+
+    @Test
+    public void createGroupInsertsCorrectData() {
+        manager.createGroup("TEST_GROUP", AuthorityUtils.stringArrayToAuthorityArray(new String[] {"ROLE_X", "ROLE_Y"}));
+
+        List roles = template.queryForList(
+                "select ga.authority from groups g, group_authorities ga " +
+                "where ga.group_id = g.id" +
+                " and g.group_name = 'TEST_GROUP'");
+
+        assertEquals(2, roles.size());
     }
 
     private Authentication authenticateJoe() {
