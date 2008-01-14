@@ -5,8 +5,6 @@ import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.PopulatedDatabase;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.dao.UserCache;
@@ -214,10 +212,36 @@ public class JdbcUserDetailsManagerTests {
 
         List roles = template.queryForList(
                 "select ga.authority from groups g, group_authorities ga " +
-                "where ga.group_id = g.id" +
-                " and g.group_name = 'TEST_GROUP'");
+                "where ga.group_id = g.id " +
+                "and g.group_name = 'TEST_GROUP'");
 
         assertEquals(2, roles.size());
+    }
+
+    @Test
+    public void deleteGroupRemovesData() throws Exception {
+        manager.deleteGroup("GROUP_0");
+        manager.deleteGroup("GROUP_1");
+        manager.deleteGroup("GROUP_2");
+        manager.deleteGroup("GROUP_3");
+
+        assertEquals(0, template.queryForList("select * from group_authorities").size());
+        assertEquals(0, template.queryForList("select * from group_members").size());
+        assertEquals(0, template.queryForList("select id from groups").size());        
+    }
+
+    @Test
+    public void renameGroupIsSuccessful() throws Exception {
+        manager.renameGroup("GROUP_0", "GROUP_X");
+
+        assertEquals(0, template.queryForInt("select id from groups where group_name = 'GROUP_X'"));
+    }
+
+    @Test
+    public void addingGroupUserSetsCorrectData() throws Exception {
+        manager.addUserToGroup("tom", "GROUP_0");
+
+        assertEquals(2, template.queryForList("select username from group_members where group_id = 0").size());
     }
 
     private Authentication authenticateJoe() {

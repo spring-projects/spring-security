@@ -67,6 +67,17 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
             "select id from groups where group_name = ?";
     public static final String DEF_INSERT_GROUP_AUTHORITY_SQL =
             "insert into group_authorities (group_id, authority) values (?,?)";
+    public static final String DEF_DELETE_GROUP_SQL =
+            "delete from groups where id = ?";
+    public static final String DEF_DELETE_GROUP_AUTHORITIES_SQL =
+            "delete from group_authorities where group_id = ?";
+    public static final String DEF_DELETE_GROUP_MEMBERS_SQL =
+            "delete from group_members where group_id = ?";
+    public static final String DEF_RENAME_GROUP_SQL =
+            "update groups set group_name = ? where group_name = ?";
+    public static final String DEF_INSERT_GROUP_MEMBER_SQL =
+            "insert into group_members (group_id, username) values (?,?)";
+
 
     //~ Instance fields ================================================================================================
 
@@ -85,6 +96,11 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     private String insertGroupSql = DEF_INSERT_GROUP_SQL;
     private String findGroupIdSql = DEF_FIND_GROUP_ID_SQL;
     private String insertGroupAuthoritySql = DEF_INSERT_GROUP_AUTHORITY_SQL;
+    private String deleteGroupSql = DEF_DELETE_GROUP_SQL;
+    private String deleteGroupAuthoritiesSql = DEF_DELETE_GROUP_AUTHORITIES_SQL;
+    private String deleteGroupMembersSql = DEF_DELETE_GROUP_MEMBERS_SQL;
+    private String renameGroupSql = DEF_RENAME_GROUP_SQL;
+    private String insertGroupMemberSql = DEF_INSERT_GROUP_MEMBER_SQL;
 
     protected SqlUpdate insertUser;
     protected SqlUpdate deleteUser;
@@ -99,6 +115,11 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     protected SqlUpdate insertGroup;
     protected SqlQuery  findGroupIdQuery;
     protected SqlUpdate insertGroupAuthority;
+    protected SqlUpdate deleteGroup;
+    protected SqlUpdate deleteGroupMembers;
+    protected SqlUpdate deleteGroupAuthorities;
+    protected SqlUpdate renameGroup;
+    protected SqlUpdate insertGroupMember;
 
     private AuthenticationManager authenticationManager;
 
@@ -125,6 +146,11 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         insertGroup = new InsertGroup(getDataSource());
         findGroupIdQuery = new FindGroupIdQuery(getDataSource());
         insertGroupAuthority = new InsertGroupAuthority(getDataSource());
+        deleteGroup = new DeleteGroup(getDataSource());
+        deleteGroupAuthorities = new DeleteGroupAuthorities(getDataSource());
+        deleteGroupMembers = new DeleteGroupMembers(getDataSource());
+        renameGroup = new RenameGroup(getDataSource());
+        insertGroupMember = new InsertGroupMember(getDataSource());
 
         super.initDao();
     }
@@ -226,6 +252,31 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         for (int i=0; i < authorities.length; i++) {
             insertGroupAuthority.update( new Object[] {key, authorities[i].getAuthority()});
         }
+    }
+
+    public void deleteGroup(String groupName) {
+        Assert.hasText(groupName);
+
+        int id = ((Integer) findGroupIdQuery.findObject(groupName)).intValue();
+        deleteGroupMembers.update(id);
+        deleteGroupAuthorities.update(id);
+        deleteGroup.update(id);
+    }
+
+    public void renameGroup(String oldName, String newName) {
+        Assert.hasText(oldName);
+        Assert.hasText(newName);
+        
+        renameGroup.update(newName, oldName);        
+    }
+
+    public void addUserToGroup(String username, String groupName) {
+        Assert.hasText(username);
+        Assert.hasText(groupName);
+
+        Integer key = (Integer) findGroupIdQuery.findObject(groupName);
+
+        insertGroupMember.update(new Object[] {key, username});
     }
 
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
@@ -403,4 +454,47 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
             compile();
         }
     }
+
+    protected class DeleteGroup extends SqlUpdate {
+        public DeleteGroup(DataSource ds) {
+            super(ds, deleteGroupSql);
+            declareParameter(new SqlParameter(Types.INTEGER));
+            compile();
+        }
+    }
+
+    protected class DeleteGroupMembers extends SqlUpdate {
+        public DeleteGroupMembers(DataSource ds) {
+            super(ds, deleteGroupMembersSql);
+            declareParameter(new SqlParameter(Types.INTEGER));
+            compile();
+        }
+    }
+
+    protected class DeleteGroupAuthorities extends SqlUpdate {
+        public DeleteGroupAuthorities(DataSource ds) {
+            super(ds, deleteGroupAuthoritiesSql);
+            declareParameter(new SqlParameter(Types.INTEGER));
+            compile();
+        }
+    }
+
+    protected class RenameGroup extends SqlUpdate {
+        public RenameGroup(DataSource ds) {
+            super(ds, renameGroupSql);
+            declareParameter(new SqlParameter(Types.VARCHAR));
+            declareParameter(new SqlParameter(Types.VARCHAR));
+            compile();            
+        }
+    }
+
+    protected class InsertGroupMember extends SqlUpdate {
+        public InsertGroupMember(DataSource ds) {
+            super(ds, insertGroupMemberSql);
+            declareParameter(new SqlParameter(Types.INTEGER));
+            declareParameter(new SqlParameter(Types.VARCHAR));
+            compile();
+        }
+    }
+
 }

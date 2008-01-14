@@ -15,12 +15,12 @@ public interface GroupsManager {
     List findUsersInGroup(String groupName);
 
     void createGroup(String groupName, GrantedAuthority[] authorities);
-//
-//    void deleteGroup(String groupName);
-//
-//    void renameGroup(String oldName, String newName);
-//
-//    void addUserToGroup(String username, String group);
+
+    void deleteGroup(String groupName);
+
+    void renameGroup(String oldName, String newName);
+
+    void addUserToGroup(String username, String group);
 //
 //    void removeUserFromGroup(String username, String groupName);
 //
