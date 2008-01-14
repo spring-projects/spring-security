@@ -5,6 +5,8 @@ import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.PopulatedDatabase;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.dao.UserCache;
@@ -25,6 +27,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Tests for {@link JdbcUserDetailsManager}
@@ -187,7 +191,7 @@ public class JdbcUserDetailsManagerTests {
 
     @Test
     public void findAllGroupsReturnsExpectedGroupNames() {
-        List<String> groups = manager.findAllGroups();
+        List<String> groups = new ArrayList<String>(Arrays.asList(manager.findAllGroups()));
         assertEquals(4, groups.size());
 
         Collections.sort(groups);
@@ -199,11 +203,11 @@ public class JdbcUserDetailsManagerTests {
 
     @Test
     public void findGroupMembersReturnsCorrectData() {
-        List<String> groupMembers = manager.findUsersInGroup("GROUP_0");
-        assertEquals(1, groupMembers.size());
-        assertEquals("jerry", groupMembers.get(0));
+        String[] groupMembers = manager.findUsersInGroup("GROUP_0");
+        assertEquals(1, groupMembers.length);
+        assertEquals("jerry", groupMembers[0]);
         groupMembers = manager.findUsersInGroup("GROUP_1");
-        assertEquals(2, groupMembers.size());
+        assertEquals(2, groupMembers.length);
     }
 
     @Test
@@ -227,7 +231,7 @@ public class JdbcUserDetailsManagerTests {
 
         assertEquals(0, template.queryForList("select * from group_authorities").size());
         assertEquals(0, template.queryForList("select * from group_members").size());
-        assertEquals(0, template.queryForList("select id from groups").size());        
+        assertEquals(0, template.queryForList("select id from groups").size());
     }
 
     @Test
@@ -242,6 +246,38 @@ public class JdbcUserDetailsManagerTests {
         manager.addUserToGroup("tom", "GROUP_0");
 
         assertEquals(2, template.queryForList("select username from group_members where group_id = 0").size());
+    }
+
+    @Test
+    public void removeUserFromGroupDeletesGroupMemberRow() throws Exception {
+        manager.removeUserFromGroup("jerry", "GROUP_1");
+
+        assertEquals(1, template.queryForList("select group_id from group_members where username = 'jerry'").size());
+    }
+
+    @Test
+    public void findGroupAuthoritiesReturnsCorrectAuthorities() throws Exception {
+        GrantedAuthority[] authorities = manager.findGroupAuthorities("GROUP_0");
+
+        assertEquals("ROLE_A", authorities[0].getAuthority());
+    }
+
+    @Test
+    public void addGroupAuthorityInsertsCorrectGroupAuthorityRow() throws Exception {
+        GrantedAuthority auth = new GrantedAuthorityImpl("ROLE_X");
+        manager.addGroupAuthority("GROUP_0", auth);
+
+        template.queryForObject("select authority from group_authorities where authority = 'ROLE_X' and group_id = 0", String.class);
+    }
+
+    @Test
+    public void deleteGroupAuthorityRemovesCorrectRows() throws Exception {
+        GrantedAuthority auth = new GrantedAuthorityImpl("ROLE_A");
+        manager.removeGroupAuthority("GROUP_0", auth);
+        assertEquals(0, template.queryForList("select authority from group_authorities where group_id = 0").size());
+
+        manager.removeGroupAuthority("GROUP_2", auth);
+        assertEquals(2, template.queryForList("select authority from group_authorities where group_id = 2").size());        
     }
 
     private Authentication authenticateJoe() {
@@ -261,7 +297,7 @@ public class JdbcUserDetailsManagerTests {
     }
 
     private class MockUserCache implements UserCache {
-        private Map cache = new HashMap();
+        private Map<String,UserDetails> cache = new HashMap<String,UserDetails>();
 
         public UserDetails getUserFromCache(String username) {
             return (User) cache.get(username);

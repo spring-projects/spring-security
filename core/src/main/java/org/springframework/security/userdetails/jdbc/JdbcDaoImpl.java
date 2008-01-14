@@ -125,14 +125,6 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
      */
     protected void addCustomAuthorities(String username, List authorities) {}
 
-    public String getAuthoritiesByUsernameQuery() {
-        return authoritiesByUsernameQuery;
-    }
-
-    public String getRolePrefix() {
-        return rolePrefix;
-    }
-
     public String getUsersByUsernameQuery() {
         return usersByUsernameQuery;
     }
@@ -149,10 +141,6 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
         this.usersByUsernameMapping = new UsersByUsernameMapping(getDataSource());
         this.authoritiesByUsernameMapping = new AuthoritiesByUsernameMapping(getDataSource());
         this.groupAuthoritiesByUsernameMapping = new GroupAuthoritiesByUsernameMapping(getDataSource());
-    }
-
-    public boolean isUsernameBasedPrimaryKey() {
-        return usernameBasedPrimaryKey;
     }
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
@@ -208,6 +196,10 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
         authoritiesByUsernameQuery = queryString;
     }
 
+    protected String getAuthoritiesByUsernameQuery() {
+        return authoritiesByUsernameQuery;
+    }
+
     /**
      * Allows the default query string used to retrieve group authorities based on username to be overriden, if
      * default table or column names need to be changed. The default query is {@link
@@ -232,6 +224,10 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
         this.rolePrefix = rolePrefix;
     }
 
+    protected String getRolePrefix() {
+        return rolePrefix;
+    }
+
     /**
      * If <code>true</code> (the default), indicates the {@link #getUsersByUsernameQuery()} returns a username
      * in response to a query. If <code>false</code>, indicates that a primary key is used instead. If set to
@@ -244,6 +240,10 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
      */
     public void setUsernameBasedPrimaryKey(boolean usernameBasedPrimaryKey) {
         this.usernameBasedPrimaryKey = usernameBasedPrimaryKey;
+    }
+
+    protected boolean isUsernameBasedPrimaryKey() {
+        return usernameBasedPrimaryKey;
     }
 
     /**
