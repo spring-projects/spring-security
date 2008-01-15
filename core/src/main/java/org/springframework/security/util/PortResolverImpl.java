@@ -51,10 +51,10 @@ public class PortResolverImpl implements PortResolver {
         String scheme = request.getScheme().toLowerCase();
 
         if ("http".equals(scheme)) {
-            portLookup = portMapper.lookupHttpPort(Integer.valueOf(serverPort));
+            portLookup = portMapper.lookupHttpPort(new Integer(serverPort));
 
         } else if ("https".equals(scheme)) {
-            portLookup = portMapper.lookupHttpsPort(Integer.valueOf(serverPort));
+            portLookup = portMapper.lookupHttpsPort(new Integer(serverPort));
         }
 
         if (portLookup != null) {

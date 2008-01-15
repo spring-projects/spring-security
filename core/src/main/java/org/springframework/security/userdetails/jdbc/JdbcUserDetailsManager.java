@@ -521,7 +521,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
 
         protected Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return Integer.valueOf(rs.getInt(1));
+            return new Integer(rs.getInt(1));
         }
     }
 
