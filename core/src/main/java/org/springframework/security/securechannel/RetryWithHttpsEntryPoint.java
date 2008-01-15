@@ -15,98 +15,22 @@
 
 package org.springframework.security.securechannel;
 
-import org.springframework.security.util.PortMapper;
-import org.springframework.security.util.PortMapperImpl;
-import org.springframework.security.util.PortResolver;
-import org.springframework.security.util.PortResolverImpl;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.util.Assert;
-
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-
 /**
- * Commences a secure channel by retrying the original request using HTTPS.<P>This entry point should suffice in
- * most circumstances. However, it is not intended to properly handle HTTP POSTs or other usage where a standard
- * redirect would cause an issue.</p>
+ * Commences a secure channel by retrying the original request using HTTPS.
+ * <p>
+ * This entry point should suffice in most circumstances. However, it is not intended to properly handle HTTP POSTs
+ * or other usage where a standard redirect would cause an issue.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class RetryWithHttpsEntryPoint implements InitializingBean, ChannelEntryPoint {
-    //~ Static fields/initializers =====================================================================================
+public class RetryWithHttpsEntryPoint extends AbstractRetryEntryPoint {
 
-    private static final Log logger = LogFactory.getLog(RetryWithHttpsEntryPoint.class);
-
-    //~ Instance fields ================================================================================================
-
-    private PortMapper portMapper = new PortMapperImpl();
-    private PortResolver portResolver = new PortResolverImpl();
-
-    //~ Methods ========================================================================================================
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(portMapper, "portMapper is required");
-        Assert.notNull(portResolver, "portResolver is required");
+    public RetryWithHttpsEntryPoint() {
+        super("https://", 443);
     }
 
-    public void commence(ServletRequest request, ServletResponse response)
-        throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-
-        String pathInfo = req.getPathInfo();
-        String queryString = req.getQueryString();
-        String contextPath = req.getContextPath();
-        String destination = req.getServletPath() + ((pathInfo == null) ? "" : pathInfo)
-            + ((queryString == null) ? "" : ("?" + queryString));
-
-        String redirectUrl = contextPath;
-
-        Integer httpPort = new Integer(portResolver.getServerPort(req));
-        Integer httpsPort = portMapper.lookupHttpsPort(httpPort);
-
-        if (httpsPort != null) {
-            boolean includePort = true;
-
-            if (httpsPort.intValue() == 443) {
-                includePort = false;
-            }
-
-            redirectUrl = "https://" + req.getServerName() + ((includePort) ? (":" + httpsPort) : "") + contextPath
-                + destination;
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Redirecting to: " + redirectUrl);
-        }
-
-        ((HttpServletResponse) response).sendRedirect(((HttpServletResponse) response).encodeRedirectURL(redirectUrl));
-    }
-
-    public PortMapper getPortMapper() {
-        return portMapper;
-    }
-
-    public PortResolver getPortResolver() {
-        return portResolver;
-    }
-
-    public void setPortMapper(PortMapper portMapper) {
-        this.portMapper = portMapper;
-    }
-
-    public void setPortResolver(PortResolver portResolver) {
-        this.portResolver = portResolver;
+    protected Integer getMappedPort(Integer mapFromPort) {
+        return getPortMapper().lookupHttpsPort(mapFromPort);
     }
 }

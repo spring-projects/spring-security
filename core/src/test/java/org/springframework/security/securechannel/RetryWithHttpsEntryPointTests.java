@@ -47,25 +47,21 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
 
     public void testDetectsMissingPortMapper() throws Exception {
         RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
-        ep.setPortMapper(null);
 
         try {
-            ep.afterPropertiesSet();
+            ep.setPortMapper(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("portMapper is required", expected.getMessage());
         }
     }
 
     public void testDetectsMissingPortResolver() throws Exception {
         RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
-        ep.setPortResolver(null);
 
         try {
-            ep.afterPropertiesSet();
+            ep.setPortResolver(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("portResolver is required", expected.getMessage());
         }
     }
 
@@ -92,7 +88,6 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
         RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
         ep.setPortMapper(new PortMapperImpl());
         ep.setPortResolver(new MockPortResolver(80, 443));
-        ep.afterPropertiesSet();
 
         ep.commence(request, response);
         assertEquals("https://www.example.com/bigWebApp/hello/pathInfo.html?open=true", response.getRedirectedUrl());
@@ -113,14 +108,12 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
         RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
         ep.setPortMapper(new PortMapperImpl());
         ep.setPortResolver(new MockPortResolver(80, 443));
-        ep.afterPropertiesSet();
 
         ep.commence(request, response);
         assertEquals("https://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
     }
 
-    public void testOperationWhenTargetPortIsUnknown()
-        throws Exception {
+    public void testOperationWhenTargetPortIsUnknown() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("open=true");
         request.setScheme("http");
@@ -135,7 +128,6 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
         RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
         ep.setPortMapper(new PortMapperImpl());
         ep.setPortResolver(new MockPortResolver(8768, 1234));
-        ep.afterPropertiesSet();
 
         ep.commence(request, response);
         assertEquals("/bigWebApp", response.getRedirectedUrl());
@@ -161,7 +153,6 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
         RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
         ep.setPortResolver(new MockPortResolver(8888, 9999));
         ep.setPortMapper(portMapper);
-        ep.afterPropertiesSet();
 
         ep.commence(request, response);
         assertEquals("https://www.example.com:9999/bigWebApp/hello/pathInfo.html?open=true", response.getRedirectedUrl());

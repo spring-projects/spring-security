@@ -37,35 +37,23 @@ import java.util.Map;
 public class RetryWithHttpEntryPointTests extends TestCase {
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(RetryWithHttpEntryPointTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testDetectsMissingPortMapper() throws Exception {
         RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
-        ep.setPortMapper(null);
 
         try {
-            ep.afterPropertiesSet();
+            ep.setPortMapper(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("portMapper is required", expected.getMessage());
         }
     }
 
     public void testDetectsMissingPortResolver() throws Exception {
         RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
-        ep.setPortResolver(null);
 
         try {
-            ep.afterPropertiesSet();
+            ep.setPortResolver(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("portResolver is required", expected.getMessage());
         }
     }
 
@@ -92,7 +80,6 @@ public class RetryWithHttpEntryPointTests extends TestCase {
         RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
         ep.setPortMapper(new PortMapperImpl());
         ep.setPortResolver(new MockPortResolver(80, 443));
-        ep.afterPropertiesSet();
 
         ep.commence(request, response);
         assertEquals("http://www.example.com/bigWebApp/hello/pathInfo.html?open=true", response.getRedirectedUrl());
@@ -113,7 +100,6 @@ public class RetryWithHttpEntryPointTests extends TestCase {
         RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
         ep.setPortMapper(new PortMapperImpl());
         ep.setPortResolver(new MockPortResolver(80, 443));
-        ep.afterPropertiesSet();
 
         ep.commence(request, response);
         assertEquals("http://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
@@ -135,7 +121,6 @@ public class RetryWithHttpEntryPointTests extends TestCase {
         RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
         ep.setPortMapper(new PortMapperImpl());
         ep.setPortResolver(new MockPortResolver(8768, 1234));
-        ep.afterPropertiesSet();
 
         ep.commence(request, response);
         assertEquals("/bigWebApp", response.getRedirectedUrl());
@@ -161,7 +146,6 @@ public class RetryWithHttpEntryPointTests extends TestCase {
         RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
         ep.setPortResolver(new MockPortResolver(8888, 9999));
         ep.setPortMapper(portMapper);
-        ep.afterPropertiesSet();
 
         ep.commence(request, response);
         assertEquals("http://www.example.com:8888/bigWebApp/hello/pathInfo.html?open=true", response.getRedirectedUrl());

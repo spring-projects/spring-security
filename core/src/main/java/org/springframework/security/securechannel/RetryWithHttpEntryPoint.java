@@ -15,98 +15,23 @@
 
 package org.springframework.security.securechannel;
 
-import org.springframework.security.util.PortMapper;
-import org.springframework.security.util.PortMapperImpl;
-import org.springframework.security.util.PortResolver;
-import org.springframework.security.util.PortResolverImpl;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.util.Assert;
-
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 
 /**
- * Commences an insecure channel by retrying the original request using HTTP.<P>This entry point should suffice in
- * most circumstances. However, it is not intended to properly handle HTTP POSTs or other usage where a standard
- * redirect would cause an issue.</p>
+ * Commences an insecure channel by retrying the original request using HTTP.
+ * <p>
+ * This entry point should suffice in most circumstances. However, it is not intended to properly handle HTTP POSTs or
+ * other usage where a standard redirect would cause an issue.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class RetryWithHttpEntryPoint implements InitializingBean, ChannelEntryPoint {
-    //~ Static fields/initializers =====================================================================================
+public class RetryWithHttpEntryPoint extends AbstractRetryEntryPoint {
 
-    private static final Log logger = LogFactory.getLog(RetryWithHttpEntryPoint.class);
-
-    //~ Instance fields ================================================================================================
-
-    private PortMapper portMapper = new PortMapperImpl();
-    private PortResolver portResolver = new PortResolverImpl();
-
-    //~ Methods ========================================================================================================
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(portMapper, "portMapper is required");
-        Assert.notNull(portResolver, "portResolver is required");
+    public RetryWithHttpEntryPoint() {
+        super("http://", 80);
     }
 
-    public void commence(ServletRequest request, ServletResponse response)
-        throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-
-        String pathInfo = req.getPathInfo();
-        String queryString = req.getQueryString();
-        String contextPath = req.getContextPath();
-        String destination = req.getServletPath() + ((pathInfo == null) ? "" : pathInfo)
-            + ((queryString == null) ? "" : ("?" + queryString));
-
-        String redirectUrl = contextPath;
-
-        Integer httpsPort = new Integer(portResolver.getServerPort(req));
-        Integer httpPort = portMapper.lookupHttpPort(httpsPort);
-
-        if (httpPort != null) {
-            boolean includePort = true;
-
-            if (httpPort.intValue() == 80) {
-                includePort = false;
-            }
-
-            redirectUrl = "http://" + req.getServerName() + ((includePort) ? (":" + httpPort) : "") + contextPath
-                + destination;
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Redirecting to: " + redirectUrl);
-        }
-
-        ((HttpServletResponse) response).sendRedirect(((HttpServletResponse) response).encodeRedirectURL(redirectUrl));
-    }
-
-    public PortMapper getPortMapper() {
-        return portMapper;
-    }
-
-    public PortResolver getPortResolver() {
-        return portResolver;
-    }
-
-    public void setPortMapper(PortMapper portMapper) {
-        this.portMapper = portMapper;
-    }
-
-    public void setPortResolver(PortResolver portResolver) {
-        this.portResolver = portResolver;
+    protected Integer getMappedPort(Integer mapFromPort) {
+        return getPortMapper().lookupHttpPort(mapFromPort);
     }
 }
