@@ -4,10 +4,6 @@ import org.springframework.security.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.securechannel.ChannelProcessingFilter;
-import org.springframework.security.securechannel.ChannelDecisionManager;
-import org.springframework.security.securechannel.ChannelDecisionManagerImpl;
-import org.springframework.security.securechannel.SecureChannelProcessor;
-import org.springframework.security.securechannel.RetryWithHttpsEntryPoint;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
@@ -19,7 +15,6 @@ import org.springframework.security.util.PortMapperImpl;
 import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.beans.BeansException;
-import org.springframework.util.ReflectionUtils;
 
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
