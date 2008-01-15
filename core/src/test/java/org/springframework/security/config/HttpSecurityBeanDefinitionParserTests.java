@@ -4,6 +4,10 @@ import org.springframework.security.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.securechannel.ChannelProcessingFilter;
+import org.springframework.security.securechannel.ChannelDecisionManager;
+import org.springframework.security.securechannel.ChannelDecisionManagerImpl;
+import org.springframework.security.securechannel.SecureChannelProcessor;
+import org.springframework.security.securechannel.RetryWithHttpsEntryPoint;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
@@ -11,9 +15,11 @@ import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FilterChainProxy;
+import org.springframework.security.util.PortMapperImpl;
 import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.beans.BeansException;
+import org.springframework.util.ReflectionUtils;
 
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -79,5 +85,14 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof RememberMeProcessingFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
         assertTrue(filters.next() instanceof FilterSecurityInterceptor);
+
+    }
+
+    @Test
+    public void portMappingsAreParsedCorrectly() throws Exception {
+        PortMapperImpl pm = (PortMapperImpl) appContext.getBean(BeanIds.PORT_MAPPER);
+        assertEquals(1, pm.getTranslatedPortMappings().size());
+        assertEquals(Integer.valueOf(9080), pm.lookupHttpPort(9443));
+        assertEquals(Integer.valueOf(9443), pm.lookupHttpsPort(9080));
     }
 }

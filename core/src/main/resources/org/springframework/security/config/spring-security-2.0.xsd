@@ -258,6 +258,7 @@
         <xs:element ref="security:concurrent-session-control"/>
         <xs:element ref="security:remember-me"/>
         <xs:element ref="security:anonymous"/>
+        <xs:element ref="security:port-mappings"/>
       </xs:choice>
       <xs:attributeGroup ref="security:http.attlist"/>
     </xs:complexType>
@@ -584,6 +585,28 @@
         <xs:documentation>One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="port-mappings">
+    <xs:annotation>
+      <xs:documentation>Defines the list of mappings between http and https ports for use in redirects</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="security:port-mapping"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="port-mapping">
+    <xs:complexType>
+      <xs:attributeGroup ref="security:http-port"/>
+      <xs:attributeGroup ref="security:https-port"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="http-port">
+    <xs:attribute name="http" use="required" type="xs:integer"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="https-port">
+    <xs:attribute name="https" use="required" type="xs:integer"/>
   </xs:attributeGroup>
   <xs:element name="jdbc-user-service">
     <xs:annotation>

@@ -23,6 +23,10 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         <concurrent-session-control max-sessions="1"/>
 
         <remember-me key="doesntmatter" token-repository="tokenRepo"/>
+
+        <port-mappings>
+            <port-mapping http="9080" https="9443"/>
+        </port-mappings>
     </http>
 
     <authentication-provider>

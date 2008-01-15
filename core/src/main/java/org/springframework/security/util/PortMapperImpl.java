@@ -23,9 +23,10 @@ import java.util.Map;
 
 
 /**
- * Concrete implementation of {@link PortMapper} that obtains HTTP:HTTPS pairs from the application context.<P>By
- * default the implementation will assume 80:443 and 8080:8443 are HTTP:HTTPS pairs respectively. If different pairs
- * are required, use {@link #setPortMappings(Map)}.</p>
+ * Concrete implementation of {@link PortMapper} that obtains HTTP:HTTPS pairs from the application context.
+ * <p>
+ * By default the implementation will assume 80:443 and 8080:8443 are HTTP:HTTPS pairs respectively. If different pairs
+ * are required, use {@link #setPortMappings(Map)}.
  *
  * @author Ben Alex
  * @author colin sampaleanu
@@ -75,10 +76,15 @@ public class PortMapperImpl implements PortMapper {
     }
 
     /**
-     * <p>Set to override the default HTTP port to HTTPS port mappings of 80:443, and  8080:8443.</p>
-     *  In a Spring XML ApplicationContext, a definition would look something like this:<pre>
-     *   &lt;property name="portMappings">    &lt;map>      &lt;entry key="80">&lt;value>443&lt;/value>&lt;/entry>
-     *       &lt;entry key="8080">&lt;value>8443&lt;/value>&lt;/entry>    &lt;/map>  &lt;/property></pre>
+     * Set to override the default HTTP port to HTTPS port mappings of 80:443, and  8080:8443.
+     * In a Spring XML ApplicationContext, a definition would look something like this:
+     * <pre>
+     *  &lt;property name="portMappings">
+     *      &lt;map>
+     *          &lt;entry key="80">&lt;value>443&lt;/value>&lt;/entry>
+     *          &lt;entry key="8080">&lt;value>8443&lt;/value>&lt;/entry>
+     *      &lt;/map>
+     * &lt;/property></pre>
      *
      * @param newMappings A Map consisting of String keys and String values, where for each entry the key is the string
      *        representation of an integer HTTP port number, and the value is the string representation of the

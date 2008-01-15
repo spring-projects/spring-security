@@ -43,4 +43,5 @@ public abstract class BeanIds {
 	public static final String METHOD_DEFINITION_ATTRIBUTES = "_methodDefinitionAttributes";
     public static final String EMBEDDED_APACHE_DS = "_apacheDirectoryServerContainer";
     public static final String CONTEXT_SOURCE = "_securityContextSource";
+    public static final String PORT_MAPPER = "_portMapper";    
 }

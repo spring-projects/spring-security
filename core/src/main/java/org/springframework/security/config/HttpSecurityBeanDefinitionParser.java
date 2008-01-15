@@ -1,6 +1,5 @@
 package org.springframework.security.config;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.ConfigAttributeDefinition;
@@ -27,6 +27,8 @@ import org.springframework.security.securechannel.ChannelDecisionManagerImpl;
 import org.springframework.security.securechannel.ChannelProcessingFilter;
 import org.springframework.security.securechannel.InsecureChannelProcessor;
 import org.springframework.security.securechannel.SecureChannelProcessor;
+import org.springframework.security.securechannel.RetryWithHttpEntryPoint;
+import org.springframework.security.securechannel.RetryWithHttpsEntryPoint;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.RegexUrlPathMatcher;
@@ -76,8 +78,15 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_ACCESS_MGR = "access-decision-manager";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
+        BeanDefinitionRegistry registry = parserContext.getRegistry();
         RootBeanDefinition filterChainProxy = new RootBeanDefinition(FilterChainProxy.class);
         RootBeanDefinition httpScif = new RootBeanDefinition(HttpSessionContextIntegrationFilter.class);
+
+        BeanDefinition portMapper = new PortMappingsBeanDefinitionParser().parse(
+                DomUtils.getChildElementByTagName(element, Elements.PORT_MAPPINGS), parserContext);
+        registry.registerBeanDefinition(BeanIds.PORT_MAPPER, portMapper);
+
+        RuntimeBeanReference portMapperRef = new RuntimeBeanReference(BeanIds.PORT_MAPPER);
 
         String createSession = element.getAttribute(ATT_CREATE_SESSION);
         if (OPT_CREATE_SESSION_ALWAYS.equals(createSession)) {
@@ -157,8 +166,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         parseInterceptUrls(DomUtils.getChildElementsByTagName(element, "intercept-url"),
                 filterChainMap, interceptorFilterInvDefSource, channelFilterInvDefSource, parserContext);
 
-        BeanDefinitionRegistry registry = parserContext.getRegistry();
-
         // Check if we need to register the channel processing beans
         if (((AbstractFilterInvocationDefinitionSource)channelFilterInvDefSource).getMapSize() > 0) {
             // At least one channel requirement has been specified
@@ -169,9 +176,17 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             channelFilter.getPropertyValues().addPropertyValue("filterInvocationDefinitionSource",
                     channelFilterInvDefSource);
             RootBeanDefinition channelDecisionManager = new RootBeanDefinition(ChannelDecisionManagerImpl.class);
-            List channelProcessors = new ArrayList(2);
-            channelProcessors.add(new SecureChannelProcessor());
-            channelProcessors.add(new InsecureChannelProcessor());
+            ManagedList channelProcessors = new ManagedList(2);
+            RootBeanDefinition secureChannelProcessor = new RootBeanDefinition(SecureChannelProcessor.class);
+            RootBeanDefinition retryWithHttp = new RootBeanDefinition(RetryWithHttpEntryPoint.class);
+            RootBeanDefinition retryWithHttps = new RootBeanDefinition(RetryWithHttpsEntryPoint.class);
+            retryWithHttp.getPropertyValues().addPropertyValue("portMapper", portMapperRef);
+            retryWithHttps.getPropertyValues().addPropertyValue("portMapper", portMapperRef);            
+            secureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttps);
+            RootBeanDefinition inSecureChannelProcessor = new RootBeanDefinition(InsecureChannelProcessor.class);
+            inSecureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttp);
+            channelProcessors.add(secureChannelProcessor);
+            channelProcessors.add(inSecureChannelProcessor);
             channelDecisionManager.getPropertyValues().addPropertyValue("channelProcessors", channelProcessors);
 
             registry.registerBeanDefinition(BeanIds.CHANNEL_PROCESSING_FILTER, channelFilter);

@@ -97,7 +97,7 @@ annotation-driven.attlist &=
 
 http =
     ## Container element for HTTP security configuration
-   element http {http.attlist, (intercept-url+ & form-login? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous?) }
+   element http {http.attlist, (intercept-url+ & form-login? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous? & port-mappings) }
 http.attlist &=
     ## Automatically registers a login form, BASIC authentication, anonymous authentication, logout services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".
     attribute auto-config {"true" | "false" }?
@@ -239,6 +239,18 @@ user.attlist &=
 	## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"
     attribute authorities {xsd:string}
 
+port-mappings = 
+    ## Defines the list of mappings between http and https ports for use in redirects
+    element port-mappings {port-mappings.attlist, port-mapping+}
+
+port-mappings.attlist &= empty
+
+port-mapping = 
+    element port-mapping {http-port, https-port}
+    
+http-port = attribute http {xsd:integer}
+
+https-port = attribute https {xsd:integer}
 
 jdbc-user-service =
 	## Causes creation of a JDBC-based UserDetailsService.

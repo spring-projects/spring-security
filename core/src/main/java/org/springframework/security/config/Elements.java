@@ -27,4 +27,6 @@ abstract class Elements {
 	public static final String ANNOTATION_DRIVEN = "annotation-driven";
 	public static final String PASSWORD_ENCODER = "password-encoder";
 	public static final String SALT_SOURCE = "salt-source";
+	public static final String PORT_MAPPINGS = "port-mappings";
+    public static final String PORT_MAPPING = "port-mapping";    
 }
