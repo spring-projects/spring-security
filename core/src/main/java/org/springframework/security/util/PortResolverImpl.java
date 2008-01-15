@@ -15,65 +15,58 @@
 
 package org.springframework.security.util;
 
-import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.util.Assert;
 
 import javax.servlet.ServletRequest;
 
 
 /**
- * Concrete implementation of {@link PortResolver} that obtains the port from
- * <code>ServletRequest.getServerPort()</code>.<P>This class is capable of handling the IE bug which results in an
+ * Concrete implementation of {@link PortResolver} that obtains the port from <tt>ServletRequest.getServerPort()</tt>.
+ * <p>
+ * This class is capable of handling the IE bug which results in an
  * incorrect URL being presented in the header subsequent to a redirect to a different scheme and port where the port
  * is not a well-known number (ie 80 or 443). Handling involves detecting an incorrect response from
  * <code>ServletRequest.getServerPort()</code> for the scheme (eg a HTTP request on 8443) and then determining the
- * real server port (eg HTTP request is really on 8080). The map of valid ports is obtained from the configured {@link
- * PortMapper}.</p>
+ * real server port (eg HTTP request is really on 8080). The map of valid ports is obtained from the configured
+ * {@link PortMapper}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class PortResolverImpl implements InitializingBean, PortResolver {
+public class PortResolverImpl implements PortResolver {
     //~ Instance fields ================================================================================================
 
     private PortMapper portMapper = new PortMapperImpl();
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(portMapper, "portMapper required");
-    }
-
     public PortMapper getPortMapper() {
         return portMapper;
     }
 
     public int getServerPort(ServletRequest request) {
-        int result = request.getServerPort();
+        int serverPort = request.getServerPort();
+        Integer portLookup = null;
 
-        if ("http".equals(request.getScheme().toLowerCase())) {
-            Integer http = portMapper.lookupHttpPort(new Integer(result));
+        String scheme = request.getScheme().toLowerCase();
 
-            if (http != null) {
-                // IE 6 bug
-                result = http.intValue();
-            }
+        if ("http".equals(scheme)) {
+            portLookup = portMapper.lookupHttpPort(Integer.valueOf(serverPort));
+
+        } else if ("https".equals(scheme)) {
+            portLookup = portMapper.lookupHttpsPort(Integer.valueOf(serverPort));
         }
 
-        if ("https".equals(request.getScheme().toLowerCase())) {
-            Integer https = portMapper.lookupHttpsPort(new Integer(result));
-
-            if (https != null) {
-                // IE 6 bug
-                result = https.intValue();
-            }
+        if (portLookup != null) {
+            // IE 6 bug
+            serverPort = portLookup.intValue();
         }
 
-        return result;
+        return serverPort;
     }
 
     public void setPortMapper(PortMapper portMapper) {
+        Assert.notNull(portMapper, "portMapper cannot be null");
         this.portMapper = portMapper;
     }
 }

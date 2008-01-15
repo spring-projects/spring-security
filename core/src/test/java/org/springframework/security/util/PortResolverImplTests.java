@@ -39,17 +39,12 @@ public class PortResolverImplTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(PortResolverImplTests.class);
-    }
-
     public final void setUp() throws Exception {
         super.setUp();
     }
 
     public void testDetectsBuggyIeHttpRequest() throws Exception {
         PortResolverImpl pr = new PortResolverImpl();
-        pr.afterPropertiesSet();
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServerPort(8443);
@@ -59,7 +54,6 @@ public class PortResolverImplTests extends TestCase {
 
     public void testDetectsBuggyIeHttpsRequest() throws Exception {
         PortResolverImpl pr = new PortResolverImpl();
-        pr.afterPropertiesSet();
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServerPort(8080);
@@ -69,10 +63,9 @@ public class PortResolverImplTests extends TestCase {
 
     public void testDetectsEmptyPortMapper() throws Exception {
         PortResolverImpl pr = new PortResolverImpl();
-        pr.setPortMapper(null);
 
         try {
-            pr.afterPropertiesSet();
+            pr.setPortMapper(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -88,7 +81,6 @@ public class PortResolverImplTests extends TestCase {
 
     public void testNormalOperation() throws Exception {
         PortResolverImpl pr = new PortResolverImpl();
-        pr.afterPropertiesSet();
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setScheme("http");
