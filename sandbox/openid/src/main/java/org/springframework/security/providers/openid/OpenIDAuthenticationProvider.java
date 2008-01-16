@@ -14,18 +14,14 @@
  */
 package org.springframework.security.providers.openid;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.BadCredentialsException;
-
 import org.springframework.security.providers.AuthenticationProvider;
-import org.springframework.security.providers.cas.CasAuthoritiesPopulator;
-
+import org.springframework.security.providers.AuthoritiesPopulator;
 import org.springframework.security.userdetails.UserDetails;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.util.Assert;
 
 
@@ -37,12 +33,12 @@ import org.springframework.util.Assert;
 public class OpenIDAuthenticationProvider implements AuthenticationProvider, InitializingBean {
     //~ Instance fields ================================================================================================
 
-    private CasAuthoritiesPopulator ssoAuthoritiesPopulator;
+    private AuthoritiesPopulator authoritiesPopulator;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.ssoAuthoritiesPopulator, "The ssoAuthoritiesPopulator must be set");
+        Assert.notNull(this.authoritiesPopulator, "The authoritiesPopulator must be set");
     }
 
     /* (non-Javadoc)
@@ -69,7 +65,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
                  */
 
                 // Lookup user details
-                UserDetails userDetails = this.ssoAuthoritiesPopulator.getUserDetails(response.getIdentityUrl());
+                UserDetails userDetails = this.authoritiesPopulator.getUserDetails(response.getIdentityUrl());
 
                 authentication = new OpenIDAuthenticationToken(userDetails.getAuthorities(), response.getStatus(),
                         response.getIdentityUrl());
@@ -92,8 +88,8 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
         return null;
     }
 
-    public void setSsoAuthoritiesPopulator(CasAuthoritiesPopulator ssoAuthoritiesPopulator) {
-        this.ssoAuthoritiesPopulator = ssoAuthoritiesPopulator;
+    public void setAuthoritiesPopulator(AuthoritiesPopulator authoritiesPopulator) {
+        this.authoritiesPopulator = authoritiesPopulator;
     }
 
     /* (non-Javadoc)

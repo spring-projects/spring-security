@@ -15,14 +15,19 @@
 
 package org.springframework.security.providers.cas;
 
-import org.springframework.security.AuthenticationException;
-
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.providers.AuthoritiesPopulator;
 
 
 /**
+ * <p>
+ * <i>Backwards compatible extension to the {@link AuthoritiesPopulator} interface.
+ * This interface has usefulness outside of the CAS usecase. Thus, the {@link AuthoritiesPopulator}
+ * interface was refactored in.</i>
+ * </p>
+ * <p>
  * Populates the <code>UserDetails</code> associated with a CAS authenticated
  * user.
+ * </p>
  *
  * <p>
  * CAS does not provide the authorities (roles) granted to a user. It merely
@@ -33,18 +38,6 @@ import org.springframework.security.userdetails.UserDetails;
  * </p>
  *
  * <p>
- * A {@link UserDetails} is returned by implementations. The
- * <code>UserDetails</code> must, at minimum, contain the username and
- * <code>GrantedAuthority[]</code> objects applicable to the CAS-authenticated
- * user. Note that Spring Security ignores the password and enabled/disabled
- * status of the <code>UserDetails</code> because this is
- * authentication-related and should have been enforced by the CAS server. The
- * <code>UserDetails</code> returned by implementations is stored in the
- * generated <code>CasAuthenticationToken</code>, so additional properties
- * such as email addresses, telephone numbers etc can easily be stored.
- * </p>
- *
- * <p>
  * Implementations should not perform any caching. They will only be called
  * when a refresh is required.
  * </p>
@@ -52,19 +45,6 @@ import org.springframework.security.userdetails.UserDetails;
  * @author Ben Alex
  * @version $Id$
  */
-public interface CasAuthoritiesPopulator {
-    //~ Methods ========================================================================================================
+public interface CasAuthoritiesPopulator extends AuthoritiesPopulator {
 
-    /**
-     * Obtains the granted authorities for the specified user.<P>May throw any
-     * <code>AuthenticationException</code> or return <code>null</code> if the authorities are unavailable.</p>
-     *
-     * @param casUserId as obtained from the CAS validation service
-     *
-     * @return the details of the indicated user (at minimum the granted authorities and the username)
-     *
-     * @throws AuthenticationException DOCUMENT ME!
-     */
-    UserDetails getUserDetails(String casUserId)
-        throws AuthenticationException;
 }

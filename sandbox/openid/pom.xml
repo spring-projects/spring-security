@@ -11,6 +11,7 @@
     <description>Spring Security - Support for OpenID</description>
     <version>0.1-SNAPSHOT</version>
 
+<!--
     <repositories>
         <repository>
             <id>AcegiMaven</id>
@@ -21,6 +22,7 @@
             </releases>
         </repository>
     </repositories>
+-->
 
     <dependencies>
         <dependency>
@@ -41,18 +43,9 @@
         <dependency>
             <groupId>org.openid4java</groupId>
             <artifactId>openid4java</artifactId>
-            <version>0.9.2</version>
+            <version>0.9.3</version>
         </dependency>
-        <dependency>
-            <groupId>com.janrain</groupId>
-            <artifactId>Janrain-Openid</artifactId>
-            <version>20070226</version>
-        </dependency>
-        <dependency>
-            <groupId>gnu</groupId>
-            <artifactId>libidn</artifactId>
-            <version>0.6.3</version>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
@@ -60,122 +53,7 @@
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.4</version>
-            <scope>provided</scope>
-        </dependency>
--->
 
-        <!--openid4java dependencies-->
-        <!--
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.htmlparser</groupId>
-            <artifactId>htmlparser</artifactId>
-            <version>1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ibm.icu</groupId>
-            <artifactId>icu4j</artifactId>
-            <version>3.4.4</version>
-        </dependency>
-        <dependency>
-            <groupId>jug</groupId>
-            <artifactId>jug</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.14</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openxri</groupId>
-            <artifactId>openxri-client</artifactId>
-            <version>1.0.1</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/openxri-client.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>org.openxri</groupId>
-            <artifactId>openxri-syntax</artifactId>
-            <version>1.0.1</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/openxri-syntax.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
-            <version>2.0.3</version>
-        </dependency>
-        <dependency>
-            <groupId>xml-security</groupId>
-            <artifactId>xmlsec</artifactId>
-            <version>1.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>1.2.3</version>
-        </dependency>
-        <dependency>
-            <groupId>jdom</groupId>
-            <artifactId>jdom</artifactId>
-            <version>1.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>jetty</artifactId>
-            <version>6.0.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>jetty-util</artifactId>
-            <version>6.0.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>2.8.1</version>
-            <scope>test</scope>
-        </dependency>
--->
     </dependencies>
 
-    <!--This doesn't even exist...-->
-<!--
-    <build>
-        <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>jalopy-maven-plugin</artifactId>
-          <version>1.0-SNAPSHOT</version>
-            <configuration>
-                <convention>../../jalopy.xml</convention>
-                <failOnError>false</failOnError>
-            </configuration>
-        </plugin>
-        </plugins>
-    </build>
--->
 </project>

@@ -17,9 +17,7 @@ package org.springframework.security.providers.openid;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-
-import org.springframework.security.providers.cas.CasAuthoritiesPopulator;
-
+import org.springframework.security.providers.AuthoritiesPopulator;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 
@@ -29,7 +27,7 @@ import org.springframework.security.userdetails.UserDetails;
  *
  * @author Robin Bramley, Opsera Ltd
  */
-public class MockAuthoritiesPopulator implements CasAuthoritiesPopulator {
+public class MockAuthoritiesPopulator implements AuthoritiesPopulator {
     //~ Methods ========================================================================================================
 
     public UserDetails getUserDetails(String ssoUserId)

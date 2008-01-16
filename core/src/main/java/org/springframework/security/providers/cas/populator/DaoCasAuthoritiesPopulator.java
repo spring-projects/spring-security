@@ -15,47 +15,21 @@
 
 package org.springframework.security.providers.cas.populator;
 
-import org.springframework.security.AuthenticationException;
-
-import org.springframework.security.providers.cas.CasAuthoritiesPopulator;
-
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
-
 import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.util.Assert;
+import org.springframework.security.providers.DaoAuthoritiesPopulator;
 
 
 /**
- * Populates the CAS authorities via an {@link UserDetailsService}.<P>The additional information (username,
- * password, enabled status etc)  an <code>AuthenticationDao</code> implementation provides about  a <code>User</code>
- * is ignored. Only the <code>GrantedAuthority</code>s are relevant to this class.</p>
- *
+ * Backwards compatible placeholder.
+ * This class will be removed, use {@link DaoAuthoritiesPopulator} instead.
+ * 
+ * @deprecated Use {@link org.springframework.security.providers.DaoAuthoritiesPopulator}
  * @author Ben Alex
  * @version $Id$
  */
-public class DaoCasAuthoritiesPopulator implements CasAuthoritiesPopulator, InitializingBean {
-    //~ Instance fields ================================================================================================
-
-    private UserDetailsService userDetailsService;
-
-    //~ Methods ========================================================================================================
+public class DaoCasAuthoritiesPopulator extends DaoAuthoritiesPopulator implements InitializingBean {
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
-    }
-
-    public UserDetails getUserDetails(String casUserId)
-        throws AuthenticationException {
-        return this.userDetailsService.loadUserByUsername(casUserId);
-    }
-
-    public UserDetailsService getUserDetailsService() {
-        return userDetailsService;
-    }
-
-    public void setUserDetailsService(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+        super.afterPropertiesSet();
     }
 }

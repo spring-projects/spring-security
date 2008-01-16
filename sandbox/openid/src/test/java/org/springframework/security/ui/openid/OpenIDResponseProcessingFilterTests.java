@@ -15,20 +15,16 @@
 package org.springframework.security.ui.openid;
 
 import junit.framework.TestCase;
-
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.AbstractAuthenticationManager;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
-
-import org.springframework.security.providers.cas.CasAuthoritiesPopulator;
+import org.springframework.security.providers.AuthoritiesPopulator;
 import org.springframework.security.providers.openid.MockAuthoritiesPopulator;
 import org.springframework.security.providers.openid.OpenIDAuthenticationStatus;
 import org.springframework.security.providers.openid.OpenIDAuthenticationToken;
-
 import org.springframework.security.ui.openid.consumers.MockOpenIDConsumer;
-
-import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**
@@ -113,7 +109,7 @@ public class OpenIDResponseProcessingFilterTests extends TestCase {
 
     // private mock AuthenticationManager
     private class MockOpenIDAuthenticationManager extends AbstractAuthenticationManager {
-        private CasAuthoritiesPopulator ssoAuthoritiesPopulator;
+        private AuthoritiesPopulator ssoAuthoritiesPopulator;
         private boolean grantAccess = true;
 
         public MockOpenIDAuthenticationManager(boolean grantAccess) {
