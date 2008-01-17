@@ -215,7 +215,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             Iterator iter = this.obtainObjectDefinitionSource().getConfigAttributeDefinitions();
 
             if (iter == null) {
-                logger.warn("Could not validate configuration attributes as the MethodDefinitionSource did not return "
+                logger.warn("Could not validate configuration attributes as the ObjectDefinitionSource did not return "
                         + "a ConfigAttributeDefinition Iterator");
                 return;
             }
