@@ -60,7 +60,10 @@ class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDecorator {
             }
         }
 
-        filterChainProxy.getPropertyValues().addPropertyValue("filterChainMap", new ManagedMap(filterChainMap));
+        ManagedMap map = new ManagedMap(filterChainMap.size());
+        map.putAll(filterChainMap);
+
+        filterChainProxy.getPropertyValues().addPropertyValue("filterChainMap", map);
 
         return holder;
     }
