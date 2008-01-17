@@ -16,10 +16,12 @@
 package org.springframework.security.util;
 
 import org.springframework.core.io.AbstractResource;
+import org.springframework.util.Assert;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 
 /**
@@ -46,6 +48,7 @@ public class InMemoryResource extends AbstractResource {
     }
 
     public InMemoryResource(byte[] source, String description) {
+        Assert.notNull(source);
         this.source = source;
         this.description = description;
     }
@@ -58,5 +61,17 @@ public class InMemoryResource extends AbstractResource {
 
     public InputStream getInputStream() throws IOException {
         return new ByteArrayInputStream(source);
+    }
+
+    public int hashCode() {
+        return source.hashCode();
+    }
+
+    public boolean equals(Object res) {
+        if (res instanceof InMemoryResource) {
+            return false;
+        }
+
+        return Arrays.equals(source, ((InMemoryResource)res).source);
     }
 }
