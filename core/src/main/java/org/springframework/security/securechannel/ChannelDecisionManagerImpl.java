@@ -21,6 +21,7 @@ import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.intercept.web.FilterInvocation;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -31,16 +32,25 @@ import javax.servlet.ServletException;
 
 
 /**
- * Implementation of {@link ChannelDecisionManager}.<p>Iterates through each configured {@link ChannelProcessor}.
- * If a <code>ChannelProcessor</code> has any issue with the security of the request, it should cause a redirect,
- * exception or whatever other action is appropriate for the <code>ChannelProcessor</code> implementation.</p>
- *  <P>Once any response is committed (ie a redirect is written to the response object), the
- * <code>ChannelDecisionManagerImpl</code> will not iterate through any further <code>ChannelProcessor</code>s.</p>
+ * Implementation of {@link ChannelDecisionManager}.
+ * <p>
+ * Iterates through each configured {@link ChannelProcessor}. If a <code>ChannelProcessor</code> has any issue with the
+ * security of the request, it should cause a redirect, exception or whatever other action is appropriate for the
+ * <code>ChannelProcessor</code> implementation.
+ * <p>
+ * Once any response is committed (ie a redirect is written to the response object), the
+ * <code>ChannelDecisionManagerImpl</code> will not iterate through any further <code>ChannelProcessor</code>s.
+ * <p>
+ * The attribute "ANY_CHANNEL" if applied to a particular URL, the iteration through the channel processors will be
+ * skipped (see SEC-494, SEC-335).
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class ChannelDecisionManagerImpl implements ChannelDecisionManager, InitializingBean {
+
+    public static final String ANY_CHANNEL = "ANY_CHANNEL";
+
     //~ Instance fields ================================================================================================
 
     private List channelProcessors;
@@ -52,13 +62,21 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
     }
 
     private void checkIfValidList(List listToCheck) {
-        if ((listToCheck == null) || (listToCheck.size() == 0)) {
-            throw new IllegalArgumentException("A list of ChannelProcessors is required");
-        }
+        Assert.notEmpty(listToCheck, "A list of ChannelProcessors is required");
     }
 
     public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
-        throws IOException, ServletException {
+            throws IOException, ServletException {
+
+        Iterator attrs = config.getConfigAttributes();
+
+        while (attrs.hasNext()) {
+			ConfigAttribute attribute = (ConfigAttribute) attrs.next();
+			if (ANY_CHANNEL.equals(attribute.getAttribute())) {
+				return;
+            }
+        }
+
         Iterator iter = this.channelProcessors.iterator();
 
         while (iter.hasNext()) {
@@ -72,7 +90,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
         }
     }
 
-    public List getChannelProcessors() {
+    protected List getChannelProcessors() {
         return this.channelProcessors;
     }
 
@@ -82,22 +100,19 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
         Iterator iter = newList.iterator();
 
         while (iter.hasNext()) {
-            Object currentObject = null;
-
-            try {
-                currentObject = iter.next();
-
-                ChannelProcessor attemptToCast = (ChannelProcessor) currentObject;
-            } catch (ClassCastException cce) {
-                throw new IllegalArgumentException("ChannelProcessor " + currentObject.getClass().getName()
-                    + " must implement ChannelProcessor");
-            }
+            Object currentObject = iter.next();
+            Assert.isInstanceOf(ChannelProcessor.class, currentObject, "ChannelProcessor " +
+                    currentObject.getClass().getName() + " must implement ChannelProcessor");
         }
 
         this.channelProcessors = newList;
     }
 
     public boolean supports(ConfigAttribute attribute) {
+        if (ANY_CHANNEL.equals(attribute.getAttribute())) {
+            return true;
+        }
+
         Iterator iter = this.channelProcessors.iterator();
 
         while (iter.hasNext()) {

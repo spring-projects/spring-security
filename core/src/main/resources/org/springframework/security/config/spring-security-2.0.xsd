@@ -368,6 +368,7 @@
         <xs:restriction base="xs:token">
           <xs:enumeration value="http"/>
           <xs:enumeration value="https"/>
+          <xs:enumeration value="any"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>

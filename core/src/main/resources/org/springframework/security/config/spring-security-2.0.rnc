@@ -135,7 +135,7 @@ intercept-url.attlist &=
     attribute filters {"none"}?
 intercept-url.attlist &=
     ## Used to specify that a URL must be accessed over http or https
-    attribute requires-channel {"http" | "https"}?
+    attribute requires-channel {"http" | "https" | "any"}?
 
 logout =
 	## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.

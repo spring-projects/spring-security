@@ -45,16 +45,7 @@ import javax.servlet.ServletException;
 public class ChannelDecisionManagerImplTests extends TestCase {
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ChannelDecisionManagerImplTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void testCannotSetEmptyChannelProcessorsList()
-        throws Exception {
+    public void testCannotSetEmptyChannelProcessorsList() throws Exception {
         ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 
         try {
@@ -65,8 +56,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         }
     }
 
-    public void testCannotSetIncorrectObjectTypesIntoChannelProcessorsList()
-        throws Exception {
+    public void testCannotSetIncorrectObjectTypesIntoChannelProcessorsList() throws Exception {
         ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
         List list = new Vector();
         list.add("THIS IS NOT A CHANNELPROCESSOR");
@@ -79,8 +69,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         }
     }
 
-    public void testCannotSetNullChannelProcessorsList()
-        throws Exception {
+    public void testCannotSetNullChannelProcessorsList() throws Exception {
         ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 
         try {
@@ -113,8 +102,28 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         assertTrue(fi.getResponse().isCommitted());
     }
 
-    public void testDecideIteratesAllProcessorsIfNoneCommitAResponse()
-        throws Exception {
+    public void testAnyChannelAttributeCausesProcessorsToBeSkipped() throws Exception {
+        ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
+        MockChannelProcessor cpAbc = new MockChannelProcessor("abc", true);
+        List list = new Vector();
+        list.add(cpAbc);
+        cdm.setChannelProcessors(list);
+        cdm.afterPropertiesSet();
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        FilterInvocation fi = new FilterInvocation(request, response, chain);
+
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
+        cad.addConfigAttribute(new SecurityConfig("abc"));
+        cad.addConfigAttribute(new SecurityConfig("ANY_CHANNEL"));
+
+        cdm.decide(fi, cad);
+        assertFalse(fi.getResponse().isCommitted());
+    }
+
+    public void testDecideIteratesAllProcessorsIfNoneCommitAResponse() throws Exception {
         ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
         MockChannelProcessor cpXyz = new MockChannelProcessor("xyz", false);
         MockChannelProcessor cpAbc = new MockChannelProcessor("abc", false);
@@ -165,8 +174,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         assertEquals(list, cdm.getChannelProcessors());
     }
 
-    public void testStartupFailsWithEmptyChannelProcessorsList()
-        throws Exception {
+    public void testStartupFailsWithEmptyChannelProcessorsList() throws Exception {
         ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 
         try {
@@ -188,12 +196,8 @@ public class ChannelDecisionManagerImplTests extends TestCase {
             this.failIfCalled = failIfCalled;
         }
 
-        private MockChannelProcessor() {
-            super();
-        }
-
         public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
-            throws IOException, ServletException {
+                throws IOException, ServletException {
             Iterator iter = config.getConfigAttributes();
 
             if (failIfCalled) {

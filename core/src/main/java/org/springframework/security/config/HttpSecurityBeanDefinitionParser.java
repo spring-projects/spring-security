@@ -60,6 +60,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     static final String ATT_ACCESS_CONFIG = "access";
     static final String ATT_REQUIRES_CHANNEL = "requires-channel";
+    static final String OPT_REQUIRES_HTTP = "http";
+    static final String OPT_REQUIRES_HTTPS = "https";
+    static final String OPT_ANY_CHANNEL = "any";
 
     static final String ATT_CREATE_SESSION = "create-session";
     static final String DEF_CREATE_SESSION_IF_REQUIRED = "ifRequired";
@@ -176,12 +179,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             channelFilter.getPropertyValues().addPropertyValue("filterInvocationDefinitionSource",
                     channelFilterInvDefSource);
             RootBeanDefinition channelDecisionManager = new RootBeanDefinition(ChannelDecisionManagerImpl.class);
-            ManagedList channelProcessors = new ManagedList(2);
+            ManagedList channelProcessors = new ManagedList(3);
             RootBeanDefinition secureChannelProcessor = new RootBeanDefinition(SecureChannelProcessor.class);
             RootBeanDefinition retryWithHttp = new RootBeanDefinition(RetryWithHttpEntryPoint.class);
             RootBeanDefinition retryWithHttps = new RootBeanDefinition(RetryWithHttpsEntryPoint.class);
             retryWithHttp.getPropertyValues().addPropertyValue("portMapper", portMapperRef);
-            retryWithHttps.getPropertyValues().addPropertyValue("portMapper", portMapperRef);            
+            retryWithHttps.getPropertyValues().addPropertyValue("portMapper", portMapperRef);
             secureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttps);
             RootBeanDefinition inSecureChannelProcessor = new RootBeanDefinition(InsecureChannelProcessor.class);
             inSecureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttp);
@@ -277,10 +280,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             if (StringUtils.hasText(requiredChannel)) {
                 String channelConfigAttribute = null;
 
-                if (requiredChannel.equals("https")) {
+                if (requiredChannel.equals(OPT_REQUIRES_HTTPS)) {
                     channelConfigAttribute = "REQUIRES_SECURE_CHANNEL";
-                } else if (requiredChannel.equals("http")) {
+                } else if (requiredChannel.equals(OPT_REQUIRES_HTTP)) {
                     channelConfigAttribute = "REQUIRES_INSECURE_CHANNEL";
+                } else if (requiredChannel.equals(OPT_ANY_CHANNEL)) {
+                    channelConfigAttribute = ChannelDecisionManagerImpl.ANY_CHANNEL;
                 } else {
                     parserContext.getReaderContext().error("Unsupported channel " + requiredChannel, urlElt);
                 }
