@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.intercept.web.*;
 import org.springframework.util.Assert;
+import org.springframework.web.filter.DelegatingFilterProxy;
 
 import javax.servlet.*;
 import java.io.IOException;
@@ -35,11 +36,10 @@ import java.util.*;
  * context unless you need very fine control over the filter chain contents. Most cases should be adequately covered
  * by the default <tt>&lt;security:http /&gt</tt> namespace configuration options.
  *
- * <p>The <code>FilterChainProxy</code> is loaded via a standard
- * {@link org.springframework.security.util.FilterToBeanProxy} declaration in <code>web.xml</code>.
- * <code>FilterChainProxy</code> will then pass {@link #init(FilterConfig)}, {@link #destroy()} and {@link
- * #doFilter(ServletRequest, ServletResponse, FilterChain)} invocations through to each <code>Filter</code> defined
- * against <code>FilterChainProxy</code>.</p>
+ * <p>The <code>FilterChainProxy</code> is loaded via a standard Spring {@link DelegatingFilterProxy} declaration in
+ * <code>web.xml</code>. <code>FilterChainProxy</code> will then pass {@link #init(FilterConfig)}, {@link #destroy()}
+ * and {@link #doFilter(ServletRequest, ServletResponse, FilterChain)} invocations through to each <code>Filter</code>
+ * defined against <code>FilterChainProxy</code>.
  *
  * <p>As of version 2.0, <tt>FilterChainProxy</tt> is configured using an ordered Map of path patterns to <tt>List</tt>s
  * of <tt>Filter</tt> objects. In previous
@@ -64,26 +64,27 @@ import java.util.*;
  * application context. The order of the names defines the order in which the filters will be applied. As shown above,
  * use of the value "none" for the "filters" can be used to exclude
  * Please consult the security namespace schema file for a full list of available configuration options.
- * </p>
  *
- *<p>
+ * <p>
  * Each possible URI pattern that <code>FilterChainProxy</code> should service must be entered.
  * The first matching URI pattern for a given request will be used to define all of the
  * <code>Filter</code>s that apply to that request. NB: This means you must put most specific URI patterns at the top
  * of the list, and ensure all <code>Filter</code>s that should apply for a given URI pattern are entered against the
  * respective entry. The <code>FilterChainProxy</code> will not iterate the remainder of the URI patterns to locate
- * additional <code>Filter</code>s.</p>
- *  <p><code>FilterChainProxy</code> respects normal handling of <code>Filter</code>s that elect not to call {@link
+ * additional <code>Filter</code>s.
+ *
+ * <p><code>FilterChainProxy</code> respects normal handling of <code>Filter</code>s that elect not to call {@link
  * javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse,
  * javax.servlet.FilterChain)}, in that the remainder of the original or <code>FilterChainProxy</code>-declared filter
- * chain will not be called.</p>
- *  <p>It is particularly noted the <code>Filter</code> lifecycle mismatch between the servlet container and IoC
- * container. As per {@link org.springframework.security.util.FilterToBeanProxy} JavaDocs, we recommend you allow the IoC
- * container to manage lifecycle instead of the servlet container. By default the <code>FilterToBeanProxy</code> will
- * never call this class' {@link #init(FilterConfig)} and {@link #destroy()} methods, meaning each of the filters
+ * chain will not be called.
+ *
+ * <p>It is particularly noted the <code>Filter</code> lifecycle mismatch between the servlet container and IoC
+ * container. As per {@link DelegatingFilterProxy} JavaDocs, we recommend you allow the IoC
+ * container to manage lifecycle instead of the servlet container. By default the <code>DelegatingFilterProxy</code>
+ * will never call this class' {@link #init(FilterConfig)} and {@link #destroy()} methods, meaning each of the filters
  * defined in the filter chain map will not be called. If you do need your filters to be
  * initialized and destroyed, please set the <code>lifecycle</code> initialization parameter against the
- * <code>FilterToBeanProxy</code> to specify servlet container lifecycle management.</p>
+ * <code>DelegatingFilterProxy</code> to specify servlet container lifecycle management.
  *
  * @author Carlos Sanchez
  * @author Ben Alex
@@ -191,7 +192,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
                     logger.debug("Converted URL to lowercase, from: '" + url + "'; to: '" + url + "'");
                 }
             }
-            
+
             boolean matched = matcher.pathMatchesUrl(path, url);
 
             if (logger.isDebugEnabled()) {
@@ -315,6 +316,17 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
 
     public UrlMatcher getMatcher() {
         return matcher;
+    }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("FilterChainProxy[");
+        sb.append(" UrlMatcher = ").append(matcher);
+        sb.append("; Filter Chains: ");
+        sb.append(uncompiledFilterChainMap);
+        sb.append("]");
+
+        return sb.toString();
     }
 
     //~ Inner Classes ==================================================================================================
