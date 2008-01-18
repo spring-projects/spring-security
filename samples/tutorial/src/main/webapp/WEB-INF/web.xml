@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE web-app PUBLIC '-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN' 'http://java.sun.com/dtd/web-app_2_3.dtd'>
-
 <!--
-  - Contacts web application
-  -
-  - web.xml for "filter" artifact only.
+  - Tutorial web application
   -
   - $Id$
   -->
 
-<web-app>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
 
     <display-name>Spring Security Tutorial Application</display-name>
-
-	<!--
+    
+    <!--
 	  - Location of the XML file that defines the root application context
 	  - Applied by ContextLoaderListener.
 	  -->
