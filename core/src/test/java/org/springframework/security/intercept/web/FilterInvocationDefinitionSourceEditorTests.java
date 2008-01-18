@@ -177,17 +177,6 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         assertEquals(2, map.getMapSize());
     }
 
-    public void testNoArgConstructorDoesntExist() {
-        Class clazz = RegExpBasedFilterInvocationDefinitionMap.EntryHolder.class;
-
-        try {
-            clazz.getDeclaredConstructor((Class[]) null);
-            fail("Should have thrown NoSuchMethodException");
-        } catch (NoSuchMethodException expected) {
-            assertTrue(true);
-        }
-    }
-
     public void testNullReturnsEmptyMap() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText(null);

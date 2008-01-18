@@ -17,8 +17,8 @@ package org.springframework.security.intercept.web;
 
 import org.springframework.security.ConfigAttributeDefinition;
 
-import java.util.List;
-import java.util.Vector;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 
 /**
@@ -29,14 +29,13 @@ import java.util.Vector;
  */
 public abstract class AbstractFilterInvocationDefinitionSource implements FilterInvocationDefinitionSource {
 
-    protected List requestMap = new Vector();
+    private Map requestMap = new LinkedHashMap();
 
     private boolean convertUrlToLowercaseBeforeComparison = false;
 
     //~ Methods ========================================================================================================
 
-    public ConfigAttributeDefinition getAttributes(Object object)
-        throws IllegalArgumentException {
+    public ConfigAttributeDefinition getAttributes(Object object) throws IllegalArgumentException {
         if ((object == null) || !this.supports(object.getClass())) {
             throw new IllegalArgumentException("Object must be a FilterInvocation");
         }
@@ -78,7 +77,7 @@ public abstract class AbstractFilterInvocationDefinitionSource implements Filter
         this.convertUrlToLowercaseBeforeComparison = convertUrlToLowercaseBeforeComparison;
     }
 
-    List getRequestMap() {
+    Map getRequestMap() {
         return requestMap;
     }
 }

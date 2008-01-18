@@ -20,25 +20,22 @@ import org.springframework.security.ConfigAttributeDefinition;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-
 
 /**
  * Maintains a <code>List</code> of <code>ConfigAttributeDefinition</code>s associated with different HTTP request
- * URL regular expression patterns.<p>Regular expressions are used to match a HTTP request URL against a
- * <code>ConfigAttributeDefinition</code>.</p>
- *  <p>The order of registering the regular expressions using the {@link #addSecureUrl(String,
+ * URL regular expression patterns.
+ * <p>
+ * Regular expressions are used to match a HTTP request URL against a <code>ConfigAttributeDefinition</code>.
+ * <p>
+ * The order of registering the regular expressions using the {@link #addSecureUrl(String,
  * ConfigAttributeDefinition)} is very important. The system will identify the <b>first</b>  matching regular
  * expression for a given HTTP URL. It will not proceed to evaluate later regular expressions if a match has already
  * been found. Accordingly, the most specific regular expressions should be registered first, with the most general
- * regular expressions registered last.</p>
- *  <p>If no registered regular expressions match the HTTP URL, <code>null</code> is returned.</p>
+ * regular expressions registered last.
+ * <p>
+ * If no registered regular expressions match the HTTP URL, <code>null</code> is returned.
  */
 public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvocationDefinitionSource
     implements FilterInvocationDefinition {
@@ -51,7 +48,7 @@ public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvo
     public void addSecureUrl(String regExp, ConfigAttributeDefinition attr) {
         Pattern pattern = Pattern.compile(regExp);
 
-        getRequestMap().add(new EntryHolder(pattern, attr));
+        getRequestMap().put(pattern, attr);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Added regular expression: " + regExp + "; attributes: " + attr);
@@ -59,20 +56,10 @@ public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvo
     }
 
     public Iterator getConfigAttributeDefinitions() {
-        Set set = new HashSet();
-        Iterator iter = getRequestMap().iterator();
-
-        while (iter.hasNext()) {
-            EntryHolder entryHolder = (EntryHolder) iter.next();
-            set.add(entryHolder.getConfigAttributeDefinition());
-        }
-
-        return set.iterator();
+        return getRequestMap().values().iterator();
     }
 
     public ConfigAttributeDefinition lookupAttributes(String url) {
-        Iterator iter = getRequestMap().iterator();
-
         if (isConvertUrlToLowercaseBeforeComparison()) {
             url = url.toLowerCase();
 
@@ -81,47 +68,21 @@ public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvo
             }
         }
 
-        while (iter.hasNext()) {
-            EntryHolder entryHolder = (EntryHolder) iter.next();
+        Iterator patterns = getRequestMap().keySet().iterator();
 
-            Matcher matcher = entryHolder.getCompiledPattern().matcher(url);
-
-            boolean matched = matcher.matches();
+        while (patterns.hasNext()) {
+            Pattern p = (Pattern) patterns.next();
+            boolean matched = p.matcher(url).matches();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Candidate is: '" + url + "'; pattern is " + entryHolder.getCompiledPattern()
-                    + "; matched=" + matched);
+                logger.debug("Candidate is: '" + url + "'; pattern is " + p.pattern() + "; matched=" + matched);
             }
 
             if (matched) {
-                return entryHolder.getConfigAttributeDefinition();
+                return (ConfigAttributeDefinition) getRequestMap().get(p);
             }
         }
 
         return null;
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    protected class EntryHolder {
-        private ConfigAttributeDefinition configAttributeDefinition;
-        private Pattern compiledPattern;
-
-        public EntryHolder(Pattern compiledPattern, ConfigAttributeDefinition attr) {
-            this.compiledPattern = compiledPattern;
-            this.configAttributeDefinition = attr;
-        }
-
-        protected EntryHolder() {
-            throw new IllegalArgumentException("Cannot use default constructor");
-        }
-
-        public Pattern getCompiledPattern() {
-            return compiledPattern;
-        }
-
-        public ConfigAttributeDefinition getConfigAttributeDefinition() {
-            return configAttributeDefinition;
-        }
     }
 }

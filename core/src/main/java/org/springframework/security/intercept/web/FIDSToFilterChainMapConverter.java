@@ -1,12 +1,14 @@
 package org.springframework.security.intercept.web;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.util.Assert;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.util.FilterChainProxy;
 
 import javax.servlet.Filter;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Used internally to provide backward compatibility for configuration of FilterChainProxy using a
@@ -23,51 +25,34 @@ public class FIDSToFilterChainMapConverter {
 
     private LinkedHashMap filterChainMap = new LinkedHashMap();
 
-    public FIDSToFilterChainMapConverter(FilterInvocationDefinitionSource fids, ApplicationContext appContext) {
+    public FIDSToFilterChainMapConverter(FilterInvocationDefinitionSource source, ApplicationContext appContext) {
+        // TODO: Check if this is necessary. Retained from refactoring of FilterChainProxy
+        Assert.notNull(source.getConfigAttributeDefinitions(), "FilterChainProxy requires the " +
+                "FilterInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()");
+        Assert.isTrue(
+            source instanceof PathBasedFilterInvocationDefinitionMap ||
+            source instanceof RegExpBasedFilterInvocationDefinitionMap,
+                "Can't handle FilterInvocationDefinitionSource type " + source.getClass());
+        
 
-        List requestMap;
+        AbstractFilterInvocationDefinitionSource fids = (AbstractFilterInvocationDefinitionSource)source;
+        Map requestMap = fids.getRequestMap();
+        Iterator paths = requestMap.keySet().iterator();
 
-        // TODO: Check if this is necessary. Retained from refactoring of FilterChainProxy 
-        if (fids.getConfigAttributeDefinitions() == null) {
-            throw new IllegalArgumentException("FilterChainProxy requires the FilterInvocationDefinitionSource to " +
-                    "return a non-null response to getConfigAttributeDefinitions()");
-        }
-
-        if (fids instanceof PathBasedFilterInvocationDefinitionMap) {
-            requestMap = ((PathBasedFilterInvocationDefinitionMap)fids).getRequestMap();
-        } else if (fids instanceof RegExpBasedFilterInvocationDefinitionMap) {
-            requestMap = ((RegExpBasedFilterInvocationDefinitionMap)fids).getRequestMap();
-        } else {
-            throw new IllegalArgumentException("Can't handle FilterInvocationDefinitionSource type " + fids.getClass());
-        }
-
-        Iterator entries = requestMap.iterator();
-
-        while (entries.hasNext()) {
-            Object entry = entries.next();
-            String path;
-            ConfigAttributeDefinition configAttributeDefinition;
-
-            if (entry instanceof PathBasedFilterInvocationDefinitionMap.EntryHolder) {
-                path = ((PathBasedFilterInvocationDefinitionMap.EntryHolder)entry).getAntPath();
-                configAttributeDefinition = ((PathBasedFilterInvocationDefinitionMap.EntryHolder)entry).getConfigAttributeDefinition();
-            } else {
-                path = ((RegExpBasedFilterInvocationDefinitionMap.EntryHolder)entry).getCompiledPattern().pattern();
-                configAttributeDefinition = ((RegExpBasedFilterInvocationDefinitionMap.EntryHolder)entry).getConfigAttributeDefinition();
-            }
+        while (paths.hasNext()) {
+            Object entry = paths.next();
+            String path = entry instanceof Pattern ? ((Pattern)entry).pattern() : (String)entry;
+            ConfigAttributeDefinition configAttributeDefinition = (ConfigAttributeDefinition) requestMap.get(entry);
 
             List filters = new ArrayList();
-
             Iterator attributes = configAttributeDefinition.getConfigAttributes();
 
             while (attributes.hasNext()) {
                 ConfigAttribute attr = (ConfigAttribute) attributes.next();
                 String filterName = attr.getAttribute();
 
-                if (filterName == null) {
-                    throw new IllegalArgumentException("Configuration attribute: '" + attr
-                        + "' returned null to the getAttribute() method, which is invalid when used with FilterChainProxy");
-                }
+                Assert.notNull(filterName, "Configuration attribute: '" + attr + "' returned null to the getAttribute() " +
+                        "method, which is invalid when used with FilterChainProxy");
 
                 if (!filterName.equals(FilterChainProxy.TOKEN_NONE)) {
                     filters.add(appContext.getBean(filterName, Filter.class));

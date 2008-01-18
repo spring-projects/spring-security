@@ -47,14 +47,6 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCa
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(FilterInvocationDefinitionSourceEditorWithPathsTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testAntPathDirectiveIsDetected() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText(
@@ -131,17 +123,6 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCa
 
         PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
         assertEquals(2, map.getMapSize());
-    }
-
-    public void testNoArgConstructorDoesntExist() {
-        Class clazz = PathBasedFilterInvocationDefinitionMap.EntryHolder.class;
-
-        try {
-            clazz.getDeclaredConstructor((Class[]) null);
-            fail("Should have thrown NoSuchMethodException");
-        } catch (NoSuchMethodException expected) {
-            assertTrue(true);
-        }
     }
 
     public void testOrderOfEntriesIsPreservedOrderA() {
