@@ -162,6 +162,8 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
                     beanFactory.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER);
             scif.setForceEagerSessionCreation(true);
         }
+
+        logger.info("Configured filter chain(s): " + filterChainProxy);
     }
 
     private List orderFilters(ConfigurableListableBeanFactory beanFactory) {
@@ -183,7 +185,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
 
             if (!(filter instanceof Ordered)) {
                 // TODO: Possibly log this as a warning and skip this filter.
-                throw new SecurityConfigurationException("Filter " + id + " must implement the Ordered interface");
+                logger.info("Filter " + id + " doesn't implement the Ordered interface, skipping it.");
             }
 
             orderedFilters.add(filter);
