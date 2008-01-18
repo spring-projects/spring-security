@@ -17,9 +17,7 @@ package org.springframework.security.providers;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
-
 import org.springframework.security.userdetails.UserDetails;
-
 import org.springframework.util.Assert;
 
 
@@ -47,23 +45,24 @@ public abstract class AbstractAuthenticationToken implements Authentication {
      * @deprecated in favour of the constructor which takes a
      *             <code>GrantedAuthority[]</code> argument.
      */
-    public AbstractAuthenticationToken() {}
+    public AbstractAuthenticationToken() {
+    }
 
     /**
      * Creates a token with the supplied array of authorities.
      *
      * @param authorities the list of <tt>GrantedAuthority</tt>s for the
-     *        principal represented by this authentication object. A
-     *        <code>null</code> value indicates that no authorities have been
-     *        granted (pursuant to the interface contract specified by {@link
-     *        Authentication#getAuthorities()}<code>null</code> should only be
-     *        presented if the principal has not been authenticated).
+     *                    principal represented by this authentication object. A
+     *                    <code>null</code> value indicates that no authorities have been
+     *                    granted (pursuant to the interface contract specified by {@link
+     *                    Authentication#getAuthorities()}<code>null</code> should only be
+     *                    presented if the principal has not been authenticated).
      */
     public AbstractAuthenticationToken(GrantedAuthority[] authorities) {
         if (authorities != null) {
             for (int i = 0; i < authorities.length; i++) {
                 Assert.notNull(authorities[i],
-                    "Granted authority element " + i + " is null - GrantedAuthority[] cannot contain any null elements");
+                        "Granted authority element " + i + " is null - GrantedAuthority[] cannot contain any null elements");
             }
         }
 
@@ -104,9 +103,16 @@ public abstract class AbstractAuthenticationToken implements Authentication {
                 return false;
             }
 
+            if ((this.getCredentials() == null) && (test.getCredentials() != null)) {
+                return false;
+            }
+
+            if ((this.getCredentials() != null) && !this.getCredentials().equals(test.getCredentials())) {
+                return false;
+            }
+
             return (this.getPrincipal().equals(test.getPrincipal())
-            && this.getCredentials().equals(test.getCredentials())
-            && (this.isAuthenticated() == test.isAuthenticated()));
+                    && (this.isAuthenticated() == test.isAuthenticated()));
         }
 
         return false;
