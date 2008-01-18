@@ -78,6 +78,8 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
             }
 
             source.setConvertUrlToLowercaseBeforeComparison(true);
+        } else {
+            source.setConvertUrlToLowercaseBeforeComparison(false);
         }
 
         BufferedReader br = new BufferedReader(new StringReader(s));

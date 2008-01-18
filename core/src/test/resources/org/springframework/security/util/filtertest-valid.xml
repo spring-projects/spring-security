@@ -73,7 +73,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     <bean id="newFilterChainProxyRegex" class="org.springframework.security.util.FilterChainProxy">
         <sec:filter-chain-map path-type="regex">
             <sec:filter-chain pattern="\A/foo/.*\Z" filters="mockFilter"/>
-            <sec:filter-chain pattern="\A/some/other/path/.*\Z" filters="sif,mockFilter,mockFilter2"/>
+            <sec:filter-chain pattern="\A/s[oO]me/other/path/.*\Z" filters="sif,mockFilter,mockFilter2"/>
             <sec:filter-chain pattern="\A/do/not/filter\Z" filters="none"/>
             <sec:filter-chain pattern="\A/.*\Z" filters="sif,apf,mockFilter"/>
         </sec:filter-chain-map>

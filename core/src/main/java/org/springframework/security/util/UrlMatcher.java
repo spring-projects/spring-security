@@ -15,4 +15,10 @@ public interface UrlMatcher {
 
     /** Returns the path which matches every URL */
     String getUniversalMatchPattern();
+
+    /**
+     * Returns true if the matcher expects the URL to be converted to lower case before
+     * calling {@link #pathMatchesUrl(Object, String)}.
+     */
+    boolean requiresLowerCaseUrl();
 }

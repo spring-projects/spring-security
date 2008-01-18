@@ -44,15 +44,15 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public void testConvertUrlToLowercaseIsFalseByDefault() {
+    public void testConvertUrlToLowercaseIsTrueByDefault() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
-        assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
+        assertTrue(map.isConvertUrlToLowercaseBeforeComparison());
     }
 
     public void testConvertUrlToLowercaseSetterRespected() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
-        map.setConvertUrlToLowercaseBeforeComparison(true);
-        assertTrue(map.isConvertUrlToLowercaseBeforeComparison());
+        map.setConvertUrlToLowercaseBeforeComparison(false);
+        assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
     }
 
     public void testLookupNotRequiringExactMatchSuccessIfNotMatching() {
@@ -70,11 +70,10 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
     }
 
     /**
-     * SEC-501
+     * SEC-501. Not that as of 2.0, lower case comparisons are the default for this class.
      */
     public void testLookupNotRequiringExactMatchSucceedsIfSecureUrlPathContainsUpperCase() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
-        map.setConvertUrlToLowercaseBeforeComparison(true);
 
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
@@ -89,6 +88,7 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
 
     public void testLookupRequiringExactMatchFailsIfNotMatching() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
+        map.setConvertUrlToLowercaseBeforeComparison(false);
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/secure/super/**", def);
@@ -101,6 +101,7 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
 
     public void testLookupRequiringExactMatchIsSuccessful() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
+        map.setConvertUrlToLowercaseBeforeComparison(false);
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/SeCurE/super/**", def);

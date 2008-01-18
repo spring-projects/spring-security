@@ -17,6 +17,7 @@ package org.springframework.security.intercept.web;
 
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.SecurityConfig;
+import org.springframework.security.util.AntUrlPathMatcher;
 
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +39,7 @@ public class MockFilterInvocationDefinitionSource extends AbstractFilterInvocati
     //~ Constructors ===================================================================================================
 
     public MockFilterInvocationDefinitionSource(boolean includeInvalidAttributes, boolean returnAnIteratorWhenRequested) {
+        super(new AntUrlPathMatcher()); // doesn't matter
         returnAnIterator = returnAnIteratorWhenRequested;
         list = new Vector();
 

@@ -184,6 +184,14 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
             Map.Entry entry = (Map.Entry) filterChains.next();
             Object path = entry.getKey();
 
+            if (matcher.requiresLowerCaseUrl()) {
+                url = url.toLowerCase();
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Converted URL to lowercase, from: '" + url + "'; to: '" + url + "'");
+                }
+            }
+            
             boolean matched = matcher.pathMatchesUrl(path, url);
 
             if (logger.isDebugEnabled()) {
