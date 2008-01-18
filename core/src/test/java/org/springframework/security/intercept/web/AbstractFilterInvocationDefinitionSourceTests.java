@@ -47,14 +47,6 @@ public class AbstractFilterInvocationDefinitionSourceTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AbstractFilterInvocationDefinitionSourceTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testDoesNotSupportAnotherObject() {
         MockFilterInvocationDefinitionSource mfis = new MockFilterInvocationDefinitionSource(false, true);
         assertFalse(mfis.supports(String.class));

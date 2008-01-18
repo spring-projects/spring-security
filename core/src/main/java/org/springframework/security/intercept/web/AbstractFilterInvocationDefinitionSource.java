@@ -111,10 +111,11 @@ public abstract class AbstractFilterInvocationDefinitionSource implements Filter
             }
         }
 
-        Iterator patterns = requestMap.keySet().iterator();
+        Iterator entries = requestMap.entrySet().iterator();
 
-        while (patterns.hasNext()) {
-            Object p = patterns.next();            
+        while (entries.hasNext()) {
+            Map.Entry entry = (Map.Entry) entries.next();
+            Object p = entry.getKey();
             boolean matched = urlMatcher.pathMatchesUrl(p, url);
 
             if (logger.isDebugEnabled()) {
@@ -122,7 +123,7 @@ public abstract class AbstractFilterInvocationDefinitionSource implements Filter
             }
 
             if (matched) {
-                return (ConfigAttributeDefinition) getRequestMap().get(p);
+                return (ConfigAttributeDefinition) entry.getValue();
             }
         }
 
