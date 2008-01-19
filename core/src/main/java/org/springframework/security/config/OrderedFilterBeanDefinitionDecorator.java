@@ -23,7 +23,7 @@ import java.io.IOException;
 /**
  * Replaces a Spring bean of type "Filter" with a wrapper class which implements the <tt>Ordered</tt>
  * interface. This allows user to add their own filter to the security chain. If the user's filter
- * already implements Ordered
+ * already implements Ordered, and no "order" attribute is specified, the filter's default order will be used.
  *
  * @author Luke Taylor
  * @version $Id$
