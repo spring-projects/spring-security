@@ -21,7 +21,7 @@ import org.springframework.security.context.SecurityContextHolder;
 
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
 
 import org.springframework.security.userdetails.memory.UserAttribute;
@@ -36,7 +36,6 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -123,7 +122,7 @@ public class AnonymousProcessingFilter  extends SpringSecurityFilter  implements
 	}
 
 	public int getOrder() {
-        return FilterChainOrderUtils.ANON_PROCESSING_FILTER_ORDER;
+        return FilterChainOrder.ANON_PROCESSING_FILTER;
 	}
 
     public String getKey() {

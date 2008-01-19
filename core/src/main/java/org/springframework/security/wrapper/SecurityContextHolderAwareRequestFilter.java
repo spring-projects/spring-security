@@ -23,7 +23,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.util.PortResolver;
 import org.springframework.security.util.PortResolverImpl;
@@ -92,6 +92,6 @@ public class SecurityContextHolderAwareRequestFilter extends SpringSecurityFilte
 	}
 
 	public int getOrder() {
-		return FilterChainOrderUtils.SECURITY_CONTEXT_HOLDER_AWARE_FILTER_ORDER;
+		return FilterChainOrder.SECURITY_CONTEXT_HOLDER_AWARE_FILTER;
 	}
 }

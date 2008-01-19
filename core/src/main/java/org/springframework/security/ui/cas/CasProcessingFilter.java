@@ -21,10 +21,8 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.security.ui.AbstractProcessingFilter;
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -87,6 +85,6 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
     }
 
     public int getOrder() {
-        return FilterChainOrderUtils.CAS_PROCESSING_FILTER_ORDER;
+        return FilterChainOrder.CAS_PROCESSING_FILTER;
     }
 }

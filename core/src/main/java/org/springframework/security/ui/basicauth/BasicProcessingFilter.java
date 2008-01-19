@@ -35,7 +35,7 @@ import org.springframework.security.providers.anonymous.AnonymousAuthenticationT
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
 import org.springframework.security.ui.AuthenticationEntryPoint;
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.rememberme.RememberMeServices;
 import org.springframework.util.Assert;
@@ -223,6 +223,6 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
     }
 
     public int getOrder() {
-        return FilterChainOrderUtils.BASIC_PROCESSING_FILTER_ORDER;
+        return FilterChainOrder.BASIC_PROCESSING_FILTER;
     }
 }

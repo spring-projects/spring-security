@@ -18,7 +18,7 @@ package org.springframework.security.intercept.web;
 import org.springframework.security.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.intercept.InterceptorStatusToken;
 import org.springframework.security.intercept.ObjectDefinitionSource;
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.core.Ordered;
 
 import java.io.IOException;
@@ -140,6 +140,6 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
     }
 
     public int getOrder() {
-        return FilterChainOrderUtils.FILTER_SECURITY_INTERCEPTOR_ORDER;
+        return FilterChainOrder.FILTER_SECURITY_INTERCEPTOR;
     }
 }

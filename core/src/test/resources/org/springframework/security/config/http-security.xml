@@ -40,4 +40,13 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <!-- bean name="rememberMeServices" class="org.springframework.security.ui.rememberme.NullRememberMeServices"/ -->
 
+
+    <beans:bean id="userFilter" class="org.springframework.security.util.MockFilter">
+        <user-filter order="0"/>
+    </beans:bean>
+
+    <!-- Shouldn't be added to filter chain -->
+    <beans:bean id="userFilter2" class="org.springframework.security.util.MockFilter"/>
+
+
 </beans:beans>

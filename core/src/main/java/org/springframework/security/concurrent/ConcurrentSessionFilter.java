@@ -17,7 +17,7 @@ package org.springframework.security.concurrent;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.logout.LogoutHandler;
 import org.springframework.security.ui.logout.SecurityContextLogoutHandler;
@@ -117,6 +117,6 @@ public class ConcurrentSessionFilter extends SpringSecurityFilter implements Ini
     }
 
     public int getOrder() {
-        return FilterChainOrderUtils.CONCURRENT_SESSION_FILTER_ORDER;
+        return FilterChainOrder.CONCURRENT_SESSION_FILTER;
     }
 }

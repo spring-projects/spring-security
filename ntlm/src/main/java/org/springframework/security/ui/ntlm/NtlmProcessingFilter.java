@@ -26,7 +26,7 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.WebAuthenticationDetails;
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -497,6 +497,6 @@ public class NtlmProcessingFilter extends SpringSecurityFilter implements Initia
 	}
 
     public int getOrder() {
-        return FilterChainOrderUtils.NTLM_FILTER_ORDER;
+        return FilterChainOrder.NTLM_FILTER;
     }
 }

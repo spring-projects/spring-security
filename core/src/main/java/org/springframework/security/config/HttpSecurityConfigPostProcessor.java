@@ -183,9 +183,14 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
                 continue;
             }
 
+            // Filters must be Spring security filters or wrapped using <user-filter>
+            if (!filter.getClass().getName().startsWith("org.springframework.security")) {
+                continue;
+            }
+
             if (!(filter instanceof Ordered)) {
-                // TODO: Possibly log this as a warning and skip this filter.
                 logger.info("Filter " + id + " doesn't implement the Ordered interface, skipping it.");
+                continue;
             }
 
             orderedFilters.add(filter);

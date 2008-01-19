@@ -17,18 +17,14 @@ package org.springframework.security.ui.logout;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.ui.SpringSecurityFilter;
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.util.RedirectUtils;
 import org.springframework.security.context.SecurityContextHolder;
 import org.apache.commons.logging.Log;
@@ -158,6 +154,6 @@ public class LogoutFilter extends SpringSecurityFilter {
     }
 
     public int getOrder() {
-        return FilterChainOrderUtils.LOGOUT_FILTER_ORDER;
+        return FilterChainOrder.LOGOUT_FILTER;
     }
 }

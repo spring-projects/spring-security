@@ -20,7 +20,7 @@ import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
 import org.springframework.security.ui.SpringSecurityFilter;
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
@@ -139,6 +139,6 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
     }
 
     public int getOrder() {
-        return FilterChainOrderUtils.CHANNEL_PROCESSING_FILTER_ORDER;
+        return FilterChainOrder.CHANNEL_PROCESSING_FILTER;
     }
 }

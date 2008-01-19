@@ -35,7 +35,7 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
 import org.springframework.security.ui.SpringSecurityFilter;
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.AbstractProcessingFilter;
 
 import org.springframework.security.userdetails.UserDetails;
@@ -482,6 +482,6 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
     }
 
     public int getOrder() {
-        return FilterChainOrderUtils.SWITCH_USER_FILTER_ORDER;
+        return FilterChainOrder.SWITCH_USER_FILTER;
     }
 }

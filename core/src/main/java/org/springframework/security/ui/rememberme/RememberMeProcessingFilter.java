@@ -20,7 +20,7 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent;
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
@@ -159,6 +159,6 @@ public class RememberMeProcessingFilter extends SpringSecurityFilter implements 
     }
 
     public int getOrder() {
-        return FilterChainOrderUtils.REMEMBER_ME_FILTER_ORDER;
+        return FilterChainOrder.REMEMBER_ME_FILTER;
     }
 }

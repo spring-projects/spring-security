@@ -236,6 +236,6 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
 	}
 
     public int getOrder() {
-        return FilterChainOrderUtils.EXCEPTION_TRANSLATION_FILTER_ORDER;
+        return FilterChainOrder.EXCEPTION_TRANSLATION_FILTER;
     }
 }

@@ -629,4 +629,19 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="user-filter">
+    <xs:annotation>
+      <xs:documentation>Used to indicate that a filter bean declaration should be incorporated into the security filter chain. </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="security:user-filter.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="user-filter.attlist">
+    <xs:attribute name="order" use="required" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation>The order value for the chain (user to position the filter relative to the standard filters)   </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
 </xs:schema>

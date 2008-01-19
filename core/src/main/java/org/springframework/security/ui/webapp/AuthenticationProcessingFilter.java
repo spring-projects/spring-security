@@ -21,7 +21,7 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.security.ui.AbstractProcessingFilter;
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
@@ -154,7 +154,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
     }
 
     public int getOrder() {
-        return FilterChainOrderUtils.AUTH_PROCESSING_FILTER_ORDER;
+        return FilterChainOrder.AUTH_PROCESSING_FILTER;
     }
 
     String getUsernameParameter() {

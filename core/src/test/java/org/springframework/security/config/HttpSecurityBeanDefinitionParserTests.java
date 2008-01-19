@@ -12,6 +12,7 @@ import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.PortMapperImpl;
+import org.springframework.security.util.MockFilter;
 import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.beans.BeansException;
@@ -65,7 +66,7 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         List filterList = filterChainProxy.getFilters("/someurl");
 
-        assertEquals("Expected 11 filters in chain", 11, filterList.size());
+        assertEquals("Expected 12 filters in chain", 12, filterList.size());
 
         Iterator filters = filterList.iterator();
 
@@ -80,6 +81,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof RememberMeProcessingFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
         assertTrue(filters.next() instanceof FilterSecurityInterceptor);
+        assertTrue(filters.next() instanceof OrderedFilterDecorator);
 
     }
 

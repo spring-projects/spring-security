@@ -31,7 +31,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.security.ui.SpringSecurityFilter;
-import org.springframework.security.ui.FilterChainOrderUtils;
+import org.springframework.security.ui.FilterChainOrder;
 
 /**
  * Populates the {@link SecurityContextHolder} with information obtained from
@@ -442,7 +442,7 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
     }
 
     public int getOrder() {
-        return FilterChainOrderUtils.HTTP_SESSION_CONTEXT_FILTER_ORDER;
+        return FilterChainOrder.HTTP_SESSION_CONTEXT_FILTER;
     }
 
     //~ Inner Classes ==================================================================================================
