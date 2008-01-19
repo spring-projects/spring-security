@@ -638,7 +638,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="user-filter.attlist">
-    <xs:attribute name="order" use="required" type="xs:integer">
+    <xs:attribute name="order" type="xs:integer">
       <xs:annotation>
         <xs:documentation>The order value for the chain (user to position the filter relative to the standard filters)   </xs:documentation>
       </xs:annotation>

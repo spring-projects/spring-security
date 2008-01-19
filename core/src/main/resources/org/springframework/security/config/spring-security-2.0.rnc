@@ -265,5 +265,5 @@ user-filter =
     element user-filter {user-filter.attlist}
 user-filter.attlist &=
     ## The order value for the chain (user to position the filter relative to the standard filters)   
-    attribute order {xsd:integer}
+    attribute order {xsd:integer}?
     

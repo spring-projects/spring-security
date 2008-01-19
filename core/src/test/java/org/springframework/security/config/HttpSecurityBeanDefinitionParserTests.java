@@ -12,7 +12,6 @@ import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.PortMapperImpl;
-import org.springframework.security.util.MockFilter;
 import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.beans.BeansException;
@@ -81,7 +80,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof RememberMeProcessingFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
         assertTrue(filters.next() instanceof FilterSecurityInterceptor);
-        assertTrue(filters.next() instanceof OrderedFilterDecorator);
+        assertTrue(filters.next() instanceof OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator);
 
     }
 
