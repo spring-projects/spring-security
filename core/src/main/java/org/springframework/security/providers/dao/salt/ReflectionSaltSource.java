@@ -22,15 +22,20 @@ import org.springframework.security.providers.dao.SaltSource;
 import org.springframework.security.userdetails.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.BeanUtils;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
+import java.beans.PropertyDescriptor;
 
 
 /**
- * Obtains a salt from a specified property of the {@link org.springframework.security.userdetails.User} object.<P>This allows
- * you to subclass <code>User</code> and provide an additional bean getter for a salt. You should use a synthetic
- * value that does not change, such as a database primary key.  Do not use <code>username</code> if it is likely to
- * change.</p>
+ * Obtains a salt from a specified property of the {@link org.springframework.security.userdetails.User} object.
+ * <p>
+ * This allows you to subclass <code>User</code> and provide an additional bean getter for a salt. You should use a
+ * synthetic value that does not change, such as a database primary key.  Do not use <code>username</code> if it is
+ * likely to change.
  *
  * @author Ben Alex
  * @version $Id$
@@ -43,44 +48,68 @@ public class ReflectionSaltSource implements SaltSource, InitializingBean {
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        if ((this.getUserPropertyToUse() == null) || "".equals(this.getUserPropertyToUse())) {
-            throw new IllegalArgumentException("A userPropertyToUse must be set");
-        }
+        Assert.hasText(userPropertyToUse, "A userPropertyToUse must be set");
     }
 
     /**
-     * Performs reflection on the passed <code>User</code> to obtain the salt.<P>The property identified by
-     * <code>userPropertyToUse</code> must be available from the passed <code>User</code> object. If it is not
-     * available, an {@link AuthenticationServiceException} will be thrown.</p>
+     * Performs reflection on the passed <code>User</code> to obtain the salt.
+     * <p>
+     * The property identified by <code>userPropertyToUse</code> must be available from the passed <code>User</code>
+     * object. If it is not available, an {@link AuthenticationServiceException} will be thrown.
      *
      * @param user which contains the method identified by <code>userPropertyToUse</code>
      *
-     * @return the result of invoking <code>user.userPropertyToUse()</code>
+     * @return the result of invoking <tt>user.userPropertyToUse()</tt>, or if the method doesn't exist,
+     * <tt>user.getUserPropertyToUse()</tt>.
      *
      * @throws AuthenticationServiceException if reflection fails
      */
     public Object getSalt(UserDetails user) {
-        try {
-            Method reflectionMethod = user.getClass().getMethod(this.userPropertyToUse, new Class[] {});
+        Method saltMethod = findSaltMethod(user);
 
-            return reflectionMethod.invoke(user, new Object[] {});
+        try {            
+            return saltMethod.invoke(user, new Object[] {});
         } catch (Exception exception) {
             throw new AuthenticationServiceException(exception.getMessage(), exception);
         }
     }
 
-    public String getUserPropertyToUse() {
+    private Method findSaltMethod(UserDetails user) {
+        Method saltMethod = ReflectionUtils.findMethod(user.getClass(), userPropertyToUse);
+
+        if (saltMethod == null) {
+            PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(user.getClass(), userPropertyToUse);
+
+            if (pd != null) {
+                saltMethod = pd.getReadMethod();
+            }
+
+            if (saltMethod == null) {
+                throw new AuthenticationServiceException("Unable to find salt method on user Object. Does the class '" +
+                    user.getClass().getName() + "' have a method or getter named '" + userPropertyToUse + "' ?");
+            }
+        }
+
+        return saltMethod;
+    }
+
+    protected String getUserPropertyToUse() {
         return userPropertyToUse;
     }
 
     /**
-     * The method name to call to obtain the salt. If your <code>UserDetails</code> contains a
-     * <code>UserDetails.getSalt()</code> method, you should set this property to <code>getSalt</code>.
+     * The method name to call to obtain the salt. Can be either a method name or a bean property name. If your
+     * <code>UserDetails</code> contains a <code>UserDetails.getSalt()</code> method, you should set this property to
+     * "getSalt" or "salt".
      *
      * @param userPropertyToUse the name of the <b>getter</b> to call to obtain the salt from the
      *        <code>UserDetails</code>
      */
     public void setUserPropertyToUse(String userPropertyToUse) {
         this.userPropertyToUse = userPropertyToUse;
+    }
+
+    public String toString() {
+        return "ReflectionSaltSource[ userPropertyToUse='" + userPropertyToUse + "'; ]";
     }
 }

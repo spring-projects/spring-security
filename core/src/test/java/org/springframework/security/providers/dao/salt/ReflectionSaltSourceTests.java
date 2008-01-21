@@ -15,8 +15,6 @@
 
 package org.springframework.security.providers.dao.salt;
 
-import junit.framework.TestCase;
-
 import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -24,6 +22,8 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 
+import org.junit.Test;
+import static junit.framework.Assert.*;
 
 /**
  * Tests {@link ReflectionSaltSource}.
@@ -31,66 +31,38 @@ import org.springframework.security.userdetails.UserDetails;
  * @author Ben Alex
  * @version $Id$
  */
-public class ReflectionSaltSourceTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public ReflectionSaltSourceTests() {
-        super();
-    }
-
-    public ReflectionSaltSourceTests(String arg0) {
-        super(arg0);
-    }
+public class ReflectionSaltSourceTests {
+    private UserDetails user = new User("scott", "wombat", true, true, true, true,
+            new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ReflectionSaltSourceTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void testDetectsMissingUserPropertyToUse() throws Exception {
+    @Test(expected=IllegalArgumentException.class)
+    public void detectsMissingUserPropertyToUse() throws Exception {
         ReflectionSaltSource saltSource = new ReflectionSaltSource();
-
-        try {
-            saltSource.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("A userPropertyToUse must be set", expected.getMessage());
-        }
+        saltSource.afterPropertiesSet();
     }
 
-    public void testExceptionWhenInvalidPropertyRequested() {
+    @Test(expected=AuthenticationServiceException.class)
+    public void exceptionIsThrownWhenInvalidPropertyRequested() throws Exception {
         ReflectionSaltSource saltSource = new ReflectionSaltSource();
         saltSource.setUserPropertyToUse("getDoesNotExist");
-
-        UserDetails user = new User("scott", "wombat", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
-
-        try {
-            saltSource.getSalt(user);
-            fail("Should have thrown AuthenticationServiceException");
-        } catch (AuthenticationServiceException expected) {
-            assertTrue(true);
-        }
-    }
-
-    public void testGettersSetters() {
-        ReflectionSaltSource saltSource = new ReflectionSaltSource();
-        saltSource.setUserPropertyToUse("getUsername");
-        assertEquals("getUsername", saltSource.getUserPropertyToUse());
-    }
-
-    public void testNormalOperation() throws Exception {
-        ReflectionSaltSource saltSource = new ReflectionSaltSource();
-        saltSource.setUserPropertyToUse("getUsername");
         saltSource.afterPropertiesSet();
+        saltSource.getSalt(user);
+    }
 
-        UserDetails user = new User("scott", "wombat", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
+    @Test
+    public void methodNameAsPropertyToUseReturnsCorrectSaltValue() {
+        ReflectionSaltSource saltSource = new ReflectionSaltSource();
+        saltSource.setUserPropertyToUse("getUsername");
+
         assertEquals("scott", saltSource.getSalt(user));
+    }
+
+    @Test
+    public void propertyNameAsPropertyToUseReturnsCorrectSaltValue() {
+        ReflectionSaltSource saltSource = new ReflectionSaltSource();
+        saltSource.setUserPropertyToUse("password");
+        assertEquals("wombat", saltSource.getSalt(user));
     }
 }
