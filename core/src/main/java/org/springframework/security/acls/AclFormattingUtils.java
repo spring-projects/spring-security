@@ -86,7 +86,7 @@ public final class AclFormattingUtils {
      * @return a 32-character representation of the bit mask
      */
     public static String printBinary(int i) {
-        return AclFormattingUtils.printBinary(i, '*', Permission.RESERVED_OFF);
+        return printBinary(i, '*', Permission.RESERVED_OFF);
     }
 
     /**
@@ -104,7 +104,7 @@ public final class AclFormattingUtils {
         Assert.doesNotContain(new Character(code).toString(), new Character(Permission.RESERVED_OFF).toString(),
             Permission.RESERVED_OFF + " is a reserved character code");
 
-        return AclFormattingUtils.printBinary(mask, Permission.RESERVED_ON, Permission.RESERVED_OFF)
+        return printBinary(mask, Permission.RESERVED_ON, Permission.RESERVED_OFF)
                                  .replace(Permission.RESERVED_ON, code);
     }
 }
