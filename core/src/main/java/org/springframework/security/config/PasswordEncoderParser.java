@@ -8,7 +8,9 @@ import org.springframework.security.providers.ldap.authenticator.LdapShaPassword
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
@@ -48,7 +50,7 @@ public class PasswordEncoderParser {
 
     private Log logger = LogFactory.getLog(getClass());
 
-    private BeanDefinition passwordEncoder;
+    private BeanMetadataElement passwordEncoder;
     private BeanDefinition saltSource;
 
 
@@ -60,15 +62,21 @@ public class PasswordEncoderParser {
         String hash = element.getAttribute(ATT_HASH);
         boolean useBase64 = StringUtils.hasText(element.getAttribute(ATT_BASE_64));
 
-        Class beanClass = (Class) ENCODER_CLASSES.get(hash);
-        passwordEncoder = new RootBeanDefinition(beanClass);
+        String ref = element.getAttribute(ATT_REF);
 
-        if (useBase64) {
-            if (beanClass.isAssignableFrom(BaseDigestPasswordEncoder.class)) {
-                passwordEncoder.getPropertyValues().addPropertyValue("encodeHashAsBase64", "true");
-            } else {
-                logger.warn(ATT_BASE_64 + " isn't compatible with " + OPT_HASH_LDAP_SHA + " and will be ignored");
+        if (StringUtils.hasText(ref)) {
+            passwordEncoder = new RuntimeBeanReference(ref);
+        } else {
+            Class beanClass = (Class) ENCODER_CLASSES.get(hash);
+            BeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
+            if (useBase64) {
+                if (beanClass.isAssignableFrom(BaseDigestPasswordEncoder.class)) {
+                    beanDefinition.getPropertyValues().addPropertyValue("encodeHashAsBase64", "true");
+                } else {
+                    logger.warn(ATT_BASE_64 + " isn't compatible with " + OPT_HASH_LDAP_SHA + " and will be ignored");
+                }
             }
+            passwordEncoder = beanDefinition;
         }
 
         Element saltSourceElt = DomUtils.getChildElementByTagName(element, Elements.SALT_SOURCE);
@@ -78,7 +86,7 @@ public class PasswordEncoderParser {
         }
     }
 
-    public BeanDefinition getPasswordEncoder() {
+    public BeanMetadataElement getPasswordEncoder() {
         return passwordEncoder;
     }
 

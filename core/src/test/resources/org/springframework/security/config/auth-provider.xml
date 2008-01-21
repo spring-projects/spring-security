@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-    <!-- All combinations should authenticate as bob/password -->
+    <!-- All combinations should authenticate as bob/bobspassword -->
 
     <authentication-provider>
         <user-service>
@@ -33,5 +33,18 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
             <user name="bob" password="{SSHA}PpuEwfdj7M1rs0C2W4ssSM2XEN/Y6S5U" authorities="ROLE_A" />
         </user-service>
     </authentication-provider>
+
+    <!-- External beans for both UserDetailsService and PasswordEncoder -->
+    <authentication-provider user-service-ref="customUserService">
+        <password-encoder ref="customPasswordEncoder">
+            <salt-source user-property="username"/>
+        </password-encoder>
+    </authentication-provider>
+
+    <beans:bean id="customPasswordEncoder" class="org.springframework.security.providers.encoding.Md5PasswordEncoder"/>
+
+    <beans:bean id="customUserService" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
+        <beans:property name="userMap" value="bob=f117f0862384e9497ff4f470e3522606,ROLE_A"/>
+    </beans:bean>
 
 </beans:beans>
