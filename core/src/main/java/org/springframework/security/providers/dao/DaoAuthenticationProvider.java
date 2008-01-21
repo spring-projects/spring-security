@@ -75,18 +75,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
     }
 
-    public PasswordEncoder getPasswordEncoder() {
-        return passwordEncoder;
-    }
-
-    public SaltSource getSaltSource() {
-        return saltSource;
-    }
-
-    public UserDetailsService getUserDetailsService() {
-        return userDetailsService;
-    }
-
     protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
             throws AuthenticationException {
         UserDetails loadedUser;
@@ -115,6 +103,10 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         this.passwordEncoder = passwordEncoder;
     }
 
+    protected PasswordEncoder getPasswordEncoder() {
+        return passwordEncoder;
+    }
+
     /**
      * The source of salts to use when decoding passwords. <code>null</code>
      * is a valid value, meaning the <code>DaoAuthenticationProvider</code>
@@ -126,8 +118,16 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         this.saltSource = saltSource;
     }
 
+    protected SaltSource getSaltSource() {
+        return saltSource;
+    }
+
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
+    }
+
+    protected UserDetailsService getUserDetailsService() {
+        return userDetailsService;
     }
 
     public boolean isIncludeDetailsObject() {
