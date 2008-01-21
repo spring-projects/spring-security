@@ -67,7 +67,7 @@ public class ReflectionSaltSource implements SaltSource, InitializingBean {
     public Object getSalt(UserDetails user) {
         Method saltMethod = findSaltMethod(user);
 
-        try {            
+        try {
             return saltMethod.invoke(user, new Object[] {});
         } catch (Exception exception) {
             throw new AuthenticationServiceException(exception.getMessage(), exception);
@@ -75,7 +75,7 @@ public class ReflectionSaltSource implements SaltSource, InitializingBean {
     }
 
     private Method findSaltMethod(UserDetails user) {
-        Method saltMethod = ReflectionUtils.findMethod(user.getClass(), userPropertyToUse);
+        Method saltMethod = ReflectionUtils.findMethod(user.getClass(), userPropertyToUse, new Class[0]);
 
         if (saltMethod == null) {
             PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(user.getClass(), userPropertyToUse);
