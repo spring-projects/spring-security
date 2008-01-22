@@ -32,6 +32,7 @@ import org.springframework.security.securechannel.RetryWithHttpsEntryPoint;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.RegexUrlPathMatcher;
+import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -120,23 +121,37 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         FilterInvocationDefinitionMap interceptorFilterInvDefSource = new PathBasedFilterInvocationDefinitionMap();
         FilterInvocationDefinitionMap channelFilterInvDefSource = new PathBasedFilterInvocationDefinitionMap();
 
-        if (patternType.equals(OPT_PATH_TYPE_REGEX)) {
-            filterChainProxy.getPropertyValues().addPropertyValue("matcher", new RegexUrlPathMatcher());
-            interceptorFilterInvDefSource = new RegExpBasedFilterInvocationDefinitionMap();
-            channelFilterInvDefSource = new RegExpBasedFilterInvocationDefinitionMap();
-        }
-
         // Deal with lowercase conversion requests
         String lowercaseComparisons = element.getAttribute(ATT_LOWERCASE_COMPARISONS);
         if (!StringUtils.hasText(lowercaseComparisons)) {
-        	lowercaseComparisons = DEF_LOWERCASE_COMPARISONS;
+        	lowercaseComparisons = null;
         }
+
+        // Only change from the defaults if the attribute has been set
         if ("true".equals(lowercaseComparisons)) {
         	interceptorFilterInvDefSource.setConvertUrlToLowercaseBeforeComparison(true);
         	channelFilterInvDefSource.setConvertUrlToLowercaseBeforeComparison(true);
-        } else {
+        } else if ("false".equals(lowercaseComparisons)) {
         	interceptorFilterInvDefSource.setConvertUrlToLowercaseBeforeComparison(false);
         	channelFilterInvDefSource.setConvertUrlToLowercaseBeforeComparison(false);
+        }
+
+        if (patternType.equals(OPT_PATH_TYPE_REGEX)) {
+            RegexUrlPathMatcher matcher = new RegexUrlPathMatcher();
+
+            if (lowercaseComparisons != null) {
+                matcher.setRequiresLowerCaseUrl("true".equals(lowercaseComparisons));
+            }
+
+            filterChainProxy.getPropertyValues().addPropertyValue("matcher", matcher);
+
+            interceptorFilterInvDefSource = new RegExpBasedFilterInvocationDefinitionMap();
+            channelFilterInvDefSource = new RegExpBasedFilterInvocationDefinitionMap();
+        } else if (lowercaseComparisons != null) {
+            AntUrlPathMatcher matcher = new AntUrlPathMatcher();
+            matcher.setRequiresLowerCaseUrl("true".equals(lowercaseComparisons));
+
+            filterChainProxy.getPropertyValues().addPropertyValue("matcher", matcher);
         }
 
         // Add servlet-api integration filter if required

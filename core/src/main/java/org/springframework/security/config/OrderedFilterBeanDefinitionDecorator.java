@@ -82,5 +82,9 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
         public final void setOrder(int order) {
             this.order = new Integer(order);
         }
+
+        public String getBeanName() {
+            return beanName;
+        }
     }
 }
