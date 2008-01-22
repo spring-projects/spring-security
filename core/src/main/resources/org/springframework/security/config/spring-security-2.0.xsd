@@ -64,7 +64,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="ref">
-    <xs:attribute name="ref" use="required" type="xs:IDREF">
+    <xs:attribute name="ref" use="required" type="xs:string">
       <xs:annotation>
         <xs:documentation>Defines a reference to a Spring bean id.</xs:documentation>
       </xs:annotation>
@@ -78,7 +78,7 @@
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:salt-source"/>
       </xs:sequence>
-      <xs:attribute name="ref" type="xs:IDREF">
+      <xs:attribute name="ref" type="xs:string">
         <xs:annotation>
           <xs:documentation>Defines a reference to a Spring bean id.</xs:documentation>
         </xs:annotation>
@@ -188,7 +188,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="ldap-ap.attlist">
-    <xs:attribute name="server-ref" type="xs:IDREF">
+    <xs:attribute name="server-ref" type="xs:string">
       <xs:annotation>
         <xs:documentation>The server to authenticate against.  </xs:documentation>
       </xs:annotation>
@@ -320,7 +320,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="access-decision-manager" type="xs:IDREF">
+    <xs:attribute name="access-decision-manager" type="xs:string">
       <xs:annotation>
         <xs:documentation>Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.</xs:documentation>
       </xs:annotation>
@@ -493,7 +493,7 @@
   </xs:element>
   <xs:attributeGroup name="remember-me.attlist">
     <xs:attribute name="key" type="xs:string"/>
-    <xs:attribute name="token-repository" type="xs:IDREF"/>
+    <xs:attribute name="token-repository" type="xs:string"/>
     <xs:attribute name="data-source" type="xs:string"/>
   </xs:attributeGroup>
   <xs:element name="anonymous">
@@ -537,7 +537,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="ap.attlist">
-    <xs:attribute name="user-service-ref" type="xs:IDREF">
+    <xs:attribute name="user-service-ref" type="xs:string">
       <xs:annotation>
         <xs:documentation>Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.  </xs:documentation>
       </xs:annotation>

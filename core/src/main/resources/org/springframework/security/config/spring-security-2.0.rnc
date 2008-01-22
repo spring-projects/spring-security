@@ -28,7 +28,7 @@ id =
     attribute id {xsd:ID}    
 ref =
     ## Defines a reference to a Spring bean id.
-    attribute ref {xsd:IDREF}
+    attribute ref {xsd:string}
     
 password-encoder = 
     ## element which defines a password encoding strategy. Used by an authentication provider to convert submitted passwords to hashed versions, for example.
@@ -68,7 +68,7 @@ ldap-authentication-provider =
     element ldap-authentication-provider {ldap-ap.attlist, empty}
 ldap-ap.attlist &=
     ## The server to authenticate against.  
-    attribute server-ref {xsd:IDREF}?
+    attribute server-ref {xsd:string}?
 
 
 intercept-methods =
@@ -115,7 +115,7 @@ http.attlist &=
     attribute servlet-api-provision {"true" | "false"}?
 http.attlist &=
     ## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.
-    attribute access-decision-manager {xsd:IDREF}?
+    attribute access-decision-manager {xsd:string}?
 http.attlist &=
     ## Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Spring Security Application".
     attribute realm {xsd:string}?
@@ -198,7 +198,7 @@ concurrent-sessions.attlist &=
 remember-me =
     element remember-me {remember-me.attlist}
 remember-me.attlist &=
-    (attribute key {xsd:string} | (attribute token-repository {xsd:IDREF} | attribute data-source {xsd:string}))
+    (attribute key {xsd:string} | (attribute token-repository {xsd:string} | attribute data-source {xsd:string}))
 
 anonymous =
 	## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
@@ -218,7 +218,7 @@ authentication-provider =
      element authentication-provider {ap.attlist & (user-service | jdbc-user-service) & password-encoder}
 ap.attlist &=
   ## Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.  
-     attribute user-service-ref {xsd:IDREF}?
+     attribute user-service-ref {xsd:string}?
 
 user-service =
   ## Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.
