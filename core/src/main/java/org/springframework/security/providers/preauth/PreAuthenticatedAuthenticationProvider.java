@@ -14,7 +14,7 @@ import org.springframework.util.Assert;
 /**
  * <p>
  * Processes a pre-authenticated authentication request. The request will
- * typically originate from a {@link AbstractPreAuthenticatedProcessingFilter}
+ * typically originate from a {@link org.springframework.security.ui.preauth.AbstractPreAuthenticatedProcessingFilter}
  * subclass.
  * </p>
  * 
@@ -55,8 +55,8 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 		if (ud == null) {
 			return null;
 		}
-		PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(ud, authentication.getCredentials(), ud
-				.getAuthorities());
+		PreAuthenticatedAuthenticationToken result =
+                new PreAuthenticatedAuthenticationToken(ud, authentication.getCredentials(), ud.getAuthorities());
 		result.setDetails(authentication.getDetails());
 
 		return result;
@@ -64,8 +64,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 	}
 
 	/**
-	 * Indicate that this provider only supports
-	 * PreAuthenticatedAuthenticationToken (sub)classes.
+	 * Indicate that this provider only supports PreAuthenticatedAuthenticationToken (sub)classes.
 	 */
 	public boolean supports(Class authentication) {
 		return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);

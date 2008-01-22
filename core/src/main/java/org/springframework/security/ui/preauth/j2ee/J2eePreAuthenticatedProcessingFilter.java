@@ -33,4 +33,8 @@ public class J2eePreAuthenticatedProcessingFilter extends AbstractPreAuthenticat
 	protected Object getPreAuthenticatedCredentials(HttpServletRequest httpRequest) {
 		return "N/A";
 	}
+
+    public int getOrder() {
+        return 0;
+    }
 }

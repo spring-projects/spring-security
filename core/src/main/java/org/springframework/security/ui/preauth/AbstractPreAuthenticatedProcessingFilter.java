@@ -2,12 +2,8 @@ package org.springframework.security.ui.preauth;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -19,6 +15,7 @@ import org.springframework.security.event.authentication.InteractiveAuthenticati
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
 import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
@@ -29,16 +26,16 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.util.Assert;
 
 /**
- * Base class for processing filters that handle pre-authenticated
- * authentication requests. Subclasses must implement the
- * getPreAuthenticatedPrincipal() and getPreAuthenticatedCredentials() methods.
- * <p>
- * This code is partly based on
- * {@link org.springframework.security.ui.x509.X509ProcessingFilter}.
- * </p>
+ * Base class for processing filters that handle pre-authenticated authentication requests. Subclasses must implement
+ * the getPreAuthenticatedPrincipal() and getPreAuthenticatedCredentials() methods.
+ *
+ * @author Ruud Senden
+ * @since 2.0
  */
-public abstract class AbstractPreAuthenticatedProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware {
-	private static final Log LOG = LogFactory.getLog(AbstractPreAuthenticatedProcessingFilter.class);
+public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSecurityFilter implements
+        InitializingBean, ApplicationEventPublisherAware {
+
+    private static final Log LOG = LogFactory.getLog(AbstractPreAuthenticatedProcessingFilter.class);
 
 	private ApplicationEventPublisher eventPublisher = null;
 
@@ -54,37 +51,21 @@ public abstract class AbstractPreAuthenticatedProcessingFilter implements Filter
 	}
 
 	/**
-	 * Try to authenticate a pre-authenticated user with Acegi if the user has
-	 * not yet been authenticated.
+	 * Try to authenticate a pre-authenticated user with Spring Security if the user has not yet been authenticated.
 	 */
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-		if (!(request instanceof HttpServletRequest)) {
-			throw new ServletException("Can only process HttpServletRequest");
-		}
-		if (!(response instanceof HttpServletResponse)) {
-			throw new ServletException("Can only process HttpServletResponse");
-		}
-
-		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		HttpServletResponse httpResponse = (HttpServletResponse) response;
-
+	public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Checking secure context token: " + SecurityContextHolder.getContext().getAuthentication());
 		}
 
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
-			doAuthenticate(httpRequest, httpResponse);
+			doAuthenticate(request, response);
 		}
 		filterChain.doFilter(request, response);
 	}
 
 	/**
 	 * Do the actual authentication for a pre-authenticated user.
-	 * 
-	 * @param httpRequest
-	 *            The HttpServletRequest object
-	 * @param httpResponse
-	 *            The HttpServletResponse object
 	 */
 	private void doAuthenticate(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
 		Authentication authResult = null;
@@ -126,9 +107,10 @@ public abstract class AbstractPreAuthenticatedProcessingFilter implements Filter
 	 * when authentication fails.
 	 */
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
-		SecurityContextHolder.getContext().setAuthentication(null);
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("Updated SecurityContextHolder to contain null Authentication due to exception", failed);
+		SecurityContextHolder.clearContext();
+
+        if (LOG.isDebugEnabled()) {
+			LOG.debug("Cleared security context due to exception", failed);
 		}
 		request.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
 	}
@@ -156,18 +138,6 @@ public abstract class AbstractPreAuthenticatedProcessingFilter implements Filter
 	 */
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
-	}
-
-	/**
-	 * Required method, does nothing.
-	 */
-	public void init(FilterConfig filterConfig) {
-	}
-
-	/**
-	 * Required method, does nothing.
-	 */
-	public void destroy() {
 	}
 
 	protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest);
