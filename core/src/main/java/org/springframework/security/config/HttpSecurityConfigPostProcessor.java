@@ -66,7 +66,12 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
 
         RememberMeServices rememberMeServices = null;
 
-        if (beans.size() > 0) {
+        if(beans.size() == 0) {
+            logger.debug("No RememberMeServices configured");
+            return;
+        }
+
+        if (beans.size() == 1) {
             rememberMeServices = (RememberMeServices) beans.values().toArray()[0];
         } else {
             throw new SecurityConfigurationException("More than one RememberMeServices bean found.");
