@@ -10,7 +10,7 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
-	static final String ATT_DATA_SOURCE = "data-source";
+	static final String ATT_DATA_SOURCE = "data-source-ref";
 
     protected Class getBeanClass(Element element) {
         return JdbcUserDetailsManager.class;

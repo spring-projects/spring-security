@@ -244,6 +244,11 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
+    <xs:attribute name="access-decision-manager-ref" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Optional AccessDecisionManager bean ID to override the default.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="http">
     <xs:annotation>
@@ -320,7 +325,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="access-decision-manager" type="xs:string">
+    <xs:attribute name="access-decision-manager-ref" type="xs:string">
       <xs:annotation>
         <xs:documentation>Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.</xs:documentation>
       </xs:annotation>
@@ -493,8 +498,8 @@
   </xs:element>
   <xs:attributeGroup name="remember-me.attlist">
     <xs:attribute name="key" type="xs:string"/>
-    <xs:attribute name="token-repository" type="xs:string"/>
-    <xs:attribute name="data-source" type="xs:string"/>
+    <xs:attribute name="token-repository-ref" type="xs:string"/>
+    <xs:attribute name="data-source-ref" type="xs:string"/>
   </xs:attributeGroup>
   <xs:element name="anonymous">
     <xs:annotation>
@@ -623,7 +628,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="jdbc-user-service.attlist">
-    <xs:attribute name="data-source" use="required" type="xs:string">
+    <xs:attribute name="data-source-ref" use="required" type="xs:string">
       <xs:annotation>
         <xs:documentation>The bean ID of the DataSource which provides the required tables.</xs:documentation>
       </xs:annotation>

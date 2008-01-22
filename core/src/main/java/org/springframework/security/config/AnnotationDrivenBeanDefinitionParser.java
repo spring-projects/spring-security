@@ -25,8 +25,8 @@ import org.w3c.dom.Element;
 class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
     public static final String SECURITY_ANNOTATION_ATTRIBUTES_CLASS = "org.springframework.security.annotation.SecurityAnnotationAttributes";
     public static final String JSR_250_SECURITY_ANNOTATION_ATTRIBUTES_CLASS = "org.springframework.security.annotation.Jsr250SecurityAnnotationAttributes";
-    private static final String ATT_ACCESS_MGR = "access-decision-manager";
-    private static final String ATT_USE_JSR250 = "jsr250";    
+    private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
+    private static final String ATT_USE_JSR250 = "jsr250";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         String className = "true".equals(element.getAttribute(ATT_USE_JSR250)) ?
@@ -55,7 +55,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
         if (!StringUtils.hasText(accessManagerId)) {
-            ConfigUtils.registerDefaultAccessManagerIfNecessary(parserContext);            
+            ConfigUtils.registerDefaultAccessManagerIfNecessary(parserContext);
             accessManagerId = BeanIds.ACCESS_MANAGER;
         }
 

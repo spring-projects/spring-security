@@ -128,7 +128,7 @@
 
    <authentication-provider>
        <password-encoder hash="md5"/>
-       <jdbc-user-service data-source="dataSource"/>
+       <jdbc-user-service data-source-ref="dataSource"/>
    </authentication-provider>
 <!--
    <bean id="jdbcDaoImpl" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">

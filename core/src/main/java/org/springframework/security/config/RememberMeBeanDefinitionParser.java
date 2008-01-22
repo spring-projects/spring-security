@@ -24,9 +24,9 @@ import org.w3c.dom.Element;
 public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_KEY = "key";
     static final String DEF_KEY = "doesNotMatter";
-    
+
 	static final String ATT_DATA_SOURCE = "data-source";
-	static final String ATT_TOKEN_REPOSITORY = "token-repository";
+	static final String ATT_TOKEN_REPOSITORY = "token-repository-ref";
 	protected final Log logger = LogFactory.getLog(getClass());
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
@@ -70,14 +70,14 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             isPersistent = false;
             services = new RootBeanDefinition(TokenBasedRememberMeServices.class);
         }
-        
+
         if (!StringUtils.hasText(key) && !isPersistent) {
         	key = DEF_KEY;
         }
 
         BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         BeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
-        
+
         provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
         services.getPropertyValues().addPropertyValue(ATT_KEY, key);
 

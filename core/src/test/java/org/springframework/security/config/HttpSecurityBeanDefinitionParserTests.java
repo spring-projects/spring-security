@@ -9,6 +9,7 @@ import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
 import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
+import org.springframework.security.ui.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FilterChainProxy;
@@ -189,6 +190,19 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals(11, filters.size());
         assertTrue(filters.get(10) instanceof OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator);
         assertEquals("userFilter", ((OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator)filters.get(10)).getBeanName());
+    }
+
+    @Test
+    public void rememberMeServiceWorksWithTokenRepoRef() {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <remember-me key='doesntmatter' token-repository-ref='tokenRepo'/>" +
+                "</http>" +
+                "<b:bean id='tokenRepo' " +
+                        "class='org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl'/> " + AUTH_PROVIDER_XML);
+        Object rememberMeServices = appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
+
+        assertTrue(rememberMeServices instanceof PersistentTokenBasedRememberMeServices);
     }
 
     private void setContext(String context) {

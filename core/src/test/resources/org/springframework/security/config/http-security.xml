@@ -7,9 +7,9 @@
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
     <http>
-        <intercept-url pattern="/unprotected" filters="none" />
-        <intercept-url pattern="/somepath" access="ROLE_SPECIAL,ROLE_USER" requires-channel="http" />
-        <intercept-url pattern="/**" access="ROLE_USER" />
+        <intercept-url pattern='/unprotected' filters='none' />
+        <intercept-url pattern='/somepath' access='ROLE_SPECIAL,ROLE_USER' requires-channel='http' />
+        <intercept-url pattern='/**' access='ROLE_USER' />
 
         <!-- Default form login configuration. Will create filter and entry point -->
         <form-login />
@@ -20,33 +20,32 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         <!-- Default logout configuration -->
         <logout />
 
-        <concurrent-session-control max-sessions="1"/>
+        <concurrent-session-control max-sessions='1'/>
 
-        <remember-me key="doesntmatter" token-repository="tokenRepo"/>
+        <remember-me key='doesntmatter' token-repository-ref='tokenRepo'/>
 
         <port-mappings>
-            <port-mapping http="9080" https="9443"/>
+            <port-mapping http='9080' https='9443'/>
         </port-mappings>
     </http>
 
     <authentication-provider>
         <user-service>
-            <user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B" />
-            <user name="bill" password="billspassword" authorities="ROLE_A,ROLE_B,AUTH_OTHER" />
+            <user name='bob' password='bobspassword' authorities='ROLE_A,ROLE_B' />
+            <user name='bill' password='billspassword' authorities='ROLE_A,ROLE_B,AUTH_OTHER' />
         </user-service>
     </authentication-provider>
 
-    <beans:bean id="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
+    <beans:bean id='tokenRepo' class='org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl'/>
 
-    <!-- bean name="rememberMeServices" class="org.springframework.security.ui.rememberme.NullRememberMeServices"/ -->
+    <!-- bean name='rememberMeServices' class='org.springframework.security.ui.rememberme.NullRememberMeServices'/ -->
 
 
-    <beans:bean id="userFilter" class="org.springframework.security.util.MockFilter">
-        <user-filter order="0"/>
+    <beans:bean id='userFilter' class='org.springframework.security.util.MockFilter'>
+        <user-filter order='0'/>
     </beans:bean>
 
-    <!-- Shouldn't be added to filter chain -->
-    <beans:bean id="userFilter2" class="org.springframework.security.util.MockFilter"/>
+    <beans:bean id='userFilter2' class='org.springframework.security.util.MockFilter'/>
 
 
 </beans:beans>

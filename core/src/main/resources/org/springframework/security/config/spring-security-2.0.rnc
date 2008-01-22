@@ -93,7 +93,9 @@ annotation-driven =
 annotation-driven.attlist &=
     ## Specifies that JSR-250 style attributes are to be used (for example "RolesAllowed" instead of "Secured"). This will require the javax.annotation.security classes on the classpath. Defaults to false.
     attribute jsr250 {"true" | "false" }?
-
+annotation-driven.attlist &=
+    ## Optional AccessDecisionManager bean ID to override the default.
+    attribute access-decision-manager-ref {xsd:string}?
 
 http =
     ## Container element for HTTP security configuration
@@ -115,7 +117,7 @@ http.attlist &=
     attribute servlet-api-provision {"true" | "false"}?
 http.attlist &=
     ## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.
-    attribute access-decision-manager {xsd:string}?
+    attribute access-decision-manager-ref {xsd:string}?
 http.attlist &=
     ## Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Spring Security Application".
     attribute realm {xsd:string}?
@@ -198,7 +200,7 @@ concurrent-sessions.attlist &=
 remember-me =
     element remember-me {remember-me.attlist}
 remember-me.attlist &=
-    (attribute key {xsd:string} | (attribute token-repository {xsd:string} | attribute data-source {xsd:string}))
+    (attribute key {xsd:string} | (attribute token-repository-ref {xsd:string} | attribute data-source-ref {xsd:string}))
 
 anonymous =
 	## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
@@ -257,7 +259,7 @@ jdbc-user-service =
     element jdbc-user-service {id? & jdbc-user-service.attlist} 
 jdbc-user-service.attlist &=
 	## The bean ID of the DataSource which provides the required tables.
-    attribute data-source {xsd:string}
+    attribute data-source-ref {xsd:string}
     
     
 user-filter =
