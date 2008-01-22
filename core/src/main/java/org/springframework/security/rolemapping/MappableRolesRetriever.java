@@ -1,0 +1,16 @@
+package org.springframework.security.rolemapping;
+
+/**
+ * Interface to be implemented by classes that can retrieve a list of mappable
+ * roles (for example the list of all available J2EE roles in a web or EJB
+ * application).
+ */
+public interface MappableRolesRetriever {
+	/**
+	 * Implementations of this method should return a list of all mappable
+	 * roles.
+	 * 
+	 * @return String[] containg list of all mappable roles
+	 */
+	public String[] getMappableRoles();
+}
