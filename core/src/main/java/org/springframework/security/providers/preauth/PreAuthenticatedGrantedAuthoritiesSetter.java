@@ -8,11 +8,14 @@ import org.springframework.security.GrantedAuthority;
  * actually being used by the PreAuthenticatedAuthenticationProvider or one of
  * its related classes, but may be useful for classes that also implement
  * PreAuthenticatedGrantedAuthoritiesRetriever.
+ *
+ * @author Ruud Senden
+ * @since 2.0
  */
 public interface PreAuthenticatedGrantedAuthoritiesSetter {
-	/**
-	 * @param aPreAuthenticatedGrantedAuthorities
-	 *            The pre-authenticated GrantedAuthority[] to set
-	 */
-	public void setPreAuthenticatedGrantedAuthorities(GrantedAuthority[] aPreAuthenticatedGrantedAuthorities);
+    /**
+     * @param aPreAuthenticatedGrantedAuthorities
+     *            The pre-authenticated GrantedAuthority[] to set
+     */
+    void setPreAuthenticatedGrantedAuthorities(GrantedAuthority[] aPreAuthenticatedGrantedAuthorities);
 }

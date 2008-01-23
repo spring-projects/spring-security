@@ -16,74 +16,77 @@ import org.springframework.util.Assert;
  * Processes a pre-authenticated authentication request. The request will
  * typically originate from a {@link org.springframework.security.ui.preauth.AbstractPreAuthenticatedProcessingFilter}
  * subclass.
- * </p>
- * 
+ *
  * <p>
  * This authentication provider will not perform any checks on authentication
  * requests, as they should already be pre- authenticated. However, the
  * PreAuthenticatedUserDetailsService implementation may still throw for exampe
  * a UsernameNotFoundException.
- * </p>
+ *
+ * @author Ruud Senden
+ * @since 2.0
  */
 public class PreAuthenticatedAuthenticationProvider implements AuthenticationProvider, InitializingBean, Ordered {
-	private static final Log LOG = LogFactory.getLog(PreAuthenticatedAuthenticationProvider.class);
+    private static final Log logger = LogFactory.getLog(PreAuthenticatedAuthenticationProvider.class);
 
-	private PreAuthenticatedUserDetailsService preAuthenticatedUserDetailsService = null;
+    private PreAuthenticatedUserDetailsService preAuthenticatedUserDetailsService = null;
 
-	private int order = -1; // default: same as non-ordered
+    private int order = -1; // default: same as non-ordered
 
-	/**
-	 * Check whether all required properties have been set.
-	 */
-	public void afterPropertiesSet() {
-		Assert.notNull(preAuthenticatedUserDetailsService, "A PreAuthenticatedUserDetailsService must be set");
-	}
+    /**
+     * Check whether all required properties have been set.
+     */
+    public void afterPropertiesSet() {
+        Assert.notNull(preAuthenticatedUserDetailsService, "A PreAuthenticatedUserDetailsService must be set");
+    }
 
-	/**
-	 * Authenticate the given PreAuthenticatedAuthenticationToken.
-	 */
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		if (!supports(authentication.getClass())) {
-			return null;
-		}
+    /**
+     * Authenticate the given PreAuthenticatedAuthenticationToken.
+     */
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        if (!supports(authentication.getClass())) {
+            return null;
+        }
 
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("PreAuthenticated authentication request: " + authentication);
-		}
+        if (logger.isDebugEnabled()) {
+            logger.debug("PreAuthenticated authentication request: " + authentication);
+        }
 
-		UserDetails ud = preAuthenticatedUserDetailsService.getUserDetails((PreAuthenticatedAuthenticationToken) authentication);
-		if (ud == null) {
-			return null;
-		}
-		PreAuthenticatedAuthenticationToken result =
+        UserDetails ud = preAuthenticatedUserDetailsService.getUserDetails((PreAuthenticatedAuthenticationToken) authentication);
+
+        if (ud == null) {
+            return null;
+        }
+
+        PreAuthenticatedAuthenticationToken result =
                 new PreAuthenticatedAuthenticationToken(ud, authentication.getCredentials(), ud.getAuthorities());
-		result.setDetails(authentication.getDetails());
+        result.setDetails(authentication.getDetails());
 
-		return result;
+        return result;
 
-	}
+    }
 
-	/**
-	 * Indicate that this provider only supports PreAuthenticatedAuthenticationToken (sub)classes.
-	 */
-	public boolean supports(Class authentication) {
-		return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
-	}
+    /**
+     * Indicate that this provider only supports PreAuthenticatedAuthenticationToken (sub)classes.
+     */
+    public boolean supports(Class authentication) {
+        return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
+    }
 
-	/**
-	 * Set the PreAuthenticatedUserDetailsServices to be used.
-	 * 
-	 * @param aPreAuthenticatedUserDetailsService
-	 */
-	public void setPreAuthenticatedUserDetailsService(PreAuthenticatedUserDetailsService aPreAuthenticatedUserDetailsService) {
-		this.preAuthenticatedUserDetailsService = aPreAuthenticatedUserDetailsService;
-	}
+    /**
+     * Set the PreAuthenticatedUserDetailsServices to be used.
+     *
+     * @param aPreAuthenticatedUserDetailsService
+     */
+    public void setPreAuthenticatedUserDetailsService(PreAuthenticatedUserDetailsService aPreAuthenticatedUserDetailsService) {
+        this.preAuthenticatedUserDetailsService = aPreAuthenticatedUserDetailsService;
+    }
 
-	public int getOrder() {
-		return order;
-	}
+    public int getOrder() {
+        return order;
+    }
 
-	public void setOrder(int i) {
-		order = i;
-	}
+    public void setOrder(int i) {
+        order = i;
+    }
 }

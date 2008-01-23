@@ -17,14 +17,15 @@ import org.springframework.util.Assert;
  * PreAuthenticatedAuthenticationProvider anyway), and the Granted Authorities
  * are retrieved from the details object as returned by
  * PreAuthenticatedAuthenticationToken.getDetails().
- * </p>
  * 
  * <p>
  * The details object as returned by
  * PreAuthenticatedAuthenticationToken.getDetails() must implement the
  * PreAuthenticatedGrantedAuthoritiesRetriever interface for this implementation
  * to work.
- * </p>
+ *
+ * @author Ruud Senden
+ * @since 2.0
  */
 public class PreAuthenticatedGrantedAuthoritiesUserDetailsService implements PreAuthenticatedUserDetailsService {
 	/**

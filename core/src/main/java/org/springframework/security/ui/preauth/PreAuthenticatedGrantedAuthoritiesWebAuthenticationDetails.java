@@ -13,6 +13,9 @@ import org.springframework.util.Assert;
 /**
  * This WebAuthenticationDetails implementation allows for storing a list of
  * pre-authenticated Granted Authorities.
+ *
+ * @author Ruud Senden
+ * @since 2.0
  */
 public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends WebAuthenticationDetails implements
 		PreAuthenticatedGrantedAuthoritiesRetriever, PreAuthenticatedGrantedAuthoritiesSetter {
@@ -36,7 +39,7 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.security.providers.preauth.PreAuthenticatedGrantedAuthoritiesRetriever#getPreAuthenticatedGrantedAuthorities()
 	 */
 	public GrantedAuthority[] getPreAuthenticatedGrantedAuthorities() {
@@ -48,7 +51,7 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.security.providers.preauth.j2ee.PreAuthenticatedGrantedAuthoritiesSetter#setJ2eeBasedGrantedAuthorities()
 	 */
 	public void setPreAuthenticatedGrantedAuthorities(GrantedAuthority[] aJ2eeBasedGrantedAuthorities) {

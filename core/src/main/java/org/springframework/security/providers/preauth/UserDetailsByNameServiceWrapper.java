@@ -9,15 +9,18 @@ import org.springframework.util.Assert;
 
 /**
  * This implementation for PreAuthenticatedUserDetailsService wraps a regular
- * Acegi UserDetailsService implementation, to retrieve a UserDetails object
+ * Spring Security UserDetailsService implementation, to retrieve a UserDetails object
  * based on the user name contained in a PreAuthenticatedAuthenticationToken.
+ *
+ * @author Ruud Senden
+ * @since 2.0
  */
 public class UserDetailsByNameServiceWrapper implements PreAuthenticatedUserDetailsService, InitializingBean {
 	private UserDetailsService userDetailsService = null;
 
 	/**
 	 * Check whether all required properties have been set.
-	 * 
+	 *
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
 	 */
 	public void afterPropertiesSet() throws Exception {
@@ -35,7 +38,7 @@ public class UserDetailsByNameServiceWrapper implements PreAuthenticatedUserDeta
 
 	/**
 	 * Set the wrapped UserDetailsService implementation
-	 * 
+	 *
 	 * @param aUserDetailsService
 	 *            The wrapped UserDetailsService to set
 	 */

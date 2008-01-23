@@ -13,22 +13,22 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 /**
- * 
+ *
  * @author TSARDD
  * @since 18-okt-2007
  */
 public class PreAuthenticatedProcesingFilterEntryPointTests extends TestCase {
 
 	public void testGetSetOrder() {
-		PreAuthenticatedProcesingFilterEntryPoint fep = new PreAuthenticatedProcesingFilterEntryPoint();
+		PreAuthenticatedProcessingFilterEntryPoint fep = new PreAuthenticatedProcessingFilterEntryPoint();
 		fep.setOrder(333);
 		assertEquals(fep.getOrder(), 333);
 	}
-	
+
 	public void testCommence() {
 		MockHttpServletRequest req = new MockHttpServletRequest();
 		MockHttpServletResponse resp = new MockHttpServletResponse();
-		PreAuthenticatedProcesingFilterEntryPoint fep = new PreAuthenticatedProcesingFilterEntryPoint();
+		PreAuthenticatedProcessingFilterEntryPoint fep = new PreAuthenticatedProcessingFilterEntryPoint();
 		try {
 			fep.commence(req,resp,new AuthenticationCredentialsNotFoundException("test"));
 			assertEquals("Incorrect status",resp.getStatus(),HttpServletResponse.SC_FORBIDDEN);
@@ -37,6 +37,6 @@ public class PreAuthenticatedProcesingFilterEntryPointTests extends TestCase {
 		} catch (ServletException e) {
 			fail("Unexpected exception thrown: "+e);
 		}
-		
+
 	}
 }

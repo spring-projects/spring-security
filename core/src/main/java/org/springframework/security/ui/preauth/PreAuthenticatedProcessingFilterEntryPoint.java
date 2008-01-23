@@ -20,26 +20,26 @@ import org.springframework.core.Ordered;
  * user will already have been identified through some external mechanism and a
  * secure context established by the time the security-enforcement filter is
  * invoked.
- * </p>
  * <p>
  * Therefore this class isn't actually responsible for the commencement of
  * authentication, as it is in the case of other providers. It will be called if
  * the user is rejected by the AbstractPreAuthenticatedProcessingFilter,
  * resulting in a null authentication.
- * </p>
  * <p>
  * The <code>commence</code> method will always return an
  * <code>HttpServletResponse.SC_FORBIDDEN</code> (403 error).
- * </p>
  * <p>
  * This code is based on
  * {@link org.springframework.security.ui.x509.X509ProcessingFilterEntryPoint}.
- * </p>
- * 
+ *
  * @see org.springframework.security.ui.ExceptionTranslationFilter
+ *
+ * @author Luke Taylor
+ * @author Ruud Senden
+ * @since 2.0
  */
-public class PreAuthenticatedProcesingFilterEntryPoint implements AuthenticationEntryPoint, Ordered {
-	private static final Log LOG = LogFactory.getLog(PreAuthenticatedProcesingFilterEntryPoint.class);
+public class PreAuthenticatedProcessingFilterEntryPoint implements AuthenticationEntryPoint, Ordered {
+	private static final Log logger = LogFactory.getLog(PreAuthenticatedProcessingFilterEntryPoint.class);
 
 	private int order = Integer.MAX_VALUE;
 
@@ -48,8 +48,8 @@ public class PreAuthenticatedProcesingFilterEntryPoint implements Authentication
 	 */
 	public void commence(ServletRequest request, ServletResponse response, AuthenticationException arg2) throws IOException,
 			ServletException {
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("J2EE entry point called. Rejecting access");
+		if (logger.isDebugEnabled()) {
+			logger.debug("Pre-authenticated entry point called. Rejecting access");
 		}
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
