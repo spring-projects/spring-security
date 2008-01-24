@@ -132,13 +132,30 @@ public class HttpSecurityBeanDefinitionParserTests {
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) appContext.getBean(BeanIds.FILTER_SECURITY_INTERCEPTOR);
 
         FilterInvocationDefinitionSource fids = fis.getObjectDefinitionSource();
-        ConfigAttributeDefinition attrs = fids.getAttributes(createFilterinvocation("/Secure"));
+        ConfigAttributeDefinition attrs = fids.getAttributes(createFilterinvocation("/Secure", null));
         assertEquals(2, attrs.size());
         assertTrue(attrs.contains(new SecurityConfig("ROLE_A")));
         assertTrue(attrs.contains(new SecurityConfig("ROLE_B")));
-        attrs = fids.getAttributes(createFilterinvocation("/secure"));
+        attrs = fids.getAttributes(createFilterinvocation("/secure", null));
         assertEquals(1, attrs.size());
         assertTrue(attrs.contains(new SecurityConfig("ROLE_C")));
+    }
+
+    @Test
+    public void httpMethodMatchIsSupported() throws Exception {
+        setContext(
+                "    <http auto-config='true'>" +
+                "        <intercept-url pattern='/**' access='ROLE_C' />" +
+                "        <intercept-url pattern='/secure*' method='DELETE' access='ROLE_SUPERVISOR' />" +                        
+                "        <intercept-url pattern='/secure*' method='POST' access='ROLE_A,ROLE_B' />" +
+                "    </http>" + AUTH_PROVIDER_XML);
+
+        FilterSecurityInterceptor fis = (FilterSecurityInterceptor) appContext.getBean(BeanIds.FILTER_SECURITY_INTERCEPTOR);
+        FilterInvocationDefinitionSource fids = fis.getObjectDefinitionSource();
+        ConfigAttributeDefinition attrs = fids.getAttributes(createFilterinvocation("/secure", "POST"));
+        assertEquals(2, attrs.size());
+        assertTrue(attrs.contains(new SecurityConfig("ROLE_A")));
+        assertTrue(attrs.contains(new SecurityConfig("ROLE_B")));
     }
 
     @Test
@@ -213,8 +230,9 @@ public class HttpSecurityBeanDefinitionParserTests {
         return (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
     }
 
-    private FilterInvocation createFilterinvocation(String path) {
+    private FilterInvocation createFilterinvocation(String path, String method) {
         MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setMethod(method);
         request.setRequestURI(null);
 
         request.setServletPath(path);

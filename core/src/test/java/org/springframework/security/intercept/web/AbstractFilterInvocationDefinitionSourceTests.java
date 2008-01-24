@@ -29,7 +29,7 @@ import javax.servlet.ServletResponse;
 
 
 /**
- * Tests {@link AbstractFilterInvocationDefinitionSource}.
+ * Tests {@link DefaultFilterInvocationDefinitionSource}.
  *
  * @author Ben Alex
  * @version $Id$

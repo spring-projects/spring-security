@@ -15,8 +15,6 @@
 
 package org.springframework.security.intercept.web;
 
-import junit.framework.TestCase;
-
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockFilterChain;
 import org.springframework.security.SecurityConfig;
@@ -24,6 +22,9 @@ import org.springframework.security.SecurityConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests parts of {@link PathBasedFilterInvocationDefinitionMap} not tested by {@link
@@ -32,30 +33,25 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class PathBasedFilterDefinitionMapTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public PathBasedFilterDefinitionMapTests() {
-    }
-
-    public PathBasedFilterDefinitionMapTests(String arg0) {
-        super(arg0);
-    }
+public class PathBasedFilterInvocationDefinitionMapTests {
 
     //~ Methods ========================================================================================================
 
-    public void testConvertUrlToLowercaseIsTrueByDefault() {
+    @Test
+    public void convertUrlToLowercaseIsTrueByDefault() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
         assertTrue(map.isConvertUrlToLowercaseBeforeComparison());
     }
 
-    public void testConvertUrlToLowercaseSetterRespected() {
+    @Test
+    public void convertUrlToLowercaseSetterRespected() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
         map.setConvertUrlToLowercaseBeforeComparison(false);
         assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
     }
 
-    public void testLookupNotRequiringExactMatchSuccessIfNotMatching() {
+    @Test
+    public void lookupNotRequiringExactMatchSuccessIfNotMatching() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
         map.setConvertUrlToLowercaseBeforeComparison(true);
 
@@ -63,90 +59,146 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/secure/super/**", def);
 
-        FilterInvocation fi = createFilterinvocation("/SeCuRE/super/somefile.html");
+        FilterInvocation fi = createFilterInvocation("/SeCuRE/super/somefile.html", null);
 
         ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
     }
 
     /**
-     * SEC-501. Not that as of 2.0, lower case comparisons are the default for this class.
+     * SEC-501. Note that as of 2.0, lower case comparisons are the default for this class.
      */
-    public void testLookupNotRequiringExactMatchSucceedsIfSecureUrlPathContainsUpperCase() {
+    @Test
+    public void lookupNotRequiringExactMatchSucceedsIfSecureUrlPathContainsUpperCase() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
 
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/SeCuRE/super/**", def);
 
-        FilterInvocation fi = createFilterinvocation("/secure/super/somefile.html");
+        FilterInvocation fi = createFilterInvocation("/secure/super/somefile.html", null);
 
         ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
     }
 
 
-    public void testLookupRequiringExactMatchFailsIfNotMatching() {
+    @Test
+    public void lookupRequiringExactMatchFailsIfNotMatching() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
         map.setConvertUrlToLowercaseBeforeComparison(false);
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/secure/super/**", def);
 
-        FilterInvocation fi = createFilterinvocation("/SeCuRE/super/somefile.html");
+        FilterInvocation fi = createFilterInvocation("/SeCuRE/super/somefile.html", null);
 
         ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(null, response);
     }
 
-    public void testLookupRequiringExactMatchIsSuccessful() {
+    @Test
+    public void lookupRequiringExactMatchIsSuccessful() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
         map.setConvertUrlToLowercaseBeforeComparison(false);
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/SeCurE/super/**", def);
 
-        FilterInvocation fi = createFilterinvocation("/SeCurE/super/somefile.html");
+        FilterInvocation fi = createFilterInvocation("/SeCurE/super/somefile.html", null);
 
         ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
     }
 
-    public void testLookupRequiringExactMatchWithAdditionalSlashesIsSuccessful() {
+    @Test
+    public void lookupRequiringExactMatchWithAdditionalSlashesIsSuccessful() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/someAdminPage.html**", def);
 
-        FilterInvocation fi = createFilterinvocation("/someAdminPage.html?a=/test");
+        FilterInvocation fi = createFilterInvocation("/someAdminPage.html?a=/test", null);
 
         ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response); // see SEC-161 (it should truncate after ? sign)
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void unknownHttpMethodIsRejected() {
+        PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
+        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        map.addSecureUrl("/someAdminPage.html**", "UNKNOWN", def);
+    }
+
+    @Test
+    public void httpMethodLookupSucceeds() {
+        PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
+        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        map.addSecureUrl("/somepage**", "GET", def);
+
+        FilterInvocation fi = createFilterInvocation("/somepage", "GET");
+        ConfigAttributeDefinition attrs = map.getAttributes(fi);
+        assertEquals(def, attrs);
+    }
+
+    @Test
+    public void requestWithDifferentHttpMethodDoesntMatch() {
+        PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
+        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        map.addSecureUrl("/somepage**", "GET", def);
+
+        FilterInvocation fi = createFilterInvocation("/somepage", null);
+        ConfigAttributeDefinition attrs = map.getAttributes(fi);
+        assertNull(attrs);
+    }
+
+    @Test
+    public void httpMethodSpecificUrlTakesPrecedence() {
+        PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
+
+        // Even though this is added before the method-specific def, the latter should match
+        ConfigAttributeDefinition allMethodDef = new ConfigAttributeDefinition();
+        allMethodDef.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        map.addSecureUrl("/**", null, allMethodDef);
+
+        ConfigAttributeDefinition postOnlyDef = new ConfigAttributeDefinition();
+        postOnlyDef.addConfigAttribute(new SecurityConfig("ROLE_TWO"));
+        map.addSecureUrl("/somepage**", "POST", postOnlyDef);
+
+        FilterInvocation fi = createFilterInvocation("/somepage", "POST");
+        ConfigAttributeDefinition attrs = map.getAttributes(fi);
+        assertEquals(postOnlyDef, attrs);
+    }
+
     /**
      * Check fixes for SEC-321
      */
-    public void testExtraQuestionMarkStillMatches() {
+    @Test
+    public void extraQuestionMarkStillMatches() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/someAdminPage.html*", def);
 
-        FilterInvocation fi = createFilterinvocation("/someAdminPage.html?x=2/aa?y=3");
+        FilterInvocation fi = createFilterInvocation("/someAdminPage.html?x=2/aa?y=3", null);
 
         ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
 
-        fi = createFilterinvocation("/someAdminPage.html??");
+        fi = createFilterInvocation("/someAdminPage.html??", null);
 
         response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
     }
 
-    private FilterInvocation createFilterinvocation(String path) {
+    private FilterInvocation createFilterInvocation(String path, String method) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI(null);
+        request.setMethod(method);
 
         request.setServletPath(path);
 

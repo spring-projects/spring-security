@@ -29,13 +29,11 @@ public class FIDSToFilterChainMapConverter {
         // TODO: Check if this is necessary. Retained from refactoring of FilterChainProxy
         Assert.notNull(source.getConfigAttributeDefinitions(), "FilterChainProxy requires the " +
                 "FilterInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()");
-        Assert.isTrue(
-            source instanceof PathBasedFilterInvocationDefinitionMap ||
-            source instanceof RegExpBasedFilterInvocationDefinitionMap,
+        Assert.isTrue(source instanceof DefaultFilterInvocationDefinitionSource,
                 "Can't handle FilterInvocationDefinitionSource type " + source.getClass());
         
 
-        AbstractFilterInvocationDefinitionSource fids = (AbstractFilterInvocationDefinitionSource)source;
+        DefaultFilterInvocationDefinitionSource fids = (DefaultFilterInvocationDefinitionSource)source;
         Map requestMap = fids.getRequestMap();
         Iterator paths = requestMap.keySet().iterator();
 

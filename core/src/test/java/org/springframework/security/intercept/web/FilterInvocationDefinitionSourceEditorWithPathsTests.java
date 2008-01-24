@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockFilterChain;
 import org.springframework.security.SecurityConfig;
+import org.springframework.security.util.AntUrlPathMatcher;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -52,8 +53,8 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCa
         editor.setAsText(
             "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        FilterInvocationDefinitionMap map = (FilterInvocationDefinitionMap) editor.getValue();
-        assertTrue(map instanceof PathBasedFilterInvocationDefinitionMap);
+        DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
+        assertTrue(map.getUrlMatcher() instanceof AntUrlPathMatcher);
     }
 
     public void testConvertUrlToLowercaseDefaultSettingUnchangedByEditor() {
@@ -61,8 +62,8 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCa
         editor.setAsText(
             "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
-        assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
+        DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
+        assertFalse(map.getUrlMatcher().requiresLowerCaseUrl());
     }
 
     public void testConvertUrlToLowercaseSettingApplied() {
@@ -70,8 +71,8 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCa
         editor.setAsText(
             "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON\r\nPATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
-        assertTrue(map.isConvertUrlToLowercaseBeforeComparison());
+        DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
+        assertTrue(map.getUrlMatcher().requiresLowerCaseUrl());
     }
 
     public void testInvalidNameValueFailsToParse() {
@@ -89,7 +90,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCa
         editor.setAsText(
             "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
+        DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
         Iterator iter = map.getConfigAttributeDefinitions();
         int counter = 0;
 
@@ -105,7 +106,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCa
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText("PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
+        DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
 
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/totally/different/path/index.html");
@@ -121,7 +122,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCa
         editor.setAsText(
             "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
+        DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
         assertEquals(2, map.getMapSize());
     }
 
@@ -130,7 +131,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCa
         editor.setAsText(
             "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/**=ROLE_WE_DONT_HAVE,ANOTHER_ROLE\r\n/secure/**=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
+        DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
 
         // Test ensures we match the first entry, not the second
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
@@ -151,7 +152,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCa
         editor.setAsText(
             "PATTERN_TYPE_APACHE_ANT\r\n/secure/**=ROLE_SUPERVISOR,ROLE_TELLER\r\n/secure/super/**=ROLE_WE_DONT_HAVE");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
+        DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
 
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
@@ -170,7 +171,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCa
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText("PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
+        DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
 
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
@@ -190,7 +191,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCa
         editor.setAsText(
             "         PATTERN_TYPE_APACHE_ANT\r\n    /secure/super/*=ROLE_WE_DONT_HAVE\r\n    /secure/*=ROLE_SUPERVISOR,ROLE_TELLER      \r\n   \r\n     \r\n   // comment line  \r\n    \r\n");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
+        DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
         assertEquals(2, map.getMapSize());
     }
 }

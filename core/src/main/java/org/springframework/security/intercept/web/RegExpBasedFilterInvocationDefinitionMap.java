@@ -16,18 +16,18 @@
 package org.springframework.security.intercept.web;
 
 import org.springframework.security.util.RegexUrlPathMatcher;
-import org.springframework.security.util.AntUrlPathMatcher;
 
 
 /**
- * Configures an {@link AbstractFilterInvocationDefinitionSource} with a regular expression URL matching strategy
+ * Configures an {@link DefaultFilterInvocationDefinitionSource} with a regular expression URL matching strategy
  * {@link RegexUrlPathMatcher}.
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @deprecated
  * @version $Id$
  */
-public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvocationDefinitionSource
+public class RegExpBasedFilterInvocationDefinitionMap extends DefaultFilterInvocationDefinitionSource
     implements FilterInvocationDefinition {
 
     //~ Constructors ===================================================================================================

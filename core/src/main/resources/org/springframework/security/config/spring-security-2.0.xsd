@@ -355,6 +355,19 @@
         <xs:documentation>The access configuration attributes that apply for the configured path.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="method">
+      <xs:annotation>
+        <xs:documentation>The HTTP Method for which the access configuration attributes should apply. If not specified, the attributes will apply to any method.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="GET"/>
+          <xs:enumeration value="PUT"/>
+          <xs:enumeration value="POST"/>
+          <xs:enumeration value="DELETE"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="filters">
       <xs:annotation>
         <xs:documentation>The filter list for the path. Currently can be set to "none" to remove a path from having any filters applied. The full filter stack (consisting of all defined filters, will be applied to any other paths).</xs:documentation>

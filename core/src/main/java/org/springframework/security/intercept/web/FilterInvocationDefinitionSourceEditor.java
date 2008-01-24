@@ -23,20 +23,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.security.util.StringSplitUtils;
+import org.springframework.security.util.RegexUrlPathMatcher;
+import org.springframework.security.util.UrlMatcher;
+import org.springframework.security.util.AntUrlPathMatcher;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.StringUtils;
 
 
 /**
- * Property editor to assist with the setup of a {@link FilterInvocationDefinitionSource}.<p>The class creates and
- * populates a {@link RegExpBasedFilterInvocationDefinitionMap} or {@link PathBasedFilterInvocationDefinitionMap}
- * (depending on the type of patterns presented).</p>
- *  <p>By default the class treats presented patterns as regular expressions. If the keyword
+ * Property editor to assist with the setup of a {@link FilterInvocationDefinitionSource}.
+ * <p>
+ * Note that from version 2.0, the use of property-editor based configuration is deprecated in favour of namespace
+ * configuration options.
+ * <p>
+ * The class creates and populates a
+ * {@link org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource}
+ * using either an Ant or Regular Expression URL matching strategy depending on the type of patterns presented.
+ * <p>
+ * By default the class treats presented patterns as regular expressions. If the keyword
  * <code>PATTERN_TYPE_APACHE_ANT</code> is present (case sensitive), patterns will be treated as Apache Ant paths
- * rather than regular expressions.</p>
+ * rather than regular expressions.
  *
  * @author Ben Alex
+ * @deprecated Use namespace configuration instead. May be removed in future versions.
  * @version $Id$
  */
 public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSupport {
@@ -50,37 +61,49 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
     //~ Methods ========================================================================================================
 
     public void setAsText(String s) throws IllegalArgumentException {
-        FilterInvocationDefinitionDecorator source = new FilterInvocationDefinitionDecorator();
+        //FilterInvocationDefinitionDecorator source = new FilterInvocationDefinitionDecorator();
 
         if ((s == null) || "".equals(s)) {
             // Leave target object empty
-            setValue(new RegExpBasedFilterInvocationDefinitionMap());
+            setValue(new DefaultFilterInvocationDefinitionSource(new RegexUrlPathMatcher()));
 
             return;
         }
 
-        // Check if we need to override the default definition map
-        if (s.lastIndexOf(DIRECTIVE_PATTERN_TYPE_APACHE_ANT) != -1) {
-            source.setDecorated(new PathBasedFilterInvocationDefinitionMap());
+        boolean useAnt = s.lastIndexOf(DIRECTIVE_PATTERN_TYPE_APACHE_ANT) != -1;
+        boolean converUrlToLowerCase = s.lastIndexOf(DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON) != -1;
 
-            if (logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
+            if (useAnt) {
                 logger.debug(("Detected " + DIRECTIVE_PATTERN_TYPE_APACHE_ANT
                     + " directive; using Apache Ant style path expressions"));
             }
-        } else {
-            source.setDecorated(new RegExpBasedFilterInvocationDefinitionMap());
-        }
 
-        if (s.lastIndexOf(DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON) != -1) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Detected " + DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-                    + " directive; Instructing mapper to convert URLs to lowercase before comparison");
+            if (converUrlToLowerCase) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Detected " + DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+                        + " directive; Instructing mapper to convert URLs to lowercase before comparison");
+                }
             }
-
-            source.setConvertUrlToLowercaseBeforeComparison(true);
-        } else {
-            source.setConvertUrlToLowercaseBeforeComparison(false);
         }
+
+        UrlMatcher matcher;
+
+        if (useAnt) {
+            matcher = new AntUrlPathMatcher();
+            ((AntUrlPathMatcher)matcher).setRequiresLowerCaseUrl(converUrlToLowerCase);
+
+        } else {
+            matcher = new RegexUrlPathMatcher();
+            ((RegexUrlPathMatcher)matcher).setRequiresLowerCaseUrl(converUrlToLowerCase);
+        }
+
+        DefaultFilterInvocationDefinitionSource fids = new DefaultFilterInvocationDefinitionSource(matcher);
+
+        if (useAnt) {
+            fids.setStripQueryStringFromUrls(true);
+        }
+
 
         BufferedReader br = new BufferedReader(new StringReader(s));
         int counter = 0;
@@ -147,8 +170,7 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
             }
 
             // Attempt to detect malformed lines (as per SEC-204)
-            if (source.isConvertUrlToLowercaseBeforeComparison()
-                && source.getDecorated() instanceof PathBasedFilterInvocationDefinitionMap) {
+            if (converUrlToLowerCase && useAnt) {
                 // Should all be lowercase; check each character
                 // We only do this for Ant (regexp have control chars)
                 for (int i = 0; i < name.length(); i++) {
@@ -174,9 +196,8 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
 
             mappings.add(mapping);
         }
-        source.setMappings(mappings);
+        fids.setMappings(mappings);
 
-
-        setValue(source.getDecorated());
+        setValue(fids);
     }
 }

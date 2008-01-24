@@ -48,7 +48,7 @@ public final class FilterInvocationUtils {
 
     /**
      * Creates a <code>FilterInvocation</code> for the specified <code>contextPath</code> and <code>Uri</code>.
-     * Note the normal subclasses of <code>AbstractFilterInvocationDefinitionSource</code> disregard the
+     * Note the normal subclasses of <code>DefaultFilterInvocationDefinitionSource</code> disregard the
      * <code>contextPath</code> when evaluating which secure object metadata applies to a given
      * <code>FilterInvocation</code>, so generally the <code>contextPath</code> is unimportant unless you are using a
      * custom <code>FilterInvocationDefinitionSource</code>.

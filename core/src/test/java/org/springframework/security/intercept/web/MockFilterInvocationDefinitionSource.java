@@ -30,7 +30,7 @@ import java.util.Vector;
  * @author Ben Alex
  * @version $Id$
  */
-public class MockFilterInvocationDefinitionSource extends AbstractFilterInvocationDefinitionSource {
+public class MockFilterInvocationDefinitionSource extends DefaultFilterInvocationDefinitionSource {
     //~ Instance fields ================================================================================================
 
     private List list;
@@ -77,7 +77,7 @@ public class MockFilterInvocationDefinitionSource extends AbstractFilterInvocati
         }
     }
 
-    public ConfigAttributeDefinition lookupAttributes(String url) {
+    public ConfigAttributeDefinition lookupAttributes(String url, String method) {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 }

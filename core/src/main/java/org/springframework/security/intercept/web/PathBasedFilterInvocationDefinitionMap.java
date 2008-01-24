@@ -18,11 +18,8 @@ package org.springframework.security.intercept.web;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.util.AntUrlPathMatcher;
 
-import java.util.Iterator;
-
-
 /**
- * Extends AbstractFilterInvocationDefinitionSource, configuring it with a {@link AntUrlPathMatcher} to match URLs
+ * Extends DefaultFilterInvocationDefinitionSource, configuring it with a {@link AntUrlPathMatcher} to match URLs
  * using Apache Ant path-based patterns.
  * <p>
  * Apache Ant path expressions are used to match a HTTP request URL against a <code>ConfigAttributeDefinition</code>.
@@ -39,42 +36,29 @@ import java.util.Iterator;
  *
  * @author Ben Alex
  * @author Luke taylor
+ * @deprecated DefaultFilterInvocationDefinitionSource should now be used with an AntUrlPathMatcher instead.
  * @version $Id$
  */
-public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvocationDefinitionSource
+public class PathBasedFilterInvocationDefinitionMap extends DefaultFilterInvocationDefinitionSource
         implements FilterInvocationDefinition {
 
     //~ Constructors ===================================================================================================
 
     public PathBasedFilterInvocationDefinitionMap() {
         super(new AntUrlPathMatcher());
+        setStripQueryStringFromUrls(true);
     }
 
     //~ Methods ========================================================================================================
 
-    public void addSecureUrl(String antPath, ConfigAttributeDefinition attr) {
+    public void addSecureUrl(String antPath, String method, ConfigAttributeDefinition attr) {
         // SEC-501: If using lower case comparison, we should convert the paths to lower case
         // as any upper case characters included by mistake will prevent the URL from ever being matched.
         if (getUrlMatcher().requiresLowerCaseUrl()) {
             antPath = antPath.toLowerCase();
         }
 
-        super.addSecureUrl(antPath, attr);
-    }
-
-    public Iterator getConfigAttributeDefinitions() {
-        return getRequestMap().values().iterator();
-    }
-
-    public ConfigAttributeDefinition lookupAttributes(String url) {
-        // Strip anything after a question mark symbol, as per SEC-161. See also SEC-321
-        int firstQuestionMarkIndex = url.indexOf("?");
-
-        if (firstQuestionMarkIndex != -1) {
-            url = url.substring(0, firstQuestionMarkIndex);
-        }
-
-        return super.lookupAttributes(url);
+        super.addSecureUrl(antPath, method, attr);
     }
 
     public void setConvertUrlToLowercaseBeforeComparison(boolean bool) {
