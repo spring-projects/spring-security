@@ -96,6 +96,18 @@
                 <version>6.1.5</version>
                 <configuration>
                     <contextPath>/tutorial</contextPath>
+                    <connectors>
+                        <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                            <port>8080</port>
+                            <confidentialPort>8443</confidentialPort>
+                        </connector>
+                        <connector implementation="org.mortbay.jetty.security.SslSocketConnector">
+                            <port>8443</port>
+                            <keystore>keystore</keystore>
+                            <password>password</password>
+                            <keyPassword>password</keyPassword>
+                        </connector>
+                    </connectors>
                 </configuration>
             </plugin>
         </plugins>

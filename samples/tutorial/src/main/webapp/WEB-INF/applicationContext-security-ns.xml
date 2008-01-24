@@ -15,7 +15,7 @@
 	<annotation-driven/>
 
     <http>
-        <intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
+        <intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR" requires-channel="https"/>
         <intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
 		<!-- Disable web URI authorization, as we're using <annotation-driven> and have @Secured the services layer instead
         <intercept-url pattern="/listAccounts.html" access="IS_AUTHENTICATED_REMEMBERED" />
