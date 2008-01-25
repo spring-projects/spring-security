@@ -5,10 +5,8 @@ import java.io.PrintStream;
 import java.io.Serializable;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.security.acls.AccessControlEntry;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AuditableAccessControlEntry;
@@ -20,24 +18,25 @@ import org.springframework.security.acls.sid.Sid;
  * 
  * @author Andrei Stefan
  */
-public class AuditLoggerTests {
+public class AuditLoggerTests extends TestCase {
+    //~ Instance fields ================================================================================================
+	
 	private PrintStream console;
 
-	ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+	private ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+	
+	//~ Methods ========================================================================================================
 
-	@Before
-	public void onSetUp() {
+	public void setUp() throws Exception {
 		console = System.out;
 		System.setOut(new PrintStream(bytes));
 	}
 
-	@After
-	public void onTearDown() {
+	public void tearDown() throws Exception {
 		System.setOut(console);
 	}
 
-	@Test
-	public void loggingTests() {
+	public void testLoggingTests() {
 		ConsoleAuditLogger logger = new ConsoleAuditLogger();
 		MockAccessControlEntryImpl auditableAccessControlEntry = new MockAccessControlEntryImpl();
 
@@ -68,9 +67,8 @@ public class AuditLoggerTests {
 		Assert.assertTrue(bytes.size() == 0);
 	}
 
-	/**
-	 * Mock {@link AuditableAccessControlEntry}.
-	 */
+	//~ Inner Classes ==================================================================================================
+	
 	private class MockAccessControlEntryImpl implements AuditableAccessControlEntry {
 		private boolean auditFailure = false;
 
@@ -113,9 +111,6 @@ public class AuditLoggerTests {
 		}
 	}
 
-	/**
-	 * Mock {@link AccessControlEntry}.
-	 */
 	private class MockAccessControlEntry implements AccessControlEntry {
 
 		public Acl getAcl() {

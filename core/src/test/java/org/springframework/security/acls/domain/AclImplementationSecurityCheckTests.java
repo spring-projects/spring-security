@@ -1,10 +1,8 @@
 package org.springframework.security.acls.domain;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
@@ -24,15 +22,19 @@ import org.springframework.security.providers.TestingAuthenticationToken;
  * 
  * @author Andrei Stefan
  */
-public class AclImplementationSecurityCheckTests {
-	@Before
-	@After
-	public void clearContext() {
+public class AclImplementationSecurityCheckTests extends TestCase {
+	
+	//~ Methods ========================================================================================================
+
+	protected void setUp() throws Exception {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test
-	public void securityCheckNoACEs() {
+	protected void tearDown() throws Exception {
+		SecurityContextHolder.clearContext();
+	}
+
+	public void testSecurityCheckNoACEs() {
 		Authentication auth = new TestingAuthenticationToken("user", "password", new GrantedAuthority[] {
 				new GrantedAuthorityImpl("ROLE_GENERAL"), new GrantedAuthorityImpl("ROLE_AUDITING"),
 				new GrantedAuthorityImpl("ROLE_OWNERSHIP") });
@@ -96,8 +98,7 @@ public class AclImplementationSecurityCheckTests {
 		}
 	}
 
-	@Test
-	public void securityCheckWithMultipleACEs() {
+	public void testSecurityCheckWithMultipleACEs() {
 		// Create a simple authentication with ROLE_GENERAL
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_GENERAL") });
@@ -198,8 +199,7 @@ public class AclImplementationSecurityCheckTests {
 		}
 	}
 
-	@Test
-	public void securityCheckWithInheritableACEs() {
+	public void testSecurityCheckWithInheritableACEs() {
 		// Create a simple authentication with ROLE_GENERAL
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_GENERAL") });
@@ -257,8 +257,7 @@ public class AclImplementationSecurityCheckTests {
 		}
 	}
 
-	@Test
-	public void securityCheckPrincipalOwner() {
+	public void testSecurityCheckPrincipalOwner() {
 		Authentication auth = new TestingAuthenticationToken("user", "password", new GrantedAuthority[] {
 				new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_ONE"),
 				new GrantedAuthorityImpl("ROLE_ONE") });
