@@ -139,6 +139,6 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
     }
 
     public int getOrder() {
-        return FilterChainOrder.CHANNEL_PROCESSING_FILTER;
+        return FilterChainOrder.CHANNEL_FILTER;
     }
 }

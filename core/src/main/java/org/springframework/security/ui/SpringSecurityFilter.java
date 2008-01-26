@@ -51,4 +51,8 @@ public abstract class SpringSecurityFilter implements Filter, Ordered {
     }
 
     protected abstract void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException;
+
+    public String toString() {
+        return getClass() + "[ order=" + getOrder() + "; ]";
+    }
 }

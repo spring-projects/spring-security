@@ -68,8 +68,7 @@ public class X509TestUtils {
      *             [signature omitted]
      * </pre>
      */
-    public static X509Certificate buildTestCertificate()
-        throws Exception {
+    public static X509Certificate buildTestCertificate() throws Exception {
         String cert = "-----BEGIN CERTIFICATE-----\n"
             + "MIIEQTCCAymgAwIBAgIBATANBgkqhkiG9w0BAQUFADCBkzEaMBgGA1UEAxMRTW9u\n"
             + "a2V5IE1hY2hpbmUgQ0ExCzAJBgNVBAYTAlVLMREwDwYDVQQIEwhTY290bGFuZDEQ\n"

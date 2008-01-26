@@ -1,5 +1,7 @@
 package org.springframework.security.config;
 
+import org.springframework.security.util.FieldUtils;
+import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.core.Ordered;
 import org.springframework.util.StringUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
@@ -30,11 +33,13 @@ import java.io.IOException;
  */
 public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecorator {
 
-    public static final String ATT_ORDER = "order";
+    public static final String ATT_AFTER = "after";
+    public static final String ATT_BEFORE = "before";
 
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder, ParserContext parserContext) {
         Element elt = (Element)node;
-        String order = elt.getAttribute(ATT_ORDER);
+        String order = getOrder(elt, parserContext);
+
         BeanDefinition filter = holder.getBeanDefinition();
         BeanDefinition wrapper = new RootBeanDefinition(OrderedFilterDecorator.class);
         wrapper.getConstructorArgumentValues().addIndexedArgumentValue(0, holder.getBeanName());
@@ -45,6 +50,24 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
         }
 
         return new BeanDefinitionHolder(wrapper, holder.getBeanName());
+    }
+
+    /**
+     * Attempts to get the order of the filter by parsing the 'before' or 'after' attributes.
+     */
+    private String getOrder(Element elt, ParserContext pc) {
+        String after = elt.getAttribute(ATT_AFTER);
+        String before = elt.getAttribute(ATT_BEFORE);
+
+        if (StringUtils.hasText(after)) {
+            return FilterChainOrder.getOrder(after).toString();
+        }
+
+        if (StringUtils.hasText(before)) {
+            return FilterChainOrder.getOrder(before).toString();
+        }
+
+        return null;
     }
 
     static class OrderedFilterDecorator implements Filter, Ordered {
@@ -72,7 +95,7 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
         public final int getOrder() {
             if(order == null) {
                 Assert.isInstanceOf(Ordered.class, "Filter '"+ beanName +"' must implement the 'Ordered' interface " +
-                        " or you must specify an order in <user-filter>");
+                        " or you must specify one of the attributes 'after' or 'before' in <user-filter>");
 
                 return ((Ordered)delegate).getOrder();
             }

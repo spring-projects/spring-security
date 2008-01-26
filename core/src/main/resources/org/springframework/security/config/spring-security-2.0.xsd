@@ -647,19 +647,124 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:group name="user-filter">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="security:user-filter"/>
+    </xs:sequence>
+  </xs:group>
   <xs:element name="user-filter">
     <xs:annotation>
-      <xs:documentation>Used to indicate that a filter bean declaration should be incorporated into the security filter chain. </xs:documentation>
+      <xs:documentation>Used to indicate that a filter bean declaration should be incorporated into the security filter chain. If neither the 'after' or 'before' options are supplied, then the filter must implement the Ordered interface directly. </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attributeGroup ref="security:user-filter.attlist"/>
+      <xs:attribute name="after">
+        <xs:annotation>
+          <xs:documentation>The filter immediately after which the user-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters. </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="FIRST"/>
+            <xs:enumeration value="CHANNEL_FILTER"/>
+            <xs:enumeration value="CONCURRENT_SESSION_FILTER"/>
+            <xs:enumeration value="SESSION_CONTEXT_INTEGRATION_FILTER"/>
+            <xs:enumeration value="LOGOUT_FILTER"/>
+            <xs:enumeration value="X509_FILTER"/>
+            <xs:enumeration value="PRE_AUTH_FILTER"/>
+            <xs:enumeration value="CAS_PROCESSING_FILTER"/>
+            <xs:enumeration value="AUTHENTICATION_PROCESSING_FILTER"/>
+            <xs:enumeration value="BASIC_PROCESSING_FILTER"/>
+            <xs:enumeration value="SERVLET_API_SUPPORT_FILTER"/>
+            <xs:enumeration value="REMEMBER_ME_FILTER"/>
+            <xs:enumeration value="ANONYMOUS_FILTER"/>
+            <xs:enumeration value="EXCEPTION_TRANSLATION_FILTER"/>
+            <xs:enumeration value="NTLM_FILTER"/>
+            <xs:enumeration value="FILTER_SECURITY_INTERCEPTOR"/>
+            <xs:enumeration value="SWITCH_USER_FILTER"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="before">
+        <xs:annotation>
+          <xs:documentation>The filter immediately before which the user-filter should be placed in the chain</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="FIRST"/>
+            <xs:enumeration value="CHANNEL_FILTER"/>
+            <xs:enumeration value="CONCURRENT_SESSION_FILTER"/>
+            <xs:enumeration value="SESSION_CONTEXT_INTEGRATION_FILTER"/>
+            <xs:enumeration value="LOGOUT_FILTER"/>
+            <xs:enumeration value="X509_FILTER"/>
+            <xs:enumeration value="PRE_AUTH_FILTER"/>
+            <xs:enumeration value="CAS_PROCESSING_FILTER"/>
+            <xs:enumeration value="AUTHENTICATION_PROCESSING_FILTER"/>
+            <xs:enumeration value="BASIC_PROCESSING_FILTER"/>
+            <xs:enumeration value="SERVLET_API_SUPPORT_FILTER"/>
+            <xs:enumeration value="REMEMBER_ME_FILTER"/>
+            <xs:enumeration value="ANONYMOUS_FILTER"/>
+            <xs:enumeration value="EXCEPTION_TRANSLATION_FILTER"/>
+            <xs:enumeration value="NTLM_FILTER"/>
+            <xs:enumeration value="FILTER_SECURITY_INTERCEPTOR"/>
+            <xs:enumeration value="SWITCH_USER_FILTER"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
-  <xs:attributeGroup name="user-filter.attlist">
-    <xs:attribute name="order" type="xs:integer">
+  <xs:attributeGroup name="after">
+    <xs:attribute name="after" use="required">
       <xs:annotation>
-        <xs:documentation>The order value for the chain (user to position the filter relative to the standard filters)   </xs:documentation>
+        <xs:documentation>The filter immediately after which the user-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters. </xs:documentation>
       </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="FIRST"/>
+          <xs:enumeration value="CHANNEL_FILTER"/>
+          <xs:enumeration value="CONCURRENT_SESSION_FILTER"/>
+          <xs:enumeration value="SESSION_CONTEXT_INTEGRATION_FILTER"/>
+          <xs:enumeration value="LOGOUT_FILTER"/>
+          <xs:enumeration value="X509_FILTER"/>
+          <xs:enumeration value="PRE_AUTH_FILTER"/>
+          <xs:enumeration value="CAS_PROCESSING_FILTER"/>
+          <xs:enumeration value="AUTHENTICATION_PROCESSING_FILTER"/>
+          <xs:enumeration value="BASIC_PROCESSING_FILTER"/>
+          <xs:enumeration value="SERVLET_API_SUPPORT_FILTER"/>
+          <xs:enumeration value="REMEMBER_ME_FILTER"/>
+          <xs:enumeration value="ANONYMOUS_FILTER"/>
+          <xs:enumeration value="EXCEPTION_TRANSLATION_FILTER"/>
+          <xs:enumeration value="NTLM_FILTER"/>
+          <xs:enumeration value="FILTER_SECURITY_INTERCEPTOR"/>
+          <xs:enumeration value="SWITCH_USER_FILTER"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="before">
+    <xs:attribute name="before" use="required">
+      <xs:annotation>
+        <xs:documentation>The filter immediately before which the user-filter should be placed in the chain</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="FIRST"/>
+          <xs:enumeration value="CHANNEL_FILTER"/>
+          <xs:enumeration value="CONCURRENT_SESSION_FILTER"/>
+          <xs:enumeration value="SESSION_CONTEXT_INTEGRATION_FILTER"/>
+          <xs:enumeration value="LOGOUT_FILTER"/>
+          <xs:enumeration value="X509_FILTER"/>
+          <xs:enumeration value="PRE_AUTH_FILTER"/>
+          <xs:enumeration value="CAS_PROCESSING_FILTER"/>
+          <xs:enumeration value="AUTHENTICATION_PROCESSING_FILTER"/>
+          <xs:enumeration value="BASIC_PROCESSING_FILTER"/>
+          <xs:enumeration value="SERVLET_API_SUPPORT_FILTER"/>
+          <xs:enumeration value="REMEMBER_ME_FILTER"/>
+          <xs:enumeration value="ANONYMOUS_FILTER"/>
+          <xs:enumeration value="EXCEPTION_TRANSLATION_FILTER"/>
+          <xs:enumeration value="NTLM_FILTER"/>
+          <xs:enumeration value="FILTER_SECURITY_INTERCEPTOR"/>
+          <xs:enumeration value="SWITCH_USER_FILTER"/>
+        </xs:restriction>
+      </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
 </xs:schema>

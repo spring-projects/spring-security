@@ -154,7 +154,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
     }
 
     public int getOrder() {
-        return FilterChainOrder.AUTH_PROCESSING_FILTER;
+        return FilterChainOrder.AUTHENTICATION_PROCESSING_FILTER;
     }
 
     String getUsernameParameter() {

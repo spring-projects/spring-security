@@ -267,9 +267,15 @@ jdbc-user-service.attlist &=
     
     
 user-filter =
-    ## Used to indicate that a filter bean declaration should be incorporated into the security filter chain. 
-    element user-filter {user-filter.attlist}
-user-filter.attlist &=
-    ## The order value for the chain (user to position the filter relative to the standard filters)   
-    attribute order {xsd:integer}?
+    ## Used to indicate that a filter bean declaration should be incorporated into the security filter chain. If neither the 'after' or 'before' options are supplied, then the filter must implement the Ordered interface directly. 
+    element user-filter {after | before}?
+after =
+    ## The filter immediately after which the user-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters. 
+    attribute after {"FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "SESSION_CONTEXT_INTEGRATION_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_PROCESSING_FILTER" | "AUTHENTICATION_PROCESSING_FILTER" | "BASIC_PROCESSING_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "NTLM_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER"}
+before =
+    ## The filter immediately before which the user-filter should be placed in the chain
+    attribute before {"FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "SESSION_CONTEXT_INTEGRATION_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_PROCESSING_FILTER" | "AUTHENTICATION_PROCESSING_FILTER" | "BASIC_PROCESSING_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "NTLM_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER"}
+
+    
+    
     

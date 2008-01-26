@@ -122,7 +122,7 @@ public class AnonymousProcessingFilter  extends SpringSecurityFilter  implements
 	}
 
 	public int getOrder() {
-        return FilterChainOrder.ANON_PROCESSING_FILTER;
+        return FilterChainOrder.ANONYMOUS_FILTER;
 	}
 
     public String getKey() {

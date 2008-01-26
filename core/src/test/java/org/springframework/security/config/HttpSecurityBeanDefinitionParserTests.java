@@ -146,7 +146,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         setContext(
                 "    <http auto-config='true'>" +
                 "        <intercept-url pattern='/**' access='ROLE_C' />" +
-                "        <intercept-url pattern='/secure*' method='DELETE' access='ROLE_SUPERVISOR' />" +                        
+                "        <intercept-url pattern='/secure*' method='DELETE' access='ROLE_SUPERVISOR' />" +
                 "        <intercept-url pattern='/secure*' method='POST' access='ROLE_A,ROLE_B' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
 
@@ -199,14 +199,14 @@ public class HttpSecurityBeanDefinitionParserTests {
         setContext(
                 "<http auto-config='true'/>" + AUTH_PROVIDER_XML +
                 "<b:bean id='userFilter' class='org.springframework.security.util.MockFilter'>" +
-                "    <user-filter order='0'/>" +
+                "    <user-filter after='SESSION_CONTEXT_INTEGRATION_FILTER'/>" +
                 "</b:bean>" +
                 "<b:bean id='userFilter2' class='org.springframework.security.util.MockFilter'/>");
         List filters = getFilterChainProxy().getFilters("/someurl");
 
         assertEquals(11, filters.size());
-        assertTrue(filters.get(10) instanceof OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator);
-        assertEquals("userFilter", ((OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator)filters.get(10)).getBeanName());
+        assertTrue(filters.get(1) instanceof OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator);
+        assertEquals("userFilter", ((OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator)filters.get(1)).getBeanName());
     }
 
     @Test

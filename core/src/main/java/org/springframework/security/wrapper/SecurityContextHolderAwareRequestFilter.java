@@ -92,6 +92,6 @@ public class SecurityContextHolderAwareRequestFilter extends SpringSecurityFilte
 	}
 
 	public int getOrder() {
-		return FilterChainOrder.SECURITY_CONTEXT_HOLDER_AWARE_FILTER;
+		return FilterChainOrder.SERVLET_API_SUPPORT_FILTER;
 	}
 }
