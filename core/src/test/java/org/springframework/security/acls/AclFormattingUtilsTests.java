@@ -10,6 +10,8 @@ import junit.framework.TestCase;
  */
 public class AclFormattingUtilsTests extends TestCase {
 
+	//~ Methods ========================================================================================================
+	
 	public void testDemergePatternsParametersConstraints() {
 		try {
 			AclFormattingUtils.demergePatterns(null, "SOME STRING");

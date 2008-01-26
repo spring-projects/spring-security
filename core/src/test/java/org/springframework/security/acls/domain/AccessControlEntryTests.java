@@ -19,7 +19,9 @@ import org.springframework.security.acls.sid.Sid;
  * @author Andrei Stefan
  */
 public class AccessControlEntryTests extends TestCase {
-
+	
+	//~ Methods ========================================================================================================
+	
 	public void testConstructorRequiredFields() {
 		// Check Acl field is present
 		try {
@@ -98,9 +100,8 @@ public class AccessControlEntryTests extends TestCase {
 				BasePermission.ADMINISTRATION, true, true, false)));
 	}
 
-	/**
-	 * {@link Acl} mock implementation.
-	 */
+	//~ Inner Classes ==================================================================================================
+	
 	private class MockAcl implements Acl {
 
 		public AccessControlEntry[] getEntries() {
