@@ -103,10 +103,10 @@
                         </connector>
                         <connector implementation="org.mortbay.jetty.security.SslSocketConnector">
                             <port>8443</port>
-                            <keystore>server.jks</keystore>
+                            <keystore>../certificates/server.jks</keystore>
                             <password>password</password>
                             <keyPassword>password</keyPassword>
-                            <truststore>server.jks</truststore>
+                            <truststore>../certificates/server.jks</truststore>
                             <trustPassword>password</trustPassword>
                             <wantClientAuth>true</wantClientAuth>
                             <needClientAuth>false</needClientAuth>
