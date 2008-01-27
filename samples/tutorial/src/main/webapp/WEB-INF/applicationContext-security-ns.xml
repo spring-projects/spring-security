@@ -34,6 +34,16 @@
 
     </http>
 
+    <beans:bean id="x509Filter" class="org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter" autowire="byType">
+        <custom-filter after="X509_FILTER"/>
+    </beans:bean>
+
+    <beans:bean id="preauthProvider" class="org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationProvider" >
+        <custom-authentication-provider />
+        <beans:property name="preAuthenticatedUserDetailsService">
+            <beans:bean class="org.springframework.security.providers.preauth.UserDetailsByNameServiceWrapper" autowire="byType"/>
+        </beans:property>
+    </beans:bean>
 
     <!--
     Usernames/Passwords are
