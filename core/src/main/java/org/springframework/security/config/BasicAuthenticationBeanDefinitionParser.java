@@ -20,7 +20,7 @@ import org.w3c.dom.Element;
  */
 public class BasicAuthenticationBeanDefinitionParser implements BeanDefinitionParser {
 	private String realmName;
-	
+
 	public BasicAuthenticationBeanDefinitionParser(String realmName) {
 		this.realmName = realmName;
 	}
@@ -28,18 +28,17 @@ public class BasicAuthenticationBeanDefinitionParser implements BeanDefinitionPa
 	public BeanDefinition parse(Element elt, ParserContext parserContext) {
         BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(BasicProcessingFilter.class);
 	    RootBeanDefinition entryPoint = new RootBeanDefinition(BasicProcessingFilterEntryPoint.class);
-	
+
 	    entryPoint.getPropertyValues().addPropertyValue("realmName", realmName);
 	
-	    filterBuilder.addPropertyValue("authenticationEntryPoint", entryPoint);
 	    parserContext.getRegistry().registerBeanDefinition(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT, entryPoint);
-	    
+
 	    filterBuilder.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
 	    filterBuilder.addPropertyValue("authenticationEntryPoint", new RuntimeBeanReference(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT));
-	    
+
 	    parserContext.getRegistry().registerBeanDefinition(BeanIds.BASIC_AUTHENTICATION_FILTER,
 	            filterBuilder.getBeanDefinition());
-	
+
 	    return null;
 	}
 }
