@@ -95,7 +95,8 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
         public final int getOrder() {
             if(order == null) {
                 Assert.isInstanceOf(Ordered.class, "Filter '"+ beanName +"' must implement the 'Ordered' interface " +
-                        " or you must specify one of the attributes 'after' or 'before' in <user-filter>");
+                        " or you must specify one of the attributes '" + ATT_AFTER + "' or '" +
+                        ATT_BEFORE + "' in <" + Elements.CUSTOM_FILTER +">");
 
                 return ((Ordered)delegate).getOrder();
             }

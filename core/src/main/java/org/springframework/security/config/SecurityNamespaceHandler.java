@@ -24,6 +24,6 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
         // Decorators
         registerBeanDefinitionDecorator(Elements.INTERCEPT_METHODS, new InterceptMethodsBeanDefinitionDecorator());
         registerBeanDefinitionDecorator(Elements.FILTER_CHAIN_MAP, new FilterChainMapBeanDefinitionDecorator());
-        registerBeanDefinitionDecorator(Elements.USER_FILTER, new OrderedFilterBeanDefinitionDecorator());
+        registerBeanDefinitionDecorator(Elements.CUSTOM_FILTER, new OrderedFilterBeanDefinitionDecorator());
     }
 }

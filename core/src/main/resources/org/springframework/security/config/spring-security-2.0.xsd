@@ -650,19 +650,19 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
-  <xs:group name="user-filter">
+  <xs:group name="custom-filter">
     <xs:sequence>
-      <xs:element minOccurs="0" ref="security:user-filter"/>
+      <xs:element minOccurs="0" ref="security:custom-filter"/>
     </xs:sequence>
   </xs:group>
-  <xs:element name="user-filter">
+  <xs:element name="custom-filter">
     <xs:annotation>
       <xs:documentation>Used to indicate that a filter bean declaration should be incorporated into the security filter chain. If neither the 'after' or 'before' options are supplied, then the filter must implement the Ordered interface directly. </xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:attribute name="after">
         <xs:annotation>
-          <xs:documentation>The filter immediately after which the user-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters. </xs:documentation>
+          <xs:documentation>The filter immediately after which the custom-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters. </xs:documentation>
         </xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:token">
@@ -688,7 +688,7 @@
       </xs:attribute>
       <xs:attribute name="before">
         <xs:annotation>
-          <xs:documentation>The filter immediately before which the user-filter should be placed in the chain</xs:documentation>
+          <xs:documentation>The filter immediately before which the custom-filter should be placed in the chain</xs:documentation>
         </xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:token">
@@ -717,7 +717,7 @@
   <xs:attributeGroup name="after">
     <xs:attribute name="after" use="required">
       <xs:annotation>
-        <xs:documentation>The filter immediately after which the user-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters. </xs:documentation>
+        <xs:documentation>The filter immediately after which the custom-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters. </xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -745,7 +745,7 @@
   <xs:attributeGroup name="before">
     <xs:attribute name="before" use="required">
       <xs:annotation>
-        <xs:documentation>The filter immediately before which the user-filter should be placed in the chain</xs:documentation>
+        <xs:documentation>The filter immediately before which the custom-filter should be placed in the chain</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
