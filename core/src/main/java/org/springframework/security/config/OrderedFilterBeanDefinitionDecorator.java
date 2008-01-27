@@ -58,11 +58,11 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
         String before = elt.getAttribute(ATT_BEFORE);
 
         if (StringUtils.hasText(after)) {
-            return FilterChainOrder.getOrder(after).toString();
+            return Integer.toString(FilterChainOrder.getOrder(after) + 1);
         }
 
         if (StringUtils.hasText(before)) {
-            return FilterChainOrder.getOrder(before).toString();
+            return Integer.toString(FilterChainOrder.getOrder(before) - 1);
         }
 
         return null;
