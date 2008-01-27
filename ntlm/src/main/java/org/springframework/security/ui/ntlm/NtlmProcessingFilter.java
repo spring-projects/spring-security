@@ -27,6 +27,8 @@ import org.springframework.security.providers.anonymous.AnonymousAuthenticationT
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.WebAuthenticationDetails;
 import org.springframework.security.ui.FilterChainOrder;
+import org.springframework.security.ui.AuthenticationDetailsSource;
+import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -46,6 +48,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -110,8 +113,9 @@ public class NtlmProcessingFilter extends SpringSecurityFilter implements Initia
 	private String	defaultDomain;
 	private String	domainController;
 	private AuthenticationManager authenticationManager;
+    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
 
-	//~ Methods ========================================================================================================
+    //~ Methods ========================================================================================================
 
 	/**
 	 * Ensures an <code>AuthenticationManager</code> and authentication failure
@@ -295,7 +299,13 @@ public class NtlmProcessingFilter extends SpringSecurityFilter implements Initia
 		this.retryOnAuthFailure = retryOnFailure;
 	}
 
-	protected void doFilterHttp(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain) throws IOException {
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource, "authenticationDetailsSource cannot be null");
+        this.authenticationDetailsSource = authenticationDetailsSource;
+    }
+
+    protected void doFilterHttp(final HttpServletRequest request,
+            final HttpServletResponse response, final FilterChain chain) throws IOException, ServletException {
 		final HttpSession session = request.getSession();
 		Integer ntlmState = (Integer) session.getAttribute(STATE_ATTR);
 
@@ -337,7 +347,9 @@ public class NtlmProcessingFilter extends SpringSecurityFilter implements Initia
 				}
 			}
 		}
-	}
+
+        chain.doFilter(request, response);
+    }
 
 	/**
 	 * Returns <code>true</code> if reauthentication is needed on an IE POST.
@@ -424,7 +436,7 @@ public class NtlmProcessingFilter extends SpringSecurityFilter implements Initia
 		final Authentication backupAuth;
 
 		authRequest = new NtlmUsernamePasswordAuthenticationToken(auth, stripDomain);
-		authRequest.setDetails(new WebAuthenticationDetails(request));
+		authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
 
 		// Place the last username attempted into HttpSession for views
 		session.setAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY, authRequest.getName());
