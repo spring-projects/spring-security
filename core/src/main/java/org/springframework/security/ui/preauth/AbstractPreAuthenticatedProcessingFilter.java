@@ -75,7 +75,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
         Object credentials = getPreAuthenticatedCredentials(httpRequest);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("AbstractPreAuthenticatedProcessingFilter: preAuthenticatedPrincipal=" + principal + ", trying to authenticate");
+            logger.debug("preAuthenticatedPrincipal = " + principal + ", trying to authenticate");
         }
 
         try {
