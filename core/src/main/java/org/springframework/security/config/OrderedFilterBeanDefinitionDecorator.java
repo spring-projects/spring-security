@@ -1,6 +1,5 @@
 package org.springframework.security.config;
 
-import org.springframework.security.util.FieldUtils;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.core.Ordered;
 import org.springframework.util.StringUtils;
 import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
