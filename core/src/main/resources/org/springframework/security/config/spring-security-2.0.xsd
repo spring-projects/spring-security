@@ -561,6 +561,9 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="custom-authentication-provider">
+    <xs:complexType/>
+  </xs:element>
   <xs:element name="user-service">
     <xs:annotation>
       <xs:documentation>Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.</xs:documentation>

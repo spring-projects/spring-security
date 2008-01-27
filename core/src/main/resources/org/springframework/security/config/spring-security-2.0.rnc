@@ -226,6 +226,10 @@ ap.attlist &=
   ## Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.  
      attribute user-service-ref {xsd:string}?
 
+custom-authentication-provider =
+     element custom-authentication-provider {cap.attlist}
+cap.attlist &= empty
+
 user-service =
   ## Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.
     element user-service {id? & (properties-file | (user*))}
