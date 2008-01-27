@@ -1,30 +1,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-sandbox</artifactId>
-        <version>2.0-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-parent</artifactId>
+    <version>2.0-SNAPSHOT</version>
+  </parent>
     <artifactId>spring-security-openid</artifactId>
-    <name>Spring Security System - OpenID support</name>
+    <name>Spring Security - OpenID support</name>
     <description>Spring Security - Support for OpenID</description>
-    <version>0.1-SNAPSHOT</version>
-
-<!--
-    <repositories>
-        <repository>
-            <id>AcegiMaven</id>
-            <name>Acegi 3rd party repository</name>
-            <url>http://acegisecurity.sourceforge.net/maven</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
--->
+    <version>2.0-SNAPSHOT</version>
 
     <dependencies>
+    		<dependency>
+          <groupId>org.springframework.security</groupId>
+          <artifactId>spring-security-core</artifactId>
+          <version>${project.version}</version>
+    		</dependency>
         <dependency>
           <groupId>org.springframework</groupId>
           <artifactId>spring-core</artifactId>
@@ -45,15 +37,6 @@
             <artifactId>openid4java</artifactId>
             <version>0.9.3</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_2.4_spec</artifactId>
-            <version>1.1.1</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-
     </dependencies>
 
 </project>

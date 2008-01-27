@@ -12,6 +12,7 @@
         <module>adapters</module>
         <module>portlet</module>
         <module>ntlm</module>
+        <module>openid</module>
         <module>samples</module>
     </modules>
 
