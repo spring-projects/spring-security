@@ -22,8 +22,11 @@
         <intercept-url pattern="/post.html" access="ROLE_TELLER" />
         -->
         <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-
-		<!-- All of this is unnecessary if auto-config="true" -->
+<!--
+    Uncomment to enable X509 client authentication support
+        <x509 />
+-->
+        <!-- All of this is unnecessary if auto-config="true" -->
         <form-login />
         <anonymous />
         <http-basic />
@@ -33,6 +36,8 @@
         <concurrent-session-control max-sessions="1" exception-if-maximum-exceeded="true"/>
 
     </http>
+<!--
+    Uncomment to add X509 support as an external filter definition (an alternative to the <x509 /> element).
 
     <beans:bean id="x509Filter" class="org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter" autowire="byType">
         <custom-filter after="X509_FILTER"/>
@@ -44,7 +49,7 @@
             <beans:bean class="org.springframework.security.providers.preauth.UserDetailsByNameServiceWrapper" autowire="byType"/>
         </beans:property>
     </beans:bean>
-
+-->
     <!--
     Usernames/Passwords are
         rod/koala

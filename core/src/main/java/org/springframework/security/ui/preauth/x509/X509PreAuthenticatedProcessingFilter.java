@@ -31,6 +31,10 @@ public class X509PreAuthenticatedProcessingFilter extends AbstractPreAuthenticat
         X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
 
         if (certs != null && certs.length > 0) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("X.509 client authentication certificate:" + certs[0]);
+            }
+
             return certs[0];
         }
 
@@ -46,6 +50,6 @@ public class X509PreAuthenticatedProcessingFilter extends AbstractPreAuthenticat
     }
 
     public int getOrder() {
-        return FilterChainOrder.X509_FILTER;    
+        return FilterChainOrder.X509_FILTER;
     }
 }

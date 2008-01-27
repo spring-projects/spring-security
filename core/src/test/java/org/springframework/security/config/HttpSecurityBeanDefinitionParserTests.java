@@ -6,6 +6,7 @@ import org.springframework.security.intercept.web.FilterInvocationDefinitionSour
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.securechannel.ChannelProcessingFilter;
 import org.springframework.security.ui.ExceptionTranslationFilter;
+import org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
 import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
@@ -220,6 +221,17 @@ public class HttpSecurityBeanDefinitionParserTests {
         Object rememberMeServices = appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
 
         assertTrue(rememberMeServices instanceof PersistentTokenBasedRememberMeServices);
+    }
+
+    @Test
+    public void x509SupportAddsFilterAtExpectedPosition() throws Exception {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <x509 />" +
+                "</http>"  + AUTH_PROVIDER_XML);
+        List filters = getFilterChainProxy().getFilters("/someurl");
+
+        assertTrue(filters.get(2) instanceof X509PreAuthenticatedProcessingFilter);
     }
 
     private void setContext(String context) {

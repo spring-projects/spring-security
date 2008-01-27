@@ -62,11 +62,11 @@ public abstract class FilterChainOrder {
     }
 
     /** Allows filters to be used by name in the XSD file without explicit reference to Java constants */
-    public static Integer getOrder(String filterName) {
+    public static int getOrder(String filterName) {
         Integer order = (Integer) filterNameToOrder.get(filterName);
 
         Assert.notNull(order, "Unable to match filter name " + filterName);
 
-        return order;
+        return order.intValue();
     }
 }

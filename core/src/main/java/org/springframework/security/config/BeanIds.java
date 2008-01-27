@@ -2,6 +2,8 @@ package org.springframework.security.config;
 
 /**
  * Contains all the default Bean IDs created by the namespace support in Spring Security 2.
+ * <p>
+ * These are mainly intended for internal use.
  *
  * @author Ben Alex
  * @version $Id$
@@ -44,4 +46,7 @@ public abstract class BeanIds {
     public static final String EMBEDDED_APACHE_DS = "_apacheDirectoryServerContainer";
     public static final String CONTEXT_SOURCE = "_securityContextSource";
     public static final String PORT_MAPPER = "_portMapper";
+    public static final String X509_FILTER = "_x509ProcessingFilter";
+    public static final String X509_AUTH_PROVIDER = "_x509AuthenitcationProvider";
+    public static final String PRE_AUTH_ENTRY_POINT = "_preAuthenticatedProcessingFilterEntryPoint";
 }

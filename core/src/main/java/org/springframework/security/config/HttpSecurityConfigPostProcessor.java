@@ -11,6 +11,7 @@ import javax.servlet.Filter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -24,6 +25,7 @@ import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.rememberme.RememberMeServices;
 import org.springframework.security.util.FilterChainProxy;
+import org.springframework.security.providers.preauth.UserDetailsByNameServiceWrapper;
 import org.springframework.util.Assert;
 
 /**
@@ -33,12 +35,14 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @author Ben Alex
  * @version $Id$
+ * @since 2.0
  */
 public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor, Ordered {
     private Log logger = LogFactory.getLog(getClass());
 
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         injectUserDetailsServiceIntoRememberMeServices(beanFactory);
+        injectUserDetailsServiceIntoX509Provider(beanFactory);
 
         injectAuthenticationEntryPointIntoExceptionTranslationFilter(beanFactory);
 
@@ -50,8 +54,28 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
     private void injectUserDetailsServiceIntoRememberMeServices(ConfigurableListableBeanFactory beanFactory) {
         try {
             BeanDefinition rememberMeServices = beanFactory.getBeanDefinition(BeanIds.REMEMBER_ME_SERVICES);
-            rememberMeServices.getPropertyValues().addPropertyValue("userDetailsService",
+            PropertyValue pv = rememberMeServices.getPropertyValues().getPropertyValue("userDetailsService");
+
+            if (pv == null) {
+                rememberMeServices.getPropertyValues().addPropertyValue("userDetailsService",
                     ConfigUtils.getUserDetailsService(beanFactory));
+            }
+        } catch (NoSuchBeanDefinitionException e) {
+            // ignore
+        }
+    }
+
+    private void injectUserDetailsServiceIntoX509Provider(ConfigurableListableBeanFactory beanFactory) {
+        try {
+            BeanDefinition x509AuthProvider = beanFactory.getBeanDefinition(BeanIds.X509_AUTH_PROVIDER);
+            PropertyValue pv = x509AuthProvider.getPropertyValues().getPropertyValue("preAuthenticatedUserDetailsService");
+
+            if (pv == null) {
+                UserDetailsByNameServiceWrapper preAuthUserService = new UserDetailsByNameServiceWrapper();
+                preAuthUserService.setUserDetailsService(ConfigUtils.getUserDetailsService(beanFactory));
+                x509AuthProvider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService",
+                        preAuthUserService);
+            }
         } catch (NoSuchBeanDefinitionException e) {
             // ignore
         }

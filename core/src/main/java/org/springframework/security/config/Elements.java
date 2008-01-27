@@ -31,4 +31,5 @@ abstract class Elements {
     public static final String PORT_MAPPING = "port-mapping";
     public static final String CUSTOM_FILTER = "custom-filter";
     public static final String CUSTOM_AUTH_RPOVIDER = "custom-authentication-provider";
+    public static final String X509 = "x509";
 }

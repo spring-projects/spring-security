@@ -27,8 +27,12 @@ id =
     ## A bean identifier, used for referring to the bean elsewhere in the context.
     attribute id {xsd:ID}    
 ref =
-    ## Defines a reference to a Spring bean id.
+    ## Defines a reference to a Spring bean Id.
     attribute ref {xsd:string}
+    
+user-service-ref =
+    ## A reference to a user-service (or UserDetailsService bean) Id
+    attribute user-service-ref {xsd:string}
     
 password-encoder = 
     ## element which defines a password encoding strategy. Used by an authentication provider to convert submitted passwords to hashed versions, for example.
@@ -88,7 +92,7 @@ protect.attlist &=
 
 
 annotation-driven =
-	## Activates security annotation scanning. All beans registered in the Spring application context will be scanned for Spring Security annotations. Where found, the beans will automatically be proxied and security authorization applied to the methods accordingly. Please ensure you have the spring-security-tiger-XXX.jar on your classpath.
+    ## Activates security annotation scanning. All beans registered in the Spring application context will be scanned for Spring Security annotations. Where found, the beans will automatically be proxied and security authorization applied to the methods accordingly. Please ensure you have the spring-security-tiger-XXX.jar on your classpath.
 	element annotation-driven {annotation-driven.attlist}
 annotation-driven.attlist &=
     ## Specifies that JSR-250 style attributes are to be used (for example "RolesAllowed" instead of "Secured"). This will require the javax.annotation.security classes on the classpath. Defaults to false.
@@ -99,7 +103,7 @@ annotation-driven.attlist &=
 
 http =
     ## Container element for HTTP security configuration
-   element http {http.attlist, (intercept-url+ & form-login? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous? & port-mappings) }
+   element http {http.attlist, (intercept-url+ & form-login? & x509? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous? & port-mappings) }
 http.attlist &=
     ## Automatically registers a login form, BASIC authentication, anonymous authentication, logout services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".
     attribute auto-config {"true" | "false" }?
@@ -207,47 +211,17 @@ remember-me.attlist &=
     (attribute key {xsd:string} | (attribute token-repository-ref {xsd:string} | attribute data-source-ref {xsd:string}))
 
 anonymous =
-	## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
+    ## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
     element anonymous {anonymous.attlist}
 anonymous.attlist &=
-	## The key used between the provider and filter. This generally does not need to be set. If unset, it will default to "doesNotMatter".
+    ## The key used between the provider and filter. This generally does not need to be set. If unset, it will default to "doesNotMatter".
     attribute key {xsd:string}?
-anonymous.attlist &=
-	## The username that should be assigned to the anonymous request. This allows the principal to be identified, which may be important for logging and auditing. if unset, defaults to "anonymousUser".
+anonymous.attlist &= 
+    ## The username that should be assigned to the anonymous request. This allows the principal to be identified, which may be important for logging and auditing. if unset, defaults to "anonymousUser".
     attribute username {xsd:string}?
 anonymous.attlist &=
-	## The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions. If unset, defaults to "ROLE_ANONYMOUS".
+    ## The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions. If unset, defaults to "ROLE_ANONYMOUS".
     attribute granted-authority {xsd:string}?
-
-authentication-provider =
-  ## Indicates that the contained user-service should be used as an authentication source. 
-     element authentication-provider {ap.attlist & (user-service | jdbc-user-service) & password-encoder}
-ap.attlist &=
-  ## Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.  
-     attribute user-service-ref {xsd:string}?
-
-custom-authentication-provider =
-     element custom-authentication-provider {cap.attlist}
-cap.attlist &= empty
-
-user-service =
-  ## Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.
-    element user-service {id? & (properties-file | (user*))}
-properties-file =
-    attribute properties {xsd:string}?
-    
-user =
-	## Represents a user in the application.
-    element user {user.attlist, empty}
-user.attlist &=
-	## The username assigned to the user.
-    attribute name {xsd:string}
-user.attlist &=
-	## The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element).
-    attribute password {xsd:string}
-user.attlist &=
-	## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"
-    attribute authorities {xsd:string}
 
 port-mappings = 
     ## Defines the list of mappings between http and https ports for use in redirects
@@ -262,11 +236,52 @@ http-port = attribute http {xsd:integer}
 
 https-port = attribute https {xsd:integer}
 
+
+x509 = 
+    ## Adds support for X.509 client authentication.
+    element x509 {x509.attlist}
+x509.attlist &= 
+    ## The regular expression used to obtain the username from the certificate's subject. Defaults to matching on the common name using the pattern "CN=(.*?),".
+    attribute subject-principal-regex {xsd:string}?
+x509.attlist &=
+    ## Explicitly specifies which user-service should be used to load user data for X.509 authenticated clients. If ommitted, the default user-service will be used.  
+    user-service-ref?
+
+authentication-provider =
+    ## Indicates that the contained user-service should be used as an authentication source. 
+    element authentication-provider {ap.attlist & (user-service | jdbc-user-service) & password-encoder}
+ap.attlist &=
+    ## Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.  
+    user-service-ref?
+
+custom-authentication-provider =
+    element custom-authentication-provider {cap.attlist}
+cap.attlist &= empty
+
+user-service =
+    ## Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.
+    element user-service {id? & (properties-file | (user*))}
+properties-file =
+    attribute properties {xsd:string}?
+    
+user =
+	  ## Represents a user in the application.
+    element user {user.attlist, empty}
+user.attlist &=
+	  ## The username assigned to the user.
+    attribute name {xsd:string}
+user.attlist &=
+	  ## The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element).
+    attribute password {xsd:string}
+user.attlist &=
+	  ## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"
+    attribute authorities {xsd:string}
+
 jdbc-user-service =
-	## Causes creation of a JDBC-based UserDetailsService.
+	  ## Causes creation of a JDBC-based UserDetailsService.
     element jdbc-user-service {id? & jdbc-user-service.attlist} 
 jdbc-user-service.attlist &=
-	## The bean ID of the DataSource which provides the required tables.
+	  ## The bean ID of the DataSource which provides the required tables.
     attribute data-source-ref {xsd:string}
     
     

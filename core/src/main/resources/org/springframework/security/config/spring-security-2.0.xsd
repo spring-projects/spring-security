@@ -66,7 +66,14 @@
   <xs:attributeGroup name="ref">
     <xs:attribute name="ref" use="required" type="xs:string">
       <xs:annotation>
-        <xs:documentation>Defines a reference to a Spring bean id.</xs:documentation>
+        <xs:documentation>Defines a reference to a Spring bean Id.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="user-service-ref">
+    <xs:attribute name="user-service-ref" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>A reference to a user-service (or UserDetailsService bean) Id</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -80,7 +87,7 @@
       </xs:sequence>
       <xs:attribute name="ref" type="xs:string">
         <xs:annotation>
-          <xs:documentation>Defines a reference to a Spring bean id.</xs:documentation>
+          <xs:documentation>Defines a reference to a Spring bean Id.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="hash">
@@ -258,6 +265,7 @@
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element ref="security:intercept-url"/>
         <xs:element ref="security:form-login"/>
+        <xs:element ref="security:x509"/>
         <xs:element ref="security:http-basic"/>
         <xs:element ref="security:logout"/>
         <xs:element ref="security:concurrent-session-control"/>
@@ -539,6 +547,48 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="port-mappings">
+    <xs:annotation>
+      <xs:documentation>Defines the list of mappings between http and https ports for use in redirects</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="security:port-mapping"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="port-mapping">
+    <xs:complexType>
+      <xs:attributeGroup ref="security:http-port"/>
+      <xs:attributeGroup ref="security:https-port"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="http-port">
+    <xs:attribute name="http" use="required" type="xs:integer"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="https-port">
+    <xs:attribute name="https" use="required" type="xs:integer"/>
+  </xs:attributeGroup>
+  <xs:element name="x509">
+    <xs:annotation>
+      <xs:documentation>Adds support for X.509 client authentication.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="security:x509.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="x509.attlist">
+    <xs:attribute name="subject-regex-match" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The regular expression used to obtain the username from the certificate's subject. Defaults to matching on the common name using the pattern "CN=(.*?),".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="user-service-ref" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>A reference to a user-service (or UserDetailsService bean) Id</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="authentication-provider">
     <xs:annotation>
       <xs:documentation>Indicates that the contained user-service should be used as an authentication source. </xs:documentation>
@@ -557,7 +607,7 @@
   <xs:attributeGroup name="ap.attlist">
     <xs:attribute name="user-service-ref" type="xs:string">
       <xs:annotation>
-        <xs:documentation>Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.  </xs:documentation>
+        <xs:documentation>A reference to a user-service (or UserDetailsService bean) Id</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -607,28 +657,6 @@
         <xs:documentation>One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="port-mappings">
-    <xs:annotation>
-      <xs:documentation>Defines the list of mappings between http and https ports for use in redirects</xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="security:port-mapping"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="port-mapping">
-    <xs:complexType>
-      <xs:attributeGroup ref="security:http-port"/>
-      <xs:attributeGroup ref="security:https-port"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:attributeGroup name="http-port">
-    <xs:attribute name="http" use="required" type="xs:integer"/>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="https-port">
-    <xs:attribute name="https" use="required" type="xs:integer"/>
   </xs:attributeGroup>
   <xs:element name="jdbc-user-service">
     <xs:annotation>

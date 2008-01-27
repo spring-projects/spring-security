@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
  * a UsernameNotFoundException.
  *
  * @author Ruud Senden
+ * @version $Id$
  * @since 2.0
  */
 public class PreAuthenticatedAuthenticationProvider implements AuthenticationProvider, InitializingBean, Ordered {

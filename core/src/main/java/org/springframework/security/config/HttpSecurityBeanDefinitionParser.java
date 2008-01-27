@@ -124,7 +124,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         if (useRegex) {
             matcher = new RegexUrlPathMatcher();
-        }        
+        }
 
         // Deal with lowercase conversion requests
         String lowercaseComparisons = element.getAttribute(ATT_LOWERCASE_COMPARISONS);
@@ -254,6 +254,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         Element basicAuthElt = DomUtils.getChildElementByTagName(element, Elements.BASIC_AUTH);
         if (basicAuthElt != null || autoConfig) {
             new BasicAuthenticationBeanDefinitionParser(realm).parse(basicAuthElt, parserContext);
+        }
+
+        Element x509Elt = DomUtils.getChildElementByTagName(element, Elements.X509);
+        if (x509Elt != null) {
+            new X509BeanDefinitionParser().parse(x509Elt, parserContext);
         }
 
         registry.registerBeanDefinition(BeanIds.FILTER_CHAIN_PROXY, filterChainProxy);
