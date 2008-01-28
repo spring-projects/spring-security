@@ -22,6 +22,7 @@ import org.springframework.security.BadCredentialsException;
 
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.AuthoritiesPopulator;
 import org.springframework.security.providers.cas.cache.NullStatelessTicketCache;
 
 import org.springframework.security.ui.cas.CasProcessingFilter;
@@ -42,10 +43,12 @@ import org.springframework.util.Assert;
 
 /**
  * An {@link AuthenticationProvider} implementation that integrates with JA-SIG Central Authentication Service
- * (CAS).<p>This <code>AuthenticationProvider</code> is capable of validating  {@link
- * UsernamePasswordAuthenticationToken} requests which contain a <code>principal</code> name equal to either {@link
- * CasProcessingFilter#CAS_STATEFUL_IDENTIFIER} or {@link CasProcessingFilter#CAS_STATELESS_IDENTIFIER}. It can also
- * validate a previously created {@link CasAuthenticationToken}.</p>
+ * (CAS).
+ * <p>
+ * This <code>AuthenticationProvider</code> is capable of validating  {@link UsernamePasswordAuthenticationToken}
+ * requests which contain a <code>principal</code> name equal to either
+ * {@link CasProcessingFilter#CAS_STATEFUL_IDENTIFIER} or {@link CasProcessingFilter#CAS_STATELESS_IDENTIFIER}.
+ * It can also validate a previously created {@link CasAuthenticationToken}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -57,7 +60,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
     //~ Instance fields ================================================================================================
 
-    private CasAuthoritiesPopulator casAuthoritiesPopulator;
+    private AuthoritiesPopulator casAuthoritiesPopulator;
     private CasProxyDecider casProxyDecider;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private StatelessTicketCache statelessTicketCache = new NullStatelessTicketCache();
@@ -75,8 +78,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         Assert.notNull(this.messages, "A message source must be set");
     }
 
-    public Authentication authenticate(Authentication authentication)
-        throws AuthenticationException {
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         if (!supports(authentication.getClass())) {
             return null;
         }
@@ -146,36 +148,36 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
             userDetails.getAuthorities(), userDetails, response.getProxyList(), response.getProxyGrantingTicketIou());
     }
 
-    public CasAuthoritiesPopulator getCasAuthoritiesPopulator() {
+    protected AuthoritiesPopulator getCasAuthoritiesPopulator() {
         return casAuthoritiesPopulator;
+    }
+
+    public void setCasAuthoritiesPopulator(AuthoritiesPopulator casAuthoritiesPopulator) {
+        this.casAuthoritiesPopulator = casAuthoritiesPopulator;
     }
 
     public CasProxyDecider getCasProxyDecider() {
         return casProxyDecider;
     }
 
-    public String getKey() {
+    public void setCasProxyDecider(CasProxyDecider casProxyDecider) {
+        this.casProxyDecider = casProxyDecider;
+    }
+
+    protected String getKey() {
         return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public StatelessTicketCache getStatelessTicketCache() {
         return statelessTicketCache;
     }
 
-    public TicketValidator getTicketValidator() {
+    protected TicketValidator getTicketValidator() {
         return ticketValidator;
-    }
-
-    public void setCasAuthoritiesPopulator(CasAuthoritiesPopulator casAuthoritiesPopulator) {
-        this.casAuthoritiesPopulator = casAuthoritiesPopulator;
-    }
-
-    public void setCasProxyDecider(CasProxyDecider casProxyDecider) {
-        this.casProxyDecider = casProxyDecider;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
     }
 
     public void setMessageSource(MessageSource messageSource) {
