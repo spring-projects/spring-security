@@ -1,0 +1,37 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-samples</artifactId>
+        <version>2.0-SNAPSHOT</version>
+    </parent>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-samples-cas-server</artifactId>
+    <name>Spring Security - CAS Server for CAS Sample Application</name>
+    <packaging>pom</packaging>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>maven-jetty-plugin</artifactId>
+                <version>6.1.7</version>
+                <configuration>
+                    <contextPath>/cas</contextPath>
+                    <webApp>${basedir}/cas-server-webapp-3.1.1.war</webApp>
+                    <connectors>
+                        <connector implementation="org.mortbay.jetty.security.SslSocketConnector">
+                            <port>9443</port>
+                            <keystore>../../certificates/server.jks</keystore>
+                            <password>password</password>
+                            <keyPassword>password</keyPassword>
+                            <truststore>../../certificates/server.jks</truststore>
+                            <trustPassword>password</trustPassword>
+                            <wantClientAuth>true</wantClientAuth>
+                            <needClientAuth>false</needClientAuth>
+                        </connector>
+                    </connectors>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
