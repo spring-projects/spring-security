@@ -7,6 +7,7 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  *
  * @author Luke Taylor
  * @author Ben Alex
+ * @since 2.0
  * @version $Id$
  */
 public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
@@ -15,6 +16,7 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
         // Parsers
     	registerBeanDefinitionParser(Elements.LDAP_PROVIDER, new LdapProviderBeanDefinitionParser());
     	registerBeanDefinitionParser(Elements.LDAP_SERVER, new LdapServerBeanDefinitionParser());
+        registerBeanDefinitionParser(Elements.LDAP_USER_SERVICE, new LdapUserServiceBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.USER_SERVICE, new UserServiceBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.JDBC_USER_SERVICE, new JdbcUserServiceBeanDefinitionParser());

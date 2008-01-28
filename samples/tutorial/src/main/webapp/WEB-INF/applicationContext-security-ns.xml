@@ -57,8 +57,12 @@
         scott/wombat
     -->
 <!--
+
+Uncomment to authenticate against an embedded LDAP server.
+
     <ldap-server ldif="classpath:users.ldif" />
     <ldap-authentication-provider />
+    <ldap-user-service user-search-filter="(uid={0}" group-search-filter="member={0}"/>
 -->
 
     <authentication-provider>
@@ -69,4 +73,5 @@
             <user name="scott" password="2b58af6dddbd072ed27ffc86725d7d3a" authorities="ROLE_USER" />
 	    </user-service>
 	</authentication-provider>
+
 </beans:beans>

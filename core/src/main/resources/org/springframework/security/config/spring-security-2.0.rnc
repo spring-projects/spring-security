@@ -66,6 +66,25 @@ ldap-server.attlist &=
     ## Optional root suffix for the embedded LDAP server. Default is "dc=springframework,dc=org"
     attribute root { xsd:string }?
 
+ldap-user-service =
+    element ldap-user-service {ldap-us.attlist}
+ldap-us.attlist &= id? 
+ldap-us.attlist &=
+    ## The optional server to use. If omitted, and a default LDAP server is registered (using <ldap-server> with no Id), that server will be used. 
+    attribute server-ref {xsd:string}?
+ldap-us.attlist &=
+    attribute user-search-filter {xsd:string}
+ldap-us.attlist &=
+    ## Search base for user searches. Defaults to "".
+    attribute user-search-base {xsd:string}?
+ldap-us.attlist &=
+    ## Group search filter. Defaults to (uniqueMember={0}).
+    attribute group-search-filter {xsd:string}?
+ldap-us.attlist &=
+    ## Search base for group membership searches. Defaults to "ou=groups".
+    attribute group-search-base {xsd:string}?
+
+
 
 ldap-authentication-provider =
     ## Sets up an ldap authentication provider
@@ -249,7 +268,7 @@ x509.attlist &=
 
 authentication-provider =
     ## Indicates that the contained user-service should be used as an authentication source. 
-    element authentication-provider {ap.attlist & (user-service | jdbc-user-service) & password-encoder}
+    element authentication-provider {ap.attlist & (user-service | jdbc-user-service | ldap-user-service) & password-encoder}
 ap.attlist &=
     ## Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.  
     user-service-ref?

@@ -186,6 +186,39 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="ldap-user-service">
+    <xs:complexType>
+      <xs:attributeGroup ref="security:ldap-us.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="ldap-us.attlist">
+    <xs:attribute name="id" type="xs:ID">
+      <xs:annotation>
+        <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="server-ref" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The optional server to use. If omitted, and a default LDAP server is registered (using &lt;ldap-server&gt; with no Id), that server will be used. </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="user-search-filter" use="required" type="xs:string"/>
+    <xs:attribute name="user-search-base" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Search base for user searches. Defaults to "".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group-search-filter" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Group search filter. Defaults to (uniqueMember={0}).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group-search-base" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Search base for group membership searches. Defaults to "ou=groups".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="ldap-authentication-provider">
     <xs:annotation>
       <xs:documentation>Sets up an ldap authentication provider</xs:documentation>
@@ -578,7 +611,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="x509.attlist">
-    <xs:attribute name="subject-regex-match" type="xs:string">
+    <xs:attribute name="subject-principal-regex" type="xs:string">
       <xs:annotation>
         <xs:documentation>The regular expression used to obtain the username from the certificate's subject. Defaults to matching on the common name using the pattern "CN=(.*?),".</xs:documentation>
       </xs:annotation>
