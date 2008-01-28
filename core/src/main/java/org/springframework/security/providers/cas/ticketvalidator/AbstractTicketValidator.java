@@ -44,6 +44,7 @@ public abstract class AbstractTicketValidator implements TicketValidator, Initia
     private ServiceProperties serviceProperties;
     private String casValidate;
     private String trustStore;
+    private String trustPassword;
 
     //~ Methods ========================================================================================================
 
@@ -59,6 +60,10 @@ public abstract class AbstractTicketValidator implements TicketValidator, Initia
             }
 
             System.setProperty("javax.net.ssl.trustStore", trustStore);
+        }
+
+        if (StringUtils.hasLength(trustPassword)) {
+            System.setProperty("javax.net.ssl.trustStorePassword", trustPassword);
         }
     }
 
@@ -96,5 +101,14 @@ public abstract class AbstractTicketValidator implements TicketValidator, Initia
 
     public void setTrustStore(String trustStore) {
         this.trustStore = trustStore;
+    }
+
+    /**
+     * Optional property which causes the system property <tt>javax.net.ssl.trustStorePassword</tt> to be set.
+     *
+     * @param trustPassword
+     */
+    public void setTrustPassword(String trustPassword) {
+        this.trustPassword = trustPassword;
     }
 }
