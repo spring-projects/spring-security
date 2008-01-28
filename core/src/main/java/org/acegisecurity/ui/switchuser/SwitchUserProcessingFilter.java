@@ -55,7 +55,6 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.Filter;
@@ -102,8 +101,6 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
 
     private static final Log logger = LogFactory.getLog(SwitchUserProcessingFilter.class);
 
-    // ~ Static fields/initializers
-    // =============================================
     public static final String ACEGI_SECURITY_SWITCH_USERNAME_KEY = "j_username";
     public static final String ROLE_PREVIOUS_ADMINISTRATOR = "ROLE_PREVIOUS_ADMINISTRATOR";
 
@@ -116,9 +113,6 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
     private String switchUserUrl = "/j_acegi_switch_user";
     private String targetUrl;
     private SwitchUserAuthorityChanger switchUserAuthorityChanger;
-
-    // ~ Instance fields
-    // ========================================================
     private UserDetailsService userDetailsService;
 
     //~ Methods ========================================================================================================
@@ -275,8 +269,11 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
         Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
         GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR, currentAuth);
 
-        // get the original authorities
-        List orig = Arrays.asList(targetUser.getAuthorities());
+        // get the original authorities        
+        ArrayList orig = new ArrayList();
+        for (int i = 0; i < targetUser.getAuthorities().length; i++) {
+			orig.add(targetUser.getAuthorities()[i]);
+		}
 
         // Allow subclasses to change the authorities to be granted
         if (switchUserAuthorityChanger != null) {
@@ -443,7 +440,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
     /**
      * Sets the authentication data access object.
      *
-     * @param authenticationDao The authentication dao
+     * @param userDetailsService The UserDetailsService to use
      */
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
