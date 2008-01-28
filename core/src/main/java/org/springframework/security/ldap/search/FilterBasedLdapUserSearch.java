@@ -85,6 +85,8 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
         this.contextSource = contextSource;
         this.searchBase = searchBase;
 
+        setSearchSubtree(true);
+
         if (searchBase.length() == 0) {
             logger.info("SearchBase not set. Searches will be performed from the root: "
                 + contextSource.getBaseLdapPath());
@@ -161,7 +163,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
         sb.append(", scope: ")
           .append(searchControls.getSearchScope() == SearchControls.SUBTREE_SCOPE ? "subtree" : "single-level, ");
         sb.append("searchTimeLimit: ").append(searchControls.getTimeLimit());
-        sb.append("derefLinkFlag: ").append(searchControls.getDerefLinkFlag()).append(" ]");
+        sb.append(", derefLinkFlag: ").append(searchControls.getDerefLinkFlag()).append(" ]");
 
         return sb.toString();
     }
