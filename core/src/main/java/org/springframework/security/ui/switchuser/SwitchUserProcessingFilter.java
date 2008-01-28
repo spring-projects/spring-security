@@ -25,6 +25,7 @@ import org.springframework.security.DisabledException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.LockedException;
 import org.springframework.security.util.RedirectUtils;
+import org.springframework.security.util.AuthorityUtils;
 
 import org.springframework.security.context.SecurityContextHolder;
 
@@ -283,15 +284,15 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
 
         // Allow subclasses to change the authorities to be granted
         if (switchUserAuthorityChanger != null) {
-            switchUserAuthorityChanger.modifyGrantedAuthorities(targetUser, currentAuth, orig);
+            orig = switchUserAuthorityChanger.modifyGrantedAuthorities(targetUser, currentAuth, orig);
         }
 
         // add the new switch user authority
         List newAuths = new ArrayList(orig);
         newAuths.add(switchAuthority);
 
-        GrantedAuthority[] authorities = {};
-        authorities = (GrantedAuthority[]) newAuths.toArray(authorities);
+        GrantedAuthority[] authorities =
+                (GrantedAuthority[]) newAuths.toArray(new GrantedAuthority[newAuths.size()]);
 
         // create the new authentication token
         targetUserRequest = new UsernamePasswordAuthenticationToken(targetUser, targetUser.getPassword(), authorities);

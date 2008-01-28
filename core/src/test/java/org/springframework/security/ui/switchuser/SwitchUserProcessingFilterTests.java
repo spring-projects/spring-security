@@ -41,6 +41,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import java.util.List;
+import java.util.ArrayList;
+
 
 /**
  * Tests {@link org.springframework.security.ui.switchuser.SwitchUserProcessingFilter}.
@@ -399,6 +402,30 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         assertTrue(targetAuth.getPrincipal() instanceof UserDetails);
         assertEquals("jacklord", ((User) targetAuth.getPrincipal()).getUsername());
     }
+
+    public void testModificationOfAuthoritiesWorks() {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+
+        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
+        filter.setSwitchUserAuthorityChanger(new SwitchUserAuthorityChanger() {
+            public List modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, List authoritiesToBeGranted) {
+                List auths = new ArrayList();
+                auths.add(new GrantedAuthorityImpl("ROLE_NEW"));
+                return auths;
+            }
+        });
+
+        Authentication result = filter.attemptSwitchUser(request);
+        assertTrue(result != null);
+        assertEquals(2, result.getAuthorities().length);
+        assertEquals("ROLE_NEW", result.getAuthorities()[0].getAuthority());
+    }
+
 
     //~ Inner Classes ==================================================================================================
 

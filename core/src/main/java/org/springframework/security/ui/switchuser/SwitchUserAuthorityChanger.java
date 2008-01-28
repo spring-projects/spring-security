@@ -25,6 +25,8 @@ public interface SwitchUserAuthorityChanger {
      * @param currentAuthentication the current Authentication of the principal performing the switching
      * @param authoritiesToBeGranted all {@link GrantedAuthority} instances to be granted to the user,
      * excluding the special "switch user" authority that is used internally (guaranteed never null)
+     *
+     * @return the modified list of granted authorities.
      */
-    void modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, List authoritiesToBeGranted);
+    List modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, List authoritiesToBeGranted);
 }
