@@ -206,16 +206,23 @@ public class AbstractRememberMeServicesTests {
     }
 
     @Test
-    public void makeValidCookieUsesCorrectNamePathAndValue() {
+    public void setCookieUsesCorrectNamePathAndValue() {
         MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
         request.setContextPath("contextpath");
-        MockRememberMeServices services = new MockRememberMeServices();
+        MockRememberMeServices services = new MockRememberMeServices() {
+            protected String encodeCookie(String[] cookieTokens) {
+                return cookieTokens[0];
+            }
+        };
         services.setCookieName("mycookiename");
-        Cookie cookie = services.makeValidCookie("mycookie", request, 1000);
+        services.setCookie(new String[] {"mycookie"}, 1000, request, response);
+        Cookie cookie = response.getCookie("mycookiename");
 
-        assertTrue(cookie.getValue().equals("mycookie"));
-        assertTrue(cookie.getName().equals("mycookiename"));
-        assertTrue(cookie.getPath().equals("contextpath"));
+        assertNotNull(cookie);
+        assertEquals("mycookie", cookie.getValue());
+        assertEquals("mycookiename", cookie.getName());
+        assertEquals("contextpath", cookie.getPath());
 
     }
 

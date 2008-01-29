@@ -264,28 +264,40 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     protected abstract UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
             HttpServletResponse response) throws RememberMeAuthenticationException, UsernameNotFoundException;
 
+    /**
+     * Sets a "cancel cookie" (with maxAge = 0) on the response to disable persistent logins.
+     *
+     * @param request
+     * @param response
+     */
     protected void cancelCookie(HttpServletRequest request, HttpServletResponse response) {
         logger.debug("Cancelling cookie");
-
-        response.addCookie(makeCancelCookie(request));
-    }
-
-    protected Cookie makeCancelCookie(HttpServletRequest request) {
         Cookie cookie = new Cookie(cookieName, null);
         cookie.setMaxAge(0);
         cookie.setPath(StringUtils.hasLength(request.getContextPath()) ? request.getContextPath() : "/");
 
-        return cookie;
+        response.addCookie(cookie);
     }
 
-    protected Cookie makeValidCookie(String value, HttpServletRequest request, int maxAge) {
-        Cookie cookie = new Cookie(cookieName, value);
+    /**
+     * Sets the cookie on the response
+     *
+     * @param tokens the tokens which will be encoded to make the cookie value.
+     * @param maxAge the value passed to {@link Cookie#setMaxAge(int)}
+     * @param request the request
+     * @param response the response to add the cookie to.
+     */
+    protected void setCookie(String[] tokens, int maxAge, HttpServletRequest request, HttpServletResponse response) {
+        String cookieValue = encodeCookie(tokens);
+        Cookie cookie = new Cookie(cookieName, cookieValue);
         cookie.setMaxAge(maxAge);
         cookie.setPath(StringUtils.hasLength(request.getContextPath()) ? request.getContextPath() : "/");
-
-        return cookie;
+        response.addCookie(cookie);
     }
 
+    /**
+     * Implementation of <tt>LogoutHandler</tt>. Default behaviour is to call <tt>cancelCookie()</tt>.
+     */
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         if (logger.isDebugEnabled()) {
             logger.debug( "Logout of user "

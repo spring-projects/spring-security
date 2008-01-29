@@ -151,8 +151,7 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
     }
 
     private void addCookie(PersistentRememberMeToken token, HttpServletRequest request, HttpServletResponse response) {
-        String cookieValue = encodeCookie(new String[] {token.getSeries(), token.getTokenValue()});
-        response.addCookie(makeValidCookie(cookieValue, request, getTokenValiditySeconds()));
+        setCookie(new String[] {token.getSeries(), token.getTokenValue()},getTokenValiditySeconds(), request, response);
     }
 
     public void setTokenRepository(PersistentTokenRepository tokenRepository) {

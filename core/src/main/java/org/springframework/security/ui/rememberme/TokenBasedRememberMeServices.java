@@ -162,9 +162,8 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
         long expiryTime = System.currentTimeMillis() + 1000*tokenLifetime;
 
         String signatureValue = makeTokenSignature(expiryTime, username, password);
-        String cookieValue = encodeCookie(new String[] {username, Long.toString(expiryTime), signatureValue});
 
-        response.addCookie(makeValidCookie(cookieValue, request, tokenLifetime));
+        setCookie(new String[] {username, Long.toString(expiryTime), signatureValue}, tokenLifetime, request, response);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Added remember-me cookie for user '" + username + "', expiry: '"
