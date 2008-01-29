@@ -106,7 +106,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
     /** Compiled pattern version of the filter chain map */
     private Map filterChainMap;
     private UrlMatcher matcher = new AntUrlPathMatcher();
-    private FilterInvocationDefinitionSource fids;
+    private DefaultFilterInvocationDefinitionSource fids;
 
     //~ Methods ========================================================================================================
 
@@ -114,7 +114,9 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
         // Convert the FilterDefinitionSource to a filterChainMap if set
         if (fids != null) {
             Assert.isNull(uncompiledFilterChainMap, "Set the filterChainMap or FilterInvocationDefinitionSource but not both");
-            setFilterChainMap(new FIDSToFilterChainMapConverter(fids, applicationContext).getFilterChainMap());
+            FIDSToFilterChainMapConverter converter = new FIDSToFilterChainMapConverter(fids, applicationContext);
+            setFilterChainMap(converter.getFilterChainMap());
+            setMatcher(converter.getMatcher());
             fids = null;
         }
 
@@ -238,10 +240,9 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
      * @deprecated Use namespace configuration or call setFilterChainMap instead.
      */
     public void setFilterInvocationDefinitionSource(FilterInvocationDefinitionSource fids) {
-        if( fids instanceof RegExpBasedFilterInvocationDefinitionMap) {
-            matcher = new RegexUrlPathMatcher();
-        }
-        this.fids = fids;
+        Assert.isInstanceOf(DefaultFilterInvocationDefinitionSource.class, fids,
+                "Must be a DefaultFilterInvocationDefinitionSource");
+        this.fids = (DefaultFilterInvocationDefinitionSource) fids;
     }
 
     /**

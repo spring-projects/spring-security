@@ -30,6 +30,8 @@ import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockRunAsManager;
 import org.springframework.security.RunAsManager;
 import org.springframework.security.SecurityConfig;
+import org.springframework.security.util.AntUrlPathMatcher;
+import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -75,11 +77,10 @@ public class FilterSecurityInterceptorTests extends TestCase {
         SecurityContextHolder.clearContext();
     }
 
-    public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass()
-        throws Exception {
+    public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass() throws Exception {
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
-        interceptor.setObjectDefinitionSource(new RegExpBasedFilterInvocationDefinitionMap());
+        interceptor.setObjectDefinitionSource(new DefaultFilterInvocationDefinitionSource(new RegexUrlPathMatcher()));
         interceptor.setRunAsManager(new MockRunAsManager());
 
         interceptor.setAccessDecisionManager(new AccessDecisionManager() {
@@ -111,7 +112,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
-        interceptor.setObjectDefinitionSource(new RegExpBasedFilterInvocationDefinitionMap());
+        interceptor.setObjectDefinitionSource(new DefaultFilterInvocationDefinitionSource(new RegexUrlPathMatcher()));
 
         interceptor.setRunAsManager(new RunAsManager() {
                 public boolean supports(Class clazz) {
@@ -177,7 +178,8 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
 
-        RegExpBasedFilterInvocationDefinitionMap fidp = new RegExpBasedFilterInvocationDefinitionMap();
+        DefaultFilterInvocationDefinitionSource fidp =
+                new DefaultFilterInvocationDefinitionSource(new RegexUrlPathMatcher());
         interceptor.setObjectDefinitionSource(fidp);
         interceptor.setRunAsManager(new MockRunAsManager());
         interceptor.afterPropertiesSet();
@@ -232,7 +234,8 @@ public class FilterSecurityInterceptorTests extends TestCase {
         List mappings = new ArrayList(1);
         mappings.add(mapping);
 
-        PathBasedFilterInvocationDefinitionMap filterInvocationDefinitionSource = new PathBasedFilterInvocationDefinitionMap();
+        DefaultFilterInvocationDefinitionSource filterInvocationDefinitionSource
+                = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher());
         filterInvocationDefinitionSource.setMappings(mappings);
 
         FilterSecurityInterceptor filter = new FilterSecurityInterceptor();

@@ -17,6 +17,14 @@ public class AntUrlPathMatcher implements UrlMatcher {
     private boolean requiresLowerCaseUrl = true;
     private PathMatcher pathMatcher = new AntPathMatcher();
 
+    public AntUrlPathMatcher() {
+        this(true);
+    }
+
+    public AntUrlPathMatcher(boolean requiresLowerCaseUrl) {
+        this.requiresLowerCaseUrl = requiresLowerCaseUrl;
+    }
+
     public Object compile(String path) {
         if (requiresLowerCaseUrl) {
             return path.toLowerCase();

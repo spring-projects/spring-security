@@ -30,7 +30,7 @@ import org.springframework.security.MockApplicationContext;
 import org.springframework.security.MockFilterConfig;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.MockFilterInvocationDefinitionSource;
-import org.springframework.security.intercept.web.PathBasedFilterInvocationDefinitionMap;
+import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 
 import java.util.List;
@@ -82,7 +82,8 @@ public class FilterChainProxyTests {
         ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
         cad.addConfigAttribute(new MockConfigAttribute());
 
-        PathBasedFilterInvocationDefinitionMap fids = new PathBasedFilterInvocationDefinitionMap();
+        DefaultFilterInvocationDefinitionSource fids =
+                new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher());
         fids.addSecureUrl("/**", cad);
 
         filterChainProxy.setFilterInvocationDefinitionSource(fids);

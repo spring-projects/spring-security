@@ -5,6 +5,7 @@ import org.springframework.util.Assert;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.util.FilterChainProxy;
+import org.springframework.security.util.UrlMatcher;
 
 import javax.servlet.Filter;
 import java.util.*;
@@ -24,16 +25,13 @@ import java.util.regex.Pattern;
 public class FIDSToFilterChainMapConverter {
 
     private LinkedHashMap filterChainMap = new LinkedHashMap();
+    private UrlMatcher matcher;
 
-    public FIDSToFilterChainMapConverter(FilterInvocationDefinitionSource source, ApplicationContext appContext) {
+    public FIDSToFilterChainMapConverter(DefaultFilterInvocationDefinitionSource fids, ApplicationContext appContext) {
         // TODO: Check if this is necessary. Retained from refactoring of FilterChainProxy
-        Assert.notNull(source.getConfigAttributeDefinitions(), "FilterChainProxy requires the " +
+        Assert.notNull(fids.getConfigAttributeDefinitions(), "FilterChainProxy requires the " +
                 "FilterInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()");
-        Assert.isTrue(source instanceof DefaultFilterInvocationDefinitionSource,
-                "Can't handle FilterInvocationDefinitionSource type " + source.getClass());
-        
-
-        DefaultFilterInvocationDefinitionSource fids = (DefaultFilterInvocationDefinitionSource)source;
+        matcher = fids.getUrlMatcher();
         Map requestMap = fids.getRequestMap();
         Iterator paths = requestMap.keySet().iterator();
 
@@ -63,5 +61,9 @@ public class FIDSToFilterChainMapConverter {
 
     public Map getFilterChainMap() {
         return filterChainMap;
+    }
+
+    public UrlMatcher getMatcher() {
+        return matcher;
     }
 }

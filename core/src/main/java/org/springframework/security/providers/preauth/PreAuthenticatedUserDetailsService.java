@@ -15,13 +15,12 @@ public interface PreAuthenticatedUserDetailsService {
 
 	/**
 	 *
-	 * @param aPreAuthenticatedAuthenticationToken
+	 * @param token
 	 *            The pre-authenticated authentication token
 	 * @return UserDetails for the given authentication token.
 	 * @throws UsernameNotFoundException
 	 *             if no user details can be found for the given authentication
 	 *             token
 	 */
-	UserDetails getUserDetails(PreAuthenticatedAuthenticationToken aPreAuthenticatedAuthenticationToken)
-			throws UsernameNotFoundException;
+	UserDetails getUserDetails(PreAuthenticatedAuthenticationToken token) throws UsernameNotFoundException;
 }

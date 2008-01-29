@@ -21,6 +21,7 @@ import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockFilterChain;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.util.RegexUrlPathMatcher;
+import org.springframework.security.util.AntUrlPathMatcher;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -30,8 +31,8 @@ import java.util.regex.PatternSyntaxException;
 
 
 /**
- * Tests {@link FilterInvocationDefinitionSourceEditor} and its associated default {@link
- * RegExpBasedFilterInvocationDefinitionMap}.
+ * Tests {@link FilterInvocationDefinitionSourceEditor} and its associated default
+ * {@link DefaultFilterInvocationDefinitionSource}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -272,5 +273,43 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
 
         DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
         assertEquals(2, map.getMapSize());
+    }
+
+    public void testAntPathDirectiveIsDetected() {
+        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
+        editor.setAsText(
+            "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
+
+        DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
+        assertTrue(map.getUrlMatcher() instanceof AntUrlPathMatcher);
+    }
+
+    public void testInvalidNameValueFailsToParse() {
+        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
+
+        try {
+            // Use a "==" instead of an "="
+            editor.setAsText("         PATTERN_TYPE_APACHE_ANT\r\n    /secure/*==ROLE_SUPERVISOR,ROLE_TELLER      \r\n");
+            fail("Shouldn't be able to use '==' for config attribute.");
+        } catch (IllegalArgumentException expected) {}
+    }
+
+    public void testSingleUrlParsing() throws Exception {
+        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
+        editor.setAsText("PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
+
+        DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
+
+        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
+        httpRequest.setServletPath("/secure/super/very_secret.html");
+
+        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+                    new MockHttpServletResponse(), new MockFilterChain()));
+
+        ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
+        expected.addConfigAttribute(new SecurityConfig("ROLE_WE_DONT_HAVE"));
+        expected.addConfigAttribute(new SecurityConfig("ANOTHER_ROLE"));
+
+        assertEquals(expected, returned);
     }
 }
