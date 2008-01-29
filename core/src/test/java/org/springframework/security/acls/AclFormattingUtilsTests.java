@@ -5,14 +5,14 @@ import junit.framework.TestCase;
 
 /**
  * Tests for {@link AclFormattingUtils}.
- * 
+ *
  * @author Andrei Stefan
  */
 public class AclFormattingUtilsTests extends TestCase {
 
 	//~ Methods ========================================================================================================
 	
-	public void testDemergePatternsParametersConstraints() {
+	public final void testDemergePatternsParametersConstraints() {
 		try {
 			AclFormattingUtils.demergePatterns(null, "SOME STRING");
 			Assert.fail("It should have thrown IllegalArgumentException");
@@ -46,7 +46,7 @@ public class AclFormattingUtilsTests extends TestCase {
 		}
 	}
 
-	public void testDemergePatterns() {
+	public final void testDemergePatterns() {
 		String original = "...........................A...R";
 		String removeBits = "...............................R";
 		Assert.assertEquals("...........................A....", AclFormattingUtils
@@ -56,7 +56,7 @@ public class AclFormattingUtilsTests extends TestCase {
 		Assert.assertEquals("......", AclFormattingUtils.demergePatterns("ABCDEF", "GHIJKL"));
 	}
 	
-	public void testMergePatternsParametersConstraints() {
+	public final void testMergePatternsParametersConstraints() {
 		try {
 			AclFormattingUtils.mergePatterns(null, "SOME STRING");
 			Assert.fail("It should have thrown IllegalArgumentException");
@@ -90,7 +90,7 @@ public class AclFormattingUtilsTests extends TestCase {
 		}
 	}
 
-	public void testMergePatterns() {
+	public final void testMergePatterns() {
 		String original = "...............................R";
 		String extraBits = "...........................A....";
 		Assert.assertEquals("...........................A...R", AclFormattingUtils
@@ -100,7 +100,7 @@ public class AclFormattingUtilsTests extends TestCase {
 		Assert.assertEquals("GHIJKL", AclFormattingUtils.mergePatterns("ABCDEF", "GHIJKL"));
 	}
 	
-	public void testBinaryPrints() {
+	public final void testBinaryPrints() {
 		Assert.assertEquals("............................****", AclFormattingUtils.printBinary(15));
 		
 		try {

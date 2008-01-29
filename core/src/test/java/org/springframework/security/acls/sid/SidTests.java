@@ -13,180 +13,179 @@ import org.springframework.security.providers.TestingAuthenticationToken;
 
 public class SidTests extends TestCase {
 
-	//~ Methods ========================================================================================================
-	
-	public void testPrincipalSidConstructorsRequiredFields() {
-		// Check one String-argument constructor
-		try {
-			String string = null;
-			Sid principalSid = new PrincipalSid(string);
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+    //~ Methods ========================================================================================================
 
-		try {
-			Sid principalSid = new PrincipalSid("");
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+    public void testPrincipalSidConstructorsRequiredFields() {
+        // Check one String-argument constructor
+        try {
+            String string = null;
+            Sid principalSid = new PrincipalSid(string);
+            Assert.fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            Assert.assertTrue(true);
+        }
 
-		try {
-			Sid principalSid = new PrincipalSid("johndoe");
-			Assert.assertTrue(true);
-		}
-		catch (IllegalArgumentException notExpected) {
-			Assert.fail("It shouldn't have thrown IllegalArgumentException");
-		}
+        try {
+            Sid principalSid = new PrincipalSid("");
+            Assert.fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            Assert.assertTrue(true);
+        }
 
-		// Check one Authentication-argument constructor
-		try {
-			Authentication authentication = null;
-			Sid principalSid = new PrincipalSid(authentication);
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+        try {
+            Sid principalSid = new PrincipalSid("johndoe");
+            Assert.assertTrue(true);
+        }
+        catch (IllegalArgumentException notExpected) {
+            Assert.fail("It shouldn't have thrown IllegalArgumentException");
+        }
 
-		try {
-			Authentication authentication = new TestingAuthenticationToken(null, "password", null);
-			Sid principalSid = new PrincipalSid(authentication);
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+        // Check one Authentication-argument constructor
+        try {
+            Authentication authentication = null;
+            Sid principalSid = new PrincipalSid(authentication);
+            Assert.fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            Assert.assertTrue(true);
+        }
 
-		try {
-			Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
-			Sid principalSid = new PrincipalSid(authentication);
-			Assert.assertTrue(true);
-		}
-		catch (IllegalArgumentException notExpected) {
-			Assert.fail("It shouldn't have thrown IllegalArgumentException");
-		}
-	}
+        try {
+            Authentication authentication = new TestingAuthenticationToken(null, "password", null);
+            Sid principalSid = new PrincipalSid(authentication);
+            Assert.fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            Assert.assertTrue(true);
+        }
 
-	public void testGrantedAuthoritySidConstructorsRequiredFields() {
-		// Check one String-argument constructor
-		try {
-			String string = null;
-			Sid gaSid = new GrantedAuthoritySid(string);
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+        try {
+            Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
+            Sid principalSid = new PrincipalSid(authentication);
+            Assert.assertTrue(true);
+        }
+        catch (IllegalArgumentException notExpected) {
+            Assert.fail("It shouldn't have thrown IllegalArgumentException");
+        }
+    }
 
-		try {
-			Sid gaSid = new GrantedAuthoritySid("");
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+    public void testGrantedAuthoritySidConstructorsRequiredFields() {
+        // Check one String-argument constructor
+        try {
+            String string = null;
+            Sid gaSid = new GrantedAuthoritySid(string);
+            Assert.fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            Assert.assertTrue(true);
+        }
 
-		try {
-			Sid gaSid = new GrantedAuthoritySid("ROLE_TEST");
-			Assert.assertTrue(true);
-		}
-		catch (IllegalArgumentException notExpected) {
-			Assert.fail("It shouldn't have thrown IllegalArgumentException");
-		}
+        try {
+            Sid gaSid = new GrantedAuthoritySid("");
+            Assert.fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            Assert.assertTrue(true);
+        }
 
-		// Check one GrantedAuthority-argument constructor
-		try {
-			GrantedAuthority ga = null;
-			Sid gaSid = new GrantedAuthoritySid(ga);
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+        try {
+            Sid gaSid = new GrantedAuthoritySid("ROLE_TEST");
+            Assert.assertTrue(true);
+        }
+        catch (IllegalArgumentException notExpected) {
+            Assert.fail("It shouldn't have thrown IllegalArgumentException");
+        }
 
-		try {
-			GrantedAuthority ga = new GrantedAuthorityImpl(null);
-			Sid gaSid = new GrantedAuthoritySid(ga);
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+        // Check one GrantedAuthority-argument constructor
+        try {
+            GrantedAuthority ga = null;
+            Sid gaSid = new GrantedAuthoritySid(ga);
+            Assert.fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            Assert.assertTrue(true);
+        }
 
-		try {
-			GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
-			Sid gaSid = new GrantedAuthoritySid(ga);
-			Assert.assertTrue(true);
-		}
-		catch (IllegalArgumentException notExpected) {
-			Assert.fail("It shouldn't have thrown IllegalArgumentException");
-		}
-	}
+        try {
+            GrantedAuthority ga = new GrantedAuthorityImpl(null);
+            Sid gaSid = new GrantedAuthoritySid(ga);
+            Assert.fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            Assert.assertTrue(true);
+        }
 
-	public void testPrincipalSidEquals() {
-		Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
-		Sid principalSid = new PrincipalSid(authentication);
+        try {
+            GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
+            Sid gaSid = new GrantedAuthoritySid(ga);
+            Assert.assertTrue(true);
+        }
+        catch (IllegalArgumentException notExpected) {
+            Assert.fail("It shouldn't have thrown IllegalArgumentException");
+        }
+    }
 
-		Assert.assertFalse(principalSid.equals(null));
-		Assert.assertFalse(principalSid.equals("DIFFERENT_TYPE_OBJECT"));
-		Assert.assertTrue(principalSid.equals(principalSid));
-		Assert.assertTrue(principalSid.equals(new PrincipalSid(authentication)));
-		Assert.assertTrue(principalSid.equals(new PrincipalSid(new TestingAuthenticationToken("johndoe", null, null))));
-		Assert.assertFalse(principalSid.equals(new PrincipalSid(new TestingAuthenticationToken("scott", null, null))));
-		Assert.assertTrue(principalSid.equals(new PrincipalSid("johndoe")));
-		Assert.assertFalse(principalSid.equals(new PrincipalSid("scott")));
-	}
+    public void testPrincipalSidEquals() {
+        Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
+        Sid principalSid = new PrincipalSid(authentication);
 
-	public void testGrantedAuthoritySidEquals() {
-		GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
-		Sid gaSid = new GrantedAuthoritySid(ga);
+        Assert.assertFalse(principalSid.equals(null));
+        Assert.assertFalse(principalSid.equals("DIFFERENT_TYPE_OBJECT"));
+        Assert.assertTrue(principalSid.equals(principalSid));
+        Assert.assertTrue(principalSid.equals(new PrincipalSid(authentication)));
+        Assert.assertTrue(principalSid.equals(new PrincipalSid(new TestingAuthenticationToken("johndoe", null, null))));
+        Assert.assertFalse(principalSid.equals(new PrincipalSid(new TestingAuthenticationToken("scott", null, null))));
+        Assert.assertTrue(principalSid.equals(new PrincipalSid("johndoe")));
+        Assert.assertFalse(principalSid.equals(new PrincipalSid("scott")));
+    }
 
-		Assert.assertFalse(gaSid.equals(null));
-		Assert.assertFalse(gaSid.equals("DIFFERENT_TYPE_OBJECT"));
-		Assert.assertTrue(gaSid.equals(gaSid));
-		Assert.assertTrue(gaSid.equals(new GrantedAuthoritySid(ga)));
-		Assert.assertTrue(gaSid.equals(new GrantedAuthoritySid(new GrantedAuthorityImpl("ROLE_TEST"))));
-		Assert.assertFalse(gaSid.equals(new GrantedAuthoritySid(new GrantedAuthorityImpl("ROLE_NOT_EQUAL"))));
-		Assert.assertTrue(gaSid.equals(new GrantedAuthoritySid("ROLE_TEST")));
-		Assert.assertFalse(gaSid.equals(new GrantedAuthoritySid("ROLE_NOT_EQUAL")));
-	}
+    public void testGrantedAuthoritySidEquals() {
+        GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
+        Sid gaSid = new GrantedAuthoritySid(ga);
 
-	public void testPrincipalSidHashCode() {
-		Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
-		Sid principalSid = new PrincipalSid(authentication);
+        Assert.assertFalse(gaSid.equals(null));
+        Assert.assertFalse(gaSid.equals("DIFFERENT_TYPE_OBJECT"));
+        Assert.assertTrue(gaSid.equals(gaSid));
+        Assert.assertTrue(gaSid.equals(new GrantedAuthoritySid(ga)));
+        Assert.assertTrue(gaSid.equals(new GrantedAuthoritySid(new GrantedAuthorityImpl("ROLE_TEST"))));
+        Assert.assertFalse(gaSid.equals(new GrantedAuthoritySid(new GrantedAuthorityImpl("ROLE_NOT_EQUAL"))));
+        Assert.assertTrue(gaSid.equals(new GrantedAuthoritySid("ROLE_TEST")));
+        Assert.assertFalse(gaSid.equals(new GrantedAuthoritySid("ROLE_NOT_EQUAL")));
+    }
 
-		Assert.assertTrue(principalSid.hashCode() == new String("johndoe").hashCode());
-		Assert.assertTrue(principalSid.hashCode() == new PrincipalSid("johndoe").hashCode());
-		Assert.assertTrue(principalSid.hashCode() != new PrincipalSid("scott").hashCode());
-		Assert.assertTrue(principalSid.hashCode() != new PrincipalSid(new TestingAuthenticationToken("scott",
-				"password", null)).hashCode());
-	}
+    public void testPrincipalSidHashCode() {
+        Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
+        Sid principalSid = new PrincipalSid(authentication);
 
-	public void testGrantedAuthoritySidHashCode() {
-		GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
-		Sid gaSid = new GrantedAuthoritySid(ga);
+        Assert.assertTrue(principalSid.hashCode() == new String("johndoe").hashCode());
+        Assert.assertTrue(principalSid.hashCode() == new PrincipalSid("johndoe").hashCode());
+        Assert.assertTrue(principalSid.hashCode() != new PrincipalSid("scott").hashCode());
+        Assert.assertTrue(principalSid.hashCode() != new PrincipalSid(new TestingAuthenticationToken("scott", "password",
+                null)).hashCode());
+    }
 
-		Assert.assertTrue(gaSid.hashCode() == new String("ROLE_TEST").hashCode());
-		Assert.assertTrue(gaSid.hashCode() == new GrantedAuthoritySid("ROLE_TEST").hashCode());
-		Assert.assertTrue(gaSid.hashCode() != new GrantedAuthoritySid("ROLE_TEST_2").hashCode());
-		Assert.assertTrue(gaSid.hashCode() != new GrantedAuthoritySid(new GrantedAuthorityImpl("ROLE_TEST_2"))
-				.hashCode());
-	}
-	
-	public void testGetters() {
-		Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
-		PrincipalSid principalSid = new PrincipalSid(authentication);
-		GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
-		GrantedAuthoritySid gaSid = new GrantedAuthoritySid(ga);
-		
-		Assert.assertTrue("johndoe".equals(principalSid.getPrincipal()));
-		Assert.assertFalse("scott".equals(principalSid.getPrincipal()));
-		
-		Assert.assertTrue("ROLE_TEST".equals(gaSid.getGrantedAuthority()));
-		Assert.assertFalse("ROLE_TEST2".equals(gaSid.getGrantedAuthority()));
-	}
+    public void testGrantedAuthoritySidHashCode() {
+        GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
+        Sid gaSid = new GrantedAuthoritySid(ga);
+
+        Assert.assertTrue(gaSid.hashCode() == new String("ROLE_TEST").hashCode());
+        Assert.assertTrue(gaSid.hashCode() == new GrantedAuthoritySid("ROLE_TEST").hashCode());
+        Assert.assertTrue(gaSid.hashCode() != new GrantedAuthoritySid("ROLE_TEST_2").hashCode());
+        Assert.assertTrue(gaSid.hashCode() != new GrantedAuthoritySid(new GrantedAuthorityImpl("ROLE_TEST_2")).hashCode());
+    }
+
+    public void testGetters() {
+        Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
+        PrincipalSid principalSid = new PrincipalSid(authentication);
+        GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
+        GrantedAuthoritySid gaSid = new GrantedAuthoritySid(ga);
+
+        Assert.assertTrue("johndoe".equals(principalSid.getPrincipal()));
+        Assert.assertFalse("scott".equals(principalSid.getPrincipal()));
+
+        Assert.assertTrue("ROLE_TEST".equals(gaSid.getGrantedAuthority()));
+        Assert.assertFalse("ROLE_TEST2".equals(gaSid.getGrantedAuthority()));
+    }
 }
