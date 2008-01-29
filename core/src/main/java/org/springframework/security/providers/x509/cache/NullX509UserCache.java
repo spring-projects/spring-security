@@ -26,6 +26,7 @@ import java.security.cert.X509Certificate;
  * "Cache" that doesn't do any caching.
  *
  * @author Luke Taylor
+ * @deprecated
  * @version $Id$
  */
 public class NullX509UserCache implements X509UserCache {

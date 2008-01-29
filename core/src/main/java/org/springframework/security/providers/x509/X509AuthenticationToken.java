@@ -26,6 +26,7 @@ import java.security.cert.X509Certificate;
  * <code>Authentication</code> implementation for X.509 client-certificate authentication.
  *
  * @author Luke Taylor
+ * @deprecated superceded by the preauth provider. Use the X.509 authentication support in org.springframework.security.ui.preauth.x509 instead. 
  * @version $Id$
  */
 public class X509AuthenticationToken extends AbstractAuthenticationToken {
@@ -49,7 +50,7 @@ public class X509AuthenticationToken extends AbstractAuthenticationToken {
     }
 
     /**
-     * Used for an authentication response object. The {@link Authentication#isAuthenticated()}
+     * Used for an authentication response object. The {@link org.springframework.security.Authentication#isAuthenticated()}
      * will return <code>true</code>.
      *
      * @param principal the principal, which is generally a

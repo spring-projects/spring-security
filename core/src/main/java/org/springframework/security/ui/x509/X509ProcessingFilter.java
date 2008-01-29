@@ -66,6 +66,7 @@ import javax.servlet.FilterConfig;
  * org.springframework.security.util.FilterToBeanProxy}.</p>
  *
  * @author Luke Taylor
+ * @deprecated Use <tt>X509PreAuthenticatedProcessingFilter</tt> from the preauth.x509 package instead 
  * @version $Id$
  */
 public class X509ProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware {

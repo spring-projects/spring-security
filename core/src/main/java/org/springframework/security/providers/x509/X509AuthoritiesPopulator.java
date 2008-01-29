@@ -33,6 +33,7 @@ import java.security.cert.X509Certificate;
  * </p>
  *
  * @author Luke Taylor
+ * @deprecated
  * @version $Id$
  */
 public interface X509AuthoritiesPopulator {

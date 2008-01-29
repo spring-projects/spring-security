@@ -41,6 +41,7 @@ import java.security.cert.X509Certificate;
  *
  * @author Luke Taylor
  * @author Ben Alex
+ * @deprecated use the X509 preauthenticated  
  * @version $Id$
  */
 public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBean {

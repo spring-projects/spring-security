@@ -44,6 +44,8 @@ import java.util.regex.Matcher;
  * Populates the X509 authorities via an {@link org.springframework.security.userdetails.UserDetailsService}.
  *
  * @author Luke Taylor
+ * @deprecated This package is now deprecated. Use the X.509 authentication support in
+ *              org.springframework.security.ui.preauth.x509 instead.
  * @version $Id$
  */
 public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator, InitializingBean, MessageSourceAware {

@@ -44,6 +44,8 @@ import java.security.cert.X509Certificate;
  * org.springframework.security.ui.x509.X509ProcessingFilter}).</p>
  *
  * @author Luke Taylor
+ * @deprecated superceded by the preauth provider. Use the X.509 authentication support in org.springframework.security.ui.preauth.x509 instead
+ *             or namespace support via the &lt;x509 /&gt; element. 
  * @version $Id$
  */
 public class X509AuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {

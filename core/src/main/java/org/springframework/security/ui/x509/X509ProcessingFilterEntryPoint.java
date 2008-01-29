@@ -41,8 +41,8 @@ import org.apache.commons.logging.LogFactory;
  * <code>HttpServletResponse.SC_FORBIDDEN</code> (403 error).
  *
  * @author Luke Taylor
- * @version $Id: X509ProcessingFilterEntryPoint.java 1496 2006-05-23 13:38:33Z
- * benalex $
+ * @deprecated Use the preauth package instead 
+ * @version $Id$
  *
  * @see org.springframework.security.ui.ExceptionTranslationFilter
  */
