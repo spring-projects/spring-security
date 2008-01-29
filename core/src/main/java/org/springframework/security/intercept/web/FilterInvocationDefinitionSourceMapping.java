@@ -29,7 +29,7 @@ import org.springframework.security.ConfigAttribute;
  * @version $Id$
  * @since 1.1
  */
-public class FilterInvocationDefinitionSourceMapping {
+class FilterInvocationDefinitionSourceMapping {
 
     private String url;
 

@@ -54,6 +54,9 @@ public class PathBasedFilterInvocationDefinitionMap extends DefaultFilterInvocat
     public void addSecureUrl(String antPath, String method, ConfigAttributeDefinition attr) {
         // SEC-501: If using lower case comparison, we should convert the paths to lower case
         // as any upper case characters included by mistake will prevent the URL from ever being matched.
+        // This shouldn't be needed anymore. The property editor complains if there is upper case text in the URL
+        // and the namespace implementation does the conversion itself, so it is safe to use the parent class
+        // directly. 
         if (getUrlMatcher().requiresLowerCaseUrl()) {
             antPath = antPath.toLowerCase();
         }
