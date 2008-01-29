@@ -51,7 +51,7 @@ public class StatusCheckingUserDetailsServiceTests {
     }
 
     class MockUserDetailsService implements UserDetailsService {
-        private Map <String, UserDetails> users = new HashMap <String, UserDetails>();
+        private Map users = new HashMap();
         private GrantedAuthority[] auths = new GrantedAuthority[] {new GrantedAuthorityImpl("A")};
 
         MockUserDetailsService() {
@@ -63,7 +63,7 @@ public class StatusCheckingUserDetailsServiceTests {
         }
 
         public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
-            return users.get(username);
+            return (UserDetails) users.get(username);
         }
     }
 }
