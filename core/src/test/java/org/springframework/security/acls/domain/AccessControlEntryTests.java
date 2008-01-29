@@ -22,7 +22,7 @@ public class AccessControlEntryTests extends TestCase {
 	
 	//~ Methods ========================================================================================================
 	
-	public void testConstructorRequiredFields() {
+	public void testConstructorRequiredFields() throws Exception {
 		// Check Acl field is present
 		try {
 			AccessControlEntry ace = new AccessControlEntryImpl(null, null, new PrincipalSid("johndoe"),
@@ -54,7 +54,7 @@ public class AccessControlEntryTests extends TestCase {
 		}
 	}
 
-	public void testAccessControlEntryImplGetters() {
+	public void testAccessControlEntryImplGetters() throws Exception {
 		Acl mockAcl = new MockAcl();
 		Sid sid = new PrincipalSid("johndoe");
 
@@ -72,7 +72,7 @@ public class AccessControlEntryTests extends TestCase {
 		Assert.assertTrue(((AuditableAccessControlEntry) ace).isAuditSuccess());
 	}
 
-	public void testEquals() {
+	public void testEquals() throws Exception {
 		Acl mockAcl = new MockAcl();
 		Sid sid = new PrincipalSid("johndoe");
 

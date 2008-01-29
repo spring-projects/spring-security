@@ -17,7 +17,7 @@ public class SidRetrievalStrategyTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public void testSidsRetrieval() {
+    public void testSidsRetrieval() throws Exception {
         Authentication authentication = new TestingAuthenticationToken("scott", "password", new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl("ROLE_2"), new GrantedAuthorityImpl("ROLE_3") });
         SidRetrievalStrategy retrStrategy = new SidRetrievalStrategyImpl();

@@ -34,7 +34,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
 		SecurityContextHolder.clearContext();
 	}
 
-	public void testSecurityCheckNoACEs() {
+	public void testSecurityCheckNoACEs() throws Exception {
 		Authentication auth = new TestingAuthenticationToken("user", "password", new GrantedAuthority[] {
 				new GrantedAuthorityImpl("ROLE_GENERAL"), new GrantedAuthorityImpl("ROLE_AUDITING"),
 				new GrantedAuthorityImpl("ROLE_OWNERSHIP") });
@@ -98,7 +98,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
 		}
 	}
 
-	public void testSecurityCheckWithMultipleACEs() {
+	public void testSecurityCheckWithMultipleACEs() throws Exception {
 		// Create a simple authentication with ROLE_GENERAL
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_GENERAL") });
@@ -199,7 +199,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
 		}
 	}
 
-	public void testSecurityCheckWithInheritableACEs() {
+	public void testSecurityCheckWithInheritableACEs() throws Exception {
 		// Create a simple authentication with ROLE_GENERAL
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_GENERAL") });
@@ -257,7 +257,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
 		}
 	}
 
-	public void testSecurityCheckPrincipalOwner() {
+	public void testSecurityCheckPrincipalOwner() throws Exception {
 		Authentication auth = new TestingAuthenticationToken("user", "password", new GrantedAuthority[] {
 				new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_ONE"),
 				new GrantedAuthorityImpl("ROLE_ONE") });

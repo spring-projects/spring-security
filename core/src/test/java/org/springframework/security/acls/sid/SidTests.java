@@ -15,7 +15,7 @@ public class SidTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public void testPrincipalSidConstructorsRequiredFields() {
+    public void testPrincipalSidConstructorsRequiredFields() throws Exception {
         // Check one String-argument constructor
         try {
             String string = null;
@@ -71,7 +71,7 @@ public class SidTests extends TestCase {
         }
     }
 
-    public void testGrantedAuthoritySidConstructorsRequiredFields() {
+    public void testGrantedAuthoritySidConstructorsRequiredFields() throws Exception {
         // Check one String-argument constructor
         try {
             String string = null;
@@ -127,7 +127,7 @@ public class SidTests extends TestCase {
         }
     }
 
-    public void testPrincipalSidEquals() {
+    public void testPrincipalSidEquals() throws Exception {
         Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
         Sid principalSid = new PrincipalSid(authentication);
 
@@ -141,7 +141,7 @@ public class SidTests extends TestCase {
         Assert.assertFalse(principalSid.equals(new PrincipalSid("scott")));
     }
 
-    public void testGrantedAuthoritySidEquals() {
+    public void testGrantedAuthoritySidEquals() throws Exception {
         GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
         Sid gaSid = new GrantedAuthoritySid(ga);
 
@@ -155,7 +155,7 @@ public class SidTests extends TestCase {
         Assert.assertFalse(gaSid.equals(new GrantedAuthoritySid("ROLE_NOT_EQUAL")));
     }
 
-    public void testPrincipalSidHashCode() {
+    public void testPrincipalSidHashCode() throws Exception {
         Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
         Sid principalSid = new PrincipalSid(authentication);
 
@@ -166,7 +166,7 @@ public class SidTests extends TestCase {
                 null)).hashCode());
     }
 
-    public void testGrantedAuthoritySidHashCode() {
+    public void testGrantedAuthoritySidHashCode() throws Exception {
         GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
         Sid gaSid = new GrantedAuthoritySid(ga);
 
@@ -176,7 +176,7 @@ public class SidTests extends TestCase {
         Assert.assertTrue(gaSid.hashCode() != new GrantedAuthoritySid(new GrantedAuthorityImpl("ROLE_TEST_2")).hashCode());
     }
 
-    public void testGetters() {
+    public void testGetters() throws Exception {
         Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
         PrincipalSid principalSid = new PrincipalSid(authentication);
         GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");

@@ -12,7 +12,7 @@ public class AclFormattingUtilsTests extends TestCase {
 
 	//~ Methods ========================================================================================================
 	
-	public final void testDemergePatternsParametersConstraints() {
+	public final void testDemergePatternsParametersConstraints() throws Exception {
 		try {
 			AclFormattingUtils.demergePatterns(null, "SOME STRING");
 			Assert.fail("It should have thrown IllegalArgumentException");
@@ -46,7 +46,7 @@ public class AclFormattingUtilsTests extends TestCase {
 		}
 	}
 
-	public final void testDemergePatterns() {
+	public final void testDemergePatterns() throws Exception {
 		String original = "...........................A...R";
 		String removeBits = "...............................R";
 		Assert.assertEquals("...........................A....", AclFormattingUtils
@@ -56,7 +56,7 @@ public class AclFormattingUtilsTests extends TestCase {
 		Assert.assertEquals("......", AclFormattingUtils.demergePatterns("ABCDEF", "GHIJKL"));
 	}
 	
-	public final void testMergePatternsParametersConstraints() {
+	public final void testMergePatternsParametersConstraints() throws Exception {
 		try {
 			AclFormattingUtils.mergePatterns(null, "SOME STRING");
 			Assert.fail("It should have thrown IllegalArgumentException");
@@ -90,7 +90,7 @@ public class AclFormattingUtilsTests extends TestCase {
 		}
 	}
 
-	public final void testMergePatterns() {
+	public final void testMergePatterns() throws Exception {
 		String original = "...............................R";
 		String extraBits = "...........................A....";
 		Assert.assertEquals("...........................A...R", AclFormattingUtils
@@ -100,7 +100,7 @@ public class AclFormattingUtilsTests extends TestCase {
 		Assert.assertEquals("GHIJKL", AclFormattingUtils.mergePatterns("ABCDEF", "GHIJKL"));
 	}
 	
-	public final void testBinaryPrints() {
+	public final void testBinaryPrints() throws Exception {
 		Assert.assertEquals("............................****", AclFormattingUtils.printBinary(15));
 		
 		try {

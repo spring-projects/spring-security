@@ -14,7 +14,7 @@ public class ObjectIdentityTests extends TestCase {
 	
 	//~ Methods ========================================================================================================
 
-	public void testConstructorsRequiredFields() {
+	public void testConstructorsRequiredFields() throws Exception {
 		// Check one-argument constructor required field
 		try {
 			ObjectIdentity obj = new ObjectIdentityImpl(null);
@@ -64,7 +64,7 @@ public class ObjectIdentityTests extends TestCase {
 		}
 	}
 
-	public void testGetIdMethodConstraints() {
+	public void testGetIdMethodConstraints() throws Exception {
 		// Check the getId() method is present
 		try {
 			ObjectIdentity obj = new ObjectIdentityImpl("A_STRING_OBJECT");
@@ -105,7 +105,7 @@ public class ObjectIdentityTests extends TestCase {
 		}
 	}
 
-	public void testConstructorInvalidClassParameter() {
+	public void testConstructorInvalidClassParameter() throws Exception {
 		try {
 			ObjectIdentity obj = new ObjectIdentityImpl("not.a.Class", new Long(1));
 		}
@@ -115,7 +115,7 @@ public class ObjectIdentityTests extends TestCase {
 		Assert.fail("It should have thrown IllegalStateException");
 	}
 
-	public void testEquals() {
+	public void testEquals() throws Exception {
 		ObjectIdentity obj = new ObjectIdentityImpl(
 				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(1));
 		MockIdDomainObject mockObj = new MockIdDomainObject();
@@ -144,7 +144,7 @@ public class ObjectIdentityTests extends TestCase {
 				.equals(new ObjectIdentityImpl(mockObj)));
 	}
 
-	public void testHashCode() {
+	public void testHashCode() throws Exception {
 		ObjectIdentity obj = new ObjectIdentityImpl(
 				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(1));
 		Assert.assertEquals(new ObjectIdentityImpl(
@@ -158,7 +158,7 @@ public class ObjectIdentityTests extends TestCase {
 				.hashCode() != obj.hashCode());
 	}
 	
-	public void testGetters() {
+	public void testGetters() throws Exception {
 		ObjectIdentity obj = new ObjectIdentityImpl(
 				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(1));
 		Assert.assertEquals(new Long(1), obj.getIdentifier());

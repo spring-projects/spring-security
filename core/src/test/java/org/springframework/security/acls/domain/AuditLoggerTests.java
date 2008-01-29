@@ -36,7 +36,7 @@ public class AuditLoggerTests extends TestCase {
 		System.setOut(console);
 	}
 
-	public void testLoggingTests() {
+	public void testLoggingTests() throws Exception {
 		ConsoleAuditLogger logger = new ConsoleAuditLogger();
 		MockAccessControlEntryImpl auditableAccessControlEntry = new MockAccessControlEntryImpl();
 
