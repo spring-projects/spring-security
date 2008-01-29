@@ -132,12 +132,11 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
         Set sessionsUsedByPrincipal = (Set) principals.get(principal);
 
 		if (sessionsUsedByPrincipal == null) {
-			sessionsUsedByPrincipal = Collections.synchronizedSet(new HashSet());
-		}
+			sessionsUsedByPrincipal = Collections.synchronizedSet(new HashSet(4));
+            principals.put(principal, sessionsUsedByPrincipal);
+        }
 
 		sessionsUsedByPrincipal.add(sessionId);
-
-		principals.put(principal, sessionsUsedByPrincipal);
 	}
 
 	public void removeSessionInformation(String sessionId) {
