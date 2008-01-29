@@ -145,31 +145,36 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 
 		SessionInformation info = getSessionInformation(sessionId);
 
-		if (info != null) {
+		if (info == null) {
+            return;
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Removing session " + sessionId + " from set of registered sessions");
+        }
+
+        sessionIds.remove(sessionId);
+
+        Set sessionsUsedByPrincipal = (Set) principals.get(info.getPrincipal());
+
+        if (sessionsUsedByPrincipal == null) {
+            return;
+        }
+
+        synchronized (sessionsUsedByPrincipal) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Removing session " + sessionId + " from set of registered sessions");
+                logger.debug("Removing session " + sessionId + " from principal's set of registered sessions");
             }
-            sessionIds.remove(sessionId);
 
-            Set sessionsUsedByPrincipal = (Set) principals.get(info.getPrincipal());
+            sessionsUsedByPrincipal.remove(sessionId);
 
-            if (sessionsUsedByPrincipal != null) {
-				synchronized (sessionsUsedByPrincipal) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Removing session " + sessionId + " from principal's set of registered sessions");
-                    }
-
-					sessionsUsedByPrincipal.remove(sessionId);
-
-					if (sessionsUsedByPrincipal.size() == 0) {
-						// No need to keep object in principals Map anymore
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Removing principal " + info.getPrincipal() + " from registry");
-                        }
-                        principals.remove(info.getPrincipal());
-					}
-				}
-			}
-		}
+            if (sessionsUsedByPrincipal.size() == 0) {
+                // No need to keep object in principals Map anymore
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Removing principal " + info.getPrincipal() + " from registry");
+                }
+                principals.remove(info.getPrincipal());
+            }
+        }
 	}
 }
