@@ -161,11 +161,11 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
             return;
         }
 
+        if (logger.isDebugEnabled()) {
+            logger.debug("Removing session " + sessionId + " from principal's set of registered sessions");
+        }
+        
         synchronized (sessionsUsedByPrincipal) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Removing session " + sessionId + " from principal's set of registered sessions");
-            }
-
             sessionsUsedByPrincipal.remove(sessionId);
 
             if (sessionsUsedByPrincipal.size() == 0) {
