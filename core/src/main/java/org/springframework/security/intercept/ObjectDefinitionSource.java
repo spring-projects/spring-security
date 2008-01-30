@@ -18,6 +18,7 @@ package org.springframework.security.intercept;
 import org.springframework.security.ConfigAttributeDefinition;
 
 import java.util.Iterator;
+import java.util.Collection;
 
 
 /**
@@ -42,17 +43,17 @@ public interface ObjectDefinitionSource {
      * @throws IllegalArgumentException if the passed object is not of a type supported by the
      *         <code>ObjectDefinitionSource</code> implementation
      */
-    ConfigAttributeDefinition getAttributes(Object object)
-        throws IllegalArgumentException;
+    ConfigAttributeDefinition getAttributes(Object object) throws IllegalArgumentException;
 
     /**
-     * If available, all of the <code>ConfigAttributeDefinition</code>s defined by the implementing class.<P>This
-     * is used by the {@link AbstractSecurityInterceptor} to perform startup time validation of each
-     * <code>ConfigAttribute</code> configured against it.</p>
+     * If available, returns all of the <code>ConfigAttributeDefinition</code>s defined by the implementing class.
+     * <p>
+     * This is used by the {@link AbstractSecurityInterceptor} to perform startup time validation of each
+     * <code>ConfigAttribute</code> configured against it.
      *
-     * @return an iterator over all the <code>ConfigAttributeDefinition</code>s or <code>null</code> if unsupported
+     * @return the <code>ConfigAttributeDefinition</code>s or <code>null</code> if unsupported
      */
-    Iterator getConfigAttributeDefinitions();
+    Collection getConfigAttributeDefinitions();
 
     /**
      * Indicates whether the <code>ObjectDefinitionSource</code> implementation is able to provide

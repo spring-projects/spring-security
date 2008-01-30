@@ -16,7 +16,6 @@
 package org.springframework.security.intercept.web;
 
 import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.SecurityConfig;
 import org.springframework.security.util.UrlMatcher;
 
 import org.apache.commons.logging.Log;
@@ -29,7 +28,8 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 
 /**
@@ -136,8 +136,8 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
         return methodRequestmap;
     }
 
-    public Iterator getConfigAttributeDefinitions() {
-        return getRequestMap().values().iterator();
+    public Collection getConfigAttributeDefinitions() {
+        return Collections.unmodifiableCollection(getRequestMap().values());
     }
 
     public ConfigAttributeDefinition getAttributes(Object object) throws IllegalArgumentException {

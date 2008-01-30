@@ -16,13 +16,12 @@
 package org.springframework.security.intercept.method;
 
 import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.SecurityConfig;
 
 import java.lang.reflect.Method;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.Collection;
 
 
 /**
@@ -34,12 +33,12 @@ public class MockMethodDefinitionSource extends AbstractMethodDefinitionSource {
     //~ Instance fields ================================================================================================
 
     private List list;
-    private boolean returnAnIterator;
+    private boolean returnACollection;
 
     //~ Constructors ===================================================================================================
 
-    public MockMethodDefinitionSource(boolean includeInvalidAttributes, boolean returnAnIteratorWhenRequested) {
-        returnAnIterator = returnAnIteratorWhenRequested;
+    public MockMethodDefinitionSource(boolean includeInvalidAttributes, boolean returnACollectionWhenRequested) {
+        returnACollection = returnACollectionWhenRequested;
         list = new Vector();
 
         ConfigAttributeDefinition def1 = new ConfigAttributeDefinition("MOCK_LOWER");
@@ -61,9 +60,9 @@ public class MockMethodDefinitionSource extends AbstractMethodDefinitionSource {
 
     //~ Methods ========================================================================================================
 
-    public Iterator getConfigAttributeDefinitions() {
-        if (returnAnIterator) {
-            return list.iterator();
+    public Collection getConfigAttributeDefinitions() {
+        if (returnACollection) {
+            return list;
         } else {
             return null;
         }

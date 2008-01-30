@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.SecurityConfig;
 
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
@@ -29,9 +28,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.Collection;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -91,8 +90,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         assertTrue(true);
     }
 
-    public void testDetectsUnsupportedConfigAttribute()
-        throws Exception {
+    public void testDetectsUnsupportedConfigAttribute() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SUPPORTS_MOCK_ONLY"));
 
@@ -109,8 +107,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testDoFilterWhenManagerDoesCommitResponse()
-        throws Exception {
+    public void testDoFilterWhenManagerDoesCommitResponse() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(true, "SOME_ATTRIBUTE"));
 
@@ -131,8 +128,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         assertTrue(true);
     }
 
-    public void testDoFilterWhenManagerDoesNotCommitResponse()
-        throws Exception {
+    public void testDoFilterWhenManagerDoesNotCommitResponse() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SOME_ATTRIBUTE"));
 
@@ -175,8 +171,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         assertTrue(true);
     }
 
-    public void testDoFilterWithNonHttpServletRequestDetected()
-        throws Exception {
+    public void testDoFilterWithNonHttpServletRequestDetected() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
 
         try {
@@ -186,8 +181,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testDoFilterWithNonHttpServletResponseDetected()
-        throws Exception {
+    public void testDoFilterWithNonHttpServletResponseDetected() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
 
         try {
@@ -293,7 +287,7 @@ public class ChannelProcessingFilterTests extends TestCase {
             }
         }
 
-        public Iterator getConfigAttributeDefinitions() {
+        public Collection getConfigAttributeDefinitions() {
             if (!provideIterator) {
                 return null;
             }
@@ -301,7 +295,7 @@ public class ChannelProcessingFilterTests extends TestCase {
             List list = new Vector();
             list.add(toReturn);
 
-            return list.iterator();
+            return list;
         }
 
         public boolean supports(Class clazz) {

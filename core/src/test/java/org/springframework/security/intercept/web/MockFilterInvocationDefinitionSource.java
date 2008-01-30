@@ -16,12 +16,11 @@
 package org.springframework.security.intercept.web;
 
 import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.SecurityConfig;
 import org.springframework.security.util.AntUrlPathMatcher;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.Collection;
 
 
 /**
@@ -62,9 +61,9 @@ public class MockFilterInvocationDefinitionSource extends DefaultFilterInvocatio
 
     //~ Methods ========================================================================================================
 
-    public Iterator getConfigAttributeDefinitions() {
+    public Collection getConfigAttributeDefinitions() {
         if (returnAnIterator) {
-            return list.iterator();
+            return list;
         } else {
             return null;
         }

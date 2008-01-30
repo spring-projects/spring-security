@@ -52,6 +52,7 @@ import org.springframework.util.Assert;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Collection;
 
 /**
  * Abstract class that implements security interception for secure objects.
@@ -212,14 +213,15 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
         }
 
         if (this.validateConfigAttributes) {
-            Iterator iter = this.obtainObjectDefinitionSource().getConfigAttributeDefinitions();
+            Collection attributeDefs = this.obtainObjectDefinitionSource().getConfigAttributeDefinitions();
 
-            if (iter == null) {
+            if (attributeDefs == null) {
                 logger.warn("Could not validate configuration attributes as the ObjectDefinitionSource did not return "
                         + "a ConfigAttributeDefinition Iterator");
                 return;
             }
 
+            Iterator iter = attributeDefs.iterator();
             Set unsupportedAttrs = new HashSet();
 
             while (iter.hasNext()) {

@@ -137,7 +137,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
             "org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY\r\norg.springframework.security.TargetObject.make*=ROLE_NINE,ROLE_SUPERVISOR");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
-        Iterator iter = map.getConfigAttributeDefinitions();
+        Iterator iter = map.getConfigAttributeDefinitions().iterator();
         int counter = 0;
 
         while (iter.hasNext()) {

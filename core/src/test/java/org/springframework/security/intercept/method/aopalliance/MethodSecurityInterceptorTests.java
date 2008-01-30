@@ -48,7 +48,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.lang.reflect.Method;
 
-import java.util.Iterator;
+import java.util.Collection;
 
 
 /**
@@ -447,7 +447,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
     }
 
     private class MockObjectDefinitionSourceWhichOnlySupportsStrings extends AbstractMethodDefinitionSource {
-        public Iterator getConfigAttributeDefinitions() {
+        public Collection getConfigAttributeDefinitions() {
             return null;
         }
 

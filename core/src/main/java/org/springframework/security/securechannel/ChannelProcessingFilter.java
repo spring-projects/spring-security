@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Collection;
 
 
 /**
@@ -66,9 +67,9 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
         Assert.notNull(filterInvocationDefinitionSource, "filterInvocationDefinitionSource must be specified");
         Assert.notNull(channelDecisionManager, "channelDecisionManager must be specified");
 
-        Iterator iter = this.filterInvocationDefinitionSource.getConfigAttributeDefinitions();
+        Collection attrDefs = this.filterInvocationDefinitionSource.getConfigAttributeDefinitions();
 
-        if (iter == null) {
+        if (attrDefs == null) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Could not validate configuration attributes as the FilterInvocationDefinitionSource did "
                         + "not return a ConfigAttributeDefinition Iterator");
@@ -77,6 +78,7 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
             return;
         }
 
+        Iterator iter = attrDefs.iterator();
         Set set = new HashSet();
 
         while (iter.hasNext()) {

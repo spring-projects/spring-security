@@ -103,7 +103,7 @@ public class MethodDefinitionAttributes extends AbstractMethodDefinitionSource {
         }
     }
 
-    public Iterator getConfigAttributeDefinitions() {
+    public Collection getConfigAttributeDefinitions() {
         return null;
     }
 

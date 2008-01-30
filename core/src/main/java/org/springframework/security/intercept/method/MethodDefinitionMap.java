@@ -16,7 +16,6 @@
 package org.springframework.security.intercept.method;
 
 import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.SecurityConfig;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +27,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Collection;
+import java.util.Collections;
 
 
 /**
@@ -177,8 +178,8 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
      *
      * @return the attributes explicitly defined against this bean
      */
-    public Iterator getConfigAttributeDefinitions() {
-        return methodMap.values().iterator();
+    public Collection getConfigAttributeDefinitions() {
+        return Collections.unmodifiableCollection(methodMap.values());
     }
 
     /**

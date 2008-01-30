@@ -29,7 +29,6 @@ import org.springframework.security.MockApplicationContext;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockRunAsManager;
 import org.springframework.security.RunAsManager;
-import org.springframework.security.SecurityConfig;
 import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.context.SecurityContextHolder;
@@ -39,10 +38,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.LinkedHashMap;
+import java.util.Collection;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -281,7 +277,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
             }
         }
 
-        public Iterator getConfigAttributeDefinitions() {
+        public Collection getConfigAttributeDefinitions() {
             return null;
         }
 
