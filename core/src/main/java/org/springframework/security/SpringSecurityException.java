@@ -28,7 +28,7 @@ import org.springframework.core.NestedRuntimeException;
 public abstract class SpringSecurityException extends NestedRuntimeException {
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs an <code>SpringSecurityException</code> with the specified
      * message and root cause.
      *
@@ -39,7 +39,7 @@ public abstract class SpringSecurityException extends NestedRuntimeException {
         super(msg, t);
     }
 
-/**
+    /**
      * Constructs an <code>SpringSecurityException</code> with the specified
      * message and no root cause.
      *

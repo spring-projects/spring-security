@@ -25,6 +25,8 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ui.savedrequest.SavedRequest;
 import org.springframework.security.util.PortResolver;
 import org.springframework.security.util.PortResolverImpl;
+import org.springframework.security.util.ThrowableAnalyzer;
+import org.springframework.security.util.ThrowableCauseExtractor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -92,7 +94,8 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
 	private AuthenticationEntryPoint authenticationEntryPoint;
 	private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 	private PortResolver portResolver = new PortResolverImpl();
-	private boolean createSessionAllowed = true;
+    private ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();    
+    private boolean createSessionAllowed = true;
 
 	//~ Methods ========================================================================================================
 
@@ -100,7 +103,8 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint must be specified");
 		Assert.notNull(portResolver, "portResolver must be specified");
 		Assert.notNull(authenticationTrustResolver, "authenticationTrustResolver must be specified");
-	}
+        Assert.notNull(throwableAnalyzer, "throwableAnalyzer must be specified");        
+    }
 
 	public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException,
 			ServletException {
@@ -112,24 +116,31 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
 				logger.debug("Chain processed normally");
 			}
 		}
-		catch (AuthenticationException ex) {
-			handleException(request, response, chain, ex);
-		}
-		catch (AccessDeniedException ex) {
-			handleException(request, response, chain, ex);
-		}
-		catch (ServletException ex) {
-			if (ex.getRootCause() instanceof AuthenticationException
-					|| ex.getRootCause() instanceof AccessDeniedException) {
-				handleException(request, response, chain, (SpringSecurityException) ex.getRootCause());
-			}
-			else {
-				throw ex;
-			}
-		}
-		catch (IOException ex) {
-			throw ex;
-		}
+        catch (IOException ex) {
+            throw ex;
+        }
+        catch (Exception ex) {
+            // Try to extract a SpringSecurityException from the stacktrace
+            Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
+            SpringSecurityException ase = (SpringSecurityException)
+                    this.throwableAnalyzer.getFirstThrowableOfType(SpringSecurityException.class, causeChain);
+
+            if (ase != null) {
+                handleException(request, response, chain, ase);
+            }
+            else {
+                // Rethrow ServletExceptions and RuntimeExceptions as-is
+                if (ex instanceof ServletException) {
+                    throw (ServletException) ex;
+                }
+                else if (ex instanceof RuntimeException) {
+                    throw (RuntimeException) ex;
+                }
+
+                // Wrap other Exceptions. These are not expected to happen
+                throw new RuntimeException(ex);
+            }
+        }
 	}
 
 	public AuthenticationEntryPoint getAuthenticationEntryPoint() {
@@ -235,7 +246,33 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
 		this.portResolver = portResolver;
 	}
 
+    public void setThrowableAnalyzer(ThrowableAnalyzer throwableAnalyzer) {
+        this.throwableAnalyzer = throwableAnalyzer;
+    }    
+
     public int getOrder() {
         return FilterChainOrder.EXCEPTION_TRANSLATION_FILTER;
     }
+
+    /**
+     * Default implementation of <code>ThrowableAnalyzer</code> which is capable of also unwrapping
+     * <code>ServletException</code>s.
+     */
+    private static final class DefaultThrowableAnalyzer extends ThrowableAnalyzer {
+        /**
+         * @see org.springframework.security.util.ThrowableAnalyzer#initExtractorMap()
+         */
+        protected void initExtractorMap() {
+            super.initExtractorMap();
+
+            registerExtractor(ServletException.class, new ThrowableCauseExtractor() {
+                public Throwable extractCause(Throwable throwable) {
+                    ThrowableAnalyzer.verifyThrowableHierarchy(throwable, ServletException.class);
+                    return ((ServletException) throwable).getRootCause();
+                }
+            });
+        }
+
+    }
+
 }

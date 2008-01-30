@@ -46,18 +46,7 @@ import javax.servlet.ServletResponse;
  * benalex $
  */
 public class ExceptionTranslationFilterTests extends TestCase {
-	//~ Constructors ===================================================================================================
-
-	public ExceptionTranslationFilterTests() {
-		super();
-	}
-
-	public ExceptionTranslationFilterTests(String arg0) {
-		super(arg0);
-	}
-
 	//~ Methods ========================================================================================================
-
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -312,8 +301,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 		}
 	}
 
-	// ~ Inner Classes
-	// ==================================================================================================
+	// ~ Inner Classes =================================================================================================
 
 	private class MockFilterChain implements FilterChain {
 		private boolean throwAccessDenied;
