@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.LinkedHashMap;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -147,9 +148,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setApplicationEventPublisher(MockApplicationContext.getContext());
 
         // Setup a mock config attribute definition
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("MOCK_OK"));
-
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("MOCK_OK");
         MockFilterInvocationDefinitionMap mockSource = new MockFilterInvocationDefinitionMap("/secure/page.html", def);
         interceptor.setObjectDefinitionSource(mockSource);
 
@@ -202,9 +201,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setApplicationEventPublisher(MockApplicationContext.getContext());
 
         // Setup a mock config attribute definition
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("MOCK_OK"));
-
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("MOCK_OK");
         MockFilterInvocationDefinitionMap mockSource = new MockFilterInvocationDefinitionMap("/secure/page.html", def);
         interceptor.setObjectDefinitionSource(mockSource);
 
@@ -227,19 +224,12 @@ public class FilterSecurityInterceptorTests extends TestCase {
     }
 
     public void testNotLoadedFromApplicationContext() throws Exception {
-        FilterInvocationDefinitionSourceMapping mapping = new FilterInvocationDefinitionSourceMapping();
-        mapping.setUrl("/secure/**");
-        mapping.addConfigAttribute("ROLE_USER");
-
-        List mappings = new ArrayList(1);
-        mappings.add(mapping);
-
-        DefaultFilterInvocationDefinitionSource filterInvocationDefinitionSource
+        DefaultFilterInvocationDefinitionSource fids
                 = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher());
-        filterInvocationDefinitionSource.setMappings(mappings);
+        fids.addSecureUrl("/secure/**", null, new ConfigAttributeDefinition(new String[] {"ROLE_USER"}));
 
         FilterSecurityInterceptor filter = new FilterSecurityInterceptor();
-        filter.setObjectDefinitionSource(filterInvocationDefinitionSource);
+        filter.setObjectDefinitionSource(fids);
 
         MockFilterChain filterChain = new MockFilterChain();
         filterChain.expectToProceed = true;

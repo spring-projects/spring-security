@@ -80,9 +80,7 @@ public class AffirmativeBasedTests extends TestCase {
         TestingAuthenticationToken auth = makeTestToken();
         AffirmativeBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_1")); // grant
-        config.addConfigAttribute(new SecurityConfig("DENY_FOR_SURE")); // deny
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "DENY_FOR_SURE"});
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
@@ -93,8 +91,7 @@ public class AffirmativeBasedTests extends TestCase {
         TestingAuthenticationToken auth = makeTestToken();
         AffirmativeBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_2")); // grant
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition("ROLE_2");
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
@@ -105,8 +102,7 @@ public class AffirmativeBasedTests extends TestCase {
         TestingAuthenticationToken auth = makeTestToken();
         AffirmativeBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_WE_DO_NOT_HAVE")); // deny
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition("ROLE_WE_DO_NOT_HAVE");
 
         try {
             mgr.decide(auth, new Object(), config);
@@ -123,8 +119,7 @@ public class AffirmativeBasedTests extends TestCase {
 
         assertTrue(!mgr.isAllowIfAllAbstainDecisions()); // check default
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("IGNORED_BY_ALL")); // abstain
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition("IGNORED_BY_ALL");
 
         try {
             mgr.decide(auth, new Object(), config);
@@ -141,8 +136,7 @@ public class AffirmativeBasedTests extends TestCase {
         mgr.setAllowIfAllAbstainDecisions(true);
         assertTrue(mgr.isAllowIfAllAbstainDecisions()); // check changed
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("IGNORED_BY_ALL")); // abstain
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition("IGNORED_BY_ALL");
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
@@ -153,9 +147,7 @@ public class AffirmativeBasedTests extends TestCase {
         TestingAuthenticationToken auth = makeTestToken();
         AffirmativeBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_1")); // grant
-        config.addConfigAttribute(new SecurityConfig("ROLE_2")); // grant
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "ROLE_2"});
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);

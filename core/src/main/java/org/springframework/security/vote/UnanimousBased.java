@@ -21,6 +21,7 @@ import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 
 import java.util.Iterator;
+import java.util.Arrays;
 
 
 /**
@@ -32,8 +33,9 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 
     /**
      * This concrete implementation polls all configured  {@link AccessDecisionVoter}s for each {@link
-     * ConfigAttribute} and grants access if <b>only</b> grant votes were received.<p>Other voting
-     * implementations usually pass the entire list of {@link ConfigAttributeDefinition}s to the
+     * ConfigAttribute} and grants access if <b>only</b> grant votes were received.
+     * <p>
+     * Other voting implementations usually pass the entire list of {@link ConfigAttributeDefinition}s to the
      * <code>AccessDecisionVoter</code>. This implementation differs in that each <code>AccessDecisionVoter</code>
      * knows only about a single <code>ConfigAttribute</code> at a time.</p>
      *  <p>If every <code>AccessDecisionVoter</code> abstained from voting, the decision will be based on the
@@ -46,21 +48,22 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
      * @throws AccessDeniedException if access is denied
      */
     public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
-        throws AccessDeniedException {
+             throws AccessDeniedException {
+
         int grant = 0;
         int abstain = 0;
 
-        Iterator configIter = config.getConfigAttributes();
+        Iterator configIter = config.getConfigAttributes().iterator();
 
         while (configIter.hasNext()) {
-            ConfigAttributeDefinition thisDef = new ConfigAttributeDefinition();
-            thisDef.addConfigAttribute((ConfigAttribute) configIter.next());
+            ConfigAttributeDefinition singleAttrDef =
+                    new ConfigAttributeDefinition((ConfigAttribute) configIter.next());
 
             Iterator voters = this.getDecisionVoters().iterator();
 
             while (voters.hasNext()) {
                 AccessDecisionVoter voter = (AccessDecisionVoter) voters.next();
-                int result = voter.vote(authentication, object, thisDef);
+                int result = voter.vote(authentication, object, singleAttrDef);
 
                 switch (result) {
                 case AccessDecisionVoter.ACCESS_GRANTED:

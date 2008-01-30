@@ -40,75 +40,48 @@ import org.aopalliance.intercept.MethodInvocation;
  * @version $Id$
  */
 public class MethodDefinitionSourceEditorTigerTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public MethodDefinitionSourceEditorTigerTests() {
-        super();
-    }
-
-    public MethodDefinitionSourceEditorTigerTests(String arg0) {
-        super(arg0);
-    }
-
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(MethodDefinitionSourceEditorTigerTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void testConcreteClassInvocationsAlsoReturnDefinitionsAgainstInterface()
-        throws Exception {
+    public void testConcreteClassInvocationsAlsoReturnDefinitionsAgainstInterface() throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "org.springframework.security.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
+                "org.springframework.security.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
 
         ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(Service.class,
-                    "makeLowerCase", new Class[] {Entity.class}));
-        ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition();
-        expectedMakeLower.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
+                "makeLowerCase", new Class[]{Entity.class}));
+        ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition("ROLE_FROM_INTERFACE");
         assertEquals(expectedMakeLower, returnedMakeLower);
 
         ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(ServiceImpl.class,
-                    "makeUpperCase", new Class[] {Entity.class}));
-        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition();
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_FROM_IMPLEMENTATION"));
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
+                "makeUpperCase", new Class[]{Entity.class}));
+        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition(new String[]{"ROLE_FROM_IMPLEMENTATION", "ROLE_FROM_INTERFACE"});
         assertEquals(expectedMakeUpper, returnedMakeUpper);
     }
 
-    public void testGenericsSuperclassDeclarationsAreIncludedWhenSubclassesOverride()
-        throws Exception {
+    public void testGenericsSuperclassDeclarationsAreIncludedWhenSubclassesOverride() throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "org.springframework.security.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
+                "org.springframework.security.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
 
         ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(PersonService.class,
-                    "makeLowerCase", new Class[] {Entity.class}));
-        ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition();
-        expectedMakeLower.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
+                "makeLowerCase", new Class[]{Entity.class}));
+        ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition("ROLE_FROM_INTERFACE");
         assertEquals(expectedMakeLower, returnedMakeLower);
 
         ConfigAttributeDefinition returnedMakeLower2 = map.getAttributes(new MockMethodInvocation(
-                    OrganisationService.class, "makeLowerCase", new Class[] {Entity.class}));
-        ConfigAttributeDefinition expectedMakeLower2 = new ConfigAttributeDefinition();
-        expectedMakeLower2.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
+                OrganisationService.class, "makeLowerCase", new Class[]{Entity.class}));
+        ConfigAttributeDefinition expectedMakeLower2 = new ConfigAttributeDefinition("ROLE_FROM_INTERFACE");
         assertEquals(expectedMakeLower2, returnedMakeLower2);
 
         ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(
-                    PersonServiceImpl.class, "makeUpperCase", new Class[] {Entity.class}));
-        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition();
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_FROM_IMPLEMENTATION"));
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
+                PersonServiceImpl.class, "makeUpperCase", new Class[]{Entity.class}));
+        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition(new String[]{"ROLE_FROM_IMPLEMENTATION", "ROLE_FROM_INTERFACE"});
         assertEquals(expectedMakeUpper, returnedMakeUpper);
     }
 

@@ -45,9 +45,7 @@ public class InsecureChannelProcessorTests extends TestCase {
     }
 
     public void testDecideDetectsAcceptableChannel() throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
-        cad.addConfigAttribute(new SecurityConfig("SOME_IGNORED_ATTRIBUTE"));
-        cad.addConfigAttribute(new SecurityConfig("REQUIRES_INSECURE_CHANNEL"));
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new String[]{"SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL"});
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=true");
@@ -69,9 +67,7 @@ public class InsecureChannelProcessorTests extends TestCase {
 
     public void testDecideDetectsUnacceptableChannel()
         throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
-        cad.addConfigAttribute(new SecurityConfig("SOME_IGNORED_ATTRIBUTE"));
-        cad.addConfigAttribute(new SecurityConfig("REQUIRES_INSECURE_CHANNEL"));
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new String[]{"SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL"});
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=true");

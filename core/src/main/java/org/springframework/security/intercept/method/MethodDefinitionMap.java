@@ -15,7 +15,6 @@
 
 package org.springframework.security.intercept.method;
 
-import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.SecurityConfig;
 
@@ -63,6 +62,22 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
     private Map nameMap = new HashMap();
 
     //~ Methods ========================================================================================================
+
+    public MethodDefinitionMap() {
+    }
+
+    /**
+     * Creates the MethodDefinitionMap from a
+     * @param methodMap map of method names to <tt>ConfigAttributeDefinition</tt>s.
+     */
+    public MethodDefinitionMap(Map methodMap) {
+        Iterator iterator = methodMap.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            addSecureMethod((String)entry.getKey(), (ConfigAttributeDefinition)entry.getValue());
+        }        
+    }
 
     /**
      * Add configuration attributes for a secure method. Method names can end or start with <code>&#42</code>
@@ -192,11 +207,10 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
     }
 
     protected ConfigAttributeDefinition lookupAttributes(Method method) {
-        ConfigAttributeDefinition definition = new ConfigAttributeDefinition();
+        List attributesToReturn = new ArrayList();
 
         // Add attributes explictly defined for this method invocation
-        ConfigAttributeDefinition directlyAssigned = (ConfigAttributeDefinition) this.methodMap.get(method);
-        merge(definition, directlyAssigned);
+        merge(attributesToReturn, (ConfigAttributeDefinition) this.methodMap.get(method));
 
         // Add attributes explicitly defined for this method invocation's interfaces
         Class[] interfaces = method.getDeclaringClass().getInterfaces();
@@ -209,50 +223,25 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
                 Method interfaceMethod = clazz.getDeclaredMethod(method.getName(), (Class[]) method.getParameterTypes());
                 ConfigAttributeDefinition interfaceAssigned =
                         (ConfigAttributeDefinition) this.methodMap.get(interfaceMethod);
-                merge(definition, interfaceAssigned);
+                merge(attributesToReturn, interfaceAssigned);
             } catch (Exception e) {
                 // skip this interface
             }
         }
 
         // Return null if empty, as per abstract superclass contract
-        if (definition.size() == 0) {
+        if (attributesToReturn.size() == 0) {
             return null;
-        } else {
-            return definition;
         }
+
+        return new ConfigAttributeDefinition(attributesToReturn);
     }
 
-    private void merge(ConfigAttributeDefinition definition, ConfigAttributeDefinition toMerge) {
+    private void merge(List attributes, ConfigAttributeDefinition toMerge) {
         if (toMerge == null) {
             return;
         }
 
-        Iterator attribs = toMerge.getConfigAttributes();
-
-        while (attribs.hasNext()) {
-            definition.addConfigAttribute((ConfigAttribute) attribs.next());
-        }
-    }
-
-    /**
-     * Easier configuration of the instance, using {@link MethodDefinitionSourceMapping}.
-     *
-     * @param mappings {@link List} of {@link MethodDefinitionSourceMapping} objects.
-     */
-    public void setMappings(List mappings) {
-        Iterator it = mappings.iterator();
-        while (it.hasNext()) {
-            MethodDefinitionSourceMapping mapping = (MethodDefinitionSourceMapping) it.next();
-            ConfigAttributeDefinition configDefinition = new ConfigAttributeDefinition();
-
-            Iterator configAttributesIt = mapping.getConfigAttributes().iterator();
-            while (configAttributesIt.hasNext()) {
-                String s = (String) configAttributesIt.next();
-                configDefinition.addConfigAttribute(new SecurityConfig(s));
-            }
-
-            addSecureMethod(mapping.getMethodName(), configDefinition);
-        }
+        attributes.addAll(toMerge.getConfigAttributes());
     }
 }

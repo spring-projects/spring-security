@@ -34,6 +34,8 @@ import org.springframework.security.intercept.web.DefaultFilterInvocationDefinit
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Tests {@link FilterChainProxy}.
@@ -69,8 +71,6 @@ public class FilterChainProxyTests {
             filterChainProxy.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("FilterChainProxy requires the FilterInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()",
-                expected.getMessage());
         }
     }
 
@@ -79,8 +79,7 @@ public class FilterChainProxyTests {
         FilterChainProxy filterChainProxy = new FilterChainProxy();
         filterChainProxy.setApplicationContext(MockApplicationContext.getContext());
 
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
-        cad.addConfigAttribute(new MockConfigAttribute());
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new MockConfigAttribute());
 
         DefaultFilterInvocationDefinitionSource fids =
                 new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher());
@@ -93,8 +92,6 @@ public class FilterChainProxyTests {
             filterChainProxy.init(new MockFilterConfig());
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage()
-                               .endsWith("returned null to the getAttribute() method, which is invalid when used with FilterChainProxy"));
         }
     }
 

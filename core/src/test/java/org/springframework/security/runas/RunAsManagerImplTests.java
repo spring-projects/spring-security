@@ -61,9 +61,7 @@ public class RunAsManagerImplTests extends TestCase {
 
     public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting()
         throws Exception {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("SOMETHING_WE_IGNORE"));
-
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("SOMETHING_WE_IGNORE");
         UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
@@ -75,9 +73,7 @@ public class RunAsManagerImplTests extends TestCase {
     }
 
     public void testRespectsRolePrefix() throws Exception {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("RUN_AS_SOMETHING"));
-
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("RUN_AS_SOMETHING");
         UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ONE"), new GrantedAuthorityImpl("TWO")});
 
@@ -101,11 +97,8 @@ public class RunAsManagerImplTests extends TestCase {
         assertEquals("my_password".hashCode(), resultCast.getKeyHash());
     }
 
-    public void testReturnsAdditionalGrantedAuthorities()
-        throws Exception {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("RUN_AS_SOMETHING"));
-
+    public void testReturnsAdditionalGrantedAuthorities() throws Exception {
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("RUN_AS_SOMETHING");
         UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 

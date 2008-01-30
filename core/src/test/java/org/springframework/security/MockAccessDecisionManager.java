@@ -30,7 +30,7 @@ public class MockAccessDecisionManager implements AccessDecisionManager {
 
     public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
         throws AccessDeniedException {
-        Iterator iter = config.getConfigAttributes();
+        Iterator iter = config.getConfigAttributes().iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();

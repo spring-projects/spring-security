@@ -52,9 +52,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("MOCK"));
-
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("MOCK");
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, true);
         filter.setFilterInvocationDefinitionSource(fids);
 
@@ -83,8 +81,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SUPPORTS_MOCK_ONLY"));
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("SUPPORTS_MOCK_ONLY"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("SUPPORTS_MOCK_ONLY");
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, true);
 
@@ -99,10 +96,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SUPPORTS_MOCK_ONLY"));
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("SUPPORTS_MOCK_ONLY"));
-        attr.addConfigAttribute(new SecurityConfig("INVALID_ATTRIBUTE"));
-
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition(new String[] {"SUPPORTS_MOCK_ONLY", "INVALID_ATTRIBUTE"});
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, true);
 
         filter.setFilterInvocationDefinitionSource(fids);
@@ -120,8 +114,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(true, "SOME_ATTRIBUTE"));
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("SOME_ATTRIBUTE"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("SOME_ATTRIBUTE");
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, true);
 
@@ -143,8 +136,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SOME_ATTRIBUTE"));
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("SOME_ATTRIBUTE"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("SOME_ATTRIBUTE");
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, true);
 
@@ -166,8 +158,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "NOT_USED"));
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("NOT_USED"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("NOT_USED");
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, true);
 
@@ -211,8 +202,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "MOCK"));
         assertTrue(filter.getChannelDecisionManager() != null);
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("MOCK"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("MOCK");
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, false);
 

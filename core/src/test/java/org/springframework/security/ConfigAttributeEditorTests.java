@@ -28,6 +28,8 @@ import java.util.Iterator;
  * @version $Id$
  */
 public class ConfigAttributeEditorTests extends TestCase {
+    private static final String[] ATTRIBUTES = new String[] {"A", "B"};
+
     //~ Constructors ===================================================================================================
 
     public ConfigAttributeEditorTests() {
@@ -40,20 +42,12 @@ public class ConfigAttributeEditorTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ConfigAttributeEditorTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testCorrectOperation() {
         ConfigAttributeEditor editor = new ConfigAttributeEditor();
         editor.setAsText("HELLO,DOCTOR,NAME,YESTERDAY,TOMORROW");
 
         ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor.getValue();
-        Iterator iter = result.getConfigAttributes();
+        Iterator iter = result.getConfigAttributes().iterator();
         int position = 0;
 
         while (iter.hasNext()) {
@@ -63,7 +57,7 @@ public class ConfigAttributeEditorTests extends TestCase {
 
         assertEquals(5, position);
 
-        assertEquals(5, result.size());
+        assertEquals(5, result.getConfigAttributes().size());
 
         assertTrue(result.contains(new SecurityConfig("HELLO")));
         assertTrue(result.contains(new SecurityConfig("TOMORROW")));
@@ -79,46 +73,31 @@ public class ConfigAttributeEditorTests extends TestCase {
     }
 
     public void testEqualsHandlingWhenDifferentObjectTypes() {
-        ConfigAttributeDefinition def1 = new ConfigAttributeDefinition();
-        def1.addConfigAttribute(new SecurityConfig("A"));
-        def1.addConfigAttribute(new SecurityConfig("B"));
+        ConfigAttributeDefinition def1 = new ConfigAttributeDefinition(ATTRIBUTES);
 
         assertTrue(!def1.equals("A_STRING"));
     }
 
     public void testEqualsHandlingWhenExactlyEqual() {
-        ConfigAttributeDefinition def1 = new ConfigAttributeDefinition();
-        def1.addConfigAttribute(new SecurityConfig("A"));
-        def1.addConfigAttribute(new SecurityConfig("B"));
-
-        ConfigAttributeDefinition def2 = new ConfigAttributeDefinition();
-        def2.addConfigAttribute(new SecurityConfig("A"));
-        def2.addConfigAttribute(new SecurityConfig("B"));
+        ConfigAttributeDefinition def1 = new ConfigAttributeDefinition(ATTRIBUTES);
+        ConfigAttributeDefinition def2 = new ConfigAttributeDefinition(ATTRIBUTES);
 
         assertEquals(def1, def2);
     }
 
     public void testEqualsHandlingWhenOrderingNotEqual() {
-        ConfigAttributeDefinition def1 = new ConfigAttributeDefinition();
-        def1.addConfigAttribute(new SecurityConfig("A"));
-        def1.addConfigAttribute(new SecurityConfig("B"));
+        ConfigAttributeDefinition def1 = new ConfigAttributeDefinition(ATTRIBUTES);
+        ConfigAttributeDefinition def2 = new ConfigAttributeDefinition(new String[] {"B", "A"});
 
-        ConfigAttributeDefinition def2 = new ConfigAttributeDefinition();
-        def2.addConfigAttribute(new SecurityConfig("B"));
-        def2.addConfigAttribute(new SecurityConfig("A"));
-
-        assertTrue(!def1.equals(def2));
+        assertFalse(def1.equals(def2));
     }
 
     public void testEqualsHandlingWhenTestObjectHasNoAttributes() {
-        ConfigAttributeDefinition def1 = new ConfigAttributeDefinition();
-        def1.addConfigAttribute(new SecurityConfig("A"));
-        def1.addConfigAttribute(new SecurityConfig("B"));
+        ConfigAttributeDefinition def1 = new ConfigAttributeDefinition(ATTRIBUTES);
+        ConfigAttributeDefinition def2 = new ConfigAttributeDefinition(new String[] {});
 
-        ConfigAttributeDefinition def2 = new ConfigAttributeDefinition();
-
-        assertTrue(!def1.equals(def2));
-        assertTrue(!def2.equals(def1));
+        assertFalse(def1.equals(def2));
+        assertFalse(def2.equals(def1));
     }
 
     public void testNullReturnsNull() {
@@ -134,7 +113,7 @@ public class ConfigAttributeEditorTests extends TestCase {
         editor.setAsText("  HELLO, DOCTOR,NAME,  YESTERDAY ,TOMORROW ");
 
         ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor.getValue();
-        Iterator iter = result.getConfigAttributes();
+        Iterator iter = result.getConfigAttributes().iterator();
 
         ArrayList list = new ArrayList();
 

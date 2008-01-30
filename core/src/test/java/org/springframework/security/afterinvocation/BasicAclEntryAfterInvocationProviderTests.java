@@ -20,8 +20,6 @@ import junit.framework.TestCase;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockAclManager;
-import org.springframework.security.SecurityConfig;
-
 import org.springframework.security.acl.AclEntry;
 import org.springframework.security.acl.AclManager;
 import org.springframework.security.acl.basic.MockAclObjectIdentity;
@@ -39,32 +37,15 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * @version $Id$
  */
 public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public BasicAclEntryAfterInvocationProviderTests() {
-        super();
-    }
-
-    public BasicAclEntryAfterInvocationProviderTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(BasicAclEntryAfterInvocationProviderTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testCorrectOperationWhenPrincipalHasIncorrectPermissionToDomainObject()
         throws Exception {
         // Create an AclManager, granting scott only ADMINISTRATION rights
         AclManager aclManager = new MockAclManager("belmont", "scott",
-                new AclEntry[] {
-                    new SimpleAclEntry("scott", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION)
+                new AclEntry[]{
+                        new SimpleAclEntry("scott", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION)
                 });
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
@@ -73,8 +54,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("scott", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_READ");
 
         try {
             provider.decide(auth, new SimpleMethodInvocation(), attr, "belmont");
@@ -88,11 +68,11 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
         throws Exception {
         // Create an AclManager
         AclManager aclManager = new MockAclManager("belmont", "rod",
-                new AclEntry[] {
-                    new MockAclEntry(),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                new AclEntry[]{
+                        new MockAclEntry(),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
@@ -101,8 +81,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("scott", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_READ");
 
         try {
             provider.decide(auth, new SimpleMethodInvocation(), attr, "belmont");
@@ -116,11 +95,11 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
         throws Exception {
         // Create an AclManager
         AclManager aclManager = new MockAclManager("belmont", "rod",
-                new AclEntry[] {
-                    new MockAclEntry(),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                new AclEntry[]{
+                        new MockAclEntry(),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
@@ -130,8 +109,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_READ");
 
         // Filter
         assertEquals("belmont", provider.decide(auth, new SimpleMethodInvocation(), attr, "belmont"));
@@ -141,11 +119,11 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
         throws Exception {
         // Create an AclManager
         AclManager aclManager = new MockAclManager("belmont", "rod",
-                new AclEntry[] {
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE),
-                    new MockAclEntry()
+                new AclEntry[]{
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE),
+                        new MockAclEntry()
                 });
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
@@ -154,8 +132,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_READ");
 
         // Filter
         assertNull(provider.decide(auth, new SimpleMethodInvocation(), attr, null));
@@ -165,9 +142,9 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
         throws Exception {
         // Create an AclManager
         AclManager aclManager = new MockAclManager("sydney", "rod",
-                new AclEntry[] {
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new MockAclEntry()
+                new AclEntry[]{
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                        new MockAclEntry()
                 });
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
@@ -179,14 +156,13 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_READ");
 
         // As no matching config attrib, ensure provider returns original obj
         assertEquals("sydney", provider.decide(auth, new SimpleMethodInvocation(), attr, "sydney"));
 
         // Filter, this time with the conf attrib provider setup to answer
-        attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_ADMIN"));
+        attr = new ConfigAttributeDefinition("AFTER_ACL_ADMIN");
         assertEquals("sydney", provider.decide(auth, new SimpleMethodInvocation(), attr, "sydney"));
     }
 
@@ -194,22 +170,21 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
         throws Exception {
         // Create an AclManager
         AclManager aclManager = new MockAclManager("sydney", "rod",
-                new AclEntry[] {
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new MockAclEntry()
+                new AclEntry[]{
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                        new MockAclEntry()
                 });
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
         provider.setAclManager(aclManager);
         assertEquals(SimpleAclEntry.READ, provider.getRequirePermission()[0]);
-        provider.setRequirePermission(new int[] {SimpleAclEntry.ADMINISTRATION});
+        provider.setRequirePermission(new int[]{SimpleAclEntry.ADMINISTRATION});
         assertEquals(SimpleAclEntry.ADMINISTRATION, provider.getRequirePermission()[0]);
         provider.afterPropertiesSet();
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_READ");
 
         // Filter
         assertEquals("sydney", provider.decide(auth, new SimpleMethodInvocation(), attr, "sydney"));

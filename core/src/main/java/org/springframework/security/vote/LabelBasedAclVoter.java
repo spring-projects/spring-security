@@ -182,7 +182,7 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
             logger.debug("==========================================================");
         }
 
-        if (this.supports((ConfigAttribute) config.getConfigAttributes().next())) {
+        if (this.supports((ConfigAttribute) config.getConfigAttributes().iterator().next())) {
             result = ACCESS_DENIED;
 
             /* Parse out the user's labels by examining the security context, and checking
@@ -267,27 +267,15 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
         if (logger.isDebugEnabled()) {
             switch (result) {
             case ACCESS_GRANTED:
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("===== Access is granted =====");
-                }
-
+                logger.debug("===== Access is granted =====");
                 break;
 
             case ACCESS_DENIED:
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("===== Access is denied =====");
-                }
-
+                logger.debug("===== Access is denied =====");
                 break;
 
             case ACCESS_ABSTAIN:
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("===== Abstaining =====");
-                }
-
+                logger.debug("===== Abstaining =====");
                 break;
             }
         }

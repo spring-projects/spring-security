@@ -15,43 +15,92 @@
 
 package org.springframework.security;
 
+import org.springframework.util.Assert;
+
 import java.io.Serializable;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 
 
 /**
- * Holds a group of {@link ConfigAttribute}s that are associated with a given secure object target.<p>All the
- * <code>ConfigAttributeDefinition</code>s associated with a given {@link
+ * Holds a group of {@link ConfigAttribute}s that are associated with a given secure object target - effectively a
+ * Collection<ConfigAttribute>.
+ * <p>
+ * Once created, the object is immutable.
+ * <p>
+ * All the <code>ConfigAttributeDefinition</code>s associated with a given {@link
  * org.springframework.security.intercept.AbstractSecurityInterceptor} are stored in an {@link
- * org.springframework.security.intercept.ObjectDefinitionSource}.</p>
+ * org.springframework.security.intercept.ObjectDefinitionSource}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class ConfigAttributeDefinition implements Serializable {
+    public static final ConfigAttributeDefinition NO_ATTRIBUTES = new ConfigAttributeDefinition();
+
     //~ Instance fields ================================================================================================
 
-    private List configAttributes = new Vector();
+    private List configAttributes;
 
     //~ Constructors ===================================================================================================
 
-    public ConfigAttributeDefinition() {
-        super();
+    private ConfigAttributeDefinition() {
+        configAttributes = Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Creates a ConfigAttributeDefinition containing a single attribute
+     * @param attribute the String name of the attribute (converted internally to a <tt>SecurityConfig</tt> instance).
+     */
+    public ConfigAttributeDefinition(String attribute) {
+        configAttributes = new ArrayList(1);
+        configAttributes.add(new SecurityConfig(attribute));
+        configAttributes = Collections.unmodifiableList(configAttributes);
+    }
+
+    /**
+     * Creates a ConfigAttributeDefinition containing a single attribute.
+     */
+    public ConfigAttributeDefinition(ConfigAttribute attribute) {
+        configAttributes = new ArrayList(1);
+        configAttributes.add(attribute);
+        configAttributes = Collections.unmodifiableList(configAttributes);        
+    }
+
+    /**
+     * Builds a collection of ConfigAttributes from an array of String tokens, each of which will be wrapped in a
+     * <tt>SecurityConfig</tt> instance.
+     *
+     * @param attributeTokens the tokens which will be turned into attributes.
+     */
+    public ConfigAttributeDefinition(String[] attributeTokens) {
+        configAttributes = new ArrayList(attributeTokens.length);
+        
+        for (int i = 0; i < attributeTokens.length; i++) {
+            configAttributes.add(new SecurityConfig(attributeTokens[i].trim()));
+        }
+
+        configAttributes = Collections.unmodifiableList(configAttributes);
+    }
+
+    /**
+     * Creates an immutable ConfigAttributeDefinition from the supplied list of <tt>ConfigAttribute</tt> objects.
+     */
+    public ConfigAttributeDefinition(List configAttributes) {
+        Iterator attributes = configAttributes.iterator();
+        while (attributes.hasNext()) {
+            Assert.isInstanceOf(ConfigAttribute.class, attributes.next(),
+                    "List entries must be of type ConfigAttribute");
+        }
+
+        this.configAttributes = Collections.unmodifiableList(new ArrayList(configAttributes));
     }
 
     //~ Methods ========================================================================================================
-
-    /**
-     * Adds a <code>ConfigAttribute</code> that is related to the secure object method.
-     *
-     * @param newConfigAttribute the new configuration attribute to add
-     */
-    public void addConfigAttribute(ConfigAttribute newConfigAttribute) {
-        this.configAttributes.add(newConfigAttribute);
-    }
 
     /**
      * Indicates whether the specified <code>ConfigAttribute</code> is contained within this
@@ -67,53 +116,27 @@ public class ConfigAttributeDefinition implements Serializable {
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof ConfigAttributeDefinition) {
-            ConfigAttributeDefinition test = (ConfigAttributeDefinition) obj;
-
-            List testAttrs = new Vector();
-            Iterator iter = test.getConfigAttributes();
-
-            while (iter.hasNext()) {
-                ConfigAttribute attr = (ConfigAttribute) iter.next();
-                testAttrs.add(attr);
-            }
-
-            if (this.configAttributes.size() != testAttrs.size()) {
-                return false;
-            }
-
-            for (int i = 0; i < this.configAttributes.size(); i++) {
-                if (!this.configAttributes.get(i).equals(testAttrs.get(i))) {
-                    return false;
-                }
-            }
-
-            return true;
+        if (!(obj instanceof ConfigAttributeDefinition)) {
+            return false;
         }
 
-        return false;
+        ConfigAttributeDefinition test = (ConfigAttributeDefinition) obj;
+
+        return configAttributes.equals(test.configAttributes);
     }
 
     /**
-     * Returns an <code>Iterator</code> over all the <code>ConfigAttribute</code>s defined by this
-     * <code>ConfigAttributeDefinition</code>.<P>Allows <code>AccessDecisionManager</code>s and other classes
-     * to loop through every configuration attribute associated with a target secure object.</p>
+     * Returns the internal collection of <code>ConfigAttribute</code>s defined by this
+     * <code>ConfigAttributeDefinition</code>.
+     * <p>
+     * Allows <code>AccessDecisionManager</code>s and other classes to loop through every configuration attribute
+     * associated with a target secure object.
      *
      * @return all the configuration attributes stored by the instance, or <code>null</code> if an
      *         <code>Iterator</code> is unavailable
      */
-    public Iterator getConfigAttributes() {
-        return this.configAttributes.iterator();
-    }
-
-    /**
-     * Returns the number of <code>ConfigAttribute</code>s defined by this
-     * <code>ConfigAttributeDefinition</code>.
-     *
-     * @return the number of <code>ConfigAttribute</code>s contained
-     */
-    public int size() {
-        return configAttributes.size();
+    public Collection getConfigAttributes() {
+        return this.configAttributes;
     }
 
     public String toString() {

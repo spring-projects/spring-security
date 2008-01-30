@@ -46,10 +46,6 @@ public class InterceptorStatusTokenTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(InterceptorStatusTokenTests.class);
-    }
-
     public void testNoArgConstructorDoesntExist() {
         Class clazz = InterceptorStatusToken.class;
 
@@ -62,9 +58,7 @@ public class InterceptorStatusTokenTests extends TestCase {
     }
 
     public void testOperation() {
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("FOO"));
-
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO");
         MethodInvocation mi = new SimpleMethodInvocation();
 
         InterceptorStatusToken token = new InterceptorStatusToken(new UsernamePasswordAuthenticationToken("rod",

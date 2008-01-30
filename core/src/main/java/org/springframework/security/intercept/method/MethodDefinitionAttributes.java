@@ -24,6 +24,8 @@ import java.lang.reflect.Method;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 
 /**
@@ -56,21 +58,17 @@ public class MethodDefinitionAttributes extends AbstractMethodDefinitionSource {
 
     //~ Methods ========================================================================================================
 
-    private void add(ConfigAttributeDefinition definition, Collection attribs) {
+    private void add(List definition, Collection attribs) {
         for (Iterator iter = attribs.iterator(); iter.hasNext();) {
             Object o = iter.next();
 
             if (o instanceof ConfigAttribute) {
-                definition.addConfigAttribute((ConfigAttribute) o);
+                definition.add(o);
             }
         }
     }
 
-    private void addClassAttributes(ConfigAttributeDefinition definition, Class clazz) {
-        addClassAttributes(definition, new Class[] {clazz});
-    }
-
-    private void addClassAttributes(ConfigAttributeDefinition definition, Class[] clazz) {
+    private void addClassAttributes(List definition, Class[] clazz) {
         for (int i = 0; i < clazz.length; i++) {
             Collection classAttributes = attributes.getAttributes(clazz[i]);
 
@@ -80,7 +78,7 @@ public class MethodDefinitionAttributes extends AbstractMethodDefinitionSource {
         }
     }
 
-    private void addInterfaceMethodAttributes(ConfigAttributeDefinition definition, Method method) {
+    private void addInterfaceMethodAttributes(List definition, Method method) {
         Class[] interfaces = method.getDeclaringClass().getInterfaces();
 
         for (int i = 0; i < interfaces.length; i++) {
@@ -96,7 +94,7 @@ public class MethodDefinitionAttributes extends AbstractMethodDefinitionSource {
         }
     }
 
-    private void addMethodAttributes(ConfigAttributeDefinition definition, Method method) {
+    private void addMethodAttributes(List definition, Method method) {
         // add the method level attributes
         Collection methodAttributes = attributes.getAttributes(method);
 
@@ -110,27 +108,26 @@ public class MethodDefinitionAttributes extends AbstractMethodDefinitionSource {
     }
 
     protected ConfigAttributeDefinition lookupAttributes(Method method) {
-        ConfigAttributeDefinition definition = new ConfigAttributeDefinition();
-
         Class interceptedClass = method.getDeclaringClass();
+        List attributes = new ArrayList();
 
         // add the class level attributes for the implementing class
-        addClassAttributes(definition, interceptedClass);
+        addClassAttributes(attributes, new Class[] {interceptedClass});
 
         // add the class level attributes for the implemented interfaces
-        addClassAttributes(definition, interceptedClass.getInterfaces());
+        addClassAttributes(attributes, interceptedClass.getInterfaces());
 
         // add the method level attributes for the implemented method
-        addMethodAttributes(definition, method);
+        addMethodAttributes(attributes, method);
 
         // add the method level attributes for the implemented intreface methods
-        addInterfaceMethodAttributes(definition, method);
+        addInterfaceMethodAttributes(attributes, method);
 
-        if (definition.size() == 0) {
+        if (attributes.size() == 0) {
             return null;
-        } else {
-            return definition;
         }
+
+        return new ConfigAttributeDefinition(attributes);
     }
 
     public void setAttributes(Attributes attributes) {

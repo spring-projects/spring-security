@@ -93,7 +93,7 @@ public class RoleVoter implements AccessDecisionVoter {
 
     public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
         int result = ACCESS_ABSTAIN;
-        Iterator iter = config.getConfigAttributes();
+        Iterator iter = config.getConfigAttributes().iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();

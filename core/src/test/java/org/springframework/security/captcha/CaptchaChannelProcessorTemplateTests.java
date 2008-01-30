@@ -68,8 +68,7 @@ public class CaptchaChannelProcessorTemplateTests extends TestCase {
         CaptchaChannelProcessorTemplate processor = new TestHumanityCaptchaChannelProcessor();
         processor.setKeyword("X");
 
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
-        cad.addConfigAttribute(new SecurityConfig("Y"));
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition("Y");
 
         CaptchaSecurityContext context = new CaptchaSecurityContextImpl();
         SecurityContextHolder.setContext(context);
@@ -135,9 +134,7 @@ public class CaptchaChannelProcessorTemplateTests extends TestCase {
         CaptchaChannelProcessorTemplate processor = new TestHumanityCaptchaChannelProcessor();
         processor.setKeyword("X");
 
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
-        cad.addConfigAttribute(new SecurityConfig("X"));
-
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition("X");
         CaptchaSecurityContext context = new CaptchaSecurityContextImpl();
         SecurityContextHolder.setContext(context);
 

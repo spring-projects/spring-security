@@ -43,26 +43,19 @@ public class MockFilterInvocationDefinitionSource extends DefaultFilterInvocatio
         returnAnIterator = returnAnIteratorWhenRequested;
         list = new Vector();
 
-        ConfigAttributeDefinition def1 = new ConfigAttributeDefinition();
-        def1.addConfigAttribute(new SecurityConfig("MOCK_LOWER"));
+        ConfigAttributeDefinition def1 = new ConfigAttributeDefinition("MOCK_LOWER");
         list.add(def1);
 
         if (includeInvalidAttributes) {
-            ConfigAttributeDefinition def2 = new ConfigAttributeDefinition();
-            def2.addConfigAttribute(new SecurityConfig("MOCK_LOWER"));
-            def2.addConfigAttribute(new SecurityConfig("INVALID_ATTRIBUTE"));
+            ConfigAttributeDefinition def2 = new ConfigAttributeDefinition(new String[] {"MOCK_LOWER", "INVALID_ATTRIBUTE"});
             list.add(def2);
         }
 
-        ConfigAttributeDefinition def3 = new ConfigAttributeDefinition();
-        def3.addConfigAttribute(new SecurityConfig("MOCK_UPPER"));
-        def3.addConfigAttribute(new SecurityConfig("RUN_AS"));
+        ConfigAttributeDefinition def3 = new ConfigAttributeDefinition(new String[] {"MOCK_UPPER","RUN_AS"});
         list.add(def3);
 
         if (includeInvalidAttributes) {
-            ConfigAttributeDefinition def4 = new ConfigAttributeDefinition();
-            def4.addConfigAttribute(new SecurityConfig("MOCK_SOMETHING"));
-            def4.addConfigAttribute(new SecurityConfig("ANOTHER_INVALID"));
+            ConfigAttributeDefinition def4 = new ConfigAttributeDefinition(new String[] {"MOCK_SOMETHING","ANOTHER_INVALID"});
             list.add(def4);
         }
     }

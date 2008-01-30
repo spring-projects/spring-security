@@ -59,7 +59,7 @@ public class SecureChannelProcessor implements InitializingBean, ChannelProcesso
         throws IOException, ServletException {
         Assert.isTrue((invocation != null) && (config != null), "Nulls cannot be provided");
 
-        Iterator iter = config.getConfigAttributes();
+        Iterator iter = config.getConfigAttributes().iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();

@@ -36,21 +36,8 @@ import java.util.Vector;
  * @version $Id$
  */
 public class UnanimousBasedTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public UnanimousBasedTests() {
-        super();
-    }
-
-    public UnanimousBasedTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(UnanimousBasedTests.class);
-    }
 
     private UnanimousBased makeDecisionManager() {
         UnanimousBased decisionManager = new UnanimousBased();
@@ -96,14 +83,11 @@ public class UnanimousBasedTests extends TestCase {
         super.setUp();
     }
 
-    public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccess()
-        throws Exception {
+    public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccess() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_1")); // grant
-        config.addConfigAttribute(new SecurityConfig("DENY_FOR_SURE")); // deny
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "DENY_FOR_SURE"});
 
         try {
             mgr.decide(auth, new Object(), config);
@@ -113,25 +97,21 @@ public class UnanimousBasedTests extends TestCase {
         }
     }
 
-    public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess()
-        throws Exception {
+    public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_2")); // grant
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition("ROLE_2");
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
     }
 
-    public void testOneDenyVoteTwoAbstainVotesDeniesAccess()
-        throws Exception {
+    public void testOneDenyVoteTwoAbstainVotesDeniesAccess() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_WE_DO_NOT_HAVE")); // deny
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition("ROLE_WE_DO_NOT_HAVE");
 
         try {
             mgr.decide(auth, new Object(), config);
@@ -145,23 +125,19 @@ public class UnanimousBasedTests extends TestCase {
         TestingAuthenticationToken auth = makeTestTokenWithFooBarPrefix();
         UnanimousBased mgr = makeDecisionManagerWithFooBarPrefix();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("FOOBAR_1")); // grant
-        config.addConfigAttribute(new SecurityConfig("FOOBAR_2")); // grant
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"FOOBAR_1", "FOOBAR_2"});
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
     }
 
-    public void testThreeAbstainVotesDeniesAccessWithDefault()
-        throws Exception {
+    public void testThreeAbstainVotesDeniesAccessWithDefault() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
 
         assertTrue(!mgr.isAllowIfAllAbstainDecisions()); // check default
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("IGNORED_BY_ALL")); // abstain
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition("IGNORED_BY_ALL");
 
         try {
             mgr.decide(auth, new Object(), config);
@@ -171,28 +147,23 @@ public class UnanimousBasedTests extends TestCase {
         }
     }
 
-    public void testThreeAbstainVotesGrantsAccessWithoutDefault()
-        throws Exception {
+    public void testThreeAbstainVotesGrantsAccessWithoutDefault() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
         mgr.setAllowIfAllAbstainDecisions(true);
         assertTrue(mgr.isAllowIfAllAbstainDecisions()); // check changed
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("IGNORED_BY_ALL")); // abstain
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition("IGNORED_BY_ALL");
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
     }
 
-    public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess()
-        throws Exception {
+    public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_1")); // grant
-        config.addConfigAttribute(new SecurityConfig("ROLE_2")); // grant
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "ROLE_2"});
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);

@@ -70,21 +70,11 @@ public class AfterInvocationProviderManagerTests extends TestCase {
         assertEquals(list, manager.getProviders());
         manager.afterPropertiesSet();
 
-        ConfigAttributeDefinition attr1 = new ConfigAttributeDefinition();
-        attr1.addConfigAttribute(new SecurityConfig("GIVE_ME_SWAP1"));
-
-        ConfigAttributeDefinition attr2 = new ConfigAttributeDefinition();
-        attr2.addConfigAttribute(new SecurityConfig("GIVE_ME_SWAP2"));
-
-        ConfigAttributeDefinition attr3 = new ConfigAttributeDefinition();
-        attr3.addConfigAttribute(new SecurityConfig("GIVE_ME_SWAP3"));
-
-        ConfigAttributeDefinition attr2and3 = new ConfigAttributeDefinition();
-        attr2and3.addConfigAttribute(new SecurityConfig("GIVE_ME_SWAP2"));
-        attr2and3.addConfigAttribute(new SecurityConfig("GIVE_ME_SWAP3"));
-
-        ConfigAttributeDefinition attr4 = new ConfigAttributeDefinition();
-        attr4.addConfigAttribute(new SecurityConfig("NEVER_CAUSES_SWAP"));
+        ConfigAttributeDefinition attr1 = new ConfigAttributeDefinition(new String[] {"GIVE_ME_SWAP1"});
+        ConfigAttributeDefinition attr2 = new ConfigAttributeDefinition(new String[] {"GIVE_ME_SWAP2"});
+        ConfigAttributeDefinition attr3 = new ConfigAttributeDefinition(new String[] {"GIVE_ME_SWAP3"});
+        ConfigAttributeDefinition attr2and3 = new ConfigAttributeDefinition(new String[] {"GIVE_ME_SWAP2","GIVE_ME_SWAP3"});
+        ConfigAttributeDefinition attr4 = new ConfigAttributeDefinition(new String[] {"NEVER_CAUSES_SWAP"});
 
         assertEquals("swap1", manager.decide(null, new SimpleMethodInvocation(), attr1, "content-before-swapping"));
 

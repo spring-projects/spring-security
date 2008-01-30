@@ -29,7 +29,7 @@ public class MockAfterInvocationManager implements AfterInvocationManager {
 
     public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
         Object returnedObject) throws AccessDeniedException {
-        Iterator iter = config.getConfigAttributes();
+        Iterator iter = config.getConfigAttributes().iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();

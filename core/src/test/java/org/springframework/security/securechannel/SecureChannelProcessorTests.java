@@ -36,18 +36,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 public class SecureChannelProcessorTests extends TestCase {
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(SecureChannelProcessorTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testDecideDetectsAcceptableChannel() throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
-        cad.addConfigAttribute(new SecurityConfig("SOME_IGNORED_ATTRIBUTE"));
-        cad.addConfigAttribute(new SecurityConfig("REQUIRES_SECURE_CHANNEL"));
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new String[]{"SOME_IGNORED_ATTRIBUTE", "REQUIRES_SECURE_CHANNEL"});
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=true");
@@ -68,11 +58,8 @@ public class SecureChannelProcessorTests extends TestCase {
         assertFalse(fi.getResponse().isCommitted());
     }
 
-    public void testDecideDetectsUnacceptableChannel()
-        throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
-        cad.addConfigAttribute(new SecurityConfig("SOME_IGNORED_ATTRIBUTE"));
-        cad.addConfigAttribute(new SecurityConfig("REQUIRES_SECURE_CHANNEL"));
+    public void testDecideDetectsUnacceptableChannel() throws Exception {
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new String[]{"SOME_IGNORED_ATTRIBUTE", "REQUIRES_SECURE_CHANNEL"});
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=true");

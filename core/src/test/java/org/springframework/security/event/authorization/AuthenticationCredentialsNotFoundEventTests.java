@@ -42,13 +42,9 @@ public class AuthenticationCredentialsNotFoundEventTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AuthenticationCredentialsNotFoundEventTests.class);
-    }
-
     public void testRejectsNulls() {
         try {
-            new AuthenticationCredentialsNotFoundEvent(null, new ConfigAttributeDefinition(),
+            new AuthenticationCredentialsNotFoundEvent(null, new ConfigAttributeDefinition(new String[] {}),
                 new AuthenticationCredentialsNotFoundException("test"));
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -64,7 +60,7 @@ public class AuthenticationCredentialsNotFoundEventTests extends TestCase {
         }
 
         try {
-            new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), new ConfigAttributeDefinition(),
+            new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), new ConfigAttributeDefinition(new String[] {}),
                 null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {

@@ -19,13 +19,13 @@ import java.beans.PropertyEditorSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 
 import org.springframework.security.util.StringSplitUtils;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.util.UrlMatcher;
 import org.springframework.security.util.AntUrlPathMatcher;
+import org.springframework.security.ConfigAttributeDefinition;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,29 +85,11 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
             }
         }
 
-        UrlMatcher matcher;
-
-        if (useAnt) {
-            matcher = new AntUrlPathMatcher();
-            ((AntUrlPathMatcher)matcher).setRequiresLowerCaseUrl(converUrlToLowerCase);
-
-        } else {
-            matcher = new RegexUrlPathMatcher();
-            ((RegexUrlPathMatcher)matcher).setRequiresLowerCaseUrl(converUrlToLowerCase);
-        }
-
-        DefaultFilterInvocationDefinitionSource fids = new DefaultFilterInvocationDefinitionSource(matcher);
-
-        if (useAnt) {
-            fids.setStripQueryStringFromUrls(true);
-        }
-
-
         BufferedReader br = new BufferedReader(new StringReader(s));
         int counter = 0;
         String line;
 
-        List mappings = new ArrayList();
+        LinkedHashMap urlMap = new LinkedHashMap();
 
         while (true) {
             counter++;
@@ -183,19 +165,33 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
                 }
             }
 
-            FilterInvocationDefinitionSourceMapping mapping = new FilterInvocationDefinitionSourceMapping();
-            mapping.setUrl(name);
-
             String[] tokens = StringUtils.commaDelimitedListToStringArray(value);
 
-            for (int i = 0; i < tokens.length; i++) {
-                mapping.addConfigAttribute(tokens[i].trim());
-            }
-
-            mappings.add(mapping);
+            urlMap.put(name, new ConfigAttributeDefinition(tokens));
         }
-        fids.setMappings(mappings);
+
+        DefaultFilterInvocationDefinitionSource fids =
+                new DefaultFilterInvocationDefinitionSource(createMatcher(useAnt, converUrlToLowerCase), urlMap);
+
+        if (useAnt) {
+            fids.setStripQueryStringFromUrls(true);
+        }
 
         setValue(fids);
+    }
+
+    private UrlMatcher createMatcher(boolean useAnt, boolean converUrlToLowerCase) {
+        UrlMatcher matcher;
+
+        if (useAnt) {
+            matcher = new AntUrlPathMatcher();
+            ((AntUrlPathMatcher)matcher).setRequiresLowerCaseUrl(converUrlToLowerCase);
+
+        } else {
+            matcher = new RegexUrlPathMatcher();
+            ((RegexUrlPathMatcher)matcher).setRequiresLowerCaseUrl(converUrlToLowerCase);
+        }
+
+        return matcher;
     }
 }

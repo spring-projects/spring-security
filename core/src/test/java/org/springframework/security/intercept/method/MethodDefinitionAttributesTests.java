@@ -71,7 +71,8 @@ public class MethodDefinitionAttributesTests extends TestCase {
     }
 
     private ConfigAttributeDefinition getConfigAttributeDefinition(Class clazz, String methodName, Class[] args)
-        throws Exception {
+            throws Exception {
+        
         final Method method = clazz.getMethod(methodName, args);
         MethodDefinitionAttributes source = new MethodDefinitionAttributes();
         source.setAttributes(new MockAttributes());
@@ -96,8 +97,7 @@ public class MethodDefinitionAttributesTests extends TestCase {
         super.setUp();
     }
 
-    public void testAttributesForInterfaceTargetObject()
-        throws Exception {
+    public void testAttributesForInterfaceTargetObject() throws Exception {
         ConfigAttributeDefinition def1 = getConfigAttributeDefinition(ITargetObject.class, "countLength",
                 new Class[] {String.class});
         Set set1 = toSet(def1);
@@ -190,8 +190,7 @@ public class MethodDefinitionAttributesTests extends TestCase {
         assertEquals("HELLO org.springframework.security.MockRunAsAuthenticationToken true", result);
     }
 
-    public void testMethodCallWithoutRunAsReplacement()
-        throws Exception {
+    public void testMethodCallWithoutRunAsReplacement() throws Exception {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_INTERFACE_METHOD_MAKE_LOWER_CASE")});
         SecurityContextHolder.getContext().setAuthentication(token);
@@ -219,7 +218,7 @@ public class MethodDefinitionAttributesTests extends TestCase {
      */
     private Set toSet(ConfigAttributeDefinition def) {
         Set set = new HashSet();
-        Iterator i = def.getConfigAttributes();
+        Iterator i = def.getConfigAttributes().iterator();
 
         while (i.hasNext()) {
             ConfigAttribute a = (ConfigAttribute) i.next();

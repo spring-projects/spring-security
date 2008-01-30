@@ -43,13 +43,9 @@ public class AuthorizedEventTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AuthorizedEventTests.class);
-    }
-
     public void testRejectsNulls() {
         try {
-            new AuthorizedEvent(null, new ConfigAttributeDefinition(),
+            new AuthorizedEvent(null, ConfigAttributeDefinition.NO_ATTRIBUTES,
                 new UsernamePasswordAuthenticationToken("foo", "bar"));
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -65,7 +61,7 @@ public class AuthorizedEventTests extends TestCase {
         }
 
         try {
-            new AuthorizedEvent(new SimpleMethodInvocation(), new ConfigAttributeDefinition(), null);
+            new AuthorizedEvent(new SimpleMethodInvocation(), ConfigAttributeDefinition.NO_ATTRIBUTES, null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);

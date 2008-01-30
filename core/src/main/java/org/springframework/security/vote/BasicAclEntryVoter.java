@@ -163,7 +163,7 @@ public class BasicAclEntryVoter extends AbstractAclVoter implements Initializing
     }
 
     public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
-        Iterator iter = config.getConfigAttributes();
+        Iterator iter = config.getConfigAttributes().iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();

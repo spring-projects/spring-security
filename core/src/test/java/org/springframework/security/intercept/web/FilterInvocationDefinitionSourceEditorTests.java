@@ -201,9 +201,8 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
                     new MockHttpServletResponse(), new MockFilterChain()));
 
-        ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
-        expected.addConfigAttribute(new SecurityConfig("ROLE_WE_DONT_HAVE"));
-        expected.addConfigAttribute(new SecurityConfig("ANOTHER_ROLE"));
+        ConfigAttributeDefinition expected = new ConfigAttributeDefinition(
+                new String[] {"ROLE_WE_DONT_HAVE", "ANOTHER_ROLE"});
 
         assertEquals(expected, returned);
     }
@@ -220,10 +219,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
 
         ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
                     new MockHttpServletResponse(), new MockFilterChain()));
-
-        ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
-        expected.addConfigAttribute(new SecurityConfig("ROLE_SUPERVISOR"));
-        expected.addConfigAttribute(new SecurityConfig("ROLE_TELLER"));
+        ConfigAttributeDefinition expected = new ConfigAttributeDefinition(new String[] {"ROLE_SUPERVISOR", "ROLE_TELLER"});
 
         assertEquals(expected, returned);
     }
@@ -239,10 +235,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
 
         ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
                     new MockHttpServletResponse(), new MockFilterChain()));
-
-        ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
-        expected.addConfigAttribute(new SecurityConfig("ROLE_WE_DONT_HAVE"));
-        expected.addConfigAttribute(new SecurityConfig("ANOTHER_ROLE"));
+        ConfigAttributeDefinition expected = new ConfigAttributeDefinition(new String[] {"ROLE_WE_DONT_HAVE", "ANOTHER_ROLE"});
 
         assertEquals(expected, returned);
     }
@@ -258,10 +251,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
 
         ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
                     new MockHttpServletResponse(), new MockFilterChain()));
-
-        ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
-        expected.addConfigAttribute(new SecurityConfig("ROLE_WE_DONT_HAVE"));
-        expected.addConfigAttribute(new SecurityConfig("ANOTHER_ROLE"));
+        ConfigAttributeDefinition expected = new ConfigAttributeDefinition(new String[] {"ROLE_WE_DONT_HAVE", "ANOTHER_ROLE"});
 
         assertEquals(expected, returned);
     }
@@ -305,10 +295,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
 
         ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
                     new MockHttpServletResponse(), new MockFilterChain()));
-
-        ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
-        expected.addConfigAttribute(new SecurityConfig("ROLE_WE_DONT_HAVE"));
-        expected.addConfigAttribute(new SecurityConfig("ANOTHER_ROLE"));
+        ConfigAttributeDefinition expected = new ConfigAttributeDefinition(new String[] {"ROLE_WE_DONT_HAVE", "ANOTHER_ROLE"});
 
         assertEquals(expected, returned);
     }

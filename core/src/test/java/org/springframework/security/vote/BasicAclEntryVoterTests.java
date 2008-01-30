@@ -73,11 +73,11 @@ public class BasicAclEntryVoterTests extends TestCase {
 
         // Setup an AclManager
         AclManager aclManager = new MockAclManager(domainObject, "rod",
-                new AclEntry[] {
-                    new MockAclEntry(),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                new AclEntry[]{
+                        new MockAclEntry(),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
@@ -86,21 +86,20 @@ public class BasicAclEntryVoterTests extends TestCase {
         assertEquals(aclManager, voter.getAclManager());
         voter.setProcessConfigAttribute("FOO_ADMIN_OR_WRITE_ACCESS");
         assertEquals("FOO_ADMIN_OR_WRITE_ACCESS", voter.getProcessConfigAttribute());
-        voter.setRequirePermission(new int[] {SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
+        voter.setRequirePermission(new int[]{SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
         assertEquals(2, voter.getRequirePermission().length);
         voter.setProcessDomainObjectClass(SomeDomainObject.class);
         assertEquals(SomeDomainObject.class, voter.getProcessDomainObjectClass());
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("FOO_ADMIN_OR_WRITE_ACCESS"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         MethodInvocation mi = getMethodInvocation(domainObject);
 
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
-            voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
+                voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
     }
 
     public void testOnlySupportsMethodInvocationAndJoinPoint() {
@@ -206,30 +205,29 @@ public class BasicAclEntryVoterTests extends TestCase {
 
         // Setup an AclManager
         AclManager aclManager = new MockAclManager(domainObject, "rod",
-                new AclEntry[] {
-                    new MockAclEntry(),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                new AclEntry[]{
+                        new MockAclEntry(),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
         BasicAclEntryVoter voter = new BasicAclEntryVoter();
         voter.setAclManager(aclManager);
         voter.setProcessConfigAttribute("FOO_ADMIN_OR_WRITE_ACCESS");
-        voter.setRequirePermission(new int[] {SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
+        voter.setRequirePermission(new int[]{SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
         voter.setProcessDomainObjectClass(SomeDomainObject.class);
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("A_DIFFERENT_ATTRIBUTE"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("A_DIFFERENT_ATTRIBUTE");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         MethodInvocation mi = getMethodInvocation(domainObject);
 
         assertEquals(AccessDecisionVoter.ACCESS_ABSTAIN,
-            voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
+                voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
     }
 
     public void testVoterAbstainsIfNotMatchingConfigAttribute()
@@ -239,30 +237,29 @@ public class BasicAclEntryVoterTests extends TestCase {
 
         // Setup an AclManager
         AclManager aclManager = new MockAclManager(domainObject, "rod",
-                new AclEntry[] {
-                    new MockAclEntry(),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                new AclEntry[]{
+                        new MockAclEntry(),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
         BasicAclEntryVoter voter = new BasicAclEntryVoter();
         voter.setAclManager(aclManager);
         voter.setProcessConfigAttribute("FOO_ADMIN_OR_WRITE_ACCESS");
-        voter.setRequirePermission(new int[] {SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
+        voter.setRequirePermission(new int[]{SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
         voter.setProcessDomainObjectClass(SomeDomainObject.class);
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("FOO_ADMIN_OR_WRITE_ACCESS"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         MethodInvocation mi = getMethodInvocation(domainObject);
 
         assertEquals(AccessDecisionVoter.ACCESS_ABSTAIN,
-            voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
+                voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
     }
 
     public void testVoterCanDenyAccessBasedOnInternalMethodOfDomainObject()
@@ -272,29 +269,28 @@ public class BasicAclEntryVoterTests extends TestCase {
 
         // Setup an AclManager
         AclManager aclManager = new MockAclManager(domainObject.getParent(), "rod",
-                new AclEntry[] {
-                    new MockAclEntry(),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                new AclEntry[]{
+                        new MockAclEntry(),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
         BasicAclEntryVoter voter = new BasicAclEntryVoter();
         voter.setAclManager(aclManager);
         voter.setProcessConfigAttribute("FOO_ADMIN_OR_WRITE_ACCESS");
-        voter.setRequirePermission(new int[] {SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
+        voter.setRequirePermission(new int[]{SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
         voter.setProcessDomainObjectClass(SomeDomainObject.class);
         voter.setInternalMethod("getParent");
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("FOO_ADMIN_OR_WRITE_ACCESS"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         MethodInvocation mi = getMethodInvocation(domainObject);
 
         assertEquals(AccessDecisionVoter.ACCESS_DENIED,
-            voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
+                voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
     }
 
     public void testVoterCanDenyAccessIfPrincipalHasNoPermissionsAtAllToDomainObject()
@@ -304,30 +300,29 @@ public class BasicAclEntryVoterTests extends TestCase {
 
         // Setup an AclManager
         AclManager aclManager = new MockAclManager(domainObject, "rod",
-                new AclEntry[] {
-                    new MockAclEntry(),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                new AclEntry[]{
+                        new MockAclEntry(),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
         BasicAclEntryVoter voter = new BasicAclEntryVoter();
         voter.setAclManager(aclManager);
         voter.setProcessConfigAttribute("FOO_ADMIN_OR_WRITE_ACCESS");
-        voter.setRequirePermission(new int[] {SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
+        voter.setRequirePermission(new int[]{SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
         voter.setProcessDomainObjectClass(SomeDomainObject.class);
         voter.setInternalMethod("getParent");
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("FOO_ADMIN_OR_WRITE_ACCESS"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         MethodInvocation mi = getMethodInvocation(domainObject);
 
         // NB: scott is the principal, not rod
         assertEquals(AccessDecisionVoter.ACCESS_DENIED,
-            voter.vote(new UsernamePasswordAuthenticationToken("scott", null), mi, attr));
+                voter.vote(new UsernamePasswordAuthenticationToken("scott", null), mi, attr));
     }
 
     public void testVoterCanGrantAccessBasedOnInternalMethodOfDomainObject()
@@ -337,33 +332,32 @@ public class BasicAclEntryVoterTests extends TestCase {
 
         // Setup an AclManager
         AclManager aclManager = new MockAclManager(domainObject.getParent(), "rod",
-                new AclEntry[] {
-                    new MockAclEntry(),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                new AclEntry[]{
+                        new MockAclEntry(),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
         BasicAclEntryVoter voter = new BasicAclEntryVoter();
         voter.setAclManager(aclManager);
         voter.setProcessConfigAttribute("FOO_ADMIN_OR_WRITE_ACCESS");
-        voter.setRequirePermission(new int[] {SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
+        voter.setRequirePermission(new int[]{SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
         voter.setProcessDomainObjectClass(SomeDomainObject.class);
         voter.setInternalMethod("getParent");
         assertEquals("getParent", voter.getInternalMethod());
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("FOO_ADMIN_OR_WRITE_ACCESS"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         // (well actually it will access domainObject.getParent())
         MethodInvocation mi = getMethodInvocation(domainObject);
 
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
-            voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
+                voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr));
     }
 
     public void testVoterThrowsExceptionIfInvalidInternalMethodOfDomainObject()
@@ -373,25 +367,24 @@ public class BasicAclEntryVoterTests extends TestCase {
 
         // Setup an AclManager
         AclManager aclManager = new MockAclManager(domainObject.getParent(), "rod",
-                new AclEntry[] {
-                    new MockAclEntry(),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                new AclEntry[]{
+                        new MockAclEntry(),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
         BasicAclEntryVoter voter = new BasicAclEntryVoter();
         voter.setAclManager(aclManager);
         voter.setProcessConfigAttribute("FOO_ADMIN_OR_WRITE_ACCESS");
-        voter.setRequirePermission(new int[] {SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
+        voter.setRequirePermission(new int[]{SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
         voter.setProcessDomainObjectClass(SomeDomainObject.class);
         voter.setInternalMethod("getNonExistentParentName");
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("FOO_ADMIN_OR_WRITE_ACCESS"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         // (well actually it will access domainObject.getParent())
@@ -412,30 +405,29 @@ public class BasicAclEntryVoterTests extends TestCase {
 
         // Setup an AclManager
         AclManager aclManager = new MockAclManager(domainObject.getParent(), "rod",
-                new AclEntry[] {
-                    new MockAclEntry(),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
+                new AclEntry[]{
+                        new MockAclEntry(),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
+                        new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
                 });
 
         // Wire up a voter
         BasicAclEntryVoter voter = new BasicAclEntryVoter();
         voter.setAclManager(aclManager);
         voter.setProcessConfigAttribute("FOO_ADMIN_OR_WRITE_ACCESS");
-        voter.setRequirePermission(new int[] {SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
+        voter.setRequirePermission(new int[]{SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
         voter.setProcessDomainObjectClass(SomeDomainObject.class);
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("FOO_ADMIN_OR_WRITE_ACCESS"));
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation that doesn't provide SomeDomainObject arg
         Class clazz = String.class;
-        Method method = clazz.getMethod("toString", new Class[] {});
+        Method method = clazz.getMethod("toString", new Class[]{});
 
-        MethodInvocation mi = new SimpleMethodInvocation(method, new Object[] {domainObject});
+        MethodInvocation mi = new SimpleMethodInvocation(method, new Object[]{domainObject});
 
         try {
             voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr);

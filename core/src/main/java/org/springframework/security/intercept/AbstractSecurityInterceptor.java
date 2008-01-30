@@ -224,7 +224,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
             while (iter.hasNext()) {
                 ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter.next();
-                Iterator attributes = def.getConfigAttributes();
+                Iterator attributes = def.getConfigAttributes().iterator();
 
                 while (attributes.hasNext()) {
                     ConfigAttribute attr = (ConfigAttribute) attributes.next();

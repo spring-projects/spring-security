@@ -61,7 +61,7 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
             throw new IllegalArgumentException("Nulls cannot be provided");
         }
 
-        Iterator iter = config.getConfigAttributes();
+        Iterator iter = config.getConfigAttributes().iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();

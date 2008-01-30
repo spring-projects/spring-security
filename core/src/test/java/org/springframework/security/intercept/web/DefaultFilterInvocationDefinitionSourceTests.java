@@ -52,8 +52,7 @@ public class DefaultFilterInvocationDefinitionSourceTests {
 
     @Test
     public void lookupNotRequiringExactMatchSuccessIfNotMatching() {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/secure/super/**", def);
 
         FilterInvocation fi = createFilterInvocation("/SeCuRE/super/somefile.html", null);
@@ -67,8 +66,7 @@ public class DefaultFilterInvocationDefinitionSourceTests {
      */
     @Test
     public void lookupNotRequiringExactMatchSucceedsIfSecureUrlPathContainsUpperCase() {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/SeCuRE/super/**", def);
 
         FilterInvocation fi = createFilterInvocation("/secure/super/somefile.html", null);
@@ -81,8 +79,7 @@ public class DefaultFilterInvocationDefinitionSourceTests {
     @Test
     public void lookupRequiringExactMatchFailsIfNotMatching() {
         map = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(false));
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/secure/super/**", def);
 
         FilterInvocation fi = createFilterInvocation("/SeCuRE/super/somefile.html", null);
@@ -94,8 +91,7 @@ public class DefaultFilterInvocationDefinitionSourceTests {
     @Test
     public void lookupRequiringExactMatchIsSuccessful() {
         map = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(false));
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/SeCurE/super/**", def);
 
         FilterInvocation fi = createFilterInvocation("/SeCurE/super/somefile.html", null);
@@ -106,8 +102,7 @@ public class DefaultFilterInvocationDefinitionSourceTests {
 
     @Test
     public void lookupRequiringExactMatchWithAdditionalSlashesIsSuccessful() {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/someAdminPage.html**", def);
 
         FilterInvocation fi = createFilterInvocation("/someAdminPage.html?a=/test", null);
@@ -118,15 +113,13 @@ public class DefaultFilterInvocationDefinitionSourceTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void unknownHttpMethodIsRejected() {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/someAdminPage.html**", "UNKNOWN", def);
     }
 
     @Test
     public void httpMethodLookupSucceeds() {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/somepage**", "GET", def);
 
         FilterInvocation fi = createFilterInvocation("/somepage", "GET");
@@ -136,8 +129,7 @@ public class DefaultFilterInvocationDefinitionSourceTests {
 
     @Test
     public void requestWithDifferentHttpMethodDoesntMatch() {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/somepage**", "GET", def);
 
         FilterInvocation fi = createFilterInvocation("/somepage", null);
@@ -147,15 +139,11 @@ public class DefaultFilterInvocationDefinitionSourceTests {
 
     @Test
     public void httpMethodSpecificUrlTakesPrecedence() {
-
-
         // Even though this is added before the method-specific def, the latter should match
-        ConfigAttributeDefinition allMethodDef = new ConfigAttributeDefinition();
-        allMethodDef.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        ConfigAttributeDefinition allMethodDef = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/**", null, allMethodDef);
 
-        ConfigAttributeDefinition postOnlyDef = new ConfigAttributeDefinition();
-        postOnlyDef.addConfigAttribute(new SecurityConfig("ROLE_TWO"));
+        ConfigAttributeDefinition postOnlyDef = new ConfigAttributeDefinition("ROLE_TWO");
         map.addSecureUrl("/somepage**", "POST", postOnlyDef);
 
         FilterInvocation fi = createFilterInvocation("/somepage", "POST");
@@ -168,8 +156,7 @@ public class DefaultFilterInvocationDefinitionSourceTests {
      */
     @Test
     public void extraQuestionMarkStillMatches() {        
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/someAdminPage.html*", def);
 
         FilterInvocation fi = createFilterInvocation("/someAdminPage.html?x=2/aa?y=3", null);

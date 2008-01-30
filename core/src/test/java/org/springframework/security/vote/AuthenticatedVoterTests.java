@@ -72,8 +72,7 @@ public class AuthenticatedVoterTests extends TestCase {
 
     public void testAnonymousWorks() {
         AuthenticatedVoter voter = new AuthenticatedVoter();
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig(AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY));
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition(AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY);
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(createAnonymous(), null, def));
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(createRememberMe(), null, def));
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(createFullyAuthenticated(), null, def));
@@ -81,8 +80,7 @@ public class AuthenticatedVoterTests extends TestCase {
 
     public void testFullyWorks() {
         AuthenticatedVoter voter = new AuthenticatedVoter();
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig(AuthenticatedVoter.IS_AUTHENTICATED_FULLY));
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition(AuthenticatedVoter.IS_AUTHENTICATED_FULLY);
         assertEquals(AccessDecisionVoter.ACCESS_DENIED, voter.vote(createAnonymous(), null, def));
         assertEquals(AccessDecisionVoter.ACCESS_DENIED, voter.vote(createRememberMe(), null, def));
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(createFullyAuthenticated(), null, def));
@@ -90,8 +88,7 @@ public class AuthenticatedVoterTests extends TestCase {
 
     public void testRememberMeWorks() {
         AuthenticatedVoter voter = new AuthenticatedVoter();
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
-        def.addConfigAttribute(new SecurityConfig(AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED));
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition(AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED);
         assertEquals(AccessDecisionVoter.ACCESS_DENIED, voter.vote(createAnonymous(), null, def));
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(createRememberMe(), null, def));
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(createFullyAuthenticated(), null, def));

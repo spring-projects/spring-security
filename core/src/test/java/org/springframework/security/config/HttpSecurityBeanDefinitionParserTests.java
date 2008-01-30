@@ -133,13 +133,13 @@ public class HttpSecurityBeanDefinitionParserTests {
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) appContext.getBean(BeanIds.FILTER_SECURITY_INTERCEPTOR);
 
         FilterInvocationDefinitionSource fids = fis.getObjectDefinitionSource();
-        ConfigAttributeDefinition attrs = fids.getAttributes(createFilterinvocation("/Secure", null));
-        assertEquals(2, attrs.size());
-        assertTrue(attrs.contains(new SecurityConfig("ROLE_A")));
-        assertTrue(attrs.contains(new SecurityConfig("ROLE_B")));
-        attrs = fids.getAttributes(createFilterinvocation("/secure", null));
-        assertEquals(1, attrs.size());
-        assertTrue(attrs.contains(new SecurityConfig("ROLE_C")));
+        ConfigAttributeDefinition attrDef = fids.getAttributes(createFilterinvocation("/Secure", null));
+        assertEquals(2, attrDef.getConfigAttributes().size());
+        assertTrue(attrDef.contains(new SecurityConfig("ROLE_A")));
+        assertTrue(attrDef.contains(new SecurityConfig("ROLE_B")));
+        attrDef = fids.getAttributes(createFilterinvocation("/secure", null));
+        assertEquals(1, attrDef.getConfigAttributes().size());
+        assertTrue(attrDef.contains(new SecurityConfig("ROLE_C")));
     }
 
     @Test
@@ -154,7 +154,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) appContext.getBean(BeanIds.FILTER_SECURITY_INTERCEPTOR);
         FilterInvocationDefinitionSource fids = fis.getObjectDefinitionSource();
         ConfigAttributeDefinition attrs = fids.getAttributes(createFilterinvocation("/secure", "POST"));
-        assertEquals(2, attrs.size());
+        assertEquals(2, attrs.getConfigAttributes().size());
         assertTrue(attrs.contains(new SecurityConfig("ROLE_A")));
         assertTrue(attrs.contains(new SecurityConfig("ROLE_B")));
     }

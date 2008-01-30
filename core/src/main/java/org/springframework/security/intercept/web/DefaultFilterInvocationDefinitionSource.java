@@ -79,6 +79,17 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
         this.urlMatcher = urlMatcher;
     }
 
+    public DefaultFilterInvocationDefinitionSource(UrlMatcher urlMatcher, LinkedHashMap requestMap) {
+        this.urlMatcher = urlMatcher;
+
+        Iterator iterator = requestMap.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            addSecureUrl((String)entry.getKey(), (ConfigAttributeDefinition)entry.getValue());
+        }
+    }
+
     //~ Methods ========================================================================================================
 
     public void addSecureUrl(String pattern, ConfigAttributeDefinition attr) {
@@ -211,31 +222,6 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
 
         return null;
     }
-
-    /**
-     * Allows or easier configuration using {@link FilterInvocationDefinitionSourceMapping}.
-     *
-     * @param mappings
-     *            {@link java.util.List} of
-     *            {@link FilterInvocationDefinitionSourceMapping} objects.
-     */
-    void setMappings(List mappings) {
-        Iterator it = mappings.iterator();
-
-        while (it.hasNext()) {
-            FilterInvocationDefinitionSourceMapping mapping = (FilterInvocationDefinitionSourceMapping) it.next();
-            ConfigAttributeDefinition configDefinition = new ConfigAttributeDefinition();
-
-            Iterator configAttributesIt = mapping.getConfigAttributes().iterator();
-            while (configAttributesIt.hasNext()) {
-                String s = (String) configAttributesIt.next();
-                configDefinition.addConfigAttribute(new SecurityConfig(s));
-            }
-
-            addSecureUrl(mapping.getUrl(), configDefinition);
-        }
-    }
-
 
     public boolean supports(Class clazz) {
         return FilterInvocation.class.isAssignableFrom(clazz);

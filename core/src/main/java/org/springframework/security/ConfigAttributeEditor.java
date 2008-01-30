@@ -18,6 +18,8 @@ package org.springframework.security;
 import org.springframework.util.StringUtils;
 
 import java.beans.PropertyEditorSupport;
+import java.util.List;
+import java.util.ArrayList;
 
 
 /**
@@ -32,17 +34,11 @@ public class ConfigAttributeEditor extends PropertyEditorSupport {
     //~ Methods ========================================================================================================
 
     public void setAsText(String s) throws IllegalArgumentException {
-        if ((s == null) || "".equals(s)) {
-            setValue(null);
+        if (StringUtils.hasText(s)) {
+            setValue(new ConfigAttributeDefinition(StringUtils.commaDelimitedListToStringArray(s)));
         } else {
-            String[] tokens = StringUtils.commaDelimitedListToStringArray(s);
-            ConfigAttributeDefinition configDefinition = new ConfigAttributeDefinition();
+            setValue(null);
 
-            for (int i = 0; i < tokens.length; i++) {
-                configDefinition.addConfigAttribute(new SecurityConfig(tokens[i].trim()));
-            }
-
-            setValue(configDefinition);
         }
     }
 }

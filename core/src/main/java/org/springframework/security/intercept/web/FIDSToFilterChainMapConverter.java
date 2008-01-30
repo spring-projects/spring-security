@@ -41,7 +41,7 @@ public class FIDSToFilterChainMapConverter {
             ConfigAttributeDefinition configAttributeDefinition = (ConfigAttributeDefinition) requestMap.get(entry);
 
             List filters = new ArrayList();
-            Iterator attributes = configAttributeDefinition.getConfigAttributes();
+            Iterator attributes = configAttributeDefinition.getConfigAttributes().iterator();
 
             while (attributes.hasNext()) {
                 ConfigAttribute attr = (ConfigAttribute) attributes.next();

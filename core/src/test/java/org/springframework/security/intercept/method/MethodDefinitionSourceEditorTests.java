@@ -64,10 +64,8 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
 
         ConfigAttributeDefinition returnedCountLength = map.getAttributes(joinPoint);
 
-        ConfigAttributeDefinition expectedCountLength = new ConfigAttributeDefinition();
-        expectedCountLength.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
-        expectedCountLength.addConfigAttribute(new SecurityConfig("ROLE_TWO"));
-        expectedCountLength.addConfigAttribute(new SecurityConfig("RUN_AS_ENTRY"));
+        ConfigAttributeDefinition expectedCountLength =
+                new ConfigAttributeDefinition(new String[] {"ROLE_ONE", "ROLE_TWO", "RUN_AS_ENTRY"});
         assertEquals(expectedCountLength, returnedCountLength);
     }
 
@@ -115,15 +113,13 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
 
         ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(TargetObject.class,
                     "makeLowerCase", new Class[] {String.class}));
-        ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition();
-        expectedMakeLower.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
+        ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition("ROLE_FROM_INTERFACE");
         assertEquals(expectedMakeLower, returnedMakeLower);
 
         ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(TargetObject.class,
                     "makeUpperCase", new Class[] {String.class}));
-        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition();
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_FROM_IMPLEMENTATION"));
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
+        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition(
+                new String[]{"ROLE_FROM_IMPLEMENTATION","ROLE_FROM_INTERFACE"});
         assertEquals(expectedMakeUpper, returnedMakeUpper);
     }
 
@@ -171,20 +167,17 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
 
         ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(TargetObject.class,
                     "makeLowerCase", new Class[] {String.class}));
-        ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition();
-        expectedMakeLower.addConfigAttribute(new SecurityConfig("ROLE_LOWER"));
+        ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition("ROLE_LOWER");
         assertEquals(expectedMakeLower, returnedMakeLower);
 
         ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(TargetObject.class,
                     "makeUpperCase", new Class[] {String.class}));
-        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition();
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_UPPER"));
+        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition("ROLE_UPPER");
         assertEquals(expectedMakeUpper, returnedMakeUpper);
 
         ConfigAttributeDefinition returnedCountLength = map.getAttributes(new MockMethodInvocation(TargetObject.class,
                     "countLength", new Class[] {String.class}));
-        ConfigAttributeDefinition expectedCountLength = new ConfigAttributeDefinition();
-        expectedCountLength.addConfigAttribute(new SecurityConfig("ROLE_GENERAL"));
+        ConfigAttributeDefinition expectedCountLength = new ConfigAttributeDefinition("ROLE_GENERAL");
         assertEquals(expectedCountLength, returnedCountLength);
     }
 
@@ -215,10 +208,8 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
 
         ConfigAttributeDefinition returnedCountLength = map.getAttributes(new MockMethodInvocation(TargetObject.class,
                     "countLength", new Class[] {String.class}));
-        ConfigAttributeDefinition expectedCountLength = new ConfigAttributeDefinition();
-        expectedCountLength.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
-        expectedCountLength.addConfigAttribute(new SecurityConfig("ROLE_TWO"));
-        expectedCountLength.addConfigAttribute(new SecurityConfig("RUN_AS_ENTRY"));
+        ConfigAttributeDefinition expectedCountLength = new ConfigAttributeDefinition(
+                new String[] {"ROLE_ONE", "ROLE_TWO", "RUN_AS_ENTRY"});
         assertEquals(expectedCountLength, returnedCountLength);
     }
 

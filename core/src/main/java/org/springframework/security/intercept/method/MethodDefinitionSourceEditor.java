@@ -15,6 +15,8 @@
 
 package org.springframework.security.intercept.method;
 
+import org.springframework.security.ConfigAttributeDefinition;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -27,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 
 /**
@@ -44,38 +48,29 @@ public class MethodDefinitionSourceEditor extends PropertyEditorSupport {
     //~ Methods ========================================================================================================
 
     public void setAsText(String s) throws IllegalArgumentException {
-        MethodDefinitionMap source = new MethodDefinitionMap();
-
         if ((s == null) || "".equals(s)) {
-            // Leave value in property editor null
-        } else {
-            // Use properties editor to tokenize the string
-            PropertiesEditor propertiesEditor = new PropertiesEditor();
-            propertiesEditor.setAsText(s);
-
-            Properties props = (Properties) propertiesEditor.getValue();
-
-            // Now we have properties, process each one individually
-            List mappings = new ArrayList();
-
-            for (Iterator iter = props.keySet().iterator(); iter.hasNext();) {
-                String name = (String) iter.next();
-                String value = props.getProperty(name);
-
-                MethodDefinitionSourceMapping mapping = new MethodDefinitionSourceMapping();
-                mapping.setMethodName(name);
-
-                String[] tokens = StringUtils.commaDelimitedListToStringArray(value);
-
-                for (int i = 0; i < tokens.length; i++) {
-                    mapping.addConfigAttribute(tokens[i].trim());
-                }
-
-                mappings.add(mapping);
-            }
-            source.setMappings(mappings);
+            setValue(new MethodDefinitionMap());
+            return;
         }
 
-        setValue(source);
+        // Use properties editor to tokenize the string
+        PropertiesEditor propertiesEditor = new PropertiesEditor();
+        propertiesEditor.setAsText(s);
+
+        Properties props = (Properties) propertiesEditor.getValue();
+
+        // Now we have properties, process each one individually
+        Map mappings = new LinkedHashMap();
+
+        for (Iterator iter = props.keySet().iterator(); iter.hasNext();) {
+            String name = (String) iter.next();
+            String value = props.getProperty(name);
+
+            String[] tokens = StringUtils.commaDelimitedListToStringArray(value);
+
+            mappings.put(name, new ConfigAttributeDefinition(tokens));
+        }
+
+        setValue(new MethodDefinitionMap(mappings));
     }
 }

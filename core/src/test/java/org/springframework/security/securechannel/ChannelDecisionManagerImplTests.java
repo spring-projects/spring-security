@@ -95,8 +95,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         MockFilterChain chain = new MockFilterChain();
         FilterInvocation fi = new FilterInvocation(request, response, chain);
 
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
-        cad.addConfigAttribute(new SecurityConfig("xyz"));
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition("xyz");
 
         cdm.decide(fi, cad);
         assertTrue(fi.getResponse().isCommitted());
@@ -115,9 +114,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         MockFilterChain chain = new MockFilterChain();
         FilterInvocation fi = new FilterInvocation(request, response, chain);
 
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
-        cad.addConfigAttribute(new SecurityConfig("abc"));
-        cad.addConfigAttribute(new SecurityConfig("ANY_CHANNEL"));
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new String[]{"abc", "ANY_CHANNEL"});
 
         cdm.decide(fi, cad);
         assertFalse(fi.getResponse().isCommitted());
@@ -138,8 +135,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         MockFilterChain chain = new MockFilterChain();
         FilterInvocation fi = new FilterInvocation(request, response, chain);
 
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
-        cad.addConfigAttribute(new SecurityConfig("SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT"));
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition("SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT");
 
         cdm.decide(fi, cad);
         assertFalse(fi.getResponse().isCommitted());
@@ -198,7 +194,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 
         public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
                 throws IOException, ServletException {
-            Iterator iter = config.getConfigAttributes();
+            Iterator iter = config.getConfigAttributes().iterator();
 
             if (failIfCalled) {
                 fail("Should not have called this channel processor: " + configAttribute);

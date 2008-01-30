@@ -52,7 +52,7 @@ public class AuthorizationFailureEventTests extends TestCase {
 
     public void testRejectsNulls() {
         try {
-            new AuthorizationFailureEvent(null, new ConfigAttributeDefinition(),
+            new AuthorizationFailureEvent(null, ConfigAttributeDefinition.NO_ATTRIBUTES,
                 new UsernamePasswordAuthenticationToken("foo", "bar"), new AccessDeniedException("error"));
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -68,7 +68,7 @@ public class AuthorizationFailureEventTests extends TestCase {
         }
 
         try {
-            new AuthorizationFailureEvent(new SimpleMethodInvocation(), new ConfigAttributeDefinition(), null,
+            new AuthorizationFailureEvent(new SimpleMethodInvocation(), ConfigAttributeDefinition.NO_ATTRIBUTES, null,
                 new AccessDeniedException("error"));
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -76,7 +76,7 @@ public class AuthorizationFailureEventTests extends TestCase {
         }
 
         try {
-            new AuthorizationFailureEvent(new SimpleMethodInvocation(), new ConfigAttributeDefinition(),
+            new AuthorizationFailureEvent(new SimpleMethodInvocation(), ConfigAttributeDefinition.NO_ATTRIBUTES,
                 new UsernamePasswordAuthenticationToken("foo", "bar"), null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {

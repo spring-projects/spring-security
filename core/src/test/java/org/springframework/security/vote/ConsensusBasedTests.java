@@ -35,36 +35,16 @@ import org.springframework.security.providers.TestingAuthenticationToken;
  * @version $Id$
  */
 public class ConsensusBasedTests extends TestCase {
-    //~ Constructors ===========================================================
-
-    public ConsensusBasedTests() {
-        super();
-    }
-
-    public ConsensusBasedTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ConsensusBasedTests.class);
-    }
-
-    public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccessWithoutDefault()
-        throws Exception {
+    public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccessWithoutDefault() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         ConsensusBased mgr = makeDecisionManager();
         mgr.setAllowIfEqualGrantedDeniedDecisions(false);
         assertTrue(!mgr.isAllowIfEqualGrantedDeniedDecisions()); // check changed
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_1")); // grant
-        config.addConfigAttribute(new SecurityConfig("DENY_FOR_SURE")); // deny
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "DENY_FOR_SURE"});
 
         try {
             mgr.decide(auth, new Object(), config);
@@ -74,40 +54,33 @@ public class ConsensusBasedTests extends TestCase {
         }
     }
 
-    public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccessWithDefault()
-        throws Exception {
+    public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccessWithDefault() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         ConsensusBased mgr = makeDecisionManager();
 
         assertTrue(mgr.isAllowIfEqualGrantedDeniedDecisions()); // check default
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_1")); // grant
-        config.addConfigAttribute(new SecurityConfig("DENY_FOR_SURE")); // deny
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "DENY_FOR_SURE"});
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
     }
 
-    public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess()
-        throws Exception {
+    public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         ConsensusBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_2")); // grant
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition("ROLE_2");
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
     }
 
-    public void testOneDenyVoteTwoAbstainVotesDeniesAccess()
-        throws Exception {
+    public void testOneDenyVoteTwoAbstainVotesDeniesAccess() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         ConsensusBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_WE_DO_NOT_HAVE")); // deny
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition("ROLE_WE_DO_NOT_HAVE");
 
         try {
             mgr.decide(auth, new Object(), config);
@@ -117,15 +90,13 @@ public class ConsensusBasedTests extends TestCase {
         }
     }
 
-    public void testThreeAbstainVotesDeniesAccessWithDefault()
-        throws Exception {
+    public void testThreeAbstainVotesDeniesAccessWithDefault() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         ConsensusBased mgr = makeDecisionManager();
 
         assertTrue(!mgr.isAllowIfAllAbstainDecisions()); // check default
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("IGNORED_BY_ALL")); // abstain
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition("IGNORED_BY_ALL");
 
         try {
             mgr.decide(auth, new Object(), config);
@@ -135,28 +106,23 @@ public class ConsensusBasedTests extends TestCase {
         }
     }
 
-    public void testThreeAbstainVotesGrantsAccessWithoutDefault()
-        throws Exception {
+    public void testThreeAbstainVotesGrantsAccessWithoutDefault() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         ConsensusBased mgr = makeDecisionManager();
         mgr.setAllowIfAllAbstainDecisions(true);
         assertTrue(mgr.isAllowIfAllAbstainDecisions()); // check changed
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("IGNORED_BY_ALL")); // abstain
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition("IGNORED_BY_ALL");
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
     }
 
-    public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess()
-        throws Exception {
+    public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         ConsensusBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
-        config.addConfigAttribute(new SecurityConfig("ROLE_1")); // grant
-        config.addConfigAttribute(new SecurityConfig("ROLE_2")); // grant
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "ROLE_2"});
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);

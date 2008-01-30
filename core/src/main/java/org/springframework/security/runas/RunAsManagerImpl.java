@@ -66,7 +66,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 
     public Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config) {
         List newAuthorities = new Vector();
-        Iterator iter = config.getConfigAttributes();
+        Iterator iter = config.getConfigAttributes().iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();

@@ -86,7 +86,7 @@ public abstract class CaptchaChannelProcessorTemplate implements ChannelProcesso
         CaptchaSecurityContext context = null;
         context = (CaptchaSecurityContext) SecurityContextHolder.getContext();
 
-        Iterator iter = config.getConfigAttributes();
+        Iterator iter = config.getConfigAttributes().iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();
