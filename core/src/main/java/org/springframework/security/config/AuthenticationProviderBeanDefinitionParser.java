@@ -40,6 +40,7 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
         String ref = element.getAttribute(ATT_USER_DETAILS_REF);
         Element userServiceElt = DomUtils.getChildElementByTagName(element, Elements.USER_SERVICE);
         Element jdbcUserServiceElt = DomUtils.getChildElementByTagName(element, Elements.JDBC_USER_SERVICE);
+        Element ldapUserServiceElt = DomUtils.getChildElementByTagName(element, Elements.LDAP_USER_SERVICE);
 
         if (StringUtils.hasText(ref)) {
             if (userServiceElt != null || jdbcUserServiceElt != null) {
@@ -59,6 +60,8 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
             userDetailsService = new UserServiceBeanDefinitionParser().parse(userServiceElt, parserContext);
         } else if (jdbcUserServiceElt != null) {
             userDetailsService = new JdbcUserServiceBeanDefinitionParser().parse(jdbcUserServiceElt, parserContext);
+        } else if (ldapUserServiceElt != null) {
+            userDetailsService = new LdapUserServiceBeanDefinitionParser().parse(ldapUserServiceElt, parserContext);
         } else {
             throw new SecurityConfigurationException(Elements.AUTHENTICATION_PROVIDER
                     + " requires a UserDetailsService" );

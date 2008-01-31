@@ -72,6 +72,20 @@ public class AuthenticationProviderBeanDefinitionParserTests {
     }
 
     @Test
+    public void worksWithJdbcUserService() throws Exception {
+        setContext(" <authentication-provider>" +
+                "        <password-encoder hash='{sha}'/>" +
+                "        <user-service>" +
+                "            <user name='bob' password='{SSHA}PpuEwfdj7M1rs0C2W4ssSM2XEN/Y6S5U' authorities='ROLE_A' />" +
+                "        </user-service>" +
+                "    </authentication-provider>");
+
+        getProvider().authenticate(bob);
+    }
+
+
+
+    @Test
     public void externalUserServiceAndPasswordEncoderWork() throws Exception {
         setContext(" <authentication-provider user-service-ref='customUserService'>" +
                 "        <password-encoder ref='customPasswordEncoder'>" +

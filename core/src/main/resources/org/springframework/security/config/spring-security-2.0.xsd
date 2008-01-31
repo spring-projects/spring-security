@@ -631,6 +631,7 @@
         <xs:choice>
           <xs:element ref="security:user-service"/>
           <xs:element ref="security:jdbc-user-service"/>
+          <xs:element ref="security:ldap-user-service"/>
         </xs:choice>
         <xs:element ref="security:password-encoder"/>
       </xs:choice>
