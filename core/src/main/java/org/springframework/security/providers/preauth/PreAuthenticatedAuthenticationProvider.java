@@ -20,8 +20,7 @@ import org.springframework.util.Assert;
  * <p>
  * This authentication provider will not perform any checks on authentication
  * requests, as they should already be pre- authenticated. However, the
- * PreAuthenticatedUserDetailsService implementation may still throw for exampe
- * a UsernameNotFoundException.
+ * AuthenticationUserDetailsService implementation may still throw a UsernameNotFoundException, for example.
  *
  * @author Ruud Senden
  * @version $Id$
@@ -30,7 +29,7 @@ import org.springframework.util.Assert;
 public class PreAuthenticatedAuthenticationProvider implements AuthenticationProvider, InitializingBean, Ordered {
     private static final Log logger = LogFactory.getLog(PreAuthenticatedAuthenticationProvider.class);
 
-    private PreAuthenticatedUserDetailsService preAuthenticatedUserDetailsService = null;
+    private AuthenticationUserDetailsService preAuthenticatedUserDetailsService = null;
 
     private int order = -1; // default: same as non-ordered
 
@@ -38,7 +37,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
      * Check whether all required properties have been set.
      */
     public void afterPropertiesSet() {
-        Assert.notNull(preAuthenticatedUserDetailsService, "A PreAuthenticatedUserDetailsService must be set");
+        Assert.notNull(preAuthenticatedUserDetailsService, "A AuthenticationUserDetailsService must be set");
     }
 
     /**
@@ -53,7 +52,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
             logger.debug("PreAuthenticated authentication request: " + authentication);
         }
 
-        UserDetails ud = preAuthenticatedUserDetailsService.getUserDetails((PreAuthenticatedAuthenticationToken) authentication);
+        UserDetails ud = preAuthenticatedUserDetailsService.loadUserDetails((PreAuthenticatedAuthenticationToken) authentication);
 
         if (ud == null) {
             return null;
@@ -79,7 +78,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
      *
      * @param aPreAuthenticatedUserDetailsService
      */
-    public void setPreAuthenticatedUserDetailsService(PreAuthenticatedUserDetailsService aPreAuthenticatedUserDetailsService) {
+    public void setPreAuthenticatedUserDetailsService(AuthenticationUserDetailsService aPreAuthenticatedUserDetailsService) {
         this.preAuthenticatedUserDetailsService = aPreAuthenticatedUserDetailsService;
     }
 

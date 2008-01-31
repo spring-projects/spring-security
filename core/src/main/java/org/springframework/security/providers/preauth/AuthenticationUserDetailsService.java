@@ -2,6 +2,7 @@ package org.springframework.security.providers.preauth;
 
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.Authentication;
 
 
 /**
@@ -9,18 +10,18 @@ import org.springframework.security.userdetails.UserDetails;
  * PreAuthenticatedAuthenticationToken object.
  *
  * @author Ruud Senden
+ * @version $Id$
  * @since 2.0
  */
-public interface PreAuthenticatedUserDetailsService {
+public interface AuthenticationUserDetailsService {
 
 	/**
 	 *
-	 * @param token
-	 *            The pre-authenticated authentication token
+	 * @param token The pre-authenticated authentication token
 	 * @return UserDetails for the given authentication token.
 	 * @throws UsernameNotFoundException
 	 *             if no user details can be found for the given authentication
 	 *             token
 	 */
-	UserDetails getUserDetails(PreAuthenticatedAuthenticationToken token) throws UsernameNotFoundException;
+	UserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException;
 }

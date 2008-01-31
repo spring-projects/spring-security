@@ -21,7 +21,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests extends T
 		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("dummy", "dummy");
 		token.setDetails(new Object());
 		try {
-			svc.getUserDetails(token);
+			svc.loadUserDetails(token);
 			fail("Expected exception didn't occur");
 		} catch (IllegalArgumentException expected) {
 		}
@@ -32,7 +32,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests extends T
 		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("dummy", "dummy");
 		token.setDetails(null);
 		try {
-			svc.getUserDetails(token);
+			svc.loadUserDetails(token);
 			fail("Expected exception didn't occur");
 		} catch (IllegalArgumentException expected) {
 		}
@@ -58,7 +58,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests extends T
 				return gas;
 			}
 		});
-		UserDetails ud = svc.getUserDetails(token);
+		UserDetails ud = svc.loadUserDetails(token);
 		assertTrue(ud.isAccountNonExpired());
 		assertTrue(ud.isAccountNonLocked());
 		assertTrue(ud.isCredentialsNonExpired());

@@ -3,19 +3,20 @@ package org.springframework.security.providers.preauth;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.Authentication;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
 
 /**
- * This implementation for PreAuthenticatedUserDetailsService wraps a regular
+ * This implementation for AuthenticationUserDetailsService wraps a regular
  * Spring Security UserDetailsService implementation, to retrieve a UserDetails object
  * based on the user name contained in a PreAuthenticatedAuthenticationToken.
  *
  * @author Ruud Senden
  * @since 2.0
  */
-public class UserDetailsByNameServiceWrapper implements PreAuthenticatedUserDetailsService, InitializingBean {
+public class UserDetailsByNameServiceWrapper implements AuthenticationUserDetailsService, InitializingBean {
 	private UserDetailsService userDetailsService = null;
 
 	/**
@@ -31,7 +32,7 @@ public class UserDetailsByNameServiceWrapper implements PreAuthenticatedUserDeta
 	 * Get the UserDetails object from the wrapped UserDetailsService
 	 * implementation
 	 */
-	public UserDetails getUserDetails(PreAuthenticatedAuthenticationToken aJ2eeAuthenticationToken) throws UsernameNotFoundException,
+	public UserDetails loadUserDetails(Authentication aJ2eeAuthenticationToken) throws UsernameNotFoundException,
 			DataAccessException {
 		return userDetailsService.loadUserByUsername(aJ2eeAuthenticationToken.getName());
 	}

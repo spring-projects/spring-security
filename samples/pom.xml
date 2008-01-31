@@ -18,5 +18,6 @@
    <module>contacts</module>
    <module>tutorial</module>
    <module>dms</module>
+   <module>preauth</module>
  </modules>
 </project>

@@ -4,12 +4,13 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.AuthenticationException;
+import org.springframework.security.Authentication;
 
 import org.springframework.util.Assert;
 
 /**
  * <p>
- * This PreAuthenticatedUserDetailsService implementation creates a UserDetails
+ * This AuthenticationUserDetailsService implementation creates a UserDetails
  * object based solely on the information contained in the given
  * PreAuthenticatedAuthenticationToken. The user name is set to the name as
  * returned by PreAuthenticatedAuthenticationToken.getName(), the password is
@@ -27,14 +28,14 @@ import org.springframework.util.Assert;
  * @author Ruud Senden
  * @since 2.0
  */
-public class PreAuthenticatedGrantedAuthoritiesUserDetailsService implements PreAuthenticatedUserDetailsService {
+public class PreAuthenticatedGrantedAuthoritiesUserDetailsService implements AuthenticationUserDetailsService {
 	/**
 	 * Get a UserDetails object based on the user name contained in the given
 	 * token, and the GrantedAuthorities as returned by the
 	 * PreAuthenticatedGrantedAuthoritiesRetriever implementation as returned by
 	 * the token.getDetails() method.
 	 */
-	public UserDetails getUserDetails(PreAuthenticatedAuthenticationToken token) throws AuthenticationException {
+	public UserDetails loadUserDetails(Authentication token) throws AuthenticationException {
 		Assert.notNull(token.getDetails());
 		Assert.isInstanceOf(PreAuthenticatedGrantedAuthoritiesRetriever.class, token.getDetails());
 		GrantedAuthority[] preAuthenticatedGrantedAuthorities = ((PreAuthenticatedGrantedAuthoritiesRetriever) token.getDetails())
