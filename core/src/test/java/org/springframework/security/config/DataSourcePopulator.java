@@ -17,8 +17,13 @@ package org.springframework.security.config;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.Assert;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ApplicationEvent;
 
 
 /**
@@ -27,7 +32,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id: DataSourcePopulator.java 2291 2007-12-03 02:56:52Z benalex $
  */
-public class DataSourcePopulator implements InitializingBean {
+public class DataSourcePopulator implements InitializingBean, DisposableBean {
     //~ Instance fields ================================================================================================
 
     JdbcTemplate template;
@@ -50,7 +55,7 @@ public class DataSourcePopulator implements InitializingBean {
            Encoded password for jane is "wombat"
 
          */
-        template.execute("INSERT INTO USERS VALUES('rod','a564de63c2d0da68cf47586ee05984d7',TRUE);");
+        template.execute("INSERT INTO USERS VALUES('rod','koala',TRUE);");
         template.execute("INSERT INTO USERS VALUES('dianne','65d15fe9156f9c4bbffd98085992a44e',TRUE);");
         template.execute("INSERT INTO USERS VALUES('scott','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
         template.execute("INSERT INTO USERS VALUES('peter','22b5c9accc6e1ba628cedc63a72d57f8',FALSE);");
@@ -71,4 +76,8 @@ public class DataSourcePopulator implements InitializingBean {
         this.template = new JdbcTemplate(dataSource);
     }
 
+    public void destroy() throws Exception {
+        template.execute("DROP TABLE AUTHORITIES");
+        template.execute("DROP TABLE USERS");
+    }
 }

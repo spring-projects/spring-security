@@ -3,6 +3,10 @@ package org.springframework.security.config;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.AuthenticationManager;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.ProviderManager;
+import org.springframework.security.providers.dao.DaoAuthenticationProvider;
 
 import org.junit.Test;
 import org.junit.After;
@@ -46,6 +50,15 @@ public class LdapUserServiceBeanDefinitionParserTests {
         UserDetails joe = uds.loadUserByUsername("Joe Smeth");
 
         assertEquals("Joe Smeth", joe.getUsername());
+    }
+
+    @Test
+    public void isSupportedByAuthenticationProviderElement() {
+        setContext(
+                "<ldap-server url='ldap://127.0.0.1:343/dc=springframework,dc=org'/>" +
+                "<authentication-provider>" +
+                "    <ldap-user-service user-search-filter='(uid={0})' />" +
+                "</authentication-provider>");
     }
 
     private void setContext(String context) {
