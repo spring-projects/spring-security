@@ -30,6 +30,7 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Logs a principal out.
@@ -64,7 +65,6 @@ public class LogoutFilter extends SpringSecurityFilter {
     //~ Constructors ===================================================================================================
 
     public LogoutFilter(String logoutSuccessUrl, LogoutHandler[] handlers) {
-        Assert.hasText(logoutSuccessUrl, "LogoutSuccessUrl required");
         Assert.notEmpty(handlers, "LogoutHandlers are required");
         this.logoutSuccessUrl = logoutSuccessUrl;
         this.handlers = handlers;
@@ -86,7 +86,9 @@ public class LogoutFilter extends SpringSecurityFilter {
                 handlers[i].logout(request, response, auth);
             }
 
-            sendRedirect(request, response, logoutSuccessUrl);
+            String targetUrl = determineTargetUrl(request, response);
+
+            sendRedirect(request, response, targetUrl);
 
             return;
         }
@@ -123,6 +125,32 @@ public class LogoutFilter extends SpringSecurityFilter {
         }
 
         return uri.endsWith(request.getContextPath() + filterProcessesUrl);
+    }
+
+    /**
+     * Returns the target URL to redirect to after logout.
+     * <p>
+     * By default it will check for a <tt>logoutSuccessUrl</tt> parameter in
+     * the request and use this. If that isn't present it will use the configured <tt>logoutSuccessUrl</tt>. If this
+     * hasn't been set it will check the Referer header and use the URL from there.
+     *
+     */
+    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response) {
+        String targetUrl = request.getParameter("logoutSuccessUrl");
+
+        if(!StringUtils.hasLength(targetUrl)) {
+            targetUrl = logoutSuccessUrl;
+        }
+
+        if (!StringUtils.hasLength(targetUrl)) {
+            targetUrl = request.getHeader("Referer");
+        }        
+
+        if (!StringUtils.hasLength(targetUrl)) {
+            targetUrl = "/";
+        }
+
+        return targetUrl;
     }
 
     /**
