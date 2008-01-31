@@ -36,7 +36,14 @@ public class PreAuthenticatedAuthenticationProviderTests extends TestCase {
 		assertNull(result);
 	}
 
-	public final void testAuthenticateKnownUser() throws Exception {
+    public final void testNullPrincipalReturnsNullAuthentication() throws Exception {
+        PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
+        Authentication request = new PreAuthenticatedAuthenticationToken(null, "dummyPwd");
+        Authentication result = provider.authenticate(request);
+        assertNull(result);
+    }
+
+    public final void testAuthenticateKnownUser() throws Exception {
 		UserDetails ud = new User("dummyUser", "dummyPwd", true, true, true, true, new GrantedAuthority[] {});
 		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
 		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser", "dummyPwd");

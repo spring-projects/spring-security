@@ -42,6 +42,9 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 
     /**
      * Authenticate the given PreAuthenticatedAuthenticationToken.
+     * <p>
+     * If the principal contained in the authentication object is null, the request will be ignored to allow other
+     * providers to authenticate it.
      */
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         if (!supports(authentication.getClass())) {
@@ -52,7 +55,12 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
             logger.debug("PreAuthenticated authentication request: " + authentication);
         }
 
-        UserDetails ud = preAuthenticatedUserDetailsService.loadUserDetails((PreAuthenticatedAuthenticationToken) authentication);
+        if(authentication.getPrincipal() == null) {
+            logger.debug("No pre-authenticated principal found in request.");
+            return null;
+        }
+
+        UserDetails ud = preAuthenticatedUserDetailsService.loadUserDetails(authentication);
 
         if (ud == null) {
             return null;
