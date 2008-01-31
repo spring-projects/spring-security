@@ -75,8 +75,10 @@ public class ConcurrentSessionFilter extends SpringSecurityFilter implements Ini
                     // Expired - abort processing
                     doLogout(request, response);
 
-                    if (expiredUrl != null) {
-                        String targetUrl = request.getContextPath() + expiredUrl;
+                    String targetUrl = determineExpiredUrl(request, info);
+
+                    if (targetUrl != null) {
+                        targetUrl = request.getContextPath() + targetUrl;
                         response.sendRedirect(response.encodeRedirectURL(targetUrl));
                     } else {
                         response.getWriter().print("This session has been expired (possibly due to multiple concurrent " +
@@ -93,6 +95,10 @@ public class ConcurrentSessionFilter extends SpringSecurityFilter implements Ini
         }
 
         chain.doFilter(request, response);
+    }
+
+    protected String determineExpiredUrl(HttpServletRequest request, SessionInformation info) {
+        return expiredUrl;
     }
 
     private void doLogout(HttpServletRequest request, HttpServletResponse response) {
