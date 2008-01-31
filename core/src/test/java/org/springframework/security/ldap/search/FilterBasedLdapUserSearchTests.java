@@ -44,7 +44,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
     }
 
     @Test
-    public void testBasicSearch() {
+    public void basicSearchSucceeds() {
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", dirCtxFactory);
         locator.setSearchSubtree(false);
         locator.setSearchTimeLimit(0);
@@ -58,7 +58,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
 
     // Try some funny business with filters.
     @Test
-    public void testExtraFilterPartToExcludeBob() throws Exception {
+    public void extraFilterPartToExcludeBob() throws Exception {
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
                 "(&(cn=*)(!(|(uid={0})(uid=rod))))", dirCtxFactory);
 
@@ -70,19 +70,19 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
     }
 
     @Test(expected=IncorrectResultSizeDataAccessException.class)
-    public void testFailsOnMultipleMatches() {
+    public void searchFailsOnMultipleMatches() {
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(cn=*)", dirCtxFactory);
         locator.searchForUser("Ignored");
     }
 
     @Test(expected=UsernameNotFoundException.class)
-    public void testSearchForInvalidUserFails() {
+    public void searchForInvalidUserFails() {
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", dirCtxFactory);
         locator.searchForUser("Joe");
     }
 
     @Test
-    public void testSubTreeSearchSucceeds() {
+    public void subTreeSearchSucceeds() {
         // Don't set the searchBase, so search from the root.
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("", "(cn={0})", dirCtxFactory);
         locator.setSearchSubtree(true);
@@ -93,5 +93,11 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
         assertEquals(new DistinguishedName("uid=ben,ou=people"), ben.getDn());
     }
 
-    // TODO: Add test with non-uid username
+    @Test
+    public void searchWithDifferentSearchBaseIsSuccessful() throws Exception {
+        FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=otherpeople", "(cn={0})", dirCtxFactory);
+        DirContextOperations joe = locator.searchForUser("Joe Smeth");
+        assertEquals("Joe Smeth", joe.getStringAttribute("cn"));
+    }
+
 }

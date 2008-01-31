@@ -38,6 +38,16 @@ public class LdapUserServiceBeanDefinitionParserTests {
         assertEquals(2, ben.getAuthorities().length);
     }
 
+    @Test
+    public void differentUserSearchBaseWorksAsExpected() throws Exception {
+        setContext("<ldap-user-service id='ldapUDS' user-search-base='ou=otherpeople' user-search-filter='(cn={0})' group-search-filter='member={0}' /><ldap-server />");
+
+        UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+        UserDetails joe = uds.loadUserByUsername("Joe Smeth");
+
+        assertEquals("Joe Smeth", joe.getUsername());
+    }
+
     private void setContext(String context) {
         appCtx = new InMemoryXmlApplicationContext(context);
     }
