@@ -153,6 +153,8 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
+    private TargetUrlResolver targetUrlResolver = new TargetUrlResolverImpl();
+    
     /** Where to redirect the browser to if authentication fails */
     private String authenticationFailureUrl;
 
@@ -216,7 +218,8 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
         Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
         Assert.notNull(authenticationManager, "authenticationManager must be specified");
-        Assert.notNull(this.rememberMeServices);
+        Assert.notNull(rememberMeServices, "rememberMeServices cannot be null");
+        Assert.notNull(targetUrlResolver, "targetUrlResolver cannot be null");
     }
 
     /**
@@ -266,6 +269,12 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     }
 
     public static String obtainFullSavedRequestUrl(HttpServletRequest request) {
+    	SavedRequest savedRequest = getSavedRequest(request);
+    	
+        return savedRequest == null ? null : savedRequest.getFullRequestUrl();
+    }
+
+    private static SavedRequest getSavedRequest(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
 
         if (session == null) {
@@ -274,9 +283,9 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
         SavedRequest savedRequest = (SavedRequest) session.getAttribute(SPRING_SECURITY_SAVED_REQUEST_KEY);
 
-        return savedRequest == null ? null : savedRequest.getFullRequestUrl();
-    }
-
+		return savedRequest;
+ 	}
+    
     protected void onPreAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException {
     }
@@ -416,9 +425,9 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     }
 
     protected String determineTargetUrl(HttpServletRequest request) {
-        // Don't attempt to obtain the url from the saved request if
-        // alwaysUsedefaultTargetUrl is set
-        String targetUrl = alwaysUseDefaultTargetUrl ? null : obtainFullSavedRequestUrl(request);
+        // Don't attempt to obtain the url from the saved request if alwaysUsedefaultTargetUrl is set
+    	String targetUrl = alwaysUseDefaultTargetUrl ? null : 
+    		targetUrlResolver.determineTargetUrl(getSavedRequest(request), request, SecurityContextHolder.getContext().getAuthentication());
 
         if (targetUrl == null) {
             targetUrl = getDefaultTargetUrl();
@@ -578,4 +587,18 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     public void setAllowSessionCreation(boolean allowSessionCreation) {
         this.allowSessionCreation = allowSessionCreation;
     }
+
+	/**
+	 * @return the targetUrlResolver
+	 */
+	protected TargetUrlResolver getTargetUrlResolver() {
+		return targetUrlResolver;
+	}
+
+	/**
+	 * @param targetUrlResolver the targetUrlResolver to set
+	 */
+	public void setTargetUrlResolver(TargetUrlResolver targetUrlResolver) {
+		this.targetUrlResolver = targetUrlResolver;
+	}
 }

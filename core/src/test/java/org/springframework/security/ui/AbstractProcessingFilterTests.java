@@ -31,7 +31,6 @@ import org.springframework.security.util.PortResolverImpl;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockHttpSession;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -93,7 +92,18 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         return new SavedRequest(request, new PortResolverImpl());
     }
+   
+    private SavedRequest makePostSavedRequestForUrl() {
+        MockHttpServletRequest request = createMockRequest();
+        request.setServletPath("/some_protected_file.html");
+        request.setScheme("http");
+        request.setServerName("www.example.com");
+        request.setRequestURI("/mycontext/post/some_protected_file.html");
+        request.setMethod("POST");
 
+        return new SavedRequest(request, new PortResolverImpl());
+    }
+    
     protected void setUp() throws Exception {
         super.setUp();
         SecurityContextHolder.clearContext();
@@ -423,6 +433,36 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals(makeSavedRequestForUrl().getFullRequestUrl(), response.getRedirectedUrl());
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+    
+        
+    public void testSuccessfulAuthenticationCausesRedirectToDefaultTargetUrlOnPOSTSavedRequest() throws Exception {
+        // Setup our HTTP request with a POST method request
+        MockHttpServletRequest request = createMockRequest();
+        request.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY, makePostSavedRequestForUrl());
+    
+       // Setup our filter configuration
+        MockFilterConfig config = new MockFilterConfig(null, null);
+    
+        // Setup our expectation that the filter chain will be invoked, as we want to go to the location requested in the session
+        MockFilterChain chain = new MockFilterChain(true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+   
+        // Setup our test object, to grant access
+        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        
+        filter.setFilterProcessesUrl("/j_mock_post");
+        filter.setDefaultTargetUrl("/foobar");
+        
+        // Configure target resolver default implementation not to use POST SavedRequest
+        TargetUrlResolverImpl targetUrlResolver = new TargetUrlResolverImpl();
+        targetUrlResolver.setJustUseSavedRequestOnGet(true);
+        filter.setTargetUrlResolver(targetUrlResolver);
+    
+        // Test
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        assertEquals("/mycontext/foobar", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
