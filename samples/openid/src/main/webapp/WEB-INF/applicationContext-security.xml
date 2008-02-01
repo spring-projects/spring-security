@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  - Sample namespace-based configuration
+  -
+  - $Id: applicationContext-security-ns.xml 2396 2007-12-23 16:36:44Z luke_t $
+  -->
+
+<b:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:b="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
+    <http>
+        <intercept-url pattern="/**" access="ROLE_USER"/>
+        <intercept-url pattern="/openidlogin.jsp*" filters="none"/>        
+        <logout/>
+    </http>
+
+    <authentication-manager alias="authenticationManager"/>    
+
+    <b:bean id="openIdFilter" class="org.springframework.security.ui.openid.OpenIdAuthenticationProcessingFilter">
+        <custom-filter />        
+        <b:property name="authenticationManager" ref="authenticationManager"/>
+        <b:property name="defaultTargetUrl" value="/index.jsp"/>
+        <b:property name="authenticationFailureUrl" value="/openidlogin.jsp?login_error=true"/>
+    </b:bean>
+
+    <b:bean id="openIdAuthenticationProvider" class="org.springframework.security.providers.openid.OpenIDAuthenticationProvider">
+        <custom-authentication-provider />
+        <b:property name="authoritiesPopulator">
+            <b:bean class="org.springframework.security.providers.DaoAuthoritiesPopulator">
+                <b:property name="userDetailsService" ref="userService"/>
+            </b:bean>
+        </b:property>
+    </b:bean>
+
+    <b:bean id="entryPoint" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+        <b:property name="loginFormUrl" value="/openidlogin.jsp" />
+    </b:bean>
+
+    <user-service id="userService">
+        <user name="http://luke.taylor.myopenid.com/" password="notused" authorities="ROLE_SUPERVISOR,ROLE_USER" />
+        <user name="http://luke.taylor.openid.cn/" password="notused" authorities="ROLE_SUPERVISOR,ROLE_USER" />
+        <user name="http://spring.security.test.myopenid.com/" password="password" authorities="ROLE_SUPERVISOR,ROLE_USER" />        
+    </user-service>
+
+</b:beans>
