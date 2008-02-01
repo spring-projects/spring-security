@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 
@@ -65,7 +66,10 @@ public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilt
         String identity = req.getParameter("openid.identity");
 
         if (!StringUtils.hasText(identity)) {
-            throw new OpenIdAuthenticationRequiredException("External Authentication Required", obtainUsername(req));
+            // Make the username available to the view
+            String username = obtainUsername(req);
+            setLastUsername(username, req);
+            throw new OpenIdAuthenticationRequiredException("External Authentication Required", username);
         }
 
         try {
@@ -78,11 +82,18 @@ public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilt
         Authentication authentication = this.getAuthenticationManager().authenticate(token);
 
         if (authentication.isAuthenticated()) {
-            req.getSession()
-                    .setAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY, token.getIdentityUrl());
+            setLastUsername(token.getIdentityUrl(), req);
         }
 
         return authentication;
+    }
+
+    private void setLastUsername(String username, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        if (session != null || getAllowSessionCreation()) {
+            request.getSession().setAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY, username);
+        }
     }
 
     protected String determineFailureUrl(HttpServletRequest request, AuthenticationException failed) {
