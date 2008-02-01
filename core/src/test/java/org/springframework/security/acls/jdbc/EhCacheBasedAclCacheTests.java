@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -28,11 +28,12 @@ import org.springframework.security.providers.TestingAuthenticationToken;
  * @author Andrei Stefan
  */
 public class EhCacheBasedAclCacheTests extends TestCase {
+    AbstractXmlApplicationContext ctx;
 
     //~ Methods ========================================================================================================
 
     private Ehcache getCache() {
-        ApplicationContext ctx = MockApplicationContext.getContext();
+        this.ctx = (AbstractXmlApplicationContext) MockApplicationContext.getContext();
 
         return (Ehcache) ctx.getBean("eHCacheBackend");
     }
@@ -40,6 +41,9 @@ public class EhCacheBasedAclCacheTests extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         SecurityContextHolder.clearContext();
+        if (ctx != null) {
+            ctx.close();
+        }
     }
 
     public void testConstructorRejectsNullParameters() throws Exception {
