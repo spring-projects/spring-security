@@ -49,8 +49,7 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
      * @param status
      * @param identityUrl
      */
-    public OpenIDAuthenticationToken(GrantedAuthority[] authorities, OpenIDAuthenticationStatus status,
-        String identityUrl) {
+    public OpenIDAuthenticationToken(GrantedAuthority[] authorities, OpenIDAuthenticationStatus status, String identityUrl) {
         super(authorities);
         this.status = status;
         this.identityUrl = identityUrl;

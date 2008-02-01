@@ -44,8 +44,8 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
     /* (non-Javadoc)
      * @see org.springframework.security.providers.AuthenticationProvider#authenticate(org.springframework.security.Authentication)
      */
-    public Authentication authenticate(Authentication authentication)
-        throws AuthenticationException {
+    public Authentication authenticate(final Authentication authentication)
+            throws AuthenticationException {
 
         if (!supports(authentication.getClass())) {
             return null;
@@ -57,20 +57,13 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
 
             // handle the various possibilites
             if (status == OpenIDAuthenticationStatus.SUCCESS) {
-                //String message = "Log in succeeded: ";// + savedId;
-
-                /* TODO: allow for regex for mapping URL
-                 * e.g. http://mydomain.com/username
-                 * or http://{username}.mydomain.com
-                 */
 
                 // Lookup user details
                 UserDetails userDetails = this.authoritiesPopulator.getUserDetails(response.getIdentityUrl());
 
-                authentication = new OpenIDAuthenticationToken(userDetails.getAuthorities(), response.getStatus(),
+                return new OpenIDAuthenticationToken(userDetails.getAuthorities(), response.getStatus(),
                         response.getIdentityUrl());
 
-                return authentication;
             } else if (status == OpenIDAuthenticationStatus.CANCELLED) {
                 throw new AuthenticationCancelledException("Log in cancelled");
             } else if (status == OpenIDAuthenticationStatus.ERROR) {
@@ -79,7 +72,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
                 throw new BadCredentialsException("Log in failed - identity could not be verified");
             } else if (status == OpenIDAuthenticationStatus.SETUP_NEEDED) {
                 throw new AuthenticationServiceException(
-                    "The server responded setup was needed, which shouldn't happen");
+                        "The server responded setup was needed, which shouldn't happen");
             } else {
                 throw new AuthenticationServiceException("Unrecognized return value " + status.toString());
             }
