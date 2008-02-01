@@ -26,7 +26,6 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.ldap.core.DirContextOperations;
 
 import static org.junit.Assert.*;
 import org.junit.Test;

@@ -20,10 +20,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.Assert;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.ApplicationEvent;
 
 
 /**

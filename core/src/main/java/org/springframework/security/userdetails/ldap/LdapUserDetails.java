@@ -18,7 +18,6 @@ package org.springframework.security.userdetails.ldap;
 import org.springframework.security.userdetails.UserDetails;
 
 import javax.naming.directory.Attributes;
-import javax.naming.ldap.Control;
 
 
 /**

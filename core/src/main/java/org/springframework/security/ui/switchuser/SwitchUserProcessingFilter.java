@@ -25,7 +25,6 @@ import org.springframework.security.DisabledException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.LockedException;
 import org.springframework.security.util.RedirectUtils;
-import org.springframework.security.util.AuthorityUtils;
 
 import org.springframework.security.context.SecurityContextHolder;
 

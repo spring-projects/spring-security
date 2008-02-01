@@ -2,7 +2,6 @@ package org.springframework.security.userdetails.decorator;
 
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.LockedException;
 import org.springframework.security.DisabledException;
 import org.springframework.security.AccountExpiredException;

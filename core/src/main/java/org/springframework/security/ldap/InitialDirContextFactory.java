@@ -15,8 +15,6 @@
 
 package org.springframework.security.ldap;
 
-import org.springframework.ldap.core.ContextSource;
-
 import javax.naming.directory.DirContext;
 
 

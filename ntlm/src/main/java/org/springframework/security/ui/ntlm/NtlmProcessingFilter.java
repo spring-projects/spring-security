@@ -25,7 +25,6 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import org.springframework.security.ui.SpringSecurityFilter;
-import org.springframework.security.ui.WebAuthenticationDetails;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;

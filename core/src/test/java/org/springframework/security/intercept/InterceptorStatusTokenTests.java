@@ -18,10 +18,7 @@ package org.springframework.security.intercept;
 import junit.framework.TestCase;
 
 import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.SecurityConfig;
-
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
 import org.springframework.security.util.SimpleMethodInvocation;
 
 import org.aopalliance.intercept.MethodInvocation;

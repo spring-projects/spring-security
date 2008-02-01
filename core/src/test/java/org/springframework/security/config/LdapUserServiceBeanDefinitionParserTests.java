@@ -3,10 +3,6 @@ package org.springframework.security.config;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.ProviderManager;
-import org.springframework.security.providers.dao.DaoAuthenticationProvider;
 
 import org.junit.Test;
 import org.junit.After;
