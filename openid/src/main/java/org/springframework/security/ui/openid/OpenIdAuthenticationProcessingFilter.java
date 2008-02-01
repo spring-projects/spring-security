@@ -184,9 +184,11 @@ public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilt
             logger.debug("Authentication request failed: " + failed.toString());
         }
 
-        try {
-            request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
-        } catch (Exception ignored) {
+        if (getAllowSessionCreation()) {
+            try {
+                request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
+            } catch (Exception ignored) {
+            }
         }
 
         super.getRememberMeServices().loginFail(request, response);
