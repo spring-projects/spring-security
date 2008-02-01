@@ -92,7 +92,7 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
 
         public final int getOrder() {
             if(order == null) {
-                Assert.isInstanceOf(Ordered.class, "Filter '"+ beanName +"' must implement the 'Ordered' interface " +
+                Assert.isInstanceOf(Ordered.class, delegate, "Filter '"+ beanName +"' must implement the 'Ordered' interface " +
                         " or you must specify one of the attributes '" + ATT_AFTER + "' or '" +
                         ATT_BEFORE + "' in <" + Elements.CUSTOM_FILTER +">");
 
