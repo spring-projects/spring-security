@@ -8,7 +8,8 @@ package org.springframework.security.config;
  */
 abstract class Elements {
 
-	public static final String USER_SERVICE = "user-service";
+    public static final String AUTHENTICATION_MANAGER = "authentication-manager";
+    public static final String USER_SERVICE = "user-service";
 	public static final String JDBC_USER_SERVICE = "jdbc-user-service";
 	public static final String FILTER_CHAIN_MAP = "filter-chain-map";
 	public static final String INTERCEPT_METHODS = "intercept-methods";

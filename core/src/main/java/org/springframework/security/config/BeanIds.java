@@ -10,7 +10,10 @@ package org.springframework.security.config;
  */
 public abstract class BeanIds {
 
-	/** Package protected as end users shouldn't really be using this BFPP directly */
+    /** External alias for FilterChainProxy bean, for use in web.xml files */
+    public static final String SPRING_SECURITY_FILTER_CHAIN = "springSecurityFilterChain";  
+
+    /** Package protected as end users shouldn't really be using this BFPP directly */
 	static final String INTERCEPT_METHODS_BEAN_FACTORY_POST_PROCESSOR = "_interceptMethodsBeanfactoryPP";
     static final String CONTEXT_SOURCE_SETTING_POST_PROCESSOR = "_contextSettingPostProcessor";
     static final String HTTP_POST_PROCESSOR = "_httpConfigBeanFactoryPostProcessor";

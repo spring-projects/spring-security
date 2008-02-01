@@ -622,6 +622,20 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="authentication-manager">
+    <xs:annotation>
+      <xs:documentation>If you are using namespace configuration with Spring Security, an AuthenticationManager will automatically be registered. This element simple allows you to define an alias to allow you to reference the authentication-manager in your own beans. </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="security:authman.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="authman.attlist">
+    <xs:annotation>
+      <xs:documentation>The alias you wish to use for the AuthenticationManager bean</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="alias" use="required" type="xs:ID"/>
+  </xs:attributeGroup>
   <xs:element name="authentication-provider">
     <xs:annotation>
       <xs:documentation>Indicates that the contained user-service should be used as an authentication source. </xs:documentation>

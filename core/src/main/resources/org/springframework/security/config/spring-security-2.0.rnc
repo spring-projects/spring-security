@@ -266,6 +266,13 @@ x509.attlist &=
     ## Explicitly specifies which user-service should be used to load user data for X.509 authenticated clients. If ommitted, the default user-service will be used.  
     user-service-ref?
 
+authentication-manager =
+    ## If you are using namespace configuration with Spring Security, an AuthenticationManager will automatically be registered. This element simple allows you to define an alias to allow you to reference the authentication-manager in your own beans. 
+    element authentication-manager {authman.attlist}
+    ## The alias you wish to use for the AuthenticationManager bean
+authman.attlist &=
+    attribute alias {xsd:ID}
+
 authentication-provider =
     ## Indicates that the contained user-service should be used as an authentication source. 
     element authentication-provider {ap.attlist & (user-service | jdbc-user-service | ldap-user-service) & password-encoder}
