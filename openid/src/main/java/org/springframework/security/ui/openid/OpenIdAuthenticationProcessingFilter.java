@@ -21,6 +21,8 @@ import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.openid.OpenIDAuthenticationToken;
 import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.FilterChainOrder;
+import org.springframework.security.ui.openid.consumers.OpenId4JavaConsumer;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,10 +34,10 @@ import java.io.IOException;
 
 
 /**
- * DOCUMENT ME!
  *
- * @author $author$
- * @version $Revision$
+ * @author Ray Krueger
+ * @version $Id$
+ * @since 2.0
  */
 public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilter {
     //~ Static fields/initializers =====================================================================================
@@ -47,12 +49,17 @@ public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilt
 
     private OpenIDConsumer consumer;
     private String claimedIdentityFieldName = DEFAULT_CLAIMED_IDENTITY_FIELD;
-    private String errorPage = "index.jsp";
 
     //~ Methods ========================================================================================================
 
-    public Authentication attemptAuthentication(HttpServletRequest req)
-            throws AuthenticationException {
+    public void afterPropertiesSet() throws Exception {
+        super.afterPropertiesSet();
+        if (consumer == null) {
+            consumer = new OpenId4JavaConsumer();
+        }
+    }
+
+    public Authentication attemptAuthentication(HttpServletRequest req) throws AuthenticationException {
         OpenIDAuthenticationToken token;
 
         String identity = req.getParameter("openid.identity");
@@ -112,10 +119,6 @@ public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilt
         return "/j_spring_openid_security_check";
     }
 
-    public String getErrorPage() {
-        return errorPage;
-    }
-
     protected boolean isAuthenticated(HttpServletRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -156,10 +159,6 @@ public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilt
         this.consumer = consumer;
     }
 
-    public void setErrorPage(String errorPage) {
-        this.errorPage = errorPage;
-    }
-
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                               AuthenticationException failed) throws IOException {
         SecurityContextHolder.getContext().setAuthentication(null);
@@ -185,6 +184,6 @@ public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilt
     }
 
     public int getOrder() {
-        throw new UnsupportedOperationException();
+        return FilterChainOrder.AUTHENTICATION_PROCESSING_FILTER;
     }
 }
