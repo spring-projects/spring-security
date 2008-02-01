@@ -262,6 +262,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         registry.registerBeanDefinition(BeanIds.FILTER_CHAIN_PROXY, filterChainProxy);
+        registry.registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
         registry.registerBeanDefinition(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER, httpScif);
         registry.registerBeanDefinition(BeanIds.EXCEPTION_TRANSLATION_FILTER, exceptionTranslationFilterBuilder.getBeanDefinition());
         registry.registerBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR, filterSecurityInterceptorBuilder.getBeanDefinition());
