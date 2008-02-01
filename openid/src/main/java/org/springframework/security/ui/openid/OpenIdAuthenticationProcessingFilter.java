@@ -34,7 +34,7 @@ import java.io.IOException;
 
 
 /**
- *
+ * @author Robin Bramley, Opsera Ltd
  * @author Ray Krueger
  * @version $Id$
  * @since 2.0
