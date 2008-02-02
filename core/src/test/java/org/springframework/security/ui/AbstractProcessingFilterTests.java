@@ -85,6 +85,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
     private SavedRequest makeSavedRequestForUrl() {
         MockHttpServletRequest request = createMockRequest();
+        request.setMethod("GET");
         request.setServletPath("/some_protected_file.html");
         request.setScheme("http");
         request.setServerName("www.example.com");
@@ -435,8 +436,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertEquals(makeSavedRequestForUrl().getFullRequestUrl(), response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
-    
-        
+
     public void testSuccessfulAuthenticationCausesRedirectToDefaultTargetUrlOnPOSTSavedRequest() throws Exception {
         // Setup our HTTP request with a POST method request
         MockHttpServletRequest request = createMockRequest();
