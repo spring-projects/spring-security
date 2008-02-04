@@ -3,37 +3,57 @@ package org.springframework.security.acls.jdbc;
 import java.util.Map;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
+import net.sf.ehcache.Ehcache;
 
-import org.springframework.context.support.AbstractXmlApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.MockApplicationContext;
 import org.springframework.security.acls.AuditableAccessControlEntry;
 import org.springframework.security.acls.MutableAcl;
+import org.springframework.security.acls.domain.AclAuthorizationStrategy;
+import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.domain.ConsoleAuditLogger;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.acls.sid.PrincipalSid;
+import org.springframework.util.FileCopyUtils;
 
 /**
  * Tests {@link BasicLookupStrategy}
  * 
  * @author Andrei Stefan
  */
-public class BasicLookupStrategyTests extends TestCase {
-    private AbstractXmlApplicationContext ctx;
+public class BasicLookupStrategyTests {
+    private static JdbcTemplate jdbcTemplate;
+
+    private LookupStrategy strategy;
+
+    private static DriverManagerDataSource dataSource;
 
     //~ Methods ========================================================================================================
-    
-    private LookupStrategy getBasicLookupStrategy() {
-        ctx = new ClassPathXmlApplicationContext(
-                "classpath:org/springframework/security/acls/jdbc/applicationContext-test.xml");
 
-        return (LookupStrategy) ctx.getBean("lookupStrategy");
+    @BeforeClass
+    public static void createDatabase() throws Exception {
+        dataSource = new DriverManagerDataSource("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:lookupstrategytest", "sa", "");
+        jdbcTemplate = new JdbcTemplate(dataSource);
+
+        Resource resource = new ClassPathResource("org/springframework/security/acls/jdbc/testData.sql");
+        String sql = new String(FileCopyUtils.copyToByteArray(resource.getInputStream()));
+        jdbcTemplate.execute(sql);
     }
 
-    private void populateDatabase() {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate((javax.sql.DataSource) this.ctx.getBean("dataSource"));
+    @Before
+    public void populateDatabase() {
         String query = "INSERT INTO acl_sid(ID,PRINCIPAL,SID) VALUES (1,1,'ben');"
                 + "INSERT INTO acl_class(ID,CLASS) VALUES (2,'org.springframework.security.TargetObject');"
                 + "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (1,2,100,null,1,1);"
@@ -46,50 +66,40 @@ public class BasicLookupStrategyTests extends TestCase {
         jdbcTemplate.execute(query);
     }
 
-    private void emptyDatabase() {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate((javax.sql.DataSource) this.ctx.getBean("dataSource"));
+    @Before
+    public void initializeBeans() {
+        EhCacheBasedAclCache cache = new EhCacheBasedAclCache(getCache());
+        AclAuthorizationStrategy authorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
+                new GrantedAuthorityImpl("ROLE_ADMINISTRATOR"), new GrantedAuthorityImpl("ROLE_ADMINISTRATOR"),
+                new GrantedAuthorityImpl("ROLE_ADMINISTRATOR") });
+        strategy = new BasicLookupStrategy(dataSource, cache, authorizationStrategy, new ConsoleAuditLogger());
+    }
+
+    @After
+    public void emptyDatabase() {
         String query = "DELETE FROM acl_entry;" + "DELETE FROM acl_object_identity WHERE ID = 3;"
                 + "DELETE FROM acl_object_identity WHERE ID = 2;" + "DELETE FROM acl_object_identity WHERE ID = 1;"
                 + "DELETE FROM acl_class;" + "DELETE FROM acl_sid;";
         jdbcTemplate.execute(query);
     }
 
-    public void testNothing() {
-
+    private Ehcache getCache() {
+        ApplicationContext ctx = MockApplicationContext.getContext();
+        return (Ehcache) ctx.getBean("eHCacheBackend");
     }
 
-/*
-    private void dropTables() {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate((javax.sql.DataSource) this.ctx.getBean("dataSource"));
-        String query = "DROP TABLE acl_entry;" + "DROP TABLE acl_object_identity;" + "DROP TABLE acl_class;"
-                + "DROP TABLE acl_sid;";
-        jdbcTemplate.execute(query);
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        dropTables();
-        if (this.ctx != null) {
-            this.ctx.close();
-        }
-    }
-
+    @Test
     public void testAclsRetrievalWithDefaultBatchSize() throws Exception {
-        LookupStrategy strategy = getBasicLookupStrategy();
-        populateDatabase();
-
         ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
         ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
         ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
 
-        Map map = strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
+        Map map = this.strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
         checkEntries(topParentOid, middleParentOid, childOid, map);
     }
 
+    @Test
     public void testAclsRetrievalFromCacheOnly() throws Exception {
-        LookupStrategy strategy = getBasicLookupStrategy();
-        populateDatabase();
-
         ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
         ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
         ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
@@ -99,28 +109,26 @@ public class BasicLookupStrategyTests extends TestCase {
 
         // Let's empty the database to force acls retrieval from cache
         emptyDatabase();
-        Map map = strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
+        Map map = this.strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
 
         checkEntries(topParentOid, middleParentOid, childOid, map);
     }
 
+    @Test
     public void testAclsRetrievalWithCustomBatchSize() throws Exception {
-        LookupStrategy strategy = getBasicLookupStrategy();
-        populateDatabase();
-
         ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
         ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
         ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
 
         // Set a batch size to allow multiple database queries in order to retrieve all acls
-        ((BasicLookupStrategy) strategy).setBatchSize(1);
-        Map map = strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
+        ((BasicLookupStrategy) this.strategy).setBatchSize(1);
+        Map map = this.strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
         checkEntries(topParentOid, middleParentOid, childOid, map);
     }
-*/
+
     private void checkEntries(ObjectIdentity topParentOid, ObjectIdentity middleParentOid, ObjectIdentity childOid, Map map)
             throws Exception {
-        assertEquals(3, map.size());
+        Assert.assertEquals(3, map.size());
 
         MutableAcl topParent = (MutableAcl) map.get(topParentOid);
         MutableAcl middleParent = (MutableAcl) map.get(middleParentOid);
