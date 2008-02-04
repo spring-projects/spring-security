@@ -11,8 +11,12 @@
         <sec:logout />
     </sec:http>
 
-    <bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter" autowire="byType">
+
+    <sec:authentication-manager alias="authenticationManager"/>
+
+    <bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter">
         <sec:custom-filter after="CAS_PROCESSING_FILTER"/>
+        <property name="authenticationManager" ref="authenticationManager"/>
         <property name="authenticationFailureUrl" value="/casfailed.jsp"/>
         <property name="defaultTargetUrl" value="/"/>
     </bean>
