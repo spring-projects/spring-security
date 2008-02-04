@@ -302,6 +302,10 @@ user.attlist &=
 user.attlist &=
 	  ## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"
     attribute authorities {xsd:string}
+user.attlist &=
+	  ## Can be set to "true" to mark an account as locked and unusable.
+    attribute locked {"true" | "false"}?
+
 
 jdbc-user-service =
 	  ## Causes creation of a JDBC-based UserDetailsService.

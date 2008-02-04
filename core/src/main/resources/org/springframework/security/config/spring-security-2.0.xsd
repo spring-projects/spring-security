@@ -705,6 +705,17 @@
         <xs:documentation>One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="locked">
+      <xs:annotation>
+        <xs:documentation>Can be set to "true" to mark an account as locked and unusable.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="true"/>
+          <xs:enumeration value="false"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="jdbc-user-service">
     <xs:annotation>

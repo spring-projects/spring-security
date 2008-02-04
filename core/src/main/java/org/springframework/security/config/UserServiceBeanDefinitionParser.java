@@ -28,8 +28,10 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
 	static final String ELT_USER = "user";
 	static final String ATT_AUTHORITIES = "authorities";
 	static final String ATT_PROPERTIES = "properties";
+	static final String ATT_DISABLED = "disabled";
+    static final String ATT_LOCKED = "locked";
 
-	protected Class getBeanClass(Element element) {
+    protected Class getBeanClass(Element element) {
         return InMemoryDaoImpl.class;
     }
 
@@ -57,8 +59,10 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
             Element userElt = (Element) i.next();
             String userName = userElt.getAttribute(ATT_NAME);
             String password = userElt.getAttribute(ATT_PASSWORD);
+            boolean locked = "true".equals(userElt.getAttribute(ATT_LOCKED));
+            boolean disabled = "true".equals(userElt.getAttribute(ATT_DISABLED));
 
-            users.addUser(new User(userName, password, true, true, true, true,
+            users.addUser(new User(userName, password, !disabled, true, true, !locked,
                     AuthorityUtils.commaSeparatedStringToAuthorityArray(userElt.getAttribute(ATT_AUTHORITIES))));
         }
 
