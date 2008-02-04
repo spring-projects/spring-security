@@ -43,7 +43,8 @@
     <user-service id="userService">
         <user name="http://luke.taylor.myopenid.com/" password="notused" authorities="ROLE_SUPERVISOR,ROLE_USER" />
         <user name="http://luke.taylor.openid.cn/" password="notused" authorities="ROLE_SUPERVISOR,ROLE_USER" />
-        <user name="http://spring.security.test.myopenid.com/" password="password" authorities="ROLE_SUPERVISOR,ROLE_USER" />        
+        <user name="http://raykrueger.blogspot.com/" password="notused" authorities="ROLE_SUPERVISOR,ROLE_USER" />
+        <user name="http://spring.security.test.myopenid.com/" password="password" authorities="ROLE_SUPERVISOR,ROLE_USER" />
     </user-service>
 
 </b:beans>
