@@ -86,7 +86,7 @@ import java.util.Properties;
  * <p>
  * The exception to this process is when a provider throws an {@link AccountStatusException} or if the configured
  * concurrent session controller throws a {@link ConcurrentLoginException}. In both these cases, no further providers
- * in the list will be queried. 
+ * in the list will be queried.
  *
  * <p>
  * If a valid <code>Authentication</code> is returned by an <code>AuthenticationProvider</code>, the
@@ -207,15 +207,18 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
 
             try {
                 result = provider.authenticate(authentication);
-                copyDetails(authentication, result);
-                sessionController.checkAuthenticationAllowed(result);
+
+                if (result != null) {
+                    copyDetails(authentication, result);
+                    sessionController.checkAuthenticationAllowed(result);
+                }
             } catch (AuthenticationException ae) {
                 lastException = ae;
                 result = null;
             }
 
             // SEC-546: Avoid polling additional providers if auth failure is due to invalid account status or
-            // disallowed concurrent login.            
+            // disallowed concurrent login.
             if (lastException instanceof AccountStatusException || lastException instanceof ConcurrentLoginException) {
                 break;
             }
