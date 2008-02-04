@@ -25,21 +25,17 @@ import org.springframework.security.DisabledException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.LockedException;
 import org.springframework.security.util.RedirectUtils;
-
 import org.springframework.security.context.SecurityContextHolder;
-
 import org.springframework.security.event.authentication.AuthenticationSwitchUserEvent;
-
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.AbstractProcessingFilter;
-
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.userdetails.decorator.StatusCheckingUserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 
 import org.apache.commons.logging.Log;
@@ -72,14 +68,14 @@ import javax.servlet.http.HttpServletResponse;
  * Switch User processing filter responsible for user context switching.
  * <p>
  * This filter is similar to Unix 'su' however for Spring Security-managed web applications.
- * A common use-case for this feature is the ability to allow higher-authority users (i.e. ROLE_ADMIN) to switch to a
- * regular user (i.e. ROLE_USER).
+ * A common use-case for this feature is the ability to allow higher-authority users (e.g. ROLE_ADMIN) to switch to a
+ * regular user (e.g. ROLE_USER).
  * <p>
  * This filter assumes that the user performing the switch will be required to be logged in as normal (i.e.
- * ROLE_ADMIN user). The user will then access a page/controller that enables the administrator to specify who they
+ * as a ROLE_ADMIN user). The user will then access a page/controller that enables the administrator to specify who they
  * wish to become (see <code>switchUserUrl</code>). <br>
- * <b>Note: This URL will be required to have to appropriate security contraints configured so that  only users of that
- * role can access (i.e. ROLE_ADMIN).</b>
+ * <b>Note: This URL will be required to have to appropriate security contraints configured so that only users of that
+ * role can access (e.g. ROLE_ADMIN).</b>
  * <p>
  * On successful switch, the user's  <code>SecurityContextHolder</code> will be updated to reflect the
  * specified user and will also contain an additinal
@@ -89,10 +85,11 @@ import javax.servlet.http.HttpServletResponse;
  * will switch back to the original user as identified by the <code>SWITCH_USER_GRANTED_AUTHORITY</code>.
  * <p>
  * To configure the Switch User Processing Filter, create a bean definition for the Switch User processing
- * filter and add to the filterChainProxy. <br>
+ * filter and add to the filterChainProxy. Note that the filter must come <b>after</b> the
+ * <tt>FilterSecurityInteceptor</tt> in the chain, in order to apply the correct constraints to the <tt>switchUserUrl</tt>.
  * Example:<pre>
  * &lt;bean id="switchUserProcessingFilter" class="org.springframework.security.ui.switchuser.SwitchUserProcessingFilter">
- *    &lt;property name="authenticationDao" ref="jdbcDaoImpl" />
+ *    &lt;property name="userDetailsService" ref="userDetailsService" />
  *    &lt;property name="switchUserUrl">&lt;value>/j_spring_security_switch_user&lt;/value>&lt;/property>
  *    &lt;property name="exitUserUrl">&lt;value>/j_spring_security_exit_user&lt;/value>&lt;/property>
  *    &lt;property name="targetUrl">&lt;value>/index.jsp&lt;/value>&lt;/property>&lt;/bean>
@@ -120,6 +117,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
     private String exitUserUrl = "/j_spring_security_exit_user";
     private String switchUserUrl = "/j_spring_security_switch_user";
     private String targetUrl;
+    private String switchFailureUrl;
     private SwitchUserAuthorityChanger switchUserAuthorityChanger;
     private UserDetailsService userDetailsService;
     private boolean useRelativeContext;
@@ -145,7 +143,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
      *         request.
      */
     protected Authentication attemptExitUser(HttpServletRequest request)
-        throws AuthenticationCredentialsNotFoundException {
+            throws AuthenticationCredentialsNotFoundException {
         // need to check to see if the current user has a SwitchUserGrantedAuthority
         Authentication current = SecurityContextHolder.getContext().getAuthentication();
 
@@ -184,20 +182,16 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
     /**
      * Attempt to switch to another user. If the user does not exist or is not active, return null.
      *
-     * @param request The http request
-     *
      * @return The new <code>Authentication</code> request if successfully switched to another user, <code>null</code>
      *         otherwise.
      *
-     * @throws AuthenticationException
      * @throws UsernameNotFoundException If the target user is not found.
-     * @throws LockedException DOCUMENT ME!
+     * @throws LockedException if the account is locked.
      * @throws DisabledException If the target user is disabled.
      * @throws AccountExpiredException If the target user account is expired.
      * @throws CredentialsExpiredException If the target user credentials are expired.
      */
-    protected Authentication attemptSwitchUser(HttpServletRequest request)
-        throws AuthenticationException {
+    protected Authentication attemptSwitchUser(HttpServletRequest request) throws AuthenticationException {
         UsernamePasswordAuthenticationToken targetUserRequest = null;
 
         String username = request.getParameter(SPRING_SECURITY_SWITCH_USERNAME_KEY);
@@ -213,36 +207,8 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         // load the user by name
         UserDetails targetUser = this.userDetailsService.loadUserByUsername(username);
 
-        // user not found
-        if (targetUser == null) {
-            throw new UsernameNotFoundException(messages.getMessage("SwitchUserProcessingFilter.usernameNotFound",
-                    new Object[] {username}, "Username {0} not found"));
-        }
-
-        // account is expired
-        if (!targetUser.isAccountNonLocked()) {
-            throw new LockedException(messages.getMessage("SwitchUserProcessingFilter.locked", "User account is locked"));
-        }
-
-        // user is disabled
-        if (!targetUser.isEnabled()) {
-            throw new DisabledException(messages.getMessage("SwitchUserProcessingFilter.disabled", "User is disabled"));
-        }
-
-        // account is expired
-        if (!targetUser.isAccountNonExpired()) {
-            throw new AccountExpiredException(messages.getMessage("SwitchUserProcessingFilter.expired",
-                    "User account has expired"));
-        }
-
-        // credentials expired
-        if (!targetUser.isCredentialsNonExpired()) {
-            throw new CredentialsExpiredException(messages.getMessage("SwitchUserProcessingFilter.credentialsExpired",
-                    "User credentials have expired"));
-        }
-
         // ok, create the switch user token
-        targetUserRequest = createSwitchUserToken(request, username, targetUser);
+        targetUserRequest = createSwitchUserToken(request, targetUser);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Switch User Token [" + targetUserRequest + "]");
@@ -262,15 +228,15 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
      * original <code>Authentication</code> object.
      *
      * @param request The http servlet request.
-     * @param username The username of target user
      * @param targetUser The target user
      *
      * @return The authentication token
      *
      * @see SwitchUserGrantedAuthority
      */
-    private UsernamePasswordAuthenticationToken createSwitchUserToken(HttpServletRequest request, String username,
-        UserDetails targetUser) {
+    private UsernamePasswordAuthenticationToken createSwitchUserToken(HttpServletRequest request,
+            UserDetails targetUser) {
+
         UsernamePasswordAuthenticationToken targetUserRequest;
 
         // grant an additional authority that contains the original Authentication object
@@ -297,7 +263,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         targetUserRequest = new UsernamePasswordAuthenticationToken(targetUser, targetUser.getPassword(), authorities);
 
         // set details
-        targetUserRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
+        targetUserRequest.setDetails(authenticationDetailsSource.buildDetails(request));
 
         return targetUserRequest;
     }
@@ -308,13 +274,18 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         // check for switch or exit request
         if (requiresSwitchUser(request)) {
             // if set, attempt switch and store original
-            Authentication targetUser = attemptSwitchUser(request);
 
-            // update the current context to the new target user
-            SecurityContextHolder.getContext().setAuthentication(targetUser);
+            try {
+                Authentication targetUser = attemptSwitchUser(request);
 
-            // redirect to target url
-            sendRedirect(request, response, targetUrl);
+                // update the current context to the new target user
+                SecurityContextHolder.getContext().setAuthentication(targetUser);
+
+                // redirect to target url
+                sendRedirect(request, response, targetUrl);
+            } catch (AuthenticationException e) {
+                redirectToFailureUrl(request, response, e);
+            }
 
             return;
         } else if (requiresExitUser(request)) {
@@ -331,6 +302,19 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         }
 
         chain.doFilter(request, response);
+    }
+
+    private void redirectToFailureUrl(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException failed) throws IOException {
+        logger.debug("Switch User failed", failed);
+
+        if (switchFailureUrl != null) {
+            switchFailureUrl = request.getContextPath() + switchFailureUrl;
+            response.sendRedirect(response.encodeRedirectURL(switchFailureUrl));
+        } else {
+            response.getWriter().print("Switch user failed: " + failed.getMessage());
+            response.flushBuffer();
+        }
     }
 
     protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
@@ -442,17 +426,29 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
      * @param userDetailsService The authentication dao
      */
     public void setUserDetailsService(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+        this.userDetailsService = new StatusCheckingUserDetailsService(userDetailsService);
     }
 
     /**
      * Analogous to the same property in {@link AbstractProcessingFilter}. If set, redirects will
      * be context-relative (they won't include the context path).
      *
-     * @param useRelativeContext
+     * @param useRelativeContext set to true to exclude the context path from redirect URLs.
      */
     public void setUseRelativeContext(boolean useRelativeContext) {
         this.useRelativeContext = useRelativeContext;
+    }
+
+    /**
+     * Sets the URL to which a user should be redirected if the swittch fails. For example, this might happen because
+     * the account they are attempting to switch to is invalid (the user doesn't exist, account is locked etc).
+     * <p>
+     * If not set, an error essage wil be written to the response.
+     *
+     * @param switchFailureUrl the url to redirect to.
+     */
+    public void setSwitchFailureUrl(String switchFailureUrl) {
+        this.switchFailureUrl = switchFailureUrl;
     }
 
     /**

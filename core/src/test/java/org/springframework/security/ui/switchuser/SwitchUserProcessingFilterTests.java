@@ -41,8 +41,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import javax.servlet.ServletException;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.IOException;
 
 
 /**
@@ -95,8 +97,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         } catch (UsernameNotFoundException expected) {}
     }
 
-    public void testAttemptSwitchToUserThatIsDisabled()
-        throws Exception {
+    public void testAttemptSwitchToUserThatIsDisabled() throws Exception {
         // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -118,8 +119,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testAttemptSwitchToUserWithAccountExpired()
-        throws Exception {
+    public void testAttemptSwitchToUserWithAccountExpired() throws Exception {
         // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -141,8 +141,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testAttemptSwitchToUserWithExpiredCredentials()
-        throws Exception {
+    public void testAttemptSwitchToUserWithExpiredCredentials() throws Exception {
         // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -177,6 +176,31 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         Authentication result = filter.attemptSwitchUser(request);
         assertTrue(result != null);
+    }
+
+    public void testSwitchToLockedAccountCausesRedirectToSwitchFailureUrl() throws Exception {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        MockHttpServletRequest request = createMockSwitchRequest();
+        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "mcgarrett");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
+
+        // Check it with no url set
+        filter.doFilterHttp(request, response, new MockFilterChain(false));
+
+        assertEquals("Switch user failed: User is disabled", response.getContentAsString());
+
+        // Now check for the redirect
+        filter.setSwitchFailureUrl("/switchfailed");
+        response = new MockHttpServletResponse();
+
+        filter.doFilterHttp(request, response, new MockFilterChain(false));
+
+        assertEquals("/switchfailed", response.getRedirectedUrl());
+
     }
 
     public void testIfSwitchUserWithNullUsernameThrowsException() throws Exception {
