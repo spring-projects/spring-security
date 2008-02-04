@@ -68,7 +68,7 @@ Uncomment to authenticate against an embedded LDAP server.
     <authentication-provider>
         <password-encoder hash="md5"/>
         <user-service>
-            <user name="rod" password="a564de63c2d0da68cf47586ee05984d7" locked="true" authorities="ROLE_SUPERVISOR, ROLE_USER, ROLE_TELLER" />
+            <user name="rod" password="a564de63c2d0da68cf47586ee05984d7" authorities="ROLE_SUPERVISOR, ROLE_USER, ROLE_TELLER" />
 	        <user name="dianne" password="65d15fe9156f9c4bbffd98085992a44e" authorities="ROLE_USER,ROLE_TELLER" />
             <user name="scott" password="2b58af6dddbd072ed27ffc86725d7d3a" authorities="ROLE_USER" />
 	    </user-service>
