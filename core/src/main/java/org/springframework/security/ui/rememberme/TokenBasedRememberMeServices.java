@@ -39,16 +39,12 @@ import java.util.Date;
  * credentials - not the time period they last logged in via remember-me. The
  * implementation will only send a remember-me token if the parameter defined by
  * {@link #setParameter(String)} is present.
- * </p>
  *
  * <p>
  * An {@link org.springframework.security.userdetails.UserDetailsService} is required by
  * this implementation, so that it can construct a valid
- * <code>Authentication</code> from the returned {@link
- * org.springframework.security.userdetails.UserDetails}. This is also necessary so that
- * the user's password is available and can be checked as part of the encoded
- * cookie.
- * </p>
+ * <code>Authentication</code> from the returned {@link org.springframework.security.userdetails.UserDetails}.
+ * This is also necessary so that the user's password is available and can be checked as part of the encoded cookie.
  *
  * <p>
  * The cookie encoded by this implementation adopts the following form:
@@ -57,7 +53,6 @@ import java.util.Date;
  * username + &quot;:&quot; + expiryTime + &quot;:&quot; + Md5Hex(username + &quot;:&quot; + expiryTime + &quot;:&quot; + password + &quot;:&quot; + key)
  * </pre>
  *
- * </p>
  * <p>
  * As such, if the user changes their password, any remember-me token will be
  * invalidated. Equally, the system administrator may invalidate every
@@ -69,17 +64,17 @@ import java.util.Date;
  * implementation (as we do not want to rely on a database for remember-me
  * services) and as such high security applications should be aware of this
  * occasionally undesired disclosure of a valid username.
- * </p>
+ *
  * <p>
  * This is a basic remember-me implementation which is suitable for many
  * applications. However, we recommend a database-based implementation if you
  * require a more secure remember-me approach (see {@link PersistentTokenBasedRememberMeServices}).
- * </p>
+ *
  * <p>
  * By default the tokens will be valid for 14 days from the last successful
  * authentication attempt. This can be changed using
  * {@link #setTokenValiditySeconds(int)}.
- * </p>
+ * 
  *
  * @author Ben Alex
  * @version $Id$
@@ -115,8 +110,6 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
         // Defer lookup until after expiry time checked, to possibly avoid expensive database call.
 
         UserDetails userDetails = getUserDetailsService().loadUserByUsername(cookieTokens[0]);
-
-        validateUserDetails(userDetails);
 
         // Check signature of token matches remaining details.
         // Must do this after user lookup, as we need the DAO-derived password.

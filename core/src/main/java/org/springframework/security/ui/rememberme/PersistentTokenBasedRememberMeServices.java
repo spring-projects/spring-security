@@ -34,6 +34,7 @@ import java.util.Date;
  *
  * @author Luke Taylor
  * @version $Id$
+ * @since 2.0
  */
 public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeServices {
 
@@ -111,8 +112,6 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
         }
 
         UserDetails user = getUserDetailsService().loadUserByUsername(token.getUsername());
-
-        validateUserDetails(user);
 
         return user;
     }

@@ -259,7 +259,6 @@ public class AbstractRememberMeServicesTests {
             }
 
             UserDetails user = getUserDetailsService().loadUserByUsername("joe");
-            validateUserDetails(user);
 
             return user;
         }

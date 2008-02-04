@@ -7,10 +7,11 @@ import java.util.Date;
  * login tokens for a user.
  *
  * @see JdbcTokenRepositoryImpl
- * @see InMemoryTokenRepositoryImpl 
+ * @see InMemoryTokenRepositoryImpl
  *
  * @author Luke Taylor
  * @version $Id$
+ * @since 2.0
  */
 public interface PersistentTokenRepository {
 

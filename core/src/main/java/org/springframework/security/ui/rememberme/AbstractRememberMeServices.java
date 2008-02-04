@@ -7,6 +7,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.Authentication;
 import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.AccountStatusException;
 import org.springframework.security.providers.rememberme.RememberMeAuthenticationToken;
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
@@ -14,6 +15,7 @@ import org.springframework.security.ui.logout.LogoutHandler;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.userdetails.decorator.StatusCheckingUserDetailsService;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -27,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Luke Taylor
  * @version $Id$
+ * @since 2.0
  */
 public abstract class AbstractRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
 	//~ Static fields/initializers =====================================================================================
@@ -90,6 +93,10 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         } catch (InvalidCookieException invalidCookie) {
             cancelCookie(request, response);
             logger.debug("Invalid remember-me cookie: " + invalidCookie.getMessage());
+            return null;
+        } catch (AccountStatusException statusInvalid) {
+            cancelCookie(request, response);
+            logger.debug("Invalid UserDetails: " + statusInvalid.getMessage());
             return null;
         } catch (RememberMeAuthenticationException e) {
             cancelCookie(request, response);
@@ -173,21 +180,6 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         }
 
         return sb.toString();
-    }
-
-    /**
-     * Provided for subclass convenience to check the account status of a loaded user.
-     *
-     * @throws UsernameNotFoundException if the username could not be located by the configured UserDetailsService.
-     * @throws RememberMeAuthenticationException if the account is locked or disabled.
-     */
-    protected void validateUserDetails(UserDetails user) throws UsernameNotFoundException,
-            RememberMeAuthenticationException {
-
-        if (!user.isAccountNonExpired() || !user.isCredentialsNonExpired() || !user.isEnabled()) {
-            throw new RememberMeAuthenticationException("Remember-me login was valid for user " +
-                    user.getUsername() + ", but account is expired, has expired credentials or is disabled");
-        }
     }
 
     public final void loginFail(HttpServletRequest request, HttpServletResponse response) {
@@ -327,7 +319,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     }
 
     public void setUserDetailsService(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+        this.userDetailsService = new StatusCheckingUserDetailsService(userDetailsService);
     }
 
     public void setKey(String key) {

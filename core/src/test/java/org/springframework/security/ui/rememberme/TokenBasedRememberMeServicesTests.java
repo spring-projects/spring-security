@@ -84,8 +84,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         return tokenValueBase64;
     }
 
-    public void testAutoLoginIfDoesNotPresentAnyCookies()
-        throws Exception {
+    public void testAutoLoginIfDoesNotPresentAnyCookies() throws Exception {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         services.setKey("key");
         services.setUserDetailsService(new MockAuthenticationDao(null, true));
@@ -104,8 +103,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         assertNull(returnedCookie); // shouldn't try to invalidate our cookie
     }
 
-    public void testAutoLoginIfDoesNotPresentRequiredCookie()
-        throws Exception {
+    public void testAutoLoginIfDoesNotPresentRequiredCookie() throws Exception {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         services.setKey("key");
         services.setUserDetailsService(new MockAuthenticationDao(null, true));
@@ -150,8 +148,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         assertEquals(0, returnedCookie.getMaxAge());
     }
 
-    public void testAutoLoginIfMissingThreeTokensInCookieValue()
-        throws Exception {
+    public void testAutoLoginIfMissingThreeTokensInCookieValue() throws Exception {
         UserDetails user = new User("someone", "password", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
 
@@ -201,8 +198,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         assertEquals(0, returnedCookie.getMaxAge());
     }
 
-    public void testAutoLoginIfSignatureBlocksDoesNotMatchExpectedValue()
-        throws Exception {
+    public void testAutoLoginIfSignatureBlocksDoesNotMatchExpectedValue() throws Exception {
         UserDetails user = new User("someone", "password", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
 
@@ -228,8 +224,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         assertEquals(0, returnedCookie.getMaxAge());
     }
 
-    public void testAutoLoginIfTokenDoesNotContainANumberInCookieValue()
-        throws Exception {
+    public void testAutoLoginIfTokenDoesNotContainANumberInCookieValue() throws Exception {
         UserDetails user = new User("someone", "password", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
 

@@ -18,6 +18,7 @@ import java.util.Date;
  *
  * @author Luke Taylor
  * @version $Id$
+ * @since 2.0
  */
 public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements PersistentTokenRepository {
     //~ Static fields/initializers =====================================================================================
