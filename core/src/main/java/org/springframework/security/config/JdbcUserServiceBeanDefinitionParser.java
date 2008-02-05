@@ -2,6 +2,7 @@ package org.springframework.security.config;
 
 import org.springframework.security.userdetails.jdbc.JdbcUserDetailsManager;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 
 import org.w3c.dom.Element;
 
@@ -24,7 +25,7 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
             builder.addPropertyReference("dataSource", dataSource);
         } else {
             // TODO: Have some sensible fallback if dataSource not specified, eg autowire
-            throw new SecurityConfigurationException(ATT_DATA_SOURCE  + " is required for "
+            throw new BeanDefinitionStoreException(ATT_DATA_SOURCE  + " is required for "
                     + Elements.JDBC_USER_SERVICE );
         }
     }

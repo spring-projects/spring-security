@@ -50,7 +50,7 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         boolean tokenRepoSet = StringUtils.hasText(tokenRepository);
 
         if (dataSourceSet && tokenRepoSet) {
-            throw new SecurityConfigurationException("Specify tokenRepository or dataSource but not both");
+            parserContext.getReaderContext().error("Specify tokenRepository or dataSource but not both", element);
         }
 
         boolean isPersistent = dataSourceSet | tokenRepoSet;

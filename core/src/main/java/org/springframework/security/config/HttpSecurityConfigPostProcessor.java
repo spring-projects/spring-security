@@ -155,8 +155,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
             mainEntryPoint = (AuthenticationEntryPoint) entryPointMap.get(BeanIds.FORM_LOGIN_ENTRY_POINT);
 
             if (mainEntryPoint == null) {
-                mainEntryPoint = (AuthenticationEntryPoint)
-                    entryPointMap.get(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT);
+                mainEntryPoint = (AuthenticationEntryPoint) entryPointMap.get(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT);
                 if (mainEntryPoint == null) {
                     throw new SecurityConfigurationException("Failed to resolve authentication entry point");
                 }

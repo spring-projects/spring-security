@@ -43,9 +43,10 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
         Element ldapUserServiceElt = DomUtils.getChildElementByTagName(element, Elements.LDAP_USER_SERVICE);
 
         if (StringUtils.hasText(ref)) {
-            if (userServiceElt != null || jdbcUserServiceElt != null) {
-                throw new SecurityConfigurationException("The ref attribute cannot be used in combination with child" +
-                        "elements '" + Elements.USER_SERVICE + "' or '" + Elements.JDBC_USER_SERVICE + "'");
+            if (userServiceElt != null || jdbcUserServiceElt != null || ldapUserServiceElt != null) {
+                parserContext.getReaderContext().error("The ref attribute cannot be used in combination with child" +
+                        "elements '" + Elements.USER_SERVICE + "', '" + Elements.JDBC_USER_SERVICE + "' or '" +
+                        Elements.LDAP_USER_SERVICE + "'", element);
             }
 
             authProvider.getPropertyValues().addPropertyValue("userDetailsService", new RuntimeBeanReference(ref));
@@ -54,7 +55,7 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
         }
 
         // Use the child elements to create the UserDetailsService
-        BeanDefinition userDetailsService;
+        BeanDefinition userDetailsService = null;
 
         if (userServiceElt != null) {
             userDetailsService = new UserServiceBeanDefinitionParser().parse(userServiceElt, parserContext);
@@ -63,8 +64,7 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
         } else if (ldapUserServiceElt != null) {
             userDetailsService = new LdapUserServiceBeanDefinitionParser().parse(ldapUserServiceElt, parserContext);
         } else {
-            throw new SecurityConfigurationException(Elements.AUTHENTICATION_PROVIDER
-                    + " requires a UserDetailsService" );
+            parserContext.getReaderContext().error("A user-service is required", element);
         }
 
         authProvider.getPropertyValues().addPropertyValue("userDetailsService", userDetailsService);
