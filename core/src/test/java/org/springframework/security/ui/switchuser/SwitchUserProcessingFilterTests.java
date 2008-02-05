@@ -41,10 +41,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import javax.servlet.ServletException;
 import java.util.List;
 import java.util.ArrayList;
-import java.io.IOException;
 
 
 /**
