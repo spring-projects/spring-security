@@ -9,7 +9,6 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.util.StringUtils;
-import org.springframework.util.Assert;
 
 import org.w3c.dom.Element;
 
@@ -41,7 +40,11 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
         }
 
         String userSearchFilter = elt.getAttribute(ATT_USER_SEARCH_FILTER);
-        Assert.hasText(userSearchFilter, "User search filter must be supplied");
+        
+        if (!StringUtils.hasText(userSearchFilter)) {
+            parserContext.getReaderContext().error("User search filter must be supplied", elt);
+        }
+
         String userSearchBase = elt.getAttribute(ATT_USER_SEARCH_BASE);
 
         if (!StringUtils.hasText(userSearchBase)) {

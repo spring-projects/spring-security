@@ -8,7 +8,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.util.StringUtils;
-import org.springframework.util.Assert;
 
 import org.w3c.dom.Element;
 import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
@@ -65,8 +64,10 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
         String managerPassword = elt.getAttribute(ATT_PASSWORD);
 
         if (StringUtils.hasText(managerDn)) {
-            Assert.hasText(managerPassword, "You must specify the " + ATT_PASSWORD +
-                    " if you supply a " + managerDn);
+            if(!StringUtils.hasText(managerPassword)) {
+                parserContext.getReaderContext().error("You must specify the " + ATT_PASSWORD +
+                        " if you supply a " + managerDn, elt);
+            }
 
             contextSource.getPropertyValues().addPropertyValue("userDn", managerDn);
             contextSource.getPropertyValues().addPropertyValue("password", managerPassword);

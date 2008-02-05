@@ -31,7 +31,6 @@ import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.security.util.UrlMatcher;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -290,6 +289,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             Element urlElt = (Element) urlEltsIterator.next();
 
             String path = urlElt.getAttribute(ATT_PATH_PATTERN);
+
+            if(!StringUtils.hasText(path)) {
+                parserContext.getReaderContext().error("path attribute cannot be empty or null", urlElt);
+            }
+
             if (useLowerCasePaths) {
                 path = path.toLowerCase();
             }
@@ -298,8 +302,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             if (!StringUtils.hasText(method)) {
                 method = null;
             }
-
-            Assert.hasText(path, "path attribute cannot be empty or null");
 
             String access = urlElt.getAttribute(ATT_ACCESS_CONFIG);
 

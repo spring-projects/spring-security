@@ -8,7 +8,6 @@ import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.util.RegexUrlPathMatcher;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -40,11 +39,18 @@ class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDecorator {
         while (filterChainElts.hasNext()) {
             Element chain = (Element) filterChainElts.next();
             String path = chain.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);
-            Assert.hasText(path, "The attribute '" + HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN +
-                    "' must not be empty");
+
+            if(!StringUtils.hasText(path)) {
+                parserContext.getReaderContext().error("The attribute '" + HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN +
+                    "' must not be empty", elt);
+            }
+
             String filters = chain.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS);
-            Assert.hasText(filters, "The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS +
-                    "'must not be empty");
+
+            if(!StringUtils.hasText(filters)) {
+                parserContext.getReaderContext().error("The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS +
+                    "'must not be empty", elt);    
+            }
 
             if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {
                 filterChainMap.put(path, Collections.EMPTY_LIST);
