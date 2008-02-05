@@ -22,7 +22,7 @@ public class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
 	static final String ATT_INVALIDATE_SESSION = "invalidate-session";
 	static final String DEF_INVALIDATE_SESSION  = "true";
-	
+
 	static final String ATT_LOGOUT_URL = "logout-url";
 	static final String DEF_LOGOUT_URL = "/j_spring_security_logout";
 
@@ -38,7 +38,8 @@ public class LogoutBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(LogoutFilter.class);
-        
+        builder.setSource(parserContext.extractSource(element));
+
         if (!StringUtils.hasText(logoutUrl)) {
         	logoutUrl = DEF_LOGOUT_URL;
         }
@@ -48,11 +49,11 @@ public class LogoutBeanDefinitionParser implements BeanDefinitionParser {
             logoutSuccessUrl = DEF_LOGOUT_SUCCESS_URL;
         }
         builder.addConstructorArg(logoutSuccessUrl);
-        
+
         if (!StringUtils.hasText(invalidateSession)) {
         	invalidateSession = DEF_INVALIDATE_SESSION;
         }
-        
+
         ManagedList handlers = new ManagedList();
         SecurityContextLogoutHandler sclh = new SecurityContextLogoutHandler();
         if ("true".equals(invalidateSession)) {
@@ -67,7 +68,7 @@ public class LogoutBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         builder.addConstructorArg(handlers);
-        
+
         parserContext.getRegistry().registerBeanDefinition(BeanIds.LOGOUT_FILTER, builder.getBeanDefinition());
 
         return null;

@@ -60,6 +60,8 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
             contextSource.getConstructorArgumentValues().addIndexedArgumentValue(0, url);
         }
 
+        contextSource.setSource(parserContext.extractSource(elt));
+
         String managerDn = elt.getAttribute(ATT_PRINCIPAL);
         String managerPassword = elt.getAttribute(ATT_PASSWORD);
 
@@ -143,6 +145,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
         contextSource.getPropertyValues().addPropertyValue("password", "secret");
 
         RootBeanDefinition apacheContainer = new RootBeanDefinition(ApacheDSContainer.class);
+        apacheContainer.setSource(parserContext.extractSource(element));
         apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(configuration);
         apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(contextSource);
 

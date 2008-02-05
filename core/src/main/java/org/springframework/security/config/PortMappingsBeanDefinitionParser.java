@@ -27,7 +27,8 @@ public class PortMappingsBeanDefinitionParser implements BeanDefinitionParser {
     public static final String ATT_HTTPS_PORT = "https";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        BeanDefinition portMapper = new RootBeanDefinition(PortMapperImpl.class);
+        RootBeanDefinition portMapper = new RootBeanDefinition(PortMapperImpl.class);
+        portMapper.setSource(parserContext.extractSource(element));
 
         if (element != null) {
             List mappingElts = DomUtils.getChildElementsByTagName(element, Elements.PORT_MAPPING);

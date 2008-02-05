@@ -34,6 +34,10 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
         controllerBuilder.addPropertyValue("sessionRegistry", new RuntimeBeanReference(BeanIds.SESSION_REGISTRY));
         filterBuilder.addPropertyValue("sessionRegistry", new RuntimeBeanReference(BeanIds.SESSION_REGISTRY));
 
+        Object source = parserContext.extractSource(element);
+        filterBuilder.setSource(source);
+        controllerBuilder.setSource(source);
+
         String expiryUrl = element.getAttribute("expiryUrl");
 
         if (StringUtils.hasText(expiryUrl)) {

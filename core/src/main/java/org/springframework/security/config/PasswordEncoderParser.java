@@ -68,7 +68,8 @@ public class PasswordEncoderParser {
             passwordEncoder = new RuntimeBeanReference(ref);
         } else {
             Class beanClass = (Class) ENCODER_CLASSES.get(hash);
-            BeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
+            RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
+            beanDefinition.setSource(parserContext.extractSource(element));
             if (useBase64) {
                 if (beanClass.isAssignableFrom(BaseDigestPasswordEncoder.class)) {
                     beanDefinition.getPropertyValues().addPropertyValue("encodeHashAsBase64", "true");

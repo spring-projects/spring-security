@@ -32,6 +32,10 @@ public class X509BeanDefinitionParser implements BeanDefinitionParser {
         BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(X509PreAuthenticatedProcessingFilter.class);
 	    RootBeanDefinition entryPoint = new RootBeanDefinition(PreAuthenticatedProcessingFilterEntryPoint.class);
 
+        Object source = parserContext.extractSource(element);
+        filterBuilder.setSource(source);
+        entryPoint.setSource(source);
+
         String regex = element.getAttribute(ATT_REGEX);
 
         if (StringUtils.hasText(regex)) {
@@ -49,8 +53,10 @@ public class X509BeanDefinitionParser implements BeanDefinitionParser {
 
         if (StringUtils.hasText(userServiceRef)) {
             RootBeanDefinition statusCheckingUserService = new RootBeanDefinition(StatusCheckingUserDetailsService.class);
+            statusCheckingUserService.setSource(source);
             statusCheckingUserService.getConstructorArgumentValues().addIndexedArgumentValue(0, new RuntimeBeanReference(userServiceRef));
-            BeanDefinition preAuthUserService = new RootBeanDefinition(UserDetailsByNameServiceWrapper.class);
+            RootBeanDefinition preAuthUserService = new RootBeanDefinition(UserDetailsByNameServiceWrapper.class);
+            preAuthUserService.setSource(source);
             preAuthUserService.getPropertyValues().addPropertyValue("userDetailsService", statusCheckingUserService);
             provider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService", preAuthUserService);
         }

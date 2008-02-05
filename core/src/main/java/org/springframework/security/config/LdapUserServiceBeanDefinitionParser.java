@@ -40,7 +40,7 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
         }
 
         String userSearchFilter = elt.getAttribute(ATT_USER_SEARCH_FILTER);
-        
+
         if (!StringUtils.hasText(userSearchFilter)) {
             parserContext.getReaderContext().error("User search filter must be supplied", elt);
         }
@@ -62,13 +62,17 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
             groupSearchBase = DEF_GROUP_SEARCH_BASE;
         }
 
+        Object source = parserContext.extractSource(elt);
+
         RuntimeBeanReference contextSource = new RuntimeBeanReference(server);
-        BeanDefinition search = new RootBeanDefinition(FilterBasedLdapUserSearch.class);
+        RootBeanDefinition search = new RootBeanDefinition(FilterBasedLdapUserSearch.class);
+        search.setSource(source);
         search.getConstructorArgumentValues().addIndexedArgumentValue(0, userSearchBase);
         search.getConstructorArgumentValues().addIndexedArgumentValue(1, userSearchFilter);
         search.getConstructorArgumentValues().addIndexedArgumentValue(2, contextSource);
 
-        BeanDefinition populator = new RootBeanDefinition(DefaultLdapAuthoritiesPopulator.class);
+        RootBeanDefinition populator = new RootBeanDefinition(DefaultLdapAuthoritiesPopulator.class);
+        populator.setSource(source);
         populator.getConstructorArgumentValues().addIndexedArgumentValue(0, contextSource);
         populator.getConstructorArgumentValues().addIndexedArgumentValue(1, groupSearchBase);
         populator.getPropertyValues().addPropertyValue("groupSearchFilter", groupSearchFilter);

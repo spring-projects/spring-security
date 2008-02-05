@@ -33,15 +33,17 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         String tokenRepository = null;
         String dataSource = null;
         String key = null;
+        Object source = null;
 
         if (element != null) {
             tokenRepository = element.getAttribute(ATT_TOKEN_REPOSITORY);
             dataSource = element.getAttribute(ATT_DATA_SOURCE);
             key = element.getAttribute(ATT_KEY);
+            source = parserContext.extractSource(element);
         }
 
-        BeanDefinition filter = new RootBeanDefinition(RememberMeProcessingFilter.class);
-        BeanDefinition services = new RootBeanDefinition(PersistentTokenBasedRememberMeServices.class);
+        RootBeanDefinition filter = new RootBeanDefinition(RememberMeProcessingFilter.class);
+        RootBeanDefinition services = new RootBeanDefinition(PersistentTokenBasedRememberMeServices.class);
 
         filter.getPropertyValues().addPropertyValue("authenticationManager",
                 new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
@@ -76,7 +78,11 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
-        BeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
+        RootBeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
+
+        filter.setSource(source);
+        services.setSource(source);
+        provider.setSource(source);
 
         provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
         services.getPropertyValues().addPropertyValue(ATT_KEY, key);
