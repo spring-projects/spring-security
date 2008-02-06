@@ -157,6 +157,17 @@ public class ObjectIdentityTests extends TestCase {
 				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(2))
 				.hashCode() != obj.hashCode());
 	}
+    
+/*    public void testHashCodeDifferentSerializableTypes() throws Exception {
+        ObjectIdentity obj = new ObjectIdentityImpl(
+                "org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(1));
+        Assert.assertEquals(new ObjectIdentityImpl(
+                "org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", "1")
+                .hashCode(), obj.hashCode());
+        Assert.assertEquals(new ObjectIdentityImpl(
+                "org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject",
+                new Integer(1)).hashCode(), obj.hashCode());
+    }*/
 	
 	public void testGetters() throws Exception {
 		ObjectIdentity obj = new ObjectIdentityImpl(
