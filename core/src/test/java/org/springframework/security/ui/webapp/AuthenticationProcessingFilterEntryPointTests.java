@@ -38,14 +38,6 @@ import java.util.Map;
 public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AuthenticationProcessingFilterEntryPointTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testDetectsMissingLoginFormUrl() throws Exception {
         AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
         ep.setPortMapper(new PortMapperImpl());
@@ -95,13 +87,12 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         assertTrue(ep.getPortResolver() != null);
 
         ep.setForceHttps(false);
-        assertFalse(ep.getForceHttps());
+        assertFalse(ep.isForceHttps());
         ep.setForceHttps(true);
-        assertTrue(ep.getForceHttps());
+        assertTrue(ep.isForceHttps());
     }
 
-    public void testHttpsOperationFromOriginalHttpUrl()
-        throws Exception {
+    public void testHttpsOperationFromOriginalHttpUrl() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/some_path");
         request.setScheme("http");
@@ -152,8 +143,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         assertEquals("https://www.example.com:9999/bigWebApp/hello", response.getRedirectedUrl());
     }
 
-    public void testHttpsOperationFromOriginalHttpsUrl()
-        throws Exception {
+    public void testHttpsOperationFromOriginalHttpsUrl() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/some_path");
         request.setScheme("https");
@@ -198,16 +188,13 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        ep.afterPropertiesSet();
         ep.commence(request, response, null);
         assertEquals("http://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
     }
 
-    public void testOperationWhenHttpsRequestsButHttpsPortUnknown()
-        throws Exception {
+    public void testOperationWhenHttpsRequestsButHttpsPortUnknown() throws Exception {
         AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
         ep.setLoginFormUrl("/hello");
-        ep.setPortMapper(new PortMapperImpl());
         ep.setPortResolver(new MockPortResolver(8888, 1234));
         ep.setForceHttps(true);
         ep.afterPropertiesSet();
@@ -222,10 +209,51 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        ep.afterPropertiesSet();
         ep.commence(request, response, null);
 
         // Response doesn't switch to HTTPS, as we didn't know HTTP port 8888 to HTTP port mapping
         assertEquals("http://www.example.com:8888/bigWebApp/hello", response.getRedirectedUrl());
     }
+
+    public void testServerSideRedirectWithoutForceHttpsForwardsToLoginPage() throws Exception {
+        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        ep.setLoginFormUrl("/hello");
+        ep.setServerSideRedirect(true);
+        ep.afterPropertiesSet();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/bigWebApp/some_path");
+        request.setServletPath("/some_path");
+        request.setContextPath("/bigWebApp");
+        request.setScheme("http");
+        request.setServerName("www.example.com");
+        request.setContextPath("/bigWebApp");
+        request.setServerPort(80);
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        ep.commence(request, response, null);
+        assertEquals("/hello", response.getForwardedUrl());
+    }
+
+    public void testServerSideRedirectWithForceHttpsRedirectsCurrentRequest() throws Exception {
+        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        ep.setLoginFormUrl("/hello");
+        ep.setServerSideRedirect(true);
+        ep.setForceHttps(true);
+        ep.afterPropertiesSet();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/bigWebApp/some_path");
+        request.setServletPath("/some_path");
+        request.setContextPath("/bigWebApp");
+        request.setScheme("http");
+        request.setServerName("www.example.com");
+        request.setContextPath("/bigWebApp");
+        request.setServerPort(80);
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        ep.commence(request, response, null);
+        assertEquals("https://www.example.com/bigWebApp/some_path", response.getRedirectedUrl());
+    }
+
 }

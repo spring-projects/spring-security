@@ -23,6 +23,7 @@ import org.springframework.security.util.PortMapper;
 import org.springframework.security.util.PortMapperImpl;
 import org.springframework.security.util.PortResolver;
 import org.springframework.security.util.PortResolverImpl;
+import org.springframework.security.util.RedirectUrlBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -102,55 +103,26 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
         return getLoginFormUrl();
     }
 
+    /**
+     * Performs the redirect (or forward) to the login form URL.
+     */
     public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        String scheme = request.getScheme();
-        String serverName = request.getServerName();
-        int serverPort = portResolver.getServerPort(request);
-        String contextPath = httpRequest.getContextPath();
 
-        boolean inHttp = "http".equals(scheme.toLowerCase());
-        boolean inHttps = "https".equals(scheme.toLowerCase());
-        boolean includePort = true;
-        boolean doForceHttps = false;
-        Integer httpsPort = null;
-
-        if (inHttp && (serverPort == 80)) {
-            includePort = false;
-        } else if (inHttps && (serverPort == 443)) {
-            includePort = false;
-        }
-
-        if (forceHttps && inHttp) {
-            httpsPort = portMapper.lookupHttpsPort(new Integer(serverPort));
-
-            if (httpsPort != null) {
-                doForceHttps = true;
-                if (httpsPort.intValue() == 443) {
-                    includePort = false;
-                } else {
-                    includePort = true;
-                }
-            }
-        }
-
-        String loginForm = determineUrlToUseForThisRequest(httpRequest, httpResponse, authException);
         String redirectUrl = null;
 
         if (serverSideRedirect) {
-            if (doForceHttps) {
-                // before doing server side redirect, we need to do client redirect to https.
 
-                String servletPath = httpRequest.getServletPath();
-                String pathInfo = httpRequest.getPathInfo();
-                String query = httpRequest.getQueryString();
+            if (forceHttps && "http".equals(request.getScheme())) {
+                redirectUrl = buildHttpsRedirectUrlForRequest(httpRequest);
+            }
 
-                redirectUrl = "https://" + serverName + ((includePort) ? (":" + httpsPort) : "") + contextPath
-                        + servletPath + (pathInfo == null ? "" : pathInfo) + (query == null ? "" : "?" + query);
-            } else {
+            if (redirectUrl == null) {
+                String loginForm = determineUrlToUseForThisRequest(httpRequest, httpResponse, authException);
+                
                 if (logger.isDebugEnabled()) {
                     logger.debug("Server side forward to: " + loginForm);
                 }
@@ -162,40 +134,71 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
                 return;
             }
         } else {
-            if (doForceHttps) {
-                redirectUrl = "https://" + serverName + ((includePort) ? (":" + httpsPort) : "") + contextPath
-                        + loginForm;
-            } else {
-                redirectUrl = scheme + "://" + serverName + ((includePort) ? (":" + serverPort) : "") + contextPath
-                        + loginForm;
-            }
-        }
+            // redirect to login page. Use https if forceHttps true
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Redirecting to: " + redirectUrl);
+            redirectUrl = buildRedirectUrlToLoginPage(httpRequest, httpResponse, authException);
+
         }
 
         httpResponse.sendRedirect(httpResponse.encodeRedirectURL(redirectUrl));
     }
 
-    public boolean getForceHttps() {
-        return forceHttps;
+    protected String buildRedirectUrlToLoginPage(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException authException) {
+
+        String loginForm = determineUrlToUseForThisRequest(request, response, authException);
+        int serverPort = portResolver.getServerPort(request);
+        String scheme = request.getScheme();
+
+        RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
+
+        urlBuilder.setScheme(scheme);
+        urlBuilder.setServerName(request.getServerName());
+        urlBuilder.setPort(serverPort);
+        urlBuilder.setContextPath(request.getContextPath());
+        urlBuilder.setPathInfo(loginForm);
+
+        if (forceHttps && "http".equals(scheme)) {
+            Integer httpsPort = portMapper.lookupHttpsPort(new Integer(serverPort));
+
+            if (httpsPort != null) {
+                // Overwrite scheme and port in the redirect URL
+                urlBuilder.setScheme("https");
+                urlBuilder.setPort(httpsPort.intValue());
+            } else {
+                logger.warn("Unable to redirect to HTTPS as no port mapping found for HTTP port " + serverPort);
+            }
+        }
+
+        return urlBuilder.getUrl();
     }
 
-    public String getLoginFormUrl() {
-        return loginFormUrl;
-    }
+    /**
+     * Builds a URL to redirect the supplied request to HTTPS.
+     */
+    protected String buildHttpsRedirectUrlForRequest(HttpServletRequest request)
+            throws IOException, ServletException {
 
-    public PortMapper getPortMapper() {
-        return portMapper;
-    }
+        int serverPort = portResolver.getServerPort(request);
+        Integer httpsPort = portMapper.lookupHttpsPort(new Integer(serverPort));
 
-    public PortResolver getPortResolver() {
-        return portResolver;
-    }
+        if (httpsPort != null) {
+            RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
+            urlBuilder.setScheme("https");
+            urlBuilder.setServerName(request.getServerName());
+            urlBuilder.setPort(httpsPort.intValue());
+            urlBuilder.setContextPath(request.getContextPath());
+            urlBuilder.setServletPath(request.getServletPath());
+            urlBuilder.setPathInfo(request.getPathInfo());
+            urlBuilder.setQuery(request.getQueryString());
 
-    public boolean isServerSideRedirect() {
-        return serverSideRedirect;
+            return urlBuilder.getUrl();
+        }
+
+        // Fall through to server-side forward with warning message
+        logger.warn("Unable to redirect to HTTPS as no port mapping found for HTTP port " + serverPort);
+
+        return null;
     }
 
     /**
@@ -210,6 +213,10 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
         this.forceHttps = forceHttps;
     }
 
+    protected boolean isForceHttps() {
+        return forceHttps;
+    }
+
     /**
      * The URL where the <code>AuthenticationProcessingFilter</code> login
      * page can be found. Should be relative to the web-app context path, and
@@ -221,12 +228,24 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
         this.loginFormUrl = loginFormUrl;
     }
 
+    public String getLoginFormUrl() {
+        return loginFormUrl;
+    }
+
     public void setPortMapper(PortMapper portMapper) {
         this.portMapper = portMapper;
     }
 
+    protected PortMapper getPortMapper() {
+        return portMapper;
+    }
+
     public void setPortResolver(PortResolver portResolver) {
         this.portResolver = portResolver;
+    }
+
+    protected PortResolver getPortResolver() {
+        return portResolver;
     }
 
     /**
@@ -238,4 +257,7 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
         this.serverSideRedirect = serverSideRedirect;
 	}
 
+    protected boolean isServerSideRedirect() {
+        return serverSideRedirect;
+    }
 }
