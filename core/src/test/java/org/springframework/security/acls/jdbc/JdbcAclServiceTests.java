@@ -14,11 +14,14 @@
  */
 package org.springframework.security.acls.jdbc;
 
+import java.util.Map;
+
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-
 import org.springframework.security.acls.AccessControlEntry;
+import org.springframework.security.acls.AlreadyExistsException;
+import org.springframework.security.acls.ChildrenExistException;
 import org.springframework.security.acls.MutableAcl;
 import org.springframework.security.acls.NotFoundException;
 import org.springframework.security.acls.Permission;
@@ -27,26 +30,26 @@ import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.acls.sid.PrincipalSid;
 import org.springframework.security.acls.sid.Sid;
-
 import org.springframework.security.context.SecurityContextHolder;
-
 import org.springframework.security.providers.TestingAuthenticationToken;
-
 import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
-
-import java.util.Map;
 
 
 /**
  * Integration tests the ACL system using an in-memory database.
  *
  * @author Ben Alex
+ * @author Andrei Stefan
  * @version $Id:JdbcAclServiceTests.java 1754 2006-11-17 02:01:21Z benalex $
  */
 public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringContextTests {
     //~ Instance fields ================================================================================================
 
     private JdbcMutableAclService jdbcMutableAclService;
+    
+    private AclCache aclCache;
+    
+    private LookupStrategy lookupStrategy;
 
     //~ Methods ========================================================================================================
 
@@ -58,6 +61,13 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         this.jdbcMutableAclService = jdbcAclService;
     }
 
+    public void setAclCache(AclCache aclCache) {
+        this.aclCache = aclCache;
+    }
+
+    public void setLookupStrategy(LookupStrategy lookupStrategy) {
+        this.lookupStrategy = lookupStrategy;
+    }
 
     protected void onTearDown() throws Exception {
         super.onTearDown();
@@ -198,6 +208,104 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         assertTrue(child.isGranted(new Permission[] {BasePermission.DELETE}, new Sid[] {new PrincipalSid(auth)}, false));
 
         SecurityContextHolder.clearContext();
+    }
+    
+/*    public void testDeleteAclAlsoDeletesChildren() throws Exception {
+        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
+        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
+
+        // Delete the mid-parent and test if the child was deleted, as well
+        jdbcMutableAclService.deleteAcl(middleParentOid, true);
+        
+        try {
+            Acl acl = jdbcMutableAclService.readAclById(middleParentOid);
+            fail("It should have thrown NotFoundException");
+        }
+        catch (NotFoundException expected) {
+            assertTrue(true);
+        }
+        try {
+            Acl acl = jdbcMutableAclService.readAclById(childOid);
+            fail("It should have thrown NotFoundException");
+        }
+        catch (NotFoundException expected) {
+            assertTrue(true);
+        }
+        
+        Acl acl = jdbcMutableAclService.readAclById(topParentOid);
+        assertNotNull(acl);
+        assertEquals(((MutableAcl) acl).getObjectIdentity(), topParentOid);
+    }*/
+    
+    public void testConstructorRejectsNullParameters() throws Exception {
+        try {
+            JdbcAclService service = new JdbcMutableAclService(null, lookupStrategy, aclCache);
+            fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+        
+        try {
+            JdbcAclService service = new JdbcMutableAclService(this.getJdbcTemplate().getDataSource(), null, aclCache);
+            fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+        
+        try {
+            JdbcAclService service = new JdbcMutableAclService(this.getJdbcTemplate().getDataSource(), lookupStrategy, null);
+            fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+    }
+    
+    public void testCreateAclRejectsNullParameter() throws Exception {
+        try {
+            jdbcMutableAclService.createAcl(null);
+            fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+    }
+    
+    public void testCreateAclForADuplicateDomainObject() throws Exception {
+        ObjectIdentity duplicateOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        
+        // Try to add the same object second time
+        try {
+            jdbcMutableAclService.createAcl(duplicateOid);
+            fail("It should have thrown AlreadyExistsException");
+        }
+        catch (AlreadyExistsException expected) {
+            assertTrue(true);
+        }
+    }
+    
+    public void testDeleteAclRejectsNullParameters() throws Exception {
+        try {
+            jdbcMutableAclService.deleteAcl(null, true);
+            fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+    }
+    
+    public void testDeleteAclWithChildrenThrowsException() throws Exception {
+        try {
+            ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+            jdbcMutableAclService.deleteAcl(topParentOid, false);
+            fail("It should have thrown ChildrenExistException");
+        }
+        catch (ChildrenExistException expected) {
+            assertTrue(true);
+        }
     }
 
 /*    public void testCumulativePermissions() {
