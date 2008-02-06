@@ -6,21 +6,22 @@ import org.springframework.core.annotation.AnnotationUtils;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.DenyAll;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.ArrayList;
 import java.lang.reflect.Method;
 import java.lang.reflect.Field;
 import java.lang.annotation.Annotation;
 
 /**
- * Java 5 Annotation <code>Attributes</code> metadata implementation used for secure method interception.
+ * Java 5 Annotation {@link Attributes} metadata implementation used for secure method interception using
+ * the security anotations defined in JSR-250.
  * <p>
  * This <code>Attributes</code> implementation will return security configuration for classes described using the
- * <code>RolesAllowed</code> Java JEE 5 annotation.
+ * Java JEE 5 annotations (<em>DenyAll</em>, <em>PermitAll</em> and <em>RolesAllowed</em>).
  * <p>
- * The <code>SecurityAnnotationAttributes</code> implementation can be used to configure a
- * <code>MethodDefinitionAttributes</code> and  <code>MethodSecurityInterceptor</code> bean definition.
  *
  * @author Mark St.Godard
  * @author Usama Rashwan
@@ -31,6 +32,7 @@ import java.lang.annotation.Annotation;
  */
 
 public class Jsr250SecurityAnnotationAttributes implements Attributes {
+    
     //~ Methods ========================================================================================================
 
     /**
@@ -48,19 +50,56 @@ public class Jsr250SecurityAnnotationAttributes implements Attributes {
     }
 
     /**
-     * Get the <code>RolesAllowed</code> attributes for a given target method.
+     * Get the attributes for a given target method, acording to JSR-250 precedence rules.
      *
      * @param method The target method
      * @return Collection of <code>SecurityConfig</code>
      * @see Attributes#getAttributes
      */
     public Collection<SecurityConfig> getAttributes(Method method) {
-    	Annotation[] annotations = AnnotationUtils.getAnnotations(method);
-        Collection<SecurityConfig> attributes = populateSecurityConfigWithRolesAllowed(annotations);
-        // if there is no RolesAllowed defined on the Method then we will use the one defined on the class
-        // level , according to JSR 250
-        if (attributes.size()==0 && !method.isAnnotationPresent(PermitAll.class)) {
-        	attributes = populateSecurityConfigWithRolesAllowed(method.getDeclaringClass().getDeclaredAnnotations());
+        ArrayList<SecurityConfig> attributes = new ArrayList<SecurityConfig>();
+
+        if (AnnotationUtils.getAnnotation(method, DenyAll.class) != null) {
+            attributes.add(Jsr250SecurityConfig.DENY_ALL_ATTRIBUTE);
+
+            return attributes;
+        }
+
+        if (AnnotationUtils.getAnnotation(method, PermitAll.class) != null) {
+            attributes.add(Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE);
+
+            return attributes;
+        }
+
+        RolesAllowed rolesAllowed = AnnotationUtils.getAnnotation(method, RolesAllowed.class);
+        
+        if (rolesAllowed != null) {
+            for (String role : rolesAllowed.value()) {
+                attributes.add(new Jsr250SecurityConfig(role));
+            }
+
+            return attributes;
+        }
+
+        // Now check the class-level attributes:
+        if (method.getDeclaringClass().getAnnotation(DenyAll.class) != null) {
+            attributes.add(Jsr250SecurityConfig.DENY_ALL_ATTRIBUTE);
+
+            return attributes;
+        }
+
+        if (method.getDeclaringClass().getAnnotation(PermitAll.class) != null) {
+            attributes.add(Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE);
+
+            return attributes;
+        }
+
+        rolesAllowed = method.getDeclaringClass().getAnnotation(RolesAllowed.class);
+
+        if (rolesAllowed != null) {
+            for (String role : rolesAllowed.value()) {
+                attributes.add(new Jsr250SecurityConfig(role));
+            }
         }
 
         return attributes;

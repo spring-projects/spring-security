@@ -16,7 +16,6 @@ import org.springframework.security.vote.RoleVoter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -32,13 +31,28 @@ public abstract class ConfigUtils {
     static void registerDefaultAccessManagerIfNecessary(ParserContext parserContext) {
 
         if (!parserContext.getRegistry().containsBeanDefinition(BeanIds.ACCESS_MANAGER)) {
+            ManagedList defaultVoters = new ManagedList(2);
+
+            defaultVoters.add(new RootBeanDefinition(RoleVoter.class));
+            defaultVoters.add(new RootBeanDefinition(AuthenticatedVoter.class));
+
             BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
-            accessMgrBuilder.addPropertyValue("decisionVoters",
-                            Arrays.asList(new Object[] {new RoleVoter(), new AuthenticatedVoter()}));
+            accessMgrBuilder.addPropertyValue("decisionVoters", defaultVoters);
             BeanDefinition accessMgr = accessMgrBuilder.getBeanDefinition();
 
             parserContext.getRegistry().registerBeanDefinition(BeanIds.ACCESS_MANAGER, accessMgr);
         }
+    }
+
+    public static void addVoter(BeanDefinition voter, ParserContext parserContext) {
+        registerDefaultAccessManagerIfNecessary(parserContext);
+
+        BeanDefinition accessMgr = parserContext.getRegistry().getBeanDefinition(BeanIds.ACCESS_MANAGER);
+
+        ManagedList voters = (ManagedList) accessMgr.getPropertyValues().getPropertyValue("decisionVoters").getValue();
+        voters.add(voter);
+
+        accessMgr.getPropertyValues().addPropertyValue("decisionVoters", voter);
     }
 
     /**

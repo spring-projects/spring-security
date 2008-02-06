@@ -41,6 +41,15 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
     }
 
     @Test
+    public void permitAllShouldBeDefaultAttribute() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_USER")});
+        SecurityContextHolder.getContext().setAuthentication(token);
+
+        target.someOther(0);
+    }
+    
+    @Test
     public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_USER")});

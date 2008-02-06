@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.PermitAll;
+import javax.annotation.security.DenyAll;
 
 /**
  * @author Luke Taylor
@@ -18,7 +19,8 @@ import javax.annotation.security.PermitAll;
 public class Jsr250SecurityAnnotationAttributesTests {
     Jsr250SecurityAnnotationAttributes attributes = new Jsr250SecurityAnnotationAttributes();
     A a = new A();
-    B b = new B();
+    UserAllowedClass userAllowed = new UserAllowedClass();
+    DenyAllClass denyAll = new DenyAllClass();
 
     @Test
     public void methodWithRolesAllowedHasCorrectAttribute() throws Exception {
@@ -31,10 +33,27 @@ public class Jsr250SecurityAnnotationAttributesTests {
     }
 
     @Test
-    public void permitAllMethodHasNoAttributes() throws Exception {
+    public void permitAllMethodHasPermitAllAttribute() throws Exception {
         List<SecurityConfig> accessAttributes =
                 new ArrayList<SecurityConfig>(attributes.getAttributes(a.getClass().getMethod("permitAllMethod")));
-        assertEquals(0, accessAttributes.size());
+        assertEquals(1, accessAttributes.size());
+        assertEquals("javax.annotation.security.PermitAll", accessAttributes.get(0).getAttribute());
+    }
+
+    @Test
+    public void noRoleMethodHasDenyAllAttributeWithDenyAllClass() throws Exception {
+        List<SecurityConfig> accessAttributes =
+                new ArrayList<SecurityConfig>(attributes.getAttributes(denyAll.getClass().getMethod("noRoleMethod")));
+        assertEquals(1, accessAttributes.size());
+        assertEquals("javax.annotation.security.DenyAll", accessAttributes.get(0).getAttribute());
+    }
+
+    @Test
+    public void adminMethodHasAdminAttributeWithDenyAllClass() throws Exception {
+        List<SecurityConfig> accessAttributes =
+                new ArrayList<SecurityConfig>(attributes.getAttributes(denyAll.getClass().getMethod("adminMethod")));
+        assertEquals(1, accessAttributes.size());
+        assertEquals("ADMIN", accessAttributes.get(0).getAttribute());
     }
 
     @Test
@@ -45,9 +64,9 @@ public class Jsr250SecurityAnnotationAttributesTests {
     }
     
     @Test
-    public void classRoleIsAppliedNoRoleMethod() throws Exception {
+    public void classRoleIsAppliedToNoRoleMethod() throws Exception {
         List<SecurityConfig> accessAttributes =
-                new ArrayList<SecurityConfig>(attributes.getAttributes(b.getClass().getMethod("noRoleMethod")));
+                new ArrayList<SecurityConfig>(attributes.getAttributes(userAllowed.getClass().getMethod("noRoleMethod")));
         assertEquals(1, accessAttributes.size());
         assertEquals("USER", accessAttributes.get(0).getAttribute());
     }
@@ -55,7 +74,7 @@ public class Jsr250SecurityAnnotationAttributesTests {
     @Test
     public void methodRoleOverridesClassRole() throws Exception {
         List<SecurityConfig> accessAttributes =
-                new ArrayList<SecurityConfig>(attributes.getAttributes(b.getClass().getMethod("adminMethod")));
+                new ArrayList<SecurityConfig>(attributes.getAttributes(userAllowed.getClass().getMethod("adminMethod")));
         assertEquals(1, accessAttributes.size());
         assertEquals("ADMIN", accessAttributes.get(0).getAttribute());
     }
@@ -71,15 +90,25 @@ public class Jsr250SecurityAnnotationAttributesTests {
 
         @PermitAll
         public void permitAllMethod() {}
-
     }
 
     @RolesAllowed("USER")
-    public static class B {
+    public static class UserAllowedClass {
         public void noRoleMethod() {}
 
         @RolesAllowed("ADMIN")
         public void adminMethod() {}        
     }
+
+    @DenyAll
+    public static class DenyAllClass {
+
+        public void noRoleMethod()  {}
+
+        @RolesAllowed("ADMIN")
+        public void adminMethod() {}        
+    }
+
+
 
 }

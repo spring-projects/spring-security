@@ -1,12 +1,15 @@
 package org.springframework.security.annotation;
 
 import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
 
 /**
  *
  * @author Luke Taylor
  * @version $Id$
  */
+@PermitAll
 public class Jsr250BusinessServiceImpl implements BusinessService {
 
     @RolesAllowed({"ROLE_USER"})
@@ -25,7 +28,7 @@ public class Jsr250BusinessServiceImpl implements BusinessService {
     public void someAdminMethod() {
     }
 
-	public int someOther(int input) {
+    public int someOther(int input) {
 		return input;
 	}
 }
