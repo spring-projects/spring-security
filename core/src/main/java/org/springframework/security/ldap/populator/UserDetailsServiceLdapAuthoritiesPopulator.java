@@ -6,6 +6,10 @@ import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.ldap.core.DirContextOperations;
 
 /**
+ * Simple LdapAuthoritiesPopulator which delegates to a UserDetailsService, using the name which
+ * was supplied at login as the username.
+ *
+ *
  * @author Luke Taylor
  * @version $Id$
  * @since 2.0
