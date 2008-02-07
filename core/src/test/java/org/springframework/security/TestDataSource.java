@@ -16,6 +16,7 @@ public class TestDataSource extends DriverManagerDataSource implements Disposabl
 
     public TestDataSource(String databaseName) {
         name = databaseName;
+        System.out.println("Creating database: " + name);        
         setDriverClassName("org.hsqldb.jdbcDriver");
         setUrl("jdbc:hsqldb:mem:" + databaseName);
         setUsername("sa");
