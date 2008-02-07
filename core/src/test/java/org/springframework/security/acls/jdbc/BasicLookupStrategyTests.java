@@ -9,14 +9,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.AfterClass;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.MockApplicationContext;
+import org.springframework.security.TestDataSource;
 import org.springframework.security.acls.AuditableAccessControlEntry;
 import org.springframework.security.acls.MutableAcl;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
@@ -38,19 +40,24 @@ public class BasicLookupStrategyTests {
 
     private LookupStrategy strategy;
 
-    private static DriverManagerDataSource dataSource;
+    private static TestDataSource dataSource;
 
     //~ Methods ========================================================================================================
 
     @BeforeClass
     public static void createDatabase() throws Exception {
-        dataSource = new DriverManagerDataSource("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:lookupstrategytest", "sa", "");
+        dataSource = new TestDataSource("lookupstrategytest");
         jdbcTemplate = new JdbcTemplate(dataSource);
 
         Resource resource = new ClassPathResource("org/springframework/security/acls/jdbc/testData.sql");
         String sql = new String(FileCopyUtils.copyToByteArray(resource.getInputStream()));
         jdbcTemplate.execute(sql);
     }
+
+    @AfterClass
+    public static void dropDatabase() throws Exception {
+        dataSource.destroy();
+    }    
 
     @Before
     public void populateDatabase() {

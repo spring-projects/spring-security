@@ -64,20 +64,8 @@
 		<constructor-arg ref="aclCache"/>
 	</bean>
 
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName">
-            <value>org.hsqldb.jdbcDriver</value>
-        </property>
-        <property name="url">
-            <value>jdbc:hsqldb:mem:test</value>
-            <!--  <value>jdbc:hsqldb:hsql://localhost/acl</value> -->
-        </property>
-        <property name="username">
-            <value>sa</value>
-        </property>
-        <property name="password">
-            <value></value>
-        </property>
+    <bean id="dataSource" class="org.springframework.security.TestDataSource">
+        <constructor-arg value="test" />
     </bean>
 
 </beans>

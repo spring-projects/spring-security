@@ -1,7 +1,7 @@
 package org.springframework.security.ui.rememberme;
 
+import org.springframework.security.TestDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -20,17 +20,18 @@ import java.util.Map;
  * @version $Id$
  */
 public class JdbcTokenRepositoryImplTests {
-    private static DriverManagerDataSource dataSource;
+    private static TestDataSource dataSource;
     private JdbcTokenRepositoryImpl repo;
     private JdbcTemplate template;
 
     @BeforeClass
     public static void createDataSource() {
-        dataSource = new DriverManagerDataSource("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:tokenrepotest", "sa", "");
+        dataSource = new TestDataSource("tokenrepotest");
     }
 
     @AfterClass
-    public static void clearDataSource() {
+    public static void clearDataSource() throws Exception {
+        dataSource.destroy();
         dataSource = null;
     }
 

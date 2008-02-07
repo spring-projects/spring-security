@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id: DataSourcePopulator.java 2291 2007-12-03 02:56:52Z benalex $
  */
-public class DataSourcePopulator implements InitializingBean, DisposableBean {
+public class DataSourcePopulator implements InitializingBean {
     //~ Instance fields ================================================================================================
 
     JdbcTemplate template;
@@ -70,10 +70,5 @@ public class DataSourcePopulator implements InitializingBean, DisposableBean {
 
     public void setDataSource(DataSource dataSource) {
         this.template = new JdbcTemplate(dataSource);
-    }
-
-    public void destroy() throws Exception {
-        template.execute("DROP TABLE AUTHORITIES");
-        template.execute("DROP TABLE USERS");
     }
 }

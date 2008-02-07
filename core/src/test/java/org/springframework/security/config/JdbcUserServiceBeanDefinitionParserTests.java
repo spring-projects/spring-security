@@ -10,6 +10,8 @@ import org.springframework.security.util.InMemoryXmlApplicationContext;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
+import javax.sql.DataSource;
+
 /**
  * @author Ben Alex
  * @author Luke Taylor
@@ -22,11 +24,9 @@ public class JdbcUserServiceBeanDefinitionParserTests {
             "    <b:bean id='populator' class='org.springframework.security.config.DataSourcePopulator'>" +
             "        <b:property name='dataSource' ref='dataSource'/>" +
             "    </b:bean>" +
-            "    <b:bean id='dataSource' class='org.springframework.jdbc.datasource.DriverManagerDataSource'>" +
-            "        <b:property name='driverClassName' value='org.hsqldb.jdbcDriver'/>" +
-            "        <b:property name='url' value='jdbc:hsqldb:mem:jdbcnamespaces'/>" +
-            "        <b:property name='username' value='sa'/>" +
-            "        <b:property name='password' value=''/>" +
+
+            "    <b:bean id='dataSource' class='org.springframework.security.TestDataSource'>" +
+            "        <b:constructor-arg value='jdbcnamespaces'/>" +
             "    </b:bean>";
 
     @After

@@ -7,6 +7,7 @@ import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.PopulatedDatabase;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.TestDataSource;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.dao.UserCache;
@@ -14,7 +15,6 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.util.AuthorityUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -43,18 +43,19 @@ public class JdbcUserDetailsManagerTests {
     private static final UserDetails joe = new User("joe", "password", true, true, true, true,
             AuthorityUtils.stringArrayToAuthorityArray(new String[]{"A","C","B"}));
 
-    private static DriverManagerDataSource dataSource;
+    private static TestDataSource dataSource;
     private JdbcUserDetailsManager manager;
     private MockUserCache cache;
     private JdbcTemplate template;
 
     @BeforeClass
     public static void createDataSource() {
-        dataSource = new DriverManagerDataSource("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:jdbcusermgrtest", "sa", "");
+        dataSource = new TestDataSource("jdbcusermgrtest");
     }
 
     @AfterClass
-    public static void clearDataSource() {
+    public static void clearDataSource() throws Exception {
+        dataSource.destroy();
         dataSource = null;
     }
 

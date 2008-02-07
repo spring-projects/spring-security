@@ -16,7 +16,6 @@
 package org.springframework.security;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
 
@@ -30,7 +29,7 @@ import javax.sql.DataSource;
 public class PopulatedDatabase {
     //~ Static fields/initializers =====================================================================================
 
-    private static DriverManagerDataSource dataSource = null;
+    private static TestDataSource dataSource = null;
 
     //~ Constructors ===================================================================================================
 
@@ -47,12 +46,7 @@ public class PopulatedDatabase {
     }
 
     private static void setupDataSource() {
-        dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
-        dataSource.setUrl("jdbc:hsqldb:mem:springsecuritytest");
-        dataSource.setUsername("sa");
-        dataSource.setPassword("");
-
+        dataSource = new TestDataSource("springsecuritytest");
         JdbcTemplate template = new JdbcTemplate(dataSource);
 
         template.execute(

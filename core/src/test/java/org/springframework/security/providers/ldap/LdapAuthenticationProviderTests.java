@@ -89,8 +89,8 @@ public class LdapAuthenticationProviderTests extends TestCase {
     }
 
     public void testNormalUsage() {
-        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
-                new MockAuthoritiesPopulator());
+        MockAuthoritiesPopulator populator = new MockAuthoritiesPopulator();
+        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(), populator);
         LdapUserDetailsMapper userMapper = new LdapUserDetailsMapper();
         userMapper.setRoleAttributes(new String[] {"ou"});
         ldapProvider.setUserDetailsContextMapper(userMapper);
@@ -104,6 +104,7 @@ public class LdapAuthenticationProviderTests extends TestCase {
         assertEquals(2, user.getAuthorities().length);
         assertEquals("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=", user.getPassword());
         assertEquals("ben", user.getUsername());
+        assertEquals("ben", populator.getRequestedUsername());
 
         ArrayList authorities = new ArrayList();
         authorities.add(user.getAuthorities()[0].getAuthority());
@@ -162,8 +163,15 @@ public class LdapAuthenticationProviderTests extends TestCase {
     }
 
     class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {
+        String username;
+
         public GrantedAuthority[] getGrantedAuthorities(DirContextOperations userCtx, String username) {
+            this.username = username;
             return new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FROM_POPULATOR")};
+        }
+
+        String getRequestedUsername() {
+            return username;
         }
     }
 }
