@@ -5,7 +5,6 @@ import org.springframework.security.providers.encoding.Md5PasswordEncoder;
 import org.springframework.security.providers.encoding.ShaPasswordEncoder;
 import org.springframework.security.providers.encoding.BaseDigestPasswordEncoder;
 import org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder;
-import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;

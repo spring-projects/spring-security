@@ -6,17 +6,14 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.ManagedSet;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.util.StringUtils;
 
 import org.w3c.dom.Element;
-import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.naming.NamingException;
-import java.util.HashSet;
 
 /**
  * @author Luke Taylor
@@ -89,24 +86,23 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
      *
      * Registers beans to create an embedded apache directory server.
      *
-     * @param element
-     * @param parserContext
-     *
      * @return the BeanDefinition for the ContextSource for the embedded server.
      *
      * @see ApacheDSContainer
      */
     private RootBeanDefinition createEmbeddedServer(Element element, ParserContext parserContext) {
-        MutableServerStartupConfiguration configuration = new MutableServerStartupConfiguration();
-        MutableBTreePartitionConfiguration partition = new MutableBTreePartitionConfiguration();
-
-        partition.setName("springsecurity");
+        Object source = parserContext.extractSource(element);
+        BeanDefinitionBuilder configuration = BeanDefinitionBuilder.rootBeanDefinition("org.apache.directory.server.configuration.MutableServerStartupConfiguration");
+        BeanDefinitionBuilder partition = BeanDefinitionBuilder.rootBeanDefinition("org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration");
+        configuration.setSource(source);
+        partition.setSource(source);
 
         DirContextAdapter rootContext = new DirContextAdapter();
         rootContext.setAttributeValues("objectClass", new String[] {"top", "domain", "extensibleObject"});
         rootContext.setAttributeValue("dc", "springsecurity");
 
-        partition.setContextEntry(rootContext.getAttributes());
+        partition.addPropertyValue("name", "springsecurity");
+        partition.addPropertyValue("contextEntry", rootContext.getAttributes());
 
         String suffix = element.getAttribute(ATT_ROOT_SUFFIX);
 
@@ -114,14 +110,10 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
             suffix = OPT_DEFAULT_ROOT_SUFFIX;
         }
 
-        try {
-            partition.setSuffix(suffix);
-        } catch (NamingException e) {
-            parserContext.getReaderContext().error("Failed to set root name suffix to " + suffix, element, e);
-        }
+        partition.addPropertyValue("suffix", suffix);
 
-        HashSet partitions = new HashSet(1);
-        partitions.add(partition);
+        ManagedSet partitions = new ManagedSet(1);
+        partitions.add(partition.getBeanDefinition());
 
         String port = element.getAttribute(ATT_PORT);
 
@@ -129,13 +121,13 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
             port = OPT_DEFAULT_PORT;
         }
 
-        configuration.setLdapPort(Integer.parseInt(port));
+        configuration.addPropertyValue("ldapPort", port);
 
         // We shut down the server ourself when the app context is closed so we don't need
         // the extra shutdown hook from apache DS itself.
-        configuration.setShutdownHookEnabled(false);
-        configuration.setExitVmOnShutdown(false);
-        configuration.setContextPartitionConfigurations(partitions);
+        configuration.addPropertyValue("shutdownHookEnabled", Boolean.FALSE);
+        configuration.addPropertyValue("exitVmOnShutdown", Boolean.FALSE);
+        configuration.addPropertyValue("contextPartitionConfigurations", partitions);
 
         String url = "ldap://127.0.0.1:" + port + "/" + suffix;
 
@@ -144,9 +136,9 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
         contextSource.getPropertyValues().addPropertyValue("userDn", "uid=admin,ou=system");
         contextSource.getPropertyValues().addPropertyValue("password", "secret");
 
-        RootBeanDefinition apacheContainer = new RootBeanDefinition(ApacheDSContainer.class);
-        apacheContainer.setSource(parserContext.extractSource(element));
-        apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(configuration);
+        RootBeanDefinition apacheContainer = new RootBeanDefinition("org.springframework.security.config.ApacheDSContainer", null, null);
+        apacheContainer.setSource(source);
+        apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(configuration.getBeanDefinition());
         apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(contextSource);
 
         String ldifs = element.getAttribute(ATT_LDIF_FILE);

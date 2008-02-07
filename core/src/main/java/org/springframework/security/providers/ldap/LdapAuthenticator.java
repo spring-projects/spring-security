@@ -24,11 +24,12 @@ import org.springframework.ldap.core.DirContextOperations;
  * <p>
  * The LdapAuthenticationProvider calls this interface to authenticate a user
  * and obtain the information for that user from the directory.
- * </p>
- *
  *
  * @author Luke Taylor
  * @version $Id$
+ *
+ * @see org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator
+ * @see org.springframework.security.ldap.populator.UserDetailsServiceLdapAuthoritiesPopulator
  */
 public interface LdapAuthenticator {
     //~ Methods ========================================================================================================

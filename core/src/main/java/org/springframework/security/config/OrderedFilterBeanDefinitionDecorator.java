@@ -5,7 +5,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.core.Ordered;
 import org.springframework.util.StringUtils;
 import org.springframework.util.Assert;
@@ -39,15 +39,15 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
         String order = getOrder(elt, parserContext);
 
         BeanDefinition filter = holder.getBeanDefinition();
-        BeanDefinition wrapper = new RootBeanDefinition(OrderedFilterDecorator.class);
-        wrapper.getConstructorArgumentValues().addIndexedArgumentValue(0, holder.getBeanName());
-        wrapper.getConstructorArgumentValues().addIndexedArgumentValue(1, filter);
+        BeanDefinitionBuilder wrapper = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.config.OrderedFilterBeanDefinitionDecorator$OrderedFilterDecorator");
+        wrapper.addConstructorArg(holder.getBeanName());
+        wrapper.addConstructorArg(filter);
 
         if (StringUtils.hasText(order)) {
-            wrapper.getPropertyValues().addPropertyValue("order", order);
+            wrapper.addPropertyValue("order", order);
         }
 
-        return new BeanDefinitionHolder(wrapper, holder.getBeanName());
+        return new BeanDefinitionHolder(wrapper.getBeanDefinition(), holder.getBeanName());
     }
 
     /**
