@@ -1,4 +1,4 @@
-package org.springframework.security.rolemapping;
+package org.springframework.security.authoritymapping;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,9 +14,9 @@ public class SimpleMappableRolesRetrieverTests extends TestCase {
 
 	public final void testGetSetMappableRoles() {
 		String[] roles = new String[] { "Role1", "Role2" };
-		SimpleMappableRolesRetriever r = new SimpleMappableRolesRetriever();
+		SimpleMappableAttributesRetriever r = new SimpleMappableAttributesRetriever();
 		r.setMappableRoles(roles);
-		String[] result = r.getMappableRoles();
+		String[] result = r.getMappableAttributes();
 		Collection resultColl = Arrays.asList(result);
 		Collection rolesColl = Arrays.asList(roles);
 		assertTrue("Role collections do not match; result: " + resultColl + ", expected: " + rolesColl, rolesColl.containsAll(resultColl)

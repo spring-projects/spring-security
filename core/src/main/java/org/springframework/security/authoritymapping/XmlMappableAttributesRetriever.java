@@ -1,4 +1,4 @@
-package org.springframework.security.rolemapping;
+package org.springframework.security.authoritymapping;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -26,7 +26,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * This implementation for the MappableRolesRetriever interface retrieves the
+ * This implementation for the MappableAttributesRetriever interface retrieves the
  * list of mappable roles from an XML file.
  * <p>
  * This class is defined as abstract because it is too generic to be used
@@ -38,8 +38,8 @@ import org.xml.sax.SAXException;
  * @author Ruud Senden
  * @since 2.0
  */
-public abstract class XmlMappableRolesRetriever implements MappableRolesRetriever, InitializingBean {
-    private static final Log LOG = LogFactory.getLog(XmlMappableRolesRetriever.class);
+public abstract class XmlMappableAttributesRetriever implements MappableAttributesRetriever, InitializingBean {
+    private static final Log logger = LogFactory.getLog(XmlMappableAttributesRetriever.class);
 
     private String[] mappableRoles = null;
 
@@ -58,7 +58,7 @@ public abstract class XmlMappableRolesRetriever implements MappableRolesRetrieve
         mappableRoles = getMappableRoles(xmlInputStream);
     }
 
-    public String[] getMappableRoles() {
+    public String[] getMappableAttributes() {
         String[] copy = new String[mappableRoles.length];
         System.arraycopy(mappableRoles, 0, copy, 0, copy.length);
         return copy;
@@ -68,14 +68,14 @@ public abstract class XmlMappableRolesRetriever implements MappableRolesRetrieve
      * Get the mappable roles from the specified XML document.
      */
     private String[] getMappableRoles(InputStream aStream) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Reading mappable roles from XML document");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Reading mappable roles from XML document");
         }
         try {
             Document doc = getDocument(aStream);
             String[] roles = getMappableRoles(doc);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Mappable roles from XML document: " + ArrayUtils.toString(roles));
+            if (logger.isDebugEnabled()) {
+                logger.debug("Mappable roles from XML document: " + ArrayUtils.toString(roles));
             }
             return roles;
         } finally {
@@ -83,7 +83,7 @@ public abstract class XmlMappableRolesRetriever implements MappableRolesRetrieve
                 try {
                     aStream.close();
                 } catch (Exception e) {
-                    LOG.debug("Input stream could not be closed", e);
+                    logger.debug("Input stream could not be closed", e);
                 }
             }
         }

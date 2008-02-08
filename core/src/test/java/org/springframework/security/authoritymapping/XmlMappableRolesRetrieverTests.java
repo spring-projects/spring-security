@@ -1,4 +1,4 @@
-package org.springframework.security.rolemapping;
+package org.springframework.security.authoritymapping;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class XmlMappableRolesRetrieverTests extends TestCase {
 	private static final String[] DEFAULT_EXPECTED_ROLES = new String[] { "Role1", "Role2" };
 
 	public final void testAfterPropertiesSetException() {
-		TestXmlMappableRolesRetriever t = new TestXmlMappableRolesRetriever();
+		TestXmlMappableAttributesRetriever t = new TestXmlMappableAttributesRetriever();
 		try {
 			t.afterPropertiesSet();
 			fail("AfterPropertiesSet didn't throw expected exception");
@@ -32,8 +32,8 @@ public class XmlMappableRolesRetrieverTests extends TestCase {
 	}
 
 	public void testGetMappableRoles() {
-		XmlMappableRolesRetriever r = getXmlMappableRolesRetriever(true, getDefaultInputStream(), DEFAULT_XPATH);
-		String[] resultRoles = r.getMappableRoles();
+		XmlMappableAttributesRetriever r = getXmlMappableRolesRetriever(true, getDefaultInputStream(), DEFAULT_XPATH);
+		String[] resultRoles = r.getMappableAttributes();
 		assertNotNull("Result roles should not be null", resultRoles);
 		assertTrue("Number of result roles doesn't match expected number of roles", resultRoles.length == DEFAULT_EXPECTED_ROLES.length);
 		Collection resultRolesColl = Arrays.asList(resultRoles);
@@ -52,13 +52,13 @@ public class XmlMappableRolesRetrieverTests extends TestCase {
 
 	private void testCloseInputStream(boolean closeAfterRead) {
 		CloseableByteArrayInputStream is = getDefaultInputStream();
-		XmlMappableRolesRetriever r = getXmlMappableRolesRetriever(closeAfterRead, is, DEFAULT_XPATH);
-		r.getMappableRoles();
+		XmlMappableAttributesRetriever r = getXmlMappableRolesRetriever(closeAfterRead, is, DEFAULT_XPATH);
+		r.getMappableAttributes();
 		assertEquals(is.isClosed(), closeAfterRead);
 	}
 
-	private XmlMappableRolesRetriever getXmlMappableRolesRetriever(boolean closeInputStream, InputStream is, String xpath) {
-		XmlMappableRolesRetriever result = new TestXmlMappableRolesRetriever();
+	private XmlMappableAttributesRetriever getXmlMappableRolesRetriever(boolean closeInputStream, InputStream is, String xpath) {
+		XmlMappableAttributesRetriever result = new TestXmlMappableAttributesRetriever();
 		result.setCloseInputStream(closeInputStream);
 		result.setXmlInputStream(is);
 		result.setXpathExpression(xpath);
@@ -78,7 +78,7 @@ public class XmlMappableRolesRetrieverTests extends TestCase {
 		return new CloseableByteArrayInputStream(data.getBytes());
 	}
 
-	private static final class TestXmlMappableRolesRetriever extends XmlMappableRolesRetriever {
+	private static final class TestXmlMappableAttributesRetriever extends XmlMappableAttributesRetriever {
 	}
 
 	private static final class CloseableByteArrayInputStream extends ByteArrayInputStream {

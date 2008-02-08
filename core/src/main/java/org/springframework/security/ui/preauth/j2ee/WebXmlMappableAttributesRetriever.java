@@ -2,21 +2,21 @@ package org.springframework.security.ui.preauth.j2ee;
 
 import java.io.InputStream;
 
-import org.springframework.security.rolemapping.XmlMappableRolesRetriever;
+import org.springframework.security.authoritymapping.XmlMappableAttributesRetriever;
 
 /**
  * <p>
- * This MappableRolesRetriever implementation reads the list of defined J2EE
+ * This MappableAttributesRetriever implementation reads the list of defined J2EE
  * roles from a web.xml file. It's functionality is based on the
- * XmlMappableRolesRetriever base class.
+ * XmlMappableAttributesRetriever base class.
  * <p>
- * Example on how to configure this MappableRolesRetriever in the Spring
+ * Example on how to configure this MappableAttributesRetriever in the Spring
  * configuration file:
  *
  * <pre>
  *
  *
- * &lt;bean id=&quot;j2eeMappableRolesRetriever&quot; class=&quot;org.springframework.security.ui.preauth.j2ee.WebXmlMappableRolesRetriever&quot;&gt;
+ * &lt;bean id=&quot;j2eeMappableRolesRetriever&quot; class=&quot;org.springframework.security.ui.preauth.j2ee.WebXmlMappableAttributesRetriever&quot;&gt;
  *     &lt;property name=&quot;webXmlInputStream&quot;&gt;&lt;bean factory-bean=&quot;webXmlResource&quot; factory-method=&quot;getInputStream&quot;/&gt;&lt;/property&gt;
  * &lt;/bean&gt;
  * &lt;bean id=&quot;webXmlResource&quot; class=&quot;org.springframework.web.context.support.ServletContextResource&quot;&gt;
@@ -30,13 +30,13 @@ import org.springframework.security.rolemapping.XmlMappableRolesRetriever;
  * @author Ruud Senden
  * @since 2.0
  */
-public class WebXmlMappableRolesRetriever extends XmlMappableRolesRetriever {
+public class WebXmlMappableAttributesRetriever extends XmlMappableAttributesRetriever {
     private static final String XPATH_EXPR = "/web-app/security-role/role-name/text()";
 
     /**
      * Constructor setting the XPath expression to use
      */
-    public WebXmlMappableRolesRetriever() {
+    public WebXmlMappableAttributesRetriever() {
         super.setXpathExpression(XPATH_EXPR);
     }
 

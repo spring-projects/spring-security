@@ -65,11 +65,11 @@
         </property>
     </bean>
 
-	<bean id="j2eeUserRoles2GrantedAuthoritiesMapper" class="org.springframework.security.rolemapping.SimpleRoles2GrantedAuthoritiesMapper">
+	<bean id="j2eeUserRoles2GrantedAuthoritiesMapper" class="org.springframework.security.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper">
 	    <property name="convertRoleToUpperCase" value="true"/>
     </bean>
 
-	<bean id="j2eeMappableRolesRetriever" class="org.springframework.security.ui.preauth.j2ee.WebXmlMappableRolesRetriever">
+	<bean id="j2eeMappableRolesRetriever" class="org.springframework.security.ui.preauth.j2ee.WebXmlMappableAttributesRetriever">
 
 	<property name="webXmlInputStream"><bean factory-bean="webXmlResource" factory-method="getInputStream"/>
     </property>

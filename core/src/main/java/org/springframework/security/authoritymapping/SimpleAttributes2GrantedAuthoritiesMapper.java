@@ -1,4 +1,4 @@
-package org.springframework.security.rolemapping;
+package org.springframework.security.authoritymapping;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
 
 /**
  * <p>
- * This class implements the Roles2GrantedAuthoritiesMapper interface by doing a
+ * This class implements the Attributes2GrantedAuthoritiesMapper interface by doing a
  * one-on-one mapping from roles to Acegi GrantedAuthorities. Optionally a
  * prefix can be added, and the role name can be converted to upper or lower
  * case.
@@ -21,7 +21,7 @@ import org.springframework.util.Assert;
  * @author Ruud Senden
  * @since 2.0
  */
-public class SimpleRoles2GrantedAuthoritiesMapper implements Roles2GrantedAuthoritiesMapper, InitializingBean {
+public class SimpleAttributes2GrantedAuthoritiesMapper implements Attributes2GrantedAuthoritiesMapper, InitializingBean {
     private String rolePrefix = "ROLE_";
 
     private boolean convertRoleToUpperCase = false;

@@ -4,8 +4,8 @@ import org.springframework.security.ui.preauth.PreAuthenticatedGrantedAuthoritie
 import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
 import org.springframework.security.providers.preauth.PreAuthenticatedGrantedAuthoritiesSetter;
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.rolemapping.Roles2GrantedAuthoritiesMapper;
-import org.springframework.security.rolemapping.MappableRolesRetriever;
+import org.springframework.security.authoritymapping.Attributes2GrantedAuthoritiesMapper;
+import org.springframework.security.authoritymapping.MappableAttributesRetriever;
 
 import java.util.ArrayList;
 
@@ -22,7 +22,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource extends Aut
 
     private String[] j2eeMappableRoles;
 
-    private Roles2GrantedAuthoritiesMapper j2eeUserRoles2GrantedAuthoritiesMapper;
+    private Attributes2GrantedAuthoritiesMapper j2eeUserRoles2GrantedAuthoritiesMapper;
 
     /**
      * Public constructor which overrides the default AuthenticationDetails
@@ -84,17 +84,17 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource extends Aut
 
     /**
      * @param aJ2eeMappableRolesRetriever
-     *            The MappableRolesRetriever to use
+     *            The MappableAttributesRetriever to use
      */
-    public void setJ2eeMappableRolesRetriever(MappableRolesRetriever aJ2eeMappableRolesRetriever) {
-        this.j2eeMappableRoles = aJ2eeMappableRolesRetriever.getMappableRoles();
+    public void setJ2eeMappableRolesRetriever(MappableAttributesRetriever aJ2eeMappableRolesRetriever) {
+        this.j2eeMappableRoles = aJ2eeMappableRolesRetriever.getMappableAttributes();
     }
 
     /**
      * @param mapper
-     *            The Roles2GrantedAuthoritiesMapper to use
+     *            The Attributes2GrantedAuthoritiesMapper to use
      */
-    public void setJ2eeUserRoles2GrantedAuthoritiesMapper(Roles2GrantedAuthoritiesMapper mapper) {
+    public void setJ2eeUserRoles2GrantedAuthoritiesMapper(Attributes2GrantedAuthoritiesMapper mapper) {
         j2eeUserRoles2GrantedAuthoritiesMapper = mapper;
     }
 

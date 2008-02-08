@@ -9,10 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.rolemapping.MappableRolesRetriever;
-import org.springframework.security.rolemapping.Roles2GrantedAuthoritiesMapper;
-import org.springframework.security.rolemapping.SimpleMappableRolesRetriever;
-import org.springframework.security.rolemapping.SimpleRoles2GrantedAuthoritiesMapper;
+import org.springframework.security.authoritymapping.MappableAttributesRetriever;
+import org.springframework.security.authoritymapping.Attributes2GrantedAuthoritiesMapper;
+import org.springframework.security.authoritymapping.SimpleMappableAttributesRetriever;
+import org.springframework.security.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
 import org.springframework.security.ui.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 import org.springframework.security.GrantedAuthority;
 
@@ -120,14 +120,14 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 		return result;
 	}
 
-	private MappableRolesRetriever getMappableRolesRetriever(String[] mappedRoles) {
-		SimpleMappableRolesRetriever result = new SimpleMappableRolesRetriever();
+	private MappableAttributesRetriever getMappableRolesRetriever(String[] mappedRoles) {
+		SimpleMappableAttributesRetriever result = new SimpleMappableAttributesRetriever();
 		result.setMappableRoles(mappedRoles);
 		return result;
 	}
 
-	private Roles2GrantedAuthoritiesMapper getJ2eeUserRoles2GrantedAuthoritiesMapper() {
-		SimpleRoles2GrantedAuthoritiesMapper result = new SimpleRoles2GrantedAuthoritiesMapper();
+	private Attributes2GrantedAuthoritiesMapper getJ2eeUserRoles2GrantedAuthoritiesMapper() {
+		SimpleAttributes2GrantedAuthoritiesMapper result = new SimpleAttributes2GrantedAuthoritiesMapper();
 		result.setAddPrefixIfAlreadyExisting(false);
 		result.setConvertRoleToLowerCase(false);
 		result.setConvertRoleToUpperCase(false);
