@@ -50,7 +50,7 @@ import org.springframework.security.userdetails.UserDetails;
  * @author Ray Krueger
  * @version $Id$
  */
-public interface AuthoritiesPopulator {
+public interface UserDetailsService {
     /**
      * Obtains the granted authorities for the specified user.<P>May throw any
      * <code>AuthenticationException</code> or return <code>null</code> if the authorities are unavailable.</p>

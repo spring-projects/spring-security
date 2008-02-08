@@ -20,32 +20,43 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.providers.AuthenticationProvider;
-import org.springframework.security.providers.AuthoritiesPopulator;
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
 
 
 /**
- * Finalises the OpenID authentication by obtaining local roles
+ * Finalises the OpenID authentication by obtaining local authorities for the authenticated user.
+ * <p>
+ * The authorities are obtained by calling the configured <tt>UserDetailsService</tt>.
+ * The <code>UserDetails</code> it returns must, at minimum, contain the username and <code>GrantedAuthority[]</code>
+ * objects applicable to the authenticated user. Note that by default, Spring Security ignores the password and
+ * enabled/disabled status of the <code>UserDetails</code> because this is
+ * authentication-related and should have been enforced by another provider server.
+ * <p>
+ * You can optionally have these checked by configuring wrapping the <tt>UserDetailsService</tt> in a
+ * {@link org.springframework.security.userdetails.decorator.StatusCheckingUserDetailsService} decorator.
+ * <p>
+ * The <code>UserDetails</code> returned by implementations is stored in the generated <code>AuthenticationToken</code>,
+ * so additional properties such as email addresses, telephone numbers etc can easily be stored.
  *
  * @author Robin Bramley, Opsera Ltd.
  */
 public class OpenIDAuthenticationProvider implements AuthenticationProvider, InitializingBean {
     //~ Instance fields ================================================================================================
 
-    private AuthoritiesPopulator authoritiesPopulator;
+    private UserDetailsService userDetailsService;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.authoritiesPopulator, "The authoritiesPopulator must be set");
+        Assert.notNull(this.userDetailsService, "The userDetailsService must be set");
     }
 
     /* (non-Javadoc)
      * @see org.springframework.security.providers.AuthenticationProvider#authenticate(org.springframework.security.Authentication)
      */
-    public Authentication authenticate(final Authentication authentication)
-            throws AuthenticationException {
+    public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
 
         if (!supports(authentication.getClass())) {
             return null;
@@ -59,7 +70,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
             if (status == OpenIDAuthenticationStatus.SUCCESS) {
 
                 // Lookup user details
-                UserDetails userDetails = this.authoritiesPopulator.getUserDetails(response.getIdentityUrl());
+                UserDetails userDetails = userDetailsService.loadUserByUsername(response.getIdentityUrl());
 
                 return new OpenIDAuthenticationToken(userDetails.getAuthorities(), response.getStatus(),
                         response.getIdentityUrl());
@@ -81,8 +92,11 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
         return null;
     }
 
-    public void setAuthoritiesPopulator(AuthoritiesPopulator authoritiesPopulator) {
-        this.authoritiesPopulator = authoritiesPopulator;
+    /**
+     * Used to load the authorities for the authenticated OpenID user.
+     */
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
 
     /* (non-Javadoc)

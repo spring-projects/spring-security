@@ -53,10 +53,10 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
      * @param principal typically the UserDetails object (cannot  be <code>null</code>)
      * @param credentials the service/proxy ticket ID from CAS (cannot be
      *        <code>null</code>)
-     * @param authorities the authorities granted to the user (from {@link
-     *        CasAuthoritiesPopulator}) (cannot be <code>null</code>)
-     * @param userDetails the user details (from {@link
-     *        CasAuthoritiesPopulator}) (cannot be <code>null</code>)
+     * @param authorities the authorities granted to the user (from the {@link
+     *        org.springframework.security.userdetails.UserDetailsService}) (cannot be <code>null</code>)
+     * @param userDetails the user details (from the {@link
+     *        org.springframework.security.userdetails.UserDetailsService}) (cannot be <code>null</code>)
      * @param proxyList the list of proxies from CAS (cannot be
      *        <code>null</code>)
      * @param proxyGrantingTicketIou the PGT-IOU ID from CAS (cannot be

@@ -18,7 +18,13 @@ import junit.framework.TestCase;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.BadCredentialsException;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.User;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.userdetails.UserDetailsService;
 
 
 /**
@@ -38,7 +44,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
      */
     public void testAuthenticateCancel() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-        provider.setAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        provider.setUserDetailsService(new MockUserDetailsService());
 
         Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.CANCELLED, USERNAME, "");
 
@@ -57,7 +63,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
      */
     public void testAuthenticateError() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-        provider.setAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        provider.setUserDetailsService(new MockUserDetailsService());
 
         Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.ERROR, USERNAME, "");
 
@@ -76,7 +82,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
      */
     public void testAuthenticateFailure() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-        provider.setAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        provider.setUserDetailsService(new MockUserDetailsService());
 
         Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.FAILURE, USERNAME, "");
 
@@ -95,7 +101,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
      */
     public void testAuthenticateSetupNeeded() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-        provider.setAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        provider.setUserDetailsService(new MockUserDetailsService());
 
         Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SETUP_NEEDED, USERNAME, "");
 
@@ -114,7 +120,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
      */
     public void testAuthenticateSuccess() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-        provider.setAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        provider.setUserDetailsService(new MockUserDetailsService());
 
         Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS, USERNAME, "");
 
@@ -149,7 +155,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
      */
     public void testDoesntSupport() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-        provider.setAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        provider.setUserDetailsService(new MockUserDetailsService());
 
         assertFalse(provider.supports(UsernamePasswordAuthenticationToken.class));
     }
@@ -159,7 +165,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
      */
     public void testIgnoresUserPassAuthToken() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-        provider.setAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        provider.setUserDetailsService(new MockUserDetailsService());
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(USERNAME, "password");
         assertEquals(null, provider.authenticate(token));
@@ -170,23 +176,31 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
      */
     public void testSupports() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-        provider.setAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        provider.setUserDetailsService(new MockUserDetailsService());
 
         assertTrue(provider.supports(OpenIDAuthenticationToken.class));
     }
 
     public void testValidation() throws Exception {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-        provider.setAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        provider.setUserDetailsService(new MockUserDetailsService());
         provider.afterPropertiesSet();
 
-        provider.setAuthoritiesPopulator(null);
+        provider.setUserDetailsService(null);
 
         try {
             provider.afterPropertiesSet();
             fail("IllegalArgumentException expected, ssoAuthoritiesPopulator is null");
         } catch (IllegalArgumentException e) {
             //expected
+        }
+    }
+
+    static class MockUserDetailsService implements UserDetailsService {
+        public UserDetails loadUserByUsername(String ssoUserId)
+            throws AuthenticationException {
+            return new User(ssoUserId, "password", true, true, true, true,
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B")});
         }
     }
 }

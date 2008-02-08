@@ -22,12 +22,12 @@ import org.springframework.security.BadCredentialsException;
 
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.AuthoritiesPopulator;
 import org.springframework.security.providers.cas.cache.NullStatelessTicketCache;
 
 import org.springframework.security.ui.cas.CasProcessingFilter;
 
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,7 +60,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
     //~ Instance fields ================================================================================================
 
-    private AuthoritiesPopulator casAuthoritiesPopulator;
+    private UserDetailsService userDetailsService;
     private CasProxyDecider casProxyDecider;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private StatelessTicketCache statelessTicketCache = new NullStatelessTicketCache();
@@ -70,7 +70,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     //~ Methods ========================================================================================================
 
 	public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.casAuthoritiesPopulator, "A casAuthoritiesPopulator must be set");
+        Assert.notNull(this.userDetailsService, "A userDetailsService must be set");
         Assert.notNull(this.ticketValidator, "A ticketValidator must be set");
         Assert.notNull(this.casProxyDecider, "A casProxyDecider must be set");
         Assert.notNull(this.statelessTicketCache, "A statelessTicketCache must be set");
@@ -141,19 +141,19 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         this.casProxyDecider.confirmProxyListTrusted(response.getProxyList());
 
         // Lookup user details
-        UserDetails userDetails = this.casAuthoritiesPopulator.getUserDetails(response.getUser());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(response.getUser());
 
         // Construct CasAuthenticationToken
         return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(),
             userDetails.getAuthorities(), userDetails, response.getProxyList(), response.getProxyGrantingTicketIou());
     }
 
-    protected AuthoritiesPopulator getCasAuthoritiesPopulator() {
-        return casAuthoritiesPopulator;
+    protected UserDetailsService getUserDetailsService() {
+        return userDetailsService;
     }
 
-    public void setCasAuthoritiesPopulator(AuthoritiesPopulator casAuthoritiesPopulator) {
-        this.casAuthoritiesPopulator = casAuthoritiesPopulator;
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
 
     public CasProxyDecider getCasProxyDecider() {

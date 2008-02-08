@@ -29,11 +29,7 @@
 
     <b:bean id="openIdAuthenticationProvider" class="org.springframework.security.providers.openid.OpenIDAuthenticationProvider">
         <custom-authentication-provider />
-        <b:property name="authoritiesPopulator">
-            <b:bean class="org.springframework.security.providers.DaoAuthoritiesPopulator">
-                <b:property name="userDetailsService" ref="userService"/>
-            </b:bean>
-        </b:property>
+        <b:property name="userDetailsService" ref="userDetailsService"/>
     </b:bean>
 
     <b:bean id="entryPoint" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">

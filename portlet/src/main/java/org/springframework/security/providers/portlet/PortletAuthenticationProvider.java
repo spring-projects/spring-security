@@ -65,7 +65,7 @@ public class PortletAuthenticationProvider
 	//~ Methods ========================================================================================================
 
 	public void afterPropertiesSet() throws Exception {
-		Assert.notNull(this.portletAuthoritiesPopulator, "An authorities populator must be set");
+	    Assert.notNull(this.portletAuthoritiesPopulator, "An authorities populator must be set");
 		Assert.notNull(this.userCache, "A user cache must be set");
 	}
 

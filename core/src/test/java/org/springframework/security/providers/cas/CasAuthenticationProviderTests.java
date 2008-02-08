@@ -15,8 +15,6 @@
 
 package org.springframework.security.providers.cas;
 
-import junit.framework.TestCase;
-
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
@@ -31,11 +29,15 @@ import org.springframework.security.ui.cas.CasProcessingFilter;
 
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsService;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 
 /**
@@ -44,16 +46,7 @@ import java.util.Vector;
  * @author Ben Alex
  * @version $Id$
  */
-public class CasAuthenticationProviderTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public CasAuthenticationProviderTests() {
-    }
-
-    public CasAuthenticationProviderTests(String arg0) {
-        super(arg0);
-    }
-
+public class CasAuthenticationProviderTests {
     //~ Methods ========================================================================================================
 
     private UserDetails makeUserDetails() {
@@ -66,13 +59,10 @@ public class CasAuthenticationProviderTests extends TestCase {
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B")});
     }
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void testAuthenticateStateful() throws Exception {
+    @Test
+    public void statefulAuthenticationIsSuccessful() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
-        cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        cap.setUserDetailsService(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider(true));
         cap.setKey("qwerty");
 
@@ -111,9 +101,10 @@ public class CasAuthenticationProviderTests extends TestCase {
         assertEquals(result, laterResult);
     }
 
-    public void testAuthenticateStateless() throws Exception {
+    @Test
+    public void statelessAuthenticationIsSuccessful() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
-        cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        cap.setUserDetailsService(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider(true));
         cap.setKey("qwerty");
 
@@ -147,9 +138,10 @@ public class CasAuthenticationProviderTests extends TestCase {
         assertEquals("ST-456", newResult.getCredentials());
     }
 
-    public void testDetectsAMissingTicketId() throws Exception {
+    @Test(expected = BadCredentialsException.class)
+    public void missingTicketIdIsDetected() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
-        cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        cap.setUserDetailsService(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider(true));
         cap.setKey("qwerty");
 
@@ -158,19 +150,16 @@ public class CasAuthenticationProviderTests extends TestCase {
         cap.setTicketValidator(new MockTicketValidator(true));
         cap.afterPropertiesSet();
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(CasProcessingFilter.CAS_STATEFUL_IDENTIFIER,
-                "");
+        UsernamePasswordAuthenticationToken token =
+                new UsernamePasswordAuthenticationToken(CasProcessingFilter.CAS_STATEFUL_IDENTIFIER, "");
 
-        try {
-            Authentication result = cap.authenticate(token);
-            fail("Should have thrown BadCredentialsException");
-        } catch (BadCredentialsException expected) {
-        }
+        Authentication result = cap.authenticate(token);
     }
 
-    public void testDetectsAnInvalidKey() throws Exception {
+    @Test(expected = BadCredentialsException.class)
+    public void invalidKeyIsDetected() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
-        cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        cap.setUserDetailsService(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider(true));
         cap.setKey("qwerty");
 
@@ -182,112 +171,82 @@ public class CasAuthenticationProviderTests extends TestCase {
         CasAuthenticationToken token = new CasAuthenticationToken("WRONG_KEY", makeUserDetails(), "credentials",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("XX")}, makeUserDetails(), new Vector(), "IOU-xxx");
 
-        try {
-            Authentication result = cap.authenticate(token);
-            fail("Should have thrown BadCredentialsException");
-        } catch (BadCredentialsException expected) {
-        }
+        cap.authenticate(token);
     }
 
-    public void testDetectsMissingAuthoritiesPopulator()
-        throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void detectsMissingAuthoritiesPopulator() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setKey("qwerty");
         cap.setStatelessTicketCache(new MockStatelessTicketCache());
         cap.setTicketValidator(new MockTicketValidator(true));
-
-        try {
-            cap.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("A casAuthoritiesPopulator must be set", expected.getMessage());
-        }
+        cap.afterPropertiesSet();
     }
 
-    public void testDetectsMissingKey() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void detectsMissingKey() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
-        cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        cap.setUserDetailsService(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setStatelessTicketCache(new MockStatelessTicketCache());
         cap.setTicketValidator(new MockTicketValidator(true));
-
-        try {
-            cap.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("A Key is required so CasAuthenticationProvider can identify tokens it previously authenticated",
-                expected.getMessage());
-        }
+        cap.afterPropertiesSet();
     }
 
-    public void testDetectsMissingProxyDecider() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void detectsMissingProxyDecider() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
-        cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        cap.setUserDetailsService(new MockAuthoritiesPopulator());
         cap.setKey("qwerty");
         cap.setStatelessTicketCache(new MockStatelessTicketCache());
         cap.setTicketValidator(new MockTicketValidator(true));
-
-        try {
-            cap.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("A casProxyDecider must be set", expected.getMessage());
-        }
+        cap.afterPropertiesSet();
     }
 
-    public void testDetectsMissingStatelessTicketCache()
-        throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void detectsMissingStatelessTicketCache() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
         // set this explicitly to null to test failure
         cap.setStatelessTicketCache(null);
-        cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        cap.setUserDetailsService(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setKey("qwerty");
         cap.setTicketValidator(new MockTicketValidator(true));
-
-        try {
-            cap.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("A statelessTicketCache must be set", expected.getMessage());
-        }
+        cap.afterPropertiesSet();
     }
 
-    public void testDetectsMissingTicketValidator() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void detectsMissingTicketValidator() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
-        cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        cap.setUserDetailsService(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider(true));
         cap.setKey("qwerty");
         cap.setStatelessTicketCache(new MockStatelessTicketCache());
-
-        try {
-            cap.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("A ticketValidator must be set", expected.getMessage());
-        }
+        cap.afterPropertiesSet();
     }
 
-    public void testGettersSetters() throws Exception {
+    @Test
+    public void gettersAndSettersMatch() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
-        cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        cap.setUserDetailsService(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setKey("qwerty");
         cap.setStatelessTicketCache(new MockStatelessTicketCache());
         cap.setTicketValidator(new MockTicketValidator(true));
         cap.afterPropertiesSet();
 
-        assertTrue(cap.getCasAuthoritiesPopulator() != null);
+        assertTrue(cap.getUserDetailsService() != null);
         assertTrue(cap.getCasProxyDecider() != null);
         assertEquals("qwerty", cap.getKey());
         assertTrue(cap.getStatelessTicketCache() != null);
         assertTrue(cap.getTicketValidator() != null);
     }
 
-    public void testIgnoresClassesItDoesNotSupport() throws Exception {
+    @Test
+    public void ignoresClassesItDoesNotSupport() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
-        cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        cap.setUserDetailsService(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setKey("qwerty");
         cap.setStatelessTicketCache(new MockStatelessTicketCache());
@@ -302,10 +261,10 @@ public class CasAuthenticationProviderTests extends TestCase {
         assertEquals(null, cap.authenticate(token));
     }
 
-    public void testIgnoresUsernamePasswordAuthenticationTokensWithoutCasIdentifiersAsPrincipal()
-        throws Exception {
+    @Test
+    public void ignoresUsernamePasswordAuthenticationTokensWithoutCasIdentifiersAsPrincipal() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
-        cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
+        cap.setUserDetailsService(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setKey("qwerty");
         cap.setStatelessTicketCache(new MockStatelessTicketCache());
@@ -317,7 +276,8 @@ public class CasAuthenticationProviderTests extends TestCase {
         assertEquals(null, cap.authenticate(token));
     }
 
-    public void testSupports() {
+    @Test
+    public void supportsRequiredTokens() {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
         assertTrue(cap.supports(UsernamePasswordAuthenticationToken.class));
         assertTrue(cap.supports(CasAuthenticationToken.class));
@@ -325,9 +285,8 @@ public class CasAuthenticationProviderTests extends TestCase {
 
     //~ Inner Classes ==================================================================================================
 
-    private class MockAuthoritiesPopulator implements CasAuthoritiesPopulator {
-        public UserDetails getUserDetails(String casUserId)
-            throws AuthenticationException {
+    private class MockAuthoritiesPopulator implements UserDetailsService {
+        public UserDetails loadUserByUsername(String casUserId) throws AuthenticationException {
             return makeUserDetailsFromAuthoritiesPopulator();
         }
     }
@@ -378,10 +337,6 @@ public class CasAuthenticationProviderTests extends TestCase {
 
         public MockTicketValidator(boolean returnTicket) {
             this.returnTicket = returnTicket;
-        }
-
-        private MockTicketValidator() {
-            super();
         }
 
         public TicketResponse confirmTicketValid(String serviceTicket)

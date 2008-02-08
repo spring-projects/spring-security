@@ -41,13 +41,10 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
         setAuthenticated(false);
     }
 
-/**
+    /**
      * Created by the OpenIDAuthenticationProvider on successful authentication.
      * <b>Do not use directly</b>
      *
-     * @param authorities
-     * @param status
-     * @param identityUrl
      */
     public OpenIDAuthenticationToken(GrantedAuthority[] authorities, OpenIDAuthenticationStatus status, String identityUrl) {
         super(authorities);
