@@ -32,9 +32,9 @@ public class UserDetailsByNameServiceWrapper implements AuthenticationUserDetail
 	 * Get the UserDetails object from the wrapped UserDetailsService
 	 * implementation
 	 */
-	public UserDetails loadUserDetails(Authentication aJ2eeAuthenticationToken) throws UsernameNotFoundException,
+	public UserDetails loadUserDetails(Authentication authentication) throws UsernameNotFoundException,
 			DataAccessException {
-		return userDetailsService.loadUserByUsername(aJ2eeAuthenticationToken.getName());
+		return userDetailsService.loadUserByUsername(authentication.getName());
 	}
 
 	/**

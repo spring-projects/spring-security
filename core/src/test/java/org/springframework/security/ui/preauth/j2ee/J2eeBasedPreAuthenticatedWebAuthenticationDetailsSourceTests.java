@@ -19,7 +19,7 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
- * 
+ *
  * @author TSARDD
  * @since 18-okt-2007
  */
@@ -122,7 +122,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 
 	private MappableAttributesRetriever getMappableRolesRetriever(String[] mappedRoles) {
 		SimpleMappableAttributesRetriever result = new SimpleMappableAttributesRetriever();
-		result.setMappableRoles(mappedRoles);
+		result.setMappableAttributes(mappedRoles);
 		return result;
 	}
 
@@ -134,7 +134,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 		result.setRolePrefix("");
 		return result;
 	}
-	
+
 	private final HttpServletRequest getRequest(final String userName,final String[] aRoles)
 	{
 		MockHttpServletRequest req = new MockHttpServletRequest() {

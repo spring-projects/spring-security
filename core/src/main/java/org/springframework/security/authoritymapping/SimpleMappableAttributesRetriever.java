@@ -25,7 +25,7 @@ public class SimpleMappableAttributesRetriever implements MappableAttributesRetr
         return copy;
     }
 
-    public void setMappableRoles(String[] aMappableRoles) {
+    public void setMappableAttributes(String[] aMappableRoles) {
         this.mappableRoles = new String[aMappableRoles.length];
         System.arraycopy(aMappableRoles, 0, mappableRoles, 0, mappableRoles.length);
     }

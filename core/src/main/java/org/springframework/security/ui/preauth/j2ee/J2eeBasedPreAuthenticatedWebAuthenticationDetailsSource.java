@@ -60,8 +60,8 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource extends Aut
     /**
      * Get a list of Granted Authorities based on the current user's J2EE roles.
      *
-     * @param request
-     *            The HttpServletRequest
+     * @param request The request against which <tt>isUserInRole</tt> will be called for each role name
+     *                returned by the MappableAttributesRetriever. 
      * @return GrantedAuthority[] mapped from the user's J2EE roles.
      */
     private GrantedAuthority[] getJ2eeBasedGrantedAuthorities(HttpServletRequest request) {
