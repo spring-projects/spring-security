@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
 <!--
   - Application context containing authentication beans.
@@ -9,7 +14,6 @@
   - $Id$
   -->
 
-<beans>
 
   <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
     <property name="basenames">
@@ -106,25 +110,25 @@
   <bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
     <constructor-arg ref="dataSource"/>
     <constructor-arg ref="aclCache"/>
-    <constructor-arg ref="aclAuthorizationStrategy"/>
+    <constructor-arg>
+        <bean class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+            <constructor-arg>
+            <list>
+                <bean class="org.springframework.security.GrantedAuthorityImpl">
+                    <constructor-arg value="ROLE_ADMINISTRATOR"/>
+                </bean>
+                <bean class="org.springframework.security.GrantedAuthorityImpl">
+                    <constructor-arg value="ROLE_ADMINISTRATOR"/>
+                </bean>
+                <bean class="org.springframework.security.GrantedAuthorityImpl">
+                    <constructor-arg value="ROLE_ADMINISTRATOR"/>
+                </bean>
+            </list>
+            </constructor-arg>
+        </bean>
+    </constructor-arg>
     <constructor-arg>
       <bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
-    </constructor-arg>
-  </bean>
-
-  <bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
-    <constructor-arg>
-      <list>
-        <bean class="org.springframework.security.GrantedAuthorityImpl">
-          <constructor-arg value="ROLE_ADMINISTRATOR"/>
-        </bean>
-        <bean class="org.springframework.security.GrantedAuthorityImpl">
-          <constructor-arg value="ROLE_ADMINISTRATOR"/>
-        </bean>
-        <bean class="org.springframework.security.GrantedAuthorityImpl">
-          <constructor-arg value="ROLE_ADMINISTRATOR"/>
-        </bean>
-      </list>
     </constructor-arg>
   </bean>
 
@@ -166,36 +170,6 @@
         <ref local="org.springframework.security.acls.domain.BasePermission.READ"/>
       </list>
     </constructor-arg>
-  </bean>
-
-  <!-- ================= METHOD INVOCATION AUTHORIZATION ==================== -->
-
-  <!-- getRandomContact() is public.
-
-  The create, getAll, getById etc have ROLE_USER to ensure user is
-  authenticated (all users hold ROLE_USER in this application).
-
-  The delete and update methods don't need a ROLE_USER as they will
-  ensure the user is authenticated via their ACL_CONTACT_DELETE or
-  ACL_CONTACT_READ attribute, which also ensures the user has permission
-  to the Contact presented as a method argument.
-
-  Autowired to pick up authentication manager from namespace config.
-  -->
-  <bean id="contactManagerSecurity" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor" autowire="byType">
-    <property name="accessDecisionManager" ref="businessAccessDecisionManager"/>
-    <property name="afterInvocationManager" ref="afterInvocationManager"/>
-    <property name="objectDefinitionSource">
-      <value>
-        sample.contact.ContactManager.create=ROLE_USER
-        sample.contact.ContactManager.getAllRecipients=ROLE_USER
-        sample.contact.ContactManager.getAll=ROLE_USER,AFTER_ACL_COLLECTION_READ
-        sample.contact.ContactManager.getById=ROLE_USER,AFTER_ACL_READ
-        sample.contact.ContactManager.delete=ACL_CONTACT_DELETE
-        sample.contact.ContactManager.deletePermission=ACL_CONTACT_ADMIN
-        sample.contact.ContactManager.addPermission=ACL_CONTACT_ADMIN
-      </value>
-    </property>
   </bean>
 
 </beans>

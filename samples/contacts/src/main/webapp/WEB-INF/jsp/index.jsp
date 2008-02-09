@@ -3,7 +3,7 @@
 <html>
 <head><title>Your Contacts</title></head>
 <body>
-<h1><security:authentication operation="username"/>'s Contacts</h1>
+<h1><security:authentication property="principal.username"/>'s Contacts</h1>
 <P>
 <table cellpadding=3 border=0>
 <tr><td><b>id</b></td><td><b>Name</b></td><td><b>Email</b></td></tr>

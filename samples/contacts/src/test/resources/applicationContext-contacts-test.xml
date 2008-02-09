@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
 <!--
   - Application context containing authentication beans.
   -
@@ -9,30 +7,22 @@
   - $Id$
   -->
 
-<beans>
+<b:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:b="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
 
    <!-- ======================== AUTHENTICATION ======================= -->
 
-   <bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
-      <property name="providers">
-         <list>
-            <ref local="daoAuthenticationProvider"/>
-         </list>
-      </property>
-   </bean>
+    <authentication-provider>
+        <password-encoder hash="md5"/>
+        <jdbc-user-service data-source-ref="dataSource"/>
+    </authentication-provider>
 
-   <bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
-      <property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
-      <property name="passwordEncoder"><ref local="passwordEncoder"/></property>
-   </bean>
-
-   <bean id="jdbcDaoImpl" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
-      <property name="dataSource"><ref bean="dataSource"/></property>
-   </bean>
-
-   <bean id="passwordEncoder" class="org.springframework.security.providers.encoding.Md5PasswordEncoder"/>
 
    <!-- Automatically receives AuthenticationEvent messages -->
-   <bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
+   <b:bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
 
-</beans>
+</b:beans>

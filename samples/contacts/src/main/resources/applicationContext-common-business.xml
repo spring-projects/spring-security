@@ -9,23 +9,24 @@
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:sec="http://www.springframework.org/schema/security"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-  <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-      <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-      <property name="url" value="jdbc:hsqldb:mem:test"/> <!-- <value>jdbc:hsqldb:hsql://localhost/acl</value> -->
-      <property name="username" value="sa"/>
-      <property name="password" value=""/>
-  </bean>
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+        <property name="url" value="jdbc:hsqldb:mem:test"/>
+        <!-- <value>jdbc:hsqldb:hsql://localhost/acl</value> -->
+        <property name="username" value="sa"/>
+        <property name="password" value=""/>
+    </bean>
 
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource"><ref local="dataSource"/></property>
-	</bean>
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
-	<bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+    <bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
     <property name="transactionManager"><ref local="transactionManager"/></property>
 		<property name="transactionAttributeSource">
       <value>
@@ -40,27 +41,35 @@
 		</property>
 	</bean>
 
-   <bean id="dataSourcePopulator" class="sample.contact.DataSourcePopulator">
-	   <property name="dataSource" ref="dataSource"/>
-	   <property name="mutableAclService" ref="aclService"/>
-	   <property name="platformTransactionManager" ref="transactionManager"/>
-   </bean>
+    <bean id="dataSourcePopulator" class="sample.contact.DataSourcePopulator">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mutableAclService" ref="aclService"/>
+        <property name="platformTransactionManager" ref="transactionManager"/>
+    </bean>
 
-   <bean id="contactManager" class="org.springframework.aop.framework.ProxyFactoryBean">
-     <property name="proxyInterfaces" value="sample.contact.ContactManager"/>
-     <property name="interceptorNames">
-       <list>
-         <idref local="transactionInterceptor"/>
-         <idref bean="contactManagerSecurity"/>
-         <idref local="contactManagerTarget"/>
-       </list>
-     </property>
-   </bean>
+    <bean id="contactManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyInterfaces" value="sample.contact.ContactManager"/>
+        <property name="interceptorNames">
+            <list>
+                <idref local="transactionInterceptor"/>
+                <idref local="contactManagerTarget"/>
+            </list>
+        </property>
+    </bean>
 
-   <bean id="contactManagerTarget" class="sample.contact.ContactManagerBackend">
+    <bean id="contactManagerTarget" class="sample.contact.ContactManagerBackend">
+       <sec:intercept-methods access-decision-manager-ref="businessAccessDecisionManager">
+           <sec:protect method="sample.contact.ContactManager.create" access="ROLE_USER"/>
+           <sec:protect method="sample.contact.ContactManager.getAllRecipients" access="ROLE_USER"/>
+           <sec:protect method="sample.contact.ContactManager.getAll" access="ROLE_USER,AFTER_ACL_COLLECTION_READ"/>
+           <sec:protect method="sample.contact.ContactManager.getById" access="ROLE_USER,AFTER_ACL_READ"/>
+           <sec:protect method="sample.contact.ContactManager.delete" access="ACL_CONTACT_DELETE"/>
+           <sec:protect method="sample.contact.ContactManager.deletePermission" access="ACL_CONTACT_ADMIN"/>
+           <sec:protect method="sample.contact.ContactManager.addPermission" access="ACL_CONTACT_ADMIN"/>
+       </sec:intercept-methods>
        <property name="contactDao">
             <bean class="sample.contact.ContactDaoSpring">
-               <property name="dataSource"><ref local="dataSource"/></property>
+               <property name="dataSource" ref="dataSource"/>
             </bean>
         </property>
         <property name="mutableAclService" ref="aclService"/>

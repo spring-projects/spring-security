@@ -27,141 +27,20 @@
         <logout logout-success-url="/index.jsp"/>
     </http>
 
-<!--
-	<bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
-      <property name="filterInvocationDefinitionSource">
-         <value><![CDATA[
-		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-		    PATTERN_TYPE_APACHE_ANT
-            /**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor,switchUserProcessingFilter
-         ]]></value>
-      </property>
-    </bean>
-
-   <bean id="basicProcessingFilter" class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
-      <property name="authenticationManager"><ref local="authenticationManager"/></property>
-      <property name="authenticationEntryPoint"><ref local="basicProcessingFilterEntryPoint"/></property>
-   </bean>
-
-   <bean id="basicProcessingFilterEntryPoint" class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
-      <property name="realmName" value="Contacts Realm"/>
-   </bean>
-
-   <bean id="anonymousProcessingFilter" class="org.springframework.security.providers.anonymous.AnonymousProcessingFilter">
-      <property name="key" value="foobar"/>
-      <property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS"/>
-   </bean>
-
-   <bean id="anonymousAuthenticationProvider" class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
-      <property name="key" value="foobar"/>
-   </bean>
-
-   <bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
-
-   <bean id="rememberMeProcessingFilter" class="org.springframework.security.ui.rememberme.RememberMeProcessingFilter">
-      <property name="authenticationManager"><ref local="authenticationManager"/></property>
-      <property name="rememberMeServices"><ref local="rememberMeServices"/></property>
-   </bean>
-
-   <bean id="rememberMeServices" class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices">
-      <property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
-      <property name="key" value="springRocks"/>
-   </bean>
-
-   <bean id="rememberMeAuthenticationProvider" class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider">
-      <property name="key" value="springRocks"/>
-   </bean>
-
-   <bean id="logoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
-      <constructor-arg value="/index.jsp"/>
-      <constructor-arg>
-         <list>
-              <ref bean="rememberMeServices"/>
-              <bean class="org.springframework.security.ui.logout.SecurityContextLogoutHandler"/>
-         </list>
-      </constructor-arg>
-   </bean>
-
-   <bean id="securityContextHolderAwareRequestFilter" class="org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter"/>
-
-   <bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
-      <property name="authenticationEntryPoint"><ref local="authenticationProcessingFilterEntryPoint"/></property>
-      <property name="accessDeniedHandler">
-      	<bean class="org.springframework.security.ui.AccessDeniedHandlerImpl">
-      		<property name="errorPage" value="/accessDenied.jsp"/>
-      	</bean>
-      </property>
-   </bean>
-
-   <bean id="authenticationProcessingFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
-      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
-      <property name="authenticationFailureUrl"><value>/acegilogin.jsp?login_error=1</value></property>
-      <property name="defaultTargetUrl"><value>/</value></property>
-      <property name="filterProcessesUrl"><value>/j_spring_security_check</value></property>
-      <property name="rememberMeServices"><ref local="rememberMeServices"/></property>
-   </bean>
-
-   <bean id="authenticationProcessingFilterEntryPoint" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
-      <property name="loginFormUrl"><value>/acegilogin.jsp</value></property>
-      <property name="forceHttps"><value>false</value></property>
-   </bean>
-
-   <bean id="filterInvocationInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
-      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
-      <property name="accessDecisionManager"><ref local="httpRequestAccessDecisionManager"/></property>
-      <property name="objectDefinitionSource">
-         <value><![CDATA[
-			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-			    PATTERN_TYPE_APACHE_ANT
-			    /index.jsp=ROLE_ANONYMOUS,ROLE_USER
-			    /hello.htm=ROLE_ANONYMOUS,ROLE_USER
-			    /logoff.jsp=ROLE_ANONYMOUS,ROLE_USER
-			    /switchuser.jsp=ROLE_SUPERVISOR
-			    /j_spring_security_switch_user=ROLE_SUPERVISOR
-			    /acegilogin.jsp*=ROLE_ANONYMOUS,ROLE_USER
-				/**=ROLE_USER
-         ]]></value>
-      </property>
-   </bean>
-
--->
-
    <authentication-provider>
        <password-encoder hash="md5"/>
        <jdbc-user-service data-source-ref="dataSource"/>
    </authentication-provider>
-<!--
-   <bean id="jdbcDaoImpl" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
-      <property name="dataSource" ref="dataSource"/>
-   </bean>
-
-   <bean id="passwordEncoder" class="org.springframework.security.providers.encoding.Md5PasswordEncoder"/>
-
-   <bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
-      <property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
-      <property name="passwordEncoder"><ref local="passwordEncoder"/></property>
-   </bean>
--->
 
    <!-- Automatically receives AuthenticationEvent messages -->
    <b:bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
-
-
-   <b:bean id="httpRequestAccessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
-      <b:property name="allowIfAllAbstainDecisions" value="false" />
-      <b:property name="decisionVoters">
-         <b:list>
-            <b:ref bean="roleVoter"/>
-         </b:list>
-      </b:property>
-   </b:bean>
-
 
    <!-- Filter used to switch the user context. Note: the switch and exit url must be secured
         based on the role granted the ability to 'switch' to another user -->
    <!-- In this example 'rod' has ROLE_SUPERVISOR that can switch to regular ROLE_USER(s) -->
    <b:bean id="switchUserProcessingFilter" class="org.springframework.security.ui.switchuser.SwitchUserProcessingFilter" autowire="byType">
-	  <b:property name="targetUrl" value="/spring-security-sample-contacts-filter/secure/index.htm"/>
+       <custom-filter after="SWITCH_USER_FILTER"/>       
+       <b:property name="targetUrl" value="/secure/index.htm"/>
    </b:bean>
 
 </b:beans>
