@@ -20,137 +20,109 @@ import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.BeansException;
+import org.springframework.web.util.TagUtils;
 
 import java.io.IOException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
 
-
 /**
  * An {@link javax.servlet.jsp.tagext.Tag} implementation that allows convenient access to the current
- * <code>Authentication</code> object.<p>Whilst JSPs can access the <code>SecurityContext</code> directly, this tag
- * avoids handling <code>null</code> conditions. The tag also properly accommodates
- * <code>Authentication.getPrincipal()</code>, which can either be a <code>String</code> or a
- * <code>UserDetails</code>.</p>
+ * <code>Authentication</code> object. The <tt>operation</tt> attribute
+ * <p>
+ * Whilst JSPs can access the <code>SecurityContext</code> directly, this tag avoids handling <code>null</code> conditions.
  *
- * @author Ben Alex
+ * @author Thomas Champagne
  * @version $Id$
  */
 public class AuthenticationTag extends TagSupport {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final Set methodPrefixValidOptions = new HashSet();
-
-    static {
-        methodPrefixValidOptions.add("get");
-        methodPrefixValidOptions.add("is");
-    }
 
     //~ Instance fields ================================================================================================
 
-    private String methodPrefix = "get";
-    private String operation = "";
+    private String var;
+    private String property;
+    private int scope;
+    private boolean scopeSpecified;
+
 
     //~ Methods ========================================================================================================
 
+    public AuthenticationTag() {
+        init();
+    }
+
+    // resets local state
+    private void init() {
+        var = null;
+        scopeSpecified = false;
+        scope = PageContext.PAGE_SCOPE;
+    }
+    public void setVar(String var) {
+        this.var = var;
+    }
+
+    public void setProperty(String operation) {
+        this.property = operation;
+    }
+
+    public void setScope(String scope) {
+        this.scope = TagUtils.getScope(scope);
+        this.scopeSpecified = true;
+    }
+
     public int doStartTag() throws JspException {
-        if ((null == operation) || "".equals(operation)) {
-            return Tag.SKIP_BODY;
-        }
-
-        validateArguments();
-
-        if ((SecurityContextHolder.getContext() == null)
-            || !(SecurityContextHolder.getContext() instanceof SecurityContext)
-            || (((SecurityContext) SecurityContextHolder.getContext()).getAuthentication() == null)) {
-            return Tag.SKIP_BODY;
-        }
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth.getPrincipal() == null) {
-            return Tag.SKIP_BODY;
-        } else if (auth.getPrincipal() instanceof UserDetails) {
-            writeMessage(invokeOperation(auth.getPrincipal()));
-
-            return Tag.SKIP_BODY;
-        } else {
-            writeMessage(auth.getPrincipal().toString());
-
-            return Tag.SKIP_BODY;
-        }
+        return super.doStartTag();
     }
 
-    public String getMethodPrefix() {
-        return methodPrefix;
-    }
+    public int doEndTag() throws JspException {
+        Object result = null;
+        // determine the value by...
+        if (property != null) {
+            if ((SecurityContextHolder.getContext() == null)
+                    || !(SecurityContextHolder.getContext() instanceof SecurityContext)
+                    || (SecurityContextHolder.getContext().getAuthentication() == null)) {
+                return Tag.EVAL_PAGE;
+            }
 
-    public String getOperation() {
-        return operation;
-    }
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-    protected String invokeOperation(Object obj) throws JspException {
-        Class clazz = obj.getClass();
-        String methodToInvoke = getOperation();
-        StringBuffer methodName = new StringBuffer();
-        methodName.append(getMethodPrefix());
-        methodName.append(methodToInvoke.substring(0, 1).toUpperCase());
-        methodName.append(methodToInvoke.substring(1));
-
-        Method method = null;
-
-        try {
-            method = clazz.getMethod(methodName.toString(), (Class[]) null);
-        } catch (SecurityException se) {
-            throw new JspException(se);
-        } catch (NoSuchMethodException nsme) {
-            throw new JspException(nsme);
+            if (auth.getPrincipal() == null) {
+                return Tag.EVAL_PAGE;
+            } else {
+                try {
+                    BeanWrapperImpl wrapper = new BeanWrapperImpl(auth);
+                    result = wrapper.getPropertyValue(property);
+                } catch (BeansException e) {
+                    throw new JspException(e);
+                }
+            }
         }
 
-        Object retVal = null;
-
-        try {
-            retVal = method.invoke(obj, (Object[]) null);
-        } catch (IllegalArgumentException iae) {
-            throw new JspException(iae);
-        } catch (IllegalAccessException iae) {
-            throw new JspException(iae);
-        } catch (InvocationTargetException ite) {
-            throw new JspException(ite);
-        }
-
-        if (retVal == null) {
-            retVal = "";
-        }
-
-        return retVal.toString();
-    }
-
-    public void setMethodPrefix(String methodPrefix) {
-        this.methodPrefix = methodPrefix;
-    }
-
-    public void setOperation(String operation) {
-        this.operation = operation;
-    }
-
-    protected void validateArguments() throws JspException {
-        if ((getMethodPrefix() != null) && !getMethodPrefix().equals("")) {
-            if (!methodPrefixValidOptions.contains(getMethodPrefix())) {
-                throw new JspException("Authorization tag : no valid method prefix available");
+        if (var != null) {
+            /*
+             * Store the result, letting an IllegalArgumentException
+             * propagate back if the scope is invalid (e.g., if an attempt
+             * is made to store something in the session without any
+             * HttpSession existing).
+             */
+            if (result != null) {
+                pageContext.setAttribute(var, result, scope);
+            } else {
+                if (scopeSpecified) {
+                    pageContext.removeAttribute(var, scope);
+                } else {
+                    pageContext.removeAttribute(var);
+                }
             }
         } else {
-            throw new JspException("Authorization tag : no method prefix available");
+            writeMessage(result.toString());
         }
+        return EVAL_PAGE;
     }
 
     protected void writeMessage(String msg) throws JspException {

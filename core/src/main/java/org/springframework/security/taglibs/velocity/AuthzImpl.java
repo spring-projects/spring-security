@@ -68,7 +68,7 @@ public class AuthzImpl implements Authz {
     public String getPrincipal() {
         MyAuthenticationTag authenticationTag = new MyAuthenticationTag();
 
-        authenticationTag.setOperation("username");
+        authenticationTag.setProperty("username");
 
         try {
             authenticationTag.doStartTag();

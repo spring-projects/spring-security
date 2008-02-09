@@ -19,11 +19,8 @@ import junit.framework.TestCase;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
-
 import org.springframework.security.context.SecurityContextHolder;
-
 import org.springframework.security.providers.TestingAuthenticationToken;
-
 import org.springframework.security.userdetails.User;
 
 import javax.servlet.jsp.JspException;
@@ -40,6 +37,8 @@ public class AuthenticationTagTests extends TestCase {
     //~ Instance fields ================================================================================================
 
     private final MyAuthenticationTag authenticationTag = new MyAuthenticationTag();
+    private final Authentication auth = new TestingAuthenticationToken(new User("rodUserDetails", "koala", true, true, true,
+                    true, new GrantedAuthority[] {}), "koala", new GrantedAuthority[] {});
 
     //~ Methods ========================================================================================================
 
@@ -47,86 +46,67 @@ public class AuthenticationTagTests extends TestCase {
         SecurityContextHolder.clearContext();
     }
 
-    public void testOperationAndMethodPrefixWhenPrincipalIsAUserDetailsInstance()
-        throws JspException {
-        Authentication auth = new TestingAuthenticationToken(new User("rodUserDetails", "koala", true, true, true,
-                    true, new GrantedAuthority[] {}), "koala", new GrantedAuthority[] {});
+    public void testOperationWhenPrincipalIsAUserDetailsInstance()throws JspException {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        authenticationTag.setOperation("username");
-        authenticationTag.setMethodPrefix("get");
+        authenticationTag.setProperty("name");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, authenticationTag.doEndTag());
         assertEquals("rodUserDetails", authenticationTag.getLastMessage());
     }
 
     public void testOperationWhenPrincipalIsAString() throws JspException {
-        Authentication auth = new TestingAuthenticationToken("rodAsString", "koala", new GrantedAuthority[] {});
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken("rodAsString", "koala", new GrantedAuthority[] {}));
 
-        authenticationTag.setOperation("principal");
+        authenticationTag.setProperty("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, authenticationTag.doEndTag());
         assertEquals("rodAsString", authenticationTag.getLastMessage());
     }
 
-    public void testOperationWhenPrincipalIsAUserDetailsInstance()
-        throws JspException {
-        Authentication auth = new TestingAuthenticationToken(new User("rodUserDetails", "koala", true, true, true,
-                    true, new GrantedAuthority[] {}), "koala", new GrantedAuthority[] {});
+    public void testNestedPropertyIsReadCorrectly() throws JspException {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        authenticationTag.setOperation("username");
+        authenticationTag.setProperty("principal.username");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, authenticationTag.doEndTag());
         assertEquals("rodUserDetails", authenticationTag.getLastMessage());
     }
 
     public void testOperationWhenPrincipalIsNull() throws JspException {
-        Authentication auth = new TestingAuthenticationToken(null, "koala", new GrantedAuthority[] {});
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken(null, "koala", new GrantedAuthority[] {}));
 
-        authenticationTag.setOperation("principal");
+        authenticationTag.setProperty("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, authenticationTag.doEndTag());
     }
 
     public void testOperationWhenSecurityContextIsNull() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(null);
 
-        authenticationTag.setOperation("principal");
+        authenticationTag.setProperty("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, authenticationTag.doEndTag());
         assertEquals(null, authenticationTag.getLastMessage());
     }
 
     public void testSkipsBodyIfNullOrEmptyOperation() throws Exception {
-        authenticationTag.setOperation("");
-        assertEquals("", authenticationTag.getOperation());
+        authenticationTag.setProperty("");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
+        assertEquals(Tag.EVAL_PAGE, authenticationTag.doEndTag());
     }
 
-    public void testThrowsExceptionForUnrecognisedMethodPrefix() {
-        Authentication auth = new TestingAuthenticationToken(new User("rodUserDetails", "koala", true, true, true,
-                    true, new GrantedAuthority[] {}), "koala", new GrantedAuthority[] {});
+    public void testThrowsExceptionForUnrecognisedProperty() {
         SecurityContextHolder.getContext().setAuthentication(auth);
-        authenticationTag.setOperation("username");
-        authenticationTag.setMethodPrefix("qrq");
+        authenticationTag.setProperty("qsq");
 
         try {
             authenticationTag.doStartTag();
-            fail("Should have thrown a JspException");
-        } catch (JspException expected) {
-            assertTrue(true);
-        }
-    }
-
-    public void testThrowsExceptionForUnrecognisedOperation() {
-        Authentication auth = new TestingAuthenticationToken(new User("rodUserDetails", "koala", true, true, true,
-                    true, new GrantedAuthority[] {}), "koala", new GrantedAuthority[] {});
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        authenticationTag.setOperation("qsq");
-
-        try {
-            authenticationTag.doStartTag();
+            authenticationTag.doEndTag();
             fail("Should have throwns JspException");
         } catch (JspException expected) {
-            assertTrue(true);
         }
     }
 

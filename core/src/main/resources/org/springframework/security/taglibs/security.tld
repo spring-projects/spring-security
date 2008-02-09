@@ -8,8 +8,8 @@
 	<short-name>security</short-name>
 	<uri>http://www.springframework.org/security/tags</uri>
 	<description>
-        Spring Securitys Authorization Tag Library
-		$Id: authz.tld 2176 2007-10-03 14:02:39Z luke_t $
+        Spring Security Authorization Tag Library
+		$Id$
 	</description>
 
 	<tag>
@@ -51,35 +51,43 @@
 		</attribute>
 	</tag>
 
-	<tag>
-		<name>authentication</name>
-		<tag-class>org.springframework.security.taglibs.authz.AuthenticationTag</tag-class>
-		<description>
+    <tag>
+        <name>authentication</name>
+        <tag-class>org.springframework.security.taglibs.authz.AuthenticationTag</tag-class>
+        <description>
             Allows access to the current Authentication object.
-		</description>
+        </description>
 
-		<attribute>
-			<name>operation</name>
-			<required>true</required>
-			<rtexprvalue>true</rtexprvalue>
-			<description>
-                Must be one of the methods of an instance that implements the UserDetails
-                interface. Use the JavaBean style property, you can provide a custom prefix
-                for the method to call.
-			</description>
-		</attribute>
-
-		<attribute>
-			<name>methodPrefix</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-			<description>
-                Must be get or is. This is used to determine the name of the
-                method to be called. The default is get.
-			</description>
-		</attribute>
-	</tag>
-
+        <attribute>
+            <name>property</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
+                Property of the Authentication object which should be output. Supports nested
+                properties. For example if the principal object is an instance of UserDetails,
+                te property "principal.username" will return the username. Alternatively, using
+                "name" will call getName method on the Authentication object directly.
+            </description>
+        </attribute>
+        <attribute>
+            <name>var</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Name of the exported scoped variable for the
+                exception thrown from a nested action. The type of the
+                scoped variable is the type of the exception thrown.
+            </description>
+        </attribute>
+        <attribute>
+            <name>scope</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Scope for var.
+            </description>
+        </attribute>
+    </tag>
 
 	<tag>
 		<name>acl</name>
