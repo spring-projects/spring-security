@@ -56,60 +56,46 @@ import java.util.Collection;
 
 /**
  * Abstract class that implements security interception for secure objects.
- * <p/>
+ * <p>
  * The <code>AbstractSecurityInterceptor</code> will ensure the proper startup configuration of the security
  * interceptor. It will also implement the proper handling of secure object invocations, namely:
  * <ol>
  * <li>Obtain the {@link Authentication} object from the {@link SecurityContextHolder}.</li>
- * <p/>
  * <li>Determine if the request relates to a secured or public invocation by ooking up the secure object request
  * against the {@link ObjectDefinitionSource}.</li>
- * <p/>
  * <li>For an invocation that is secured (there is a
  * <code>ConfigAttributeDefinition</code> for the secure object invocation):
- * <p/>
  * <ol type="a">
- * <p/>
  * <li>If either the {@link org.springframework.security.Authentication#isAuthenticated()}
  * returns <code>false</code>, or the {@link #alwaysReauthenticate} is
  * <code>true</code>, authenticate the request against the configured {@link AuthenticationManager}.
  * When authenticated, replace the <code>Authentication</code> object on the
  * <code>SecurityContextHolder</code> with the returned value.</li>
- * <p/>
  * <li>Authorize the request against the configured {@link AccessDecisionManager}.</li>
- * <p/>
  * <li>Perform any run-as replacement via the configured {@link RunAsManager}.</li>
- * <p/>
  * <li>Pass control back to the concrete subclass, which will actually proceed with executing the object.
  * A {@link InterceptorStatusToken} is returned so that after the subclass has finished proceeding with
  * execution of the object, its finally clause can ensure the <code>AbstractSecurityInterceptor</code>
  * is re-called and tidies up correctly.</li>
- * <p/>
  * <li>The concrete subclass will re-call the <code>AbstractSecurityInterceptor</code> via the
  * {@link #afterInvocation(InterceptorStatusToken, Object)} method.</li>
- * <p/>
  * <li>If the <code>RunAsManager</code> replaced the <code>Authentication</code> object, return the
  * <code>SecurityContextHolder</code> to the object that existed after the call to
  * <code>AuthenticationManager</code>.</li>
- * <p/>
  * <li>If an <code>AfterInvocationManager</code> is defined, invoke the
  * invocation manager and allow it to replace the object due to be returned to
  * the caller.</li>
  * </ol>
- * <p/>
  * </li>
- * <p/>
  * <li>For an invocation that is public (there is no <code>ConfigAttributeDefinition</code> for the secure object
  * invocation):
  * <ol type="a">
- * <p/>
  * <li>As described above, the concrete subclass will be returned an <code>InterceptorStatusToken</code> which is
  * subsequently re-presented to the <code>AbstractSecurityInterceptor</code> after the secure object has been executed.
  * The <code>AbstractSecurityInterceptor</code> will take no further action when its
  * {@link #afterInvocation(InterceptorStatusToken, Object)} is called.</li>
  * </ol>
  * </li>
- * <p/>
  * <li>Control again returns to the concrete subclass, along with the <code>Object</code> that should be returned to
  * the caller. The subclass will then return that result or exception to the original caller.</li>
  * </ol>
@@ -124,34 +110,27 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
     protected static final Log logger = LogFactory.getLog(AbstractSecurityInterceptor.class);
 
     //~ Instance fields ================================================================================================
-
-    private AccessDecisionManager accessDecisionManager;
-
-    private AfterInvocationManager afterInvocationManager;
-
-    private ApplicationEventPublisher eventPublisher;
-
-    private AuthenticationManager authenticationManager;
-
+    
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-
+    private ApplicationEventPublisher eventPublisher;
+    private AccessDecisionManager accessDecisionManager;
+    private AfterInvocationManager afterInvocationManager;
+    private AuthenticationManager authenticationManager;
     private RunAsManager runAsManager = new NullRunAsManager();
 
     private boolean alwaysReauthenticate = false;
-
     private boolean rejectPublicInvocations = false;
-
     private boolean validateConfigAttributes = true;
 
     //~ Methods ========================================================================================================
 
     /**
-     * Completes the work of the <code>AbstractSecurityInterceptor</code>
-     * after the secure object invocation has been complete
+     * Completes the work of the <tt>AbstractSecurityInterceptor</tt> after the secure object invocation has been
+     * completed.
      *
      * @param token as returned by the {@link #beforeInvocation(Object)}} method
-     * @param returnedObject any object returned from the secure object invocation (may be<code>null</code>)
-     * @return the object the secure object invocation should ultimately return to its caller (may be <code>null</code>)
+     * @param returnedObject any object returned from the secure object invocation (may be<tt>null</tt>)
+     * @return the object the secure object invocation should ultimately return to its caller (may be <tt>null</tt>)
      */
     protected Object afterInvocation(InterceptorStatusToken token, Object returnedObject) {
         if (token == null) {
@@ -187,23 +166,15 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(getSecureObjectClass(), "Subclass must provide a non-null response to getSecureObjectClass()");
-
         Assert.notNull(this.messages, "A message source must be set");
-
         Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
-
         Assert.notNull(this.accessDecisionManager, "An AccessDecisionManager is required");
-
         Assert.notNull(this.runAsManager, "A RunAsManager is required");
-
         Assert.notNull(this.obtainObjectDefinitionSource(), "An ObjectDefinitionSource is required");
-
         Assert.isTrue(this.obtainObjectDefinitionSource().supports(getSecureObjectClass()),
                 "ObjectDefinitionSource does not support secure object class: " + getSecureObjectClass());
-
         Assert.isTrue(this.runAsManager.supports(getSecureObjectClass()),
                 "RunAsManager does not support secure object class: " + getSecureObjectClass());
-
         Assert.isTrue(this.accessDecisionManager.supports(getSecureObjectClass()),
                 "AccessDecisionManager does not support secure object class: " + getSecureObjectClass());
 
@@ -445,25 +416,20 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
     }
 
     /**
-     * By rejecting public invocations (and setting this property to
-     * <code>true</code>), essentially you are ensuring that every secure
-     * object invocation advised by <code>AbstractSecurityInterceptor</code>
-     * has a configuration attribute defined. This is useful to ensure a "fail
-     * safe" mode where undeclared secure objects will be rejected and
-     * configuration omissions detected early. An
-     * <code>IllegalArgumentException</code> will be thrown by the
-     * <code>AbstractSecurityInterceptor</code> if you set this property to
-     * <code>true</code> and an attempt is made to invoke a secure object that
-     * has no configuration attributes.
-	 *
-     * @param rejectPublicInvocations set to <code>true</code> to reject
-     * invocations of secure objects that have no configuration attributes (by
-     * default it is <code>false</code> which treats undeclared secure objects
-     * as "public" or unauthorized)
+     * By rejecting public invocations (and setting this property to <tt>true</tt>), essentially you are ensuring
+     * that every secure object invocation advised by <code>AbstractSecurityInterceptor</code> has a configuration
+     * attribute defined. This is useful to ensure a "fail safe" mode where undeclared secure objects will be rejected
+     * and configuration omissions detected early. An <tt>IllegalArgumentException</tt> will be thrown by the
+     * <tt>AbstractSecurityInterceptor</tt> if you set this property to <tt>true</tt> and an attempt is made to invoke
+     * a secure object that has no configuration attributes.
+     *
+     * @param rejectPublicInvocations set to <code>true</code> to reject invocations of secure objects that have no
+     * configuration attributes (by default it is <code>false</code> which treats undeclared secure objects
+     * as "public" or unauthorized).
      */
-	public void setRejectPublicInvocations(boolean rejectPublicInvocations) {
-		this.rejectPublicInvocations = rejectPublicInvocations;
-	}
+    public void setRejectPublicInvocations(boolean rejectPublicInvocations) {
+        this.rejectPublicInvocations = rejectPublicInvocations;
+    }
 
     public void setRunAsManager(RunAsManager runAsManager) {
         this.runAsManager = runAsManager;
@@ -474,8 +440,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
     }
 
     private void publishEvent(ApplicationEvent event) {
-		if (this.eventPublisher != null) {
-			this.eventPublisher.publishEvent(event);
-		}
-	}
+        if (this.eventPublisher != null) {
+            this.eventPublisher.publishEvent(event);
+        }
+    }
 }
