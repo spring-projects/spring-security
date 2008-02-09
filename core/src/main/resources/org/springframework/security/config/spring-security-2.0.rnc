@@ -97,7 +97,10 @@ ldap-ap.attlist &=
 intercept-methods =
     ## Can be used inside a bean definition to add a security interceptor to the bean and set up access configuration attributes for the bean's methods
     element intercept-methods {intercept-methods.attlist, protect+}
-intercept-methods.attlist = empty
+intercept-methods.attlist &=
+    ## Optional AccessDecisionManager bean ID to be used by the created method security interceptor.
+    attribute access-decision-manager-ref {xsd:string}?
+
 
 protect =
     ## Defines a protected method and the access control configuration attributes that apply to it

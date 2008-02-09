@@ -7,6 +7,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.ConfigAttributeDefinition;
@@ -47,13 +48,16 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
     static final String ATT_CLASS = "class";
 	static final String ATT_METHOD = "method";
 	static final String ATT_ACCESS = "access";
-    private static final String ATT_ACCESS_MGR = "access-decision-manager";
+    private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
 
     private Log logger = LogFactory.getLog(getClass());
 
     protected BeanDefinition createInterceptorDefinition(Node node) {
         Element interceptMethodsElt = (Element)node;
-        RootBeanDefinition interceptor = new RootBeanDefinition(MethodSecurityInterceptor.class);
+        BeanDefinitionBuilder interceptor = BeanDefinitionBuilder.rootBeanDefinition(MethodSecurityInterceptor.class);
+
+        // Default to autowiring to pick up after invocation mgr
+        interceptor.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
 
         String accessManagerId = interceptMethodsElt.getAttribute(ATT_ACCESS_MGR);
 
@@ -61,23 +65,8 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
             accessManagerId = BeanIds.ACCESS_MANAGER;
         }
 
-        interceptor.getPropertyValues().addPropertyValue("accessDecisionManager",
-                new RuntimeBeanReference(accessManagerId));
-
-        interceptor.getPropertyValues().addPropertyValue("authenticationManager",
-                new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
-
-        Element beanNode = (Element)interceptMethodsElt.getParentNode();
-        // Get the class from the parent bean...
-        String targetClassName = beanNode.getAttribute(ATT_CLASS);
-        Class targetClass;
-
-        try {
-            targetClass = Thread.currentThread().getContextClassLoader().loadClass(targetClassName);
-        } catch (ClassNotFoundException e) {
-            logger.error("Couldn't load class " + targetClassName);
-            throw new SecurityConfigurationException("Couldn't load class " + targetClassName);
-        }
+        interceptor.addPropertyValue("accessDecisionManager", new RuntimeBeanReference(accessManagerId));
+        interceptor.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
 
         // Parse the included methods
         List methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);
@@ -96,8 +85,8 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
                     (ConfigAttributeDefinition) attributeEditor.getValue());
         }
 
-        interceptor.getPropertyValues().addPropertyValue("objectDefinitionSource", methodMap);
+        interceptor.addPropertyValue("objectDefinitionSource", methodMap);
 
-        return interceptor;
+        return interceptor.getBeanDefinition();
     }
 }

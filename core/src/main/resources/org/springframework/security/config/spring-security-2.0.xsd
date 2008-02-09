@@ -242,8 +242,16 @@
       <xs:sequence>
         <xs:element maxOccurs="unbounded" ref="security:protect"/>
       </xs:sequence>
+      <xs:attributeGroup ref="security:intercept-methods.attlist"/>
     </xs:complexType>
   </xs:element>
+  <xs:attributeGroup name="intercept-methods.attlist">
+    <xs:attribute name="access-decision-manager-ref" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Optional AccessDecisionManager bean ID to be used by the created method security interceptor.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="protect">
     <xs:annotation>
       <xs:documentation>Defines a protected method and the access control configuration attributes that apply to it</xs:documentation>
