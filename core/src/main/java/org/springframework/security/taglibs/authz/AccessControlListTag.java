@@ -40,6 +40,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.HashMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
@@ -49,15 +50,17 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 
 /**
- * An implementation of {@link javax.servlet.jsp.tagext.Tag} that allows its body through if some authorizations
- * are granted to the request's principal.<p>One or more comma separate numeric are specified via the
- * <code>hasPermission</code> attribute. Those permissions are then converted into {@link Permission} instances. These
- * instances are then presented as an array to the {@link Acl#isGranted(Permission[],
- * org.springframework.security.acls.sid.Sid[], boolean)} method. The {@link Sid} presented is determined by the {@link
- * SidRetrievalStrategy}.</p>
- *  <p>For this class to operate it must be able to access the application context via the
+ * An implementation of {@link Tag} that allows its body through if some authorizations are granted to the request's
+ * principal.
+ * <p>
+ * One or more comma separate numeric are specified via the <tt>hasPermission</tt> attribute.
+ * These permissions are then converted into {@link Permission} instances. These instances are then presented as an
+ * array to the {@link Acl#isGranted(Permission[], org.springframework.security.acls.sid.Sid[], boolean)} method.
+ * The {@link Sid} presented is determined by the {@link SidRetrievalStrategy}.
+ * <p>
+ * For this class to operate it must be able to access the application context via the
  * <code>WebApplicationContextUtils</code> and locate an {@link AclService} and {@link SidRetrievalStrategy}.
- * Application contexts must provide one and only one of these Java types.</p>
+ * Application contexts must provide one and only one of these Java types.
  *
  * @author Ben Alex
  * @version $Id$
@@ -163,39 +166,47 @@ public class AccessControlListTag extends TagSupport {
     }
 
     private void initializeIfRequired() throws JspException {
-        if (applicationContext == null) {
-            this.applicationContext = getContext(pageContext);
+        if (applicationContext != null) {
+            return;
+        }
 
-            Map map = applicationContext.getBeansOfType(AclService.class);
+        this.applicationContext = getContext(pageContext);
 
-            if (map.size() != 1) {
-                throw new JspException(
-                    "Found incorrect number of AclService instances in application context - you must have only have one!");
-            }
+        Map map = new HashMap();
+        ApplicationContext context = applicationContext;
 
-            aclService = (AclService) map.values().iterator().next();
+        while (context != null) {
+            map.putAll(context.getBeansOfType(AclService.class));
+            context = context.getParent();
+        }
 
-            map = applicationContext.getBeansOfType(SidRetrievalStrategy.class);
+        if (map.size() != 1) {
+            throw new JspException(
+                "Found incorrect number of AclService instances in application context - you must have only have one!");
+        }
 
-            if (map.size() == 0) {
-                sidRetrievalStrategy = new SidRetrievalStrategyImpl();
-            } else if (map.size() == 1) {
-                sidRetrievalStrategy = (SidRetrievalStrategy) map.values().iterator().next();
-            } else {
-                throw new JspException("Found incorrect number of SidRetrievalStrategy instances in application "
-                        + "context - you must have only have one!");
-            }
+        aclService = (AclService) map.values().iterator().next();
 
-            map = applicationContext.getBeansOfType(ObjectIdentityRetrievalStrategy.class);
+        map = applicationContext.getBeansOfType(SidRetrievalStrategy.class);
 
-            if (map.size() == 0) {
-                objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
-            } else if (map.size() == 1) {
-                objectIdentityRetrievalStrategy = (ObjectIdentityRetrievalStrategy) map.values().iterator().next();
-            } else {
-                throw new JspException("Found incorrect number of ObjectIdentityRetrievalStrategy instances in "
-                        + "application context - you must have only have one!");
-            }
+        if (map.size() == 0) {
+            sidRetrievalStrategy = new SidRetrievalStrategyImpl();
+        } else if (map.size() == 1) {
+            sidRetrievalStrategy = (SidRetrievalStrategy) map.values().iterator().next();
+        } else {
+            throw new JspException("Found incorrect number of SidRetrievalStrategy instances in application "
+                    + "context - you must have only have one!");
+        }
+
+        map = applicationContext.getBeansOfType(ObjectIdentityRetrievalStrategy.class);
+
+        if (map.size() == 0) {
+            objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
+        } else if (map.size() == 1) {
+            objectIdentityRetrievalStrategy = (ObjectIdentityRetrievalStrategy) map.values().iterator().next();
+        } else {
+            throw new JspException("Found incorrect number of ObjectIdentityRetrievalStrategy instances in "
+                    + "application context - you must have only have one!");
         }
     }
 
@@ -210,7 +221,7 @@ public class AccessControlListTag extends TagSupport {
             permissions.add(BasePermission.buildFromMask(new Integer(integer).intValue()));
         }
 
-        return (Permission[]) permissions.toArray(new Permission[] {});
+        return (Permission[]) permissions.toArray(new Permission[permissions.size()]);
     }
 
     public void setDomainObject(Object domainObject) {
