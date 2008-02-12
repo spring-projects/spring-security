@@ -6,11 +6,10 @@ import junit.framework.Assert;
 import net.sf.ehcache.Ehcache;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.AfterClass;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -19,6 +18,7 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.MockApplicationContext;
 import org.springframework.security.TestDataSource;
+import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AuditableAccessControlEntry;
 import org.springframework.security.acls.MutableAcl;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
@@ -28,6 +28,7 @@ import org.springframework.security.acls.domain.ConsoleAuditLogger;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.acls.sid.PrincipalSid;
+import org.springframework.security.acls.sid.Sid;
 import org.springframework.util.FileCopyUtils;
 
 /**
@@ -42,7 +43,7 @@ public class BasicLookupStrategyTests {
 
     private static TestDataSource dataSource;
 
-    //~ Methods ========================================================================================================
+    // ~ Methods ========================================================================================================
 
     @BeforeClass
     public static void createDatabase() throws Exception {
@@ -57,7 +58,7 @@ public class BasicLookupStrategyTests {
     @AfterClass
     public static void dropDatabase() throws Exception {
         dataSource.destroy();
-    }    
+    }
 
     @Before
     public void populateDatabase() {
@@ -84,7 +85,9 @@ public class BasicLookupStrategyTests {
 
     @After
     public void emptyDatabase() {
-        String query = "DELETE FROM acl_entry;" + "DELETE FROM acl_object_identity WHERE ID = 3;"
+        String query = "DELETE FROM acl_entry;" + "DELETE FROM acl_object_identity WHERE ID = 7;"
+                + "DELETE FROM acl_object_identity WHERE ID = 6;" + "DELETE FROM acl_object_identity WHERE ID = 5;"
+                + "DELETE FROM acl_object_identity WHERE ID = 4;" + "DELETE FROM acl_object_identity WHERE ID = 3;"
                 + "DELETE FROM acl_object_identity WHERE ID = 2;" + "DELETE FROM acl_object_identity WHERE ID = 1;"
                 + "DELETE FROM acl_class;" + "DELETE FROM acl_sid;";
         jdbcTemplate.execute(query);
@@ -198,5 +201,92 @@ public class BasicLookupStrategyTests {
         Assert.assertFalse(((AuditableAccessControlEntry) child.getEntries()[0]).isAuditFailure());
         Assert.assertFalse(((AuditableAccessControlEntry) child.getEntries()[0]).isAuditSuccess());
         Assert.assertFalse(((AuditableAccessControlEntry) child.getEntries()[0]).isGranting());
+    }
+    
+    @Test
+    public void testAllParentsAreRetrievedWhenChildIsLoaded() throws Exception {
+        String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (4,2,103,1,1,1);";
+        jdbcTemplate.execute(query);
+        
+        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
+        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
+        ObjectIdentity middleParent2Oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(103));
+        
+        // Retrieve the child
+        Map map = this.strategy.readAclsById(new ObjectIdentity[] { childOid }, null);
+        
+        // Check that the child and all its parents were retrieved
+        Assert.assertNotNull(map.get(childOid));
+        Assert.assertEquals(childOid, ((Acl) map.get(childOid)).getObjectIdentity());
+        Assert.assertNotNull(map.get(middleParentOid));
+        Assert.assertEquals(middleParentOid, ((Acl) map.get(middleParentOid)).getObjectIdentity());
+        Assert.assertNotNull(map.get(topParentOid));
+        Assert.assertEquals(topParentOid, ((Acl) map.get(topParentOid)).getObjectIdentity());
+        
+        // The second parent shouldn't have been retrieved
+        Assert.assertNull(map.get(middleParent2Oid));
+    }
+
+    /**
+     * Test created from SEC-590.
+     */
+/*    @Test
+    public void testReadAllObjectIdentitiesWhenLastElementIsAlreadyCached() throws Exception {
+        String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (4,2,104,null,1,1);"
+                + "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (5,2,105,4,1,1);"
+                + "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (6,2,106,4,1,1);"
+                + "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (7,2,107,5,1,1);"
+                + "INSERT INTO acl_entry(ID,ACL_OBJECT_IDENTITY,ACE_ORDER,SID,MASK,GRANTING,AUDIT_SUCCESS,AUDIT_FAILURE) VALUES (5,4,0,1,1,1,0,0)";
+        jdbcTemplate.execute(query);
+
+        ObjectIdentity grandParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(104));
+        ObjectIdentity parent1Oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(105));
+        ObjectIdentity parent2Oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(106));
+        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(107));
+
+        // First lookup only child, thus populating the cache with grandParent, parent1 and child
+        Permission[] checkPermission = new Permission[] { BasePermission.READ };
+        Sid[] sids = new Sid[] { new PrincipalSid("ben") };
+        ObjectIdentity[] childOids = new ObjectIdentity[] { childOid };
+        
+        ((BasicLookupStrategy) this.strategy).setBatchSize(6);
+        Map foundAcls = strategy.readAclsById(childOids, sids);
+
+        Acl foundChildAcl = (Acl) foundAcls.get(childOid);
+        Assert.assertNotNull(foundChildAcl);
+        Assert.assertTrue(foundChildAcl.isGranted(checkPermission, sids, false));
+
+        // Search for object identities has to be done in the following order: last element have to be one which
+        // is already in cache and the element before it must not be stored in cache
+        ObjectIdentity[] allOids = new ObjectIdentity[] { grandParentOid, parent1Oid, parent2Oid, childOid };
+        try {
+            foundAcls = strategy.readAclsById(allOids, sids);
+            Assert.assertTrue(true);
+        } catch (NotFoundException notExpected) {
+            Assert.fail("It shouldn't have thrown NotFoundException");
+        }
+
+        Acl foundParent2Acl = (Acl) foundAcls.get(parent2Oid);
+        Assert.assertNotNull(foundParent2Acl);
+        Assert.assertTrue(foundParent2Acl.isGranted(checkPermission, sids, false));
+    }*/
+    
+    @Test
+    public void testAclsWithDifferentSerializableTypesAsObjectIdentities() throws Exception {
+        String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (4,2,104,null,1,1);"
+                + "INSERT INTO acl_entry(ID,ACL_OBJECT_IDENTITY,ACE_ORDER,SID,MASK,GRANTING,AUDIT_SUCCESS,AUDIT_FAILURE) VALUES (5,4,0,1,1,1,0,0)";
+        jdbcTemplate.execute(query);
+
+        ObjectIdentity oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(104));
+        Sid[] sids = new Sid[] { new PrincipalSid("ben") };
+        ObjectIdentity[] childOids = new ObjectIdentity[] { oid };
+        
+        try {
+            Map foundAcls = strategy.readAclsById(childOids, sids);
+            Assert.fail("It should have thrown IllegalArgumentException");
+        } catch(IllegalArgumentException expected) {
+            Assert.assertTrue(true);
+        }
     }
 }
