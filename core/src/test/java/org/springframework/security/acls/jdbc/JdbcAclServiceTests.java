@@ -20,6 +20,7 @@ import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.acls.AccessControlEntry;
+import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AlreadyExistsException;
 import org.springframework.security.acls.ChildrenExistException;
 import org.springframework.security.acls.MutableAcl;
@@ -43,8 +44,20 @@ import org.springframework.test.AbstractTransactionalDataSourceSpringContextTest
  * @version $Id:JdbcAclServiceTests.java 1754 2006-11-17 02:01:21Z benalex $
  */
 public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringContextTests {
-    //~ Instance fields ================================================================================================
+    //~ Constant fields ================================================================================================
+    
+    public static final String SELECT_ALL_CLASSES = "SELECT * FROM acl_class WHERE class = ?";
+    
+    public static final String SELECT_ALL_OBJECT_IDENTITIES = "SELECT * FROM acl_object_identity";
+    
+    public static final String SELECT_OBJECT_IDENTITY = "SELECT * FROM acl_object_identity WHERE object_id_identity = ?";
+    
+    public static final String SELECT_ACL_ENTRY = "SELECT * FROM acl_entry, acl_object_identity WHERE " +
+            "acl_object_identity.id = acl_entry.acl_object_identity " +
+            "AND acl_object_identity.object_id_identity <= ?";
 
+    //~ Instance fields ================================================================================================
+    
     private JdbcMutableAclService jdbcMutableAclService;
     
     private AclCache aclCache;
@@ -307,7 +320,44 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
             assertTrue(true);
         }
     }
+    
+    public void testDeleteAllAclsRemovesAclClassRecord() throws Exception {
+        Authentication auth = new TestingAuthenticationToken("ben", "ignored",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ADMINISTRATOR")});
+        auth.setAuthenticated(true);
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
+        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        
+        // Remove all acls associated with a certain class type
+        jdbcMutableAclService.deleteAcl(topParentOid, true);
+        
+        // Check the acl_class table is empty
+        assertEquals(0, getJdbcTemplate().queryForList(SELECT_ALL_CLASSES, new Object[] {"org.springframework.security.TargetObject"} ).size());
+    }
+    
+    public void testDeleteAclRemovesRowsFromDatabase() throws Exception {
+        Authentication auth = new TestingAuthenticationToken("ben", "ignored",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ADMINISTRATOR")});
+        auth.setAuthenticated(true);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
+        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
+        
+        // Remove the child and check all related database rows were removed accordingly
+        jdbcMutableAclService.deleteAcl(childOid, false);
+        assertEquals(1, getJdbcTemplate().queryForList(SELECT_ALL_CLASSES, new Object[] {"org.springframework.security.TargetObject"} ).size());
+        assertEquals(0, getJdbcTemplate().queryForList(SELECT_OBJECT_IDENTITY, new Object[] {new Long(102)}).size());
+        assertEquals(2, getJdbcTemplate().queryForList(SELECT_ALL_OBJECT_IDENTITIES).size());
+        assertEquals(3, getJdbcTemplate().queryForList(SELECT_ACL_ENTRY, new Object[] {new Long(103)} ).size());
+        
+        // Check the cache
+        assertNull(aclCache.getFromCache(childOid));
+        assertNull(aclCache.getFromCache(new Long(102)));
+    }
+    
 /*    public void testCumulativePermissions() {
    setComplete();
    Authentication auth = new TestingAuthenticationToken("ben", "ignored", new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ADMINISTRATOR")});
