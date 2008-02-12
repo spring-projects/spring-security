@@ -51,8 +51,9 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         ConfigUtils.registerProviderManagerIfNecessary(parserContext);
+        
+        RootBeanDefinition filterBean = createFilterBean(loginUrl, defaultTargetUrl, loginPage, authenticationFailureUrl);
 
-        RootBeanDefinition filterBean = createFilterBean(loginUrl, defaultTargetUrl, authenticationFailureUrl);
         filterBean.setSource(source);
         filterBean.getPropertyValues().addPropertyValue("authenticationManager",
                 new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
@@ -82,7 +83,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         return null;
     }
 
-    private RootBeanDefinition createFilterBean(String loginUrl, String defaultTargetUrl, String authenticationFailureUrl) {
+    private RootBeanDefinition createFilterBean(String loginUrl, String defaultTargetUrl, String loginPage, String authenticationFailureUrl) {
         BeanDefinitionBuilder filterBuilder =
                 BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProcessingFilter.class);
 
@@ -101,7 +102,12 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         filterBuilder.addPropertyValue("defaultTargetUrl", defaultTargetUrl);
 
         if (!StringUtils.hasText(authenticationFailureUrl)) {
-            authenticationFailureUrl = DEF_FORM_LOGIN_AUTHENTICATION_FAILURE_URL;
+        	// Fallback to redisplaying the custom login page, if one was specified
+        	if (StringUtils.hasText(loginPage)) {
+        		authenticationFailureUrl = loginPage;
+        	} else {
+                authenticationFailureUrl = DEF_FORM_LOGIN_AUTHENTICATION_FAILURE_URL;
+        	}
         }
 
         filterBuilder.addPropertyValue("authenticationFailureUrl", authenticationFailureUrl);
