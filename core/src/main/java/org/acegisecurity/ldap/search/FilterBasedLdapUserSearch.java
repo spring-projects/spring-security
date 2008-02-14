@@ -159,6 +159,14 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
         searchControls.setTimeLimit(searchTimeLimit);
     }
 
+    protected LdapUserDetailsMapper getUserDetailsMapper() {
+        return userDetailsMapper;
+    }
+
+    public void setUserDetailsMapper(LdapUserDetailsMapper userDetailsMapper) {
+        this.userDetailsMapper = userDetailsMapper;
+    }
+
     public String toString() {
         StringBuffer sb = new StringBuffer();
 
