@@ -35,8 +35,9 @@ import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.decorator.StatusCheckingUserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.userdetails.UserDetailsChecker;
+import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -120,6 +121,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
     private String switchFailureUrl;
     private SwitchUserAuthorityChanger switchUserAuthorityChanger;
     private UserDetailsService userDetailsService;
+    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
     private boolean useRelativeContext;
 
     //~ Methods ========================================================================================================
@@ -204,8 +206,8 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
             logger.debug("Attempt to switch to user [" + username + "]");
         }
 
-        // load the user by name
-        UserDetails targetUser = this.userDetailsService.loadUserByUsername(username);
+        UserDetails targetUser = userDetailsService.loadUserByUsername(username);
+        userDetailsChecker.check(targetUser);
 
         // ok, create the switch user token
         targetUserRequest = createSwitchUserToken(request, targetUser);
@@ -426,7 +428,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
      * @param userDetailsService The authentication dao
      */
     public void setUserDetailsService(UserDetailsService userDetailsService) {
-        this.userDetailsService = new StatusCheckingUserDetailsService(userDetailsService);
+        this.userDetailsService = userDetailsService;
     }
 
     /**

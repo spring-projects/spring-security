@@ -478,11 +478,11 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         // Setup our test object, to grant access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
-        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        filter.setDefaultTargetUrl("https://monkeymachine.co.uk/");
         filter.setAlwaysUseDefaultTargetUrl(true);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
-        assertEquals("http://monkeymachine.co.uk/", response.getRedirectedUrl());
+        assertEquals("https://monkeymachine.co.uk/", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 

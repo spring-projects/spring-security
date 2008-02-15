@@ -15,7 +15,8 @@ import org.springframework.security.ui.logout.LogoutHandler;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.userdetails.decorator.StatusCheckingUserDetailsService;
+import org.springframework.security.userdetails.UserDetailsChecker;
+import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -44,8 +45,8 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-
     private UserDetailsService userDetailsService;
+    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
     private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
 
     private String cookieName = SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
@@ -83,6 +84,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         try {
             String[] cookieTokens = decodeCookie(rememberMeCookie);
             user = processAutoLoginCookie(cookieTokens, request, response);
+            userDetailsChecker.check(user);
         } catch (CookieTheftException cte) {
             cancelCookie(request, response);
             throw cte;
@@ -319,7 +321,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     }
 
     public void setUserDetailsService(UserDetailsService userDetailsService) {
-        this.userDetailsService = new StatusCheckingUserDetailsService(userDetailsService);
+        this.userDetailsService = userDetailsService;
     }
 
     public void setKey(String key) {

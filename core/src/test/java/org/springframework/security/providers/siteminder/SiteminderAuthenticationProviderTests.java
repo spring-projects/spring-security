@@ -50,14 +50,6 @@ import org.springframework.dao.DataRetrievalFailureException;
 public class SiteminderAuthenticationProviderTests extends TestCase {
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(SiteminderAuthenticationProviderTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testAuthenticateFailsIfAccountExpired() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("peter", "opal");
 

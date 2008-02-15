@@ -31,6 +31,7 @@ import org.springframework.security.providers.dao.cache.NullUserCache;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.userdetails.UserDetailsChecker;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -56,8 +57,8 @@ import org.springframework.util.Assert;
  * and <code>UserDetails</code> implementations provide additional flexibility, by default a <code>UserDetails</code>
  * is returned. To override this
  * default, set the {@link #setForcePrincipalAsString} to <code>true</code>.
- * </p>
- *  <p>Caching is handled via the <code>UserDetails</code> object being placed in the {@link UserCache}. This
+ * <p>
+ * Caching is handled via the <code>UserDetails</code> object being placed in the {@link UserCache}. This
  * ensures that subsequent requests with the same username can be validated without needing to query the {@link
  * UserDetailsService}. It should be noted that if a user appears to present an incorrect password, the {@link
  * UserDetailsService} will be queried to confirm the most up-to-date password was used for comparison.</p>
@@ -66,13 +67,15 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public abstract class AbstractUserDetailsAuthenticationProvider implements AuthenticationProvider, InitializingBean,
-    MessageSourceAware {
+        MessageSourceAware {
     //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private UserCache userCache = new NullUserCache();
     private boolean forcePrincipalAsString = false;
     protected boolean hideUserNotFoundExceptions = true;
+    private UserDetailsChecker preAuthenticationChecks = new DefaultPreAuthenticationChecks();
+    private UserDetailsChecker postAuthenticationChecks = new DefaultPostAuthenticationChecks();
 
     //~ Methods ========================================================================================================
 
@@ -100,8 +103,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         doAfterPropertiesSet();
     }
 
-    public Authentication authenticate(Authentication authentication)
-        throws AuthenticationException {
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
             messages.getMessage("AbstractUserDetailsAuthenticationProvider.onlySupports",
                 "Only UsernamePasswordAuthenticationToken is supported"));
@@ -129,21 +131,8 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
             Assert.notNull(user, "retrieveUser returned null - a violation of the interface contract");
         }
 
-        if (!user.isAccountNonLocked()) {
-            throw new LockedException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked",
-                    "User account is locked"));
-        }
-
-        if (!user.isEnabled()) {
-            throw new DisabledException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled",
-                    "User is disabled"));
-        }
-
-        if (!user.isAccountNonExpired()) {
-            throw new AccountExpiredException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.expired",
-                    "User account has expired"));
-        }
-
+        preAuthenticationChecks.check(user);
+        
         // This check must come here, as we don't want to tell users
         // about account status unless they presented the correct credentials
         try {
@@ -160,10 +149,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
             }
         }
 
-        if (!user.isCredentialsNonExpired()) {
-            throw new CredentialsExpiredException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.credentialsExpired", "User credentials have expired"));
-        }
+        postAuthenticationChecks.check(user);
 
         if (!cacheWasUsed) {
             this.userCache.putUserInCache(user);
@@ -277,5 +263,51 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
 
     public boolean supports(Class authentication) {
         return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
+    }
+
+    protected UserDetailsChecker getPreAuthenticationChecks() {
+        return preAuthenticationChecks;
+    }
+
+    public void setPreAuthenticationChecks(UserDetailsChecker preAuthenticationChecks) {
+        this.preAuthenticationChecks = preAuthenticationChecks;
+    }
+
+    protected UserDetailsChecker getPostAuthenticationChecks() {
+        return postAuthenticationChecks;
+    }
+
+    public void setPostAuthenticationChecks(UserDetailsChecker postAuthenticationChecks) {
+        this.postAuthenticationChecks = postAuthenticationChecks;
+    }
+
+    private class DefaultPreAuthenticationChecks implements UserDetailsChecker {
+        public void check(UserDetails user) {
+            if (!user.isAccountNonLocked()) {
+                throw new LockedException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked",
+                        "User account is locked"));
+            }
+
+            if (!user.isEnabled()) {
+                throw new DisabledException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled",
+                        "User is disabled"));
+            }
+
+            if (!user.isAccountNonExpired()) {
+                throw new AccountExpiredException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.expired",
+                        "User account has expired"));
+            }
+
+        }
+    }
+
+    private class DefaultPostAuthenticationChecks implements UserDetailsChecker {
+        public void check(UserDetails user) {
+            if (!user.isCredentialsNonExpired()) {
+                throw new CredentialsExpiredException(messages.getMessage(
+                        "AbstractUserDetailsAuthenticationProvider.credentialsExpired", "User credentials have expired"));
+            }
+
+        }
     }
 }

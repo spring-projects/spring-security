@@ -34,9 +34,6 @@ import org.springframework.util.Assert;
  * enabled/disabled status of the <code>UserDetails</code> because this is
  * authentication-related and should have been enforced by another provider server.
  * <p>
- * You can optionally have these checked by configuring wrapping the <tt>UserDetailsService</tt> in a
- * {@link org.springframework.security.userdetails.decorator.StatusCheckingUserDetailsService} decorator.
- * <p>
  * The <code>UserDetails</code> returned by implementations is stored in the generated <code>AuthenticationToken</code>,
  * so additional properties such as email addresses, telephone numbers etc can easily be stored.
  *

@@ -5,7 +5,6 @@ import org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessi
 import org.springframework.security.ui.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.providers.preauth.UserDetailsByNameServiceWrapper;
-import org.springframework.security.userdetails.decorator.StatusCheckingUserDetailsService;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -52,12 +51,9 @@ public class X509BeanDefinitionParser implements BeanDefinitionParser {
         String userServiceRef = element.getAttribute(ATT_USER_SERVICE_REF);
 
         if (StringUtils.hasText(userServiceRef)) {
-            RootBeanDefinition statusCheckingUserService = new RootBeanDefinition(StatusCheckingUserDetailsService.class);
-            statusCheckingUserService.setSource(source);
-            statusCheckingUserService.getConstructorArgumentValues().addIndexedArgumentValue(0, new RuntimeBeanReference(userServiceRef));
             RootBeanDefinition preAuthUserService = new RootBeanDefinition(UserDetailsByNameServiceWrapper.class);
             preAuthUserService.setSource(source);
-            preAuthUserService.getPropertyValues().addPropertyValue("userDetailsService", statusCheckingUserService);
+            preAuthUserService.getPropertyValues().addPropertyValue("userDetailsService", new RuntimeBeanReference(userServiceRef));
             provider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService", preAuthUserService);
         }
 
