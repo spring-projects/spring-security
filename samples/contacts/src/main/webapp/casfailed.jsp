@@ -1,5 +1,3 @@
-<%@ taglib prefix='c' uri='http://java.sun.com/jstl/core' %>
-<%@ page import="org.springframework.security.ui.AbstractProcessingFilter" %>
 <%@ page import="org.springframework.security.AuthenticationException" %>
 
 <html>
