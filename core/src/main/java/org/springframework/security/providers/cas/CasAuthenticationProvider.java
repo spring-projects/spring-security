@@ -122,6 +122,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
         if (result == null) {
             result = this.authenticateNow(authentication);
+            result.setDetails(authentication.getDetails());
         }
 
         if (stateless) {
@@ -132,8 +133,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         return result;
     }
 
-    private CasAuthenticationToken authenticateNow(Authentication authentication)
-        throws AuthenticationException {
+    private CasAuthenticationToken authenticateNow(Authentication authentication) throws AuthenticationException {
         // Validate
         TicketResponse response = ticketValidator.confirmTicketValid(authentication.getCredentials().toString());
 

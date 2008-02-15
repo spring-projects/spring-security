@@ -73,6 +73,7 @@ public class CasAuthenticationProviderTests {
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(CasProcessingFilter.CAS_STATEFUL_IDENTIFIER,
                 "ST-123");
+        token.setDetails("details");
 
         Authentication result = cap.authenticate(token);
 
@@ -92,6 +93,7 @@ public class CasAuthenticationProviderTests {
         assertEquals(new GrantedAuthorityImpl("ROLE_A"), casResult.getAuthorities()[0]);
         assertEquals(new GrantedAuthorityImpl("ROLE_B"), casResult.getAuthorities()[1]);
         assertEquals(cap.getKey().hashCode(), casResult.getKeyHash());
+        assertEquals("details", casResult.getDetails());
 
         // Now confirm the CasAuthenticationToken is automatically re-accepted.
         // To ensure TicketValidator not called again, set it to deliver an exception...
@@ -115,6 +117,7 @@ public class CasAuthenticationProviderTests {
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(CasProcessingFilter.CAS_STATELESS_IDENTIFIER,
                 "ST-456");
+        token.setDetails("details");
 
         Authentication result = cap.authenticate(token);
 
@@ -127,6 +130,7 @@ public class CasAuthenticationProviderTests {
 
         assertEquals(makeUserDetailsFromAuthoritiesPopulator(), result.getPrincipal());
         assertEquals("ST-456", result.getCredentials());
+        assertEquals("details", result.getDetails());
 
         // Now try to authenticate again. To ensure TicketValidator not
         // called again, set it to deliver an exception...
