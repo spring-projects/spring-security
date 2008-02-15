@@ -28,6 +28,8 @@ import org.springframework.security.ui.cas.CasProcessingFilter;
 
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.userdetails.UserDetailsChecker;
+import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,6 +63,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     //~ Instance fields ================================================================================================
 
     private UserDetailsService userDetailsService;
+    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
     private CasProxyDecider casProxyDecider;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private StatelessTicketCache statelessTicketCache = new NullStatelessTicketCache();
@@ -142,6 +145,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
         // Lookup user details
         UserDetails userDetails = userDetailsService.loadUserByUsername(response.getUser());
+        userDetailsChecker.check(userDetails);        
 
         // Construct CasAuthenticationToken
         return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(),
