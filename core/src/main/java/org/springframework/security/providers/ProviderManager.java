@@ -119,6 +119,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     private List providers;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private Properties exceptionMappings = new Properties();
+    private Properties additionalExceptionMappings = new Properties();
 
     static {
         DEFAULT_EXCEPTION_MAPPINGS.put(AccountExpiredException.class.getName(),
@@ -152,7 +153,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     public void afterPropertiesSet() throws Exception {
         checkIfValidList(this.providers);
         Assert.notNull(this.messages, "A message source must be set");
-        doAddExtraDefaultExceptionMappings(exceptionMappings);
+        exceptionMappings.putAll(additionalExceptionMappings);
     }
 
     private void checkIfValidList(List listToCheck) {
@@ -160,14 +161,6 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
             throw new IllegalArgumentException("A list of AuthenticationProviders is required");
         }
     }
-
-    /**
-     * Provided so subclasses can add extra exception mappings during startup if no exception mappings are
-     * injected by the IoC container.
-     *
-     * @param exceptionMappings the properties object, which already has entries in it
-     */
-    protected void doAddExtraDefaultExceptionMappings(Properties exceptionMappings) {}
 
     /**
      * Attempts to authenticate the passed {@link Authentication} object.
@@ -345,4 +338,16 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
             applicationEventPublisher.publishEvent(event);
         }
     }
+    
+    /**
+     * Sets additional exception to event mappings. These are automatically merged with the default
+     * exception to event mappings that <code>ProviderManager</code> defines.
+     * 
+     * @param additionalExceptionMappings where keys are the fully-qualified string name of the
+     * exception class and the values are the fully-qualified string name of the event class to fire
+     */
+	public void setAdditionalExceptionMappings(
+			Properties additionalExceptionMappings) {
+		this.additionalExceptionMappings = additionalExceptionMappings;
+	}
 }
