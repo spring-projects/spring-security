@@ -120,6 +120,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
         if (result == null) {
             result = this.authenticateNow(authentication);
+            result.setDetails(authentication.getDetails());
         }
 
         if (stateless) {
