@@ -37,6 +37,8 @@ import org.springframework.util.FileCopyUtils;
  * @author Andrei Stefan
  */
 public class BasicLookupStrategyTests {
+    //~ Instance fields ================================================================================================
+    
     private static JdbcTemplate jdbcTemplate;
 
     private LookupStrategy strategy;
