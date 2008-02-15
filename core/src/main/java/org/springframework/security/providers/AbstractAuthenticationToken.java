@@ -187,7 +187,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(super.toString()).append(": ");
-        sb.append("Username: ").append(this.getPrincipal()).append("; ");
+        sb.append("Principal: ").append(this.getPrincipal()).append("; ");
         sb.append("Password: [PROTECTED]; ");
         sb.append("Authenticated: ").append(this.isAuthenticated()).append("; ");
         sb.append("Details: ").append(this.getDetails()).append("; ");
