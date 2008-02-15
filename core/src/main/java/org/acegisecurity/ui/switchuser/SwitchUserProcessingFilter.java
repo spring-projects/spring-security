@@ -80,7 +80,7 @@ import javax.servlet.http.HttpServletResponse;
  * specified user and will also contain an additinal {@link org.acegisecurity.ui.switchuser.SwitchUserGrantedAuthority
  * } which contains the original user.</p>
  *  <p>To 'exit' from a user context, the user will then need to access a URL (see <code>exitUserUrl</code>)  that
- * will switch back to the original user as identified by the <code>SWITCH_USER_GRANTED_AUTHORITY</code>.</p>
+ * will switch back to the original user as identified by the <code>ROLE_PREVIOUS_ADMINISTRATOR</code>.</p>
  *  <p>To configure the Switch User Processing Filter, create a bean definition for the Switch User processing
  * filter and add to the filterChainProxy. <br>
  * Example:<pre>
