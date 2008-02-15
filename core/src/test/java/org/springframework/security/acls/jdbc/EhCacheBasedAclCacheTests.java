@@ -28,6 +28,8 @@ import org.springframework.security.providers.TestingAuthenticationToken;
  * @author Andrei Stefan
  */
 public class EhCacheBasedAclCacheTests extends TestCase {
+    //~ Instance fields ================================================================================================
+    
     AbstractXmlApplicationContext ctx;
 
     //~ Methods ========================================================================================================

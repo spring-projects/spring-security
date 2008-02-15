@@ -20,7 +20,6 @@ import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.acls.AccessControlEntry;
-import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AlreadyExistsException;
 import org.springframework.security.acls.ChildrenExistException;
 import org.springframework.security.acls.MutableAcl;
