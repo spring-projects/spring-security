@@ -71,10 +71,6 @@ public class GetAllContactsTests extends AbstractTransactionalSpringContextTests
         }
     }
 
-    private static void destroySecureContext() {
-        SecurityContextHolder.clearContext();
-    }
-
     protected String[] getConfigLocations() {
         setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_BY_NAME);
 
@@ -125,7 +121,7 @@ public class GetAllContactsTests extends AbstractTransactionalSpringContextTests
     }
 
     protected void onTearDownInTransaction() {
-        destroySecureContext();
+        SecurityContextHolder.clearContext();
     }
 
     public void setContactManager(ContactManager contactManager) {
