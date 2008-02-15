@@ -39,9 +39,11 @@ import javax.sql.DataSource;
 
 
 /**
- * Simple JDBC-based implementation of <code>AclService</code>.<p>Requires the "dirty" flags in {@link
- * org.springframework.security.acls.domain.AclImpl} and {@link org.springframework.security.acls.domain.AccessControlEntryImpl} to be set,
- * so that the implementation can detect changed parameters easily.</p>
+ * Simple JDBC-based implementation of <code>AclService</code>.
+ * <p>
+ * Requires the "dirty" flags in {@link org.springframework.security.acls.domain.AclImpl} and 
+ * {@link org.springframework.security.acls.domain.AccessControlEntryImpl} to be set, so that the implementation can
+ * detect changed parameters easily.
  *
  * @author Ben Alex
  * @version $Id$
@@ -88,15 +90,14 @@ public class JdbcAclService implements AclService {
         return (ObjectIdentityImpl[]) objects.toArray(new ObjectIdentityImpl[] {});
     }
 
-    public Acl readAclById(ObjectIdentity object, Sid[] sids)
-        throws NotFoundException {
+    public Acl readAclById(ObjectIdentity object, Sid[] sids) throws NotFoundException {
         Map map = readAclsById(new ObjectIdentity[] {object}, sids);
 
         if (map.size() == 0) {
             throw new NotFoundException("Could not find ACL");
-        } else {
-            return (Acl) map.get(object);
         }
+
+        return (Acl) map.get(object);
     }
 
     public Acl readAclById(ObjectIdentity object) throws NotFoundException {
@@ -107,8 +108,7 @@ public class JdbcAclService implements AclService {
         return readAclsById(objects, null);
     }
 
-    public Map readAclsById(ObjectIdentity[] objects, Sid[] sids)
-        throws NotFoundException {
+    public Map readAclsById(ObjectIdentity[] objects, Sid[] sids) throws NotFoundException {
         return lookupStrategy.readAclsById(objects, sids);
     }
 }

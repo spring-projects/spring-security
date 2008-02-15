@@ -110,11 +110,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        if ((attribute.getAttribute() != null) && attribute.getAttribute().equals(this.processConfigAttribute)) {
-            return true;
-        } else {
-            return false;
-        }
+        return processConfigAttribute.equals(attribute.getAttribute());
     }
 
     /**

@@ -91,7 +91,9 @@ public final class AclFormattingUtils {
 
     /**
      * Returns a representation of the active bits in the presented mask, with each active bit being denoted by
-     * the passed character.<p>Inactive bits will be denoted by character {@link Permission#RESERVED_OFF}.</p>
+     * the passed character.
+     * <p>
+     * Inactive bits will be denoted by character {@link Permission#RESERVED_OFF}.
      *
      * @param mask the integer bit mask to print the active bits for
      * @param code the character to print when an active bit is detected
@@ -99,12 +101,11 @@ public final class AclFormattingUtils {
      * @return a 32-character representation of the bit mask
      */
     public static String printBinary(int mask, char code) {
-        Assert.doesNotContain(new Character(code).toString(), new Character(Permission.RESERVED_ON).toString(),
+        Assert.doesNotContain(Character.toString(code), Character.toString(Permission.RESERVED_ON),
             Permission.RESERVED_ON + " is a reserved character code");
-        Assert.doesNotContain(new Character(code).toString(), new Character(Permission.RESERVED_OFF).toString(),
+        Assert.doesNotContain(Character.toString(code), Character.toString(Permission.RESERVED_OFF),
             Permission.RESERVED_OFF + " is a reserved character code");
 
-        return printBinary(mask, Permission.RESERVED_ON, Permission.RESERVED_OFF)
-                                 .replace(Permission.RESERVED_ON, code);
+        return printBinary(mask, Permission.RESERVED_ON, Permission.RESERVED_OFF).replace(Permission.RESERVED_ON, code);
     }
 }

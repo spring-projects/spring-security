@@ -31,26 +31,32 @@ import java.util.Iterator;
 
 
 /**
- * <p>Given a <code>Collection</code> of domain object instances returned from a secure object invocation, remove
+ * <p>
+ * Given a <code>Collection</code> of domain object instances returned from a secure object invocation, remove
  * any <code>Collection</code> elements the principal does not have appropriate permission to access as defined by the
- * {@link AclService}.</p>
- *  <p>The <code>AclService</code> is used to retrieve the access control list (ACL) permissions associated with
- * each <code>Collection</code> domain object instance element for the current <code>Authentication</code> object.</p>
- *  <p>This after invocation provider will fire if any {@link ConfigAttribute#getAttribute()} matches the {@link
+ * {@link AclService}.
+ * <p>
+ * The <code>AclService</code> is used to retrieve the access control list (ACL) permissions associated with
+ * each <code>Collection</code> domain object instance element for the current <code>Authentication</code> object.
+ * <p>
+ * This after invocation provider will fire if any {@link ConfigAttribute#getAttribute()} matches the {@link
  * #processConfigAttribute}. The provider will then lookup the ACLs from the <code>AclService</code> and ensure the
- * principal is
- * {@link org.springframework.security.acls.Acl#isGranted(org.springframework.security.acls.Permission[],
+ * principal is {@link org.springframework.security.acls.Acl#isGranted(org.springframework.security.acls.Permission[],
  * org.springframework.security.acls.sid.Sid[], boolean) Acl.isGranted(Permission[], Sid[], boolean)}
- * when presenting the {@link #requirePermission} array to that method.</p>
- *  <p>If the principal does not have permission, that element will not be included in the returned
- * <code>Collection</code>.</p>
- *  <p>Often users will setup a <code>BasicAclEntryAfterInvocationProvider</code> with a {@link
+ * when presenting the {@link #requirePermission} array to that method.
+ * <p>
+ * If the principal does not have permission, that element will not be included in the returned
+ * <code>Collection</code>.
+ * <p>
+ * Often users will setup a <code>BasicAclEntryAfterInvocationProvider</code> with a {@link
  * #processConfigAttribute} of <code>AFTER_ACL_COLLECTION_READ</code> and a {@link #requirePermission} of
- * <code>BasePermission.READ</code>. These are also the defaults.</p>
- *  <p>If the provided <code>returnObject</code> is <code>null</code>, a <code>null</code><code>Collection</code>
+ * <code>BasePermission.READ</code>. These are also the defaults.
+ * <p>
+ * If the provided <code>returnObject</code> is <code>null</code>, a <code>null</code><code>Collection</code>
  * will be returned. If the provided <code>returnObject</code> is not a <code>Collection</code>, an {@link
- * AuthorizationServiceException} will be thrown.</p>
- *  <p>All comparisons and prefixes are case sensitive.</p>
+ * AuthorizationServiceException} will be thrown.
+ * <p>
+ * All comparisons and prefixes are case sensitive.
  *
  * @author Ben Alex
  * @author Paulo Neves
@@ -70,62 +76,58 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
     //~ Methods ========================================================================================================
 
     public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
-        Object returnedObject) throws AccessDeniedException {
+            Object returnedObject) throws AccessDeniedException {
+
+        if (returnedObject == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Return object is null, skipping");
+            }
+
+            return null;
+        }
+
         Iterator iter = config.getConfigAttributes().iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();
 
-            if (this.supports(attr)) {
-                // Need to process the Collection for this invocation
-                if (returnedObject == null) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Return object is null, skipping");
-                    }
-
-                    return null;
-                }
-
-                Filterer filterer = null;
-
-                if (returnedObject instanceof Collection) {
-                    Collection collection = (Collection) returnedObject;
-                    filterer = new CollectionFilterer(collection);
-                } else if (returnedObject.getClass().isArray()) {
-                    Object[] array = (Object[]) returnedObject;
-                    filterer = new ArrayFilterer(array);
-                } else {
-                    throw new AuthorizationServiceException("A Collection or an array (or null) was required as the "
-                            + "returnedObject, but the returnedObject was: " + returnedObject);
-                }
-
-                // Locate unauthorised Collection elements
-                Iterator collectionIter = filterer.iterator();
-
-                while (collectionIter.hasNext()) {
-                    Object domainObject = collectionIter.next();
-
-                    boolean hasPermission = false;
-
-                    if (domainObject == null) {
-                        hasPermission = true;
-                    } else if (!getProcessDomainObjectClass().isAssignableFrom(domainObject.getClass())) {
-                        hasPermission = true;
-                    } else {
-                        hasPermission = hasPermission(authentication, domainObject);
-
-                        if (!hasPermission) {
-                            filterer.remove(domainObject);
-
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("Principal is NOT authorised for element: " + domainObject);
-                            }
-                        }
-                    }
-                }
-
-                return filterer.getFilteredObject();
+            if (!this.supports(attr)) {
+                continue;
             }
+
+            // Need to process the Collection for this invocation
+            Filterer filterer;
+
+            if (returnedObject instanceof Collection) {
+                filterer = new CollectionFilterer((Collection) returnedObject);
+            } else if (returnedObject.getClass().isArray()) {
+                filterer = new ArrayFilterer((Object[]) returnedObject);
+            } else {
+                throw new AuthorizationServiceException("A Collection or an array (or null) was required as the "
+                        + "returnedObject, but the returnedObject was: " + returnedObject);
+            }
+
+            // Locate unauthorised Collection elements
+            Iterator collectionIter = filterer.iterator();
+
+            while (collectionIter.hasNext()) {
+                Object domainObject = collectionIter.next();
+
+                // Ignore nulls or entries which aren't instances of the configured domain object class
+                if (domainObject == null || !getProcessDomainObjectClass().isAssignableFrom(domainObject.getClass())) {
+                    continue;
+                }
+
+                if(!hasPermission(authentication, domainObject)) {
+                    filterer.remove(domainObject);
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Principal is NOT authorised for element: " + domainObject);
+                    }
+                }
+            }
+
+            return filterer.getFilteredObject();
         }
 
         return returnedObject;

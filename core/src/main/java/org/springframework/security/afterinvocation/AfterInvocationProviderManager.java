@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.util.Iterator;
 import java.util.List;
@@ -87,16 +88,10 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
         Iterator iter = newList.iterator();
 
         while (iter.hasNext()) {
-            Object currentObject = null;
+            Object currentObject = iter.next();
 
-            try {
-                currentObject = iter.next();
-
-                AfterInvocationProvider attemptToCast = (AfterInvocationProvider) currentObject;
-            } catch (ClassCastException cce) {
-                throw new IllegalArgumentException("AfterInvocationProvider " + currentObject.getClass().getName()
-                    + " must implement AfterInvocationProvider");
-            }
+            Assert.isInstanceOf(AfterInvocationProvider.class, currentObject, "AfterInvocationProvider " +
+                    currentObject.getClass().getName() + " must implement AfterInvocationProvider");
         }
 
         this.providers = newList;

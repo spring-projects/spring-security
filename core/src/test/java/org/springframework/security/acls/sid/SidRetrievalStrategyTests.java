@@ -23,14 +23,13 @@ public class SidRetrievalStrategyTests extends TestCase {
         SidRetrievalStrategy retrStrategy = new SidRetrievalStrategyImpl();
         Sid[] sids = retrStrategy.getSids(authentication);
 
-        Assert.assertNotNull(sids);
-        Assert.assertEquals(4, sids.length);
-        Assert.assertNotNull(sids[0]);
+        assertNotNull(sids);
+        assertEquals(4, sids.length);
+        assertNotNull(sids[0]);
+        assertTrue(sids[0] instanceof PrincipalSid);
 
-        Assert.assertTrue(PrincipalSid.class.isAssignableFrom(sids[0].getClass()));
         for (int i = 1; i < sids.length; i++) {
-            Sid sid = sids[i];
-            Assert.assertTrue(GrantedAuthoritySid.class.isAssignableFrom(sid.getClass()));
+            assertTrue(sids[i] instanceof GrantedAuthoritySid);
         }
 
         Assert.assertEquals("scott", ((PrincipalSid) sids[0]).getPrincipal());

@@ -34,22 +34,28 @@ import java.util.Iterator;
 
 
 /**
- * <p>Given a domain object instance returned from a secure object invocation, ensures the principal has
- * appropriate permission as defined by the {@link AclService}.</p>
- * <p>The <code>AclService</code> is used to retrieve the access control list (ACL) permissions associated with a
- * domain object instance for the current <code>Authentication</code> object.</p>
- * <p>This after invocation provider will fire if any  {@link ConfigAttribute#getAttribute()} matches the {@link
- * #processConfigAttribute}. The provider will then lookup the ACLs from the <code>AclService</code> and ensure the
+ * Given a domain object instance returned from a secure object invocation, ensures the principal has
+ * appropriate permission as defined by the {@link AclService}.
+ * <p>
+ * The <code>AclService</code> is used to retrieve the access control list (ACL) permissions associated with a
+ * domain object instance for the current <code>Authentication</code> object.
+ * <p>
+ * This after invocation provider will fire if any  {@link ConfigAttribute#getAttribute()} matches the {@link
+ * #processConfigAttribute}. The provider will then lookup the ACLs from the <tt>AclService</tt> and ensure the
  * principal is {@link org.springframework.security.acls.Acl#isGranted(org.springframework.security.acls.Permission[],
    org.springframework.security.acls.sid.Sid[], boolean) Acl.isGranted(Permission[], Sid[], boolean)}
- * when presenting the {@link #requirePermission} array to that method.</p>
- * <p>Often users will setup an <code>AclEntryAfterInvocationProvider</code> with a {@link
+ * when presenting the {@link #requirePermission} array to that method.
+ * <p>
+ * Often users will setup an <code>AclEntryAfterInvocationProvider</code> with a {@link
  * #processConfigAttribute} of <code>AFTER_ACL_READ</code> and a {@link #requirePermission} of
- * <code>BasePermission.READ</code>. These are also the defaults.</p>
- * <p>If the principal does not have sufficient permissions, an <code>AccessDeniedException</code> will be thrown.</p>
- * <p>If the provided <code>returnObject</code> is <code>null</code>, permission will always be granted and
- * <code>null</code> will be returned.</p>
- * <p>All comparisons and prefixes are case sensitive.</p>
+ * <code>BasePermission.READ</code>. These are also the defaults.
+ * <p>
+ * If the principal does not have sufficient permissions, an <code>AccessDeniedException</code> will be thrown.
+ * <p>
+ * If the provided <tt>returnedObject</tt> is <code>null</code>, permission will always be granted and
+ * <code>null</code> will be returned.
+ * <p>
+ * All comparisons and prefixes are case sensitive.
  */
 public class AclEntryAfterInvocationProvider extends AbstractAclProvider implements MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
@@ -69,45 +75,45 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
     //~ Methods ========================================================================================================
 
     public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
-        Object returnedObject) throws AccessDeniedException {
+            Object returnedObject) throws AccessDeniedException {
+
         Iterator iter = config.getConfigAttributes().iterator();
+
+        if (returnedObject == null) {
+            // AclManager interface contract prohibits nulls
+            // As they have permission to null/nothing, grant access
+            if (logger.isDebugEnabled()) {
+                logger.debug("Return object is null, skipping");
+            }
+
+            return null;
+        }
+
+        if (!getProcessDomainObjectClass().isAssignableFrom(returnedObject.getClass())) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Return object is not applicable for this provider, skipping");
+            }
+
+            return returnedObject;
+        }        
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();
 
-            if (this.supports(attr)) {
-                // Need to make an access decision on this invocation
-                if (returnedObject == null) {
-                    // AclManager interface contract prohibits nulls
-                    // As they have permission to null/nothing, grant access
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Return object is null, skipping");
-                    }
-
-                    return null;
-                }
-
-                if (!getProcessDomainObjectClass().isAssignableFrom(returnedObject.getClass())) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Return object is not applicable for this provider, skipping");
-                    }
-
-                    return returnedObject;
-                }
-
-                if (hasPermission(authentication, returnedObject)) {
-                    return returnedObject;
-                } else {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Denying access");
-                    }
-
-                    throw new AccessDeniedException(messages.getMessage(
-                            "BasicAclEntryAfterInvocationProvider.noPermission",
-                            new Object[] {authentication.getName(), returnedObject},
-                            "Authentication {0} has NO permissions to the domain object {1}"));
-                }
+            if (!this.supports(attr)) {
+                continue;
             }
+            // Need to make an access decision on this invocation
+
+            if (hasPermission(authentication, returnedObject)) {
+                return returnedObject;
+            }
+
+            logger.debug("Denying access");
+
+            throw new AccessDeniedException(messages.getMessage("BasicAclEntryAfterInvocationProvider.noPermission",
+                    new Object[] {authentication.getName(), returnedObject},
+                    "Authentication {0} has NO permissions to the domain object {1}"));
         }
 
         return returnedObject;

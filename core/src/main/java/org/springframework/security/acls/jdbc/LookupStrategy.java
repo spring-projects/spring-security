@@ -21,7 +21,7 @@ import java.util.Map;
 
 
 /**
- * Performs optimised lookups for {@link JdbcAclService}.
+ * Performs lookups for {@link org.springframework.security.acls.AclService}.
  *
  * @author Ben Alex
  * @version $Id$

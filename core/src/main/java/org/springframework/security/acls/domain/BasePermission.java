@@ -22,9 +22,7 @@ import org.springframework.util.Assert;
 import java.lang.reflect.Field;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 
 /**
@@ -108,16 +106,16 @@ public final class BasePermission implements Permission {
 
     public static Permission[] buildFromMask(int[] masks) {
         if ((masks == null) || (masks.length == 0)) {
-            return new Permission[] {};
+            return new Permission[0];
         }
 
-        List list = new Vector();
+        Permission[] permissions = new Permission[masks.length];
 
         for (int i = 0; i < masks.length; i++) {
-            list.add(BasePermission.buildFromMask(masks[i]));
+            permissions[i] = buildFromMask(masks[i]);
         }
 
-        return (Permission[]) list.toArray(new Permission[] {});
+        return permissions;
     }
 
     public static Permission buildFromName(String name) {
@@ -128,16 +126,16 @@ public final class BasePermission implements Permission {
 
     public static Permission[] buildFromName(String[] names) {
         if ((names == null) || (names.length == 0)) {
-            return new Permission[] {};
+            return new Permission[0];
         }
 
-        List list = new Vector();
+        Permission[] permissions = new Permission[names.length];
 
         for (int i = 0; i < names.length; i++) {
-            list.add(BasePermission.buildFromName(names[i]));
+            permissions[i] = buildFromName(names[i]);
         }
 
-        return (Permission[]) list.toArray(new Permission[] {});
+        return permissions;
     }
 
     public boolean equals(Object arg0) {

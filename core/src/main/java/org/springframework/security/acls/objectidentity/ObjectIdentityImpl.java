@@ -25,11 +25,13 @@ import java.lang.reflect.Method;
 
 
 /**
- * Simple implementation of {@link org.springframework.security.acl.basic.AclObjectIdentity AclObjectIdentity}.
+ * Simple implementation of {@link ObjectIdentity}.
  * <p>
  * Uses <code>String</code>s to store the identity of the domain object instance. Also offers a constructor that uses
  * reflection to build the identity information.
- * </p>
+ *
+ * @author Ben Alex
+ * @version $Id$
  */
 public class ObjectIdentityImpl implements ObjectIdentity {
     //~ Instance fields ================================================================================================

@@ -22,8 +22,7 @@ import org.springframework.security.ConfigAttributeDefinition;
 
 
 /**
- * Indicates a class is responsible for participating in an {@link
- * AfterInvocationProviderManager} decision.
+ * Indicates a class is responsible for participating in an {@link AfterInvocationProviderManager} decision.
  *
  * @author Ben Alex
  * @version $Id$

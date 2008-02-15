@@ -18,14 +18,11 @@ package org.springframework.security.acls.sid;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
-import java.util.List;
-import java.util.Vector;
-
-
 /**
  * Basic implementation of {@link SidRetrievalStrategy} that creates a {@link Sid} for the principal, as well as
- * every granted authority the principal holds.<p>The returned array will always contain the {@link PrincipalSid}
- * before any {@link GrantedAuthoritySid} elements.</p>
+ * every granted authority the principal holds.
+ * <p>
+ * The returned array will always contain the {@link PrincipalSid} before any {@link GrantedAuthoritySid} elements.
  *
  * @author Ben Alex
  * @version $Id$
@@ -34,15 +31,15 @@ public class SidRetrievalStrategyImpl implements SidRetrievalStrategy {
     //~ Methods ========================================================================================================
 
     public Sid[] getSids(Authentication authentication) {
-        List list = new Vector();
-        list.add(new PrincipalSid(authentication));
-
         GrantedAuthority[] authorities = authentication.getAuthorities();
+        Sid[] sids = new Sid[authorities.length + 1];
 
-        for (int i = 0; i < authorities.length; i++) {
-            list.add(new GrantedAuthoritySid(authorities[i]));
+        sids[0] = new PrincipalSid(authentication);
+
+        for (int i = 1; i <= authorities.length; i++) {
+            sids[i] = new GrantedAuthoritySid(authorities[i - 1]);
         }
 
-        return (Sid[]) list.toArray(new Sid[] {});
+        return sids;
     }
 }

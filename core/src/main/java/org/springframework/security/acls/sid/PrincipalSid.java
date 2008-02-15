@@ -44,10 +44,11 @@ public class PrincipalSid implements Sid {
     public PrincipalSid(Authentication authentication) {
         Assert.notNull(authentication, "Authentication required");
         Assert.notNull(authentication.getPrincipal(), "Principal required");
-        this.principal = authentication.getPrincipal().toString();
 
         if (authentication.getPrincipal() instanceof UserDetails) {
             this.principal = ((UserDetails) authentication.getPrincipal()).getUsername();
+        } else {
+            this.principal = authentication.getPrincipal().toString();
         }
     }
 
