@@ -129,7 +129,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
      * completed.
      *
      * @param token as returned by the {@link #beforeInvocation(Object)}} method
-     * @param returnedObject any object returned from the secure object invocation (may be<tt>null</tt>)
+     * @param returnedObject any object returned from the secure object invocation (may be <tt>null</tt>)
      * @return the object the secure object invocation should ultimately return to its caller (may be <tt>null</tt>)
      */
     protected Object afterInvocation(InterceptorStatusToken token, Object returnedObject) {
@@ -188,7 +188,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
             if (attributeDefs == null) {
                 logger.warn("Could not validate configuration attributes as the ObjectDefinitionSource did not return "
-                        + "a ConfigAttributeDefinition Iterator");
+                        + "a ConfigAttributeDefinition collection");
                 return;
             }
 
@@ -247,7 +247,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Secure object: " + object.toString() + "; ConfigAttributes: " + attr.toString());
+            logger.debug("Secure object: " + object + "; ConfigAttributes: " + attr);
         }
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -255,28 +255,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
                     "An Authentication object was not found in the SecurityContext"), object, attr);
         }
 
-        // Attempt authentication if not already authenticated, or user always
-        // wants reauthentication
-        Authentication authenticated;
-
-        if (!SecurityContextHolder.getContext().getAuthentication().isAuthenticated() || alwaysReauthenticate) {
-            authenticated =
-                    this.authenticationManager.authenticate(SecurityContextHolder.getContext().getAuthentication());
-
-            // We don't authenticated.setAuthentication(true), because each
-            // provider should do that
-            if (logger.isDebugEnabled()) {
-                logger.debug("Successfully Authenticated: " + authenticated.toString());
-            }
-
-            SecurityContextHolder.getContext().setAuthentication(authenticated);
-        } else {
-            authenticated = SecurityContextHolder.getContext().getAuthentication();
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Previously Authenticated: " + authenticated.toString());
-            }
-        }
+        Authentication authenticated = authenticateIfRequired();
 
         // Attempt authorization
         try {
@@ -309,7 +288,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             return new InterceptorStatusToken(authenticated, false, attr, object);
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("Switching to RunAs Authentication: " + runAs.toString());
+                logger.debug("Switching to RunAs Authentication: " + runAs);
             }
 
             SecurityContextHolder.getContext().setAuthentication(runAs);
@@ -317,6 +296,36 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             // revert to token.Authenticated post-invocation
             return new InterceptorStatusToken(authenticated, true, attr, object);
         }
+    }
+
+    /**
+     * Checks the current authentication token and passes it to the AuthenticationManager if
+     * {@link org.springframework.security.Authentication#isAuthenticated()} returns false or the property
+     * <tt>alwaysReauthenticate</tt> has been set to true.
+     *
+     * @return an authenticated <tt>Authentication</tt> object.
+     */
+    private Authentication authenticateIfRequired() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication.isAuthenticated() && !alwaysReauthenticate) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Previously Authenticated: " + authentication);
+            }
+
+            return authentication;
+        }
+
+        authentication = authenticationManager.authenticate(authentication);
+
+        // We don't authenticated.setAuthentication(true), because each provider should do that
+        if (logger.isDebugEnabled()) {
+            logger.debug("Successfully Authenticated: " + authentication);
+        }
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        return authentication;
     }
 
     /**
