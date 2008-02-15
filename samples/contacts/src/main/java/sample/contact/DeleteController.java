@@ -47,10 +47,6 @@ public class DeleteController implements Controller, InitializingBean {
         Assert.notNull(contactManager, "A ContactManager implementation is required");
     }
 
-    public ContactManager getContactManager() {
-        return contactManager;
-    }
-
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
         int id = RequestUtils.getRequiredIntParameter(request, "contactId");
