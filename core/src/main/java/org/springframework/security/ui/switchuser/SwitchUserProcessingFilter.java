@@ -82,7 +82,7 @@ import javax.servlet.http.HttpServletResponse;
  * {@link org.springframework.security.ui.switchuser.SwitchUserGrantedAuthority} which contains the original user.
  * <p>
  * To 'exit' from a user context, the user will then need to access a URL (see <code>exitUserUrl</code>)  that
- * will switch back to the original user as identified by the <code>SWITCH_USER_GRANTED_AUTHORITY</code>.
+ * will switch back to the original user as identified by the <code>ROLE_PREVIOUS_ADMINISTRATOR</code>.
  * <p>
  * To configure the Switch User Processing Filter, create a bean definition for the Switch User processing
  * filter and add to the filterChainProxy. Note that the filter must come <b>after</b> the
