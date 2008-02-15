@@ -110,6 +110,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     private List providers;
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private Properties exceptionMappings = new Properties();
+    private Properties additionalExceptionMappings = new Properties();
 
     static {
         DEFAULT_EXCEPTION_MAPPINGS.put(AccountExpiredException.class.getName(),
@@ -143,6 +144,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     public void afterPropertiesSet() throws Exception {
         checkIfValidList(this.providers);
         Assert.notNull(this.messages, "A message source must be set");
+        exceptionMappings.putAll(additionalExceptionMappings);
         doAddExtraDefaultExceptionMappings(exceptionMappings);
     }
 
@@ -157,6 +159,9 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
      * injected by the IoC container.
      *
      * @param exceptionMappings the properties object, which already has entries in it
+     * @deprecated This method has been removed from the 2.0 series; please use the
+     *  {@link #additionalExceptionMappings} property instead to inject additional exception
+     *  to event mappings
      */
     protected void doAddExtraDefaultExceptionMappings(Properties exceptionMappings) {}
 
@@ -319,4 +324,17 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
             applicationEventPublisher.publishEvent(event);
         }
     }
+    
+    /**
+     * Sets additional exception to event mappings. These are automatically merged with the default
+     * exception to event mappings that <code>ProviderManager</code> defines.
+     * 
+     * @param additionalExceptionMappings where keys are the fully-qualified string name of the
+     * exception class and the values are the fully-qualified string name of the event class to fire
+     */
+	public void setAdditionalExceptionMappings(
+			Properties additionalExceptionMappings) {
+		this.additionalExceptionMappings = additionalExceptionMappings;
+	}
+    
 }
