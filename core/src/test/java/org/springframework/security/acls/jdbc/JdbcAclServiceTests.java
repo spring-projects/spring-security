@@ -25,6 +25,7 @@ import org.springframework.security.acls.ChildrenExistException;
 import org.springframework.security.acls.MutableAcl;
 import org.springframework.security.acls.NotFoundException;
 import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.domain.AclImpl;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
@@ -222,6 +223,9 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         SecurityContextHolder.clearContext();
     }
     
+    /**
+     * Test method that demonstrates eviction failure from cache - SEC-676
+     */
 /*    public void testDeleteAclAlsoDeletesChildren() throws Exception {
         ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
         ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
@@ -356,6 +360,42 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         assertNull(aclCache.getFromCache(childOid));
         assertNull(aclCache.getFromCache(new Long(102)));
     }
+    
+    /**
+     * SEC-655
+     */
+/*    public void testClearChildrenFromCacheWhenParentIsUpdated() throws Exception {
+        Authentication auth = new TestingAuthenticationToken("ben", "ignored",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ADMINISTRATOR")});
+        auth.setAuthenticated(true);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        ObjectIdentity parentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(104));
+        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(105));
+
+        MutableAcl parent = jdbcMutableAclService.createAcl(parentOid);
+        MutableAcl child = jdbcMutableAclService.createAcl(childOid);
+        
+        child.setParent(parent);
+        jdbcMutableAclService.updateAcl(child);
+
+        parent = (AclImpl) jdbcMutableAclService.readAclById(parentOid);
+        parent.insertAce(null, BasePermission.READ, new PrincipalSid("ben"), true);
+        jdbcMutableAclService.updateAcl(parent);
+
+        parent = (AclImpl) jdbcMutableAclService.readAclById(parentOid);
+        parent.insertAce(null, BasePermission.READ, new PrincipalSid("scott"), true);
+        jdbcMutableAclService.updateAcl(parent);
+
+        child = (MutableAcl) jdbcMutableAclService.readAclById(childOid);
+        parent = (MutableAcl) child.getParentAcl();
+
+        assertEquals("Fails because child has a stale reference to its parent", 2, parent.getEntries().length);
+        assertEquals(1, parent.getEntries()[0].getPermission().getMask());
+        assertEquals(new PrincipalSid("ben"), parent.getEntries()[0].getSid());
+        assertEquals(1, parent.getEntries()[1].getPermission().getMask());
+        assertEquals(new PrincipalSid("scott"), parent.getEntries()[1].getSid());
+    }*/
     
 /*    public void testCumulativePermissions() {
    setComplete();
