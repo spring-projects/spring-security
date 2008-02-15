@@ -12,11 +12,11 @@ import javax.annotation.security.PermitAll;
 @PermitAll
 public class Jsr250BusinessServiceImpl implements BusinessService {
 
-    @RolesAllowed({"ROLE_USER"})
+    @RolesAllowed("ROLE_USER")
     public void someUserMethod1() {
     }
 
-    @RolesAllowed({"ROLE_USER"})
+    @RolesAllowed("ROLE_USER")
     public void someUserMethod2() {
     }
 
@@ -24,7 +24,7 @@ public class Jsr250BusinessServiceImpl implements BusinessService {
     public void someUserAndAdminMethod() {
     }
 
-    @RolesAllowed({"ROLE_ADMIN"})
+    @RolesAllowed("ROLE_ADMIN")
     public void someAdminMethod() {
     }
 
