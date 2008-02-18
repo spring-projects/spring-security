@@ -26,6 +26,9 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.providers.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.userdetails.UserDetailsChecker;
+import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -38,19 +41,14 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class SiteminderAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
-
-
-    /**
-     * Our logging object
-     */
-    private static final Log logger = LogFactory.getLog(SiteminderAuthenticationProvider.class);
-
+    
     //~ Instance fields ================================================================================================
 
     /**
      * Our user details service (which does the real work of checking the user against a back-end user store).
      */
     private UserDetailsService userDetailsService;
+    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
 
     //~ Methods ========================================================================================================
 
@@ -63,26 +61,8 @@ public class SiteminderAuthenticationProvider extends AbstractUserDetailsAuthent
         // No need for password authentication checks - we only expect one identifying string
         // from the HTTP Request header (as populated by Siteminder), but we do need to see if
         // the user's account is OK to let them in.
-        if (!user.isEnabled()) {
-            throw new DisabledException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled",
-                    "Account disabled"));
-        }
 
-        if (!user.isAccountNonExpired()) {
-            throw new AccountExpiredException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.expired",
-                    "Account expired"));
-        }
-
-        if (!user.isAccountNonLocked()) {
-            throw new LockedException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked",
-                    "Account locked"));
-        }
-
-        if (!user.isCredentialsNonExpired()) {
-            throw new CredentialsExpiredException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.credentialsExpired", "Credentials expired"));
-        }
-
+        userDetailsChecker.check(user);
     }
 
     /**
