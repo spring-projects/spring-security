@@ -31,6 +31,7 @@ import org.acegisecurity.providers.dao.cache.NullUserCache;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.acegisecurity.userdetails.UserDetailsChecker;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -66,13 +67,15 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public abstract class AbstractUserDetailsAuthenticationProvider implements AuthenticationProvider, InitializingBean,
-    MessageSourceAware {
+        MessageSourceAware {
     //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private UserCache userCache = new NullUserCache();
     private boolean forcePrincipalAsString = false;
     protected boolean hideUserNotFoundExceptions = true;
+    private UserDetailsChecker preAuthenticationChecks = new DefaultPreAuthenticationChecks();
+    private UserDetailsChecker postAuthenticationChecks = new DefaultPostAuthenticationChecks();
 
     //~ Methods ========================================================================================================
 
@@ -129,20 +132,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
             Assert.notNull(user, "retrieveUser returned null - a violation of the interface contract");
         }
 
-        if (!user.isAccountNonLocked()) {
-            throw new LockedException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked",
-                    "User account is locked"));
-        }
-
-        if (!user.isEnabled()) {
-            throw new DisabledException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled",
-                    "User is disabled"));
-        }
-
-        if (!user.isAccountNonExpired()) {
-            throw new AccountExpiredException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.expired",
-                    "User account has expired"));
-        }
+        preAuthenticationChecks.check(user);
 
         // This check must come here, as we don't want to tell users
         // about account status unless they presented the correct credentials
@@ -160,10 +150,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
             }
         }
 
-        if (!user.isCredentialsNonExpired()) {
-            throw new CredentialsExpiredException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.credentialsExpired", "User credentials have expired"));
-        }
+        postAuthenticationChecks.check(user);
 
         if (!cacheWasUsed) {
             this.userCache.putUserInCache(user);
@@ -275,7 +262,53 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         this.userCache = userCache;
     }
 
+    protected UserDetailsChecker getPreAuthenticationChecks() {
+        return preAuthenticationChecks;
+    }
+
+    public void setPreAuthenticationChecks(UserDetailsChecker preAuthenticationChecks) {
+        this.preAuthenticationChecks = preAuthenticationChecks;
+    }
+
+    protected UserDetailsChecker getPostAuthenticationChecks() {
+        return postAuthenticationChecks;
+    }
+
+    public void setPostAuthenticationChecks(UserDetailsChecker postAuthenticationChecks) {
+        this.postAuthenticationChecks = postAuthenticationChecks;
+    }    
+
     public boolean supports(Class authentication) {
         return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
+    }
+
+    private class DefaultPreAuthenticationChecks implements UserDetailsChecker {
+        public void check(UserDetails user) {
+            if (!user.isAccountNonLocked()) {
+                throw new LockedException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked",
+                        "User account is locked"));
+            }
+
+            if (!user.isEnabled()) {
+                throw new DisabledException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled",
+                        "User is disabled"));
+            }
+
+            if (!user.isAccountNonExpired()) {
+                throw new AccountExpiredException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.expired",
+                        "User account has expired"));
+            }
+
+        }
+    }
+
+    private class DefaultPostAuthenticationChecks implements UserDetailsChecker {
+        public void check(UserDetails user) {
+            if (!user.isCredentialsNonExpired()) {
+                throw new CredentialsExpiredException(messages.getMessage(
+                        "AbstractUserDetailsAuthenticationProvider.credentialsExpired", "User credentials have expired"));
+            }
+
+        }
     }
 }
