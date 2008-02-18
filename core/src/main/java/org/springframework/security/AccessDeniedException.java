@@ -24,7 +24,7 @@ package org.springframework.security;
 public class AccessDeniedException extends SpringSecurityException {
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs an <code>AccessDeniedException</code> with the specified
      * message.
      *
@@ -34,7 +34,7 @@ public class AccessDeniedException extends SpringSecurityException {
         super(msg);
     }
 
-/**
+    /**
      * Constructs an <code>AccessDeniedException</code> with the specified
      * message and root cause.
      *
