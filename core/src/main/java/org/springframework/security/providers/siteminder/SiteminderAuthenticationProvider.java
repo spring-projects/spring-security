@@ -15,12 +15,8 @@
 
 package org.springframework.security.providers.siteminder;
 
-import org.springframework.security.AccountExpiredException;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
-import org.springframework.security.CredentialsExpiredException;
-import org.springframework.security.DisabledException;
-import org.springframework.security.LockedException;
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.dao.AbstractUserDetailsAuthenticationProvider;
@@ -29,8 +25,6 @@ import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UserDetailsChecker;
 import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
 
