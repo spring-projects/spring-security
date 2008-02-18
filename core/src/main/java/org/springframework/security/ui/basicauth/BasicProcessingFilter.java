@@ -43,30 +43,45 @@ import org.springframework.util.Assert;
 
 /**
  * Processes a HTTP request's BASIC authorization headers, putting the result into the
- * <code>SecurityContextHolder</code>.<p>For a detailed background on what this filter is designed to process,
- * refer to <A HREF="http://www.faqs.org/rfcs/rfc1945.html">RFC 1945, Section 11.1</A>. Any realm name presented in
- * the HTTP request is ignored.</p>
- *  <p>In summary, this filter is responsible for processing any request that has a HTTP request header of
+ * <code>SecurityContextHolder</code>.
+ *
+ * <p>
+ * For a detailed background on what this filter is designed to process, refer to
+ * <a href="http://www.faqs.org/rfcs/rfc1945.html">RFC 1945, Section 11.1</a>. Any realm name presented in
+ * the HTTP request is ignored.
+ *
+ * <p>
+ * In summary, this filter is responsible for processing any request that has a HTTP request header of
  * <code>Authorization</code> with an authentication scheme of <code>Basic</code> and a Base64-encoded
  * <code>username:password</code> token. For example, to authenticate user "Aladdin" with password "open sesame" the
- * following header would be presented:</p>
- *  <p><code>Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==</code>.</p>
- *  <p>This filter can be used to provide BASIC authentication services to both remoting protocol clients (such as
- * Hessian and SOAP) as well as standard user agents (such as Internet Explorer and Netscape).</p>
- *  <P>If authentication is successful, the resulting {@link Authentication} object will be placed into the
- * <code>SecurityContextHolder</code>.</p>
- *  <p>If authentication fails and <code>ignoreFailure</code> is <code>false</code> (the default), an {@link
- * AuthenticationEntryPoint} implementation is called. Usually this should be {@link BasicProcessingFilterEntryPoint},
- * which will prompt the user to authenticate again via BASIC authentication.</p>
- *  <p>Basic authentication is an attractive protocol because it is simple and widely deployed. However, it still
+ * following header would be presented:
+ * <pre>
+ *
+ * Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+ * </pre>
+ *
+ * <p>
+ * This filter can be used to provide BASIC authentication services to both remoting protocol clients (such as
+ * Hessian and SOAP) as well as standard user agents (such as Internet Explorer and Netscape).
+ * <p>
+ * If authentication is successful, the resulting {@link Authentication} object will be placed into the
+ * <code>SecurityContextHolder</code>.
+ *
+ * <p>
+ * If authentication fails and <code>ignoreFailure</code> is <code>false</code> (the default), an {@link
+ * AuthenticationEntryPoint} implementation is called (unless the <tt>ignoreFailure</tt> property is set to
+ * <tt>true</tt>). Usually this should be {@link BasicProcessingFilterEntryPoint}, which will prompt the user to
+ * authenticate again via BASIC authentication.
+ *
+ * <p>
+ * Basic authentication is an attractive protocol because it is simple and widely deployed. However, it still
  * transmits a password in clear text and as such is undesirable in many situations. Digest authentication is also
  * provided by Spring Security and should be used instead of Basic authentication wherever possible. See {@link
- * org.springframework.security.ui.digestauth.DigestProcessingFilter}.</p>
- *  <p>Note that if a {@link #rememberMeServices} is set, this filter will automatically send back remember-me
+ * org.springframework.security.ui.digestauth.DigestProcessingFilter}.
+ * <p>
+ * Note that if a {@link RememberMeServices} is set, this filter will automatically send back remember-me
  * details to the client. Therefore, subsequent requests will not need to present a BASIC authentication header as
- * they will be authenticated using the remember-me mechanism.</p>
- *  <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
- * org.springframework.security.util.FilterToBeanProxy}.</p>
+ * they will be authenticated using the remember-me mechanism.
  *
  * @author Ben Alex
  * @version $Id$
@@ -88,7 +103,10 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
-        Assert.notNull(this.authenticationEntryPoint, "An AuthenticationEntryPoint is required");
+
+        if(!isIgnoreFailure()) {
+            Assert.notNull(this.authenticationEntryPoint, "An AuthenticationEntryPoint is required");
+        }
     }
 
     public void doFilterHttp(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain)
@@ -189,33 +207,33 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
         return false;
     }
 
-    public AuthenticationEntryPoint getAuthenticationEntryPoint() {
+    protected AuthenticationEntryPoint getAuthenticationEntryPoint() {
         return authenticationEntryPoint;
-    }
-
-    public AuthenticationManager getAuthenticationManager() {
-        return authenticationManager;
-    }
-
-    public boolean isIgnoreFailure() {
-        return ignoreFailure;
-    }
-
-    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
-        Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
-        this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
     public void setAuthenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
+    protected AuthenticationManager getAuthenticationManager() {
+        return authenticationManager;
+    }
+
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 
+    protected boolean isIgnoreFailure() {
+        return ignoreFailure;
+    }
+
     public void setIgnoreFailure(boolean ignoreFailure) {
         this.ignoreFailure = ignoreFailure;
+    }    
+
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
+        this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
     public void setRememberMeServices(RememberMeServices rememberMeServices) {
