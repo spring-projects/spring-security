@@ -269,6 +269,12 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         return preAuthenticationChecks;
     }
 
+    /**
+     * Sets the policy will be used to verify the status of the loaded <tt>UserDetails</tt> <em>before</em>
+     * validation of the credentials takes place.
+     *
+     * @param preAuthenticationChecks strategy to be invoked prior to authentication. 
+     */
     public void setPreAuthenticationChecks(UserDetailsChecker preAuthenticationChecks) {
         this.preAuthenticationChecks = preAuthenticationChecks;
     }
@@ -285,19 +291,18 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         public void check(UserDetails user) {
             if (!user.isAccountNonLocked()) {
                 throw new LockedException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked",
-                        "User account is locked"));
+                        "User account is locked"), user);
             }
 
             if (!user.isEnabled()) {
                 throw new DisabledException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled",
-                        "User is disabled"));
+                        "User is disabled"), user);
             }
 
             if (!user.isAccountNonExpired()) {
                 throw new AccountExpiredException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.expired",
-                        "User account has expired"));
+                        "User account has expired"), user);
             }
-
         }
     }
 
@@ -305,9 +310,9 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         public void check(UserDetails user) {
             if (!user.isCredentialsNonExpired()) {
                 throw new CredentialsExpiredException(messages.getMessage(
-                        "AbstractUserDetailsAuthenticationProvider.credentialsExpired", "User credentials have expired"));
+                        "AbstractUserDetailsAuthenticationProvider.credentialsExpired",
+                        "User credentials have expired"), user);
             }
-
         }
     }
 }

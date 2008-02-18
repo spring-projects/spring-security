@@ -25,12 +25,12 @@ package org.springframework.security;
 public abstract class AuthenticationException extends SpringSecurityException {
     //~ Instance fields ================================================================================================
 
-    /** The authentication that related to this exception (may be <code>null</code>) */
     private Authentication authentication;
+    private Object extraInformation;
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs an <code>AuthenticationException</code> with the specified
      * message and root cause.
      *
@@ -41,7 +41,7 @@ public abstract class AuthenticationException extends SpringSecurityException {
         super(msg, t);
     }
 
-/**
+    /**
      * Constructs an <code>AuthenticationException</code> with the specified
      * message and no root cause.
      *
@@ -51,13 +51,34 @@ public abstract class AuthenticationException extends SpringSecurityException {
         super(msg);
     }
 
+    public AuthenticationException(String msg, Object extraInformation) {
+        super(msg);
+        this.extraInformation = extraInformation;
+    }
+
     //~ Methods ========================================================================================================
 
+    /**
+     * The authentication request which this exception corresponds to (may be <code>null</code>)
+     */
     public Authentication getAuthentication() {
         return authentication;
     }
 
     void setAuthentication(Authentication authentication) {
         this.authentication = authentication;
+    }
+
+    /**
+     * Any additional information about the exception. Generally a <code>UserDetails</code> object.
+     *
+     * @return extra information or <code>null</code>
+     */
+    public Object getExtraInformation() {
+        return extraInformation;
+    }
+
+    void clearExtraInformation() {
+        this.extraInformation = null;
     }
 }

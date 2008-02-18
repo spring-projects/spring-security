@@ -130,10 +130,17 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         return userDetailsService;
     }
 
-    public boolean isIncludeDetailsObject() {
+    protected boolean isIncludeDetailsObject() {
         return includeDetailsObject;
     }
 
+    /**
+     * Determines whether the UserDetails will be included in the <tt>extraInformation</tt> field of a
+     * thrown BadCredentialsException. Defaults to true, but can be set to false if the exception will be
+     * used with a remoting protocol, for example.
+     *
+     * @deprecated use {@link org.springframework.security.providers.ProviderManager#setClearExtraInformation(boolean)}
+     */
     public void setIncludeDetailsObject(boolean includeDetailsObject) {
         this.includeDetailsObject = includeDetailsObject;
 	}

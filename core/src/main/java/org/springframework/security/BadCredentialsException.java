@@ -23,10 +23,6 @@ package org.springframework.security;
  * @version $Id$
  */
 public class BadCredentialsException extends AuthenticationException {
-    //~ Instance fields ================================================================================================
-
-    private Object extraInformation;
-
     //~ Constructors ===================================================================================================
 
     /**
@@ -40,8 +36,7 @@ public class BadCredentialsException extends AuthenticationException {
     }
 
     public BadCredentialsException(String msg, Object extraInformation) {
-        super(msg);
-        this.extraInformation = extraInformation;
+        super(msg, extraInformation);
     }
 
     /**
@@ -57,12 +52,4 @@ public class BadCredentialsException extends AuthenticationException {
 
     //~ Methods ========================================================================================================
 
-    /**
-     * Any additional information about the exception. Generally a <code>UserDetails</code> object.
-     *
-     * @return extra information or <code>null</code>
-     */
-    public Object getExtraInformation() {
-        return extraInformation;
-    }
 }

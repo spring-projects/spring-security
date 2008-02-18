@@ -15,4 +15,8 @@ public abstract class AccountStatusException extends AuthenticationException {
     public AccountStatusException(String msg, Throwable t) {
         super(msg, t);
     }
+
+    protected AccountStatusException(String msg, Object extraInformation) {
+        super(msg, extraInformation);
+    }
 }
