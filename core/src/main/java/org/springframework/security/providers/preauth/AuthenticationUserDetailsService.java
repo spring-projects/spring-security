@@ -6,8 +6,7 @@ import org.springframework.security.Authentication;
 
 
 /**
- * Interface that allows for retrieving a UserDetails object based on a
- * PreAuthenticatedAuthenticationToken object.
+ * Interface that allows for retrieving a UserDetails object based on an <tt>Authentication</tt> object.
  *
  * @author Ruud Senden
  * @version $Id$
@@ -18,7 +17,7 @@ public interface AuthenticationUserDetailsService {
 	/**
 	 *
 	 * @param token The pre-authenticated authentication token
-	 * @return UserDetails for the given authentication token.
+	 * @return UserDetails for the given authentication token, never null.
 	 * @throws UsernameNotFoundException
 	 *             if no user details can be found for the given authentication
 	 *             token

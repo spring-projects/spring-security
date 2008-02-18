@@ -4,6 +4,8 @@ import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsChecker;
+import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +32,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     private static final Log logger = LogFactory.getLog(PreAuthenticatedAuthenticationProvider.class);
 
     private AuthenticationUserDetailsService preAuthenticatedUserDetailsService = null;
+    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();    
 
     private int order = -1; // default: same as non-ordered
 
@@ -62,9 +65,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 
         UserDetails ud = preAuthenticatedUserDetailsService.loadUserDetails(authentication);
 
-        if (ud == null) {
-            return null;
-        }
+        userDetailsChecker.check(ud);
 
         PreAuthenticatedAuthenticationToken result =
                 new PreAuthenticatedAuthenticationToken(ud, authentication.getCredentials(), ud.getAuthorities());

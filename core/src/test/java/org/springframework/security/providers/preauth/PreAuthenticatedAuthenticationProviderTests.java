@@ -7,28 +7,26 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * 
  * @author TSARDD
  * @since 18-okt-2007
  */
-public class PreAuthenticatedAuthenticationProviderTests extends TestCase {
+public class PreAuthenticatedAuthenticationProviderTests {
 	private static final String SUPPORTED_USERNAME = "dummyUser";
 
-	public final void testAfterPropertiesSet() {
+    @Test(expected = IllegalArgumentException.class)
+    public final void afterPropertiesSet() {
 		PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
-		try {
-			provider.afterPropertiesSet();
-			fail("AfterPropertiesSet didn't throw expected exception");
-		} catch (IllegalArgumentException expected) {
-		} catch (Exception unexpected) {
-			fail("AfterPropertiesSet throws unexpected exception");
-		}
+
+        provider.afterPropertiesSet();
 	}
 
-	public final void testAuthenticateInvalidToken() throws Exception {
+    @Test
+    public final void authenticateInvalidToken() throws Exception {
 		UserDetails ud = new User("dummyUser", "dummyPwd", true, true, true, true, new GrantedAuthority[] {});
 		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
 		Authentication request = new UsernamePasswordAuthenticationToken("dummyUser", "dummyPwd");
@@ -36,14 +34,16 @@ public class PreAuthenticatedAuthenticationProviderTests extends TestCase {
 		assertNull(result);
 	}
 
-    public final void testNullPrincipalReturnsNullAuthentication() throws Exception {
+    @Test
+    public final void nullPrincipalReturnsNullAuthentication() throws Exception {
         PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
         Authentication request = new PreAuthenticatedAuthenticationToken(null, "dummyPwd");
         Authentication result = provider.authenticate(request);
         assertNull(result);
     }
 
-    public final void testAuthenticateKnownUser() throws Exception {
+    @Test
+    public final void authenticateKnownUser() throws Exception {
 		UserDetails ud = new User("dummyUser", "dummyPwd", true, true, true, true, new GrantedAuthority[] {});
 		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
 		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser", "dummyPwd");
@@ -53,7 +53,8 @@ public class PreAuthenticatedAuthenticationProviderTests extends TestCase {
 		// @TODO: Add more asserts?
 	}
 
-	public final void testAuthenticateIgnoreCredentials() throws Exception {
+    @Test
+    public final void authenticateIgnoreCredentials() throws Exception {
 		UserDetails ud = new User("dummyUser1", "dummyPwd1", true, true, true, true, new GrantedAuthority[] {});
 		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
 		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser1", "dummyPwd2");
@@ -63,25 +64,28 @@ public class PreAuthenticatedAuthenticationProviderTests extends TestCase {
 		// @TODO: Add more asserts?
 	}
 
-	public final void testAuthenticateUnknownUser() throws Exception {
+    @Test(expected=UsernameNotFoundException.class)
+    public final void authenticateUnknownUserThrowsException() throws Exception {
 		UserDetails ud = new User("dummyUser1", "dummyPwd", true, true, true, true, new GrantedAuthority[] {});
 		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
 		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser2", "dummyPwd");
-		Authentication result = provider.authenticate(request);
-		assertNull(result);
+		provider.authenticate(request);
 	}
 
-	public final void testSupportsArbitraryObject() throws Exception {
+    @Test
+    public final void supportsArbitraryObject() throws Exception {
 		PreAuthenticatedAuthenticationProvider provider = getProvider(null);
 		assertFalse(provider.supports(Authentication.class));
 	}
 
-	public final void testSupportsPreAuthenticatedAuthenticationToken() throws Exception {
+    @Test
+    public final void supportsPreAuthenticatedAuthenticationToken() throws Exception {
 		PreAuthenticatedAuthenticationProvider provider = getProvider(null);
 		assertTrue(provider.supports(PreAuthenticatedAuthenticationToken.class));
 	}
 
-	public void testGetSetOrder() throws Exception {
+    @Test
+    public void getSetOrder() throws Exception {
 		PreAuthenticatedAuthenticationProvider provider = getProvider(null);
 		provider.setOrder(333);
 		assertEquals(provider.getOrder(), 333);
@@ -99,10 +103,10 @@ public class PreAuthenticatedAuthenticationProviderTests extends TestCase {
 			public UserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException {
 				if (aUserDetails != null && aUserDetails.getUsername().equals(token.getName())) {
 					return aUserDetails;
-				} else {
-					return null;
 				}
-			}
+
+                throw new UsernameNotFoundException("notfound");
+            }
 		};
 	}
 
