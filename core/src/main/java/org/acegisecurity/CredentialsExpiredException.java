@@ -45,4 +45,8 @@ public class CredentialsExpiredException extends AuthenticationException {
     public CredentialsExpiredException(String msg, Throwable t) {
         super(msg, t);
     }
+
+    public CredentialsExpiredException(String msg, Object extraInformation) {
+        super(msg, extraInformation);
+    }
 }

@@ -25,7 +25,7 @@ package org.acegisecurity;
 public class AccountExpiredException extends AuthenticationException {
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs a <code>AccountExpiredException</code> with the specified
      * message.
      *
@@ -35,7 +35,7 @@ public class AccountExpiredException extends AuthenticationException {
         super(msg);
     }
 
-/**
+    /**
      * Constructs a <code>AccountExpiredException</code> with the specified
      * message and root cause.
      *
@@ -44,5 +44,9 @@ public class AccountExpiredException extends AuthenticationException {
      */
     public AccountExpiredException(String msg, Throwable t) {
         super(msg, t);
+    }
+
+    public AccountExpiredException(String msg, Object extraInformation) {
+        super(msg, extraInformation);
     }
 }

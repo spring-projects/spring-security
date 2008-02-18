@@ -44,4 +44,8 @@ public class LockedException extends AuthenticationException {
     public LockedException(String msg, Throwable t) {
         super(msg, t);
     }
+
+    public LockedException(String msg, Object extraInformation) {
+        super(msg, extraInformation);
+    }
 }

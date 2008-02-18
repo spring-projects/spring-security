@@ -23,6 +23,10 @@ package org.acegisecurity;
  * @version $Id$
  */
 public abstract class AbstractAuthenticationManager implements AuthenticationManager {
+
+    //~ Instance fields ================================================================================================
+    private boolean clearExtraInformation = true;
+
     //~ Methods ========================================================================================================
 
     /**
@@ -43,6 +47,11 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
             return doAuthentication(authRequest);
         } catch (AuthenticationException e) {
             e.setAuthentication(authRequest);
+
+            if (clearExtraInformation) {
+                e.clearExtraInformation();
+            }
+
             throw e;
         }
     }
@@ -60,4 +69,15 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
      */
     protected abstract Authentication doAuthentication(Authentication authentication)
         throws AuthenticationException;
+
+    /**
+     * If set to true, the <tt>extraInformation</tt> set on an <tt>AuthenticationException</tt> will be cleared
+     * before rethrowing it. This is useful for use with remoting protocols where the information shouldn't
+     * be serialized to the client. Defaults to 'false'.
+     *
+     * @see AuthenticationException#getExtraInformation()
+     */
+    public void setClearExtraInformation(boolean clearExtraInformation) {
+        this.clearExtraInformation = clearExtraInformation;
+    }
 }

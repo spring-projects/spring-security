@@ -15,8 +15,6 @@
 
 package org.acegisecurity.providers.dao;
 
-import java.util.Map;
-
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.BadCredentialsException;
@@ -26,7 +24,6 @@ import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
 
@@ -80,31 +77,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 	protected void doAfterPropertiesSet() throws Exception {
 		Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
-	}
-
-	/**
-	 * Introspects the <code>Applicationcontext</code> for the single instance
-	 * of {@link AccessDeniedHandler}. If found invoke
-	 * setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) method by
-	 * providing the found instance of accessDeniedHandler as a method
-	 * parameter. If more than one instance of <code>AccessDeniedHandler</code>
-	 * is found, the method throws <code>IllegalStateException</code>.
-	 * 
-	 * @param applicationContext to locate the instance
-	 */
-	private void autoDetectAnyUserDetailsServiceAndUseIt(ApplicationContext applicationContext) {
-		if (applicationContext != null) {
-			Map map = applicationContext.getBeansOfType(UserDetailsService.class);
-
-			if (map.size() > 1) {
-				throw new IllegalArgumentException(
-						"More than one UserDetailsService beans detected please refer to the one using "
-								+ " [ principalRepositoryBeanRef  ] " + "attribute");
-			}
-			else if (map.size() == 1) {
-				setUserDetailsService((UserDetailsService) map.values().iterator().next());
-			}
-		}
 	}
 
 	public PasswordEncoder getPasswordEncoder() {
@@ -172,5 +144,4 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	public void setIncludeDetailsObject(boolean includeDetailsObject) {
 		this.includeDetailsObject = includeDetailsObject;
 	}
-
 }
