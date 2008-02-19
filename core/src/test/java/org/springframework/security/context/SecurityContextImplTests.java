@@ -41,14 +41,6 @@ public class SecurityContextImplTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(SecurityContextImplTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testEmptyObjectsAreEquals() {
         SecurityContextImpl obj1 = new SecurityContextImpl();
         SecurityContextImpl obj2 = new SecurityContextImpl();

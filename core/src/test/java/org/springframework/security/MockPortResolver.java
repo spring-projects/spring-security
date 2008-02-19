@@ -39,8 +39,6 @@ public class MockPortResolver implements PortResolver {
         this.https = https;
     }
 
-    private MockPortResolver() {}
-
     //~ Methods ========================================================================================================
 
     public int getServerPort(ServletRequest request) {

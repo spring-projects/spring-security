@@ -64,8 +64,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         SecurityContextHolder.clearContext();
     }
 
-    public void testCallbackIsInvokedWhenPermissionGranted()
-        throws Exception {
+    public void testCallbackIsInvokedWhenPermissionGranted() throws Exception {
         AspectJSecurityInterceptor si = new AspectJSecurityInterceptor();
         si.setApplicationEventPublisher(MockApplicationContext.getContext());
         si.setAccessDecisionManager(new MockAccessDecisionManager());
@@ -96,8 +95,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         assertEquals("object proceeded", result);
     }
 
-    public void testCallbackIsNotInvokedWhenPermissionDenied()
-        throws Exception {
+    public void testCallbackIsNotInvokedWhenPermissionDenied() throws Exception {
         AspectJSecurityInterceptor si = new AspectJSecurityInterceptor();
         si.setApplicationEventPublisher(MockApplicationContext.getContext());
         si.setAccessDecisionManager(new MockAccessDecisionManager());

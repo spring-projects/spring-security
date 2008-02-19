@@ -41,8 +41,6 @@ public class MockAclManager implements AclManager {
         this.acls = acls;
     }
 
-    private MockAclManager() {}
-
     //~ Methods ========================================================================================================
 
     public AclEntry[] getAcls(Object domainInstance, Authentication authentication) {

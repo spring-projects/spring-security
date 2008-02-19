@@ -28,11 +28,7 @@
 
     <bean id="casAuthenticationProvider" class="org.springframework.security.providers.cas.CasAuthenticationProvider">
         <sec:custom-authentication-provider />
-        <property name="casAuthoritiesPopulator">
-            <bean class="org.springframework.security.providers.DaoAuthoritiesPopulator">
-                <property name="userDetailsService" ref="userService"/>
-            </bean>
-        </property>
+        <property name="userDetailsService" ref="userDetailsService"/>
         <property name="casProxyDecider">
             <bean class="org.springframework.security.providers.cas.proxy.RejectProxyTickets"/>
         </property>

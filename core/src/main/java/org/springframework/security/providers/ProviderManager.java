@@ -26,11 +26,9 @@ import org.springframework.security.CredentialsExpiredException;
 import org.springframework.security.DisabledException;
 import org.springframework.security.LockedException;
 import org.springframework.security.AccountStatusException;
-
 import org.springframework.security.concurrent.ConcurrentLoginException;
 import org.springframework.security.concurrent.ConcurrentSessionController;
 import org.springframework.security.concurrent.NullConcurrentSessionController;
-
 import org.springframework.security.event.authentication.AbstractAuthenticationEvent;
 import org.springframework.security.event.authentication.AuthenticationFailureBadCredentialsEvent;
 import org.springframework.security.event.authentication.AuthenticationFailureConcurrentLoginEvent;
@@ -42,24 +40,19 @@ import org.springframework.security.event.authentication.AuthenticationFailurePr
 import org.springframework.security.event.authentication.AuthenticationFailureProxyUntrustedEvent;
 import org.springframework.security.event.authentication.AuthenticationFailureServiceExceptionEvent;
 import org.springframework.security.event.authentication.AuthenticationSuccessEvent;
-
-import org.springframework.security.providers.cas.ProxyUntrustedException;
-
 import org.springframework.security.userdetails.UsernameNotFoundException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -140,7 +133,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
                 AuthenticationFailureConcurrentLoginEvent.class.getName());
         DEFAULT_EXCEPTION_MAPPINGS.put(ProviderNotFoundException.class.getName(),
                 AuthenticationFailureProviderNotFoundEvent.class.getName());
-        DEFAULT_EXCEPTION_MAPPINGS.put(ProxyUntrustedException.class.getName(),
+        DEFAULT_EXCEPTION_MAPPINGS.put("org.springframework.security.providers.cas.ProxyUntrustedException",
                 AuthenticationFailureProxyUntrustedEvent.class.getName());
     }
 
@@ -338,16 +331,15 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
             applicationEventPublisher.publishEvent(event);
         }
     }
-    
+
     /**
      * Sets additional exception to event mappings. These are automatically merged with the default
      * exception to event mappings that <code>ProviderManager</code> defines.
-     * 
-     * @param additionalExceptionMappings where keys are the fully-qualified string name of the
-     * exception class and the values are the fully-qualified string name of the event class to fire
+     *
+     * @param additionalExceptionMappings where keys are the fully-qualified string name of the exception class and the
+     * values are the fully-qualified string name of the event class to fire.
      */
-	public void setAdditionalExceptionMappings(
-			Properties additionalExceptionMappings) {
-		this.additionalExceptionMappings = additionalExceptionMappings;
-	}
+    public void setAdditionalExceptionMappings(Properties additionalExceptionMappings) {
+        this.additionalExceptionMappings = additionalExceptionMappings;
+    }
 }

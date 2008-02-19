@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.springframework.security</groupId>
@@ -14,7 +15,11 @@
         <module>ntlm</module>
         <module>openid</module>
         <module>samples</module>
-    </modules>
+        <module>cas</module>
+        <module>captcha</module>
+        <module>acl</module>
+        <module>taglibs</module>
+  </modules>
 
     <description>Spring Security</description>
     <organization>
@@ -418,9 +423,9 @@
                             <postProcess>
                                 <copy todir="${docbook.target}/images">
                                     <fileset dir="${docbook.source}/images">
-                                        <include name="*.png" />
-                                        <include name="*.gif" />
-                                        <include name="*.jpg" />
+                                        <include name="*.png"/>
+                                        <include name="*.gif"/>
+                                        <include name="*.jpg"/>
                                     </fileset>
                                 </copy>
                             </postProcess>
@@ -572,6 +577,11 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-dao</artifactId>
                 <version>${spring.version}</version>
             </dependency>
             <dependency>
