@@ -15,27 +15,26 @@
 
 package org.springframework.security.util;
 
-
-import org.junit.After;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.MockApplicationContext;
 import org.springframework.security.MockFilterConfig;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.MockFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 
+import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.StaticApplicationContext;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import org.junit.After;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Tests {@link FilterChainProxy}.
@@ -64,7 +63,7 @@ public class FilterChainProxyTests {
     @Test
     public void testDetectsFilterInvocationDefinitionSourceThatDoesNotReturnAllConfigAttributes() throws Exception {
         FilterChainProxy filterChainProxy = new FilterChainProxy();
-        filterChainProxy.setApplicationContext(MockApplicationContext.getContext());
+        filterChainProxy.setApplicationContext(new StaticApplicationContext());
 
         try {
             filterChainProxy.setFilterInvocationDefinitionSource(new MockFilterInvocationDefinitionSource(false, false));
@@ -77,7 +76,7 @@ public class FilterChainProxyTests {
     @Test
     public void testDetectsIfConfigAttributeDoesNotReturnValueForGetAttributeMethod() throws Exception {
         FilterChainProxy filterChainProxy = new FilterChainProxy();
-        filterChainProxy.setApplicationContext(MockApplicationContext.getContext());
+        filterChainProxy.setApplicationContext(new StaticApplicationContext());
 
         ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new MockConfigAttribute());
 
@@ -95,16 +94,12 @@ public class FilterChainProxyTests {
         }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testDetectsMissingFilterInvocationDefinitionSource() throws Exception {
         FilterChainProxy filterChainProxy = new FilterChainProxy();
-        filterChainProxy.setApplicationContext(MockApplicationContext.getContext());
+        filterChainProxy.setApplicationContext(new StaticApplicationContext());
 
-        try {
-            filterChainProxy.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
+        filterChainProxy.afterPropertiesSet();
     }
 
     @Test

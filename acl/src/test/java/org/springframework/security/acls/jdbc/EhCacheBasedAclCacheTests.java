@@ -2,16 +2,13 @@ package org.springframework.security.acls.jdbc;
 
 import java.io.Serializable;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.CacheManager;
 
-import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.MockApplicationContext;
 import org.springframework.security.acls.MutableAcl;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
@@ -22,93 +19,105 @@ import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
 
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+import org.junit.After;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  * Tests {@link EhCacheBasedAclCache}
  *
  * @author Andrei Stefan
  */
-public class EhCacheBasedAclCacheTests extends TestCase {
+public class EhCacheBasedAclCacheTests {
     //~ Instance fields ================================================================================================
-    
-    AbstractXmlApplicationContext ctx;
+    private static CacheManager cacheManager;
 
     //~ Methods ========================================================================================================
+    @BeforeClass
+    public static void initCacheManaer() {
+        cacheManager = new CacheManager();
+        cacheManager.addCache(new Cache("ehcachebasedacltests", 500, false, false, 30, 30));
+    }
+
+    @AfterClass
+    public static void shutdownCacheManager() {
+        cacheManager.removalAll();
+        cacheManager.shutdown();
+    }
+
+    @After
+    public void clearContext() {
+        SecurityContextHolder.clearContext();
+    }
 
     private Ehcache getCache() {
-        this.ctx = (AbstractXmlApplicationContext) MockApplicationContext.getContext();
+        Ehcache cache = cacheManager.getCache("ehcachebasedacltests");
+        cache.removeAll();
 
-        return (Ehcache) ctx.getBean("eHCacheBackend");
+        return cache;
     }
     
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        SecurityContextHolder.clearContext();
-        if (ctx != null) {
-            ctx.close();
-        }
+    @Test(expected=IllegalArgumentException.class)
+    public void constructorRejectsNullParameters() throws Exception {
+        AclCache aclCache = new EhCacheBasedAclCache(null);
+        fail("It should have thrown IllegalArgumentException");
     }
 
-    public void testConstructorRejectsNullParameters() throws Exception {
-        try {
-            AclCache aclCache = new EhCacheBasedAclCache(null);
-            Assert.fail("It should have thrown IllegalArgumentException");
-        }
-        catch (IllegalArgumentException expected) {
-            Assert.assertTrue(true);
-        }
-    }
-
-    public void testMethodsRejectNullParameters() throws Exception {
+    @Test
+    public void methodsRejectNullParameters() throws Exception {
         Ehcache cache = new MockEhcache();
         EhCacheBasedAclCache myCache = new EhCacheBasedAclCache(cache);
 
         try {
             Serializable id = null;
             myCache.evictFromCache(id);
-            Assert.fail("It should have thrown IllegalArgumentException");
+            fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
 
         try {
             ObjectIdentity obj = null;
             myCache.evictFromCache(obj);
-            Assert.fail("It should have thrown IllegalArgumentException");
+            fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
 
         try {
             Serializable id = null;
             myCache.getFromCache(id);
-            Assert.fail("It should have thrown IllegalArgumentException");
+            fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
 
         try {
             ObjectIdentity obj = null;
             myCache.getFromCache(obj);
-            Assert.fail("It should have thrown IllegalArgumentException");
+            fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
 
         try {
             MutableAcl acl = null;
             myCache.putInCache(acl);
-            Assert.fail("It should have thrown IllegalArgumentException");
+            fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
     }
 
-    public void testCacheOperationsAclWithoutParent() throws Exception {
+    @Test
+    public void cacheOperationsAclWithoutParent() throws Exception {
         Ehcache cache = getCache();
         EhCacheBasedAclCache myCache = new EhCacheBasedAclCache(cache);
 
@@ -119,36 +128,37 @@ public class EhCacheBasedAclCacheTests extends TestCase {
         MutableAcl acl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
 
         myCache.putInCache(acl);
-        Assert.assertEquals(cache.getSize(), 2);
+        assertEquals(cache.getSize(), 2);
 
         // Check we can get from cache the same objects we put in
-        Assert.assertEquals(myCache.getFromCache(new Long(1)), acl);
-        Assert.assertEquals(myCache.getFromCache(identity), acl);
+        assertEquals(myCache.getFromCache(new Long(1)), acl);
+        assertEquals(myCache.getFromCache(identity), acl);
 
         // Put another object in cache
         ObjectIdentity identity2 = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
         MutableAcl acl2 = new AclImpl(identity2, new Long(2), aclAuthorizationStrategy, new ConsoleAuditLogger());
 
         myCache.putInCache(acl2);
-        Assert.assertEquals(cache.getSize(), 4);
+        assertEquals(cache.getSize(), 4);
 
         // Try to evict an entry that doesn't exist
         myCache.evictFromCache(new Long(3));
         myCache.evictFromCache(new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102)));
-        Assert.assertEquals(cache.getSize(), 4);
+        assertEquals(cache.getSize(), 4);
 
         myCache.evictFromCache(new Long(1));
-        Assert.assertEquals(cache.getSize(), 2);
+        assertEquals(cache.getSize(), 2);
 
         // Check the second object inserted
-        Assert.assertEquals(myCache.getFromCache(new Long(2)), acl2);
-        Assert.assertEquals(myCache.getFromCache(identity2), acl2);
+        assertEquals(myCache.getFromCache(new Long(2)), acl2);
+        assertEquals(myCache.getFromCache(identity2), acl2);
 
         myCache.evictFromCache(identity2);
-        Assert.assertEquals(cache.getSize(), 0);
+        assertEquals(cache.getSize(), 0);
     }
-    
-    public void testCacheOperationsAclWithParent() throws Exception {
+
+    @Test
+    public void cacheOperationsAclWithParent() throws Exception {
         Ehcache cache = getCache();
         EhCacheBasedAclCache myCache = new EhCacheBasedAclCache(cache);
         
@@ -168,13 +178,13 @@ public class EhCacheBasedAclCacheTests extends TestCase {
         acl.setParent(parentAcl);
 
         myCache.putInCache(acl);
-        Assert.assertEquals(cache.getSize(), 4);
+        assertEquals(cache.getSize(), 4);
 
         // Check we can get from cache the same objects we put in
-        Assert.assertEquals(myCache.getFromCache(new Long(1)), acl);
-        Assert.assertEquals(myCache.getFromCache(identity), acl);
-        Assert.assertEquals(myCache.getFromCache(new Long(2)), parentAcl);
-        Assert.assertEquals(myCache.getFromCache(identityParent), parentAcl);
+        assertEquals(myCache.getFromCache(new Long(1)), acl);
+        assertEquals(myCache.getFromCache(identity), acl);
+        assertEquals(myCache.getFromCache(new Long(2)), parentAcl);
+        assertEquals(myCache.getFromCache(identityParent), parentAcl);
     }
 
     //~ Inner Classes ==================================================================================================

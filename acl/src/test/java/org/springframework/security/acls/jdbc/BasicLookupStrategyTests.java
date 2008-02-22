@@ -4,19 +4,19 @@ import java.util.Map;
 
 import junit.framework.Assert;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Cache;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.MockApplicationContext;
 import org.springframework.security.TestDataSource;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AuditableAccessControlEntry;
@@ -45,7 +45,14 @@ public class BasicLookupStrategyTests {
 
     private static TestDataSource dataSource;
 
-    // ~ Methods ========================================================================================================
+    private static CacheManager cacheManager;
+
+    //~ Methods ========================================================================================================
+    @BeforeClass
+    public static void initCacheManaer() {
+        cacheManager = new CacheManager();
+        cacheManager.addCache(new Cache("basiclookuptestcache", 500, false, false, 30, 30));
+    }
 
     @BeforeClass
     public static void createDatabase() throws Exception {
@@ -60,6 +67,12 @@ public class BasicLookupStrategyTests {
     @AfterClass
     public static void dropDatabase() throws Exception {
         dataSource.destroy();
+    }
+
+    @AfterClass
+    public static void shutdownCacheManager() {
+        cacheManager.removalAll();
+        cacheManager.shutdown();
     }
 
     @Before
@@ -96,8 +109,9 @@ public class BasicLookupStrategyTests {
     }
 
     private Ehcache getCache() {
-        ApplicationContext ctx = MockApplicationContext.getContext();
-        return (Ehcache) ctx.getBean("eHCacheBackend");
+        Ehcache cache = cacheManager.getCache("basiclookuptestcache");
+        cache.removeAll();
+        return cache;
     }
 
     @Test
@@ -202,7 +216,7 @@ public class BasicLookupStrategyTests {
         Assert.assertEquals(child.getEntries()[0].getSid(), new PrincipalSid("ben"));
         Assert.assertFalse(((AuditableAccessControlEntry) child.getEntries()[0]).isAuditFailure());
         Assert.assertFalse(((AuditableAccessControlEntry) child.getEntries()[0]).isAuditSuccess());
-        Assert.assertFalse(((AuditableAccessControlEntry) child.getEntries()[0]).isGranting());
+        Assert.assertFalse((child.getEntries()[0]).isGranting());
     }
     
     @Test

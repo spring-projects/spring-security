@@ -15,20 +15,23 @@
 
 package org.springframework.security.providers.x509.cache;
 
-import junit.framework.TestCase;
-
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Cache;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.MockApplicationContext;
 
 import org.springframework.security.providers.x509.X509TestUtils;
 
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 
-import org.springframework.context.ApplicationContext;
+
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 
 /**
@@ -37,22 +40,28 @@ import org.springframework.context.ApplicationContext;
  * @author Luke Taylor
  * @version $Id$
  */
-public class EhCacheBasedX509UserCacheTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public EhCacheBasedX509UserCacheTests() {
-    }
-
-    public EhCacheBasedX509UserCacheTests(String arg0) {
-        super(arg0);
-    }
+public class EhCacheBasedX509UserCacheTests {
+    private static CacheManager cacheManager;
 
     //~ Methods ========================================================================================================
 
-    private Ehcache getCache() {
-        ApplicationContext ctx = MockApplicationContext.getContext();
+    @BeforeClass
+    public static void initCacheManaer() {
+        cacheManager = new CacheManager();
+        cacheManager.addCache(new Cache("x509cachetests", 500, false, false, 30, 30));
+    }
 
-        return (Ehcache) ctx.getBean("eHCacheBackend");
+    @AfterClass
+    public static void shutdownCacheManager() {
+        cacheManager.removalAll();
+        cacheManager.shutdown();
+    }
+
+    private Ehcache getCache() {
+        Ehcache cache = cacheManager.getCache("x509cachetests");
+        cache.removeAll();
+
+        return cache;
     }
 
     private UserDetails getUser() {
@@ -60,11 +69,8 @@ public class EhCacheBasedX509UserCacheTests extends TestCase {
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
     }
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void testCacheOperation() throws Exception {
+    @Test
+    public void cacheOperationsAreSucessful() throws Exception {
         EhCacheBasedX509UserCache cache = new EhCacheBasedX509UserCache();
         cache.setCache(getCache());
         cache.afterPropertiesSet();

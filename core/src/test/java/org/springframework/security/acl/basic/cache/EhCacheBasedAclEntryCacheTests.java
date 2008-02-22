@@ -15,18 +15,19 @@
 
 package org.springframework.security.acl.basic.cache;
 
-import junit.framework.TestCase;
-
 import net.sf.ehcache.Ehcache;
-
-import org.springframework.security.MockApplicationContext;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Cache;
 
 import org.springframework.security.acl.basic.AclObjectIdentity;
 import org.springframework.security.acl.basic.BasicAclEntry;
 import org.springframework.security.acl.basic.NamedEntityObjectIdentity;
 import org.springframework.security.acl.basic.SimpleAclEntry;
 
-import org.springframework.context.ApplicationContext;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 
 /**
@@ -35,7 +36,7 @@ import org.springframework.context.ApplicationContext;
  * @author Ben Alex
  * @version $Id$
  */
-public class EhCacheBasedAclEntryCacheTests extends TestCase {
+public class EhCacheBasedAclEntryCacheTests {
     //~ Static fields/initializers =====================================================================================
 
     private static final AclObjectIdentity OBJECT_100 = new NamedEntityObjectIdentity("OBJECT", "100");
@@ -44,29 +45,31 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
     private static final BasicAclEntry OBJECT_100_SCOTT = new SimpleAclEntry("scott", OBJECT_100, null, 4);
     private static final BasicAclEntry OBJECT_200_PETER = new SimpleAclEntry("peter", OBJECT_200, null, 4);
 
-    //~ Constructors ===================================================================================================
-
-    public EhCacheBasedAclEntryCacheTests() {
-        super();
-    }
-
-    public EhCacheBasedAclEntryCacheTests(String arg0) {
-        super(arg0);
-    }
+    private static CacheManager cacheManager;
 
     //~ Methods ========================================================================================================
 
+    @BeforeClass
+    public static void initCacheManaer() {
+        cacheManager = new CacheManager();
+        cacheManager.addCache(new Cache("ehcachebasedacltests", 500, false, false, 30, 30));
+    }
+
+    @AfterClass
+    public static void shutdownCacheManager() {
+        cacheManager.removalAll();
+        cacheManager.shutdown();
+    }
+
     private Ehcache getCache() {
-        ApplicationContext ctx = MockApplicationContext.getContext();
+        Ehcache cache = cacheManager.getCache("ehcachebasedacltests");
+        cache.removeAll();
 
-        return (Ehcache) ctx.getBean("eHCacheBackend");
+        return cache;
     }
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void testCacheOperation() throws Exception {
+    @Test
+    public void cacheOperationSucceeds() throws Exception {
         EhCacheBasedAclEntryCache cache = new EhCacheBasedAclEntryCache();
         cache.setCache(getCache());
         cache.afterPropertiesSet();
@@ -85,7 +88,8 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
         assertNull(cache.getEntriesFromCache(new NamedEntityObjectIdentity("OBJECT", "100")));
     }
 
-    public void testStartupDetectsMissingCache() throws Exception {
+    @Test
+    public void startupDetectsMissingCache() throws Exception {
         EhCacheBasedAclEntryCache cache = new EhCacheBasedAclEntryCache();
 
         try {

@@ -602,7 +602,7 @@
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
-                <version>1.2.9</version>
+                <version>1.2.13</version>
                 <optional>true</optional>
                 <scope>runtime</scope>
             </dependency>

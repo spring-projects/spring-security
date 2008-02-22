@@ -16,58 +16,49 @@
 
 package org.springframework.security.providers.portlet.cache;
 
-import java.io.IOException;
-
-import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 
 import org.springframework.security.providers.portlet.PortletTestUtils;
-import org.springframework.cache.ehcache.EhCacheFactoryBean;
+
+import org.junit.Test;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+import static org.junit.Assert.*;
 
 /**
- * Tests for {@link EhCacheBasedPortletUserCache}.
+ * Tests for {@link EhCacheBasedUserCache}.
  *
  * @author John A. Lewis
  * @since 2.0
  * @version $Id$
  */
-public class EhCacheBasedUserCacheTests extends TestCase {
+public class EhCacheBasedUserCacheTests {
+    //~ Static fields/initializers =====================================================================================
 
-	//~ Static fields/initializers =====================================================================================
+    private static CacheManager cacheManager;
 
-	private static EhCacheFactoryBean cacheFactory;
+    @BeforeClass
+    public static void initCacheManaer() {
+        cacheManager = new CacheManager();
+        cacheManager.addCache(new Cache("portletusercachetests", 500, false, false, 30, 30));
+    }
 
-	static {
-		cacheFactory = new EhCacheFactoryBean();
-		cacheFactory.setCacheName("portletUserCache");
-		try {
-			cacheFactory.afterPropertiesSet();
-		} catch (IOException e) {
-			throw new RuntimeException("unable to initialize cache factory", e);
-		}
-	}
+    @AfterClass
+    public static void shutdownCacheManager() {
+        cacheManager.removalAll();
+        cacheManager.shutdown();
+    }
 
-	//~ Constructors ===================================================================================================
+    private Cache getCache() {
+        Cache cache = cacheManager.getCache("portletusercachetests");
+        cache.removeAll();
 
-	public EhCacheBasedUserCacheTests() {
-		super();
-	}
+        return cache;
+    }
 
-	public EhCacheBasedUserCacheTests(String arg0) {
-		super(arg0);
-	}
-
-	//~ Methods ========================================================================================================
-
-	public final void setUp() throws Exception {
-		super.setUp();
-	}
-
-	private Cache getCache() {
-		return (Cache)cacheFactory.getObject();
-	}
-
-	public void testCacheOperation() throws Exception {
+    @Test
+    public void testCacheOperation() throws Exception {
 
 		// Create the cache
 		EhCacheBasedUserCache cache = new EhCacheBasedUserCache();
@@ -76,8 +67,7 @@ public class EhCacheBasedUserCacheTests extends TestCase {
 
 		// Check it gets stored in the cache
 		cache.putUserInCache(PortletTestUtils.createUser());
-		assertEquals(PortletTestUtils.TESTCRED,
-				cache.getUserFromCache(PortletTestUtils.TESTUSER).getPassword());
+		assertEquals(PortletTestUtils.TESTCRED, cache.getUserFromCache(PortletTestUtils.TESTUSER).getPassword());
 
 		// Check it gets removed from the cache
 		cache.removeUserFromCache(PortletTestUtils.TESTUSER);

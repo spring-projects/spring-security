@@ -25,10 +25,10 @@ import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.MockAccessDecisionManager;
-import org.springframework.security.MockApplicationContext;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockRunAsManager;
 import org.springframework.security.RunAsManager;
+import org.springframework.security.MockApplicationEventPublisher;
 import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.context.SecurityContextHolder;
@@ -141,7 +141,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setRunAsManager(new MockRunAsManager());
-        interceptor.setApplicationEventPublisher(MockApplicationContext.getContext());
+        interceptor.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
 
         // Setup a mock config attribute definition
         ConfigAttributeDefinition def = new ConfigAttributeDefinition("MOCK_OK");
@@ -194,7 +194,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setRunAsManager(new MockRunAsManager());
-        interceptor.setApplicationEventPublisher(MockApplicationContext.getContext());
+        interceptor.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
 
         // Setup a mock config attribute definition
         ConfigAttributeDefinition def = new ConfigAttributeDefinition("MOCK_OK");

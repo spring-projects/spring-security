@@ -41,7 +41,7 @@ import static org.junit.Assert.*;
  * @version $Id$
  */
 public class EhCacheBasedTicketCacheTests {
-    static CacheManager cacheManager;
+    private static CacheManager cacheManager;
 
     //~ Methods ========================================================================================================
     @BeforeClass

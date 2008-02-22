@@ -21,11 +21,11 @@ import org.springframework.security.AccessDeniedException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.MockAccessDecisionManager;
-import org.springframework.security.MockApplicationContext;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockJoinPoint;
 import org.springframework.security.MockRunAsManager;
 import org.springframework.security.TargetObject;
+import org.springframework.security.MockApplicationEventPublisher;
 
 import org.springframework.security.context.SecurityContextHolder;
 
@@ -66,7 +66,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
 
     public void testCallbackIsInvokedWhenPermissionGranted() throws Exception {
         AspectJSecurityInterceptor si = new AspectJSecurityInterceptor();
-        si.setApplicationEventPublisher(MockApplicationContext.getContext());
+        si.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
         si.setRunAsManager(new MockRunAsManager());
@@ -97,7 +97,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
 
     public void testCallbackIsNotInvokedWhenPermissionDenied() throws Exception {
         AspectJSecurityInterceptor si = new AspectJSecurityInterceptor();
-        si.setApplicationEventPublisher(MockApplicationContext.getContext());
+        si.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
         si.setRunAsManager(new MockRunAsManager());

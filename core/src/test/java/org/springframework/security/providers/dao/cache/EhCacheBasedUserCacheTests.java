@@ -15,18 +15,20 @@
 
 package org.springframework.security.providers.dao.cache;
 
-import junit.framework.TestCase;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Cache;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.MockApplicationContext;
 
 import org.springframework.security.userdetails.User;
 
-import org.springframework.context.ApplicationContext;
-
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Tests {@link EhCacheBasedUserCache}.
@@ -34,22 +36,27 @@ import org.springframework.context.ApplicationContext;
  * @author Ben Alex
  * @version $Id$
  */
-public class EhCacheBasedUserCacheTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public EhCacheBasedUserCacheTests() {
-    }
-
-    public EhCacheBasedUserCacheTests(String arg0) {
-        super(arg0);
-    }
+public class EhCacheBasedUserCacheTests {
+    private static CacheManager cacheManager;
 
     //~ Methods ========================================================================================================
+    @BeforeClass
+    public static void initCacheManaer() {
+        cacheManager = new CacheManager();
+        cacheManager.addCache(new Cache("ehcacheusercachetests", 500, false, false, 30, 30));
+    }
+
+    @AfterClass
+    public static void shutdownCacheManager() {
+        cacheManager.removalAll();
+        cacheManager.shutdown();
+    }
 
     private Ehcache getCache() {
-        ApplicationContext ctx = MockApplicationContext.getContext();
+        Ehcache cache = cacheManager.getCache("ehcacheusercachetests");
+        cache.removeAll();
 
-        return (Ehcache) ctx.getBean("eHCacheBackend");
+        return cache;
     }
 
     private User getUser() {
@@ -57,11 +64,8 @@ public class EhCacheBasedUserCacheTests extends TestCase {
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
     }
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void testCacheOperation() throws Exception {
+    @Test
+    public void cacheOperationsAreSuccessful() throws Exception {
         EhCacheBasedUserCache cache = new EhCacheBasedUserCache();
         cache.setCache(getCache());
         cache.afterPropertiesSet();
@@ -79,15 +83,12 @@ public class EhCacheBasedUserCacheTests extends TestCase {
         assertNull(cache.getUserFromCache("UNKNOWN_USER"));
     }
 
-    public void testStartupDetectsMissingCache() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void startupDetectsMissingCache() throws Exception {
         EhCacheBasedUserCache cache = new EhCacheBasedUserCache();
 
-        try {
-            cache.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        cache.afterPropertiesSet();
+        fail("Should have thrown IllegalArgumentException");
 
         Ehcache myCache = getCache();
         cache.setCache(myCache);
