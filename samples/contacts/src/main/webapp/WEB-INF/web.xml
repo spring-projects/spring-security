@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE web-app PUBLIC '-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN' 'http://java.sun.com/dtd/web-app_2_3.dtd'>
 
 <!--
   - Contacts web application
@@ -7,7 +6,9 @@
   - $Id: web.xml 1741 2006-11-14 03:18:42Z benalex $
   -->
 
-<web-app>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
 
     <display-name>Contacts Sample Application</display-name>
 
@@ -113,10 +114,5 @@
 		<error-code>403</error-code>
 		<location>/error.html</location>
 	</error-page>
-
-    <taglib>
-      <taglib-uri>/spring</taglib-uri>
-      <taglib-location>/WEB-INF/spring.tld</taglib-location>
-  	</taglib>
 
 </web-app>

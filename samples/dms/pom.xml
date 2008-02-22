@@ -19,7 +19,6 @@
             <artifactId>spring-security-acl</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>

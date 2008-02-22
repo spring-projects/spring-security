@@ -150,16 +150,6 @@
                 <filtering>false</filtering>
             </resource>
             <resource>
-                <directory>
-                    ${basedir}/src/main/resources/org/springframework/security/taglibs
-                </directory>
-                <targetPath>META-INF</targetPath>
-                <includes>
-                    <include>*.tld</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-            <resource>
                 <directory>${basedir}/src/main/resources</directory>
                 <targetPath>/</targetPath>
                 <includes>
