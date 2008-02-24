@@ -10,7 +10,7 @@
     <name>Spring Security - OpenID support</name>
     <description>Spring Security - Support for OpenID</description>
     <version>2.0-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
