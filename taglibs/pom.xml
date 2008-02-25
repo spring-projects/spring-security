@@ -50,11 +50,11 @@
         <resources>
             <resource>
                 <directory>
-                    ${basedir}/src/main/resources/org/springframework/security/taglibs
+                    ${basedir}/src/main/resources
                 </directory>
-                <targetPath>META-INF</targetPath>
+                <targetPath>/</targetPath>
                 <includes>
-                    <include>*.tld</include>
+                    <include>**/*</include>
                 </includes>
                 <filtering>false</filtering>
             </resource>            
