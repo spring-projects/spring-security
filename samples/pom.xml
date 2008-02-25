@@ -20,6 +20,7 @@
         <module>tutorial</module>
         <module>dms</module>
         <module>preauth</module>
+        <module>openid</module>
     </modules>
 
     <dependencies>
