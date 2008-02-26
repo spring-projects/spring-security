@@ -80,7 +80,7 @@ import java.util.*;
  *
  * <p>Note the <code>Filter</code> lifecycle mismatch between the servlet container and IoC
  * container. As described in the {@link DelegatingFilterProxy} JavaDocs, we recommend you allow the IoC
- * container to manage lifecycle instead of the servlet container. By default the <code>DelegatingFilterProxy</code>
+ * container to manage the lifecycle instead of the servlet container. By default the <code>DelegatingFilterProxy</code>
  * will never call this class' {@link #init(FilterConfig)} and {@link #destroy()} methods, which in turns means that
  * the corresponding methods on the filter beans managed by this class will never be called. If you do need your filters to be
  * initialized and destroyed, please set the <tt>targetFilterLifecycle</tt> initialization parameter against the
