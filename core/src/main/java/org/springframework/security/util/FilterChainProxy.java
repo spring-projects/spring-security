@@ -78,13 +78,14 @@ import java.util.*;
  * javax.servlet.FilterChain)}, in that the remainder of the original or <code>FilterChainProxy</code>-declared filter
  * chain will not be called.
  *
- * <p>It is particularly noted the <code>Filter</code> lifecycle mismatch between the servlet container and IoC
- * container. As per {@link DelegatingFilterProxy} JavaDocs, we recommend you allow the IoC
+ * <p>Note the <code>Filter</code> lifecycle mismatch between the servlet container and IoC
+ * container. As described in the {@link DelegatingFilterProxy} JavaDocs, we recommend you allow the IoC
  * container to manage lifecycle instead of the servlet container. By default the <code>DelegatingFilterProxy</code>
- * will never call this class' {@link #init(FilterConfig)} and {@link #destroy()} methods, meaning each of the filters
- * defined in the filter chain map will not be called. If you do need your filters to be
- * initialized and destroyed, please set the <code>lifecycle</code> initialization parameter against the
- * <code>DelegatingFilterProxy</code> to specify servlet container lifecycle management.
+ * will never call this class' {@link #init(FilterConfig)} and {@link #destroy()} methods, which in turns means that
+ * the corresponding methods on the filter beans managed by this class will never be called. If you do need your filters to be
+ * initialized and destroyed, please set the <tt>targetFilterLifecycle</tt> initialization parameter against the
+ * <code>DelegatingFilterProxy</code> to specify that servlet container lifecycle management should be used. You don't
+ * need to worry about this in most cases.
  *
  * @author Carlos Sanchez
  * @author Ben Alex
@@ -220,7 +221,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
      *         <code>Filter</code> is defined multiples times in the filter chain map)
      */
     protected Filter[] obtainAllDefinedFilters() {
-        Set allFilters = new HashSet();
+        Set allFilters = new LinkedHashSet();
 
         Iterator it = filterChainMap.values().iterator();
 
