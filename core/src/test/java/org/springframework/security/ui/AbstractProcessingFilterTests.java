@@ -293,20 +293,6 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertEquals(sessionPreAuth, request.getSession());
     }
 
-    public void testStartupDetectsInvalidAuthenticationFailureUrl() throws Exception {
-        AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager());
-        filter.setDefaultTargetUrl("/");
-        filter.setFilterProcessesUrl("/j_spring_security_check");
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("authenticationFailureUrl must be specified", expected.getMessage());
-        }
-    }
-
     public void testStartupDetectsInvalidAuthenticationManager() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationFailureUrl("/failed.jsp");
@@ -547,6 +533,45 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertNull(request.getSession(false));
     }
 
+    /**
+     * SEC-462
+     */
+    public void testLoginErrorWithNoFailureUrlSendsUnauthorizedStatus() throws Exception {
+        MockHttpServletRequest request = createMockRequest();
+
+        MockFilterConfig config = new MockFilterConfig(null, null);
+        MockFilterChain chain = new MockFilterChain(true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
+        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
+
+        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());       
+    }    
+
+    /**
+     * SEC-462
+     */
+    public void testServerSideRedirectForwardsToFailureUrl() throws Exception {
+        MockHttpServletRequest request = createMockRequest();
+
+        MockFilterConfig config = new MockFilterConfig(null, null);
+        MockFilterChain chain = new MockFilterChain(true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
+        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        filter.setAuthenticationFailureUrl("/error");
+        filter.setServerSideRedirect(true);
+
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
+
+        assertEquals("/error", response.getForwardedUrl());       
+    }    
+    
+    
     //~ Inner Classes ==================================================================================================
 
     private class MockAbstractProcessingFilter extends AbstractProcessingFilter {

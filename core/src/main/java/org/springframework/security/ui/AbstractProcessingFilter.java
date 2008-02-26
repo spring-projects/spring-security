@@ -210,13 +210,15 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     private boolean migrateInvalidatedSessionAttributes = true;
 
     private boolean allowSessionCreation = true;
+    
+    private boolean serverSideRedirect = false;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
         Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
-        Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
+//        Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
         Assert.notNull(authenticationManager, "authenticationManager must be specified");
         Assert.notNull(rememberMeServices, "rememberMeServices cannot be null");
         Assert.notNull(targetUrlResolver, "targetUrlResolver cannot be null");
@@ -343,7 +345,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     }
 
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-            Authentication authResult) throws IOException {
+            Authentication authResult) throws IOException, ServletException {
         if (logger.isDebugEnabled()) {
             logger.debug("Authentication success: " + authResult.toString());
         }
@@ -437,7 +439,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     }
 
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException failed) throws IOException {
+            AuthenticationException failed) throws IOException, ServletException {
         SecurityContextHolder.getContext().setAuthentication(null);
 
         if (logger.isDebugEnabled()) {
@@ -463,8 +465,14 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         onUnsuccessfulAuthentication(request, response, failed);
 
         rememberMeServices.loginFail(request, response);
-
-        sendRedirect(request, response, failureUrl);
+        
+        if (failureUrl == null) {
+        	response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication Failed:" + failed.getMessage());
+        } else if (serverSideRedirect){
+            request.getRequestDispatcher(failureUrl).forward(request, response);            
+        } else {
+        	sendRedirect(request, response, failureUrl);
+        }
     }
 
     protected String determineFailureUrl(HttpServletRequest request, AuthenticationException failed) {
@@ -601,4 +609,13 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 	public void setTargetUrlResolver(TargetUrlResolver targetUrlResolver) {
 		this.targetUrlResolver = targetUrlResolver;
 	}
+
+    /**
+     * Tells if we are to do a server side include of the error URL instead of a 302 redirect.
+     *
+     * @param serverSideRedirect
+     */	
+	public void setServerSideRedirect(boolean serverSideRedirect) {
+		this.serverSideRedirect = serverSideRedirect;
+	}	
 }
