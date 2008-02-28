@@ -110,9 +110,16 @@ public abstract class AbstractAuthenticationToken implements Authentication {
             if ((this.getCredentials() != null) && !this.getCredentials().equals(test.getCredentials())) {
                 return false;
             }
+            
+            if (this.getPrincipal() == null && test.getPrincipal() != null) {
+                return false;
+            }
 
-            return (this.getPrincipal().equals(test.getPrincipal())
-                    && (this.isAuthenticated() == test.isAuthenticated()));
+            if (this.getPrincipal() != null && !this.getPrincipal().equals(test.getPrincipal())) {
+                return false;
+            }            
+            
+            return this.isAuthenticated() == test.isAuthenticated();
         }
 
         return false;

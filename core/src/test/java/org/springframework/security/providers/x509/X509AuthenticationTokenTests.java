@@ -45,4 +45,8 @@ public class X509AuthenticationTokenTests extends TestCase {
         token.setAuthenticated(true);
         assertTrue(token.isAuthenticated());
     }
+
+    public void testEquals() throws Exception {
+        assertEquals(X509TestUtils.createToken(), X509TestUtils.createToken());
+    }
 }

@@ -100,8 +100,7 @@ public class X509TestUtils {
         return (X509Certificate) cf.generateCertificate(in);
     }
 
-    public static X509AuthenticationToken createToken()
-        throws Exception {
+    public static X509AuthenticationToken createToken() throws Exception {
         return new X509AuthenticationToken(buildTestCertificate());
     }
 }
