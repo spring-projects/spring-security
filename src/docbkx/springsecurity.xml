@@ -723,7 +723,7 @@ if (obj instanceof UserDetails) {
         presented to an
         <interfacename>AuthenticationProvider</interfacename>.</para>
 
-        <para>The last played in the Spring Security authentication process is
+        <para>The last player in the Spring Security authentication process is
         an <literal>AuthenticationProvider</literal>. Quite simply, it is
         responsible for taking an <literal>Authentication</literal> request
         object and deciding whether or not it is valid. The provider will
