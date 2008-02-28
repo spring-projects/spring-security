@@ -77,10 +77,12 @@ import javax.servlet.http.HttpSession;
  * <code>defaultTargetUrl</code> will be treated as relative to the web-app's
  * context path, and should include the leading <code>/</code>.
  * Alternatively, inclusion of a scheme name (eg http:// or https://) as the
- * prefix will denote a fully-qualified URL and this is also supported.</li>
- * <li><code>authenticationFailureUrl</code> indicates the URL that should be
+ * prefix will denote a fully-qualified URL and this is also supported. More
+ * complex behaviour can be implemented by using a customised {@link TargetUrlResolver}.</li>
+ * <li><code>authenticationFailureUrl</code> (optional) indicates the URL that should be
  * used for redirection if the authentication request fails. eg:
- * <code>/login.jsp?login_error=1</code>.</li>
+ * <code>/login.jsp?login_error=1</code>. If not configured, <tt>sendError</tt> will be
+ * called on the response, with the error code SC_UNAUTHORIZED.</li>
  * <li><code>filterProcessesUrl</code> indicates the URL that this filter
  * will respond to. This parameter varies by subclass.</li>
  * <li><code>alwaysUseDefaultTargetUrl</code> causes successful
