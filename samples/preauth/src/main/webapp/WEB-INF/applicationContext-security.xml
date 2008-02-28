@@ -12,13 +12,11 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-
     <bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/**" filters="sif,j2eePreAuthFilter,logoutFilter,etf,fsi"/>
         </sec:filter-chain-map>
     </bean>
-
 
     <bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
         <property name="providers">
@@ -45,7 +43,6 @@
     <bean id="preAuthenticatedProcessingFilterEntryPoint"
             class="org.springframework.security.ui.preauth.PreAuthenticatedProcessingFilterEntryPoint"/>
 
-
 	<bean id="logoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
 		<constructor-arg value="/"/>
 		<constructor-arg>
@@ -59,14 +56,13 @@
         <property name="j2eeMappableRolesRetriever">
         <ref local="j2eeMappableRolesRetriever"/>
         </property>
-
-            <property name="j2eeUserRoles2GrantedAuthoritiesMapper">
+        <property name="j2eeUserRoles2GrantedAuthoritiesMapper">
         <ref local="j2eeUserRoles2GrantedAuthoritiesMapper"/>
         </property>
     </bean>
 
 	<bean id="j2eeUserRoles2GrantedAuthoritiesMapper" class="org.springframework.security.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper">
-	    <property name="convertRoleToUpperCase" value="true"/>
+	    <property name="convertAttributeToUpperCase" value="true"/>
     </bean>
 
 	<bean id="j2eeMappableRolesRetriever" class="org.springframework.security.ui.preauth.j2ee.WebXmlMappableAttributesRetriever">
@@ -89,31 +85,24 @@
     </bean>
 
 	<bean id="httpRequestAccessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
-
-	<property name="allowIfAllAbstainDecisions" value="false"/>
-	<property name="decisionVoters">
-	    <list>
-            <ref bean="roleVoter"/>
-        </list>
-    </property>
+        <property name="allowIfAllAbstainDecisions" value="false"/>
+        <property name="decisionVoters">
+	        <list>
+                <ref bean="roleVoter"/>
+	        </list>
+	    </property>
     </bean>
 
-
 	<bean id="fsi" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
-	    <property name="authenticationManager" ref="authenticationManager"/>
-	    <property name="accessDecisionManager">
-        <ref local="httpRequestAccessDecisionManager"/>
-    </property>
-
-	<property name="objectDefinitionSource">
-	    <value>
-            CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-            PATTERN_TYPE_APACHE_ANT
-            /secure/extreme/**=ROLE_SUPERVISOR
-            /secure/**=ROLE_USER
-            /**=ROLE_USER
-        </value>
-    </property>
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="accessDecisionManager" ref="httpRequestAccessDecisionManager"/>
+        <property name="objectDefinitionSource">
+            <sec:filter-invocation-definition-source>
+                <sec:intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
+                <sec:intercept-url pattern="/secure/**" access="ROLE_USER"/>
+                <sec:intercept-url pattern="/**" access="ROLE_USER"/>
+            </sec:filter-invocation-definition-source>
+    	</property>
     </bean>
 
     <bean id="roleVoter" class="org.springframework.security.vote.RoleVoter"/>
