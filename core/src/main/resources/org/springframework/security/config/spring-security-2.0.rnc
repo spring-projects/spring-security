@@ -212,6 +212,18 @@ filter-chain.attlist &=
 filter-chain.attlist &=
     attribute filters {xsd:string}
 
+filter-invocation-definition-source =
+    ## Used to explicitly configure a FilterInvocationDefinitionSource bean for use with a FilterSecurityInterceptor. Usually only needed if you are configuring a FilterChainProxy explicitly, rather than using the <http> element. The intercept-url elements used should only contain pattern, method and access attributes. Any others will result in a configuration error. 
+    element filter-invocation-definition-source {fids.attlist, intercept-url+}
+fids.attlist &=
+    id?
+fids.attlist &=
+    ## as for http element
+    attribute lowercase-comparisons {"true" | "false"}?
+fids.attlist &=
+    ## as for http element
+    path-type?
+
 http-basic =
     ## Adds support for basic authentication (this is an element to permit future expansion, such as supporting an "ignoreFailure" attribute)
     element http-basic {empty}
@@ -328,6 +340,6 @@ before =
     ## The filter immediately before which the custom-filter should be placed in the chain
     attribute before {"FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "SESSION_CONTEXT_INTEGRATION_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_PROCESSING_FILTER" | "AUTHENTICATION_PROCESSING_FILTER" | "BASIC_PROCESSING_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "NTLM_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER"}
 
-    
+
     
     

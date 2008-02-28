@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class HttpSecurityBeanDefinitionParserTests {
     private AbstractXmlApplicationContext appContext;
-    private static final String AUTH_PROVIDER_XML =
+    static final String AUTH_PROVIDER_XML =
             "    <authentication-provider>" +
             "        <user-service>" +
             "            <user name='bob' password='bobspassword' authorities='ROLE_A,ROLE_B' />" +

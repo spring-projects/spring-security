@@ -19,6 +19,7 @@ import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockFilterChain;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.util.AntUrlPathMatcher;
+import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -168,6 +169,38 @@ public class DefaultFilterInvocationDefinitionSourceTests {
 
         response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
+    }
+    
+    @Test
+    public void xmlMapConfigurationIsSuccessful() {
+        InMemoryXmlApplicationContext context = new InMemoryXmlApplicationContext(
+        "<b:bean id='fids' class='org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource'>" +
+        "    <b:constructor-arg>" +
+        "        <b:bean class='org.springframework.security.util.AntUrlPathMatcher'/>" +        
+        "    </b:constructor-arg>" +
+        "    <b:constructor-arg>" +
+        "        <b:map>" +
+        "             <b:entry>" +
+        "               <b:key>" +
+        "                   <b:bean class='org.springframework.security.intercept.web.RequestKey'>" +
+        "                     <b:constructor-arg index='0' value='/**'/>" +
+        "                     <b:constructor-arg index='1' value='GET'/>" +
+        "                   </b:bean>" +
+        "               </b:key>" +
+        "               <b:bean class='org.springframework.security.ConfigAttributeDefinition'>" +
+        "                   <b:constructor-arg value='ROLE_A'/>" +
+        "               </b:bean>" +
+        "             </b:entry>" +
+        "        </b:map>" +
+        "    </b:constructor-arg>" +
+        "</b:bean>"
+        );
+        
+        DefaultFilterInvocationDefinitionSource fids = (DefaultFilterInvocationDefinitionSource) context.getBean("fids");
+        ConfigAttributeDefinition cad = fids.lookupAttributes("/anything", "GET");
+        assertNotNull(cad);
+        assertEquals(1, cad.getConfigAttributes().size());
+        context.close();
     }
 
     private FilterInvocation createFilterInvocation(String path, String method) {

@@ -34,4 +34,5 @@ abstract class Elements {
     public static final String CUSTOM_FILTER = "custom-filter";
     public static final String CUSTOM_AUTH_RPOVIDER = "custom-authentication-provider";
     public static final String X509 = "x509";
+	public static final String FILTER_INVOCATION_DEFINITION_SOURCE = "filter-invocation-definition-source";
 }

@@ -3,7 +3,7 @@ package org.springframework.security.util;
 /**
  * Strategy for deciding whether configured path matches a submitted candidate URL.
  *
- * @author luke
+ * @author Luke Taylor
  * @version $Id$
  * @since 2.0
  */

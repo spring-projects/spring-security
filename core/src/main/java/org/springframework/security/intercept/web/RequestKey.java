@@ -5,25 +5,35 @@ package org.springframework.security.intercept.web;
  * @version $Id$
  */
 public class RequestKey {
-    String url;
-    String method;
+    private String url;
+    private String method;
 
     public RequestKey(String url) {
-        this(url, "");
+        this(url, null);
     }
 
     public RequestKey(String url, String method) {
         this.url = url;
         this.method = method;
     }
+    
+    String getUrl() {
+        return url;
+    }
+
+    String getMethod() {
+        return method;
+    }
 
     public int hashCode() {
         int code = 31;
         code ^= url.hashCode();
-        code ^= method.hashCode();
+        
+        if (method != null) {
+            code ^= method.hashCode();
+        }
 
         return code;
-
     }
 
     public boolean equals(Object obj) {
@@ -33,6 +43,14 @@ public class RequestKey {
 
         RequestKey key = (RequestKey) obj;
 
-        return url.equals(key.url) && method.equals(key.method);        
+        if (!url.equals(key.url)) {
+            return false;
+        }
+        
+        if (method == null && key.method != null) {
+            return false;
+        }
+        
+        return method.equals(key.method);        
     }
 }

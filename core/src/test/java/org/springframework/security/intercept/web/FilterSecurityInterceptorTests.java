@@ -39,6 +39,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import java.io.IOException;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -220,9 +221,10 @@ public class FilterSecurityInterceptorTests extends TestCase {
     }
 
     public void testNotLoadedFromApplicationContext() throws Exception {
+        LinkedHashMap reqMap = new LinkedHashMap();
+        reqMap.put(new RequestKey("/secure/**", null), new ConfigAttributeDefinition(new String[] {"ROLE_USER"}));
         DefaultFilterInvocationDefinitionSource fids
-                = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher());
-        fids.addSecureUrl("/secure/**", null, new ConfigAttributeDefinition(new String[] {"ROLE_USER"}));
+                = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher());        
 
         FilterSecurityInterceptor filter = new FilterSecurityInterceptor();
         filter.setObjectDefinitionSource(fids);

@@ -61,7 +61,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
 
     /**
      * Non method-specific map of URL patterns to <tt>ConfigAttributeDefinition</tt>s
-     * TODO: Store in the httpMethod map with null key.  
+     * TODO: Store in the httpMethod map with null key.
      */
     private Map requestMap = new LinkedHashMap();
     /** Stores request maps keyed by specific HTTP methods */
@@ -75,10 +75,18 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
      * Creates a FilterInvocationDefinitionSource with the supplied URL matching strategy.
      * @param urlMatcher
      */
-    public DefaultFilterInvocationDefinitionSource(UrlMatcher urlMatcher) {
+    DefaultFilterInvocationDefinitionSource(UrlMatcher urlMatcher) {
         this.urlMatcher = urlMatcher;
     }
 
+    /**
+     * Builds the internal request map from the supplied map. The key elements should be of type {@link RequestKey},
+     * which contains a URL path and an optional HTTP method (may be null). The path stored in the key will depend on 
+     * the type of the supplied UrlMatcher.
+     * 
+     * @param urlMatcher typically an ant or regular expression matcher.
+     * @param requestMap order-preserving map of <RequestKey, ConfigAttributeDefinition>.
+     */
     public DefaultFilterInvocationDefinitionSource(UrlMatcher urlMatcher, LinkedHashMap requestMap) {
         this.urlMatcher = urlMatcher;
 
@@ -86,13 +94,14 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
 
         while (iterator.hasNext()) {
             Map.Entry entry = (Map.Entry) iterator.next();
-            addSecureUrl((String)entry.getKey(), (ConfigAttributeDefinition)entry.getValue());
+            RequestKey reqKey = (RequestKey) entry.getKey();
+            addSecureUrl(reqKey.getUrl(), reqKey.getMethod(), (ConfigAttributeDefinition) entry.getValue());
         }
     }
 
     //~ Methods ========================================================================================================
 
-    public void addSecureUrl(String pattern, ConfigAttributeDefinition attr) {
+    void addSecureUrl(String pattern, ConfigAttributeDefinition attr) {
         addSecureUrl(pattern, null, attr);
     }
 
@@ -102,7 +111,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
      * to the request map and will be passed back to the <tt>UrlMatcher</tt> when iterating through the map to find
      * a match for a particular URL.
      */
-    public void addSecureUrl(String pattern, String method, ConfigAttributeDefinition attr) {
+    void addSecureUrl(String pattern, String method, ConfigAttributeDefinition attr) {
         Map mapToUse = getRequestMapForHttpMethod(method);
 
         mapToUse.put(urlMatcher.compile(pattern), attr);

@@ -21,6 +21,7 @@ import org.springframework.security.MockFilterConfig;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.MockFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
+import org.springframework.security.intercept.web.RequestKey;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 
 import org.springframework.beans.factory.BeanCreationException;
@@ -34,6 +35,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -80,9 +82,10 @@ public class FilterChainProxyTests {
 
         ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new MockConfigAttribute());
 
+        LinkedHashMap map = new LinkedHashMap();
+        map.put(new RequestKey("/**"), cad);
         DefaultFilterInvocationDefinitionSource fids =
-                new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher());
-        fids.addSecureUrl("/**", cad);
+                new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(), map);
 
         filterChainProxy.setFilterInvocationDefinitionSource(fids);
 

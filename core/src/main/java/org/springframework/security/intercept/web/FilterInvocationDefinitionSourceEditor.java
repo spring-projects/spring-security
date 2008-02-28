@@ -167,7 +167,7 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
 
             String[] tokens = StringUtils.commaDelimitedListToStringArray(value);
 
-            urlMap.put(name, new ConfigAttributeDefinition(tokens));
+            urlMap.put(new RequestKey(name), new ConfigAttributeDefinition(tokens));
         }
 
         DefaultFilterInvocationDefinitionSource fids =

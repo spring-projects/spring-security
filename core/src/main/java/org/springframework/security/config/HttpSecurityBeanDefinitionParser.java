@@ -20,6 +20,7 @@ import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFil
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
+import org.springframework.security.intercept.web.RequestKey;
 import org.springframework.security.securechannel.ChannelDecisionManagerImpl;
 import org.springframework.security.securechannel.ChannelProcessingFilter;
 import org.springframework.security.securechannel.InsecureChannelProcessor;
@@ -111,45 +112,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
 
         Map filterChainMap =  new LinkedHashMap();
-
-        String patternType = element.getAttribute(ATT_PATH_TYPE);
-        if (!StringUtils.hasText(patternType)) {
-        	patternType = DEF_PATH_TYPE_ANT;
-        }
-
-        boolean useRegex = patternType.equals(OPT_PATH_TYPE_REGEX);
-
-        UrlMatcher matcher = new AntUrlPathMatcher();
-
-        if (useRegex) {
-            matcher = new RegexUrlPathMatcher();
-        }
-
-        // Deal with lowercase conversion requests
-        String lowercaseComparisons = element.getAttribute(ATT_LOWERCASE_COMPARISONS);
-        if (!StringUtils.hasText(lowercaseComparisons)) {
-        	lowercaseComparisons = null;
-        }
-
-
-        // Only change from the defaults if the attribute has been set
-        if ("true".equals(lowercaseComparisons)) {
-            if (useRegex) {
-                ((RegexUrlPathMatcher)matcher).setRequiresLowerCaseUrl(true);
-            }
-            // Default for ant is already to force lower case
-        } else if ("false".equals(lowercaseComparisons)) {
-            if (!useRegex) {
-                ((AntUrlPathMatcher)matcher).setRequiresLowerCaseUrl(false);
-            }
-            // Default for regex is no change
-        }
-
-        DefaultFilterInvocationDefinitionSource interceptorFilterInvDefSource =
-                new DefaultFilterInvocationDefinitionSource(matcher);
-        DefaultFilterInvocationDefinitionSource channelFilterInvDefSource =
-                new DefaultFilterInvocationDefinitionSource(matcher);
-
+        
+        UrlMatcher matcher = createUrlMatcher(element);
+        
         filterChainProxy.getPropertyValues().addPropertyValue("matcher", matcher);
 
         // Add servlet-api integration filter if required
@@ -163,8 +128,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         filterChainProxy.getPropertyValues().addPropertyValue("filterChainMap", filterChainMap);
-
-        filterSecurityInterceptorBuilder.addPropertyValue("objectDefinitionSource", interceptorFilterInvDefSource);
 
         // Set up the access manager and authentication mananger references for http
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
@@ -182,13 +145,26 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         // SEC-501 - should paths stored in request maps be converted to lower case
         // true if Ant path and using lower case
         boolean convertPathsToLowerCase = (matcher instanceof AntUrlPathMatcher) && matcher.requiresLowerCaseUrl();
-
-        parseInterceptUrls(DomUtils.getChildElementsByTagName(element, "intercept-url"),
-                filterChainMap, interceptorFilterInvDefSource, channelFilterInvDefSource,
+        
+        LinkedHashMap channelRequestMap = new LinkedHashMap();
+        LinkedHashMap filterInvocationDefinitionMap = new LinkedHashMap();
+                
+        List interceptUrlElts = DomUtils.getChildElementsByTagName(element, "intercept-url");
+        parseInterceptUrlsForChannelSecurityAndFilterChain(interceptUrlElts, filterChainMap, channelRequestMap, 
+                convertPathsToLowerCase, parserContext);
+        parseInterceptUrlsForFilterInvocationRequestMap(interceptUrlElts, filterInvocationDefinitionMap, 
                 convertPathsToLowerCase, parserContext);
 
+        DefaultFilterInvocationDefinitionSource interceptorFilterInvDefSource =
+            new DefaultFilterInvocationDefinitionSource(matcher, filterInvocationDefinitionMap);
+        DefaultFilterInvocationDefinitionSource channelFilterInvDefSource =
+            new DefaultFilterInvocationDefinitionSource(matcher, channelRequestMap);
+
+        filterSecurityInterceptorBuilder.addPropertyValue("objectDefinitionSource", interceptorFilterInvDefSource);
+        
+        
         // Check if we need to register the channel processing beans
-        if (((DefaultFilterInvocationDefinitionSource)channelFilterInvDefSource).getMapSize() > 0) {
+        if (channelRequestMap.size() > 0) {
             // At least one channel requirement has been specified
             RootBeanDefinition channelFilter = new RootBeanDefinition(ChannelProcessingFilter.class);
             channelFilter.getPropertyValues().addPropertyValue("channelDecisionManager",
@@ -271,18 +247,103 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         return null;
     }
+    
+    static UrlMatcher createUrlMatcher(Element element) {
+        String patternType = element.getAttribute(ATT_PATH_TYPE);
+        if (!StringUtils.hasText(patternType)) {
+            patternType = DEF_PATH_TYPE_ANT;
+        }
+
+        boolean useRegex = patternType.equals(OPT_PATH_TYPE_REGEX);
+
+        UrlMatcher matcher = new AntUrlPathMatcher();
+
+        if (useRegex) {
+            matcher = new RegexUrlPathMatcher();
+        }
+
+        // Deal with lowercase conversion requests
+        String lowercaseComparisons = element.getAttribute(ATT_LOWERCASE_COMPARISONS);
+        if (!StringUtils.hasText(lowercaseComparisons)) {
+            lowercaseComparisons = null;
+        }
+
+
+        // Only change from the defaults if the attribute has been set
+        if ("true".equals(lowercaseComparisons)) {
+            if (useRegex) {
+                ((RegexUrlPathMatcher)matcher).setRequiresLowerCaseUrl(true);
+            }
+            // Default for ant is already to force lower case
+        } else if ("false".equals(lowercaseComparisons)) {
+            if (!useRegex) {
+                ((AntUrlPathMatcher)matcher).setRequiresLowerCaseUrl(false);
+            }
+            // Default for regex is no change
+        }
+        
+        return matcher;        
+    }
 
     /**
      * Parses the intercept-url elements and populates the FilterChainProxy's filter chain Map and the
-     * FilterInvocationDefinitionSource used in FilterSecurityInterceptor.
+     * map used to create the FilterInvocationDefintionSource for the FilterSecurityInterceptor.
      */
-    private void parseInterceptUrls(List urlElts, Map filterChainMap,
-            DefaultFilterInvocationDefinitionSource interceptorFilterInvDefSource,
-            DefaultFilterInvocationDefinitionSource channelFilterInvDefSource,
+    void parseInterceptUrlsForChannelSecurityAndFilterChain(List urlElts, Map filterChainMap,  Map channelRequestMap,
             boolean useLowerCasePaths, ParserContext parserContext) {
 
         Iterator urlEltsIterator = urlElts.iterator();
+        ConfigAttributeEditor editor = new ConfigAttributeEditor();
 
+        while (urlEltsIterator.hasNext()) {
+            Element urlElt = (Element) urlEltsIterator.next();
+
+            String path = urlElt.getAttribute(ATT_PATH_PATTERN);
+
+            if(!StringUtils.hasText(path)) {
+                parserContext.getReaderContext().error("path attribute cannot be empty or null", urlElt);
+            }
+
+            if (useLowerCasePaths) {
+                path = path.toLowerCase();
+            }
+
+            String requiredChannel = urlElt.getAttribute(ATT_REQUIRES_CHANNEL);
+
+            if (StringUtils.hasText(requiredChannel)) {
+                String channelConfigAttribute = null;
+
+                if (requiredChannel.equals(OPT_REQUIRES_HTTPS)) {
+                    channelConfigAttribute = "REQUIRES_SECURE_CHANNEL";
+                } else if (requiredChannel.equals(OPT_REQUIRES_HTTP)) {
+                    channelConfigAttribute = "REQUIRES_INSECURE_CHANNEL";
+                } else if (requiredChannel.equals(OPT_ANY_CHANNEL)) {
+                    channelConfigAttribute = ChannelDecisionManagerImpl.ANY_CHANNEL;
+                } else {
+                    parserContext.getReaderContext().error("Unsupported channel " + requiredChannel, urlElt);
+                }
+
+                editor.setAsText(channelConfigAttribute);
+                channelRequestMap.put(new RequestKey(path), (ConfigAttributeDefinition) editor.getValue());
+            }
+            
+            String filters = urlElt.getAttribute(ATT_FILTERS);
+
+            if (StringUtils.hasText(filters)) {
+                if (!filters.equals(OPT_FILTERS_NONE)) {
+                    parserContext.getReaderContext().error("Currently only 'none' is supported as the custom " +
+                            "filters attribute", urlElt);
+                }
+
+                filterChainMap.put(path, Collections.EMPTY_LIST);
+            }
+        }
+    }
+    
+    static void parseInterceptUrlsForFilterInvocationRequestMap(List urlElts, Map filterInvocationDefinitionMap, 
+            boolean useLowerCasePaths, ParserContext parserContext) {
+
+        Iterator urlEltsIterator = urlElts.iterator();
         ConfigAttributeEditor editor = new ConfigAttributeEditor();
 
         while (urlEltsIterator.hasNext()) {
@@ -308,38 +369,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             // Convert the comma-separated list of access attributes to a ConfigAttributeDefinition
             if (StringUtils.hasText(access)) {
                 editor.setAsText(access);
-                interceptorFilterInvDefSource.addSecureUrl(path, method, (ConfigAttributeDefinition) editor.getValue());
-            }
-
-            String requiredChannel = urlElt.getAttribute(ATT_REQUIRES_CHANNEL);
-
-            if (StringUtils.hasText(requiredChannel)) {
-                String channelConfigAttribute = null;
-
-                if (requiredChannel.equals(OPT_REQUIRES_HTTPS)) {
-                    channelConfigAttribute = "REQUIRES_SECURE_CHANNEL";
-                } else if (requiredChannel.equals(OPT_REQUIRES_HTTP)) {
-                    channelConfigAttribute = "REQUIRES_INSECURE_CHANNEL";
-                } else if (requiredChannel.equals(OPT_ANY_CHANNEL)) {
-                    channelConfigAttribute = ChannelDecisionManagerImpl.ANY_CHANNEL;
-                } else {
-                    parserContext.getReaderContext().error("Unsupported channel " + requiredChannel, urlElt);
-                }
-
-                editor.setAsText(channelConfigAttribute);
-                channelFilterInvDefSource.addSecureUrl(path, (ConfigAttributeDefinition) editor.getValue());
-            }
-
-            String filters = urlElt.getAttribute(ATT_FILTERS);
-
-            if (StringUtils.hasText(filters)) {
-                if (!filters.equals(OPT_FILTERS_NONE)) {
-                    parserContext.getReaderContext().error("Currently only 'none' is supported as the custom " +
-                            "filters attribute", urlElt);
-                }
-
-                filterChainMap.put(path, Collections.EMPTY_LIST);
+                filterInvocationDefinitionMap.put(new RequestKey(path, method), editor.getValue());
             }
         }
     }
+    
 }
