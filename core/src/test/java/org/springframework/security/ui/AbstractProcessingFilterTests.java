@@ -571,6 +571,29 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertEquals("/error", response.getForwardedUrl());       
     }    
     
+    /**
+     * SEC-213
+     */
+    public void testTargetUrlParameterIsUsedIfPresent() throws Exception {
+        MockHttpServletRequest request = createMockRequest();
+        request.setParameter("targetUrl", "/target");
+
+        MockFilterConfig config = new MockFilterConfig(null, null);
+        MockFilterChain chain = new MockFilterChain(true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        TargetUrlResolverImpl targetUrlResolver = new TargetUrlResolverImpl();
+        targetUrlResolver.setTargetUrlParameter("targetUrl");
+        filter.setTargetUrlResolver(targetUrlResolver);
+        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        filter.setAuthenticationFailureUrl("/error");
+
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
+
+        assertEquals("/mycontext/target", response.getRedirectedUrl());       
+    }    
+
     
     //~ Inner Classes ==================================================================================================
 

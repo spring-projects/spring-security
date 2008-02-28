@@ -22,7 +22,7 @@ import org.springframework.security.ui.savedrequest.SavedRequest;
 
 /**
  * Used by {@link AbstractProcessingFilter} to determine target URL in case of
- * successfull authentication.
+ * successful authentication.
  * 
  * @author Martino Piccinato
  * @version $Id$
@@ -34,7 +34,7 @@ public interface TargetUrlResolver {
 	/**
 	 * @param savedRequest The request that initiated the authentication process
 	 * @param currentRequest the current request
-	 * @param auth The authentication token generated after successfull authentication
+	 * @param auth The authentication token generated after successful authentication
 	 * @return The URL to be used 
 	 */
 	public String determineTargetUrl(SavedRequest savedRequest, HttpServletRequest currentRequest, Authentication auth);
