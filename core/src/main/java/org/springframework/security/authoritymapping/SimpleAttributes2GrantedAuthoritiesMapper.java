@@ -11,22 +11,22 @@ import org.springframework.util.Assert;
 /**
  * <p>
  * This class implements the Attributes2GrantedAuthoritiesMapper interface by doing a
- * one-on-one mapping from roles to Acegi GrantedAuthorities. Optionally a
- * prefix can be added, and the role name can be converted to upper or lower
+ * one-to-one mapping from roles to Spring Security GrantedAuthorities. Optionally a
+ * prefix can be added, and the attribute name can be converted to upper or lower
  * case.
  * <p>
- * By default, the role is prefixed with "ROLE_" unless it already starts with
+ * By default, the attribute is prefixed with "ROLE_" unless it already starts with
  * "ROLE_", and no case conversion is done.
  *
  * @author Ruud Senden
  * @since 2.0
  */
 public class SimpleAttributes2GrantedAuthoritiesMapper implements Attributes2GrantedAuthoritiesMapper, InitializingBean {
-    private String rolePrefix = "ROLE_";
+    private String attributePrefix = "ROLE_";
 
-    private boolean convertRoleToUpperCase = false;
+    private boolean convertAttributeToUpperCase = false;
 
-    private boolean convertRoleToLowerCase = false;
+    private boolean convertAttributeToLowerCase = false;
 
     private boolean addPrefixIfAlreadyExisting = false;
 
@@ -34,64 +34,64 @@ public class SimpleAttributes2GrantedAuthoritiesMapper implements Attributes2Gra
      * Check whether all properties have been set to correct values.
      */
     public void afterPropertiesSet() throws Exception {
-        Assert.isTrue(!(isConvertRoleToUpperCase() && isConvertRoleToLowerCase()),
-                "Either convertRoleToUpperCase or convertRoleToLowerCase can be set to true, but not both");
+        Assert.isTrue(!(isConvertAttributeToUpperCase() && isConvertAttributeToLowerCase()),
+                "Either convertAttributeToUpperCase or convertAttributeToLowerCase can be set to true, but not both");
     }
 
     /**
-     * Map the given list of roles one-on-one to Acegi GrantedAuthorities.
+     * Map the given list of string attributes one-to-one to Spring Security GrantedAuthorities.
      */
-    public GrantedAuthority[] getGrantedAuthorities(String[] roles) {
-        GrantedAuthority[] result = new GrantedAuthority[roles.length];
-        for (int i = 0; i < roles.length; i++) {
-            result[i] = getGrantedAuthority(roles[i]);
+    public GrantedAuthority[] getGrantedAuthorities(String[] attributes) {
+        GrantedAuthority[] result = new GrantedAuthority[attributes.length];
+        for (int i = 0; i < attributes.length; i++) {
+            result[i] = getGrantedAuthority(attributes[i]);
         }
         return result;
     }
 
     /**
-     * Map the given role ono-on-one to an Acegi GrantedAuthority, optionally
+     * Map the given role one-on-one to a Spring Security GrantedAuthority, optionally
      * doing case conversion and/or adding a prefix.
      *
-     * @param role
-     *            The role for which to get a GrantedAuthority
+     * @param attribute
+     *            The attribute for which to get a GrantedAuthority
      * @return GrantedAuthority representing the given role.
      */
-    private GrantedAuthority getGrantedAuthority(String role) {
-        if (isConvertRoleToLowerCase()) {
-            role = role.toLowerCase(Locale.getDefault());
-        } else if (isConvertRoleToUpperCase()) {
-            role = role.toUpperCase(Locale.getDefault());
+    private GrantedAuthority getGrantedAuthority(String attribute) {
+        if (isConvertAttributeToLowerCase()) {
+            attribute = attribute.toLowerCase(Locale.getDefault());
+        } else if (isConvertAttributeToUpperCase()) {
+            attribute = attribute.toUpperCase(Locale.getDefault());
         }
-        if (isAddPrefixIfAlreadyExisting() || !role.startsWith(getRolePrefix())) {
-            return new GrantedAuthorityImpl(getRolePrefix() + role);
+        if (isAddPrefixIfAlreadyExisting() || !attribute.startsWith(getAttributePrefix())) {
+            return new GrantedAuthorityImpl(getAttributePrefix() + attribute);
         } else {
-            return new GrantedAuthorityImpl(role);
+            return new GrantedAuthorityImpl(attribute);
         }
     }
 
-    private boolean isConvertRoleToLowerCase() {
-        return convertRoleToLowerCase;
+    private boolean isConvertAttributeToLowerCase() {
+        return convertAttributeToLowerCase;
     }
 
-    public void setConvertRoleToLowerCase(boolean b) {
-        convertRoleToLowerCase = b;
+    public void setConvertAttributeToLowerCase(boolean b) {
+        convertAttributeToLowerCase = b;
     }
 
-    private boolean isConvertRoleToUpperCase() {
-        return convertRoleToUpperCase;
+    private boolean isConvertAttributeToUpperCase() {
+        return convertAttributeToUpperCase;
     }
 
-    public void setConvertRoleToUpperCase(boolean b) {
-        convertRoleToUpperCase = b;
+    public void setConvertAttributeToUpperCase(boolean b) {
+        convertAttributeToUpperCase = b;
     }
 
-    private String getRolePrefix() {
-        return rolePrefix == null ? "" : rolePrefix;
+    private String getAttributePrefix() {
+        return attributePrefix == null ? "" : attributePrefix;
     }
 
-    public void setRolePrefix(String string) {
-        rolePrefix = string;
+    public void seAttributePrefix(String string) {
+        attributePrefix = string;
     }
 
     private boolean isAddPrefixIfAlreadyExisting() {

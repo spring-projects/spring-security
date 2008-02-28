@@ -27,7 +27,7 @@ import org.xml.sax.SAXException;
 
 /**
  * This implementation for the MappableAttributesRetriever interface retrieves the
- * list of mappable roles from an XML file.
+ * list of mappable attributes from an XML file.
  * <p>
  * This class is defined as abstract because it is too generic to be used
  * directly. As this class is usually used to read very specific XML files (e.g.
@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
 public abstract class XmlMappableAttributesRetriever implements MappableAttributesRetriever, InitializingBean {
     private static final Log logger = LogFactory.getLog(XmlMappableAttributesRetriever.class);
 
-    private String[] mappableRoles = null;
+    private String[] mappableAttributes = null;
 
     private InputStream xmlInputStream = null;
 
@@ -55,27 +55,27 @@ public abstract class XmlMappableAttributesRetriever implements MappableAttribut
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(xmlInputStream, "An XML InputStream must be set");
         Assert.notNull(xpathExpression, "An XPath expression must be set");
-        mappableRoles = getMappableRoles(xmlInputStream);
+        mappableAttributes = getMappableAttributes(xmlInputStream);
     }
 
     public String[] getMappableAttributes() {
-        String[] copy = new String[mappableRoles.length];
-        System.arraycopy(mappableRoles, 0, copy, 0, copy.length);
+        String[] copy = new String[mappableAttributes.length];
+        System.arraycopy(mappableAttributes, 0, copy, 0, copy.length);
         return copy;
     }
 
     /**
      * Get the mappable roles from the specified XML document.
      */
-    private String[] getMappableRoles(InputStream aStream) {
+    private String[] getMappableAttributes(InputStream aStream) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Reading mappable roles from XML document");
+            logger.debug("Reading mappable attributes from XML document");
         }
         try {
             Document doc = getDocument(aStream);
-            String[] roles = getMappableRoles(doc);
+            String[] roles = getMappableAttributes(doc);
             if (logger.isDebugEnabled()) {
-                logger.debug("Mappable roles from XML document: " + ArrayUtils.toString(roles));
+                logger.debug("Mappable attributes from XML document: " + ArrayUtils.toString(roles));
             }
             return roles;
         } finally {
@@ -118,7 +118,7 @@ public abstract class XmlMappableAttributesRetriever implements MappableAttribut
      * @return String[] the list of roles.
      * @throws JaxenException
      */
-    private String[] getMappableRoles(Document doc) {
+    private String[] getMappableAttributes(Document doc) {
         try {
             DOMXPath xpath = new DOMXPath(xpathExpression);
             List roleElements = xpath.selectNodes(doc);

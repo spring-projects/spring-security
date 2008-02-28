@@ -17,8 +17,8 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 
 	public final void testAfterPropertiesSetConvertToUpperAndLowerCase() {
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = new SimpleAttributes2GrantedAuthoritiesMapper();
-		mapper.setConvertRoleToLowerCase(true);
-		mapper.setConvertRoleToUpperCase(true);
+		mapper.setConvertAttributeToLowerCase(true);
+		mapper.setConvertAttributeToUpperCase(true);
 		try {
 			mapper.afterPropertiesSet();
 			fail("Expected exception not thrown");
@@ -48,7 +48,7 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 		String[] roles = { "Role1", "Role2" };
 		String[] expectedGas = { "ROLE1", "ROLE2" };
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = getDefaultMapper();
-		mapper.setConvertRoleToUpperCase(true);
+		mapper.setConvertAttributeToUpperCase(true);
 		testGetGrantedAuthorities(mapper, roles, expectedGas);
 	}
 
@@ -56,7 +56,7 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 		String[] roles = { "Role1", "Role2" };
 		String[] expectedGas = { "role1", "role2" };
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = getDefaultMapper();
-		mapper.setConvertRoleToLowerCase(true);
+		mapper.setConvertAttributeToLowerCase(true);
 		testGetGrantedAuthorities(mapper, roles, expectedGas);
 	}
 
@@ -65,7 +65,7 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 		String[] expectedGas = { "ROLE_Role1", "ROLE_Role2", "ROLE_ROLE_Role3" };
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = getDefaultMapper();
 		mapper.setAddPrefixIfAlreadyExisting(true);
-		mapper.setRolePrefix("ROLE_");
+		mapper.seAttributePrefix("ROLE_");
 		testGetGrantedAuthorities(mapper, roles, expectedGas);
 	}
 
@@ -74,7 +74,7 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 		String[] expectedGas = { "ROLE_Role1", "ROLE_Role2", "ROLE_Role3" };
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = getDefaultMapper();
 		mapper.setAddPrefixIfAlreadyExisting(false);
-		mapper.setRolePrefix("ROLE_");
+		mapper.seAttributePrefix("ROLE_");
 		testGetGrantedAuthorities(mapper, roles, expectedGas);
 	}
 
@@ -83,7 +83,7 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 		String[] expectedGas = { "ROLE_Role1", "ROLE_Role2", "ROLE_role_Role3" };
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = getDefaultMapper();
 		mapper.setAddPrefixIfAlreadyExisting(false);
-		mapper.setRolePrefix("ROLE_");
+		mapper.seAttributePrefix("ROLE_");
 		testGetGrantedAuthorities(mapper, roles, expectedGas);
 	}
 
@@ -92,8 +92,8 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 		String[] expectedGas = { "ROLE_ROLE1", "ROLE_ROLE2", "ROLE_ROLE3" };
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = getDefaultMapper();
 		mapper.setAddPrefixIfAlreadyExisting(false);
-		mapper.setConvertRoleToUpperCase(true);
-		mapper.setRolePrefix("ROLE_");
+		mapper.setConvertAttributeToUpperCase(true);
+		mapper.seAttributePrefix("ROLE_");
 		testGetGrantedAuthorities(mapper, roles, expectedGas);
 	}
 
@@ -111,9 +111,9 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 
 	private SimpleAttributes2GrantedAuthoritiesMapper getDefaultMapper() {
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = new SimpleAttributes2GrantedAuthoritiesMapper();
-		mapper.setRolePrefix("");
-		mapper.setConvertRoleToLowerCase(false);
-		mapper.setConvertRoleToUpperCase(false);
+		mapper.seAttributePrefix("");
+		mapper.setConvertAttributeToLowerCase(false);
+		mapper.setConvertAttributeToUpperCase(false);
 		mapper.setAddPrefixIfAlreadyExisting(false);
 		return mapper;
 	}

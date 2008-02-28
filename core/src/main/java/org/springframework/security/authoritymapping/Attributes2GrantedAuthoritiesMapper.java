@@ -11,14 +11,14 @@ import org.springframework.security.GrantedAuthority;
  */
 public interface Attributes2GrantedAuthoritiesMapper {
     /**
-     * Implementations of this method should map the given list of roles to a
+     * Implementations of this method should map the given list of attributes to a
      * list of Spring Security GrantedAuthorities. There are no restrictions for the
-     * mapping process; a single role can be mapped to multiple Acegi
-     * GrantedAuthorities, all roles can be mapped to a single Acegi
-     * GrantedAuthority, some roles may not be mapped, etc.
+     * mapping process; a single attribute can be mapped to multiple Spring Security
+     * GrantedAuthorities, all attributes can be mapped to a single Spring Security
+     * GrantedAuthority, some attributes may not be mapped, etc.
      *
-     * @param roles the roles to be mapped
+     * @param attribute the attributes to be mapped
      * @return the list of mapped GrantedAuthorities
      */
-    public GrantedAuthority[] getGrantedAuthorities(String[] roles);
+    public GrantedAuthority[] getGrantedAuthorities(String[] attributes);
 }

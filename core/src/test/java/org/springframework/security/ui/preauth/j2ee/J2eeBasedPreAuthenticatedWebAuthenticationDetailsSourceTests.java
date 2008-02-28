@@ -129,9 +129,9 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 	private Attributes2GrantedAuthoritiesMapper getJ2eeUserRoles2GrantedAuthoritiesMapper() {
 		SimpleAttributes2GrantedAuthoritiesMapper result = new SimpleAttributes2GrantedAuthoritiesMapper();
 		result.setAddPrefixIfAlreadyExisting(false);
-		result.setConvertRoleToLowerCase(false);
-		result.setConvertRoleToUpperCase(false);
-		result.setRolePrefix("");
+		result.setConvertAttributeToLowerCase(false);
+		result.setConvertAttributeToUpperCase(false);
+		result.seAttributePrefix("");
 		return result;
 	}
 
