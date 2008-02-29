@@ -52,16 +52,30 @@
     </issueManagement>
 
     <distributionManagement>
+	    <repository>
+            <id>sourceforge.net</id>
+            <name>Acegi Releases Repository at Sourceforge</name>
+            <url>scp://shell.sourceforge.net/home/groups/a/ac/acegisecurity/htdocs/repository/releases</url>
+	    </repository>	
+<!--	
         <repository>
             <id>spring-milestone</id>
             <name>Spring Milestone Repository</name>
             <url>s3://maven.springframework.org/milestone</url>
         </repository>
+
         <snapshotRepository>
             <id>spring-snapshot</id>
             <name>Spring Snapshot Repository</name>
             <url>s3://maven.springframework.org/snapshot</url>
         </snapshotRepository>
+-->
+        <snapshotRepository>
+            <id>sourceforge.net</id>
+		    <name>Acegi Snapshots Repository at Sourceforge</name>
+		    <url>scp://shell.sourceforge.net/home/groups/a/ac/acegisecurity/htdocs/repository/snapshots</url>
+		</snapshotRepository>
+		
         <site>
             <id>local</id>
             <name>Local Site Directory</name>
