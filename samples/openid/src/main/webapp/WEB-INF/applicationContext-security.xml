@@ -20,7 +20,7 @@
 
     <authentication-manager alias="authenticationManager"/>    
 
-    <b:bean id="openIdFilter" class="org.springframework.security.ui.openid.OpenIdAuthenticationProcessingFilter">
+    <b:bean id="openIdFilter" class="org.springframework.security.ui.openid.OpenIDAuthenticationProcessingFilter">
         <custom-filter />        
         <b:property name="authenticationManager" ref="authenticationManager"/>
         <b:property name="defaultTargetUrl" value="/index.jsp"/>
@@ -29,7 +29,7 @@
 
     <b:bean id="openIdAuthenticationProvider" class="org.springframework.security.providers.openid.OpenIDAuthenticationProvider">
         <custom-authentication-provider />
-        <b:property name="userDetailsService" ref="userDetailsService"/>
+        <b:property name="userDetailsService" ref="userService"/>
     </b:bean>
 
     <b:bean id="entryPoint" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
