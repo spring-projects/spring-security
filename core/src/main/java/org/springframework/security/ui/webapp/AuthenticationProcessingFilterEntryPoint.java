@@ -47,7 +47,6 @@ import javax.servlet.http.HttpServletResponse;
  * authentication via the {@link AuthenticationProcessingFilter}. This object
  * holds the location of the login form, relative to the web app context path,
  * and is used to commence a redirect to that form.
- * </p>
  * <p>
  * By setting the <em>forceHttps</em> property to true, you may configure the
  * class to force the protocol used for the login form to be <code>HTTPS</code>,
@@ -56,13 +55,11 @@ import javax.servlet.http.HttpServletResponse;
  * (via HTTPS), the original resource will still be accessed as HTTP, via the
  * original request URL. For the forced HTTPS feature to work, the {@link
  * PortMapper} is consulted to determine the HTTP:HTTPS pairs.
- * </p>
  *
  * @author Ben Alex
  * @author colin sampaleanu
  * @author Omri Spector
- * @version $Id: AuthenticationProcessingFilterEntryPoint.java 1873 2007-05-25
- *          03:21:17Z benalex $
+ * @version $Id$
  */
 public class AuthenticationProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
     //~ Static fields/initializers =====================================================================================
@@ -206,8 +203,6 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
      * and the incoming request for the protected resource which triggered the interceptor was not already
      * <code>https</code>, then the client will first be redirected to an https URL, even if <tt>serverSideRedirect</tt>
      * is set to <tt>true</tt>.
-     *
-     * @param forceHttps
      */
     public void setForceHttps(boolean forceHttps) {
         this.forceHttps = forceHttps;
@@ -221,8 +216,6 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
      * The URL where the <code>AuthenticationProcessingFilter</code> login
      * page can be found. Should be relative to the web-app context path, and
      * include a leading <code>/</code>
-     *
-     * @param loginFormUrl
      */
     public void setLoginFormUrl(String loginFormUrl) {
         this.loginFormUrl = loginFormUrl;
