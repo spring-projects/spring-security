@@ -20,6 +20,7 @@ import java.util.Iterator;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.GrantedAuthority;
 
 /**
  * Votes if any {@link ConfigAttribute#getAttribute()} starts with a prefix
@@ -101,9 +102,10 @@ public class RoleVoter implements AccessDecisionVoter {
             if (this.supports(attribute)) {
                 result = ACCESS_DENIED;
 
+                GrantedAuthority[] authorities = authentication.getAuthorities();
                 // Attempt to find a matching granted authority
-                for (int i = 0; i < authentication.getAuthorities().length; i++) {
-                    if (attribute.getAttribute().equals(authentication.getAuthorities()[i].getAuthority())) {
+                for (int i = 0; i < authorities.length; i++) {
+                    if (attribute.getAttribute().equals(authorities[i].getAuthority())) {
                         return ACCESS_GRANTED;
                     }
                 }
