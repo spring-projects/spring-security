@@ -23,7 +23,7 @@
 
     <description>Spring Security</description>
     <organization>
-        <name>Interface21, Inc</name>
+        <name>SpringSource, Inc</name>
         <url>http://sourceforge.net/projects/acegisecurity</url>
         <!--<logo>http://sourceforge.net/sflogo.php?group_id=104215&amp;type=5</logo>-->
     </organization>
@@ -244,7 +244,7 @@
                 <version>1.2.2</version>
             </extension>
         </extensions>
-        <plugins>
+        <plugins>            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-help-plugin</artifactId>
@@ -609,12 +609,12 @@
                 <scope>runtime</scope>
             </dependency>
         </dependencies>
-
     </dependencyManagement>
-    <properties>
+    <properties>        
         <spring.version>2.0.6</spring.version>
+        <felix.version>1.4.0</felix.version>
         <docbook.source>${basedir}/src/docbkx</docbook.source>
-        <docbook.target>${basedir}/target/site/guide</docbook.target>
+        <docbook.target>${basedir}/target/site/guide</docbook.target>        
     </properties>
 
 </project>
