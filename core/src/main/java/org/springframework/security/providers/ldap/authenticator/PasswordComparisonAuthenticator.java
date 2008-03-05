@@ -35,17 +35,11 @@ import java.util.Iterator;
 
 /**
  * An {@link org.springframework.security.providers.ldap.LdapAuthenticator LdapAuthenticator} which compares the login
- * password with the value stored in the directory using an LDAP "compare" operation.
+ * password with the value stored in the directory using a remote LDAP "compare" operation.
  *
- * <p>
- * This can be achieved either by retrieving the password attribute for the user and comparing it locally,
- * or by peforming an LDAP "compare" operation. If the password attribute (default "userPassword") is found in the
- * retrieved attributes it will be compared locally. If not, the remote comparison will be attempted.
- * </p>
  * <p>
  * If passwords are stored in digest form in the repository, then a suitable {@link PasswordEncoder}
  * implementation must be supplied. By default, passwords are encoded using the {@link LdapShaPasswordEncoder}.
- * </p>
  *
  * @author Luke Taylor
  * @version $Id$

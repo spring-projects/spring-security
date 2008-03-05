@@ -15,8 +15,6 @@
 
 package org.springframework.security.providers.ldap.authenticator;
 
-import org.springframework.security.ldap.LdapDataAccessException;
-
 import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.providers.encoding.ShaPasswordEncoder;
 
@@ -85,7 +83,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
         try {
             sha = MessageDigest.getInstance("SHA");
         } catch (java.security.NoSuchAlgorithmException e) {
-            throw new LdapDataAccessException("No SHA implementation available!", e);
+            throw new IllegalStateException("No SHA implementation available!", e);
         }
 
         sha.update(rawPass.getBytes());
@@ -129,23 +127,44 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
      *
      * @return true if they match (independent of the case of the prefix).
      */
-    public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-        String encPassWithoutPrefix;
-
-        if (!encPass.startsWith("{")) {
+    public boolean isPasswordValid(final String encPass, final String rawPass, Object salt) {
+        String prefix = extractPrefix(encPass);
+        
+        if (prefix == null) {
             return encPass.equals(rawPass);
         }
 
-        if (encPass.startsWith(SSHA_PREFIX) || encPass.startsWith(SSHA_PREFIX_LC)) {
-            encPassWithoutPrefix = encPass.substring(6);
+        if (prefix.equals(SSHA_PREFIX) || prefix.equals(SSHA_PREFIX_LC)) {
             salt = extractSalt(encPass);
+        } else if (!prefix.equals(SHA_PREFIX) && !prefix.equals(SHA_PREFIX_LC)) {
+            throw new IllegalArgumentException("Unsupported password prefix '" + prefix + "'");
         } else {
-            encPassWithoutPrefix = encPass.substring(5);
-            salt = null;
+        	// Standard SHA
+        	salt = null;
         }
 
-        // Compare the encoded passwords without the prefix
-        return encodePassword(rawPass, salt).endsWith(encPassWithoutPrefix);
+        int startOfHash = prefix.length() + 1;
+        
+        String encodedRawPass = encodePassword(rawPass, salt).substring(startOfHash);
+        
+        return encodedRawPass.equals(encPass.substring(startOfHash));
+    }
+    
+    /**
+     * Returns the hash prefix or null if there isn't one. 
+     */
+    private String extractPrefix(String encPass) {
+        if (!encPass.startsWith("{")) {
+        	return null;
+        }
+
+		int secondBrace = encPass.lastIndexOf('}');
+		
+		if (secondBrace < 0) {
+			throw new IllegalArgumentException("Couldn't find closing brace for SHA prefix");
+		}
+		
+		return encPass.substring(0, secondBrace + 1);
     }
 
     public void setForceLowerCasePrefix(boolean forceLowerCasePrefix) {
