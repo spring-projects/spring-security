@@ -24,12 +24,10 @@
     <description>Spring Security</description>
     <organization>
         <name>SpringSource, Inc</name>
-        <url>http://sourceforge.net/projects/acegisecurity</url>
-        <!--<logo>http://sourceforge.net/sflogo.php?group_id=104215&amp;type=5</logo>-->
+        <url>http://www.springsource.com/</url>
     </organization>
     <inceptionYear>2004</inceptionYear>
-    <!--<logo>http://acegisecurity.org/logo.gif</logo>-->
-    <url>http://acegisecurity.org/</url>
+    <url>http://static.springframework.org/spring-security/site/index.html</url>
 
     <licenses>
         <license>
@@ -52,7 +50,7 @@
     </issueManagement>
     <ciManagement>
         <system>bamboo</system>
-        <url>http://build.springframework.org:8085/bamboo/</url>
+        <url>https://build.springframework.org/browse/SEC</url>
     </ciManagement>    
 
     <distributionManagement>	
@@ -157,11 +155,6 @@
             <name>Ray Krueger</name>
             <id>raykrueger</id>
             <email>raykrueger at users.sourceforge.net</email>
-        </developer>
-        <developer>
-            <name>Robert Sanders</name>
-            <id>robertsanders</id>
-            <email>robertsanders at users.sourceforge.net</email>
         </developer>
         <developer>
             <name>Mark St.Godard</name>
@@ -488,18 +481,21 @@
                 <artifactId>maven-jxr-plugin</artifactId>
                 <configuration>
                     <aggregate>true</aggregate>
+                    <excludes>
+                        <exclude>bigbank/**</exclude>
+                    </excludes>
                 </configuration>                
             </plugin>
             <!--
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-checkstyle-plugin</artifactId>
-                            <configuration>
-                                <configLocation>
-                                    acegi_checkstyle.xml
-                                </configLocation>
-                            </configuration>
-                        </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <configuration>
+                        <configLocation>
+                            acegi_checkstyle.xml
+                        </configLocation>
+                    </configuration>
+                </plugin>
             -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
