@@ -27,7 +27,7 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
  * Tests {@link CasAuthenticationHandler}
  *
  * @author Scott Battaglia
- * @version $Id$
+ * @version $Id:CasAuthenticationHandlerTests.java 2151 2007-09-22 11:54:13Z luke_t $
  */
 public class CasAuthenticationHandlerTests extends AbstractDependencyInjectionSpringContextTests {
     //~ Instance fields ================================================================================================

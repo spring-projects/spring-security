@@ -26,7 +26,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * Tests {@link CasPasswordHandler}.
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:CasPasswordHandlerTests.java 2151 2007-09-22 11:54:13Z luke_t $
  */
 public class CasPasswordHandlerTests extends TestCase {
     //~ Constructors ===================================================================================================

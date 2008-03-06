@@ -21,7 +21,6 @@
     </dependency>
   </dependencies>
   <modules>
-    <module>cas</module>
     <module>catalina</module>
     <module>jboss</module>
     <module>jetty</module>

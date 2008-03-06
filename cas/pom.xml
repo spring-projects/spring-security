@@ -12,6 +12,7 @@
 
     <modules>
         <module>cas-client</module>
+        <module>cas-adapter</module>
     </modules>
 
     <dependencies>

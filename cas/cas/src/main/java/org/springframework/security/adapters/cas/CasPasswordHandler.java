@@ -34,7 +34,7 @@ import javax.servlet.ServletRequest;
  * class directly. Instead configure CAS to use the {@link CasPasswordHandlerProxy}.</p>
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:CasPasswordHandler.java 2151 2007-09-22 11:54:13Z luke_t $
  */
 public final class CasPasswordHandler implements InitializingBean {
     //~ Static fields/initializers =====================================================================================
