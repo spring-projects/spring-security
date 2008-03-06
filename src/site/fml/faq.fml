@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faqs title="Frequently Asked Questions" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-1.x/plugins/faq/faq.xsd">
+
+    <part id="general">
+    <title>General</title>
+    <faq id="web-xml">
+	    <question>Why not just use web.xml security?</question>
+	    <answer>
+	    
+	    <p>Let's assume you're developing an enterprise application based on Spring.
+		There are four security concerns you typically need to address: authentication,
+		web request security, service layer security (i.e. your methods that implement
+		business logic), and domain object instance security (i.e. different domain objects
+		have different permissions). With these typical requirements in mind:
+		<ol>
+			<li><b>Authentication</b>: The servlet specification provides an approach
+				to authentication. However, you will need to configure the container
+				to perform authentication which typically requires editing of
+				container-specific "realm" settings. This makes a non-portable
+				configuration, and if you need to write an actual Java class to implement
+				the container's authentication interface, it becomes even more non-portable.
+				With Spring Security you achieve complete portability - right down to the
+				WAR level. Also, Spring Security offers a choice of production-proven
+				authentication providers and mechanisms, meaning you can switch your
+				authentication approaches at deployment time. This is particularly
+				valuable for software vendors writing products that need to work in
+				an unknown target environment.<br></br><br></br></li>
+			<li><b>Web request security:</b> The servlet specification provides an
+				approach to secure your request URIs. However, these URIs can only be
+				expressed in the servlet specification's own limited URI path format.
+				Spring Security provides a far more comprehensive approach. For instance,
+				you can use Ant paths or regular expressions, you can consider parts of the
+				URI other than simply the requested page (eg you can consider HTTP GET
+				parameters), and you can implement your own runtime source of configuration
+				data. This means your web request security can be dynamically changed during
+				the actual execution of your webapp.<br></br><br></br></li>
+			<li><b>Service layer and domain object security:</b> The absence of support
+				in the servlet specification for services layer security or domain object
+				instance security represent serious limitations for multi-tiered
+				applications. Typically developers either ignore these requirements, or
+				implement security logic within their MVC controller code (or even worse,
+				inside the views). There are serious disadvantages with this approach:<br/><br/>
+					<ol>
+						<li><i>Separation of concerns:</i> Authorization is a
+							crosscutting concern and should be implemented as such.
+							MVC controllers or views implementing authorization code
+							makes it more difficult to test both the controller and
+							authorization logic, more difficult to debug, and will
+							often lead to code duplication.</li>
+						<li><i>Support for rich clients and web services:</i> If an
+							additional client type must ultimately be supported, any
+							authorization code embedded within the web layer is
+							non-reusable. It should be considered that Spring remoting
+							exporters only export service layer beans (not MVC
+							controllers). As such authorization logic needs to be
+							located in the services layer to support a multitude of
+							client types.</li>
+						<li><i>Layering issues:</i> An MVC controller or view is simply
+							the incorrect architectural layer to implement authorization
+							decisions concerning services layer methods or domain object
+							instances. Whilst the Principal may be passed to the services
+							layer to enable it to make the authorization decision, doing
+							so would introduce an additional argument on every services
+							layer method. A more elegant approach is to use a ThreadLocal
+							to hold the Principal, although this would likely increase
+							development time to a point where it would become more
+							economical (on a cost-benefit basis) to simply use a dedicated
+							security framework.</li>
+						<li><i>Authorisation code quality:</i> It is often said of web
+							frameworks that they "make it easier to do the right things,
+							and harder to do the wrong things". Security frameworks are
+							the same, because they are designed in an abstract manner for
+							a wide range of purposes. Writing your own authorization code
+							from scratch does not provide the "design check" a framework
+							would offer, and in-house authorization code will typically
+							lack the improvements that emerge from widespread deployment,
+							peer review and new versions.
+					</li></ol>
+					</li>
+		</ol>
+		For simple applications, servlet specification security may just be enough.
+		Although when considered within the context of web container portability,
+		configuration requirements, limited web request security flexibility, and
+		non-existent services layer and domain object instance security, it becomes
+		clear why developers often look to alternative solutions.
+		</p>            
+		</answer>
+		
+		</faq>
+    </part>      
+</faqs>      

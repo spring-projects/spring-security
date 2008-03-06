@@ -48,8 +48,12 @@
 
     <issueManagement>
         <system>jira</system>
-        <url>http://opensource.atlassian.com/projects/spring/browse/SEC</url>
+        <url>http://jira.springframework.org/browse/SEC</url>
     </issueManagement>
+    <ciManagement>
+        <system>bamboo</system>
+        <url>http://build.springframework.org:8085/bamboo/</url>
+    </ciManagement>    
 
     <distributionManagement>	
         <repository>
@@ -88,6 +92,13 @@
 		</repository>
     </repositories>
 
+    <pluginRepositories>
+    	<pluginRepository>
+    		<id>Codehaus Snapshots</id>
+    		<url>http://snapshots.repository.codehaus.org/</url>
+    	</pluginRepository>
+    </pluginRepositories>
+
     <mailingLists>
         <mailingList>
             <name>Acegi Developer List</name>
@@ -118,7 +129,7 @@
             <id>benalex</id>
             <email>benalex at users.sourceforge.net</email>
             <organization>
-                Acegi Technology Pty Limited (http://www.acegi.com.au)
+                SpringSource
             </organization>
             <timezone>+10</timezone>
         </developer>
@@ -138,7 +149,7 @@
             <id>luke_t</id>
             <email>luke_t at users.sourceforge.net</email>
             <organization>
-                Monkey Machine Ltd. (http://monkeymachine.ltd.uk)
+                SpringSource
             </organization>
             <timezone>0</timezone>
         </developer>
@@ -468,10 +479,16 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
                 <version>2.3.1</version>
+                <configuration>
+                    <aggregate>true</aggregate>
+                </configuration>                
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
+                <configuration>
+                    <aggregate>true</aggregate>
+                </configuration>                
             </plugin>
             <!--
                         <plugin>
@@ -491,9 +508,14 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
+                <groupId>org.apache.maven.plugins</groupId>                    
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.3</version>
                 <configuration>
+                    <aggregate>true</aggregate>
+                    <header>Spring Security Framework</header>
+                    <quiet>true</quiet>
+                    <excludePackageNames>sample,bigbank</excludePackageNames>                                        
                     <links>
                         <link>
                             http://java.sun.com/j2se/1.5.0/docs/api
@@ -530,6 +552,14 @@
                         </link>
                     </links>
                 </configuration>
+                <reportSets>
+                  <reportSet>
+                    <reports>
+                      <report>javadoc</report>
+                      <!-- <report>test-javadoc</report> -->
+                    </reports>
+                  </reportSet>
+                </reportSets>                
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -539,6 +569,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>2.0.1</version>
+<!--                
                 <reportSets>
                     <reportSet>
                         <reports>
@@ -550,7 +581,8 @@
                         </reports>
                     </reportSet>
                 </reportSets>
-            </plugin>
+-->                
+            </plugin>           
         </plugins>
     </reporting>
 

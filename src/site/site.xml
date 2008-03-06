@@ -1,76 +1,42 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!--
- * ========================================================================
- *
- * Copyright 2004, 2005 Acegi Technology Pty Limited
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * ========================================================================
--->
 
 <project name="Spring Security">
-  <bannerLeft>
-    <name>Spring Security on Sourceforge</name>
-    <src>http://sourceforge.net/sflogo.php?group_id=104215&amp;type=5</src>
-    <href>http://sourceforge.net/projects/acegisecurity</href>
-  </bannerLeft>
-  <bannerRight>
-    <name>Spring Security</name>
-    <src>images/logo.gif</src>
-    <href>http://acegisecurity.org/</href>
-  </bannerRight>
-
+    <skin>
+        <groupId>org.springframework.maven.skins</groupId>
+        <artifactId>maven-spring-skin</artifactId>
+        <version>1.0.4</version>
+    </skin>
+    <publishDate position="left" format="d MMM yyyy"/>
+    <bannerLeft>
+        <name>Spring Security</name>
+        <src>http://www.springframework.org/files/logo.jpg
+        </src>
+        <href>http://static.springframework.org/spring-security/
+        </href>
+    </bannerLeft>
   <body>
+<!--   
     <links>
         <item name="Spring Security on Sourceforge" href="http://sourceforge.net/projects/acegisecurity" />
     </links>
-
+ -->
     <menu name="Overview">
       <item name="Home" href="index.html"/>
-      <item name="Building with Maven" href="building.html"/>
-      <item name="Downloads" href="downloads.html"/>
+      <item name="Building from Source" href="building.html"/>
+      <item name="Downloads" href="http://www.springframework.org/download/"/>
     </menu>
 
     <menu name="Documentation">
       <item name="Suggested Steps" href="suggested.html"/>
       <item name="Reference Guide" href="reference.html"/>
-      <item name="Sample SQL Schema" href="dbinit.txt"/>
       <item name="FAQ" href="faq.html"/>
-      <item name="Petclinic Tutorial" href="petclinic-tutorial.html"/>
-      <item name="External Web Articles" href="articles.html"/>
-      <item name="Products using Spring Security" href="powering.html"/>
-      <item name="Use without Spring" href="standalone.html"/>
-      <item name="Upgrading to 1.0.0" href="upgrade/upgrade-090-100.html"/>
-      <item name="Upgrading to 0.9.0" href="upgrade/upgrade-080-090.html"/>
-      <item name="Upgrading to 0.8.0" href="upgrade/upgrade-070-080.html"/>
-      <item name="Core JavaDocs" href="spring-security-core/apidocs/index.html" target="_blank"/>
-      <item name="Contacts HTTPS" href="spring-security-samples/spring-security-samples-contacts/sslhowto.txt"/>
-      <item name="Project Policies" href="policies.html"/>
-      <item name="Spring Security JIRA" href="http://opensource.atlassian.com/projects/spring/secure/BrowseProject.jspa?id=10040"/>
+      <item name="JIRA Issue tracker" href="http://jira.springframework.org/browse/SEC"/>
+      <item name="Road Map" href="http://jira.springframework.org/browse/SEC?report=com.atlassian.jira.plugin.system.project:roadmap-panel"/>      
       <item name="Community Forum" href="http://forum.springframework.org/forumdisplay.php?f=33"/>
-      <item name="Core Reports" href="spring-security-core/project-reports.html"/>
     </menu>
+    
+    <menu ref="reports" name="Reports"/>    
 
-    <menu name="Links" type="footer">
-      <item name="Spring Framework" href="http://www.springframework.org/" img="http://www.springframework.org/buttons/spring_white.png"/>
-      <item name="Interface21" href="http://www.interface21.com/" />
-    </menu>
-<!--
-    <poweredBy>
-        <logo name="Spring" href="http://docs.codehaus.org/display/JETTY/Jetty+Powered" img="./images/small_powered_by.gif"/>
-    </poweredBy>
--->
   </body>
 </project>
