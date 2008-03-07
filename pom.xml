@@ -90,13 +90,6 @@
 		</repository>
     </repositories>
 
-    <pluginRepositories>
-    	<pluginRepository>
-    		<id>Codehaus Snapshots</id>
-    		<url>http://snapshots.repository.codehaus.org/</url>
-    	</pluginRepository>
-    </pluginRepositories>
-
     <mailingLists>
         <mailingList>
             <name>Acegi Developer List</name>
@@ -410,22 +403,61 @@
                 <version>2.0.6</version>
                 <executions>
                     <execution>
-                        <id>build-singlehtml-doc</id>
-                        <phase>pre-site</phase>
                         <goals>
                             <goal>generate-html</goal>
+                            <goal>generate-pdf</goal>
                         </goals>
+                        <phase>pre-site</phase>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.docbook</groupId>
+                        <artifactId>docbook-xml</artifactId>
+                        <version>4.4</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <includes>springsecurity.xml</includes>
+                    <chunkedOutput>true</chunkedOutput>
+                    <htmlStylesheet>css/html.css</htmlStylesheet>
+                    <xincludeSupported>true</xincludeSupported>
+                    <htmlCustomization>src/docbkx/resources/xsl/html_chunk.xsl</htmlCustomization>
+                    <foCustomization>src/docbkx/resources/xsl/fopdf.xsl</foCustomization>
+                    <entities>
+                        <entity>
+                            <name>version</name>
+                            <value>${pom.version}</value>
+                        </entity>
+                    </entities>
+                    <postProcess>
+                        <copy todir="target/site/reference">
+                            <fileset dir="target/docbkx">
+                                <include name="**/*.html"/>
+                                <include name="**/*.pdf"/>
+                            </fileset>
+                        </copy>
+                        <copy todir="target/site/reference/html">
+                            <fileset dir="src/docbkx/resources">
+                                <include name="**/*.css"/>
+                                <include name="**/*.png"/>
+                                <include name="**/*.gif"/>
+                                <include name="**/*.jpg"/>
+                            </fileset>
+                        </copy>
+                        <move file="target/site/reference/pdf/index.pdf"
+                              tofile="target/site/reference/pdf/spring-ws-reference.pdf" failonerror="false"/>
+                    </postProcess>
+                </configuration>
+                
+                
+                <!--                        
                         <configuration>
                             <sourceDirectory>${docbook.source}</sourceDirectory>
                             <targetDirectory>${docbook.target}</targetDirectory>
                             <inputs>springsecurity.xml</inputs>
                             <chunkedOutput>false</chunkedOutput>
-                            <!--
-                                                        <htmlStylesheet>css/spring-security-docbook.css</htmlStylesheet>
-                                                        <htmlCustomization>
-                                                            ${docbook.source}/resources/xsl/spring-security-docbook-html.xsl
-                                                        </htmlCustomization>
-                            -->
                             <postProcess>
                                 <copy todir="${docbook.target}/images">
                                     <fileset dir="${docbook.source}/images">
@@ -454,14 +486,7 @@
                         </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.docbook</groupId>
-                        <artifactId>docbook-xml</artifactId>
-                        <version>4.4</version>
-                        <scope>runtime</scope>
-                    </dependency>
-                </dependencies>
+-->                
             </plugin>
         </plugins>
     </build>
