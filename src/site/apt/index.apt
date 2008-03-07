@@ -5,7 +5,7 @@
 What is Spring Security?
 
       Formerly the Acegi Security System for Spring (which became an official Spring
-      Portfolio project towards the end of 2007), Spring Security is provides powerful and 
+      Portfolio project towards the end of 2007), Spring Security provides powerful and 
       flexible security solutions for enterprise applications developed using the Spring Framework.
       It is a stable and mature product - Acegi Security 1.0.0 was released in May 2006 after more than two and a half 
       years of use in large production software projects.
