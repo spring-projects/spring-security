@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+                         
+                         
+<chapter id="channel-security">
+
+<title>Channel Security</title>
+
+<sect1 id="channel-security-overview">
+    <title>Overview</title>
+    
+    <para>In addition to coordinating the authentication and authorization
+        requirements of your application, Spring Security is also able to
+        ensure unauthenticated web requests have certain properties. These
+        properties may include being of a particular transport type, having a
+        particular <literal>HttpSession</literal> attribute set and so on. The
+        most common requirement is for your web requests to be received using
+        a particular transport protocol, such as HTTPS.</para>
+    
+    <para>An important issue in considering transport security is that of
+        session hijacking. Your web container manages a
+        <literal>HttpSession</literal> by reference to a
+        <literal>jsessionid</literal> that is sent to user agents either via a
+        cookie or URL rewriting. If the <literal>jsessionid</literal> is ever
+        sent over HTTP, there is a possibility that session identifier can be
+        intercepted and used to impersonate the user after they complete the
+        authentication process. This is because most web containers maintain
+        the same session identifier for a given user, even after they switch
+        from HTTP to HTTPS pages.</para>
+    
+    <para>If session hijacking is considered too significant a risk for
+        your particular application, the only option is to use HTTPS for every
+        request. This means the <literal>jsessionid</literal> is never sent
+        across an insecure channel. You will need to ensure your
+        <literal>web.xml</literal>-defined
+        <literal>&lt;welcome-file&gt;</literal> points to an HTTPS location,
+        and the application never directs the user to an HTTP location. Spring
+        Security provides a solution to assist with the latter.</para>
+</sect1>
+
+<sect1 id="channel-security-config">
+    <title>Configuration</title>
+    
+    <para>To utilise Spring Security's channel security services, add the
+        following lines to <literal>web.xml</literal>:</para>
+    
+    <para><programlisting>
+        &lt;filter&gt;
+        &lt;filter-name&gt;Spring Security Channel Processing Filter&lt;/filter-name&gt;
+        &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
+        &lt;init-param&gt;
+        &lt;param-name&gt;targetClass&lt;/param-name&gt;
+        &lt;param-value&gt;org.springframework.security.securechannel.ChannelProcessingFilter&lt;/param-value&gt;
+        &lt;/init-param&gt;
+        &lt;/filter&gt;
+        
+        &lt;filter-mapping&gt;
+        &lt;filter-name&gt;Spring Security Channel Processing Filter&lt;/filter-name&gt;
+        &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+        &lt;/filter-mapping&gt;
+        
+    </programlisting></para>
+    
+    <para>As usual when running <literal>FilterToBeanProxy</literal>, you
+        will also need to configure the filter in your application
+        context:</para>
+    
+    <para><programlisting>
+        &lt;bean id="channelProcessingFilter" class="org.springframework.security.securechannel.ChannelProcessingFilter"&gt;
+        &lt;property name="channelDecisionManager"&gt;&lt;ref bean="channelDecisionManager"/&gt;&lt;/property&gt;
+        &lt;property name="filterInvocationDefinitionSource"&gt;
+        &lt;value&gt;
+        CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+        \A/secure/.*\Z=REQUIRES_SECURE_CHANNEL
+        \A/acegilogin.jsp.*\Z=REQUIRES_SECURE_CHANNEL
+        \A/j_spring_security_check.*\Z=REQUIRES_SECURE_CHANNEL
+        \A.*\Z=REQUIRES_INSECURE_CHANNEL
+        &lt;/value&gt;
+        &lt;/property&gt;
+        &lt;/bean&gt;
+        
+        &lt;bean id="channelDecisionManager" class="org.springframework.security.securechannel.ChannelDecisionManagerImpl"&gt;
+        &lt;property name="channelProcessors"&gt;
+        &lt;list&gt;
+        &lt;ref bean="secureChannelProcessor"/&gt;
+        &lt;ref bean="insecureChannelProcessor"/&gt;
+        &lt;/list&gt;
+        &lt;/property&gt;
+        &lt;/bean&gt;
+        
+        &lt;bean id="secureChannelProcessor" class="org.springframework.security.securechannel.SecureChannelProcessor"/&gt;
+        &lt;bean id="insecureChannelProcessor" class="org.springframework.security.securechannel.InsecureChannelProcessor"/&gt;
+        
+    </programlisting></para>
+    
+    <para>Like <literal>FilterSecurityInterceptor</literal>, Apache Ant
+        style paths are also supported by the
+        <literal>ChannelProcessingFilter</literal>.</para>
+    
+    <para>The <literal>ChannelProcessingFilter</literal> operates by
+        filtering all web requests and determining the configuration
+        attributes that apply. It then delegates to the
+        <literal>ChannelDecisionManager</literal>. The default implementation,
+        <literal>ChannelDecisionManagerImpl</literal>, should suffice in most
+        cases. It simply delegates through the list of configured
+        <literal>ChannelProcessor</literal> instances. A
+        <literal>ChannelProcessor</literal> will review the request, and if it
+        is unhappy with the request (eg it was received across the incorrect
+        transport protocol), it will perform a redirect, throw an exception or
+        take whatever other action is appropriate.</para>
+    
+    <para>Included with Spring Security are two concrete
+        <literal>ChannelProcessor</literal> implementations:
+        <literal>SecureChannelProcessor</literal> ensures requests with a
+        configuration attribute of <literal>REQUIRES_SECURE_CHANNEL</literal>
+        are received over HTTPS, whilst
+        <literal>InsecureChannelProcessor</literal> ensures requests with a
+        configuration attribute of
+        <literal>REQUIRES_INSECURE_CHANNEL</literal> are received over HTTP.
+        Both implementations delegate to a
+        <literal>ChannelEntryPoint</literal> if the required transport
+        protocol is not used. The two <literal>ChannelEntryPoint</literal>
+        implementations included with Spring Security simply redirect the
+        request to HTTP and HTTPS as appropriate. Appropriate defaults are
+        assigned to the <literal>ChannelProcessor</literal> implementations
+        for the configuration attribute keywords they respond to and the
+        <literal>ChannelEntryPoint</literal> they delegate to, although you
+        have the ability to override these using the application
+        context.</para>
+    
+    <para>Note that the redirections are absolute (eg
+        <literal>http://www.company.com:8080/app/page</literal>), not relative
+        (eg <literal>/app/page</literal>). During testing it was discovered
+        that Internet Explorer 6 Service Pack 1 has a bug whereby it does not
+        respond correctly to a redirection instruction which also changes the
+        port to use. Accordingly, absolute URLs are used in conjunction with
+        bug detection logic in the <literal>PortResolverImpl</literal> that is
+        wired up by default to many Spring Security beans. Please refer to the
+        JavaDocs for <literal>PortResolverImpl</literal> for further
+        details.</para>
+    
+    <para>You should note that using a secure channel is recommended if
+        usernames and passwords are to be kept secure during the login
+        process. If you do decide to use
+        <literal>ChannelProcessingFilter</literal> with form-based login,
+        please ensure that your login page is set to
+        <literal>REQUIRES_SECURE_CHANNEL</literal>, and that the
+        <literal>AuthenticationProcessingFilterEntryPoint.forceHttps</literal>
+        property is <literal>true</literal>.</para>
+</sect1>
+
+<sect1 id="channel-security-conclusion">
+    <title>Conclusion</title>
+    
+    <para>Once configured, using the channel security filter is very easy.
+        Simply request pages without regard to the protocol (ie HTTP or HTTPS)
+        or port (eg 80, 8080, 443, 8443 etc). Obviously you'll still need a
+        way of making the initial request (probably via the
+        <literal>web.xml</literal> <literal>&lt;welcome-file&gt;</literal> or
+        a well-known home page URL), but once this is done the filter will
+        perform redirects as defined by your application context.</para>
+    
+    <para>You can also add your own <literal>ChannelProcessor</literal>
+        implementations to the <literal>ChannelDecisionManagerImpl</literal>.
+        For example, you might set a <literal>HttpSession</literal> attribute
+        when a human user is detected via a "enter the contents of this
+        graphic" procedure. Your <literal>ChannelProcessor</literal> would
+        respond to say <literal>REQUIRES_HUMAN_USER</literal> configuration
+        attributes and redirect to an appropriate entry point to start the
+        human user validation process if the <literal>HttpSession</literal>
+        attribute is not currently set.</para>
+    
+    <para>To decide whether a security check belongs in a
+        <literal>ChannelProcessor</literal> or an
+        <literal>AccessDecisionVoter</literal>, remember that the former is
+        designed to handle unauthenticated requests, whilst the latter is
+        designed to handle authenticated requests. The latter therefore has
+        access to the granted authorities of the authenticated principal. In
+        addition, problems detected by a <literal>ChannelProcessor</literal>
+        will generally cause an HTTP/HTTPS redirection so its requirements can
+        be met, whilst problems detected by an
+        <literal>AccessDecisionVoter</literal> will ultimately result in an
+        <literal>AccessDeniedException</literal> (depending on the governing
+        <literal>AccessDecisionManager</literal>).</para>
+</sect1>
+</chapter>

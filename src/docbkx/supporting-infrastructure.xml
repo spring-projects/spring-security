@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+
+<chapter id="supporting-infrastructure">
+  <title>Supporting Infrastructure</title>
+
+  <para>This chapter introduces some of the supplementary and supporting
+  infrastructure used by Spring Security. If a capability is not directly
+  related to security, yet included in the Spring Security project, we
+  will discuss it in this chapter.</para>
+
+  <sect1 id="localization">
+    <title>Localization</title>
+
+    <para>Spring Security supports localization of exception messages that
+    end users are likely to see. If your application is designed for
+    English users, you don't need to do anything as by default all
+    Security Security messages are in English. If you need to support
+    other locales, everything you need to know is contained in this
+    section.</para>
+
+    <para>All exception messages can be localized, including messages
+    related to authentication failures and access being denied
+    (authorization failures). Exceptions and logging that is focused on
+    developers or system deployers (including incorrect attributes,
+    interface contract violations, using incorrect constructors, startup
+    time validation, debug-level logging) etc are not localized and
+    instead are hard-coded in English within Spring Security's
+    code.</para>
+
+    <para>Shipping in the <literal>acegi-security-xx.jar</literal> you
+    will find an <literal>org.springframework.security</literal> package
+    that in turn contains a <literal>messages.properties</literal> file.
+    This should be referred to by your
+    <literal>ApplicationContext</literal>, as Acegi Security classes
+    implement Spring's <literal>MessageSourceAware</literal> interface and
+    expect the message resolver to be dependency injected at application
+    context startup time. Usually all you need to do is register a bean
+    inside your application context to refer to the messages. An example
+    is shown below:</para>
+
+    <para><programlisting>&lt;bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource"&gt;
+&lt;property name="basename"&gt;&lt;value&gt;org/acegisecurity/messages&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;        </programlisting></para>
+
+    <para>The <literal>messages.properties</literal> is named in
+    accordance with standard resource bundles and represents the default
+    language supported by Spring Security messages. This default file is
+    in English. If you do not register a message source, Spring Security
+    will still work correctly and fallback to hard-coded English versions
+    of the messages.</para>
+
+    <para>If you wish to customize the
+    <literal>messages.properties</literal> file, or support other
+    languages, you should copy the file, rename it accordingly, and
+    register it inside the above bean definition. There are not a large
+    number of message keys inside this file, so localization should not be
+    considered a major initiative. If you do perform localization of this
+    file, please consider sharing your work with the community by logging
+    a JIRA task and attaching your appropriately-named localized version
+    of <literal>messages.properties</literal>.</para>
+
+    <para>Rounding out the discussion on localization is the Spring
+    <literal>ThreadLocal</literal> known as
+    <literal>org.springframework.context.i18n.LocaleContextHolder</literal>.
+    You should set the <literal>LocaleContextHolder</literal> to represent
+    the preferred <literal>Locale</literal> of each user. Spring Security
+    will attempt to locate a message from the message source using the
+    <literal>Locale</literal> obtained from this
+    <literal>ThreadLocal</literal>. Please refer to Spring documentation
+    for further details on using <literal>LocaleContextHolder</literal>
+    and the helper classes that can automatically set it for you (eg
+    <literal>AcceptHeaderLocaleResolver</literal>,
+    <literal>CookieLocaleResolver</literal>,
+    <literal>FixedLocaleResolver</literal>,
+    <literal>SessionLocaleResolver</literal> etc)</para>
+  </sect1>
+
+  <sect1 id="filters">
+    <title>Filters</title>
+
+    <para>Spring Security uses many filters, as referred to throughout the
+    remainder of this reference guide. You have a choice in how these
+    filters are added to your web application, in that you can use either
+    <literal>FilterToBeanProxy</literal> or
+    <literal>FilterChainProxy</literal>. We'll look at both below.</para>
+
+    <para>Most filters are configured using the
+    <literal>FilterToBeanProxy</literal>. An example configuration from
+    <literal>web.xml</literal> follows:</para>
+
+    <para><programlisting>&lt;filter&gt;
+&lt;filter-name&gt;Spring Security HTTP Request Security Filter&lt;/filter-name&gt;
+&lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
+&lt;init-param&gt;
+&lt;param-name&gt;targetClass&lt;/param-name&gt;
+&lt;param-value&gt;org.springframework.security.ClassThatImplementsFilter&lt;/param-value&gt;
+&lt;/init-param&gt;
+&lt;/filter&gt;</programlisting></para>
+
+    <para>Notice that the filter in <literal>web.xml</literal> is actually
+    a <literal>FilterToBeanProxy</literal>, and not the filter that will
+    actually implement the logic of the filter. What
+    <literal>FilterToBeanProxy</literal> does is delegate the
+    <literal>Filter</literal>'s methods through to a bean which is
+    obtained from the Spring application context. This enables the bean to
+    benefit from the Spring application context lifecycle support and
+    configuration flexibility. The bean must implement
+    <literal>javax.servlet.Filter</literal>.</para>
+
+    <para>The <literal>FilterToBeanProxy</literal> only requires a single
+    initialization parameter, <literal>targetClass</literal> or
+    <literal>targetBean</literal>. The <literal>targetClass</literal>
+    parameter locates the first object in the application context of the
+    specified class, whilst <literal>targetBean</literal> locates the
+    object by bean name. Like standard Spring web applications, the
+    <literal>FilterToBeanProxy</literal> accesses the application context
+    via<literal>
+    WebApplicationContextUtils.getWebApplicationContext(ServletContext)</literal>,
+    so you should configure a <literal>ContextLoaderListener</literal> in
+    <literal>web.xml</literal>.</para>
+
+    <para>There is a lifecycle issue to consider when hosting
+    <literal>Filter</literal>s in an IoC container instead of a servlet
+    container. Specifically, which container should be responsible for
+    calling the <literal>Filter</literal>'s "startup" and "shutdown"
+    methods? It is noted that the order of initialization and destruction
+    of a <literal>Filter</literal> can vary by servlet container, and this
+    can cause problems if one <literal>Filter</literal> depends on
+    configuration settings established by an earlier initialized
+    <literal>Filter</literal>. The Spring IoC container on the other hand
+    has more comprehensive lifecycle/IoC interfaces (such as
+    <literal>InitializingBean</literal>,
+    <literal>DisposableBean</literal>, <literal>BeanNameAware</literal>,
+    <literal>ApplicationContextAware</literal> and many others) as well as
+    a well-understood interface contract, predictable method invocation
+    ordering, autowiring support, and even options to avoid implementing
+    Spring interfaces (eg the <literal>destroy-method</literal> attribute
+    in Spring XML). For this reason we recommend the use of Spring
+    lifecycle services instead of servlet container lifecycle services
+    wherever possible. By default <literal>FilterToBeanProxy</literal>
+    will not delegate <literal>init(FilterConfig)</literal> and
+    <literal>destroy()</literal> methods through to the proxied bean. If
+    you do require such invocations to be delegated, set the
+    <literal>lifecycle</literal> initialization parameter to
+    <literal>servlet-container-managed</literal>.</para>
+
+    <para>Rather than using <literal>FilterToBeanProxy</literal>, we
+    strongly recommend to use <literal>FilterChainProxy</literal> instead.
+    Whilst <literal>FilterToBeanProxy</literal> is a very useful class,
+    the problem is that the lines of code required for
+    <literal>&lt;filter&gt;</literal> and
+    <literal>&lt;filter-mapping&gt;</literal> entries in
+    <literal>web.xml</literal> explodes when using more than a few
+    filters. To overcome this issue, Spring Security provides a
+    <literal>FilterChainProxy</literal> class. It is wired using a
+    <literal>FilterToBeanProxy</literal> (just like in the example above),
+    but the target class is
+    <literal>org.springframework.security.util.FilterChainProxy</literal>.
+    The filter chain is then declared in the application context, using
+    code such as this:</para>
+
+    <para><programlisting>&lt;bean id="filterChainProxy"
+        class="org.springframework.security.util.FilterChainProxy"&gt;
+&lt;property name="filterInvocationDefinitionSource"&gt;
+&lt;value&gt;
+  CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+  PATTERN_TYPE_APACHE_ANT
+  /webServices/**=httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor
+  /**=httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor
+&lt;/value&gt;
+&lt;/property&gt;
+&lt;/bean&gt;        </programlisting></para>
+
+    <para>You may notice similarities with the way
+    <literal>FilterSecurityInterceptor</literal> is declared. Both regular
+    expressions and Ant Paths are supported, and the most specific URIs
+    appear first. At runtime the <literal>FilterChainProxy</literal> will
+    locate the first URI pattern that matches the current web request.
+    Each of the corresponding configuration attributes represent the name
+    of a bean defined in the application context. The filters will then be
+    invoked in the order they are specified, with standard
+    <literal>FilterChain</literal> behaviour being respected (a
+    <literal>Filter</literal> can elect not to proceed with the chain if
+    it wishes to end processing).</para>
+
+    <para>As you can see, <literal>FilterChainProxy</literal> requires the
+    duplication of filter names for different request patterns (in the
+    above example, <literal>exceptionTranslationFilter</literal> and
+    <literal>filterSecurityInterceptor</literal> are duplicated). This
+    design decision was made to enable <literal>FilterChainProxy</literal>
+    to specify different <literal>Filter</literal> invocation orders for
+    different URI patterns, and also to improve both the expressiveness
+    (in terms of regular expressions, Ant Paths, and any custom
+    <literal>FilterInvocationDefinitionSource</literal> implementations)
+    and clarity of which <literal>Filter</literal>s should be
+    invoked.</para>
+
+    <para>You may have noticed we have declared two
+    <literal>HttpSessionContextIntegrationFilter</literal>s in the filter
+    chain (<literal>ASC</literal> is short for
+    <literal>allowSessionCreation</literal>, a property of
+    <literal>HttpSessionContextIntegrationFilter</literal>). As web
+    services will never present a <literal>jsessionid</literal> on future
+    requests, creating <literal>HttpSession</literal>s for such user
+    agents would be wasteful. If you had a high-volume application which
+    required maximum scalability, we recommend you use the approach shown
+    above. For smaller applications, using a single
+    <literal>HttpSessionContextIntegrationFilter</literal> (with its
+    default <literal>allowSessionCreation</literal> as
+    <literal>true</literal>) would likely be sufficient.</para>
+
+    <para>In relation to lifecycle issues, the
+    <literal>FilterChainProxy</literal> will always delegate
+    <literal>init(FilterConfig)</literal> and <literal>destroy()</literal>
+    methods through to the underlaying <literal>Filter</literal>s if such
+    methods are called against <literal>FilterChainProxy</literal> itself.
+    In this case, <literal>FilterChainProxy</literal> guarantees to only
+    initialize and destroy each <literal>Filter</literal> once,
+    irrespective of how many times it is declared by the
+    <literal>FilterInvocationDefinitionSource</literal>. You control the
+    overall choice as to whether these methods are called or not via the
+    <literal>lifecycle</literal> initialization parameter of the
+    <literal>FilterToBeanProxy</literal> that proxies
+    <literal>FilterChainProxy</literal>. As discussed above, by default
+    any servlet container lifecycle invocations are not delegated through
+    to <literal>FilterChainProxy</literal>.</para>
+
+    <para>You can also omit a URI pattern from the filter chain by using
+    the token <literal>#NONE#</literal> on the right-hand side of the
+    <literal>&lt;URI Pattern&gt; = &lt;Filter Chain&gt;</literal>
+    expression. For example, using the example above, if you wanted to
+    exclude the <filename>/webservices</filename> location completely, you
+    would modify the corresponding line in the bean declaration to be
+    <programlisting>
+/webServices/**=#NONE#
+    </programlisting> Note that anything matching this path will then have
+    no authentication or authorization services applied and will be freely
+    accessible.</para>
+
+    <para>The order that filters are defined in <literal>web.xml</literal>
+    is very important. Irrespective of which filters you are actually
+    using, the order of the <literal>&lt;filter-mapping&gt;</literal>s
+    should be as follows:</para>
+
+    <orderedlist>
+      <listitem>
+        <para><literal>ChannelProcessingFilter</literal>, because it might
+        need to redirect to a different protocol</para>
+      </listitem>
+
+      <listitem>
+        <para><literal>ConcurrentSessionFilter</literal>, because it
+        doesn't use any <literal>SecurityContextHolder</literal>
+        functionality but needs to update the
+        <literal>SessionRegistry</literal> to reflect ongoing requests
+        from the principal</para>
+      </listitem>
+
+      <listitem>
+        <para><literal>HttpSessionContextIntegrationFilter</literal>, so a
+        <literal>SecurityContext</literal> can be setup in the
+        <literal>SecurityContextHolder</literal> at the beginning of a web
+        request, and any changes to the <literal>SecurityContext</literal>
+        can be copied to the <literal>HttpSession</literal> when the web
+        request ends (ready for use with the next web request)</para>
+      </listitem>
+
+      <listitem>
+        <para>Authentication processing mechanisms -
+        <literal>AuthenticationProcessingFilter</literal>,
+        <literal>CasProcessingFilter</literal>,
+        <literal>BasicProcessingFilter, HttpRequestIntegrationFilter,
+        JbossIntegrationFilter</literal> etc - so that the
+        <literal>SecurityContextHolder</literal> can be modified to
+        contain a valid <literal>Authentication</literal> request
+        token</para>
+      </listitem>
+
+      <listitem>
+        <para>The
+        <literal>SecurityContextHolderAwareRequestFilter</literal>, if you
+        are using it to install a Spring Security aware
+        <literal>HttpServletRequestWrapper</literal> into your servlet
+        container</para>
+      </listitem>
+
+      <listitem>
+        <para><literal>RememberMeProcessingFilter</literal>, so that if no
+        earlier authentication processing mechanism updated the
+        <literal>SecurityContextHolder</literal>, and the request presents
+        a cookie that enables remember-me services to take place, a
+        suitable remembered
+        <literal><literal>Authentication</literal></literal> object will
+        be put there</para>
+      </listitem>
+
+      <listitem>
+        <para><literal>AnonymousProcessingFilter</literal>, so that if no
+        earlier authentication processing mechanism updated the
+        <literal>SecurityContextHolder</literal>, an anonymous
+        <literal>Authentication</literal> object will be put there</para>
+      </listitem>
+
+      <listitem>
+        <para><literal>ExceptionTranslationFilter</literal>, to catch any
+        Spring Security exceptions so that either an HTTP error response
+        can be returned or an appropriate
+        <literal>AuthenticationEntryPoint</literal> can be launched</para>
+      </listitem>
+
+      <listitem>
+        <para><literal>FilterSecurityInterceptor</literal>, to protect web
+        URIs</para>
+      </listitem>
+    </orderedlist>
+
+    <para>All of the above filters use
+    <literal>FilterToBeanProxy</literal> or
+    <literal>FilterChainProxy</literal>. It is recommended that a single
+    <literal>FilterToBeanProxy</literal> proxy through to a single
+    <literal>FilterChainProxy</literal> for each application, with that
+    <literal>FilterChainProxy</literal> defining all of Spring Security
+    <literal>Filter</literal>s.</para>
+
+    <para>If you're using SiteMesh, ensure Spring Security filters execute
+    before the SiteMesh filters are called. This enables the
+    <literal>SecurityContextHolder</literal> to be populated in time for
+    use by SiteMesh decorators</para>
+  </sect1>
+</chapter>

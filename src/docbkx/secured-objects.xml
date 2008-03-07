@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+
+<chapter id="secure-object-impls">
+  <title>Secure Object Implementations</title>
+
+  <sect1 id="aop-alliance">
+    <title>AOP Alliance (MethodInvocation) Security Interceptor</title>
+
+    <para>To secure <literal>MethodInvocation</literal>s, developers
+    simply add a properly configured
+    <literal>MethodSecurityInterceptor</literal> into the application
+    context. Next the beans requiring security are chained into the
+    interceptor. This chaining is accomplished using Spring’s
+    <literal>ProxyFactoryBean</literal> or
+    <literal>BeanNameAutoProxyCreator</literal>, as commonly used by many
+    other parts of Spring (refer to the sample application for examples).
+    Alternatively, Spring Security provides a
+    <literal>MethodDefinitionSourceAdvisor</literal> which may be used
+    with Spring's <literal>DefaultAdvisorAutoProxyCreator</literal> to
+    automatically chain the security interceptor in front of any beans
+    defined against the <literal>MethodSecurityInterceptor</literal>. The
+    <literal>MethodSecurityInterceptor</literal> itself is configured as
+    follows:</para>
+
+    <programlisting>&lt;bean id="bankManagerSecurity"
+        class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
+&lt;property name="validateConfigAttributes"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
+&lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+&lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+&lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+&lt;property name="afterInvocationManager"&gt;&lt;ref bean="afterInvocationManager"/&gt;&lt;/property&gt;
+&lt;property name="objectDefinitionSource"&gt;
+&lt;value&gt;
+        org.springframework.security.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
+        org.springframework.security.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
+        &lt;/value&gt;
+&lt;/property&gt;
+&lt;/bean&gt;        </programlisting>
+
+    <para>As shown above, the <literal>MethodSecurityInterceptor</literal>
+    is configured with a reference to an
+    <literal>AuthenticationManager</literal>,
+    <literal>AccessDecisionManager</literal> and
+    <literal>RunAsManager</literal>, which are each discussed in separate
+    sections below. In this case we've also defined an
+    <literal>AfterInvocationManager</literal>, although this is entirely
+    optional. The <literal>MethodSecurityInterceptor</literal> is also
+    configured with configuration attributes that apply to different
+    method signatures. A full discussion of configuration attributes is
+    provided in the High Level Design section of this document.</para>
+
+    <para>The <literal>MethodSecurityInterceptor</literal> can be
+    configured with configuration attributes in three ways. The first is
+    via a property editor and the application context, which is shown
+    above. The second is via defining the configuration attributes in your
+    source code using Jakarta Commons Attributes or Java 5 Annotations.
+    The third is via writing your own
+    <literal>ObjectDefinitionSource</literal>, although this is beyond the
+    scope of this document. Irrespective of the approach used, the
+    <literal>ObjectDefinitionSource</literal> is responsible for returning
+    a <literal>ConfigAttributeDefinition</literal> object that contains
+    all of the configuration attributes associated with a single secure
+    method.</para>
+
+    <para>It should be noted that the
+    <literal>MethodSecurityInterceptor.setObjectDefinitionSource()</literal>
+    method actually expects an instance of
+    <literal>MethodDefinitionSource</literal>. This is a marker interface
+    which subclasses <literal>ObjectDefinitionSource</literal>. It simply
+    denotes the <literal>ObjectDefinitionSource</literal> understands
+    <literal>MethodInvocation</literal>s. In the interests of simplicity
+    we'll continue to refer to the
+    <literal>MethodDefinitionSource</literal> as an
+    <literal>ObjectDefinitionSource</literal>, as the distinction is of
+    little relevance to most users of the
+    <literal>MethodSecurityInterceptor</literal>.</para>
+
+    <para>If using the application context property editor approach (as
+    shown above), commas are used to delimit the different configuration
+    attributes that apply to a given method pattern. Each configuration
+    attribute is assigned into its own <literal>SecurityConfig</literal>
+    object. The <literal>SecurityConfig</literal> object is discussed in
+    the High Level Design section.</para>
+
+    <para>If you are using the Jakarta Commons Attributes approach, your
+    bean context will be configured differently:</para>
+
+    <programlisting>&lt;bean id="attributes" class="org.springframework.metadata.commons.CommonsAttributes"/&gt;
+&lt;bean id="objectDefinitionSource"
+        class="org.springframework.security.intercept.method.MethodDefinitionAttributes"&gt;
+&lt;property name="attributes"&gt;&lt;ref local="attributes"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="bankManagerSecurity"
+        class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
+&lt;property name="validateConfigAttributes"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
+&lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+&lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+&lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+&lt;property name="objectDefinitionSource"&gt;&lt;ref bean="objectDefinitionSource"/&gt;&lt;/property&gt;
+&lt;/bean&gt;       </programlisting>
+
+    <para>In addition, your source code will contain Jakarta Commons
+    Attributes tags that refer to a concrete implementation of
+    <literal>ConfigAttribute</literal>. The following example uses the
+    <literal>SecurityConfig</literal> implementation to represent the
+    configuration attributes, and results in the same security
+    configuration as provided by the property editor approach
+    above:</para>
+
+    <programlisting>public interface BankManager {
+
+/**
+ * @@SecurityConfig("ROLE_SUPERVISOR")
+ * @@SecurityConfig("RUN_AS_SERVER")
+ */
+public void deleteSomething(int id);
+
+/**
+ * @@SecurityConfig("ROLE_SUPERVISOR")
+ * @@SecurityConfig("RUN_AS_SERVER")
+ */
+public void deleteAnother(int id);
+
+/**
+ * @@SecurityConfig("ROLE_TELLER")
+ * @@SecurityConfig("ROLE_SUPERVISOR")
+ * @@SecurityConfig("BANKSECURITY_CUSTOMER")
+ * @@SecurityConfig("RUN_AS_SERVER")
+ */
+public float getBalance(int id);
+}</programlisting>
+
+    <para>If you are using the Spring Security Java 5 Annotations
+    approach, your bean context will be configured as follows:</para>
+
+    <programlisting>&lt;bean id="attributes"
+        class="org.springframework.security.annotation.SecurityAnnotationAttributes"/&gt;
+&lt;bean id="objectDefinitionSource"
+        class="org.springframework.security.intercept.method.MethodDefinitionAttributes"&gt;
+&lt;property name="attributes"&gt;&lt;ref local="attributes"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="bankManagerSecurity"
+        class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
+&lt;property name="validateConfigAttributes"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
+&lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+&lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+&lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+&lt;property name="objectDefinitionSource"&gt;&lt;ref bean="objectDefinitionSource"/&gt;&lt;/property&gt;
+&lt;/bean&gt;        </programlisting>
+
+    <para>In addition, your source code will contain Spring Security Java
+    5 Security Annotations that represent the
+    <literal>ConfigAttribute</literal>. The following example uses the
+    <literal>@Secured</literal> annotations to represent the configuration
+    attributes, and results in the same security configuration as provided
+    by the property editor approach:</para>
+
+    <programlisting>import org.springframework.security.annotation.Secured;
+
+        public interface BankManager {
+
+/**
+ * Delete something
+ */
+@Secured({"ROLE_SUPERVISOR","RUN_AS_SERVER" })
+public void deleteSomething(int id);
+
+/**
+ * Delete another
+ */
+@Secured({"ROLE_SUPERVISOR","RUN_AS_SERVER" })
+public void deleteAnother(int id);
+
+/**
+ * Get balance
+ */
+@Secured({"ROLE_TELLER","ROLE_SUPERVISOR","BANKSECURITY_CUSTOMER","RUN_AS_SERVER" })
+public float getBalance(int id);
+}</programlisting>
+
+    <para>You might have noticed the
+    <literal>validateConfigAttributes</literal> property in the above
+    <literal>MethodSecurityInterceptor</literal> examples. When set to
+    <literal>true</literal> (the default), at startup time the
+    <literal>MethodSecurityInterceptor</literal> will evaluate if the
+    provided configuration attributes are valid. It does this by checking
+    each configuration attribute can be processed by either the
+    <literal>AccessDecisionManager</literal> or the
+    <literal>RunAsManager</literal>. If neither of these can process a
+    given configuration attribute, an exception is thrown. If using the
+    Jakarta Commons Attributes method of configuration, you should set
+    <literal>validateConfigAttributes</literal> to
+    <literal>false</literal>.</para>
+
+    <para>Please note that when using
+    <literal>BeanNameAutoProxyCreator</literal> to create the required
+    proxy for security, the configuration must contain the property
+    <literal>proxyTargetClass</literal> set to <literal>true</literal>.
+    Otherwise, the method passed to
+    <literal>MethodSecurityInterceptor.invoke</literal> is the proxy's
+    caller, not the proxy's target. Note that this introduces a
+    requirement on CGLIB. See an example of using
+    <literal>BeanNameAutoProxyCreator</literal> below:</para>
+
+    <programlisting>&lt;bean id="autoProxyCreator" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator"&gt;
+&lt;property name="interceptorNames"&gt;
+&lt;list&gt;&lt;value&gt;methodSecurityInterceptor&lt;/value&gt;&lt;/list&gt;
+&lt;/property&gt;
+&lt;property name="beanNames"&gt;
+&lt;list&gt;&lt;value&gt;targetObjectName&lt;/value&gt;&lt;/list&gt;
+&lt;/property&gt;
+&lt;property name="proxyTargetClass" value="true"/&gt;
+&lt;/bean&gt;        </programlisting>
+  </sect1>
+
+  <sect1 id="aspectj">
+    <title>AspectJ (JoinPoint) Security Interceptor</title>
+
+    <para>The AspectJ security interceptor is very similar to the AOP
+    Alliance security interceptor discussed in the previous section.
+    Indeed we will only discuss the differences in this section.</para>
+
+    <para>The AspectJ interceptor is named
+    <literal>AspectJSecurityInterceptor</literal>. Unlike the AOP Alliance
+    security interceptor, which relies on the Spring application context
+    to weave in the security interceptor via proxying, the
+    <literal>AspectJSecurityInterceptor</literal> is weaved in via the
+    AspectJ compiler. It would not be uncommon to use both types of
+    security interceptors in the same application, with
+    <literal>AspectJSecurityInterceptor</literal> being used for domain
+    object instance security and the AOP Alliance
+    <literal>MethodSecurityInterceptor</literal> being used for services
+    layer security.</para>
+
+    <para>Let's first consider how the
+    <literal>AspectJSecurityInterceptor</literal> is configured in the
+    Spring application context:</para>
+
+    <programlisting>&lt;bean id="bankManagerSecurity"
+        class="org.springframework.security.intercept.method.aspectj.AspectJSecurityInterceptor"&gt;
+&lt;property name="validateConfigAttributes"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
+&lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+&lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+&lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+&lt;property name="afterInvocationManager"&gt;&lt;ref bean="afterInvocationManager"/&gt;&lt;/property&gt;
+&lt;property name="objectDefinitionSource"&gt;
+&lt;value&gt;
+        org.springframework.security.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
+        org.springframework.security.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
+        &lt;/value&gt;
+&lt;/property&gt;
+&lt;/bean&gt;        </programlisting>
+
+    <para>As you can see, aside from the class name, the
+    <literal>AspectJSecurityInterceptor</literal> is exactly the same as
+    the AOP Alliance security interceptor. Indeed the two interceptors can
+    share the same <literal>objectDefinitionSource</literal>, as the
+    <literal>ObjectDefinitionSource</literal> works with
+    <literal>java.lang.reflect.Method</literal>s rather than an AOP
+    library-specific class. Of course, your access decisions have access
+    to the relevant AOP library-specific invocation (ie
+    <literal>MethodInvocation</literal> or <literal>JoinPoint</literal>)
+    and as such can consider a range of addition criteria when making
+    access decisions (such as method arguments).</para>
+
+    <para>Next you'll need to define an AspectJ <literal>aspect</literal>.
+    For example:</para>
+
+    <programlisting>package org.springframework.security.samples.aspectj;
+
+        import org.springframework.security.intercept.method.aspectj.AspectJSecurityInterceptor;
+        import org.springframework.security.intercept.method.aspectj.AspectJCallback;
+        import org.springframework.beans.factory.InitializingBean;
+
+public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
+
+private AspectJSecurityInterceptor securityInterceptor;
+
+pointcut domainObjectInstanceExecution(): target(PersistableEntity)
+         &amp;&amp; execution(public * *(..)) &amp;&amp; !within(DomainObjectInstanceSecurityAspect);
+
+Object around(): domainObjectInstanceExecution() {
+if (this.securityInterceptor != null) {
+  AspectJCallback callback = new AspectJCallback() {
+    public Object proceedWithObject() {
+    return proceed();
+  }
+};
+return this.securityInterceptor.invoke(thisJoinPoint, callback);
+} else {
+  return proceed();
+}
+}
+
+public AspectJSecurityInterceptor getSecurityInterceptor() {
+return securityInterceptor;
+}
+
+public void setSecurityInterceptor(AspectJSecurityInterceptor securityInterceptor) {
+this.securityInterceptor = securityInterceptor;
+}
+
+public void afterPropertiesSet() throws Exception {
+if (this.securityInterceptor == null)
+  throw new IllegalArgumentException("securityInterceptor required");
+}
+}</programlisting>
+
+    <para>In the above example, the security interceptor will be applied
+    to every instance of <literal>PersistableEntity</literal>, which is an
+    abstract class not shown (you can use any other class or
+    <literal>pointcut</literal> expression you like). For those curious,
+    <literal>AspectJCallback</literal> is needed because the
+    <literal>proceed();</literal> statement has special meaning only
+    within an <literal>around()</literal> body. The
+    <literal>AspectJSecurityInterceptor</literal> calls this anonymous
+    <literal>AspectJCallback</literal> class when it wants the target
+    object to continue.</para>
+
+    <para>You will need to configure Spring to load the aspect and wire it
+    with the <literal>AspectJSecurityInterceptor</literal>. A bean
+    declaration which achieves this is shown below:</para>
+
+    <programlisting>
+&lt;bean id="domainObjectInstanceSecurityAspect"
+        class="org.springframework.security.samples.aspectj.DomainObjectInstanceSecurityAspect"
+        factory-method="aspectOf"&gt;
+&lt;property name="securityInterceptor"&gt;&lt;ref bean="aspectJSecurityInterceptor"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+    </programlisting>
+
+    <para>That's it! Now you can create your beans from anywhere within
+    your application, using whatever means you think fit (eg <literal>new
+    Person();</literal>) and they will have the security interceptor
+    applied.</para>
+  </sect1>
+
+  <sect1 id="filter-invocation-authorization">
+    <title>FilterInvocation Security Interceptor</title>
+
+    <para>To secure <literal>FilterInvocation</literal>s, developers need
+    to add a filter to their <literal>web.xml</literal> that delegates to
+    the <literal>FilterSecurityInterceptor</literal>. A typical
+    configuration example is provided below:</para>
+
+    <programlisting>&lt;filter&gt;
+&lt;filter-name&gt;Spring Security HTTP Request Security Filter&lt;/filter-name&gt;
+&lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
+&lt;init-param&gt;
+&lt;param-name&gt;targetClass&lt;/param-name&gt;
+&lt;param-value&gt;org.springframework.security.intercept.web.FilterSecurityInterceptor&lt;/param-value&gt;
+&lt;/init-param&gt;
+&lt;/filter&gt;
+
+&lt;filter-mapping&gt;
+&lt;filter-name&gt;Spring Security HTTP Request Security Filter&lt;/filter-name&gt;
+&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;</programlisting>
+
+    <para>Notice that the filter is actually a
+    <literal>FilterToBeanProxy</literal>. Most of the filters used by
+    Spring Security use this class. Refer to the Filters section to learn
+    more about this bean.</para>
+
+    <para>In the application context you will need to configure three
+    beans:</para>
+
+    <programlisting>&lt;bean id="exceptionTranslationFilter"
+        class="org.springframework.security.ui.ExceptionTranslationFilter"&gt;
+&lt;property name="authenticationEntryPoint"&gt;&lt;ref local="authenticationEntryPoint"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="authenticationEntryPoint"
+        class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint"&gt;
+&lt;property name="loginFormUrl"&gt;&lt;value&gt;/acegilogin.jsp&lt;/value&gt;&lt;/property&gt;
+&lt;property name="forceHttps"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="filterSecurityInterceptor"
+        class="org.springframework.security.intercept.web.FilterSecurityInterceptor"&gt;
+&lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+&lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+&lt;property name="objectDefinitionSource"&gt;
+&lt;value&gt;
+  CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+  \A/secure/super/.*\Z=ROLE_WE_DONT_HAVE
+  \A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_TELLER
+&lt;/value&gt;
+&lt;/property&gt;
+&lt;/bean&gt;        </programlisting>
+
+    <para>The <classname>ExceptionTranslationFilter</classname> provides
+    the bridge between Java exceptions and HTTP responses. It is solely
+    concerned with maintaining the user interface. This filter does not do
+    any actual security enforcement. If an
+    <exceptionname>AuthenticationException</exceptionname> is detected,
+    the filter will call the AuthenticationEntryPoint to commence the
+    authentication process (e.g. a user login).</para>
+
+    <para>The <literal>AuthenticationEntryPoint</literal> will be called
+    if the user requests a secure HTTP resource but they are not
+    authenticated. The class handles presenting the appropriate response
+    to the user so that authentication can begin. Three concrete
+    implementations are provided with Spring Security:
+    <literal>AuthenticationProcessingFilterEntryPoint</literal> for
+    commencing a form-based authentication,
+    <literal>BasicProcessingFilterEntryPoint</literal> for commencing a
+    HTTP Basic authentication process, and
+    <literal>CasProcessingFilterEntryPoint</literal> for commencing a
+    JA-SIG Central Authentication Service (CAS) login. The
+    <literal>AuthenticationProcessingFilterEntryPoint</literal> and
+    <literal>CasProcessingFilterEntryPoint</literal> have optional
+    properties related to forcing the use of HTTPS, so please refer to the
+    JavaDocs if you require this.</para>
+
+    <para><literal>FilterSecurityInterceptor</literal> is responsible for
+    handling the security of HTTP resources. Like any other security
+    interceptor, it requires a reference to an
+    <literal>AuthenticationManager</literal> and an
+    <literal>AccessDecisionManager</literal>, which are both discussed in
+    separate sections below. The
+    <literal>FilterSecurityInterceptor</literal> is also configured with
+    configuration attributes that apply to different HTTP URL requests. A
+    full discussion of configuration attributes is provided in the High
+    Level Design section of this document.</para>
+
+    <para>The <literal>FilterSecurityInterceptor</literal> can be
+    configured with configuration attributes in two ways. The first is via
+    a property editor and the application context, which is shown above.
+    The second is via writing your own
+    <literal>ObjectDefinitionSource</literal>, although this is beyond the
+    scope of this document. Irrespective of the approach used, the
+    <literal>ObjectDefinitionSource</literal> is responsible for returning
+    a <literal>ConfigAttributeDefinition</literal> object that contains
+    all of the configuration attributes associated with a single secure
+    HTTP URL.</para>
+
+    <para>It should be noted that the
+    <literal>FilterSecurityInterceptor.setObjectDefinitionSource()</literal>
+    method actually expects an instance of
+    <literal>FilterInvocationDefinitionSource</literal>. This is a marker
+    interface which subclasses <literal>ObjectDefinitionSource</literal>.
+    It simply denotes the <literal>ObjectDefinitionSource</literal>
+    understands <literal>FilterInvocation</literal>s. In the interests of
+    simplicity we'll continue to refer to the
+    <literal>FilterInvocationDefinitionSource</literal> as an
+    <literal>ObjectDefinitionSource</literal>, as the distinction is of
+    little relevance to most users of the
+    <literal>FilterSecurityInterceptor</literal>.</para>
+
+    <para>If using the application context property editor approach (as
+    shown above), commas are used to delimit the different configuration
+    attributes that apply to each HTTP URL. Each configuration attribute
+    is assigned into its own <literal>SecurityConfig</literal> object. The
+    <literal>SecurityConfig</literal> object is discussed in the High
+    Level Design section. The <literal>ObjectDefinitionSource</literal>
+    created by the property editor,
+    <literal>FilterInvocationDefinitionSource</literal>, matches
+    configuration attributes against <literal>FilterInvocations</literal>
+    based on expression evaluation of the request URL. Two standard
+    expression syntaxes are supported. The default is to treat all
+    expressions as regular expressions. Alternatively, the presence of a
+    <literal>PATTERN_TYPE_APACHE_ANT</literal> directive will cause all
+    expressions to be treated as Apache Ant paths. It is not possible to
+    mix expression syntaxes within the same definition. For example, the
+    earlier configuration could be generated using Apache Ant paths as
+    follows:</para>
+
+    <programlisting>&lt;bean id="filterInvocationInterceptor"
+        class="org.springframework.security.intercept.web.FilterSecurityInterceptor"&gt;
+&lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+&lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+&lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+&lt;property name="objectDefinitionSource"&gt;
+&lt;value&gt;
+  CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+  PATTERN_TYPE_APACHE_ANT
+  /secure/super/**=ROLE_WE_DONT_HAVE
+  /secure/**=ROLE_SUPERVISOR,ROLE_TELLER
+&lt;/value&gt;
+&lt;/property&gt;
+&lt;/bean&gt;        </programlisting>
+
+    <para>Irrespective of the type of expression syntax used, expressions
+    are always evaluated in the order they are defined. Thus it is
+    important that more specific expressions are defined higher in the
+    list than less specific expressions. This is reflected in our example
+    above, where the more specific <literal>/secure/super/</literal>
+    pattern appears higher than the less specific
+    <literal>/secure/</literal> pattern. If they were reversed, the
+    <literal>/secure/</literal> pattern would always match and the
+    <literal>/secure/super/</literal> pattern would never be
+    evaluated.</para>
+
+    <para>The special keyword
+    <literal>CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON</literal> causes
+    the <literal>FilterInvocationDefinitionSource</literal> to
+    automatically convert a request URL to lowercase before comparison
+    against the expressions. Whilst by default the case of the request URL
+    is not converted, it is generally recommended to use
+    <literal>CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON</literal> and
+    write each expression assuming lowercase.</para>
+
+    <para>As with other security interceptors, the
+    <literal>validateConfigAttributes</literal> property is observed. When
+    set to <literal>true</literal> (the default), at startup time the
+    <literal>FilterSecurityInterceptor</literal> will evaluate if the
+    provided configuration attributes are valid. It does this by checking
+    each configuration attribute can be processed by either the
+    <literal>AccessDecisionManager</literal> or the
+    <literal>RunAsManager</literal>. If neither of these can process a
+    given configuration attribute, an exception is thrown.</para>
+  </sect1>
+</chapter>

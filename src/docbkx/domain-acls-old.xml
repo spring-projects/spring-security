@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+
+<chapter id="domain-acls-old">
+  <title>Domain Object Security (old ACL module)</title>
+
+  <section id="domain-acls-overview-old">
+    <title>Overview</title>
+
+    <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
+    ACL module. The new ACL module is a significant rewrite of the
+    existing ACL module. The new module can be found under the
+    <literal>org.springframework.security.acls</literal> package, with the
+    old ACL module under
+    <literal>org.springframework.security.acl</literal>. We encourage
+    users to consider testing with the new ACL module and build
+    applications with it. The old ACL module should be considered
+    deprecated and may be removed from a future release.</para>
+
+    <para>Complex applications often will find the need to define access
+    permissions not simply at a web request or method invocation level.
+    Instead, security decisions need to comprise both who
+    (<literal>Authentication</literal>), where
+    (<literal>MethodInvocation</literal>) and what
+    (<literal>SomeDomainObject</literal>). In other words, authorization
+    decisions also need to consider the actual domain object instance
+    subject of a method invocation.</para>
+
+    <para>Imagine you're designing an application for a pet clinic. There
+    will be two main groups of users of your Spring-based application:
+    staff of the pet clinic, as well as the pet clinic's customers. The
+    staff will have access to all of the data, whilst your customers will
+    only be able to see their own customer records. To make it a little
+    more interesting, your customers can allow other users to see their
+    customer records, such as their "puppy preschool "mentor or president
+    of their local "Pony Club". Using Spring Security as the foundation,
+    you have several approaches that can be used:<orderedlist>
+        <listitem>
+          <para>Write your business methods to enforce the security. You
+          could consult a collection within the
+          <literal>Customer</literal> domain object instance to determine
+          which users have access. By using the
+          <literal>SecurityContextHolder.getContext().getAuthentication()</literal>,
+          you'll be able to access the <literal>Authentication</literal>
+          object.</para>
+        </listitem>
+
+        <listitem>
+          <para>Write an <literal>AccessDecisionVoter</literal> to enforce
+          the security from the <literal>GrantedAuthority[]</literal>s
+          stored in the <literal>Authentication</literal> object. This
+          would mean your <literal>AuthenticationManager</literal> would
+          need to populate the <literal>Authentication</literal> with
+          custom <literal>GrantedAuthority</literal>[]s representing each
+          of the <literal>Customer</literal> domain object instances the
+          principal has access to.</para>
+        </listitem>
+
+        <listitem>
+          <para>Write an <literal>AccessDecisionVoter</literal> to enforce
+          the security and open the target <literal>Customer</literal>
+          domain object directly. This would mean your voter needs access
+          to a DAO that allows it to retrieve the
+          <literal>Customer</literal> object. It would then access the
+          <literal>Customer</literal> object's collection of approved
+          users and make the appropriate decision.</para>
+        </listitem>
+      </orderedlist></para>
+
+    <para>Each one of these approaches is perfectly legitimate. However,
+    the first couples your authorization checking to your business code.
+    The main problems with this include the enhanced difficulty of unit
+    testing and the fact it would be more difficult to reuse the
+    <literal>Customer</literal> authorization logic elsewhere. Obtaining
+    the <literal>GrantedAuthority[]</literal>s from the
+    <literal>Authentication</literal> object is also fine, but will not
+    scale to large numbers of <literal>Customer</literal>s. If a user
+    might be able to access 5,000 <literal>Customer</literal>s (unlikely
+    in this case, but imagine if it were a popular vet for a large Pony
+    Club!) the amount of memory consumed and time required to construct
+    the <literal>Authentication</literal> object would be undesirable. The
+    final method, opening the <literal>Customer</literal> directly from
+    external code, is probably the best of the three. It achieves
+    separation of concerns, and doesn't misuse memory or CPU cycles, but
+    it is still inefficient in that both the
+    <literal>AccessDecisionVoter</literal> and the eventual business
+    method itself will perform a call to the DAO responsible for
+    retrieving the <literal>Customer</literal> object. Two accesses per
+    method invocation is clearly undesirable. In addition, with every
+    approach listed you'll need to write your own access control list
+    (ACL) persistence and business logic from scratch.</para>
+
+    <para>Fortunately, there is another alternative, which we'll talk
+    about below.</para>
+  </section>
+
+  <section id="domain-acls-basic-old">
+    <title>Basic ACL Package</title>
+
+    <para>Please note that our Basic ACL services are currently being
+    refactored. We expect release 1.1.0 will contain this new code.
+    Planned code is already in the Spring Security Subversion sandbox, so
+    please check there if you have a new application requiring ACLs or are
+    in the planning stages. The Basic ACL services will be deprecated from
+    release 1.1.0.</para>
+
+    <para>The <literal>org.springframework.security.acl</literal> package
+    is very simple, comprising only a handful of interfaces and a single
+    class, as shown in Figure 6. It provides the basic foundation for
+    access control list (ACL) lookups.</para>
+
+    <para><mediaobject>
+        <imageobject role="html">
+          <imagedata align="center" fileref="images/ACLSecurity.gif"
+                     format="GIF" />
+        </imageobject>
+
+        <caption>
+          <para>Figure 6: Access Control List Manager</para>
+        </caption>
+      </mediaobject></para>
+
+    <para>The central interface is <literal>AclManager</literal>, which is
+    defined by two methods:</para>
+
+    <para><programlisting>public AclEntry[] getAcls(java.lang.Object domainInstance);
+public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authentication);</programlisting></para>
+
+    <para><literal>AclManager</literal> is intended to be used as a
+    collaborator against your business objects, or, more desirably,
+    <literal>AccessDecisionVoter</literal>s. This means you use Spring's
+    normal <literal>ApplicationContext</literal> features to wire up your
+    <literal>AccessDecisionVoter</literal> (or business method) with an
+    <literal>AclManager</literal>. Consideration was given to placing the
+    ACL information in the <literal>ContextHolder</literal>, but it was
+    felt this would be inefficient both in terms of memory usage as well
+    as the time spent loading potentially unused ACL information. The
+    trade-off of needing to wire up a collaborator for those objects
+    requiring ACL information is rather minor, particularly in a
+    Spring-managed application.</para>
+
+    <para>The first method of the <literal>AclManager</literal> will
+    return all ACLs applying to the domain object instance passed to it.
+    The second method does the same, but only returns those ACLs which
+    apply to the passed <literal>Authentication</literal> object.</para>
+
+    <para>The <literal>AclEntry</literal> interface returned by
+    <literal>AclManager</literal> is merely a marker interface. You will
+    need to provide an implementation that reflects that ACL permissions
+    for your application.</para>
+
+    <para>Rounding out the
+    <literal>org.springframework.security.acl</literal> package is an
+    <literal>AclProviderManager</literal> class, with a corresponding
+    <literal>AclProvider</literal> interface.
+    <literal>AclProviderManager</literal> is a concrete implementation of
+    <literal>AclManager</literal>, which iterates through registered
+    <literal>AclProvider</literal>s. The first
+    <literal>AclProvider</literal> that indicates it can authoritatively
+    provide ACL information for the presented domain object instance will
+    be used. This is very similar to the
+    <literal>AuthenticationProvider</literal> interface used for
+    authentication.</para>
+
+    <para>With this background, let's now look at a usable ACL
+    implementation.</para>
+
+    <para>Spring Security includes a production-quality ACL provider
+    implementation, which is shown in Figure 7.</para>
+
+    <para><mediaobject>
+        <imageobject role="html">
+          <imagedata align="center" fileref="images/BasicAclProvider.gif"
+                     format="GIF" />
+        </imageobject>
+
+        <caption>
+          <para>Figure 7: Basic ACL Manager</para>
+        </caption>
+      </mediaobject></para>
+
+    <para>The implementation is based on integer masking, which is
+    commonly used for ACL permissions given its flexibility and speed.
+    Anyone who has used Unix's <literal>chmod</literal> command will know
+    all about this type of permission masking (eg <literal>chmod
+    777</literal>). You'll find the classes and interfaces for the integer
+    masking ACL package under
+    <literal>org.springframework.security.acl.basic</literal>.</para>
+
+    <para>Extending the <literal>AclEntry</literal> interface is a
+    <literal>BasicAclEntry</literal> interface, with the main methods
+    shown below:</para>
+
+    <para><programlisting>public AclObjectIdentity getAclObjectIdentity();
+public AclObjectIdentity getAclObjectParentIdentity();
+public int getMask();
+public java.lang.Object getRecipient();</programlisting></para>
+
+    <para>As shown, each <literal>BasicAclEntry</literal> has four main
+    properties. The <literal>mask</literal> is the integer that represents
+    the permissions granted to the <literal>recipient</literal>. The
+    <literal>aclObjectIdentity</literal> is able to identify the domain
+    object instance for which the ACL applies, and the
+    <literal>aclObjectParentIdentity</literal> optionally specifies the
+    parent of the domain object instance. Multiple
+    <literal>BasicAclEntry</literal>s usually exist against a single
+    domain object instance, and as suggested by the parent identity
+    property, permissions granted higher in the object hierarchy will
+    trickle down and be inherited (unless blocked by integer zero).</para>
+
+    <para><literal>BasicAclEntry</literal> implementations typically
+    provide convenience methods, such as
+    <literal>isReadAllowed()</literal>, to avoid application classes
+    needing to perform bit masking themselves. The
+    <literal>SimpleAclEntry</literal> and
+    <literal>AbstractBasicAclEntry</literal> demonstrate and provide much
+    of this bit masking logic.</para>
+
+    <para>The <literal>AclObjectIdentity</literal> itself is merely a
+    marker interface, so you need to provide implementations for your
+    domain objects. However, the package does include a
+    <literal>NamedEntityObjectIdentity</literal> implementation which will
+    suit many needs. The <literal>NamedEntityObjectIdentity</literal>
+    identifies a given domain object instance by the classname of the
+    instance and the identity of the instance. A
+    <literal>NamedEntityObjectIdentity</literal> can be constructed
+    manually (by calling the constructor and providing the classname and
+    identity <literal>String</literal>s), or by passing in any domain
+    object that contains a <literal>getId()</literal> method.</para>
+
+    <para>The actual <literal>AclProvider</literal> implementation is
+    named <literal>BasicAclProvider</literal>. It has adopted a similar
+    design to that used by the authentication-related
+    <literal>DaoAuthenticationProvder</literal>. Specifically, you define
+    a <literal>BasicAclDao</literal> against the provider, so different
+    ACL repository types can be accessed in a pluggable manner. The
+    <literal>BasicAclProvider</literal> also supports pluggable cache
+    providers (with Spring Security including an implementation that
+    fronts EH-CACHE).</para>
+
+    <para>The <literal>BasicAclDao</literal> interface is very simple to
+    implement:</para>
+
+    <para><programlisting>public BasicAclEntry[] getAcls(AclObjectIdentity aclObjectIdentity);</programlisting></para>
+
+    <para>A <literal>BasicAclDao</literal> implementation needs to
+    understand the presented <literal>AclObjectIdentity</literal> and how
+    it maps to a storage repository, find the relevant records, and create
+    appropriate <literal>BasicAclEntry</literal> objects and return
+    them.</para>
+
+    <para>Spring Security includes a single <literal>BasicAclDao</literal>
+    implementation called <literal>JdbcDaoImpl</literal>. As implied by
+    the name, <literal>JdbcDaoImpl</literal> accesses ACL information from
+    a JDBC database. There is also an extended version of this DAO,
+    <literal>JdbcExtendedDaoImpl</literal>, which provides CRUD operations
+    on the JDBC database, although we won't discuss these features here.
+    The default database schema and some sample data will aid in
+    understanding its function:</para>
+
+    <para><programlisting>CREATE TABLE acl_object_identity (
+ id IDENTITY NOT NULL,
+ object_identity VARCHAR_IGNORECASE(250) NOT NULL,
+ parent_object INTEGER,
+ acl_class VARCHAR_IGNORECASE(250) NOT NULL,
+ CONSTRAINT unique_object_identity UNIQUE(object_identity),
+ FOREIGN KEY (parent_object) REFERENCES acl_object_identity(id)
+);
+
+CREATE TABLE acl_permission (
+ id IDENTITY NOT NULL,
+ acl_object_identity INTEGER NOT NULL,
+ recipient VARCHAR_IGNORECASE(100) NOT NULL,
+ mask INTEGER NOT NULL,
+ CONSTRAINT unique_recipient UNIQUE(acl_object_identity, recipient),
+ FOREIGN KEY (acl_object_identity) REFERENCES acl_object_identity(id)
+);
+
+INSERT INTO acl_object_identity VALUES (1, 'corp.DomainObject:1', null,
+        'org.springframework.security.acl.basic.SimpleAclEntry');
+        INSERT INTO acl_object_identity VALUES (2, 'corp.DomainObject:2', 1,
+        'org.springframework.security.acl.basic.SimpleAclEntry');
+        INSERT INTO acl_object_identity VALUES (3, 'corp.DomainObject:3', 1,
+        'org.springframework.security.acl.basic.SimpleAclEntry');
+        INSERT INTO acl_object_identity VALUES (4, 'corp.DomainObject:4', 1,
+        'org.springframework.security.acl.basic.SimpleAclEntry');
+        INSERT INTO acl_object_identity VALUES (5, 'corp.DomainObject:5', 3,
+        'org.springframework.security.acl.basic.SimpleAclEntry');
+        INSERT INTO acl_object_identity VALUES (6, 'corp.DomainObject:6', 3,
+        'org.springframework.security.acl.basic.SimpleAclEntry');
+
+        INSERT INTO acl_permission VALUES (null, 1, 'ROLE_SUPERVISOR', 1);
+INSERT INTO acl_permission VALUES (null, 2, 'ROLE_SUPERVISOR', 0);
+INSERT INTO acl_permission VALUES (null, 2, 'rod', 2);
+INSERT INTO acl_permission VALUES (null, 3, 'scott', 14);
+INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
+
+    <para>As can be seen, database-specific constraints are used
+    extensively to ensure the integrity of the ACL information. If you
+    need to use a different database (Hypersonic SQL statements are shown
+    above), you should try to implement equivalent constraints. The
+    equivalent Oracle configuration is:</para>
+
+    <para><programlisting>CREATE TABLE ACL_OBJECT_IDENTITY (
+ ID number(19,0) not null,
+ OBJECT_IDENTITY varchar2(255) NOT NULL,
+ PARENT_OBJECT number(19,0),
+ ACL_CLASS varchar2(255) NOT NULL,
+ primary key (ID)
+);
+ALTER TABLE ACL_OBJECT_IDENTITY ADD CONTRAINT FK_PARENT_OBJECT foreign key (ID) references ACL_OBJECT_IDENTITY
+
+CREATE SEQUENCE ACL_OBJECT_IDENTITY_SEQ;
+
+CREATE OR REPLACE TRIGGER ACL_OBJECT_IDENTITY_ID
+BEFORE INSERT ON ACL_OBJECT_IDENTITY
+FOR EACH ROW
+BEGIN
+SELECT ACL_OBJECT_IDENTITY_SEQ.NEXTVAL INTO :new.id FROM dual;
+END;
+
+CREATE TABLE ACL_PERMISSION (
+ ID number(19,0) not null,
+ ACL_OBJECT_IDENTITY number(19,0) NOT NULL,
+ RECIPIENT varchar2(255) NOT NULL,
+ MASK number(19,0) NOT NULL,
+ primary key (ID)
+);
+
+ALTER TABLE ACL_PERMISSION ADD CONTRAINT UNIQUE_ID_RECIPIENT unique (acl_object_identity, recipient);
+
+CREATE SEQUENCE ACL_PERMISSION_SEQ;
+
+CREATE OR REPLACE TRIGGER ACL_PERMISSION_ID
+BEFORE INSERT ON ACL_PERMISSION
+FOR EACH ROW
+BEGIN
+SELECT ACL_PERMISSION_SEQ.NEXTVAL INTO :new.id FROM dual;
+END;
+
+&lt;bean id="basicAclExtendedDao" class="org.springframework.security.acl.basic.jdbc.JdbcExtendedDaoImpl"&gt;
+&lt;property name="dataSource"&gt;
+    &lt;ref bean="dataSource"/&gt;
+&lt;/property&gt;
+&lt;property name="objectPropertiesQuery" value="${acegi.objectPropertiesQuery}"/&gt;
+&lt;/bean&gt;
+
+&lt;prop key="acegi.objectPropertiesQuery"&gt;SELECT CHILD.ID, CHILD.OBJECT_IDENTITY, CHILD.ACL_CLASS, PARENT.OBJECT_IDENTITY as PARENT_OBJECT_IDENTITY FROM acl_object_identity as CHILD LEFT OUTER JOIN acl_object_identity as PARENT ON CHILD.parent_object=PARENT.id WHERE CHILD.object_identity = ?&lt;/prop&gt; </programlisting></para>
+
+    <para>The <literal>JdbcDaoImpl</literal> will only respond to requests
+    for <literal>NamedEntityObjectIdentity</literal>s. It converts such
+    identities into a single <literal>String</literal>, comprising
+    the<literal> NamedEntityObjectIdentity.getClassname()</literal> +
+    <literal>":"</literal> +
+    <literal>NamedEntityObjectIdentity.getId()</literal>. This yields the
+    type of <literal>object_identity</literal> values shown above. As
+    indicated by the sample data, each database row corresponds to a
+    single <literal>BasicAclEntry</literal>. As stated earlier and
+    demonstrated by <literal>corp.DomainObject:2</literal> in the above
+    sample data, each domain object instance will often have multiple
+    <literal>BasicAclEntry</literal>[]s.</para>
+
+    <para>As <literal>JdbcDaoImpl</literal> is required to return concrete
+    <literal>BasicAclEntry</literal> classes, it needs to know which
+    <literal>BasicAclEntry</literal> implementation it is to create and
+    populate. This is the role of the <literal>acl_class</literal> column.
+    <literal>JdbcDaoImpl</literal> will create the indicated class and set
+    its <literal>mask</literal>, <literal>recipient</literal>,
+    <literal>aclObjectIdentity</literal> and
+    <literal>aclObjectParentIdentity</literal> properties.</para>
+
+    <para>As you can probably tell from the sample data, the
+    <literal>parent_object_identity</literal> value can either be null or
+    in the same format as the <literal>object_identity</literal>. If
+    non-null, <literal>JdbcDaoImpl</literal> will create a
+    <literal>NamedEntityObjectIdentity</literal> to place inside the
+    returned <literal>BasicAclEntry</literal> class.</para>
+
+    <para>Returning to the <literal>BasicAclProvider</literal>, before it
+    can poll the <literal>BasicAclDao</literal> implementation it needs to
+    convert the domain object instance it was passed into an
+    <literal>AclObjectIdentity</literal>.
+    <literal>BasicAclProvider</literal> has a <literal>protected
+    AclObjectIdentity obtainIdentity(Object domainInstance)</literal>
+    method that is responsible for this. As a protected method, it enables
+    subclasses to easily override. The normal implementation checks
+    whether the passed domain object instance implements the
+    <literal>AclObjectIdentityAware</literal> interface, which is merely a
+    getter for an <literal>AclObjectIdentity</literal>. If the domain
+    object does implement this interface, that is the identity returned.
+    If the domain object does not implement this interface, the method
+    will attempt to create an <literal>AclObjectIdentity</literal> by
+    passing the domain object instance to the constructor of a class
+    defined by the
+    <literal>BasicAclProvider.getDefaultAclObjectIdentity()</literal>
+    method. By default the defined class is
+    <literal>NamedEntityObjectIdentity</literal>, which was described in
+    more detail above. Therefore, you will need to either (i) provide a
+    <literal>getId()</literal> method on your domain objects, (ii)
+    implement <literal>AclObjectIdentityAware</literal> on your domain
+    objects, (iii) provide an alternative
+    <literal>AclObjectIdentity</literal> implementation that will accept
+    your domain object in its constructor, or (iv) override the
+    <literal>obtainIdentity(Object)</literal> method.</para>
+
+    <para>Once the <literal>AclObjectIdentity</literal> of the domain
+    object instance is determined, the <literal>BasicAclProvider</literal>
+    will poll the DAO to obtain its <literal>BasicAclEntry</literal>[]s.
+    If any of the entries returned by the DAO indicate there is a parent,
+    that parent will be polled, and the process will repeat until there is
+    no further parent. The permissions assigned to a
+    <literal>recipient</literal> closest to the domain object instance
+    will always take priority and override any inherited permissions. From
+    the sample data above, the following inherited permissions would
+    apply:</para>
+
+    <para><programlisting>--- Mask integer 0  = no permissions
+--- Mask integer 1  = administer
+--- Mask integer 2  = read
+--- Mask integer 6  = read and write permissions
+--- Mask integer 14 = read and write and create permissions
+
+---------------------------------------------------------------------
+--- *** INHERITED RIGHTS FOR DIFFERENT INSTANCES AND RECIPIENTS ***
+--- INSTANCE  RECIPIENT         PERMISSION(S) (COMMENT #INSTANCE)
+---------------------------------------------------------------------
+---    1      ROLE_SUPERVISOR   Administer
+---    2      ROLE_SUPERVISOR   None (overrides parent #1)
+---           rod               Read
+---    3      ROLE_SUPERVISOR   Administer (from parent #1)
+---           scott             Read, Write, Create
+---    4      ROLE_SUPERVISOR   Administer (from parent #1)
+---    5      ROLE_SUPERVISOR   Administer (from parent #3)
+---           scott             Read, Write, Create (from parent #3)
+---    6      ROLE_SUPERVISOR   Administer (from parent #3)
+---           scott             Administer (overrides parent #3)</programlisting></para>
+
+    <para>So the above explains how a domain object instance has its
+    <literal>AclObjectIdentity</literal> discovered, and the
+    <literal>BasicAclDao</literal> will be polled successively until an
+    array of inherited permissions is constructed for the domain object
+    instance. The final step is to determine the
+    <literal>BasicAclEntry</literal>[]s that are actually applicable to a
+    given <literal>Authentication</literal> object.</para>
+
+    <para>As you would recall, the <literal>AclManager</literal> (and all
+    delegates, up to and including <literal>BasicAclProvider</literal>)
+    provides a method which returns only those
+    <literal>BasicAclEntry</literal>[]s applying to a passed
+    <literal>Authentication</literal> object.
+    <literal>BasicAclProvider</literal> delivers this functionality by
+    delegating the filtering operation to an
+    <literal>EffectiveAclsResolver</literal> implementation. The default
+    implementation,
+    <literal>GrantedAuthorityEffectiveAclsResolver</literal>, will iterate
+    through the <literal>BasicAclEntry</literal>[]s and include only those
+    where the <literal>recipient</literal> is equal to either the
+    <literal>Authentication</literal>'s <literal>principal</literal> or
+    any of the <literal>Authentication</literal>'s
+    <literal>GrantedAuthority</literal>[]s. Please refer to the JavaDocs
+    for more information.</para>
+
+    <mediaobject>
+      <imageobject role="html">
+        <imagedata align="center" fileref="images/Permissions.gif"
+                   format="GIF" />
+      </imageobject>
+
+      <caption>
+        <para>Figure 8: ACL Instantiation Approach</para>
+      </caption>
+    </mediaobject>
+
+    <para>The above figure explains the key relationships between objects
+    in the Basic ACL package.</para>
+  </section>
+</chapter>

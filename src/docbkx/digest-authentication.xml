@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                         "http://www.docbook.org/xml/4.4/docbookx.dtd">                         
+
+<chapter id="digest">
+    <title>Digest Authentication</title>
+    
+    <sect1 id="digest-overview">
+        <title>Overview</title>
+        
+        <para>Spring Security provides a
+            <literal>DigestProcessingFilter</literal> which is capable of
+            processing digest authentication credentials presented in HTTP
+            headers. Digest Authentication attempts to solve many of the
+            weaknesses of Basic authentication, specifically by ensuring
+            credentials are never sent in clear text across the wire. Many user
+            agents support Digest Authentication, including FireFox and Internet
+            Explorer. The standard governing HTTP Digest Authentication is defined
+            by RFC 2617, which updates an earlier version of the Digest
+            Authentication standard prescribed by RFC 2069. Most user agents
+            implement RFC 2617. Spring Security
+            <literal>DigestProcessingFilter</literal> is compatible with the
+            "<literal>auth</literal>" quality of protection
+            (<literal>qop</literal>) prescribed by RFC 2617, which also provides
+            backward compatibility with RFC 2069. Digest Authentication is a
+            highly attractive option if you need to use unencrypted HTTP (ie no
+            TLS/HTTPS) and wish to maximise security of the authentication
+            process. Indeed Digest Authentication is a mandatory requirement for
+            the WebDAV protocol, as noted by RFC 2518 Section 17.1, so we should
+            expect to see it increasingly deployed and replacing Basic
+            Authentication.</para>
+        
+        <para>Digest Authentication is definitely the most secure choice
+            between Form Authentication, Basic Authentication and Digest
+            Authentication, although extra security also means more complex user
+            agent implementations. Central to Digest Authentication is a "nonce".
+            This is a value the server generates. Spring Security's nonce adopts
+            the following format:</para>
+        
+        <para><programlisting>base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
+            
+            expirationTime:   The date and time when the nonce expires, expressed in milliseconds
+            key:              A private key to prevent modification of the nonce token
+        </programlisting></para>
+        
+        <para>The <literal>DigestProcessingFilterEntryPoint</literal> has a
+            property specifying the <literal>key</literal> used for generating the
+            nonce tokens, along with a <literal>nonceValiditySeconds</literal>
+            property for determining the expiration time (default 300, which
+            equals five minutes). Whist ever the nonce is valid, the digest is
+            computed by concatenating various strings including the username,
+            password, nonce, URI being requested, a client-generated nonce (merely
+            a random value which the user agent generates each request), the realm
+            name etc, then performing an MD5 hash. Both the server and user agent
+            perform this digest computation, resulting in different hash codes if
+            they disagree on an included value (eg password). In Spring Security
+            implementation, if the server-generated nonce has merely expired (but
+            the digest was otherwise valid), the
+            <literal>DigestProcessingFilterEntryPoint</literal> will send a
+            <literal>"stale=true"</literal> header. This tells the user agent
+            there is no need to disturb the user (as the password and username etc
+            is correct), but simply to try again using a new nonce.</para>
+        
+        <para>An appropriate value for
+            <literal>DigestProcessingFilterEntryPoint</literal>'s
+            <literal>nonceValiditySeconds</literal> parameter will depend on your
+            application. Extremely secure applications should note that an
+            intercepted authentication header can be used to impersonate the
+            principal until the <literal>expirationTime</literal> contained in the
+            nonce is reached. This is the key principle when selecting an
+            appropriate setting, but it would be unusual for immensely secure
+            applications to not be running over TLS/HTTPS in the first
+            instance.</para>
+        
+        <para>Because of the more complex implementation of Digest
+            Authentication, there are often user agent issues. For example,
+            Internet Explorer fails to present an "<literal>opaque</literal>"
+            token on subsequent requests in the same session. Spring Security
+            filters therefore encapsulate all state information into the
+            "<literal>nonce</literal>" token instead. In our testing, Spring
+            Security implementation works reliably with FireFox and Internet
+            Explorer, correctly handling nonce timeouts etc.</para>
+    </sect1>
+    
+    <sect1 id="digest-config">
+        <title>Configuration</title>
+        
+        <para>Now that we've reviewed the theory, let's see how to use it. To
+            implement HTTP Digest Authentication, it is necessary to define
+            <literal>DigestProcessingFilter</literal> in the fitler chain. The
+            application context will need to define the
+            <literal>DigestProcessingFilter</literal> and its required
+            collaborators:</para>
+        
+        <para><programlisting>
+            &lt;bean id="digestProcessingFilter" class="org.springframework.security.ui.digestauth.DigestProcessingFilter"&gt;
+            &lt;property name="userDetailsService"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
+            &lt;property name="authenticationEntryPoint"&gt;&lt;ref local="digestProcessingFilterEntryPoint"/&gt;&lt;/property&gt;
+            &lt;property name="userCache"&gt;&lt;ref local="userCache"/&gt;&lt;/property&gt;
+            &lt;/bean&gt;
+            
+            &lt;bean id="digestProcessingFilterEntryPoint"
+            class="org.springframework.security.ui.digestauth.DigestProcessingFilterEntryPoint"&gt;
+            &lt;property name="realmName"&gt;&lt;value&gt;Contacts Realm via Digest Authentication&lt;/value&gt;&lt;/property&gt;
+            &lt;property name="key"&gt;&lt;value&gt;acegi&lt;/value&gt;&lt;/property&gt;
+            &lt;property name="nonceValiditySeconds"&gt;&lt;value&gt;10&lt;/value&gt;&lt;/property&gt;
+            &lt;/bean&gt;
+            
+        </programlisting></para>
+        
+        <para>The configured <literal>UserDetailsService</literal> is needed
+            because <literal>DigestProcessingFilter</literal> must have direct
+            access to the clear text password of a user. Digest Authentication
+            will NOT work if you are using encoded passwords in your DAO. The DAO
+            collaborator, along with the <literal>UserCache</literal>, are
+            typically shared directly with a
+            <literal>DaoAuthenticationProvider</literal>. The
+            <literal>authenticationEntryPoint</literal> property must be
+            <literal>DigestProcessingFilterEntryPoint</literal>, so that
+            <literal>DigestProcessingFilter</literal> can obtain the correct
+            <literal>realmName</literal> and <literal>key</literal> for digest
+            calculations.</para>
+        
+        <para>Like <literal>BasicAuthenticationFilter</literal>, if
+            authentication is successful an <literal>Authentication</literal>
+            request token will be placed into the
+            <literal>SecurityContextHolder</literal>. If the authentication event
+            was successful, or authentication was not attempted because the HTTP
+            header did not contain a Digest Authentication request, the filter
+            chain will continue as normal. The only time the filter chain will be
+            interrupted is if authentication fails and the
+            <literal>AuthenticationEntryPoint</literal> is called, as discussed in
+            the previous paragraph.</para>
+        
+        <para>Digest Authentication's RFC offers a range of additional
+            features to further increase security. For example, the nonce can be
+            changed on every request. Despite this, Spring Security implementation
+            was designed to minimise the complexity of the implementation (and the
+            doubtless user agent incompatibilities that would emerge), and avoid
+            needing to store server-side state. You are invited to review RFC 2617
+            if you wish to explore these features in more detail. As far as we are
+            aware, Spring Security's implementation does comply with the minimum
+            standards of this RFC.</para>
+    </sect1>
+</chapter>

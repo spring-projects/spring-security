@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+
+<chapter id="authorization-common">
+  <title>Common Authorization Concepts</title>
+
+  <sect1 id="authorities">
+    <title>Authorities</title>
+
+    <para>As briefly mentioned in the Authentication section, all
+    <literal>Authentication</literal> implementations are required to
+    store an array of <literal>GrantedAuthority</literal> objects. These
+    represent the authorities that have been granted to the principal. The
+    <literal>GrantedAuthority</literal> objects are inserted into the
+    <literal>Authentication</literal> object by the
+    <literal>AuthenticationManager</literal> and are later read by
+    <literal>AccessDecisionManager</literal>s when making authorization
+    decisions.</para>
+
+    <para><literal>GrantedAuthority</literal> is an interface with only
+    one method:</para>
+
+    <para><programlisting>public String getAuthority();</programlisting></para>
+
+    <para>This method allows <literal>AccessDecisionManager</literal>s to
+    obtain a precise <literal>String</literal> representation of the
+    <literal>GrantedAuthority</literal>. By returning a representation as
+    a <literal>String</literal>, a <literal>GrantedAuthority</literal> can
+    be easily "read" by most <literal>AccessDecisionManager</literal>s. If
+    a <literal>GrantedAuthority</literal> cannot be precisely represented
+    as a <literal>String</literal>, the
+    <literal>GrantedAuthority</literal> is considered "complex" and
+    <literal>getAuthority()</literal> must return
+    <literal>null</literal>.</para>
+
+    <para>An example of a "complex" <literal>GrantedAuthority</literal>
+    would be an implementation that stores a list of operations and
+    authority thresholds that apply to different customer account numbers.
+    Representing this complex <literal>GrantedAuthority</literal> as a
+    <literal>String</literal> would be quite complex, and as a result the
+    <literal>getAuthority()</literal> method should return
+    <literal>null</literal>. This will indicate to any
+    <literal>AccessDecisionManager</literal> that it will need to
+    specifically support the <literal>GrantedAuthority</literal>
+    implementation in order to understand its contents.</para>
+
+    <para>Spring Security includes one concrete
+    <literal>GrantedAuthority</literal> implementation,
+    <literal>GrantedAuthorityImpl</literal>. This allows any
+    user-specified <literal>String</literal> to be converted into a
+    <literal>GrantedAuthority</literal>. All
+    <literal>AuthenticationProvider</literal>s included with the security
+    architecture use <literal>GrantedAuthorityImpl</literal> to populate
+    the <literal>Authentication</literal> object.</para>
+  </sect1>
+
+  <sect1 id="pre-invocation">
+    <title>Pre-Invocation Handling</title>
+
+    <para>The <literal>AccessDecisionManager</literal> is called by the
+    <literal>AbstractSecurityInterceptor</literal> and is responsible for
+    making final access control decisions. The
+    <literal>AccessDecisionManager</literal> interface contains three
+    methods:</para>
+
+    <para><programlisting>public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config) throws AccessDeniedException;
+public boolean supports(ConfigAttribute attribute);
+public boolean supports(Class clazz);</programlisting></para>
+
+    <para>As can be seen from the first method, the
+    <literal>AccessDecisionManager</literal> is passed via method
+    parameters all information that is likely to be of value in assessing
+    an authorization decision. In particular, passing the secure
+    <literal>Object</literal> enables those arguments contained in the
+    actual secure object invocation to be inspected. For example, let's
+    assume the secure object was a <literal>MethodInvocation</literal>. It
+    would be easy to query the <literal>MethodInvocation</literal> for any
+    <literal>Customer</literal> argument, and then implement some sort of
+    security logic in the <literal>AccessDecisionManager</literal> to
+    ensure the principal is permitted to operate on that customer.
+    Implementations are expected to throw an
+    <literal>AccessDeniedException</literal> if access is denied.</para>
+
+    <para>The <literal>supports(ConfigAttribute)</literal> method is
+    called by the <literal>AbstractSecurityInterceptor</literal> at
+    startup time to determine if the
+    <literal>AccessDecisionManager</literal> can process the passed
+    <literal>ConfigAttribute</literal>. The
+    <literal>supports(Class)</literal> method is called by a security
+    interceptor implementation to ensure the configured
+    <literal>AccessDecisionManager</literal> supports the type of secure
+    object that the security interceptor will present.</para>
+
+    <para>Whilst users can implement their own
+    <literal>AccessDecisionManager</literal> to control all aspects of
+    authorization, Spring Security includes several
+    <literal>AccessDecisionManager</literal> implementations that are
+    based on voting. Figure 4 illustrates the relevant classes.</para>
+
+    <para><mediaobject>
+        <imageobject role="html">
+          <imagedata align="center"
+                     fileref="images/AccessDecisionVoting.gif"
+                     format="GIF" />
+        </imageobject>
+
+        <caption>
+          <para>Figure 4: Voting Decision Manager</para>
+        </caption>
+      </mediaobject></para>
+
+    <para>Using this approach, a series of
+    <literal>AccessDecisionVoter</literal> implementations are polled on
+    an authorization decision. The
+    <literal>AccessDecisionManager</literal> then decides whether or not
+    to throw an <literal>AccessDeniedException</literal> based on its
+    assessment of the votes.</para>
+
+    <para>The <literal>AccessDecisionVoter</literal> interface has three
+    methods:</para>
+
+    <para><programlisting>public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config);
+public boolean supports(ConfigAttribute attribute);
+public boolean supports(Class clazz);</programlisting></para>
+
+    <para>Concrete implementations return an <literal>int</literal>, with
+    possible values being reflected in the
+    <literal>AccessDecisionVoter</literal> static fields
+    <literal>ACCESS_ABSTAIN</literal>, <literal>ACCESS_DENIED</literal>
+    and <literal>ACCESS_GRANTED</literal>. A voting implementation will
+    return <literal>ACCESS_ABSTAIN</literal> if it has no opinion on an
+    authorization decision. If it does have an opinion, it must return
+    either <literal>ACCESS_DENIED</literal> or
+    <literal>ACCESS_GRANTED</literal>.</para>
+
+    <para>There are three concrete
+    <literal>AccessDecisionManager</literal>s provided with Spring
+    Security that tally the votes. The <literal>ConsensusBased</literal>
+    implementation will grant or deny access based on the consensus of
+    non-abstain votes. Properties are provided to control behavior in the
+    event of an equality of votes or if all votes are abstain. The
+    <literal>AffirmativeBased</literal> implementation will grant access
+    if one or more <literal>ACCESS_GRANTED</literal> votes were received
+    (ie a deny vote will be ignored, provided there was at least one grant
+    vote). Like the <literal>ConsensusBased</literal> implementation,
+    there is a parameter that controls the behavior if all voters abstain.
+    The <literal>UnanimousBased</literal> provider expects unanimous
+    <literal>ACCESS_GRANTED</literal> votes in order to grant access,
+    ignoring abstains. It will deny access if there is any
+    <literal>ACCESS_DENIED</literal> vote. Like the other implementations,
+    there is a parameter that controls the behaviour if all voters
+    abstain.</para>
+
+    <para>It is possible to implement a custom
+    <literal>AccessDecisionManager</literal> that tallies votes
+    differently. For example, votes from a particular
+    <literal>AccessDecisionVoter</literal> might receive additional
+    weighting, whilst a deny vote from a particular voter may have a veto
+    effect.</para>
+
+    <para>There are two concrete <literal>AccessDecisionVoter</literal>
+    implementations provided with Spring Security. The
+    <literal>RoleVoter</literal> class will vote if any ConfigAttribute
+    begins with <literal>ROLE_</literal>. It will vote to grant access if
+    there is a <literal>GrantedAuthority</literal> which returns a
+    <literal>String</literal> representation (via the
+    <literal>getAuthority()</literal> method) exactly equal to one or more
+    <literal>ConfigAttributes</literal> starting with
+    <literal>ROLE_</literal>. If there is no exact match of any
+    <literal>ConfigAttribute</literal> starting with
+    <literal>ROLE_</literal>, the <literal>RoleVoter</literal> will vote
+    to deny access. If no <literal>ConfigAttribute</literal> begins with
+    <literal>ROLE_</literal>, the voter will abstain.
+    <literal>RoleVoter</literal> is case sensitive on comparisons as well
+    as the <literal>ROLE_</literal> prefix.</para>
+
+    <para><literal>BasicAclEntryVoter</literal> is the other concrete
+    voter included with Spring Security. It integrates with Spring
+    Security's <literal>AclManager</literal> (discussed later). This voter
+    is designed to have multiple instances in the same application
+    context, such as:</para>
+
+    <para><programlisting>&lt;bean id="aclContactReadVoter"
+        class="org.springframework.security.vote.BasicAclEntryVoter"&gt;
+&lt;property name="processConfigAttribute"&gt;&lt;value&gt;ACL_CONTACT_READ&lt;/value&gt;&lt;/property&gt;
+&lt;property name="processDomainObjectClass"&gt;&lt;value&gt;sample.contact.Contact&lt;/value&gt;&lt;/property&gt;
+&lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
+&lt;property name="requirePermission"&gt;
+&lt;list&gt;
+  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/&gt;
+&lt;/list&gt;
+&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="aclContactDeleteVoter" class="org.springframework.security.vote.BasicAclEntryVoter"&gt;
+&lt;property name="processConfigAttribute"&gt;&lt;value&gt;ACL_CONTACT_DELETE&lt;/value&gt;&lt;/property&gt;
+&lt;property name="processDomainObjectClass"&gt;&lt;value&gt;sample.contact.Contact&lt;/value&gt;&lt;/property&gt;
+&lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
+&lt;property name="requirePermission"&gt;
+&lt;list&gt;
+  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.DELETE"/&gt;
+&lt;/list&gt;
+&lt;/property&gt;
+&lt;/bean&gt;        </programlisting></para>
+
+    <para>In the above example, you'd define
+    <literal>ACL_CONTACT_READ</literal> or
+    <literal>ACL_CONTACT_DELETE</literal> against some methods on a
+    <literal>MethodSecurityInterceptor</literal> or
+    <literal>AspectJSecurityInterceptor</literal>. When those methods are
+    invoked, the above applicable voter defined above would vote to grant
+    or deny access. The voter would look at the method invocation to
+    locate the first argument of type
+    <literal>sample.contact.Contact</literal>, and then pass that
+    <literal>Contact</literal> to the <literal>AclManager</literal>. The
+    <literal>AclManager</literal> will then return an access control list
+    (ACL) that applies to the current <literal>Authentication</literal>.
+    Assuming that ACL contains one of the listed
+    <literal>requirePermission</literal>s, the voter will vote to grant
+    access. If the ACL does not contain one of the permissions defined
+    against the voter, the voter will vote to deny access.
+    <literal>BasicAclEntryVoter</literal> is an important class as it
+    allows you to build truly complex applications with domain object
+    security entirely defined in the application context. If you're
+    interested in learning more about Spring Security's ACL capabilities
+    and how best to apply them, please see the ACL and "After Invocation"
+    sections of this reference guide, and the Contacts sample
+    application.</para>
+
+    <para>It is also possible to implement a custom
+    <literal>AccessDecisionVoter</literal>. Several examples are provided
+    in Spring Security unit tests, including
+    <literal>ContactSecurityVoter</literal> and
+    <literal>DenyVoter</literal>. The
+    <literal>ContactSecurityVoter</literal> abstains from voting decisions
+    where a <literal>CONTACT_OWNED_BY_CURRENT_USER</literal>
+    <literal>ConfigAttribute</literal> is not found. If voting, it queries
+    the <literal>MethodInvocation</literal> to extract the owner of the
+    <literal>Contact</literal> object that is subject of the method call.
+    It votes to grant access if the <literal>Contact</literal> owner
+    matches the principal presented in the
+    <literal>Authentication</literal> object. It could have just as easily
+    compared the <literal>Contact</literal> owner with some
+    <literal>GrantedAuthority</literal> the
+    <literal>Authentication</literal> object presented. All of this is
+    achieved with relatively few lines of code and demonstrates the
+    flexibility of the authorization model.</para>
+
+    <para>TODO: Remove references to the old ACL package when it's
+    deprecated, and have all references to the replacement package limited
+    to the chapter describing the new ACL implementation.</para>
+  </sect1>
+
+  <sect1 id="after-invocation">
+    <title>After Invocation Handling</title>
+
+    <para>Whilst the <literal>AccessDecisionManager</literal> is called by
+    the <literal>AbstractSecurityInterceptor</literal> before proceeding
+    with the secure object invocation, some applications need a way of
+    modifying the object actually returned by the secure object
+    invocation. Whilst you could easily implement your own AOP concern to
+    achieve this, Spring Security provides a convenient hook that has
+    several concrete implementations that integrate with its ACL
+    capabilities.</para>
+
+    <para>Figure 5 illustrates Spring Security's
+    <literal>AfterInvocationManager</literal> and its concrete
+    implementations.</para>
+
+    <para><mediaobject>
+        <imageobject>
+          <imagedata align="center" fileref="images/AfterInvocation.gif"
+                     format="GIF" />
+        </imageobject>
+
+        <caption>
+          <para>Figure 5: After Invocation Implementation</para>
+        </caption>
+      </mediaobject></para>
+
+    <para>Like many other parts of Spring Security,
+    <literal>AfterInvocationManager</literal> has a single concrete
+    implementation, <literal>AfterInvocationProviderManager</literal>,
+    which polls a list of <literal>AfterInvocationProvider</literal>s.
+    Each <literal>AfterInvocationProvider</literal> is allowed to modify
+    the return object or throw an
+    <literal>AccessDeniedException</literal>. Indeed multiple providers
+    can modify the object, as the result of the previous provider is
+    passed to the next in the list. Let's now consider our ACL-aware
+    implementations of <literal>AfterInvocationProvider</literal>.</para>
+
+    <para>Please be aware that if you're using
+    <literal>AfterInvocationManager</literal>, you will still need
+    configuration attributes that allow the
+    <literal>MethodSecurityInterceptor</literal>'s
+    <literal>AccessDecisionManager</literal> to allow an operation. If
+    you're using the typical Spring Security included
+    <literal>AccessDecisionManager</literal> implementations, having no
+    configuration attributes defined for a particular secure method
+    invocation will cause each <literal>AccessDecisionVoter</literal> to
+    abstain from voting. In turn, if the
+    <literal>AccessDecisionManager</literal> property
+    "<literal>allowIfAllAbstainDecisions</literal>" is
+    <literal>false</literal>, an <literal>AccessDeniedException</literal>
+    will be thrown. You may avoid this potential issue by either (i)
+    setting "<literal>allowIfAllAbstainDecisions</literal>" to
+    <literal>true</literal> (although this is generally not recommended)
+    or (ii) simply ensure that there is at least one configuration
+    attribute that an <literal>AccessDecisionVoter</literal> will vote to
+    grant access for. This latter (recommended) approach is usually
+    achieved through a <literal>ROLE_USER</literal> or
+    <literal>ROLE_AUTHENTICATED</literal> configuration attribute</para>
+
+    <sect2 id="after-invocation-acl-aware">
+      <title>ACL-Aware AfterInvocationProviders</title>
+
+      <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
+      ACL module. The new ACL module is a significant rewrite of the
+      existing ACL module. The new module can be found under the
+      <literal>org.springframework.security.acls</literal> package, with
+      the old ACL module under
+      <literal>org.springframework.security.acl</literal>. We encourage
+      users to consider testing with the new ACL module and build
+      applications with it. The old ACL module should be considered
+      deprecated and may be removed from a future release. The following
+      information relates to the new ACL package, and is thus
+      recommended.</para>
+
+      <para>A common services layer method we've all written at one stage
+      or another looks like this:</para>
+
+      <para><programlisting>public Contact getById(Integer id);</programlisting></para>
+
+      <para>Quite often, only principals with permission to read the
+      <literal>Contact</literal> should be allowed to obtain it. In this
+      situation the <literal>AccessDecisionManager</literal> approach
+      provided by the <literal>AbstractSecurityInterceptor</literal> will
+      not suffice. This is because the identity of the
+      <literal>Contact</literal> is all that is available before the
+      secure object is invoked. The
+      <literal>AclAfterInvocationProvider</literal> delivers a solution,
+      and is configured as follows:</para>
+
+      <para><programlisting>&lt;bean id="afterAclRead"
+          class="org.springframework.security.afterinvocation.AclEntryAfterInvocationProvider"&gt;
+&lt;constructor-arg&gt;
+&lt;ref bean="aclService"/&gt;
+&lt;/constructor-arg&gt;
+&lt;constructor-arg&gt;
+&lt;list&gt;
+  &lt;ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/&gt;
+  &lt;ref local="org.springframework.security.acls.domain.BasePermission.READ"/&gt;
+&lt;/list&gt;
+&lt;/constructor-arg&gt;
+&lt;/bean&gt;      </programlisting></para>
+
+      <para>In the above example, the <literal>Contact</literal> will be
+      retrieved and passed to the
+      <literal>AclEntryAfterInvocationProvider</literal>. The provider
+      will thrown an <literal>AccessDeniedException</literal> if one of
+      the listed <literal>requirePermission</literal>s is not held by the
+      <literal>Authentication</literal>. The
+      <literal>AclEntryAfterInvocationProvider</literal> queries the
+      <literal>Acl</literal>Service to determine the ACL that applies for
+      this domain object to this <literal>Authentication</literal>.</para>
+
+      <para>Similar to the
+      <literal>AclEntryAfterInvocationProvider</literal> is
+      <literal>AclEntryAfterInvocationCollectionFilteringProvider</literal>.
+      It is designed to remove <literal>Collection</literal> or array
+      elements for which a principal does not have access. It never thrown
+      an <literal>AccessDeniedException</literal> - simply silently
+      removes the offending elements. The provider is configured as
+      follows:</para>
+
+      <para><programlisting>&lt;bean id="afterAclCollectionRead"
+          class="org.springframework.security.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider"&gt;
+&lt;constructor-arg&gt;
+&lt;ref bean="aclService"/&gt;
+&lt;/constructor-arg&gt;
+&lt;constructor-arg&gt;
+&lt;list&gt;
+  &lt;ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/&gt;
+  &lt;ref local="org.springframework.security.acls.domain.BasePermission.READ"/&gt;
+&lt;/list&gt;
+&lt;/constructor-arg&gt;
+&lt;/bean&gt;    </programlisting></para>
+
+      <para>As you can imagine, the returned <literal>Object</literal>
+      must be a <literal>Collection</literal> or array for this provider
+      to operate. It will remove any element if the
+      <literal>AclManager</literal> indicates the
+      <literal>Authentication</literal> does not hold one of the listed
+      <literal>requirePermission</literal>s.</para>
+
+      <para>The Contacts sample application demonstrates these two
+      <literal>AfterInvocationProvider</literal>s.</para>
+    </sect2>
+
+    <sect2 id="after-invocation-acl-aware-old">
+      <title>ACL-Aware AfterInvocationProviders (old ACL module)</title>
+
+      <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
+      ACL module. The new ACL module is a significant rewrite of the
+      existing ACL module. The new module can be found under the
+      <literal>org.springframework.security.acls</literal> package, with
+      the old ACL module under
+      <literal>org.springframework.security.acl</literal>. We encourage
+      users to consider testing with the new ACL module and build
+      applications with it. The old ACL module should be considered
+      deprecated and may be removed from a future release.</para>
+
+      <para>A common services layer method we've all written at one stage
+      or another looks like this:</para>
+
+      <para><programlisting>public Contact getById(Integer id);</programlisting></para>
+
+      <para>Quite often, only principals with permission to read the
+      <literal>Contact</literal> should be allowed to obtain it. In this
+      situation the <literal>AccessDecisionManager</literal> approach
+      provided by the <literal>AbstractSecurityInterceptor</literal> will
+      not suffice. This is because the identity of the
+      <literal>Contact</literal> is all that is available before the
+      secure object is invoked. The
+      <literal>BasicAclAfterInvocationProvider</literal> delivers a
+      solution, and is configured as follows:</para>
+
+      <para><programlisting>&lt;bean id="afterAclRead"
+          class="org.springframework.security.afterinvocation.BasicAclEntryAfterInvocationProvider"&gt;
+&lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
+&lt;property name="requirePermission"&gt;
+&lt;list&gt;
+  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/&gt;
+&lt;/list&gt;
+&lt;/property&gt;
+&lt;/bean&gt;       </programlisting></para>
+
+      <para>In the above example, the <literal>Contact</literal> will be
+      retrieved and passed to the
+      <literal>BasicAclEntryAfterInvocationProvider</literal>. The
+      provider will thrown an <literal>AccessDeniedException</literal> if
+      one of the listed <literal>requirePermission</literal>s is not held
+      by the <literal>Authentication</literal>. The
+      <literal>BasicAclEntryAfterInvocationProvider</literal> queries the
+      <literal>AclManager</literal> to determine the ACL that applies for
+      this domain object to this <literal>Authentication</literal>.</para>
+
+      <para>Similar to the
+      <literal>BasicAclEntryAfterInvocationProvider</literal> is
+      <literal>BasicAclEntryAfterInvocationCollectionFilteringProvider</literal>.
+      It is designed to remove <literal>Collection</literal> or array
+      elements for which a principal does not have access. It never thrown
+      an <literal>AccessDeniedException</literal> - simply silently
+      removes the offending elements. The provider is configured as
+      follows:</para>
+
+      <para><programlisting>&lt;bean id="afterAclCollectionRead"
+          class="org.springframework.security.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider"&gt;
+&lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
+&lt;property name="requirePermission"&gt;
+&lt;list&gt;
+  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/&gt;
+&lt;/list&gt;
+&lt;/property&gt;
+&lt;/bean&gt;       </programlisting></para>
+
+      <para>As you can imagine, the returned <literal>Object</literal>
+      must be a <literal>Collection</literal> or array for this provider
+      to operate. It will remove any element if the
+      <literal>AclManager</literal> indicates the
+      <literal>Authentication</literal> does not hold one of the listed
+      <literal>requirePermission</literal>s.</para>
+
+      <para>The Contacts sample application demonstrates these two
+      <literal>AfterInvocationProvider</literal>s.</para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="authorization-taglibs">
+    <title>Authorization Tag Libraries</title>
+
+    <para><literal>AuthorizeTag</literal> is used to include content if
+    the current principal holds certain
+    <literal>GrantedAuthority</literal>s.</para>
+
+    <para>The following JSP fragment illustrates how to use the
+    <literal>AuthorizeTag</literal>:</para>
+
+    <para><programlisting>&lt;security:authorize ifAllGranted="ROLE_SUPERVISOR"&gt;
+&lt;td&gt;
+&lt;A HREF="del.htm?id=&lt;c:out value="${contact.id}"/&gt;"&gt;Del&lt;/A&gt;
+&lt;/td&gt;
+&lt;/security:authorize&gt;          </programlisting></para>
+
+    <para>This tag would cause the tag's body to be output if the
+    principal has been granted ROLE_SUPERVISOR.</para>
+
+    <para>The <literal>security:authorize</literal> tag declares the
+    following attributes:</para>
+
+    <para><itemizedlist spacing="compact">
+        <listitem>
+          <para><literal>ifAllGranted</literal>: All the listed roles must
+          be granted for the tag to output its body.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>ifAnyGranted</literal>: Any of the listed roles
+          must be granted for the tag to output its body.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>ifNotGranted</literal>: None of the listed roles
+          must be granted for the tag to output its body.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>You'll note that in each attribute you can list multiple roles.
+    Simply separate the roles using a comma. The
+    <literal>authorize</literal> tag ignores whitespace in
+    attributes.</para>
+
+    <para>The tag library logically ANDs all of it's parameters together.
+    This means that if you combine two or more attributes, all attributes
+    must be true for the tag to output it's body. Don't add an
+    <literal>ifAllGranted="ROLE_SUPERVISOR"</literal>, followed by an
+    <literal>ifNotGranted="ROLE_SUPERVISOR"</literal>, or you'll be
+    surprised to never see the tag's body.</para>
+
+    <para>By requiring all attributes to return true, the authorize tag
+    allows you to create more complex authorization scenarios. For
+    example, you could declare an
+    <literal>ifAllGranted="ROLE_SUPERVISOR"</literal> and an
+    <literal>ifNotGranted="ROLE_NEWBIE_SUPERVISOR"</literal> in the same
+    tag, in order to prevent new supervisors from seeing the tag body.
+    However it would no doubt be simpler to use
+    <literal>ifAllGranted="ROLE_EXPERIENCED_SUPERVISOR"</literal> rather
+    than inserting NOT conditions into your design.</para>
+
+    <para>One last item: the tag verifies the authorizations in a specific
+    order: first <literal>ifNotGranted</literal>, then
+    <literal>ifAllGranted</literal>, and finally, <literal>if
+    AnyGranted</literal>.</para>
+
+    <para><literal>AccessControlListTag</literal> is used to include
+    content if the current principal has an ACL to the indicated domain
+    object.</para>
+
+    <para>The following JSP fragment illustrates how to use the
+    <literal>AccessControlListTag</literal>:</para>
+
+    <para><programlisting>&lt;security:accesscontrollist domainObject="${contact}" hasPermission="8,16"&gt;
+&lt;td&gt;&lt;A HREF="&lt;c:url value="del.htm"&gt;&lt;c:param name="contactId" value="${contact.id}"/&gt;&lt;/c:url&gt;"&gt;Del&lt;/A&gt;&lt;/td&gt;
+&lt;/security:accesscontrollist&gt;</programlisting></para>
+
+    <para>This tag would cause the tag's body to be output if the
+    principal holds either permission 16 or permission 1 for the "contact"
+    domain object. The numbers are actually integers that are used with
+    <literal>BasePermission</literal> bit masking. Please refer to the ACL
+    section of this reference guide to understand more about the ACL
+    capabilities of Spring Security.</para>
+
+    <para><literal>AclTag</literal> is part of the old ACL module and
+    should be considered deprecated. For the sake of historical reference,
+    works exactly the samae as
+    <literal>AccessControlListTag</literal>.</para>
+  </sect1>
+</chapter>

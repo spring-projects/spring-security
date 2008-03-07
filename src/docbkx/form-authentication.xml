@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+
+<chapter id="form">
+    <title>Form Authentication Mechanism</title>
+    
+    <sect1 id="form-overview">
+        <title>Overview</title>
+        
+        <para>HTTP Form Authentication involves using the
+            <literal>AuthenticationProcessingFilter</literal> to process a login
+            form. This is the most common way that application authenticate end
+            users. Form-based authentication is entirely compatible with the DAO
+            and JAAS authentication providers.</para>
+    </sect1>
+    
+    <sect1 id="form-config">
+        <title>Configuration</title>
+        
+        <para>The login form simply contains <literal>j_username</literal> and
+            <literal>j_password</literal> input fields, and posts to a URL that is
+            monitored by the filter (by default
+            <literal>j_spring_security_check</literal>). The filter is defined in
+            <literal>web.xml</literal> behind a
+            <literal>FilterToBeanProxy</literal> as follows:</para>
+        
+        <para><programlisting>&lt;filter&gt;
+            &lt;filter-name&gt;Acegi Authentication Processing Filter&lt;/filter-name&gt;
+            &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
+            &lt;init-param&gt;
+            &lt;param-name&gt;targetClass&lt;/param-name&gt;
+            &lt;param-value&gt;org.springframework.security.ui.webapp.AuthenticationProcessingFilter&lt;/param-value&gt;
+            &lt;/init-param&gt;
+            &lt;/filter&gt;
+            
+            &lt;filter-mapping&gt;
+            &lt;filter-name&gt;Acegi Authentication Processing Filter&lt;/filter-name&gt;
+            &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+            &lt;/filter-mapping&gt;</programlisting></para>
+        
+        <para>For a discussion of <literal>FilterToBeanProxy</literal>, please
+            refer to the Filters section. The application context will need to
+            define the <literal>AuthenticationProcessingFilter</literal>:</para>
+        
+        <para><programlisting>&lt;bean id="authenticationProcessingFilter"
+            class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter"&gt;
+            &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+            &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/acegilogin.jsp?login_error=1&lt;/value&gt;&lt;/property&gt;
+            &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/&lt;/value&gt;&lt;/property&gt;
+            &lt;property name="filterProcessesUrl"&gt;&lt;value&gt;/j_spring_security_check&lt;/value&gt;&lt;/property&gt;
+            &lt;/bean&gt;        </programlisting></para>
+        
+        <para>The configured <literal>AuthenticationManager</literal>
+            processes each authentication request. If authentication fails, the
+            browser will be redirected to the
+            <literal>authenticationFailureUrl</literal>. The
+            <literal>AuthenticationException</literal> will be placed into the
+            <literal>HttpSession</literal> attribute indicated by
+            <literal>AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY</literal>,
+            enabling a reason to be provided to the user on the error page.</para>
+        
+        <para>If authentication is successful, the resulting
+            <literal>Authentication</literal> object will be placed into the
+            <literal>SecurityContextHolder</literal>.</para>
+        
+        <para>Once the <literal>SecurityContextHolder</literal> has been
+            updated, the browser will need to be redirected to the target URL. The
+            target URL is usually indicated by the <literal>HttpSession</literal>
+            attribute specified by
+            <literal>AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY</literal>.
+            This attribute is automatically set by the
+            <literal>ExceptionTranslationFilter</literal> when an
+            <literal>AuthenticationException</literal> occurs, so that after login
+            is completed the user can return to what they were trying to access.
+            If for some reason the <literal>HttpSession</literal> does not
+            indicate the target URL, the browser will be redirected to the
+            <literal>defaultTargetUrl</literal> property.</para>
+    </sect1>
+</chapter>

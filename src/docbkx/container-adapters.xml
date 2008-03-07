@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                         "http://www.docbook.org/xml/4.4/docbookx.dtd">  
+
+<chapter id="ca">
+  <title>Container Adapter Authentication</title>
+
+  <sect1 id="ca-overview">
+    <title>Overview</title>
+
+    <para>Very early versions of Spring Security exclusively used
+    Container Adapters for interfacing authentication with end users.
+    Whilst this worked well, it required considerable time to support
+    multiple container versions and the configuration itself was
+    relatively time-consuming for developers. For this reason the HTTP
+    Form Authentication and HTTP Basic Authentication approaches were
+    developed, and are today recommended for almost all
+    applications.</para>
+
+    <para>Container Adapters enable Spring Security to integrate directly
+    with the containers used to host end user applications. This
+    integration means that applications can continue to leverage the
+    authentication and authorization capabilities built into containers
+    (such as <literal>isUserInRole()</literal> and form-based or basic
+    authentication), whilst benefiting from the enhanced security
+    interception capabilities provided by Spring Security (it should be
+    noted that Spring Security also offers
+    <literal>ContextHolderAwareRequestWrapper</literal> to deliver
+    <literal>isUserInRole()</literal> and similar Servlet Specification
+    compatibility methods).</para>
+
+    <para>The integration between a container and Spring Security is
+    achieved through an adapter. The adapter provides a
+    container-compatible user authentication provider, and needs to return
+    a container-compatible user object.</para>
+
+    <para>The adapter is instantiated by the container and is defined in a
+    container-specific configuration file. The adapter then loads a Spring
+    application context which defines the normal authentication manager
+    settings, such as the authentication providers that can be used to
+    authenticate the request. The application context is usually named
+    <literal>acegisecurity.xml</literal> and is placed in a
+    container-specific location.</para>
+
+    <para>Spring Security currently supports Jetty, Catalina (Tomcat),
+    JBoss and Resin. Additional container adapters can easily be
+    written</para>
+  </sect1>
+
+  <sect1 id="ca-adapter">
+    <title>Adapter Authentication Provider</title>
+
+    <para>As is always the case, the container adapter generated
+    <literal>Authentication</literal> object still needs to be
+    authenticated by an <literal>AuthenticationManager</literal> when
+    requested to do so by the
+    <literal>AbstractSecurityInterceptor</literal>. The
+    <literal>AuthenticationManager</literal> needs to be certain the
+    adapter-provided <literal>Authentication</literal> object is valid and
+    was actually authenticated by a trusted adapter.</para>
+
+    <para>Adapters create <literal>Authentication</literal> objects which
+    are immutable and implement the <literal>AuthByAdapter</literal>
+    interface. These objects store the hash of a key that is defined by
+    the adapter. This allows the <literal>Authentication</literal> object
+    to be validated by the <literal>AuthByAdapterProvider</literal>. This
+    authentication provider is defined as follows:</para>
+
+    <para><programlisting>&lt;bean id="authByAdapterProvider"
+        class="org.springframework.security.adapters.AuthByAdapterProvider"&gt;
+&lt;property name="key"&gt;&lt;value&gt;my_password&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;       </programlisting></para>
+
+    <para>The key must match the key that is defined in the
+    container-specific configuration file that starts the adapter. The
+    <literal>AuthByAdapterProvider</literal> automatically accepts as
+    valid any <literal>AuthByAdapter</literal> implementation that returns
+    the expected hash of the key.</para>
+
+    <para>To reiterate, this means the adapter will perform the initial
+    authentication using providers such as
+    <literal>DaoAuthenticationProvider</literal>, returning an
+    <literal>AuthByAdapter</literal> instance that contains a hash code of
+    the key. Later, when an application calls a security interceptor
+    managed resource, the <literal>AuthByAdapter</literal> instance in the
+    <literal>SecurityContext</literal> in the
+    <literal>SecurityContextHolder</literal> will be tested by the
+    application's <literal>AuthByAdapterProvider</literal>. There is no
+    requirement for additional authentication providers such as
+    <literal>DaoAuthenticationProvider</literal> within the
+    application-specific application context, as the only type of
+    <literal>Authentication</literal> instance that will be presented by
+    the application is from the container adapter.</para>
+
+    <para>Classloader issues are frequent with containers and the use of
+    container adapters illustrates this further. Each container requires a
+    very specific configuration. The installation instructions are
+    provided below. Once installed, please take the time to try the sample
+    application to ensure your container adapter is properly
+    configured.</para>
+
+    <para>When using container adapters with the
+    <literal>DaoAuthenticationProvider</literal>, ensure you set its
+    <literal>forcePrincipalAsString</literal> property to
+    <literal>true</literal>.</para>
+  </sect1>
+
+  <sect1 id="ca-jetty">
+    <title>Jetty</title>
+
+    <para>The following was tested with Jetty 4.2.18.</para>
+
+    <para><literal>$JETTY_HOME</literal> refers to the root of your Jetty
+    installation.</para>
+
+    <para>Edit your <literal>$JETTY_HOME/etc/jetty.xml</literal> file so
+    the <literal>&lt;Configure class&gt;</literal> section has a new
+    <literal>addRealm</literal> call:</para>
+
+    <para><programlisting>
+&lt;Call name="addRealm"&gt;
+&lt;Arg&gt;
+  &lt;New class="org.springframework.security.adapters.jetty.JettySpringSecurityUserRealm"&gt;
+    &lt;Arg&gt;Spring Powered Realm&lt;/Arg&gt;
+    &lt;Arg&gt;my_password&lt;/Arg&gt;
+    &lt;Arg&gt;etc/acegisecurity.xml&lt;/Arg&gt;
+  &lt;/New&gt;
+&lt;/Arg&gt;
+&lt;/Call&gt;
+
+    </programlisting></para>
+
+    <para>Copy <literal>acegisecurity.xml</literal> into
+    <literal>$JETTY_HOME/etc</literal>.</para>
+
+    <para>Copy the following files into
+    <literal>$JETTY_HOME/ext</literal>:<itemizedlist>
+        <listitem>
+          <para><literal>aopalliance.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>commons-logging.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>spring.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>acegi-security-jetty-XX.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>commons-codec.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>burlap.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>hessian.jar</literal></para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>None of the above JAR files (or
+    <literal>acegi-security-XX.jar</literal>) should be in your
+    application's <literal>WEB-INF/lib</literal>. The realm name indicated
+    in your <literal>web.xml</literal> does matter with Jetty. The
+    <literal>web.xml</literal> must express the same
+    <literal>&lt;realm-name&gt;</literal> as your
+    <literal>jetty.xml</literal> (in the example above, "Spring Powered
+    Realm").</para>
+  </sect1>
+
+  <sect1 id="ca-jboss">
+    <title>JBoss</title>
+
+    <para>The following was tested with JBoss 3.2.6.</para>
+
+    <para><literal>$JBOSS_HOME</literal> refers to the root of your JBoss
+    installation.</para>
+
+    <para>There are two different ways of making spring context available
+    to the Jboss integration classes.</para>
+
+    <para>The first approach is by editing your
+    <literal>$JBOSS_HOME/server/your_config/conf/login-config.xml</literal>
+    file so that it contains a new entry under the
+    <literal>&lt;Policy&gt;</literal> section:</para>
+
+    <para><programlisting>
+&lt;application-policy name = "SpringPoweredRealm"&gt;
+&lt;authentication&gt;
+  &lt;login-module code = "org.springframework.security.adapters.jboss.JbossSpringSecurityLoginModule"
+        flag = "required"&gt;
+    &lt;module-option name = "appContextLocation"&gt;acegisecurity.xml&lt;/module-option&gt;
+    &lt;module-option name = "key"&gt;my_password&lt;/module-option&gt;
+ &lt;/login-module&gt;
+&lt;/authentication&gt;
+&lt;/application-policy&gt;
+
+    </programlisting></para>
+
+    <para>Copy <literal>acegisecurity.xml</literal> into
+    <literal>$JBOSS_HOME/server/your_config/conf</literal>.</para>
+
+    <para>In this configuration <literal>acegisecurity.xml</literal>
+    contains the spring context definition including all the
+    authentication manager beans. You have to bear in mind though, that
+    <literal>SecurityContext</literal> is created and destroyed on each
+    login request, so the login operation might become costly.
+    Alternatively, the second approach is to use Spring singleton
+    capabilities through
+    <literal>org.springframework.beans.factory.access.SingletonBeanFactoryLocator</literal>.
+    The required configuration for this approach is:</para>
+
+    <para><programlisting>
+&lt;application-policy name = "SpringPoweredRealm"&gt;
+&lt;authentication&gt;
+  &lt;login-module code = "org.springframework.security.adapters.jboss.JbossSpringSecurityLoginModule"
+        flag = "required"&gt;
+    &lt;module-option name = "singletonId"&gt;springRealm&lt;/module-option&gt;
+    &lt;module-option name = "key"&gt;my_password&lt;/module-option&gt;
+    &lt;module-option name = "authenticationManager"&gt;authenticationManager&lt;/module-option&gt;
+ &lt;/login-module&gt;
+&lt;/authentication&gt;
+&lt;/application-policy&gt;
+
+    </programlisting></para>
+
+    <para>In the above code fragment,
+    <literal>authenticationManager</literal> is a helper property that
+    defines the expected name of the
+    <literal>AuthenticationManager</literal> in case you have several
+    defined in the IoC container. The <literal>singletonId</literal>
+    property references a bean defined in a
+    <literal>beanRefFactory.xml</literal> file. This file needs to be
+    available from anywhere on the JBoss classpath, including
+    <literal>$JBOSS_HOME/server/your_config/conf</literal>. The
+    <literal>beanRefFactory.xml</literal> contains the following
+    declaration:</para>
+
+    <para><programlisting>
+&lt;beans&gt;
+&lt;bean id="springRealm" singleton="true" lazy-init="true" class="org.springframework.context.support.ClassPathXmlApplicationContext"&gt;
+&lt;constructor-arg&gt;
+  &lt;list&gt;
+    &lt;value&gt;acegisecurity.xml&lt;/value&gt;
+  &lt;/list&gt;
+&lt;/constructor-arg&gt;
+&lt;/bean&gt;
+&lt;/beans&gt;
+
+    </programlisting></para>
+
+    <para>Finally, irrespective of the configuration approach you need to
+    copy the following files into
+    <literal>$JBOSS_HOME/server/your_config/lib</literal>:<itemizedlist>
+        <listitem>
+          <para><literal>aopalliance.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>spring.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>acegi-security-jboss-XX.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>commons-codec.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>burlap.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>hessian.jar</literal></para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>None of the above JAR files (or
+    <literal>acegi-security-XX.jar</literal>) should be in your
+    application's <literal>WEB-INF/lib</literal>. The realm name indicated
+    in your <literal>web.xml</literal> does not matter with JBoss.
+    However, your web application's
+    <literal>WEB-INF/jboss-web.xml</literal> must express the same
+    <literal>&lt;security-domain&gt;</literal> as your
+    <literal>login-config.xml</literal>. For example, to match the above
+    example, your <literal>jboss-web.xml</literal> would look like
+    this:</para>
+
+    <para><programlisting>
+&lt;jboss-web&gt;
+&lt;security-domain&gt;java:/jaas/SpringPoweredRealm&lt;/security-domain&gt;
+&lt;/jboss-web&gt;</programlisting></para>
+
+    <para>JBoss is a widely-used container adapter (mostly due to the need
+    to support legacy EJBs), so please let us know if you have any
+    difficulties.</para>
+  </sect1>
+
+  <sect1 id="ca-resin">
+    <title>Resin</title>
+
+    <para>The following was tested with Resin 3.0.6.</para>
+
+    <para><literal>$RESIN_HOME</literal> refers to the root of your Resin
+    installation.</para>
+
+    <para>Resin provides several ways to support the container adapter. In
+    the instructions below we have elected to maximise consistency with
+    other container adapter configurations. This will allow Resin users to
+    simply deploy the sample application and confirm correct
+    configuration. Developers comfortable with Resin are naturally able to
+    use its capabilities to package the JARs with the web application
+    itself, and/or support single sign-on.</para>
+
+    <para>Copy the following files into
+    <literal>$RESIN_HOME/lib</literal>:<itemizedlist>
+        <listitem>
+          <para><literal>aopalliance.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>commons-logging.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>spring.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>acegi-security-resin-XX.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>commons-codec.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>burlap.jar</literal></para>
+        </listitem>
+
+        <listitem>
+          <para><literal>hessian.jar</literal></para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Unlike the container-wide <literal>acegisecurity.xml</literal>
+    files used by other container adapters, each Resin web application
+    will contain its own
+    <literal>WEB-INF/resin-acegisecurity.xml</literal> file. Each web
+    application will also contain a <literal>resin-web.xml</literal> file
+    which Resin uses to start the container adapter:</para>
+
+    <para><programlisting>
+&lt;web-app&gt;
+&lt;authenticator&gt;
+&lt;type&gt;org.springframework.security.adapters.resin.ResinAcegiAuthenticator&lt;/type&gt;
+&lt;init&gt;
+  &lt;app-context-location&gt;WEB-INF/resin-acegisecurity.xml&lt;/app-context-location&gt;
+  &lt;key&gt;my_password&lt;/key&gt;
+&lt;/init&gt;
+&lt;/authenticator&gt;
+&lt;/web-app&gt;
+
+    </programlisting></para>
+
+    <para>With the basic configuration provided above, none of the JAR
+    files listed (or <literal>acegi-security-XX.jar</literal>) should be
+    in your application's <literal>WEB-INF/lib</literal>. The realm name
+    indicated in your <literal>web.xml</literal> does not matter with
+    Resin, as the relevant authentication class is indicated by the
+    <literal>&lt;authenticator&gt;</literal> setting</para>
+  </sect1>
+
+  <sect1 id="ca-tomcat">
+    <title>Tomcat</title>
+
+    <para>The following was tested with Jakarta Tomcat 4.1.30 and
+    5.0.19.</para>
+
+    <para><literal>$CATALINA_HOME</literal> refers to the root of your
+    Catalina (Tomcat) installation.</para>
+
+    <para>Edit your <literal>$CATALINA_HOME/conf/server.xml</literal> file
+    so the <literal>&lt;Engine&gt;</literal> section contains only one
+    active <literal>&lt;Realm&gt;</literal> entry. An example realm
+    entry:</para>
+
+    <para><programlisting>      &lt;Realm
+        className="org.springframework.security.adapters.catalina.CatalinaSpringSecurityUserRealm"
+        appContextLocation="conf/acegisecurity.xml"
+         key="my_password" /&gt;</programlisting></para>
+
+    <para>Be sure to remove any other <literal>&lt;Realm&gt;</literal>
+    entry from your <literal>&lt;Engine&gt;</literal> section.</para>
+
+    <para>Copy <literal>acegisecurity.xml</literal> into
+    <literal>$CATALINA_HOME/conf</literal>.</para>
+
+    <para>Copy <literal>spring-security-catalina-XX.jar</literal> into
+    <literal>$CATALINA_HOME/server/lib</literal>.</para>
+
+    <para>Copy the following files into
+    <literal>$CATALINA_HOME/common/lib</literal>:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para><literal>aopalliance.jar</literal></para>
+      </listitem>
+
+      <listitem>
+        <para><literal>spring.jar</literal></para>
+      </listitem>
+
+      <listitem>
+        <para><literal>commons-codec.jar</literal></para>
+      </listitem>
+
+      <listitem>
+        <para><literal>burlap.jar</literal></para>
+      </listitem>
+
+      <listitem>
+        <para><literal>hessian.jar</literal></para>
+      </listitem>
+    </itemizedlist>
+
+    <para>None of the above JAR files (or
+    <literal>spring-security-XX.jar</literal>) should be in your
+    application's <literal>WEB-INF/lib</literal>. The realm name indicated
+    in your <literal>web.xml</literal> does not matter with
+    Catalina.</para>
+
+    <para>We have received reports of problems using this Container
+    Adapter with Mac OS X. A work-around is to use a script such as
+    follows:</para>
+
+    <para><programlisting>#!/bin/sh
+export CATALINA_HOME="/Library/Tomcat"
+export JAVA_HOME="/Library/Java/Home"
+cd /
+$CATALINA_HOME/bin/startup.sh</programlisting></para>
+
+    <para>Finally, restart Tomcat.</para>
+  </sect1>
+</chapter>

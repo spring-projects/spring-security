@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+
+<chapter id="community">
+<title>Community Support</title>
+
+<sect1 id="jira">
+    <title>Use JIRA for Issue Tracking</title>
+    
+    <para>Spring Security uses JIRA to manage bug reports and enhancement
+        requests. If you find a bug, please log a report using JIRA. Do not
+        log it on the support forum, mailing list or by emailing the project's
+        developers. Such approaches are ad-hoc and we prefer to manage bugs
+        using a more formal process.</para>
+    
+    <para>If possible, in your JIRA report please provide a JUnit test
+        that demonstrates any incorrect behaviour. Or, better yet, provide a
+        patch that corrects the issue. Similarly, enhancements are welcome to
+        be logged in JIRA, although we only accept commit enhancement requests
+        if you include corresponding unit tests. This is necessary to ensure
+        project test coverage is adequately maintained.</para>
+    
+    <para>You can access JIRA at <ulink
+        url="http://opensource.atlassian.com/projects/spring/secure/BrowseProject.jspa?id=10040"></ulink>.</para>
+</sect1>
+
+<sect1 id="becoming-involved">
+    <title>Becoming Involved</title>
+    
+    <para>We welcome you to become involved in Spring Security project.
+        There are many ways of contributing, including reading the mailing
+        list and responding to questions from other people, writing new code,
+        improving existing code, assisting with documentation, developing
+        samples or tutorials, or simply making suggestions.</para>
+    
+    <para>Please read our project policies web page that is available on
+        Spring Security home page. This explains the path to become a
+        committer, and the administration approaches we use within the
+        project.</para>
+</sect1>
+
+<sect1 id="further-info">
+    <title>Further Information</title>
+    
+    <para>Questions and comments on Spring Security are welcome. Please
+        use the Spring Community Forum web site at <ulink
+            url="http://forum.springframework.org"></ulink> for all support
+        issues. Remember to use JIRA for bug reports, as explained above.
+        Everyone is also welcome to join the Acegisecurity-developer mailing
+        list and participate in design discussions. It's also a good way of
+        finding out what's happening with regard to release timing, and the
+        traffic volume is quite light. Finally, our project home page (where
+        you can obtain the latest release of the project and convenient links
+        to Subversion, JIRA, mailing lists, forums etc) is at <ulink
+            url="http://acegisecurity.org"></ulink>.</para>
+</sect1>
+</chapter>
