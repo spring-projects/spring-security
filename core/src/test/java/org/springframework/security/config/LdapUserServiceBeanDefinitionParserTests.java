@@ -1,12 +1,16 @@
 package org.springframework.security.config;
 
+import java.util.Set;
+
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.util.AuthorityUtils;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UserDetails;
 
 import org.junit.Test;
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Luke Taylor
@@ -35,7 +39,9 @@ public class LdapUserServiceBeanDefinitionParserTests {
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails ben = uds.loadUserByUsername("ben");
 
-        assertEquals(2, ben.getAuthorities().length);
+        Set authorities = AuthorityUtils.authorityArrayToSet(ben.getAuthorities());
+        assertEquals(2, authorities.size());
+        assertTrue(authorities.contains(new GrantedAuthorityImpl("ROLE_DEVELOPERS")));
     }
 
     @Test
@@ -48,6 +54,19 @@ public class LdapUserServiceBeanDefinitionParserTests {
         assertEquals("Joe Smeth", joe.getUsername());
     }
 
+    @Test
+    public void differentGroupRoleAttributeWorksAsExpected() throws Exception {
+        setContext("<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' group-role-attribute='ou' group-search-filter='member={0}' /><ldap-server />");
+
+        UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+        UserDetails ben = uds.loadUserByUsername("ben");
+
+        Set authorities = AuthorityUtils.authorityArrayToSet(ben.getAuthorities());
+        assertEquals(2, authorities.size());
+        assertTrue(authorities.contains(new GrantedAuthorityImpl("ROLE_DEVELOPER")));
+        
+    }
+        
     @Test
     public void isSupportedByAuthenticationProviderElement() {
         setContext(

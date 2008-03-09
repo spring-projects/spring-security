@@ -2,6 +2,7 @@ package org.springframework.security.config;
 
 import org.springframework.security.providers.encoding.Md4PasswordEncoder;
 import org.springframework.security.providers.encoding.Md5PasswordEncoder;
+import org.springframework.security.providers.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.providers.encoding.ShaPasswordEncoder;
 import org.springframework.security.providers.encoding.BaseDigestPasswordEncoder;
 import org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder;
@@ -32,6 +33,7 @@ public class PasswordEncoderParser {
     static final String ATT_REF = "ref";
     static final String ATT_HASH = "hash";
     static final String ATT_BASE_64 = "base64";
+    static final String OPT_HASH_PLAINTEXT = "plaintext";    
     static final String OPT_HASH_SHA = "sha";
     static final String OPT_HASH_MD4 = "md4";
     static final String OPT_HASH_MD5 = "md5";
@@ -41,6 +43,7 @@ public class PasswordEncoderParser {
 
     static {
         ENCODER_CLASSES = new HashMap();
+        ENCODER_CLASSES.put(OPT_HASH_PLAINTEXT, PlaintextPasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_SHA, ShaPasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_MD4, Md4PasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_MD5, Md5PasswordEncoder.class);

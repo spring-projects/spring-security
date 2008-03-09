@@ -10,7 +10,7 @@ start = http | ldap-server | authentication-provider | ldap-authentication-provi
 
 hash =
     ## Defines the hashing algorithm used on user passwords. We recommend strongly against using MD4, as it is a very weak hashing algorithm.
-    attribute hash {"sha" | "md5" | "md4" | "{sha}" | "{ssha}"}
+    attribute hash {"plaintext" | "sha" | "md5" | "md4" | "{sha}" | "{ssha}"}
 base64 = 
     ## Whether a string should be base64 encoded
     attribute base64 {"true" | "false"}
@@ -66,33 +66,71 @@ ldap-server.attlist &=
     ## Optional root suffix for the embedded LDAP server. Default is "dc=springframework,dc=org"
     attribute root { xsd:string }?
 
+ldap-server-ref-attribute =
+    ## The optional server to use. If omitted, and a default LDAP server is registered (using <ldap-server> with no Id), that server will be used. 
+    attribute server-ref {xsd:string}
+
+
+group-search-filter-attribute = 
+    ## Group search filter. Defaults to (uniqueMember={0}). The substituted parameter is the DN of the user.
+    attribute group-search-filter {xsd:string}
+group-search-base-attribute = 
+    ## Search base for group membership searches. Defaults to "ou=groups".
+    attribute group-search-base {xsd:string}
+user-search-filter-attribute =
+    attribute user-search-filter {xsd:string}
+user-search-base-attribute =
+    ## Search base for user searches. Defaults to "".
+    attribute user-search-base {xsd:string}?
+group-role-attribute-attribute =
+    ## The LDAP attribute name which contains the role name which will be used within Spring Security. Defaults to "cn".
+    attribute group-role-attribute {xsd:string}
+
+
 ldap-user-service =
     element ldap-user-service {ldap-us.attlist}
 ldap-us.attlist &= id? 
 ldap-us.attlist &=
-    ## The optional server to use. If omitted, and a default LDAP server is registered (using <ldap-server> with no Id), that server will be used. 
-    attribute server-ref {xsd:string}?
+    ldap-server-ref-attribute?
 ldap-us.attlist &=
-    attribute user-search-filter {xsd:string}
+    user-search-filter-attribute?
 ldap-us.attlist &=
-    ## Search base for user searches. Defaults to "".
-    attribute user-search-base {xsd:string}?
+    user-search-base-attribute?
 ldap-us.attlist &=
-    ## Group search filter. Defaults to (uniqueMember={0}).
-    attribute group-search-filter {xsd:string}?
+    group-search-filter-attribute?
 ldap-us.attlist &=
-    ## Search base for group membership searches. Defaults to "ou=groups".
-    attribute group-search-base {xsd:string}?
-
-
+    group-search-base-attribute?
+ldap-us.attlist &=
+    group-role-attribute-attribute?
 
 ldap-authentication-provider =
     ## Sets up an ldap authentication provider
-    element ldap-authentication-provider {ldap-ap.attlist, empty}
+    element ldap-authentication-provider {ldap-ap.attlist, password-compare-element?}
 ldap-ap.attlist &=
-    ## The server to authenticate against.  
-    attribute server-ref {xsd:string}?
+    ldap-server-ref-attribute?
+ldap-ap.attlist &=
+    user-search-base-attribute?
+ldap-ap.attlist &=
+    user-search-filter-attribute?
+ldap-ap.attlist &=
+    group-search-base-attribute?
+ldap-ap.attlist &= 
+    group-search-filter-attribute?
+ldap-ap.attlist &=
+    group-role-attribute-attribute?
+ldap-ap.attlist &=
+    ## A specific pattern used to build the user's DN, for example "uid={0},ou=people". The key "{0}" must be present and will be substituted with the username.
+    attribute user-dn-pattern {xsd:string}?
 
+password-compare-element =
+    ## Specifies that an LDAP provider should use an LDAP compare operation of the user's password to authenticate the user
+    element password-compare {password-compare.attlist, password-encoder?}
+    
+password-compare.attlist &=
+    ## The attribute in the directory which contains the user password. Defaults to "userPassword".
+    attribute password-attribute {xsd:string}?
+password-compare.attlist &=
+    hash?
 
 intercept-methods =
     ## Can be used inside a bean definition to add a security interceptor to the bean and set up access configuration attributes for the bean's methods

@@ -7,6 +7,7 @@
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
+          <xs:enumeration value="plaintext"/>
           <xs:enumeration value="sha"/>
           <xs:enumeration value="md5"/>
           <xs:enumeration value="md4"/>
@@ -96,6 +97,7 @@
         </xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:token">
+            <xs:enumeration value="plaintext"/>
             <xs:enumeration value="sha"/>
             <xs:enumeration value="md5"/>
             <xs:enumeration value="md4"/>
@@ -186,6 +188,44 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:attributeGroup name="ldap-server-ref-attribute">
+    <xs:attribute name="server-ref" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The optional server to use. If omitted, and a default LDAP server is registered (using &lt;ldap-server&gt; with no Id), that server will be used. </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="group-search-filter-attribute">
+    <xs:attribute name="group-search-filter" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Group search filter. Defaults to (uniqueMember={0}). The substituted parameter is the DN of the user.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="group-search-base-attribute">
+    <xs:attribute name="group-search-base" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Search base for group membership searches. Defaults to "ou=groups".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="user-search-filter-attribute">
+    <xs:attribute name="user-search-filter" use="required" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="user-search-base-attribute">
+    <xs:attribute name="user-search-base" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Search base for user searches. Defaults to "".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="group-role-attribute-attribute">
+    <xs:attribute name="group-role-attribute" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The LDAP attribute name which contains the role name which will be used within Spring Security. Defaults to "cn".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="ldap-user-service">
     <xs:complexType>
       <xs:attributeGroup ref="security:ldap-us.attlist"/>
@@ -202,20 +242,21 @@
         <xs:documentation>The optional server to use. If omitted, and a default LDAP server is registered (using &lt;ldap-server&gt; with no Id), that server will be used. </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="user-search-filter" use="required" type="xs:string"/>
-    <xs:attribute name="user-search-base" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Search base for user searches. Defaults to "".</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
+    <xs:attribute name="user-search-filter" type="xs:string"/>
+    <xs:attributeGroup ref="security:user-search-base-attribute"/>
     <xs:attribute name="group-search-filter" type="xs:string">
       <xs:annotation>
-        <xs:documentation>Group search filter. Defaults to (uniqueMember={0}).</xs:documentation>
+        <xs:documentation>Group search filter. Defaults to (uniqueMember={0}). The substituted parameter is the DN of the user.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="group-search-base" type="xs:string">
       <xs:annotation>
         <xs:documentation>Search base for group membership searches. Defaults to "ou=groups".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group-role-attribute" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The LDAP attribute name which contains the role name which will be used within Spring Security. Defaults to "cn".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -224,14 +265,72 @@
       <xs:documentation>Sets up an ldap authentication provider</xs:documentation>
     </xs:annotation>
     <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="security:password-compare"/>
+      </xs:sequence>
       <xs:attributeGroup ref="security:ldap-ap.attlist"/>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="ldap-ap.attlist">
     <xs:attribute name="server-ref" type="xs:string">
       <xs:annotation>
-        <xs:documentation>The server to authenticate against.  </xs:documentation>
+        <xs:documentation>The optional server to use. If omitted, and a default LDAP server is registered (using &lt;ldap-server&gt; with no Id), that server will be used. </xs:documentation>
       </xs:annotation>
+    </xs:attribute>
+    <xs:attributeGroup ref="security:user-search-base-attribute"/>
+    <xs:attribute name="user-search-filter" type="xs:string"/>
+    <xs:attribute name="group-search-base" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Search base for group membership searches. Defaults to "ou=groups".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group-search-filter" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Group search filter. Defaults to (uniqueMember={0}). The substituted parameter is the DN of the user.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group-role-attribute" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The LDAP attribute name which contains the role name which will be used within Spring Security. Defaults to "cn".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="user-dn-pattern" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>A specific pattern used to build the user's DN, for example "uid={0},ou=people". The key "{0}" must be present and will be substituted with the username.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="password-compare">
+    <xs:annotation>
+      <xs:documentation>Specifies that an LDAP provider should use an LDAP compare operation of the user's password to authenticate the user</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="security:password-encoder"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="security:password-compare.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="password-compare.attlist">
+    <xs:attribute name="password-attribute" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The attribute in the directory which contains the user password. Defaults to "userPassword".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="hash">
+      <xs:annotation>
+        <xs:documentation>Defines the hashing algorithm used on user passwords. We recommend strongly against using MD4, as it is a very weak hashing algorithm.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="plaintext"/>
+          <xs:enumeration value="sha"/>
+          <xs:enumeration value="md5"/>
+          <xs:enumeration value="md4"/>
+          <xs:enumeration value="{sha}"/>
+          <xs:enumeration value="{ssha}"/>
+        </xs:restriction>
+      </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="intercept-methods">

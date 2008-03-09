@@ -1,21 +1,23 @@
 package org.springframework.security.config;
 
-import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
+import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.providers.ldap.LdapAuthenticationProvider;
 import org.springframework.security.providers.ldap.authenticator.BindAuthenticator;
+import org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.StringUtils;
+import org.springframework.util.xml.DomUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 
 /**
- * Experimental "security:ldap" namespace configuration.
+ * Ldap authentication provider namespace configuration.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -23,36 +25,64 @@ import org.w3c.dom.Element;
  */
 public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
     private Log logger = LogFactory.getLog(getClass());
-
-    private static final String ATT_AUTH_TYPE = "auth-type";
-    private static final String ATT_SERVER = "server-ref";
-
-    private static final String OPT_DEFAULT_DN_PATTERN = "uid={0},ou=people";
-    private static final String DEF_GROUP_CONTEXT = "ou=groups";
-    private static final String DEF_GROUP_SEARCH_FILTER = "(uniqueMember={0})";
-
+  
+    private static final String ATT_USER_DN_PATTERN = "user-dn-pattern";
+    private static final String ATT_USER_PASSWORD= "password-attribute";
+    
+    private static final String DEF_USER_SEARCH_FILTER="uid={0}";
 
     public BeanDefinition parse(Element elt, ParserContext parserContext) {
-        String server = elt.getAttribute(ATT_SERVER);
-
-        if (!StringUtils.hasText(server)) {
-            server = BeanIds.CONTEXT_SOURCE;
+        RuntimeBeanReference contextSource = LdapUserServiceBeanDefinitionParser.parseServerReference(elt, parserContext);
+        
+        RootBeanDefinition searchBean = LdapUserServiceBeanDefinitionParser.parseSearchBean(elt, parserContext);
+        String userDnPattern = elt.getAttribute(ATT_USER_DN_PATTERN);
+        
+        String[] userDnPatternArray = new String[0];
+        
+        if (StringUtils.hasText(userDnPattern)) {
+            userDnPatternArray = new String[] {userDnPattern};
+            // TODO: Validate the pattern and make sure it is a valid DN.
+        } else if (searchBean == null) {
+            logger.info("No search information or DN pattern specified. Using default search filter '" + DEF_USER_SEARCH_FILTER + "'");
+            searchBean = new RootBeanDefinition(FilterBasedLdapUserSearch.class);
+            searchBean.setSource(elt);
+            searchBean.getConstructorArgumentValues().addIndexedArgumentValue(0, "");
+            searchBean.getConstructorArgumentValues().addIndexedArgumentValue(1, DEF_USER_SEARCH_FILTER);
+            searchBean.getConstructorArgumentValues().addIndexedArgumentValue(2, contextSource);
         }
-
-        RuntimeBeanReference contextSource = new RuntimeBeanReference(server);
-
-        RootBeanDefinition bindAuthenticator = new RootBeanDefinition(BindAuthenticator.class);
-        bindAuthenticator.getConstructorArgumentValues().addGenericArgumentValue(contextSource);
-        bindAuthenticator.getPropertyValues().addPropertyValue("userDnPatterns", new String[] {OPT_DEFAULT_DN_PATTERN});
-        RootBeanDefinition authoritiesPopulator = new RootBeanDefinition(DefaultLdapAuthoritiesPopulator.class);
-        authoritiesPopulator.getConstructorArgumentValues().addGenericArgumentValue(contextSource);
-        authoritiesPopulator.getConstructorArgumentValues().addGenericArgumentValue(DEF_GROUP_CONTEXT);
-        // TODO: Change to using uniqueMember as default
-//        authoritiesPopulator.getPropertyValues().addPropertyValue("groupSearchFilter", DEF_GROUP_SEARCH_FILTER);
-
+        
+        RootBeanDefinition authenticator = new RootBeanDefinition(BindAuthenticator.class); 
+        Element passwordCompareElt = DomUtils.getChildElementByTagName(elt, Elements.LDAP_PASSWORD_COMPARE);
+        if (passwordCompareElt != null) {
+            authenticator = new RootBeanDefinition(PasswordComparisonAuthenticator.class);
+            
+            String passwordAttribute = passwordCompareElt.getAttribute(ATT_USER_PASSWORD);
+            if (StringUtils.hasText(passwordAttribute)) {
+                authenticator.getPropertyValues().addPropertyValue("passwordAttributeName", passwordAttribute);
+            }
+            
+            Element passwordEncoderElement = DomUtils.getChildElementByTagName(passwordCompareElt, Elements.PASSWORD_ENCODER);
+            
+            if (passwordEncoderElement != null) {
+                PasswordEncoderParser pep = new PasswordEncoderParser(passwordEncoderElement, parserContext);
+                authenticator.getPropertyValues().addPropertyValue("passwordEncoder", pep.getPasswordEncoder());
+                
+                if (pep.getSaltSource() != null) {
+                    parserContext.getReaderContext().warning("Salt source information isn't valid when used with LDAP", passwordEncoderElement);
+                }
+            }
+        }
+        
+        authenticator.getConstructorArgumentValues().addGenericArgumentValue(contextSource);
+        authenticator.getPropertyValues().addPropertyValue("userDnPatterns", userDnPatternArray);
+        
+        if (searchBean != null) {
+            authenticator.getPropertyValues().addPropertyValue("userSearch", searchBean);
+        }
+                
         RootBeanDefinition ldapProvider = new RootBeanDefinition(LdapAuthenticationProvider.class);
-        ldapProvider.getConstructorArgumentValues().addGenericArgumentValue(bindAuthenticator);
-        ldapProvider.getConstructorArgumentValues().addGenericArgumentValue(authoritiesPopulator);
+        ldapProvider.getConstructorArgumentValues().addGenericArgumentValue(authenticator);
+        ldapProvider.getConstructorArgumentValues().addGenericArgumentValue(LdapUserServiceBeanDefinitionParser.parseAuthoritiesPopulator(elt, parserContext));
 
         LdapConfigUtils.registerPostProcessorIfNecessary(parserContext.getRegistry());
 
