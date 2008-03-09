@@ -79,6 +79,8 @@
 					</li></ol>
 					</li>
 		</ol>
+		</p>
+		<p>
 		For simple applications, servlet specification security may just be enough.
 		Although when considered within the context of web container portability,
 		configuration requirements, limited web request security flexibility, and
