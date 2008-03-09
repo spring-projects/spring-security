@@ -30,6 +30,7 @@
     <menu name="Documentation">
       <item name="Suggested Steps" href="suggested.html"/>
       <item name="Reference Guide" href="reference.html"/>
+      <item name="Javadoc API" href="apidocs/index.html"/>      
       <item name="FAQ" href="faq.html"/>
       <item name="JIRA Issue tracker" href="http://jira.springframework.org/browse/SEC"/>
       <item name="Road Map" href="http://jira.springframework.org/browse/SEC?report=com.atlassian.jira.plugin.system.project:roadmap-panel"/>      
