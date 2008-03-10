@@ -38,7 +38,7 @@ public class CasAuthenticationHandlerTests extends AbstractDependencyInjectionSp
     //~ Methods ========================================================================================================
 
     protected String[] getConfigLocations() {
-        return new String[] {"/org/springframework/security/adapters/cas/applicationContext-valid.xml"};
+        return new String[] {"/org/springframework/security/adapters/cas3/applicationContext-valid.xml"};
     }
 
     private UsernamePasswordCredentials getCredentialsFor(final String username, final String password) {

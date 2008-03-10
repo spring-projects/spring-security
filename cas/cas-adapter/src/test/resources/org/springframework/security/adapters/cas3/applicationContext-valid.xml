@@ -42,8 +42,4 @@
 		  </list>
 		</property>
 	</bean>
-
-	<bean id="casPasswordHandler" class="org.springframework.security.adapters.cas.CasPasswordHandler">
-		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-	</bean>
 </beans>
