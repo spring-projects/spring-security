@@ -21,6 +21,18 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-mock</artifactId>
             <optional>true</optional>
-        </dependency>        
+        </dependency>
+                <dependency>
+            <groupId>org.jasig.cas</groupId>
+            <artifactId>cas-client-core</artifactId>
+            <version>3.1.1</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>1.3.0</version>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 </project>

@@ -52,22 +52,10 @@ public class CasAuthenticationHandlerTests extends AbstractDependencyInjectionSp
     protected void onSetUp() throws Exception {
         this.casAuthenticationHandler = new CasAuthenticationHandler();
         this.casAuthenticationHandler.setAuthenticationManager(authenticationManager);
-        this.casAuthenticationHandler.afterPropertiesSet();
     }
 
     public void setAuthenticationManager(final AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
-    }
-
-    public void testAfterPropertiesSet() throws Exception {
-        this.casAuthenticationHandler.setAuthenticationManager(null);
-
-        try {
-            this.casAuthenticationHandler.afterPropertiesSet();
-            fail("IllegalArgumenException expected when no AuthenticationManager is set.");
-        } catch (final IllegalArgumentException e) {
-            // this is okay
-        }
     }
 
     public void testGracefullyHandlesInvalidInput() {

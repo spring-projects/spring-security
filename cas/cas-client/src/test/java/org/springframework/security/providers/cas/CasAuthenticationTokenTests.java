@@ -17,6 +17,8 @@ package org.springframework.security.providers.cas;
 
 import junit.framework.TestCase;
 
+import org.jasig.cas.client.validation.Assertion;
+import org.jasig.cas.client.validation.AssertionImpl;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 
@@ -24,10 +26,6 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
-
-import java.util.List;
-import java.util.Vector;
-
 
 /**
  * Tests {@link CasAuthenticationToken}.
@@ -66,10 +64,11 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     public void testConstructorRejectsNulls() {
+    	final Assertion assertion = new AssertionImpl("test");
         try {
             new CasAuthenticationToken(null, makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), new Vector(), "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), assertion);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -78,7 +77,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         try {
             new CasAuthenticationToken("key", null, "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), new Vector(), "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), assertion);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -87,24 +86,14 @@ public class CasAuthenticationTokenTests extends TestCase {
         try {
             new CasAuthenticationToken("key", makeUserDetails(), null,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), new Vector(), "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), assertion);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
 
         try {
-            new CasAuthenticationToken("key", makeUserDetails(), "Password", null, makeUserDetails(), new Vector(),
-                "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-
-        try {
-            new CasAuthenticationToken("key", makeUserDetails(), "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), null, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+            new CasAuthenticationToken("key", makeUserDetails(), "Password", null, makeUserDetails(), assertion);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -113,7 +102,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         try {
             new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                null, new Vector(), "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -122,16 +111,17 @@ public class CasAuthenticationTokenTests extends TestCase {
         try {
             new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), new Vector(), null);
+                null, assertion);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
+   
 
         try {
             new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), null, new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), new Vector(), "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), assertion);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -139,38 +129,31 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     public void testEqualsWhenEqual() {
-        List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_spring_cas_security_check");
+    	final Assertion assertion = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), proxyList1, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
-
-        List proxyList2 = new Vector();
-        proxyList2.add("https://localhost/newPortal/j_spring_cas_security_check");
+                makeUserDetails(), assertion);
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), proxyList2, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), assertion);
 
         assertEquals(token1, token2);
     }
 
     public void testGetters() {
         // Build the proxy list returned in the ticket from CAS
-        List proxyList = new Vector();
-        proxyList.add("https://localhost/newPortal/j_spring_cas_security_check");
-
+    	final Assertion assertion = new AssertionImpl("test");
         CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), proxyList, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), assertion);
         assertEquals("key".hashCode(), token.getKeyHash());
         assertEquals(makeUserDetails(), token.getPrincipal());
         assertEquals("Password", token.getCredentials());
         assertEquals("ROLE_ONE", token.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_TWO", token.getAuthorities()[1].getAuthority());
-        assertEquals("PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt", token.getProxyGrantingTicketIou());
-        assertEquals(proxyList, token.getProxyList());
+        assertEquals(assertion, token.getAssertion());
         assertEquals(makeUserDetails().getUsername(), token.getUserDetails().getUsername());
     }
 
@@ -186,30 +169,25 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     public void testNotEqualsDueToAbstractParentEqualsCheck() {
-        List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_spring_cas_security_check");
+    	final Assertion assertion = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), proxyList1, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
-
-        List proxyList2 = new Vector();
-        proxyList2.add("https://localhost/newPortal/j_spring_cas_security_check");
+                makeUserDetails(), assertion);
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key", makeUserDetails("OTHER_NAME"), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), proxyList2, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), assertion);
 
         assertTrue(!token1.equals(token2));
     }
 
     public void testNotEqualsDueToDifferentAuthenticationClass() {
-        List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_spring_cas_security_check");
+    	final Assertion assertion = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), proxyList1, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), assertion);
 
         UsernamePasswordAuthenticationToken token2 = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
@@ -218,75 +196,50 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     public void testNotEqualsDueToKey() {
-        List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_spring_cas_security_check");
+    	final Assertion assertion = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), proxyList1, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
-
-        List proxyList2 = new Vector();
-        proxyList2.add("https://localhost/newPortal/j_spring_cas_security_check");
+                makeUserDetails(), assertion);
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("DIFFERENT_KEY", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), proxyList2, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), assertion);
 
         assertTrue(!token1.equals(token2));
     }
 
-    public void testNotEqualsDueToProxyGrantingTicket() {
-        List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_spring_cas_security_check");
+    public void testNotEqualsDueToAssertion() {
+    	final Assertion assertion = new AssertionImpl("test");
+    	final Assertion assertion2 = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), proxyList1, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
-
-        List proxyList2 = new Vector();
-        proxyList2.add("https://localhost/newPortal/j_spring_cas_security_check");
+                makeUserDetails(), assertion);
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), proxyList2, "PGTIOU-SOME_OTHER_VALUE");
-
-        assertTrue(!token1.equals(token2));
-    }
-
-    public void testNotEqualsDueToProxyList() {
-        List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_spring_cas_security_check");
-
-        CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), proxyList1, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
-
-        List proxyList2 = new Vector();
-        proxyList2.add("https://localhost/SOME_OTHER_PORTAL/j_spring_cas_security_check");
-
-        CasAuthenticationToken token2 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), proxyList2, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), assertion2);
 
         assertTrue(!token1.equals(token2));
     }
 
     public void testSetAuthenticated() {
+    	final Assertion assertion = new AssertionImpl("test");
         CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), new Vector(), "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), assertion);
         assertTrue(token.isAuthenticated());
         token.setAuthenticated(false);
         assertTrue(!token.isAuthenticated());
     }
 
     public void testToString() {
+    	final Assertion assertion = new AssertionImpl("test");
         CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                makeUserDetails(), new Vector(), "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                makeUserDetails(), assertion);
         String result = token.toString();
-        assertTrue(result.lastIndexOf("Proxy List:") != -1);
-        assertTrue(result.lastIndexOf("Proxy-Granting Ticket IOU:") != -1);
         assertTrue(result.lastIndexOf("Credentials (Service/Proxy Ticket):") != -1);
     }
 }

@@ -19,18 +19,11 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Cache;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-
-import org.springframework.security.providers.cas.CasAuthenticationToken;
-
-import org.springframework.security.userdetails.User;
-import java.util.List;
-import java.util.Vector;
-
 import org.junit.Test;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
+import org.springframework.security.providers.cas.CasAuthenticationToken;
+
 import static org.junit.Assert.*;
 
 
@@ -40,7 +33,7 @@ import static org.junit.Assert.*;
  * @author Ben Alex
  * @version $Id$
  */
-public class EhCacheBasedTicketCacheTests {
+public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTests {
     private static CacheManager cacheManager;
 
     //~ Methods ========================================================================================================
@@ -56,27 +49,17 @@ public class EhCacheBasedTicketCacheTests {
         cacheManager.shutdown();
     }
 
-    private CasAuthenticationToken getToken() {
-        List proxyList = new Vector();
-        proxyList.add("https://localhost/newPortal/j_spring_cas_security_check");
-
-        User user = new User("rod", "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
-
-        return new CasAuthenticationToken("key", user, "ST-0-ER94xMJmn6pha35CQRoZ",
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")}, user,
-            proxyList, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
-    }
-
     @Test
     public void testCacheOperation() throws Exception {
         EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
         cache.setCache(cacheManager.getCache("castickets"));
         cache.afterPropertiesSet();
+        
+        final CasAuthenticationToken token = getToken();
 
         // Check it gets stored in the cache
-        cache.putTicketInCache(getToken());
-        assertEquals(getToken(), cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ"));
+        cache.putTicketInCache(token);
+        assertEquals(token, cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ"));
 
         // Check it gets removed from the cache
         cache.removeTicketFromCache(getToken());

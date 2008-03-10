@@ -15,6 +15,7 @@
 
 package org.springframework.security.providers.cas;
 
+import org.jasig.cas.client.validation.Assertion;
 import org.springframework.security.GrantedAuthority;
 
 import org.springframework.security.providers.AbstractAuthenticationToken;
@@ -23,25 +24,22 @@ import org.springframework.security.userdetails.UserDetails;
 
 import java.io.Serializable;
 
-import java.util.List;
-
-
 /**
  * Represents a successful CAS <code>Authentication</code>.
  *
  * @author Ben Alex
+ * @author Scott Battaglia
  * @version $Id$
  */
 public class CasAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
     //~ Instance fields ================================================================================================
 
     private static final long serialVersionUID = 1L;
-    private final List proxyList;
     private final Object credentials;
     private final Object principal;
-    private final String proxyGrantingTicketIou;
     private final UserDetails userDetails;
     private final int keyHash;
+    private final Assertion assertion;
 
     //~ Constructors ===================================================================================================
 
@@ -57,22 +55,17 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
      *        org.springframework.security.userdetails.UserDetailsService}) (cannot be <code>null</code>)
      * @param userDetails the user details (from the {@link
      *        org.springframework.security.userdetails.UserDetailsService}) (cannot be <code>null</code>)
-     * @param proxyList the list of proxies from CAS (cannot be
-     *        <code>null</code>)
-     * @param proxyGrantingTicketIou the PGT-IOU ID from CAS (cannot be
-     *        <code>null</code>, but may be an empty <code>String</code> if no
-     *        PGT-IOU ID was provided)
+     * @param assertion the assertion returned from the CAS servers.  It contains the principal and how to obtain a
+     *        proxy ticket for the user.
      *
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
     public CasAuthenticationToken(final String key, final Object principal, final Object credentials,
-        final GrantedAuthority[] authorities, final UserDetails userDetails, final List proxyList,
-        final String proxyGrantingTicketIou) {
+        final GrantedAuthority[] authorities, final UserDetails userDetails, final Assertion assertion) {
         super(authorities);
 
         if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal) || (credentials == null)
-            || "".equals(credentials) || (authorities == null) || (userDetails == null) || (proxyList == null)
-            || (proxyGrantingTicketIou == null)) {
+            || "".equals(credentials) || (authorities == null) || (userDetails == null) || (assertion == null)) {
             throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
         }
 
@@ -80,8 +73,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
         this.principal = principal;
         this.credentials = credentials;
         this.userDetails = userDetails;
-        this.proxyList = proxyList;
-        this.proxyGrantingTicketIou = proxyGrantingTicketIou;
+        this.assertion = assertion;
         setAuthenticated(true);
     }
 
@@ -94,15 +86,9 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 
         if (obj instanceof CasAuthenticationToken) {
             CasAuthenticationToken test = (CasAuthenticationToken) obj;
-
-            // proxyGrantingTicketIou is never null due to constructor
-            if (!this.getProxyGrantingTicketIou().equals(test.getProxyGrantingTicketIou())) {
-                return false;
-            }
-
-            // proxyList is never null due to constructor
-            if (!this.getProxyList().equals(test.getProxyList())) {
-                return false;
+            
+            if (!this.assertion.equals(test.getAssertion())) {
+            	return false;
             }
 
             if (this.getKeyHash() != test.getKeyHash()) {
@@ -127,18 +113,8 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
         return this.principal;
     }
 
-    /**
-     * Obtains the proxy granting ticket IOU.
-     *
-     * @return the PGT IOU-ID or an empty <code>String</code> if no proxy callback was requested when validating the
-     *         service ticket
-     */
-    public String getProxyGrantingTicketIou() {
-        return proxyGrantingTicketIou;
-    }
-
-    public List getProxyList() {
-        return proxyList;
+    public Assertion getAssertion() {
+        return this.assertion;
     }
 
     public UserDetails getUserDetails() {
@@ -148,9 +124,8 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(super.toString());
-        sb.append("; Credentials (Service/Proxy Ticket): ").append(this.credentials);
-        sb.append("; Proxy-Granting Ticket IOU: ").append(this.proxyGrantingTicketIou);
-        sb.append("; Proxy List: ").append(this.proxyList);
+        sb.append(" Assertion: ").append(this.assertion);
+        sb.append(" Credentials (Service/Proxy Ticket): ").append(this.credentials);
 
         return (sb.toString());
     }

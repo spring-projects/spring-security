@@ -14,16 +14,12 @@
  */
 package org.springframework.security.providers.cas.cache;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.junit.Test;
 import org.springframework.security.providers.cas.CasAuthenticationToken;
 import org.springframework.security.providers.cas.StatelessTicketCache;
-import org.springframework.security.userdetails.User;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
 /**
  * Test cases for the @link {@link NullStatelessTicketCache}
@@ -32,31 +28,20 @@ import junit.framework.TestCase;
  * @version $Id$
  *
  */
-public class NullStatelessTicketCacheTests extends TestCase {
+public class NullStatelessTicketCacheTests extends AbstractStatelessTicketCacheTests {
 
 	private StatelessTicketCache cache = new NullStatelessTicketCache();
 	
+	@Test
 	public void testGetter() {
 		assertNull(cache.getByTicketId(null));
 		assertNull(cache.getByTicketId("test"));
 	}
 	
+	@Test
 	public void testInsertAndGet() {
 		final CasAuthenticationToken token = getToken();
 		cache.putTicketInCache(token);
 		assertNull(cache.getByTicketId((String) token.getCredentials()));
 	}
-
-	private CasAuthenticationToken getToken() {
-        List<String> proxyList = new ArrayList<String>();
-        proxyList.add("https://localhost/newPortal/j_spring_cas_security_check");
-
-        User user = new User("rod", "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
-
-        return new CasAuthenticationToken("key", user, "ST-0-ER94xMJmn6pha35CQRoZ",
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")}, user,
-            proxyList, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
-    }
-	
 }

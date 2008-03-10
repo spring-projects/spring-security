@@ -20,16 +20,11 @@ import org.springframework.security.AuthenticationManager;
 
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import org.inspektr.common.ioc.annotation.NotNull;
 import org.jasig.cas.authentication.handler.AuthenticationException;
 import org.jasig.cas.authentication.handler.AuthenticationHandler;
 import org.jasig.cas.authentication.handler.support.AbstractUsernamePasswordAuthenticationHandler;
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
-
-import org.springframework.util.Assert;
-
 
 /**
  * <p>Provides JA-SIG CAS 3 authentication by delegating to the Spring Security <code>AuthenticationManager</code>.</p>
@@ -45,15 +40,9 @@ import org.springframework.util.Assert;
 public final class CasAuthenticationHandler extends AbstractUsernamePasswordAuthenticationHandler {
     //~ Instance fields ================================================================================================
 
+	@NotNull
     private AuthenticationManager authenticationManager;
-    private Log log = LogFactory.getLog(this.getClass());
-
-    //~ Methods ========================================================================================================
-
-    protected void afterPropertiesSetInternal() throws Exception {
-        Assert.notNull(this.authenticationManager, "authenticationManager cannot be null.");
-    }
-
+	
     protected boolean authenticateUsernamePasswordInternal(final UsernamePasswordCredentials credentials)
         throws AuthenticationException {
         final Authentication authenticationRequest = new UsernamePasswordAuthenticationToken(credentials.getUsername(),

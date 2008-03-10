@@ -52,7 +52,7 @@ public class ServicePropertiesTests extends TestCase {
             sp.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("service must be specified", expected.getMessage());
+            assertEquals("service must be specified.", expected.getMessage());
         }
     }
 

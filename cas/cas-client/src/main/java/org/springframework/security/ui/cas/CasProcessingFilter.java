@@ -59,9 +59,9 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
 
     //~ Methods ========================================================================================================
 
-    public Authentication attemptAuthentication(HttpServletRequest request)
+    public Authentication attemptAuthentication(final HttpServletRequest request)
         throws AuthenticationException {
-        String username = CAS_STATEFUL_IDENTIFIER;
+        final String username = CAS_STATEFUL_IDENTIFIER;
         String password = request.getParameter("ticket");
 
         if (password == null) {

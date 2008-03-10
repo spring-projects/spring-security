@@ -16,14 +16,13 @@
 package org.springframework.security.ui.cas;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jasig.cas.client.util.CommonUtils;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.springframework.beans.factory.InitializingBean;
@@ -39,6 +38,7 @@ import org.springframework.util.Assert;
  * which will validate the CAS login was successful.</p>
  *
  * @author Ben Alex
+ * @author Scott Battaglia
  * @version $Id$
  */
 public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
@@ -67,20 +67,11 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, 
     public void commence(final ServletRequest servletRequest, final ServletResponse servletResponse,
         final AuthenticationException authenticationException)
         throws IOException, ServletException {
-        final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
-        final String urlEncodedService = this.encodeServiceUrlWithSessionId ? response.encodeURL(this.serviceProperties.getService()) : this.serviceProperties.getService();
+        final String urlEncodedService = CommonUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null, "ticket", this.encodeServiceUrlWithSessionId);
+        final String redirectUrl = CommonUtils.constructRedirectUrl(this.loginUrl, "service", urlEncodedService, this.serviceProperties.isSendRenew(), false);
 
-        final StringBuffer buffer = new StringBuffer(255);
-
-        synchronized (buffer) {
-            buffer.append(this.loginUrl);
-            buffer.append("?service=");
-            buffer.append(URLEncoder.encode(urlEncodedService, "UTF-8"));
-            buffer.append(this.serviceProperties.isSendRenew() ? "&renew=true" : "");
-        }
-
-        response.sendRedirect(buffer.toString());
+        response.sendRedirect(redirectUrl);
     }
 
     /**

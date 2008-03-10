@@ -15,6 +15,9 @@
 
 package org.springframework.security.providers.cas;
 
+import org.jasig.cas.client.validation.Assertion;
+import org.jasig.cas.client.validation.TicketValidationException;
+import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
@@ -25,6 +28,7 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.providers.cas.cache.NullStatelessTicketCache;
 
 import org.springframework.security.ui.cas.CasProcessingFilter;
+import org.springframework.security.ui.cas.ServiceProperties;
 
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -64,21 +68,21 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
     private UserDetailsService userDetailsService;
     private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
-    private CasProxyDecider casProxyDecider;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private StatelessTicketCache statelessTicketCache = new NullStatelessTicketCache();
     private String key;
     private TicketValidator ticketValidator;
+    private ServiceProperties serviceProperties;
 
     //~ Methods ========================================================================================================
 
 	public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.userDetailsService, "A userDetailsService must be set");
         Assert.notNull(this.ticketValidator, "A ticketValidator must be set");
-        Assert.notNull(this.casProxyDecider, "A casProxyDecider must be set");
         Assert.notNull(this.statelessTicketCache, "A statelessTicketCache must be set");
         Assert.hasText(this.key, "A Key is required so CasAuthenticationProvider can identify tokens it previously authenticated");
         Assert.notNull(this.messages, "A message source must be set");
+        Assert.notNull(this.serviceProperties, "serviceProperties is a required field.");
     }
 
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -137,19 +141,16 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     }
 
     private CasAuthenticationToken authenticateNow(Authentication authentication) throws AuthenticationException {
-        // Validate
-        TicketResponse response = ticketValidator.confirmTicketValid(authentication.getCredentials().toString());
-
-        // Check proxy list is trusted
-        this.casProxyDecider.confirmProxyListTrusted(response.getProxyList());
-
-        // Lookup user details
-        UserDetails userDetails = userDetailsService.loadUserByUsername(response.getUser());
-        userDetailsChecker.check(userDetails);        
-
-        // Construct CasAuthenticationToken
-        return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(),
-            userDetails.getAuthorities(), userDetails, response.getProxyList(), response.getProxyGrantingTicketIou());
+    	try {
+    		final Assertion assertion = this.ticketValidator.validate(authentication.getCredentials().toString(), serviceProperties.getService());
+            final UserDetails userDetails = userDetailsService.loadUserByUsername(assertion.getPrincipal().getName());
+            userDetailsChecker.check(userDetails);        
+    		return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(),
+    	            userDetails.getAuthorities(), userDetails, assertion);
+    	} catch (final TicketValidationException e) {
+    		// TODO get error message
+    		throw new BadCredentialsException("", e);
+    	}
     }
 
     protected UserDetailsService getUserDetailsService() {
@@ -159,13 +160,9 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
-
-    public CasProxyDecider getCasProxyDecider() {
-        return casProxyDecider;
-    }
-
-    public void setCasProxyDecider(CasProxyDecider casProxyDecider) {
-        this.casProxyDecider = casProxyDecider;
+    
+    public void setServiceProperties(final ServiceProperties serviceProperties) {
+    	this.serviceProperties = serviceProperties;
     }
 
     protected String getKey() {
@@ -196,7 +193,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         this.ticketValidator = ticketValidator;
     }
 
-    public boolean supports(Class authentication) {
+    public boolean supports(final Class authentication) {
         if (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication)) {
             return true;
         } else if (CasAuthenticationToken.class.isAssignableFrom(authentication)) {

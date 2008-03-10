@@ -7,11 +7,86 @@
   </parent>
   <artifactId>spring-security-cas-adapter</artifactId>
   <name>Spring Security - CAS Adapter</name>
+  <build>
+	  <plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+	            <configuration>
+	                <source>1.5</source>
+	                <target>1.5</target>
+	            </configuration>
+			</plugin>
+		</plugins>
+	</build>
   <dependencies>
     <dependency>
-      <groupId>cas</groupId>
-      <artifactId>cas-server</artifactId>
-      <version>3.0.4</version>
+      <groupId>org.jasig.cas</groupId>
+      <artifactId>cas-server-core</artifactId>
+      <version>3.2</version>
+      <exclusions>
+		<exclusion>
+			<groupId>org.jasig.service</groupId>
+			<artifactId>person-directory</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>jdom</groupId>
+			<artifactId>jdom</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>org.apache.santuario</groupId>
+			<artifactId>xmlsec</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>org.opensaml</groupId>
+			<artifactId>opensaml</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>javax.persistence</groupId>
+			<artifactId>persistence-api</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>javax.xml</groupId>
+			<artifactId>xmldsig</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webflow</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>org.springframework.ldap</groupId>
+			<artifactId>spring-ldap</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>org.springframework.ldap</groupId>
+			<artifactId>spring-ldap-tiger</artifactId>
+		</exclusion>
+	</exclusions>
     </dependency>
     <dependency>
       <groupId>cas</groupId>
@@ -33,4 +108,14 @@
         <scope>test</scope>
     </dependency>
   </dependencies>
+  
+  <repositories>
+  	<repository>
+  		<id>jasig-m2</id>
+  		<name>jasig-m2</name>
+  		<url>http://developer.ja-sig.org/maven2</url>
+  	</repository>
+  
+  </repositories>
+
 </project>

@@ -16,6 +16,7 @@
 package org.springframework.security.ui.cas;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 
 /**
@@ -36,9 +37,7 @@ public class ServiceProperties implements InitializingBean {
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        if ((service == null) || "".equals(service)) {
-            throw new IllegalArgumentException("service must be specified");
-        }
+    	Assert.hasLength(this.service, "service must be specified.");
     }
 
     /**
