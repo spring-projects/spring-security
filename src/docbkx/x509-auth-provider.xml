@@ -60,32 +60,33 @@
             then the security context will remain empty. This means that you can easily use X.509
             authentication with other options such as a form-based login. </para>
     </sect1>
-    <sect1 id="x509-config">
-        <title>Configuring Tomcat</title>
-        <para>There are some pre-generated certificates in the Spring Security 
-            <filename>samples/certificate</filename> directory which you can use to enable SSL. The file
+    <sect1 id="x509-ssl-config">
+        <title>Setting up SSL in Tomcat</title>
+        <para>There are some pre-generated certificates in the  
+            <filename>samples/certificate</filename> directory in the Spring Security project.  
+            You can use these to enable SSL for testing if you don't want to generate your own. The file
                 <filename>server.jks</filename> contains the server certificate, private key and the
-            issuing certificate authority. There are also some client certificate files for the users from the
-            sample applications. You can install these in your browser to enable SSL client authentication.
+            issuing certificate authority certificate. There are also some client certificate files 
+            for the users from the sample applications. You can install these in your browser to enable 
+            SSL client authentication.
         </para>
         <para>
-            To enable SSL in tomcat <filename>server.xml</filename> file looks like this
+            To run tomcat with SSL support, drop the <filename>server.jks</filename> file into the 
+            tomcat <filename>conf</filename> directory and add the following connector to the
+            <filename>server.xml</filename> file 
                 <programlisting><![CDATA[ 
-            <!-- SSL/TLS Connector configuration -->
-            <Connector port="8443" address="${jboss.bind.address}"
-            maxThreads="100" minSpareThreads="5" maxSpareThreads="15"
-            scheme="https" secure="true"
-            sslProtocol = "TLS"
-            clientAuth="true" keystoreFile="${jboss.server.home.dir}/conf/server.p12"
-            keystoreType="PKCS12" keystorePass="password"
-            truststoreFile="${jboss.server.home.dir}/conf/ca.jks"
-            truststoreType="JKS" truststorePass="password"
-            /> ]]>
+    <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" scheme="https" secure="true"
+                clientAuth="true" sslProtocol="TLS" 
+                keystoreFile="${catalina.home}/conf/server.jks"
+                keystoreType="JKS" keystorePass="password"
+                truststoreFile="${catalina.home}/conf/server.jks"
+                truststoreType="JKS" truststorePass="password"
+     /> ]]>
                 </programlisting>
             <parameter>clientAuth</parameter> can also be set to <parameter>want</parameter> if you still
             want SSL connections to succeed even if the client doesn't provide a certificate.
-            Obviously these clients won't be able to access any objects secured by Spring Security
-            (unless you use a non-X509 authentication mechanism, such as BASIC authentication, to
-            authenticate the user)</para>
+            Clients which don't present a certificate won't be able to access any objects secured by 
+            Spring Security unless you use a non-X.509 authentication mechanism, such as form authentication.
+        </para>
     </sect1>
 </chapter>
