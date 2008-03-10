@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
     protected final Log logger = LogFactory.getLog(getClass());
 
-    static final String ATT_LOGIN_URL = "login-url";
+    static final String ATT_LOGIN_URL = "login-processing-url";
     static final String DEF_LOGIN_URL = "/j_spring_security_check";
 
     static final String ATT_LOGIN_PAGE = "login-page";

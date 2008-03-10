@@ -579,7 +579,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="form-login.attlist">
-    <xs:attribute name="login-url" type="xs:string">
+    <xs:attribute name="login-processing-url" type="xs:string">
       <xs:annotation>
         <xs:documentation>The URL that the login form is posted to. If unspecified, it defaults to /j_spring_security_check.</xs:documentation>
       </xs:annotation>
