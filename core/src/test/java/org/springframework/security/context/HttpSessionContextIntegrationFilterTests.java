@@ -85,7 +85,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 		HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
 
 		try {
-			filter.setContext(null);
+			filter.setContextClass(null);
 			filter.afterPropertiesSet();
 			fail("Shown have thrown IllegalArgumentException");
 		} catch (IllegalArgumentException expected) {
@@ -93,8 +93,8 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 		}
 
 		try {
-			filter.setContext(Integer.class);
-			assertEquals(Integer.class, filter.getContext());
+			filter.setContextClass(Integer.class);
+			assertEquals(Integer.class, filter.getContextClass());
 			filter.afterPropertiesSet();
 			fail("Shown have thrown IllegalArgumentException");
 		} catch (IllegalArgumentException expected) {
@@ -127,7 +127,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 		// Prepare filter
 		HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-		filter.setContext(SecurityContextImpl.class);
+		filter.setContextClass(SecurityContextImpl.class);
 		filter.afterPropertiesSet();
 
 		// Execute filter
@@ -179,7 +179,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 		// Prepare filter
 		HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-		filter.setContext(SecurityContextImpl.class);
+		filter.setContextClass(SecurityContextImpl.class);
 		filter.afterPropertiesSet();
 
 		// Execute filter
@@ -206,7 +206,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 		// Prepare filter
 		HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-		filter.setContext(SecurityContextImpl.class);
+		filter.setContextClass(SecurityContextImpl.class);
 		// don't call afterPropertiesSet to test case when Spring filter.afterPropertiesSet(); isn't called
 
 		// Execute filter
@@ -226,7 +226,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 		// Prepare filter
 		HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-		filter.setContext(SecurityContextImpl.class);
+		filter.setContextClass(SecurityContextImpl.class);
 		filter.setForceEagerSessionCreation(true); // non-default
 		filter.afterPropertiesSet();
 
@@ -246,7 +246,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 		// Prepare filter
 		HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-		filter.setContext(SecurityContextImpl.class);
+		filter.setContextClass(SecurityContextImpl.class);
 		filter.afterPropertiesSet();
 
 		// Execute filter
@@ -276,7 +276,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 		// Prepare filter
 		HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-		filter.setContext(SecurityContextImpl.class);
+		filter.setContextClass(SecurityContextImpl.class);
 		filter.afterPropertiesSet();
 
 		// Execute filter
@@ -308,7 +308,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 		// Prepare filter
 		HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-		filter.setContext(SecurityContextImpl.class);
+		filter.setContextClass(SecurityContextImpl.class);
 		filter.afterPropertiesSet();
 
 		for (int i = 0; i < 3; i++) {

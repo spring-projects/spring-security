@@ -49,7 +49,7 @@ import org.springframework.security.ui.FilterChainOrder;
  * If a valid <code>SecurityContext</code> cannot be obtained from the
  * <code>HttpSession</code> for whatever reason, a fresh
  * <code>SecurityContext</code> will be created and used instead. The created
- * object will be of the instance defined by the {@link #setContext(Class)}
+ * object will be of the instance defined by the {@link #setContextClass(Class)}
  * method (which defaults to {@link org.springframework.security.context.SecurityContextImpl}.
  * </p>
  * <p/>
@@ -58,7 +58,7 @@ import org.springframework.security.ui.FilterChainOrder;
  * does not exist, a <code>HttpSession</code> will <b>only</b> be created if
  * the current contents of the <code>SecurityContextHolder</code> are not
  * {@link java.lang.Object#equals(java.lang.Object)} to a <code>new</code>
- * instance of {@link #setContext(Class)}. This avoids needless
+ * instance of {@link #setContextClass(Class)}. This avoids needless
  * <code>HttpSession</code> creation, but automates the storage of changes
  * made to the <code>SecurityContextHolder</code>. There is one exception to
  * this rule, that is if the {@link #forceEagerSessionCreation} property is
@@ -108,7 +108,7 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
 
     //~ Instance fields ================================================================================================
 
-    private Class context = SecurityContextImpl.class;
+    private Class contextClass = SecurityContextImpl.class;
 
     private Object contextObject;
 
@@ -149,7 +149,7 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
      * allowed to affect the security identitiy in other threads associated with
      * the same <code>HttpSession</code>. For unusual cases where this is not
      * permitted, change this value to <code>true</code> and ensure the
-     * {@link #context} is set to a <code>SecurityContext</code> that
+     * {@link #contextClass} is set to a <code>SecurityContext</code> that
      * implements {@link Cloneable} and overrides the <code>clone()</code>
      * method.
      */
@@ -170,10 +170,10 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        if ((this.context == null) || (!SecurityContext.class.isAssignableFrom(this.context))) {
+        if ((this.contextClass == null) || (!SecurityContext.class.isAssignableFrom(this.contextClass))) {
             throw new IllegalArgumentException("context must be defined and implement SecurityContext "
                     + "(typically use org.springframework.security.context.SecurityContextImpl; existing class is "
-                    + this.context + ")");
+                    + this.contextClass + ")");
         }
 
         if (forceEagerSessionCreation && !allowSessionCreation) {
@@ -407,7 +407,7 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
 
     public SecurityContext generateNewContext() throws ServletException {
         try {
-            return (SecurityContext) this.context.newInstance();
+            return (SecurityContext) this.contextClass.newInstance();
         }
         catch (InstantiationException ie) {
             throw new ServletException(ie);
@@ -425,12 +425,12 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
         this.allowSessionCreation = allowSessionCreation;
     }
 
-    public Class getContext() {
-        return context;
+    protected Class getContextClass() {
+        return contextClass;
     }
 
-    public void setContext(Class secureContext) {
-        this.context = secureContext;
+    public void setContextClass(Class secureContext) {
+        this.contextClass = secureContext;
     }
 
     public boolean isForceEagerSessionCreation() {
