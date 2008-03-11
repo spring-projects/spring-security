@@ -664,7 +664,7 @@
         </dependencies>
     </dependencyManagement>
     <properties>        
-        <spring.version>2.0.6</spring.version>
+        <spring.version>2.0.8</spring.version>
         <felix.version>1.4.0</felix.version>
         <docbook.source>${basedir}/src/docbkx</docbook.source>
         <docbook.target>${basedir}/target/site/guide</docbook.target>        

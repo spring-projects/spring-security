@@ -46,13 +46,16 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
     	}
 
         RootBeanDefinition securityAnnotations = new RootBeanDefinition(clazz);
+        securityAnnotations.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         parserContext.getRegistry().registerBeanDefinition(BeanIds.SECURITY_ANNOTATION_ATTRIBUTES, securityAnnotations);
 
         RootBeanDefinition methodDefinitionAttributes = new RootBeanDefinition(MethodDefinitionAttributes.class);
+        methodDefinitionAttributes.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         methodDefinitionAttributes.getPropertyValues().addPropertyValue("attributes", new RuntimeBeanReference(BeanIds.SECURITY_ANNOTATION_ATTRIBUTES));
         parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_DEFINITION_ATTRIBUTES, methodDefinitionAttributes);
 
         RootBeanDefinition interceptor = new RootBeanDefinition(MethodSecurityInterceptor.class);
+        interceptor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
@@ -76,6 +79,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
         parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_INTERCEPTOR, interceptor);
 
         RootBeanDefinition advisor = new RootBeanDefinition(MethodDefinitionSourceAdvisor.class);
+        advisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         advisor.getConstructorArgumentValues().addGenericArgumentValue(interceptor);
         parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_DEFINITION_SOURCE_ADVISOR, advisor);
 
