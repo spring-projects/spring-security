@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.ui.savedrequest.SavedRequest;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -37,10 +38,10 @@ import org.springframework.util.StringUtils;
  *
  */
 public class TargetUrlResolverImpl implements TargetUrlResolver {
-    public static String DEFAULT_TARGET_PARAMETER = "redirect";
+    public static String DEFAULT_TARGET_PARAMETER = "spring-security-redirect";
     
     /* SEC-213 */
-    private String targetUrlParameter;
+    private String targetUrlParameter = DEFAULT_TARGET_PARAMETER;
 	
 	/**
 	 * If <code>true</code>, will only use <code>SavedRequest</code> to determine the target URL on successful
@@ -56,19 +57,15 @@ public class TargetUrlResolverImpl implements TargetUrlResolver {
 	 */
 	public String determineTargetUrl(SavedRequest savedRequest, HttpServletRequest currentRequest,
             Authentication auth) {
-			
-        String targetUrl = null;
+
+        String targetUrl = currentRequest.getParameter(targetUrlParameter);
         
-        if (targetUrlParameter != null) {
-            targetUrl = currentRequest.getParameter(targetUrlParameter);
-            
-            if (StringUtils.hasText(targetUrl)) {
-                try {
-                    return URLDecoder.decode(targetUrl, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    throw new IllegalStateException("UTF-8 not supported. Shouldn't be possible");
-                }
-            }            
+        if (StringUtils.hasText(targetUrl)) {
+            try {
+                return URLDecoder.decode(targetUrl, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new IllegalStateException("UTF-8 not supported. Shouldn't be possible");
+            }
         }
 
         if (savedRequest != null) {
@@ -106,9 +103,7 @@ public class TargetUrlResolverImpl implements TargetUrlResolver {
 	 *  to "redirect".
 	 */
 	public void setTargetUrlParameter(String targetUrlParameter) {
+	    Assert.hasText("targetUrlParamete canot be null or empty");
         this.targetUrlParameter = targetUrlParameter;
     }
-
-
-	
 }
