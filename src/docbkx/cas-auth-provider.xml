@@ -508,12 +508,11 @@
     to your application context. This represents your service:</para>
 
     <para><programlisting>
-
-&lt;bean id="serviceProperties" class="org.springframework.security.ui.cas.ServiceProperties"&gt;
-&lt;property name="service"&gt;&lt;value&gt;https://localhost:8443/contacts-cas/j_spring_cas_security_check&lt;/value&gt;&lt;/property&gt;
-&lt;property name="sendRenew"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
-&lt;/bean&gt;
-
+<![CDATA[ 
+<bean id="serviceProperties" class="org.springframework.security.ui.cas.ServiceProperties">
+  <property name="service" value="https://localhost:8443/contacts-cas/j_spring_cas_security_check"/>
+  <property name="sendRenew"><value>false</value></property>
+</bean> ]]>
     </programlisting></para>
 
     <para>The <literal>service</literal> must equal a URL that will be
@@ -527,44 +526,38 @@
     <para>The following beans should be configured to commence the CAS
     authentication process:</para>
 
-    <para><programlisting>
-&lt;bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter"&gt;
-&lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
-&lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/casfailed.jsp&lt;/value&gt;&lt;/property&gt;
-&lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/&lt;/value&gt;&lt;/property&gt;
-&lt;property name="filterProcessesUrl"&gt;&lt;value&gt;/j_spring_cas_security_check&lt;/value&gt;&lt;/property&gt;
-&lt;/bean&gt;
+    <para><programlisting><![CDATA[ 
+<bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter">
+  <property name="authenticationManager" ref="authenticationManager"/>
+  <property name="authenticationFailureUrl" value="/casfailed.jsp"/>
+  <property name="defaultTargetUrl" value="/"/>
+  <property name="filterProcessesUrl" value="/j_spring_cas_security_check"/>
+</bean>
 
-&lt;bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter"&gt;
-&lt;property name="authenticationEntryPoint"&gt;&lt;ref local="casProcessingFilterEntryPoint"/&gt;&lt;/property&gt;
-&lt;/bean&gt;
+<bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
+  <property name="authenticationEntryPoint" ref="casProcessingFilterEntryPoint"/>
+</bean>
 
-&lt;bean id="casProcessingFilterEntryPoint"
-        class="org.springframework.security.ui.cas.CasProcessingFilterEntryPoint"&gt;
-&lt;property name="loginUrl"&gt;&lt;value&gt;https://localhost:8443/cas/login&lt;/value&gt;&lt;/property&gt;
-&lt;property name="serviceProperties"&gt;&lt;ref bean="serviceProperties"/&gt;&lt;/property&gt;
-&lt;/bean&gt;
-
+<bean id="casProcessingFilterEntryPoint"
+        class="org.springframework.security.ui.cas.CasProcessingFilterEntryPoint">
+  <property name="loginUrl" value="https://localhost:8443/cas/login"/>
+  <property name="serviceProperties" ref="serviceProperties"/>
+</bean>
+ ]]>
     </programlisting></para>
 
-    <para>You will also need to add the
-    <literal>CasProcessingFilter</literal> to web.xml:</para>
+    <para>You will also need to add the <literal>CasProcessingFilter</literal> to web.xml:</para>
 
-    <para><programlisting>
-&lt;filter&gt;
-&lt;filter-name&gt;Spring Security CAS Processing Filter&lt;/filter-name&gt;
-&lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
-&lt;init-param&gt;
-&lt;param-name&gt;targetClass&lt;/param-name&gt;
-&lt;param-value&gt;org.springframework.security.ui.cas.CasProcessingFilter&lt;/param-value&gt;
-&lt;/init-param&gt;
-&lt;/filter&gt;
+    <para><programlisting><![CDATA[ 
+<filter>
+    <filter-name>casProcessingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+</filter>
 
-&lt;filter-mapping&gt;
-&lt;filter-name&gt;Spring Security CAS Processing Filter&lt;/filter-name&gt;
-&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-&lt;/filter-mapping&gt;
-
+<filter-mapping>
+  <filter-name>casProcessingFilter</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping> ]]>
     </programlisting></para>
 
     <para>The <literal>CasProcessingFilter</literal> has very similar
