@@ -21,7 +21,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 /**
  *
  * @author TSARDD
- * @since 18-okt-2007
  */
 public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extends TestCase {
 
@@ -92,7 +91,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 		assertTrue("Returned object not of type PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails, actual type: " + o.getClass(),
 				o instanceof PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails);
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = (PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails) o;
-		GrantedAuthority[] gas = details.getPreAuthenticatedGrantedAuthorities();
+		GrantedAuthority[] gas = details.getGrantedAuthorities();
 		assertNotNull("Granted authorities should not be null", gas);
 		assertTrue("Number of granted authorities should be " + expectedRoles.length, gas.length == expectedRoles.length);
 

@@ -15,9 +15,7 @@ import junit.framework.TestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
- * 
  * @author TSARDD
- * @since 18-okt-2007
  */
 public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests extends TestCase {
 
@@ -25,7 +23,7 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests ext
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
 				getRequest("testUser", new String[] {}));
 		GrantedAuthority[] gas = new GrantedAuthority[] { new GrantedAuthorityImpl("Role1"), new GrantedAuthorityImpl("Role2") };
-		details.setPreAuthenticatedGrantedAuthorities(gas);
+		details.setGrantedAuthorities(gas);
 		String toString = details.toString();
 		assertTrue("toString should contain Role1", toString.contains("Role1"));
 		assertTrue("toString should contain Role2", toString.contains("Role2"));
@@ -37,18 +35,17 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests ext
 		GrantedAuthority[] gas = new GrantedAuthority[] { new GrantedAuthorityImpl("Role1"), new GrantedAuthorityImpl("Role2") };
 		Collection expectedGas = Arrays.asList(gas);
 
-		details.setPreAuthenticatedGrantedAuthorities(gas);
-		Collection returnedGas = Arrays.asList(details.getPreAuthenticatedGrantedAuthorities());
-		assertTrue("Collections do not contain same elements; expected: " + expectedGas + ", returned: " + returnedGas, expectedGas
-				.containsAll(returnedGas)
-				&& returnedGas.containsAll(expectedGas));
+		details.setGrantedAuthorities(gas);
+		Collection returnedGas = Arrays.asList(details.getGrantedAuthorities());
+		assertTrue("Collections do not contain same elements; expected: " + expectedGas + ", returned: " + returnedGas, 
+		        expectedGas.containsAll(returnedGas) && returnedGas.containsAll(expectedGas));
 	}
 
 	public final void testGetWithoutSetPreAuthenticatedGrantedAuthorities() {
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
 				getRequest("testUser", new String[] {}));
 		try {
-			GrantedAuthority[] gas = details.getPreAuthenticatedGrantedAuthorities();
+			GrantedAuthority[] gas = details.getGrantedAuthorities();
 			fail("Expected exception didn't occur");
 		} catch (IllegalArgumentException expected) {
 		} catch (Exception unexpected) {

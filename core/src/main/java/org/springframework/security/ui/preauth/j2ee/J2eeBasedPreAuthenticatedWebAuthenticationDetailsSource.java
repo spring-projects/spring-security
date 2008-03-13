@@ -2,8 +2,8 @@ package org.springframework.security.ui.preauth.j2ee;
 
 import org.springframework.security.ui.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 import org.springframework.security.ui.WebAuthenticationDetailsSource;
-import org.springframework.security.providers.preauth.PreAuthenticatedGrantedAuthoritiesSetter;
 import org.springframework.security.GrantedAuthority;
+import org.springframework.security.MutableGrantedAuthoritiesContainer;
 import org.springframework.security.authoritymapping.Attributes2GrantedAuthoritiesMapper;
 import org.springframework.security.authoritymapping.MappableAttributesRetriever;
 
@@ -48,7 +48,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource extends Web
 
     /**
      * Build the authentication details object. If the specified authentication
-     * details class implements the PreAuthenticatedGrantedAuthoritiesSetter, a
+     * details class implements {@link MutableGrantedAuthoritiesContainer}, a
      * list of pre-authenticated Granted Authorities will be set based on the
      * J2EE roles for the current user.
      *
@@ -56,9 +56,9 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource extends Web
      */
     public Object buildDetails(Object context) {
         Object result = super.buildDetails(context);
-        if (result instanceof PreAuthenticatedGrantedAuthoritiesSetter) {
-            ((PreAuthenticatedGrantedAuthoritiesSetter) result)
-                    .setPreAuthenticatedGrantedAuthorities(getJ2eeBasedGrantedAuthorities((HttpServletRequest)context));
+        if (result instanceof MutableGrantedAuthoritiesContainer) {
+            ((MutableGrantedAuthoritiesContainer) result)
+                    .setGrantedAuthorities(getJ2eeBasedGrantedAuthorities((HttpServletRequest)context));
         }
         return result;
     }

@@ -1,5 +1,6 @@
 package org.springframework.security.providers.preauth;
 
+import org.springframework.security.GrantedAuthoritiesContainer;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
@@ -53,8 +54,8 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests extends T
 	private void testGetUserDetails(final String userName, final GrantedAuthority[] gas) {
 		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
 		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(userName, "dummy");
-		token.setDetails(new PreAuthenticatedGrantedAuthoritiesRetriever() {
-			public GrantedAuthority[] getPreAuthenticatedGrantedAuthorities() {
+		token.setDetails(new GrantedAuthoritiesContainer() {
+			public GrantedAuthority[] getGrantedAuthorities() {
 				return gas;
 			}
 		});
