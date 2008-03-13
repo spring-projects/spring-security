@@ -17,28 +17,29 @@
     user for them to login) plus BASIC authentication (ie so a web service
     or similar can access protected resources).</para>
 
-    <para>In the web.xml, this application will need a single Acegi
+    <para>In the web.xml, this application will need a single Spring
     Security filter in order to use the FilterChainProxy. Nearly every
     Spring Security application will have such an entry, and it looks like
     this:</para>
 
-    <para><programlisting>&lt;filter&gt;
-&lt;filter-name&gt;Spring Security Filter Chain Proxy&lt;/filter-name&gt;
-&lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
-&lt;init-param&gt;
-&lt;param-name&gt;targetClass&lt;/param-name&gt;
-&lt;param-value&gt;org.springframework.security.util.FilterChainProxy&lt;/param-value&gt;
-&lt;/init-param&gt;
-&lt;/filter&gt;
+    <para><programlisting>
+<![CDATA[ 
+    <filter>
+        <filter-name>filterChainProxy</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
 
-&lt;filter-mapping&gt;
-&lt;filter-name&gt;Spring Security Filter Chain Proxy&lt;/filter-name&gt;
-&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-&lt;/filter-mapping&gt;</programlisting></para>
+    <filter-mapping>
+      <filter-name>filterChainProxy</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+]]></programlisting></para>
 
     <para>The above declarations will cause every web request to be passed
-    through to Spring Security's FilterChainProxy. As explained in the
-    filters section of this reference guide, the
+        through to the bean called <literal>filterChainProxy</literal>
+        which will usually be an instance of Spring Security's 
+        <classname>FilterChainProxy</classname>. 
+     As explained in the filters section of this reference guide, the
     <classname>FilterChainProxy</classname> is a generally-useful class
     that enables web requests to be passed to different filters based on
     the URL patterns. Those delegated filters are managed inside the

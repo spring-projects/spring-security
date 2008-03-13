@@ -83,43 +83,35 @@
     <para>Spring Security uses many filters, as referred to throughout the
     remainder of this reference guide. You have a choice in how these
     filters are added to your web application, in that you can use either
-    <literal>FilterToBeanProxy</literal> or
+        Spring's <literal>DelegatingFilterProxy</literal> or
     <literal>FilterChainProxy</literal>. We'll look at both below.</para>
+      
+    <para>When using <literal>DelegatingFilterProxy</literal>, you will see
+      something like this in the web.xml file:
+      
+        <programlisting>
+            <![CDATA[
+    <filter>
+        <filter-name>myFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
 
-    <para>Most filters are configured using the
-    <literal>FilterToBeanProxy</literal>. An example configuration from
-    <literal>web.xml</literal> follows:</para>
-
-    <para><programlisting>&lt;filter&gt;
-&lt;filter-name&gt;Spring Security HTTP Request Security Filter&lt;/filter-name&gt;
-&lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
-&lt;init-param&gt;
-&lt;param-name&gt;targetClass&lt;/param-name&gt;
-&lt;param-value&gt;org.springframework.security.ClassThatImplementsFilter&lt;/param-value&gt;
-&lt;/init-param&gt;
-&lt;/filter&gt;</programlisting></para>
-
-    <para>Notice that the filter in <literal>web.xml</literal> is actually
-    a <literal>FilterToBeanProxy</literal>, and not the filter that will
-    actually implement the logic of the filter. What
-    <literal>FilterToBeanProxy</literal> does is delegate the
+    <filter-mapping>
+      <filter-name>myFilter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+             ]]>
+        </programlisting>     
+       
+        Notice that the filter  is actually a <literal>DelegatingFilterProxy</literal>, 
+        and not the filter that will actually implement the logic of the filter. What
+        <literal>DelegatingFilterProxy</literal> does is delegate the
     <literal>Filter</literal>'s methods through to a bean which is
     obtained from the Spring application context. This enables the bean to
-    benefit from the Spring application context lifecycle support and
+    benefit from the Spring web application context lifecycle support and
     configuration flexibility. The bean must implement
-    <literal>javax.servlet.Filter</literal>.</para>
-
-    <para>The <literal>FilterToBeanProxy</literal> only requires a single
-    initialization parameter, <literal>targetClass</literal> or
-    <literal>targetBean</literal>. The <literal>targetClass</literal>
-    parameter locates the first object in the application context of the
-    specified class, whilst <literal>targetBean</literal> locates the
-    object by bean name. Like standard Spring web applications, the
-    <literal>FilterToBeanProxy</literal> accesses the application context
-    via<literal>
-    WebApplicationContextUtils.getWebApplicationContext(ServletContext)</literal>,
-    so you should configure a <literal>ContextLoaderListener</literal> in
-    <literal>web.xml</literal>.</para>
+    <literal>javax.servlet.Filter</literal> and it must have the same name as that in
+        the <literal>filter-name</literal> element.</para>
 
     <para>There is a lifecycle issue to consider when hosting
     <literal>Filter</literal>s in an IoC container instead of a servlet
@@ -139,39 +131,31 @@
     Spring interfaces (eg the <literal>destroy-method</literal> attribute
     in Spring XML). For this reason we recommend the use of Spring
     lifecycle services instead of servlet container lifecycle services
-    wherever possible. By default <literal>FilterToBeanProxy</literal>
-    will not delegate <literal>init(FilterConfig)</literal> and
-    <literal>destroy()</literal> methods through to the proxied bean. If
-    you do require such invocations to be delegated, set the
-    <literal>lifecycle</literal> initialization parameter to
-    <literal>servlet-container-managed</literal>.</para>
+    wherever possible. Read the Javadoc for <classname>DelegatingFilterProxy</classname>
+    for more information</para>
 
-    <para>Rather than using <literal>FilterToBeanProxy</literal>, we
+      <para>Rather than using <literal>DelegatingFilterProxy</literal>, we
     strongly recommend to use <literal>FilterChainProxy</literal> instead.
-    Whilst <literal>FilterToBeanProxy</literal> is a very useful class,
-    the problem is that the lines of code required for
+          Whilst <literal>DelegatingFilterProxy</literal> is a very useful class,
+    the problem is that the number of lines of code required for
     <literal>&lt;filter&gt;</literal> and
     <literal>&lt;filter-mapping&gt;</literal> entries in
     <literal>web.xml</literal> explodes when using more than a few
     filters. To overcome this issue, Spring Security provides a
     <literal>FilterChainProxy</literal> class. It is wired using a
-    <literal>FilterToBeanProxy</literal> (just like in the example above),
+          <literal>DelegatingFilterProxy</literal> (just like in the example above),
     but the target class is
     <literal>org.springframework.security.util.FilterChainProxy</literal>.
     The filter chain is then declared in the application context, using
     code such as this:</para>
 
-    <para><programlisting>&lt;bean id="filterChainProxy"
-        class="org.springframework.security.util.FilterChainProxy"&gt;
-&lt;property name="filterInvocationDefinitionSource"&gt;
-&lt;value&gt;
-  CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-  PATTERN_TYPE_APACHE_ANT
-  /webServices/**=httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor
-  /**=httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor
-&lt;/value&gt;
-&lt;/property&gt;
-&lt;/bean&gt;        </programlisting></para>
+    <para><programlisting><![CDATA[ 
+<bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
+    <sec:filter-chain-map path-type="ant">
+        <sec:filter-chain pattern="/webServices/**" filters="httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
+        <sec:filter-chain pattern="/**" filters="httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
+    </sec:filter-chain-map>
+</bean> ]]>        </programlisting></para>
 
     <para>You may notice similarities with the way
     <literal>FilterSecurityInterceptor</literal> is declared. Both regular
@@ -221,11 +205,11 @@
     irrespective of how many times it is declared by the
     <literal>FilterInvocationDefinitionSource</literal>. You control the
     overall choice as to whether these methods are called or not via the
-    <literal>lifecycle</literal> initialization parameter of the
-    <literal>FilterToBeanProxy</literal> that proxies
-    <literal>FilterChainProxy</literal>. As discussed above, by default
+        <literal>targetFilterLifecycle</literal> initialization parameter of the
+        <literal>DelegatingFilterProxy</literal> that proxies
+        <literal>DelegatingFilterProxy</literal>. As discussed above, by default
     any servlet container lifecycle invocations are not delegated through
-    to <literal>FilterChainProxy</literal>.</para>
+    to <literal>DelegatingFilterProxy</literal>.</para>
 
     <para>You can also omit a URI pattern from the filter chain by using
     the token <literal>#NONE#</literal> on the right-hand side of the
@@ -317,12 +301,12 @@
     </orderedlist>
 
     <para>All of the above filters use
-    <literal>FilterToBeanProxy</literal> or
+    <literal>DelegatingFilterProxy</literal> or
     <literal>FilterChainProxy</literal>. It is recommended that a single
-    <literal>FilterToBeanProxy</literal> proxy through to a single
+        <literal>DelegatingFilterProxy</literal> proxy through to a single
     <literal>FilterChainProxy</literal> for each application, with that
     <literal>FilterChainProxy</literal> defining all of Spring Security
-    <literal>Filter</literal>s.</para>
+    filters.</para>
 
     <para>If you're using SiteMesh, ensure Spring Security filters execute
     before the SiteMesh filters are called. This enables the

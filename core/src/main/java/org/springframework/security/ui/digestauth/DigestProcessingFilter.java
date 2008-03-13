@@ -81,8 +81,6 @@ import javax.servlet.http.HttpServletResponse;
  * <p>Note there are limitations to Digest authentication, although it is a more comprehensive and secure solution
  * than Basic authentication. Please see RFC 2617 section 4 for a full discussion on the advantages of Digest
  * authentication over Basic authentication, including commentary on the limitations that it still imposes.</p>
- * <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
- * org.springframework.security.util.FilterToBeanProxy}.</p>
  */
 public class DigestProcessingFilter implements Filter, InitializingBean, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================

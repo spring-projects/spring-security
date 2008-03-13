@@ -45,8 +45,6 @@ import java.util.Collection;
  * <p>Delegates the actual channel security decisions and necessary actions to the configured
  * {@link ChannelDecisionManager}. If a response is committed by the <code>ChannelDecisionManager</code>,
  * the filter chain will not proceed.</p>
- *  <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
- * org.springframework.security.util.FilterToBeanProxy}.</p>
  *
  * @author Ben Alex
  * @version $Id$

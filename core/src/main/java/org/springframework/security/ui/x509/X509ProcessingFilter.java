@@ -62,8 +62,6 @@ import javax.servlet.FilterConfig;
  * org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent} will be published to the application
  * context. No events will be published if authentication was unsuccessful, because this would generally be recorded
  * via an <code>AuthenticationManager</code>-specific application event.</p>
- *  <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
- * org.springframework.security.util.FilterToBeanProxy}.</p>
  *
  * @author Luke Taylor
  * @deprecated Use <tt>X509PreAuthenticatedProcessingFilter</tt> from the preauth.x509 package instead 

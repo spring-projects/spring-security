@@ -73,10 +73,6 @@ import javax.servlet.http.HttpServletResponse;
  * <li><code>portResolver</code> is used to determine the "real" port that a
  * request was received on.</li>
  * </ul>
- * <p>
- * <b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the
- * {@link org.springframework.security.util.FilterToBeanProxy}.
- * </p>
  *
  * @author Ben Alex
  * @author colin sampaleanu

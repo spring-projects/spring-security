@@ -43,8 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Detects if there is no <code>Authentication</code> object in the <code>SecurityContextHolder</code>,  and
- * populates it with one if needed.<p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code>
- * to use the {@link org.springframework.security.util.FilterToBeanProxy}.</p>
+ * populates it with one if needed.
  *
  * @author Ben Alex
  * @version $Id$

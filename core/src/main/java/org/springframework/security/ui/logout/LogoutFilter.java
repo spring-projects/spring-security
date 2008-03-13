@@ -42,11 +42,7 @@ import org.springframework.util.StringUtils;
  * <p>
  * After logout, the URL specified by {@link #logoutSuccessUrl} will be shown.
  * </p>
- * <p>
- * <b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the
- * {@link org.springframework.security.util.FilterToBeanProxy}.
- * </p>
- *
+ * 
  * @author Ben Alex
  * @version $Id$
  */

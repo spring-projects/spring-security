@@ -41,57 +41,35 @@
 
 <sect1 id="channel-security-config">
     <title>Configuration</title>
-    
-    <para>To utilise Spring Security's channel security services, add the
-        following lines to <literal>web.xml</literal>:</para>
-    
-    <para><programlisting>
-        &lt;filter&gt;
-        &lt;filter-name&gt;Spring Security Channel Processing Filter&lt;/filter-name&gt;
-        &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
-        &lt;init-param&gt;
-        &lt;param-name&gt;targetClass&lt;/param-name&gt;
-        &lt;param-value&gt;org.springframework.security.securechannel.ChannelProcessingFilter&lt;/param-value&gt;
-        &lt;/init-param&gt;
-        &lt;/filter&gt;
         
-        &lt;filter-mapping&gt;
-        &lt;filter-name&gt;Spring Security Channel Processing Filter&lt;/filter-name&gt;
-        &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-        &lt;/filter-mapping&gt;
-        
-    </programlisting></para>
-    
-    <para>As usual when running <literal>FilterToBeanProxy</literal>, you
-        will also need to configure the filter in your application
+    <para>To use chanel security, you should define the following the filter in your application
         context:</para>
     
-    <para><programlisting>
-        &lt;bean id="channelProcessingFilter" class="org.springframework.security.securechannel.ChannelProcessingFilter"&gt;
-        &lt;property name="channelDecisionManager"&gt;&lt;ref bean="channelDecisionManager"/&gt;&lt;/property&gt;
-        &lt;property name="filterInvocationDefinitionSource"&gt;
-        &lt;value&gt;
-        CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-        \A/secure/.*\Z=REQUIRES_SECURE_CHANNEL
-        \A/acegilogin.jsp.*\Z=REQUIRES_SECURE_CHANNEL
-        \A/j_spring_security_check.*\Z=REQUIRES_SECURE_CHANNEL
-        \A.*\Z=REQUIRES_INSECURE_CHANNEL
-        &lt;/value&gt;
-        &lt;/property&gt;
-        &lt;/bean&gt;
+    <para><programlisting><![CDATA[ 
+    <bean id="channelProcessingFilter" class="org.springframework.security.securechannel.ChannelProcessingFilter">
+        <property name="channelDecisionManager" ref="channelDecisionManager"/>
+        <property name="filterInvocationDefinitionSource">
+            <security:filter-invocation-definition-source path-type="regex">
+                <security:intercept-url pattern="\A/secure/.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
+                <security:intercept-url pattern="\A/acegilogin.jsp.*\" access="REQUIRES_SECURE_CHANNEL"/>
+                <security:intercept-url pattern="\A/j_spring_security_check.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
+                <security:intercept-url pattern="\A/.*\Z" access="REQUIRES_INSECURE_CHANNEL"/>
+            </security:filter-invocation-definition-source>                
+        </property>
+    </bean>
         
-        &lt;bean id="channelDecisionManager" class="org.springframework.security.securechannel.ChannelDecisionManagerImpl"&gt;
-        &lt;property name="channelProcessors"&gt;
-        &lt;list&gt;
-        &lt;ref bean="secureChannelProcessor"/&gt;
-        &lt;ref bean="insecureChannelProcessor"/&gt;
-        &lt;/list&gt;
-        &lt;/property&gt;
-        &lt;/bean&gt;
+    <bean id="channelDecisionManager" class="org.springframework.security.securechannel.ChannelDecisionManagerImpl">
+        <property name="channelProcessors">
+            <list>
+            <ref bean="secureChannelProcessor"/>
+            <ref bean="insecureChannelProcessor"/>
+            </list>
+        </property>
+    </bean>
         
-        &lt;bean id="secureChannelProcessor" class="org.springframework.security.securechannel.SecureChannelProcessor"/&gt;
-        &lt;bean id="insecureChannelProcessor" class="org.springframework.security.securechannel.InsecureChannelProcessor"/&gt;
-        
+    <bean id="secureChannelProcessor" class="org.springframework.security.securechannel.SecureChannelProcessor"/>
+    <bean id="insecureChannelProcessor" class="org.springframework.security.securechannel.InsecureChannelProcessor"/>
+     ]]>    
     </programlisting></para>
     
     <para>Like <literal>FilterSecurityInterceptor</literal>, Apache Ant

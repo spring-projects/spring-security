@@ -35,10 +35,6 @@ import javax.servlet.http.HttpSession;
  * static fields {@link #SPRING_SECURITY_FORM_USERNAME_KEY} and {@link #SPRING_SECURITY_FORM_PASSWORD_KEY}.
  * The parameter names can also be changed by setting the <tt>usernameParameter</tt> and <tt>passwordParameter</tt>
  * properties.
- * </p>
- *
- * <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
- * org.springframework.security.util.FilterToBeanProxy}.</p>
  *
  * @author Ben Alex
  * @author Colin Sampaleanu
