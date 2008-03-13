@@ -83,7 +83,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     }
 
     /**
-     * Set the PreAuthenticatedUserDetailsServices to be used.
+     * Set the AuthenticatedUserDetailsServices to be used.
      *
      * @param aPreAuthenticatedUserDetailsService
      */

@@ -10,7 +10,7 @@ import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.AccountStatusException;
 import org.springframework.security.providers.rememberme.RememberMeAuthenticationToken;
 import org.springframework.security.ui.AuthenticationDetailsSource;
-import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
+import org.springframework.security.ui.WebAuthenticationDetailsSource;
 import org.springframework.security.ui.logout.LogoutHandler;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -47,7 +47,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
     private UserDetailsService userDetailsService;
     private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
-    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     private String cookieName = SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
 	private String parameter = DEFAULT_PARAMETER;

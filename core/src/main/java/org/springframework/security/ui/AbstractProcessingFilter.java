@@ -143,7 +143,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     protected ApplicationEventPublisher eventPublisher;
 
-    protected AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+    protected AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     private AuthenticationManager authenticationManager;
 

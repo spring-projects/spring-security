@@ -27,7 +27,7 @@ import org.springframework.security.providers.x509.X509AuthenticationToken;
 
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.AuthenticationDetailsSource;
-import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
+import org.springframework.security.ui.WebAuthenticationDetailsSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,7 +77,7 @@ public class X509ProcessingFilter implements Filter, InitializingBean, Applicati
     //~ Instance fields ================================================================================================
 
     private ApplicationEventPublisher eventPublisher;
-    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private AuthenticationManager authenticationManager;
 
     //~ Methods ========================================================================================================

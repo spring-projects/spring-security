@@ -27,7 +27,7 @@ import org.springframework.security.providers.dao.UserCache;
 import org.springframework.security.providers.dao.cache.NullUserCache;
 
 import org.springframework.security.ui.AuthenticationDetailsSource;
-import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
+import org.springframework.security.ui.WebAuthenticationDetailsSource;
 
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -91,7 +91,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean, Message
 
     //~ Instance fields ================================================================================================
 
-    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private DigestProcessingFilterEntryPoint authenticationEntryPoint;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private UserCache userCache = new NullUserCache();

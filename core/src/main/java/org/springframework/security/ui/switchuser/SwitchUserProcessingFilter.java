@@ -29,7 +29,7 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.event.authentication.AuthenticationSwitchUserEvent;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.ui.AuthenticationDetailsSource;
-import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
+import org.springframework.security.ui.WebAuthenticationDetailsSource;
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.AbstractProcessingFilter;
@@ -113,7 +113,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
     //~ Instance fields ================================================================================================
 
     private ApplicationEventPublisher eventPublisher;
-    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private String exitUserUrl = "/j_spring_security_exit_user";
     private String switchUserUrl = "/j_spring_security_switch_user";

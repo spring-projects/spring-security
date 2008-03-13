@@ -20,7 +20,7 @@ import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 
 import org.springframework.security.ui.AuthenticationDetailsSource;
-import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
+import org.springframework.security.ui.WebAuthenticationDetailsSource;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
 
@@ -56,7 +56,7 @@ public class AnonymousProcessingFilter  extends SpringSecurityFilter  implements
 
     //~ Instance fields ================================================================================================
 
-    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private String key;
     private UserAttribute userAttribute;
     private boolean removeAfterRequest = true;

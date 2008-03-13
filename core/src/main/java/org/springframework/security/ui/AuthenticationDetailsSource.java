@@ -15,7 +15,6 @@
 
 package org.springframework.security.ui;
 
-import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -31,9 +30,9 @@ public interface AuthenticationDetailsSource {
     /**
      * Called by a class when it wishes a new authentication details instance to be created.
      *
-     * @param request the request object, which may be used by the authentication details object
+     * @param context the request object, which may be used by the authentication details object
      *
      * @return a fully-configured authentication details instance
      */
-    Object buildDetails(HttpServletRequest request);
+    Object buildDetails(Object context);
 }

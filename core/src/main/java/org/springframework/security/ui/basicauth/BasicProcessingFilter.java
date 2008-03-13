@@ -33,7 +33,7 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import org.springframework.security.ui.AuthenticationDetailsSource;
-import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
+import org.springframework.security.ui.WebAuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
@@ -93,7 +93,7 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
 
     //~ Instance fields ================================================================================================
 
-    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationManager authenticationManager;
     private RememberMeServices rememberMeServices;

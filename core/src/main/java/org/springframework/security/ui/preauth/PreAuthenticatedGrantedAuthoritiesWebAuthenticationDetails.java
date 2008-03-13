@@ -1,5 +1,7 @@
 package org.springframework.security.ui.preauth;
 
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.providers.preauth.PreAuthenticatedGrantedAuthoritiesRetriever;
@@ -7,7 +9,6 @@ import org.springframework.security.providers.preauth.PreAuthenticatedGrantedAut
 import org.springframework.security.ui.WebAuthenticationDetails;
 import org.springframework.security.GrantedAuthority;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -33,7 +34,7 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(super.toString() + "; ");
-		sb.append("preAuthenticatedGrantedAuthorities: " + StringUtils.join(preAuthenticatedGrantedAuthorities, ", "));
+		sb.append("preAuthenticatedGrantedAuthorities: " + Arrays.asList(preAuthenticatedGrantedAuthorities));
 		return sb.toString();
 	}
 

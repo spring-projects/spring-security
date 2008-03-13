@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
@@ -28,8 +27,8 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests ext
 		GrantedAuthority[] gas = new GrantedAuthority[] { new GrantedAuthorityImpl("Role1"), new GrantedAuthorityImpl("Role2") };
 		details.setPreAuthenticatedGrantedAuthorities(gas);
 		String toString = details.toString();
-		assertTrue("toString doesn't contain Role1", StringUtils.contains(toString, "Role1"));
-		assertTrue("toString doesn't contain Role2", StringUtils.contains(toString, "Role2"));
+		assertTrue("toString should contain Role1", toString.contains("Role1"));
+		assertTrue("toString should contain Role2", toString.contains("Role2"));
 	}
 
 	public final void testGetSetPreAuthenticatedGrantedAuthorities() {

@@ -13,7 +13,7 @@ import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.ui.AuthenticationDetailsSource;
-import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
+import org.springframework.security.ui.WebAuthenticationDetailsSource;
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.context.SecurityContextHolder;
@@ -40,7 +40,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
 
     private ApplicationEventPublisher eventPublisher = null;
 
-    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     private AuthenticationManager authenticationManager = null;
 

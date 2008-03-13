@@ -4,6 +4,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -11,7 +12,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jaxen.JaxenException;
@@ -75,7 +75,7 @@ public abstract class XmlMappableAttributesRetriever implements MappableAttribut
             Document doc = getDocument(aStream);
             String[] roles = getMappableAttributes(doc);
             if (logger.isDebugEnabled()) {
-                logger.debug("Mappable attributes from XML document: " + ArrayUtils.toString(roles));
+                logger.debug("Mappable attributes from XML document: " + Arrays.asList(roles));
             }
             return roles;
         } finally {

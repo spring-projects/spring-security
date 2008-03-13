@@ -25,25 +25,31 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * Base implementation of {@link AuthenticationDetailsSource}.<P>By default will create an instance of
- * <code>WebAuthenticationDetails</code>. Any object that accepts a <code>HttpServletRequest</code> as its sole
- * constructor can be used instead of this default.</p>
+ * Implementation of {@link AuthenticationDetailsSource} which builds the details object from
+ * an <tt>HttpServletRequest</tt> object.
+ * <p>
+ * By default will create an instance of <code>WebAuthenticationDetails</code>. Any object that accepts a 
+ * <code>HttpServletRequest</code> as its sole constructor can be used instead of this default.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationDetailsSourceImpl implements AuthenticationDetailsSource {
+public class WebAuthenticationDetailsSource implements AuthenticationDetailsSource {
     //~ Instance fields ================================================================================================
 
     private Class clazz = WebAuthenticationDetails.class;
 
     //~ Methods ========================================================================================================
 
-    public Object buildDetails(HttpServletRequest request) {
+    /**
+     * @param context the <tt>HttpServletRequest</tt> object.
+     */
+    public Object buildDetails(Object context) {
+        Assert.isInstanceOf(HttpServletRequest.class, context);
         try {
             Constructor constructor = clazz.getConstructor(new Class[] {HttpServletRequest.class});
 
-            return constructor.newInstance(new Object[] {request});
+            return constructor.newInstance(new Object[] {context});
         } catch (NoSuchMethodException ex) {
             ReflectionUtils.handleReflectionException(ex);
         } catch (InvocationTargetException ex) {

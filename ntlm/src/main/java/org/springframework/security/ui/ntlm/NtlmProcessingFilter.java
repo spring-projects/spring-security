@@ -27,7 +27,7 @@ import org.springframework.security.providers.anonymous.AnonymousAuthenticationT
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.AuthenticationDetailsSource;
-import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
+import org.springframework.security.ui.WebAuthenticationDetailsSource;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -112,7 +112,7 @@ public class NtlmProcessingFilter extends SpringSecurityFilter implements Initia
 	private String	defaultDomain;
 	private String	domainController;
 	private AuthenticationManager authenticationManager;
-    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     //~ Methods ========================================================================================================
 
