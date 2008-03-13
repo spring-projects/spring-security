@@ -36,7 +36,9 @@ user-service-ref =
     
 password-encoder = 
     ## element which defines a password encoding strategy. Used by an authentication provider to convert submitted passwords to hashed versions, for example.
-    element password-encoder {ref | (hash? & base64? & salt-source*)}  
+    element password-encoder {password-encoder.attlist, salt-source?}  
+password-encoder.attlist &=
+    ref | (hash? & base64?)
     
 salt-source =
     element salt-source {user-property | system-wide}
@@ -328,7 +330,7 @@ authman.attlist &=
 
 authentication-provider =
     ## Indicates that the contained user-service should be used as an authentication source. 
-    element authentication-provider {ap.attlist & (user-service | jdbc-user-service | ldap-user-service) & password-encoder}
+    element authentication-provider {ap.attlist & any-user-service & password-encoder?}
 ap.attlist &=
     ## Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.  
     user-service-ref?
@@ -367,6 +369,7 @@ jdbc-user-service.attlist &=
 	  ## The bean ID of the DataSource which provides the required tables.
     attribute data-source-ref {xsd:string}
     
+any-user-service = user-service | jdbc-user-service | ldap-user-service
     
 custom-filter =
     ## Used to indicate that a filter bean declaration should be incorporated into the security filter chain. If neither the 'after' or 'before' options are supplied, then the filter must implement the Ordered interface directly. 
