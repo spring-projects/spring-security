@@ -148,7 +148,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 
         if (users.size() == 0) {
             throw new UsernameNotFoundException(
-                    messages.getMessage("JdbcDaoImpl.notFound", new Object[]{username}, "Username {0} not found"));
+                    messages.getMessage("JdbcDaoImpl.notFound", new Object[]{username}, "Username {0} not found"), username);
         }
 
         UserDetails user = (UserDetails) users.get(0); // contains no GrantedAuthority[]
@@ -170,7 +170,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
         if (dbAuths.size() == 0) {
             throw new UsernameNotFoundException(
                     messages.getMessage("JdbcDaoImpl.noAuthority",
-                            new Object[] {username}, "User {0} has no GrantedAuthority"));
+                            new Object[] {username}, "User {0} has no GrantedAuthority"), username);
         }
 
         GrantedAuthority[] arrayAuths = (GrantedAuthority[]) dbAuths.toArray(new GrantedAuthority[dbAuths.size()]);

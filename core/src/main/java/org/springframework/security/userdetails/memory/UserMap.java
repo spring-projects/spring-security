@@ -69,7 +69,7 @@ public class UserMap {
         UserDetails result = (UserDetails) this.userMap.get(username.toLowerCase());
 
         if (result == null) {
-            throw new UsernameNotFoundException("Could not find user: " + username);
+            throw new UsernameNotFoundException("Could not find user: " + username, username);
         }
 
         return result;
