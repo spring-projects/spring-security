@@ -54,7 +54,7 @@ public interface UserDetails extends Serializable {
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.
      *
-     * @return the authorities (never <code>null</code>)
+     * @return the authorities, sorted by natural key (never <code>null</code>)
      */
     GrantedAuthority[] getAuthorities();
 

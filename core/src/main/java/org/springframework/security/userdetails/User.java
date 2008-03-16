@@ -15,8 +15,11 @@
 
 package org.springframework.security.userdetails;
 
-import org.springframework.security.GrantedAuthority;
+import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import org.springframework.security.GrantedAuthority;
 import org.springframework.util.Assert;
 
 
@@ -231,13 +234,15 @@ public class User implements UserDetails {
 
     protected void setAuthorities(GrantedAuthority[] authorities) {
         Assert.notNull(authorities, "Cannot pass a null GrantedAuthority array");
-
+        // Ensure array iteration order is predictable (as per UserDetails.getAuthorities() contract and SEC-xxx)
+        SortedSet sorter = new TreeSet();
         for (int i = 0; i < authorities.length; i++) {
             Assert.notNull(authorities[i],
                 "Granted authority element " + i + " is null - GrantedAuthority[] cannot contain any null elements");
+            sorter.add(authorities[i]);
         }
-
-        this.authorities = authorities;
+        
+        this.authorities = (GrantedAuthority[]) sorter.toArray(new GrantedAuthority[sorter.size()]);
     }
 
     public String toString() {

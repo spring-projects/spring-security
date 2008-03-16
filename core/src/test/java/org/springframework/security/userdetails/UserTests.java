@@ -64,6 +64,11 @@ public class UserTests extends TestCase {
                 new User("rod", "koala", true, true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")})));
 
+        // Equal as the new User will internally sort the GrantedAuthorities in the correct order, before running equals()
+        assertTrue(user1.equals(
+                new User("rod", "koala", true, true, true, true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_TWO"), new GrantedAuthorityImpl("ROLE_ONE")})));
+
         assertFalse(user1.equals(
                 new User("DIFFERENT_USERNAME", "koala", true, true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")})));
@@ -153,7 +158,7 @@ public class UserTests extends TestCase {
 
     public void testUserGettersSetter() throws Exception {
         UserDetails user = new User("rod", "koala", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_TWO"), new GrantedAuthorityImpl("ROLE_ONE")});
         assertEquals("rod", user.getUsername());
         assertEquals("koala", user.getPassword());
         assertTrue(user.isEnabled());

@@ -17,6 +17,8 @@ package org.springframework.security;
 
 import java.io.Serializable;
 
+import org.springframework.util.Assert;
+
 
 /**
  * Basic concrete implementation of a {@link GrantedAuthority}.<p>Stores a <code>String</code> representation of an
@@ -35,6 +37,7 @@ public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
 
     public GrantedAuthorityImpl(String role) {
         super();
+        Assert.hasText(role, "A granted authority textual representation is required");
         this.role = role;
     }
 
@@ -65,4 +68,12 @@ public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
     public String toString() {
         return this.role;
     }
+
+	public int compareTo(Object o) {
+		if (o != null && o instanceof GrantedAuthority) {
+			GrantedAuthority rhs = (GrantedAuthority) o;
+			return this.role.compareTo(rhs.getAuthority());
+		}
+		return -1;
+	}
 }

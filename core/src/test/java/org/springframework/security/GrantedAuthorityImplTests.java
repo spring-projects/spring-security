@@ -76,14 +76,18 @@ public class GrantedAuthorityImplTests extends TestCase {
 
     //~ Inner Classes ==================================================================================================
 
-    private class MockGrantedAuthorityImpl implements GrantedAuthority {
+    private class MockGrantedAuthorityImpl implements GrantedAuthority, Comparable {
         private String role;
 
         public MockGrantedAuthorityImpl(String role) {
             this.role = role;
         }
 
-        private MockGrantedAuthorityImpl() {
+        public int compareTo(Object o) {
+			return this.role.compareTo(((GrantedAuthority)o).getAuthority());
+		}
+
+		private MockGrantedAuthorityImpl() {
             super();
         }
 
