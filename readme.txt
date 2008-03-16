@@ -50,7 +50,13 @@ The core JavaDocs can be found in /docs/multiproject/acegi-security/apidocs/.
 OBTAINING SUPPORT
 -------------------------------------------------------------------------------
 
-If you need any help, please use the Spring Security forum
+There are two types of support available, commercial and community. For
+commercial support, please contact SpringSource. SpringSource employ the
+people who wrote Spring Security, and lead the development of the project:
+
+  http://www.springsource.com
+
+For peer help and assistance, please use the Spring Security forum
 located at the Spring Community's forum site: 
 
   http://forum.springframework.org
