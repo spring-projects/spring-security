@@ -55,7 +55,7 @@ import java.util.Collections;
  */
 public class DefaultFilterInvocationDefinitionSource implements FilterInvocationDefinitionSource {
 
-    private static final Set HTTP_METHODS = new HashSet(Arrays.asList(new String[]{ "GET", "PUT", "DELETE", "POST" }));
+    private static final Set HTTP_METHODS = new HashSet(Arrays.asList(new String[]{ "DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE" }));
 
     protected final Log logger = LogFactory.getLog(getClass());
 
