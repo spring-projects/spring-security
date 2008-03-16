@@ -80,7 +80,11 @@ public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
     private static class CustomGrantedAuthority implements GrantedAuthority {
         private final String authority;
 
-        public CustomGrantedAuthority(String authority) {
+        public int compareTo(Object o) {
+			return 0;
+		}
+
+		public CustomGrantedAuthority(String authority) {
             this.authority = authority;
         }
 
