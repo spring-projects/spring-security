@@ -74,9 +74,9 @@ public class ContainerPortletAuthoritiesPopulatorTests extends TestCase {
 		populator.setRolesToCheck(createRolesToCheck());
 		UserDetails results = populator.getUserDetails(PortletTestUtils.createToken());
 		assertEquals(3, results.getAuthorities().length);
-		assertEquals(new GrantedAuthorityImpl(ContainerPortletAuthoritiesPopulator.DEFAULT_USER_ROLE), results.getAuthorities()[0]);
-		assertEquals(new GrantedAuthorityImpl(PortletTestUtils.TESTROLE1), results.getAuthorities()[1]);
-		assertEquals(new GrantedAuthorityImpl(PortletTestUtils.TESTROLE2), results.getAuthorities()[2]);
+		assertEquals(new GrantedAuthorityImpl(ContainerPortletAuthoritiesPopulator.DEFAULT_USER_ROLE), results.getAuthorities()[2]);
+		assertEquals(new GrantedAuthorityImpl(PortletTestUtils.TESTROLE1), results.getAuthorities()[0]);
+		assertEquals(new GrantedAuthorityImpl(PortletTestUtils.TESTROLE2), results.getAuthorities()[1]);
 	}
 
 	public void testGetGrantedAuthoritiesCustomPrefix() throws Exception {
@@ -86,9 +86,9 @@ public class ContainerPortletAuthoritiesPopulatorTests extends TestCase {
 		populator.setRolePrefix(prefix);
 		UserDetails results = populator.getUserDetails(PortletTestUtils.createToken());
 		assertEquals(3, results.getAuthorities().length);
-		assertEquals(new GrantedAuthorityImpl(ContainerPortletAuthoritiesPopulator.DEFAULT_USER_ROLE), results.getAuthorities()[0]);
-		assertEquals(new GrantedAuthorityImpl(prefix + PortletTestUtils.PORTALROLE1), results.getAuthorities()[1]);
-		assertEquals(new GrantedAuthorityImpl(prefix + PortletTestUtils.PORTALROLE2), results.getAuthorities()[2]);
+		assertEquals(new GrantedAuthorityImpl(ContainerPortletAuthoritiesPopulator.DEFAULT_USER_ROLE), results.getAuthorities()[2]);
+		assertEquals(new GrantedAuthorityImpl(prefix + PortletTestUtils.PORTALROLE1), results.getAuthorities()[0]);
+		assertEquals(new GrantedAuthorityImpl(prefix + PortletTestUtils.PORTALROLE2), results.getAuthorities()[1]);
 	}
 
 	public void testGetGrantedAuthoritiesNullDefault() throws Exception {
