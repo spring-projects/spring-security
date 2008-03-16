@@ -171,8 +171,8 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
         PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) result;
         assertEquals("rod", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
-        assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_TELLER", castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[0].getAuthority());
         assertEquals(ADAPTER_KEY.hashCode(), castResult.getKeyHash());
     }
 
@@ -192,8 +192,8 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
         PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) result;
         assertEquals("rod", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
-        assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_TELLER", castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[0].getAuthority());
         assertEquals(ADAPTER_KEY.hashCode(), castResult.getKeyHash());
     }
 
