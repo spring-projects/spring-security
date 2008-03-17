@@ -42,8 +42,6 @@ public class MockJoinPoint implements JoinPoint {
         this.beingInvoked = beingInvoked;
     }
 
-    private MockJoinPoint() {}
-
     //~ Methods ========================================================================================================
 
     public Object[] getArgs() {
@@ -91,8 +89,6 @@ public class MockJoinPoint implements JoinPoint {
             this.beingInvoked = beingInvoked;
         }
 
-        private MockCodeSignature() {}
-
         public Class getDeclaringType() {
             throw new UnsupportedOperationException("mock not implemented");
         }
@@ -136,8 +132,6 @@ public class MockJoinPoint implements JoinPoint {
         public MockStaticPart(Method beingInvoked) {
             this.beingInvoked = beingInvoked;
         }
-
-        private MockStaticPart() {}
 
         public String getKind() {
             throw new UnsupportedOperationException("mock not implemented");

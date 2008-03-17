@@ -146,10 +146,6 @@ public class AbstractAuthenticationTokenTests extends TestCase {
             this.credentials = credentials;
         }
 
-        private MockAuthenticationImpl() {
-            super(null);
-        }
-
         public Object getCredentials() {
             return this.credentials;
         }

@@ -18,7 +18,6 @@ package org.springframework.security.captcha;
 import junit.framework.TestCase;
 
 import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.MockFilterChain;
 import org.springframework.security.SecurityConfig;
 
 import org.springframework.security.context.SecurityContextHolder;

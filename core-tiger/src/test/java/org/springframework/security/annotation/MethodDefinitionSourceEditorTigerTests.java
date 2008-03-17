@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 import junit.framework.TestCase;
 
 import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.SecurityConfig;
 import org.springframework.security.annotation.test.Entity;
 import org.springframework.security.annotation.test.OrganisationService;
 import org.springframework.security.annotation.test.PersonService;
@@ -89,10 +88,6 @@ public class MethodDefinitionSourceEditorTigerTests extends TestCase {
 
     private class MockMethodInvocation implements MethodInvocation {
         Method method;
-
-        private MockMethodInvocation() {
-            super();
-        }
 
         public MockMethodInvocation(Class clazz, String methodName, Class[] parameterTypes)
             throws NoSuchMethodException {

@@ -1,7 +1,6 @@
 package org.springframework.security.annotation;
 
 import javax.annotation.security.RolesAllowed;
-import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 
 /**

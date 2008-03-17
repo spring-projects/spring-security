@@ -18,14 +18,13 @@ package org.springframework.security;
 import org.springframework.util.StringUtils;
 
 import java.beans.PropertyEditorSupport;
-import java.util.List;
-import java.util.ArrayList;
-
 
 /**
  * A property editor that can create a populated  {@link ConfigAttributeDefinition} from a comma separated list of
- * values.<P>Trims preceding and trailing spaces from presented command separated tokens, as this can be a source
- * of hard-to-spot configuration issues for end users.</p>
+ * values.
+ * <p>
+ * Trims preceding and trailing spaces from presented command separated tokens, as this can be a source
+ * of hard-to-spot configuration issues for end users.
  *
  * @author Ben Alex
  * @version $Id$
@@ -38,7 +37,6 @@ public class ConfigAttributeEditor extends PropertyEditorSupport {
             setValue(new ConfigAttributeDefinition(StringUtils.commaDelimitedListToStringArray(s)));
         } else {
             setValue(null);
-
         }
     }
 }

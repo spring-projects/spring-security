@@ -21,7 +21,6 @@ import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 
 import java.util.Iterator;
-import java.util.Arrays;
 
 
 /**

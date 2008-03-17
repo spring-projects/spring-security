@@ -24,7 +24,7 @@ import javax.naming.NamingException;
  * constructor.
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:MockJbossIntegrationFilter.java 2151 2007-09-22 11:54:13Z luke_t $
  */
 public class MockJbossIntegrationFilter extends JbossIntegrationFilter {
     //~ Instance fields ================================================================================================
@@ -35,10 +35,6 @@ public class MockJbossIntegrationFilter extends JbossIntegrationFilter {
 
     public MockJbossIntegrationFilter(Context context) {
         this.context = context;
-    }
-
-    private MockJbossIntegrationFilter() {
-        super();
     }
 
     //~ Methods ========================================================================================================

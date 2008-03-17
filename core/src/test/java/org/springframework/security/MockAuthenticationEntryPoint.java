@@ -43,10 +43,6 @@ public class MockAuthenticationEntryPoint implements AuthenticationEntryPoint {
         this.url = url;
     }
 
-    private MockAuthenticationEntryPoint() {
-        super();
-    }
-
     //~ Methods ========================================================================================================
 
     public void commence(ServletRequest request, ServletResponse response,

@@ -22,10 +22,6 @@ import org.springframework.security.ui.session.HttpSessionDestroyedEvent;
 import org.springframework.mock.web.MockHttpSession;
 
 import java.util.Date;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
-
 
 /**
  * Tests {@link SessionRegistryImpl}.

@@ -25,9 +25,7 @@ import org.springframework.util.StringUtils;
 
 import java.beans.PropertyEditorSupport;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
 import java.util.Map;
 import java.util.LinkedHashMap;

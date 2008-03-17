@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 import org.springframework.security.acl.AclEntry;
 import org.springframework.security.acl.AclManager;

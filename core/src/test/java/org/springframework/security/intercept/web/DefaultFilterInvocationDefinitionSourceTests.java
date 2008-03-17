@@ -17,7 +17,6 @@ package org.springframework.security.intercept.web;
 
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockFilterChain;
-import org.springframework.security.SecurityConfig;
 import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 
@@ -27,7 +26,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Tests parts of {@link DefaultFilterInvocationDefinitionSource} not tested by {@link

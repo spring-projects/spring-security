@@ -52,14 +52,6 @@ public class AfterInvocationProviderManagerTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AfterInvocationProviderManagerTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testCorrectOperation() throws Exception {
         AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
         List list = new Vector();
@@ -169,8 +161,6 @@ public class AfterInvocationProviderManagerTests extends TestCase {
             this.secureObject = secureObject;
             this.configAttribute = configAttribute;
         }
-
-        private MockAfterInvocationProvider() {}
 
         public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
             Object returnedObject) throws AccessDeniedException {

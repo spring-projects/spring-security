@@ -29,7 +29,7 @@ import javax.naming.NamingException;
  * <code>java:comp/env/security/subject</code>.
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:MockInitialContext.java 2151 2007-09-22 11:54:13Z luke_t $
  */
 public class MockInitialContext implements Context {
     //~ Instance fields ================================================================================================
@@ -40,10 +40,6 @@ public class MockInitialContext implements Context {
 
     public MockInitialContext(Object object) {
         this.object = object;
-    }
-
-    private MockInitialContext() {
-        super();
     }
 
     //~ Methods ========================================================================================================

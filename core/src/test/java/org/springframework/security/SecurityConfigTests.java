@@ -100,10 +100,6 @@ public class SecurityConfigTests extends TestCase {
             this.attribute = configuration;
         }
 
-        private MockConfigAttribute() {
-            super();
-        }
-
         public String getAttribute() {
             return this.attribute;
         }

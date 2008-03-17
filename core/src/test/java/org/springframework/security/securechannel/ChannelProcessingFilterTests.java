@@ -219,10 +219,6 @@ public class ChannelProcessingFilterTests extends TestCase {
             this.supportAttribute = supportAttribute;
         }
 
-        private MockChannelDecisionManager() {
-            super();
-        }
-
         public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
             throws IOException, ServletException {
             if (commitAResponse) {
@@ -270,10 +266,6 @@ public class ChannelProcessingFilterTests extends TestCase {
             this.servletPath = servletPath;
             this.toReturn = toReturn;
             this.provideIterator = provideIterator;
-        }
-
-        private MockFilterInvocationDefinitionMap() {
-            super();
         }
 
         public ConfigAttributeDefinition getAttributes(Object object)

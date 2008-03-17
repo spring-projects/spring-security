@@ -17,7 +17,6 @@ package org.springframework.security.intercept;
 
 import org.springframework.security.ConfigAttributeDefinition;
 
-import java.util.Iterator;
 import java.util.Collection;
 
 

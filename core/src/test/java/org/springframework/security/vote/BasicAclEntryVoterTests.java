@@ -110,14 +110,6 @@ public class BasicAclEntryVoterTests extends TestCase {
     }
 
     public void testStartupRejectsMissingAclManager() throws Exception {
-        AclManager aclManager = new MockAclManager("domain1", "rod",
-                new AclEntry[] {
-                    new MockAclEntry(),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.READ),
-                    new SimpleAclEntry("rod", new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)
-                });
-
         // Wire up a voter
         BasicAclEntryVoter voter = new BasicAclEntryVoter();
         voter.setProcessConfigAttribute("FOO_ADMIN_OR_WRITE_ACCESS");

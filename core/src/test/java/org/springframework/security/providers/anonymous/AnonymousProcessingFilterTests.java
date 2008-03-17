@@ -68,10 +68,6 @@ public class AnonymousProcessingFilterTests extends TestCase {
         filter.destroy();
     }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AnonymousProcessingFilterTests.class);
-    }
-
     protected void setUp() throws Exception {
         super.setUp();
         SecurityContextHolder.clearContext();
@@ -190,10 +186,6 @@ public class AnonymousProcessingFilterTests extends TestCase {
 
         public MockFilterChain(boolean expectToProceed) {
             this.expectToProceed = expectToProceed;
-        }
-
-        private MockFilterChain() {
-            super();
         }
 
         public void doFilter(ServletRequest request, ServletResponse response)

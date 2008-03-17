@@ -32,8 +32,6 @@ public class SomeDomainObject {
         this.identity = identity;
     }
 
-    private SomeDomainObject() {}
-
     //~ Methods ========================================================================================================
 
     public String getParent() {

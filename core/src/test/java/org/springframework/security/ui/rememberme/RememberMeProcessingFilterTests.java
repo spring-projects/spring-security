@@ -190,10 +190,6 @@ public class RememberMeProcessingFilterTests extends TestCase {
             this.expectToProceed = expectToProceed;
         }
 
-        private MockFilterChain() {
-            super();
-        }
-
         public void doFilter(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
             if (expectToProceed) {

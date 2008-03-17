@@ -242,10 +242,6 @@ public class FilterToBeanProxyTests extends TestCase {
             this.appContextLocation = appContextLocation;
         }
 
-        private MockFilterToBeanProxy() {
-            super();
-        }
-
         protected ApplicationContext getContext(FilterConfig filterConfig) {
             return new ClassPathXmlApplicationContext(appContextLocation);
         }

@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockJoinPoint;
-import org.springframework.security.SecurityConfig;
 import org.springframework.security.TargetObject;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -31,7 +30,7 @@ import java.util.Iterator;
 
 
 /**
- * Tests {@link MethodDefinitionSourceEditor} and its asociated {@link MethodDefinitionMap}.
+ * Tests {@link MethodDefinitionSourceEditor} and its associated {@link MethodDefinitionMap}.
  *
  * @author Ben Alex
  * @version $Id$

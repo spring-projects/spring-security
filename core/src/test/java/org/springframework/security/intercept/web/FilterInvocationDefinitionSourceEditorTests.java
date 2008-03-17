@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockFilterChain;
-import org.springframework.security.SecurityConfig;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.util.AntUrlPathMatcher;
 

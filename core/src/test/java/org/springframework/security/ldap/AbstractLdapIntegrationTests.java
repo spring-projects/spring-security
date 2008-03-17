@@ -15,7 +15,6 @@
 package org.springframework.security.ldap;
 
 import org.springframework.security.config.BeanIds;
-import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -33,7 +32,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.Binding;
 import javax.naming.ContextNotEmptyException;
 import javax.naming.NameNotFoundException;
-import java.util.Set;
 
 /**
  * Based on class borrowed from Spring Ldap project.

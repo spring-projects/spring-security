@@ -1,6 +1,5 @@
 package org.springframework.security.config;
 
-import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.ldap.LdapAuthenticationProvider;
