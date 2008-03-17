@@ -18,7 +18,7 @@ package org.springframework.security;
 /**
  * Stores a {@link ConfigAttribute} as a <code>String</code>.
  *
- * @author <A HREF="mailto:ben.alex@fremerx.com">Ben Alex</A>
+ * @author Ben Alex
  * @version $Id$
  */
 public class SecurityConfig implements ConfigAttribute {
