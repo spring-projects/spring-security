@@ -26,7 +26,8 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.providers.AuthenticationProvider;
-import org.springframework.security.providers.portlet.cache.NullUserCache;
+import org.springframework.security.providers.dao.UserCache;
+import org.springframework.security.providers.dao.cache.NullUserCache;
 import org.springframework.security.userdetails.UserDetails;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,8 +74,7 @@ public class PortletAuthenticationProvider
 		return PortletAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
-	public Authentication authenticate(Authentication authentication)
-		throws AuthenticationException {
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
 		// make sure we support the authentication
 		if (!supports(authentication.getClass())) {
