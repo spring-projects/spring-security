@@ -125,16 +125,8 @@ public class AclProviderManager implements AclManager, InitializingBean {
         Iterator iter = newList.iterator();
 
         while (iter.hasNext()) {
-            Object currentObject = null;
-
-            try {
-                currentObject = iter.next();
-
-                AclProvider attemptToCast = (AclProvider) currentObject;
-            } catch (ClassCastException cce) {
-                throw new IllegalArgumentException("AclProvider " + currentObject.getClass().getName()
-                    + " must implement AclProvider");
-            }
+            Object currentObject = iter.next();
+            Assert.isInstanceOf(AclProvider.class, currentObject, "Invalid Acl Provider. ");
         }
 
         this.providers = newList;

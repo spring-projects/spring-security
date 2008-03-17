@@ -49,10 +49,6 @@ public class AclProviderManagerTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AclProviderManagerTests.class);
-    }
-
     private AclProviderManager makeProviderManager() {
         MockProvider provider1 = new MockProvider();
         List providers = new Vector();
