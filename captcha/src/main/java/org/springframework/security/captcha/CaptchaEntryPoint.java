@@ -47,7 +47,6 @@ import javax.servlet.http.HttpServletResponse;
  * The captcha entry point : redirect to the captcha test page.
  * <p>
  * This entry point can force the use of SSL : see {@link #getForceHttps()}
- * </p>
  * <p>
  * This entry point allows internal OR external redirect : see {@link #setOutsideWebApp(boolean)}<br />
  * / Original request can be added to the redirect path using a custom translation : see
@@ -82,7 +81,7 @@ import javax.servlet.http.HttpServletResponse;
  * </pre>
  * </p>
  *
- * @author marc antoine Garrigue
+ * @author Marc-Antoine Garrigue
  * @version $Id$
  */
 public class CaptchaEntryPoint implements ChannelEntryPoint, InitializingBean {
@@ -326,10 +325,8 @@ public class CaptchaEntryPoint implements ChannelEntryPoint, InitializingBean {
         this.captchaFormUrl = captchaFormUrl;
     }
 
-    // ~ Methods
-    // ================================================================
     /**
-     * Set to true to force captcha form access to be via https. If this value is ture (the default is false),
+     * Set to true to force captcha form access to be via https. If this value is true (the default is false),
      * and the incoming request for the protected resource which triggered the interceptor was not already
      * <code>https</code>, then
      *

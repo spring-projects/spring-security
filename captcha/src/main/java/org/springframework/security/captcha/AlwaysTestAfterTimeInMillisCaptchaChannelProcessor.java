@@ -16,8 +16,8 @@
 package org.springframework.security.captcha;
 
 /**
- * <p>return false if thresold is greater than millis since last captcha test has occured;<br>
- * Default keyword : REQUIRES_CAPTCHA_AFTER_THRESOLD_IN_MILLIS</p>
+ * Return false if the time in millis since the last captcha test is less than the threshold;<br/>
+ * Default keyword : <tt>REQUIRES_CAPTCHA_AFTER_THRESHOLD_IN_MILLIS</tt>.
  *
  * @author Marc-Antoine Garrigue
  * @version $Id$
@@ -30,9 +30,6 @@ public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessor extends CaptchaC
 
     //~ Constructors ===================================================================================================
 
-    /**
-     * Constructor
-     */
     public AlwaysTestAfterTimeInMillisCaptchaChannelProcessor() {
 
         this.setKeyword(DEFAULT_KEYWORD);
@@ -41,19 +38,19 @@ public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessor extends CaptchaC
     //~ Methods ========================================================================================================
 
     /**
-     * Verify wheter the context is valid concerning humanity
+     * Returns false if the time (in milliseconds) since the last captcha validation is greater than the 
+     * threshold value. 
      *
      * @param context the CaptchaSecurityContext
      *
-     * @return true if valid, false otherwise
      */
     boolean isContextValidConcerningHumanity(CaptchaSecurityContext context) {
         if ((System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis()) < getThreshold()) {
-            logger.debug("context is valid : last passed captcha date - current time < thresold");
+            logger.debug("context is valid : current time - last passed captcha date < threshold");
 
             return true;
         } else {
-            logger.debug("context is not valid : last passed captcha date - current time > thresold");
+            logger.debug("context is not valid : current time - last passed captcha date > threshold");
 
             return false;
         }

@@ -30,12 +30,15 @@ import javax.servlet.http.HttpSession;
 
 
 /**
- * Filter for web integration of the {@link CaptchaServiceProxy}. <br>
- * It basically intercept calls containing the specific validation parameter, use the {@link CaptchaServiceProxy} to
- * validate the request, and update the {@link CaptchaSecurityContext} if the request passed the validation. <br>
+ * Filter for web integration of the {@link CaptchaServiceProxy}.
+ * <p>
+ * It basically intercept calls containing the specific validation parameter, uses the {@link CaptchaServiceProxy} to
+ * validate the request, and update the {@link CaptchaSecurityContext} if the request passed the validation.
+ * <p>
  * This Filter should be placed after the ContextIntegration filter and before the {@link
  * CaptchaChannelProcessorTemplate} filter in the filter stack in order to update the {@link CaptchaSecurityContext}
- * before the humanity verification routine occurs. <br>
+ * before the humanity verification routine occurs.
+ * <p>
  * This filter should only be used in conjunction with the {@link CaptchaSecurityContext}<br>
  *
  * @author marc antoine Garrigue

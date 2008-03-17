@@ -21,9 +21,8 @@ import org.springframework.security.captcha.TestOnceAfterMaxRequestsCaptchaChann
 
 
 /**
- * DOCUMENT ME!
  *
- * @author $author$
+ * @author Marc-Antoine Garrigue
  * @version $Revision: 2142 $
  */
 public class TestOnceAfterMaxRequestsCaptchaChannelProcessorTests extends TestCase {

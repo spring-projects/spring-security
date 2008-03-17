@@ -18,14 +18,13 @@ package org.springframework.security.captcha;
 /**
  * Provide a common interface for captcha validation.
  *
- * @author marc antoine Garrigue
+ * @author Marc-Antoine Garrigue
  * @version $Id$
  */
 public interface CaptchaServiceProxy {
     //~ Methods ========================================================================================================
 
     /**
-     * DOCUMENT ME!
      *
      * @param id the id token
      * @param captchaResponse the user response

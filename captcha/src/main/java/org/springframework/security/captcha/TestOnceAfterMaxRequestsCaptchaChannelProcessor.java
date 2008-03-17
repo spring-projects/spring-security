@@ -16,9 +16,9 @@
 package org.springframework.security.captcha;
 
 /**
- * <p>return false if ny CaptchaChannelProcessorTemplate mapped urls has been requested more than thresold and
+ * Return false if any CaptchaChannelProcessorTemplate mapped urls have been requested more than threshold and
  * humanity is false; <br>
- * Default keyword : REQUIRES_CAPTCHA_ONCE_ABOVE_THRESOLD_REQUESTS</p>
+ * Default keyword : REQUIRES_CAPTCHA_ONCE_ABOVE_THRESHOLD_REQUESTS</p>
  *
  * @author Marc-Antoine Garrigue
  * @version $Id$
@@ -26,7 +26,7 @@ package org.springframework.security.captcha;
 public class TestOnceAfterMaxRequestsCaptchaChannelProcessor extends CaptchaChannelProcessorTemplate {
     //~ Static fields/initializers =====================================================================================
 
-    public static final String DEFAULT_KEYWORD = "REQUIRES_CAPTCHA_ONCE_ABOVE_THRESOLD_REQUESTS";
+    public static final String DEFAULT_KEYWORD = "REQUIRES_CAPTCHA_ONCE_ABOVE_THRESHOLD_REQUESTS";
 
     //~ Constructors ===================================================================================================
 
@@ -38,11 +38,11 @@ public class TestOnceAfterMaxRequestsCaptchaChannelProcessor extends CaptchaChan
 
     boolean isContextValidConcerningHumanity(CaptchaSecurityContext context) {
         if (context.isHuman() || (context.getHumanRestrictedResourcesRequestsCount() < getThreshold())) {
-            logger.debug("context is valid concerning humanity or request count < thresold");
+            logger.debug("context is valid concerning humanity or request count < threshold");
 
             return true;
         } else {
-            logger.debug("context is not valid concerning humanity and request count > thresold");
+            logger.debug("context is not valid concerning humanity and request count > threshold");
 
             return false;
         }

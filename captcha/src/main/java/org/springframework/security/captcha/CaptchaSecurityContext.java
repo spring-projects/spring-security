@@ -19,41 +19,39 @@ import org.springframework.security.context.SecurityContext;
 
 
 /**
- * Interface that add humanity concerns to the SecurityContext
+ * Interface that adds humanity concerns to the SecurityContext
  *
- * @author marc antoine garrigue
+ * @author Marc-Antoine Garrigue
+ * @version $Id$
  */
 public interface CaptchaSecurityContext extends SecurityContext {
     //~ Methods ========================================================================================================
 
     /**
-     * DOCUMENT ME!
      *
-     * @return number of human restricted resources requests since the last passed captcha.
+     * @return the number of human restricted resources requested since the last passed captcha.
      */
     int getHumanRestrictedResourcesRequestsCount();
 
     /**
-     * DOCUMENT ME!
      *
      * @return the date of the last passed Captcha in millis, 0 if the user never passed captcha.
      */
     long getLastPassedCaptchaDateInMillis();
 
     /**
-     * Method to increment the human Restricted Resrouces Requests Count;
+     * Increments the human Restricted Resources Requests Count.
      */
     void incrementHumanRestrictedResourcesRequestsCount();
 
     /**
-     * DOCUMENT ME!
      *
      * @return true if the current user has already passed a captcha.
      */
     boolean isHuman();
 
     /**
-     * set human attribute, should called after captcha validation.
+     * set human attribute, should be called after captcha validation.
      */
     void setHuman();
 }

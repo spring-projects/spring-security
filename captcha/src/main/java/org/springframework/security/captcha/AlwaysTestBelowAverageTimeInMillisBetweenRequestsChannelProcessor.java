@@ -19,10 +19,10 @@ import org.springframework.util.Assert;
 
 
 /**
- * <p>return false if thresold is lower than average time millis between any CaptchaChannelProcessorTemplate mapped
- * urls requests and is human;<br>
- * Default keyword : REQUIRES_CAPTCHA_BELOW_AVERAGE_TIME_IN_MILLIS_REQUESTS <br>
- * Note : before first humanity check</p>
+ * Return false if the average time in millis between any CaptchaChannelProcessorTemplate mapped
+ * urls requests is greater than the threshold value or the context is not human;<br />
+ * Default keyword : <tt>REQUIRES_CAPTCHA_BELOW_AVERAGE_TIME_IN_MILLIS_REQUESTS</tt> <br>
+ * Note : before first humanity check
  *
  * @author Marc-Antoine Garrigue
  * @version $Id$
@@ -35,9 +35,6 @@ public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor e
 
     //~ Constructors ===================================================================================================
 
-    /**
-     * Constructor
-     */
     public AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor() {
         this.setKeyword(DEFAULT_KEYWORD);
     }
@@ -45,7 +42,7 @@ public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor e
     //~ Methods ========================================================================================================
 
     /**
-     * Verify if thresold is &gt; 0
+     * Verify that threshold is &gt; 0
      *
      * @throws Exception if false
      */
@@ -55,11 +52,7 @@ public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor e
     }
 
     /**
-     * Verify wheter the context is valid concerning humanity
-     *
-     * @param context
-     *
-     * @return true if valid, false otherwise
+     * 
      */
     boolean isContextValidConcerningHumanity(CaptchaSecurityContext context) {
         int req = context.getHumanRestrictedResourcesRequestsCount();
@@ -74,11 +67,11 @@ public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor e
         }
 
         if (context.isHuman() && (average > thresold)) {
-            logger.debug("context is valid : average time between requests < thresold && is human");
+            logger.debug("context is valid : average time between requests < threshold && is human");
 
             return true;
         } else {
-            logger.debug("context is not valid : request count > thresold or is not human");
+            logger.debug("context is not valid : average time between requests > threshold or is not human");
 
             return false;
         }

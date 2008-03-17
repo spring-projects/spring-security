@@ -40,21 +40,21 @@ import javax.servlet.ServletException;
 
 
 /**
- * <p>CaptchaChannel template : Ensures the user has enough human privileges by review of the {@link
+ * CaptchaChannel template : Ensures the user has enough human privileges by review of the {@link
  * CaptchaSecurityContext} and using an abstract routine {@link
- * #isContextValidConcerningHumanity(CaptchaSecurityContext)} (implemented by sub classes)</p>
- *  <P>The component uses 2 main parameters for its configuration :
+ * #isContextValidConcerningHumanity(CaptchaSecurityContext)} (implemented by sub classes)
+ * <p>The component uses 2 main parameters for its configuration :
  *  <ul>
  *      <li>a keyword to be mapped to urls in the {@link
  *      org.springframework.security.securechannel.ChannelProcessingFilter} configuration<br>
  *      default value provided by sub classes.</li>
- *      <li>and a thresold : used by the routine {@link
+ *      <li>and a threshold : used by the routine {@link
  *      #isContextValidConcerningHumanity(CaptchaSecurityContext)} to evaluate whether the {@link
  *      CaptchaSecurityContext} is valid default value = 0</li>
  *  </ul>
  *  </p>
  *
- * @author marc antoine Garrigue
+ * @author Marc-Antoine Garrigue
  * @version $Id$
  */
 public abstract class CaptchaChannelProcessorTemplate implements ChannelProcessor, InitializingBean {

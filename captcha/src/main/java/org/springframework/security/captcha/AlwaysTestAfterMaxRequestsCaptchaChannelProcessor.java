@@ -19,8 +19,11 @@
 package org.springframework.security.captcha;
 
 /**
- * <p>return false if ny CaptchaChannelProcessorTemplate of mapped urls has been requested more than thresold; <br>
- * Default keyword : REQUIRES_CAPTCHA_ABOVE_THRESOLD_REQUESTS</p>
+ * Return false if the number of requests for captcha protcted URLs for the user
+ * exceeds the threshold value. 
+ * 
+ * <br/>
+ * Default keyword : <tt>REQUIRES_CAPTCHA_ABOVE_THRESHOLD_REQUESTS</tt>
  *
  * @author Marc-Antoine Garrigue
  * @version $Id$
@@ -33,9 +36,6 @@ public class AlwaysTestAfterMaxRequestsCaptchaChannelProcessor extends CaptchaCh
 
     //~ Constructors ===================================================================================================
 
-    /**
-     * Constructor
-     */
     public AlwaysTestAfterMaxRequestsCaptchaChannelProcessor() {
         this.setKeyword(DEFAULT_KEYWORD);
     }
@@ -43,11 +43,8 @@ public class AlwaysTestAfterMaxRequestsCaptchaChannelProcessor extends CaptchaCh
     //~ Methods ========================================================================================================
 
     /**
-     * Verify whether the context is valid concerning humanity
      *
-     * @param context
-     *
-     * @return true if valid, false otherwise
+     * @return false if the number of requests for captcha protected URLs exceeds the threshold.
      */
     boolean isContextValidConcerningHumanity(CaptchaSecurityContext context) {
         if (context.getHumanRestrictedResourcesRequestsCount() < getThreshold()) {

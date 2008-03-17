@@ -16,9 +16,7 @@
 package org.springframework.security.captcha;
 
 /**
- * DOCUMENT ME!
- *
- * @author marc antoine Garrigue
+ * @author Marc-Antoine Garrigue
  * @version $Id$
  */
 public class MockCaptchaServiceProxy implements CaptchaServiceProxy {

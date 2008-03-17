@@ -19,9 +19,7 @@ import junit.framework.TestCase;
 
 
 /**
- *
- * @author $author$
- * @version $Revision: 2142 $
+ * @author Marc-Antoine Garrigue
  */
 public class AlwaysTestAfterMaxRequestsCaptchaChannelProcessorTests extends TestCase {
     //~ Instance fields ================================================================================================

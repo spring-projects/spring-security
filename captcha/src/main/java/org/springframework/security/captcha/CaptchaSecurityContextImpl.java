@@ -21,7 +21,8 @@ import org.springframework.security.context.SecurityContextImpl;
 /**
  * Default CaptchaSecurityContext implementation
  *
- * @author mag
+ * @author Marc-Antoine Garrigue
+ * @version $Id$
  */
 public class CaptchaSecurityContextImpl extends SecurityContextImpl implements CaptchaSecurityContext {
     //~ Instance fields ================================================================================================
@@ -33,7 +34,6 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl implements C
     //~ Constructors ===================================================================================================
 
     public CaptchaSecurityContextImpl() {
-        super();
         human = false;
         lastPassedCaptchaDate = 0;
         humanRestrictedResourcesRequestsCount = 0;
@@ -84,7 +84,7 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl implements C
     }
 
     /**
-     * Method to increment the human Restricted Resrouces Requests Count;
+     * Method to increment the human Restricted Resources Requests Count;
      */
     public void incrementHumanRestrictedResourcesRequestsCount() {
         humanRestrictedResourcesRequestsCount++;
