@@ -15,6 +15,8 @@
 
 package org.springframework.security.providers;
 
+import java.security.Principal;
+
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
@@ -143,6 +145,10 @@ public abstract class AbstractAuthenticationToken implements Authentication {
     public String getName() {
         if (this.getPrincipal() instanceof UserDetails) {
             return ((UserDetails) this.getPrincipal()).getUsername();
+        }
+        
+        if (getPrincipal() instanceof Principal) {
+            return ((Principal)getPrincipal()).getName();
         }
 
         return (this.getPrincipal() == null) ? "" : this.getPrincipal().toString();
