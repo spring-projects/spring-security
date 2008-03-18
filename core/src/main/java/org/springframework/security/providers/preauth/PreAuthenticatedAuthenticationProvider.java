@@ -3,6 +3,7 @@ package org.springframework.security.providers.preauth;
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
+import org.springframework.security.BadCredentialsException;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsChecker;
 import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
@@ -32,7 +33,8 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     private static final Log logger = LogFactory.getLog(PreAuthenticatedAuthenticationProvider.class);
 
     private AuthenticationUserDetailsService preAuthenticatedUserDetailsService = null;
-    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();    
+    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker(); 
+    private boolean throwExceptionWhenTokenRejected = false;
 
     private int order = -1; // default: same as non-ordered
 
@@ -40,7 +42,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
      * Check whether all required properties have been set.
      */
     public void afterPropertiesSet() {
-        Assert.notNull(preAuthenticatedUserDetailsService, "A AuthenticationUserDetailsService must be set");
+        Assert.notNull(preAuthenticatedUserDetailsService, "An AuthenticationUserDetailsService must be set");
     }
 
     /**
@@ -58,11 +60,24 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
             logger.debug("PreAuthenticated authentication request: " + authentication);
         }
 
-        if(authentication.getPrincipal() == null) {
+        if (authentication.getPrincipal() == null) {
             logger.debug("No pre-authenticated principal found in request.");
+            
+            if (throwExceptionWhenTokenRejected) {
+                throw new BadCredentialsException("No pre-authenticated principal found in request.");
+            }
             return null;
         }
 
+        if (authentication.getCredentials() == null) {
+            logger.debug("No pre-authenticated credentials found in request.");
+
+            if (throwExceptionWhenTokenRejected) {
+                throw new BadCredentialsException("No pre-authenticated credentials found in request.");
+            }            
+            return null;
+        }
+        
         UserDetails ud = preAuthenticatedUserDetailsService.loadUserDetails(authentication);
 
         userDetailsChecker.check(ud);
@@ -97,5 +112,14 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 
     public void setOrder(int i) {
         order = i;
+    }
+
+    /** 
+     * If true, causes the provider to throw a BadCredentialsException if the presented authentication 
+     * request is invalid (contains a null principal or credentials). Otherwise it will just return 
+     * null.  
+     */    
+    public void setThrowExceptionWhenTokenRejected(boolean throwExceptionWhenTokenRejected) {
+        this.throwExceptionWhenTokenRejected = throwExceptionWhenTokenRejected;
     }
 }
