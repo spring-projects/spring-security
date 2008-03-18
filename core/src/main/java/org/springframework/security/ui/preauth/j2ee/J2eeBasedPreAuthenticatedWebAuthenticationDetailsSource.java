@@ -1,107 +1,49 @@
 package org.springframework.security.ui.preauth.j2ee;
 
 import org.springframework.security.ui.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
-import org.springframework.security.ui.WebAuthenticationDetailsSource;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.MutableGrantedAuthoritiesContainer;
-import org.springframework.security.authoritymapping.Attributes2GrantedAuthoritiesMapper;
-import org.springframework.security.authoritymapping.MappableAttributesRetriever;
+import org.springframework.security.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
 
 /**
- * Extended AuthenticationDetailsSource which allows
+ * Implementation of AuthenticationDetailsSource which converts the user's J2EE roles (as obtained by calling
+ * {@link HttpServletRequest#isUserInRole(String)}) into GrantedAuthoritys and stores these in the authentication
+ * details object (. 
  *
  * @author Ruud Senden
  * @since 2.0
  */
-public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource extends WebAuthenticationDetailsSource implements InitializingBean {
-    private static final Log logger = LogFactory.getLog(J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource.class);
-
-    private String[] j2eeMappableRoles;
-
-    private Attributes2GrantedAuthoritiesMapper j2eeUserRoles2GrantedAuthoritiesMapper;
-
+public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource extends AbstractPreAuthenticatedAuthenticationDetailsSource {
     /**
      * Public constructor which overrides the default AuthenticationDetails
      * class to be used.
      */
     public J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource() {
         super.setClazz(PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails.class);
+        
+        j2eeUserRoles2GrantedAuthoritiesMapper = new SimpleAttributes2GrantedAuthoritiesMapper();
     }
 
     /**
-     * Check that all required properties have been set.
-     */
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(j2eeMappableRoles, "J2EE defined roles not available");
-        Assert.notNull(j2eeUserRoles2GrantedAuthoritiesMapper, "J2EE user roles to granted authorities mapper not set");
-    }
-
-    /**
-     * Build the authentication details object. If the specified authentication
-     * details class implements {@link MutableGrantedAuthoritiesContainer}, a
-     * list of pre-authenticated Granted Authorities will be set based on the
-     * J2EE roles for the current user.
-     *
-     * @see org.springframework.security.ui.AuthenticationDetailsSource#buildDetails(Object)
-     */
-    public Object buildDetails(Object context) {
-        Object result = super.buildDetails(context);
-        if (result instanceof MutableGrantedAuthoritiesContainer) {
-            ((MutableGrantedAuthoritiesContainer) result)
-                    .setGrantedAuthorities(getJ2eeBasedGrantedAuthorities((HttpServletRequest)context));
-        }
-        return result;
-    }
-
-    /**
-     * Get a list of Granted Authorities based on the current user's J2EE roles.
+     * Obtains the list of user roles based on the current user's J2EE roles.
      *
      * @param request The request against which <tt>isUserInRole</tt> will be called for each role name
      *                returned by the MappableAttributesRetriever. 
      * @return GrantedAuthority[] mapped from the user's J2EE roles.
      */
-    private GrantedAuthority[] getJ2eeBasedGrantedAuthorities(HttpServletRequest request) {
+    protected String[] getUserRoles(Object context, String[] mappableRoles) {
         ArrayList j2eeUserRolesList = new ArrayList();
 
-        for (int i = 0; i < j2eeMappableRoles.length; i++) {
-            if (request.isUserInRole(j2eeMappableRoles[i])) {
-                j2eeUserRolesList.add(j2eeMappableRoles[i]);
+        for (int i = 0; i < mappableRoles.length; i++) {
+            if (((HttpServletRequest)context).isUserInRole(mappableRoles[i])) {
+                j2eeUserRolesList.add(mappableRoles[i]);
             }
         }
-        String[] j2eeUserRoles = new String[j2eeUserRolesList.size()];
-        j2eeUserRoles = (String[]) j2eeUserRolesList.toArray(j2eeUserRoles);
-        GrantedAuthority[] userGas = j2eeUserRoles2GrantedAuthoritiesMapper.getGrantedAuthorities(j2eeUserRoles);
-        if (logger.isDebugEnabled()) {
-            logger.debug("J2EE user roles [" + j2eeUserRolesList + "] mapped to Granted Authorities: ["
-                    + Arrays.asList(userGas) + "]");
-        }
-        return userGas;
+        
+        return (String[]) j2eeUserRolesList.toArray(new String[j2eeUserRolesList.size()]);
     }
-
-    /**
-     * @param aJ2eeMappableRolesRetriever
-     *            The MappableAttributesRetriever to use
-     */
-    public void setJ2eeMappableRolesRetriever(MappableAttributesRetriever aJ2eeMappableRolesRetriever) {
-        this.j2eeMappableRoles = aJ2eeMappableRolesRetriever.getMappableAttributes();
-    }
-
-    /**
-     * @param mapper
-     *            The Attributes2GrantedAuthoritiesMapper to use
-     */
-    public void setJ2eeUserRoles2GrantedAuthoritiesMapper(Attributes2GrantedAuthoritiesMapper mapper) {
-        j2eeUserRoles2GrantedAuthoritiesMapper = mapper;
-    }
-
 }

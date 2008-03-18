@@ -107,8 +107,8 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 	private final J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource getJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource(
 			String[] mappedRoles) {
 		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource result = new J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource();
-		result.setJ2eeMappableRolesRetriever(getMappableRolesRetriever(mappedRoles));
-		result.setJ2eeUserRoles2GrantedAuthoritiesMapper(getJ2eeUserRoles2GrantedAuthoritiesMapper());
+		result.setMappableRolesRetriever(getMappableRolesRetriever(mappedRoles));
+		result.setUserRoles2GrantedAuthoritiesMapper(getJ2eeUserRoles2GrantedAuthoritiesMapper());
 		result.setClazz(PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails.class);
 
 		try {
