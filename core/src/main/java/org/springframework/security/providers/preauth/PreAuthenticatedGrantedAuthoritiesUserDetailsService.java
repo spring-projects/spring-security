@@ -34,12 +34,21 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsService implements Aut
 	 * GrantedAuthoritiesContainer implementation as returned by
 	 * the token.getDetails() method.
 	 */
-	public UserDetails loadUserDetails(Authentication token) throws AuthenticationException {
+	public final UserDetails loadUserDetails(Authentication token) throws AuthenticationException {
 		Assert.notNull(token.getDetails());
 		Assert.isInstanceOf(GrantedAuthoritiesContainer.class, token.getDetails());
-		GrantedAuthority[] preAuthenticatedGrantedAuthorities = ((GrantedAuthoritiesContainer) token.getDetails())
-				.getGrantedAuthorities();
-		UserDetails ud = new User(token.getName(), "N/A", true, true, true, true, preAuthenticatedGrantedAuthorities);
+		GrantedAuthority[] authorities = ((GrantedAuthoritiesContainer) token.getDetails()).getGrantedAuthorities();
+		UserDetails ud = createuserDetails(token, authorities);
 		return ud;
+	}
+	
+	/**
+	 * Creates the final <tt>UserDetails</tt> object. Can be overridden to customize the contents.
+	 * 
+	 * @param token the authentication request token
+	 * @param authorities the pre-authenticated authorities.
+	 */
+	protected UserDetails createuserDetails(Authentication token, GrantedAuthority[] authorities) {
+		return new User(token.getName(), "N/A", true, true, true, true, authorities);
 	}
 }
