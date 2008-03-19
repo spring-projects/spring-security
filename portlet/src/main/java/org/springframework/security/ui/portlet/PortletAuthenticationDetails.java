@@ -28,6 +28,6 @@ public class PortletAuthenticationDetails implements Serializable {
     }
     
     public String toString() {
-    	return "User info: " + userInfo.toString();
+    	return "User info: " + userInfo;
     }
 }
