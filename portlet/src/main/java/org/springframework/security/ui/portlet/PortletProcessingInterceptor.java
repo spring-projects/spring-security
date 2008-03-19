@@ -95,7 +95,7 @@ public class PortletProcessingInterceptor implements HandlerInterceptor, Initial
 	
 	private AuthenticationDetailsSource authenticationDetailsSource;
 	
-	private boolean useAuthTypeAsCredentials = false;
+	private boolean useAuthTypeAsCredentials = true;
 
 	public PortletProcessingInterceptor() {
 	    authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
