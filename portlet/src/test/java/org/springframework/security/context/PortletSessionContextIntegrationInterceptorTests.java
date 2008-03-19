@@ -22,8 +22,8 @@ import junit.framework.TestCase;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.providers.portlet.PortletAuthenticationToken;
 import org.springframework.security.providers.portlet.PortletTestUtils;
+import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.userdetails.User;
 import org.springframework.mock.web.portlet.MockActionRequest;
 import org.springframework.mock.web.portlet.MockActionResponse;
@@ -97,8 +97,8 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 	public void testNormalRenderRequestProcessing() throws Exception {
 
 		// Build an Authentication object we simulate came from PortletSession
-		PortletAuthenticationToken sessionPrincipal = PortletTestUtils.createAuthenticatedToken();
-		PortletAuthenticationToken baselinePrincipal = PortletTestUtils.createAuthenticatedToken();
+	    PreAuthenticatedAuthenticationToken sessionPrincipal = PortletTestUtils.createAuthenticatedToken();
+	    PreAuthenticatedAuthenticationToken baselinePrincipal = PortletTestUtils.createAuthenticatedToken();
 
 		// Build a Context to store in PortletSession (simulating prior request)
 		SecurityContext sc = new SecurityContextImpl();
@@ -134,8 +134,8 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 	public void testNormalActionRequestProcessing() throws Exception {
 
 		// Build an Authentication object we simulate came from PortletSession
-		PortletAuthenticationToken sessionPrincipal = PortletTestUtils.createAuthenticatedToken();
-		PortletAuthenticationToken baselinePrincipal = PortletTestUtils.createAuthenticatedToken();
+		PreAuthenticatedAuthenticationToken sessionPrincipal = PortletTestUtils.createAuthenticatedToken();
+		PreAuthenticatedAuthenticationToken baselinePrincipal = PortletTestUtils.createAuthenticatedToken();
 
 		// Build a Context to store in PortletSession (simulating prior request)
 		SecurityContext sc = new SecurityContextImpl();
@@ -167,8 +167,8 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 	public void testUpdatesCopiedBackIntoSession() throws Exception {
 
 		// Build an Authentication object we simulate came from PortletSession
-		PortletAuthenticationToken sessionPrincipal = PortletTestUtils.createAuthenticatedToken();
-		PortletAuthenticationToken baselinePrincipal = PortletTestUtils.createAuthenticatedToken();
+	    PreAuthenticatedAuthenticationToken sessionPrincipal = PortletTestUtils.createAuthenticatedToken();
+	    PreAuthenticatedAuthenticationToken baselinePrincipal = PortletTestUtils.createAuthenticatedToken();
 
 		// Build a Context to store in PortletSession (simulating prior request)
 		SecurityContext sc = new SecurityContextImpl();
@@ -226,7 +226,7 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 
 		// Execute the interceptor
 		interceptor.preHandleAction(request, response, null);
-		PortletAuthenticationToken principal = PortletTestUtils.createAuthenticatedToken();
+		PreAuthenticatedAuthenticationToken principal = PortletTestUtils.createAuthenticatedToken();
 		SecurityContextHolder.getContext().setAuthentication(principal);
 		interceptor.afterActionCompletion(request, response, null, null);
 
@@ -289,7 +289,7 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 
 		// Execute the interceptor
 		interceptor.preHandleAction(request, response, null);
-		PortletAuthenticationToken principal = PortletTestUtils.createAuthenticatedToken();
+		PreAuthenticatedAuthenticationToken principal = PortletTestUtils.createAuthenticatedToken();
 		SecurityContextHolder.getContext().setAuthentication(principal);
 		interceptor.afterActionCompletion(request, response, null, null);
 
@@ -312,7 +312,7 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 
 		// Execute the interceptor
 		interceptor.preHandleAction(request, response, null);
-		PortletAuthenticationToken principal = PortletTestUtils.createAuthenticatedToken();
+		PreAuthenticatedAuthenticationToken principal = PortletTestUtils.createAuthenticatedToken();
 		SecurityContextHolder.getContext().setAuthentication(principal);
 		interceptor.afterActionCompletion(request, response, null, null);
 
@@ -323,8 +323,8 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 	public void testUsePortletScopeSession() throws Exception {
 
 		// Build an Authentication object we simulate came from PortletSession
-		PortletAuthenticationToken sessionPrincipal = PortletTestUtils.createAuthenticatedToken();
-		PortletAuthenticationToken baselinePrincipal = PortletTestUtils.createAuthenticatedToken();
+	    PreAuthenticatedAuthenticationToken sessionPrincipal = PortletTestUtils.createAuthenticatedToken();
+	    PreAuthenticatedAuthenticationToken baselinePrincipal = PortletTestUtils.createAuthenticatedToken();
 
 		// Build a Context to store in PortletSession (simulating prior request)
 		SecurityContext sc = new SecurityContextImpl();

@@ -35,10 +35,10 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.portlet.PortletAuthenticationProvider;
-import org.springframework.security.providers.portlet.PortletAuthenticationToken;
-import org.springframework.security.providers.portlet.populator.ContainerPortletAuthoritiesPopulator;
+import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.AuthenticationDetailsSource;
+import org.springframework.security.ui.AuthenticationDetailsSourceImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -81,8 +81,7 @@ import org.springframework.web.portlet.ModelAndView;
  * @since 2.0
  * @version $Id$
  */
-public class PortletProcessingInterceptor implements
-		HandlerInterceptor, InitializingBean {
+public class PortletProcessingInterceptor implements HandlerInterceptor, InitializingBean {
 
 	//~ Static fields/initializers =====================================================================================
 
@@ -93,6 +92,15 @@ public class PortletProcessingInterceptor implements
 	private AuthenticationManager authenticationManager;
 
 	private List userNameAttributes;
+	
+	private AuthenticationDetailsSource authenticationDetailsSource;
+	
+	private boolean useAuthTypeAsCredentials = false;
+
+	public PortletProcessingInterceptor() {
+	    authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+	    ((AuthenticationDetailsSourceImpl)authenticationDetailsSource).setClazz(PortletAuthenticationDetails.class);
+    }
 
 	//~ Methods ========================================================================================================
 
@@ -140,13 +148,12 @@ public class PortletProcessingInterceptor implements
 			try {
 
 				// build the authentication request from the PortletRequest
-				PortletAuthenticationToken authRequest = new PortletAuthenticationToken(
+			    PreAuthenticatedAuthenticationToken authRequest = new PreAuthenticatedAuthenticationToken(
 						getPrincipalFromRequest(request),
-						getCredentialsFromRequest(request),
-						null);
+						getCredentialsFromRequest(request));
 
 				// put the PortletRequest into the authentication request as the "details"
-				authRequest.setDetails(request);
+				authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
 
 				if (logger.isDebugEnabled())
 					logger.debug("Beginning authentication request for user '" + authRequest.getName() + "'");
@@ -158,16 +165,18 @@ public class PortletProcessingInterceptor implements
 				Authentication authResult = authenticationManager.authenticate(authRequest);
 
 				// process a successful authentication
-				if (logger.isDebugEnabled())
+				if (logger.isDebugEnabled()) {
 					logger.debug("Authentication success: " + authResult);
+				}
+				
 				ctx.setAuthentication(authResult);
 				onSuccessfulAuthentication(request, response, authResult);
 
 			} catch (AuthenticationException failed) {
-
 				// process an unsuccessful authentication
-				if (logger.isDebugEnabled())
-					logger.debug("Authentication failed - updating ContextHolder to contain null Authentication");
+				if (logger.isDebugEnabled()) {
+					logger.debug("Authentication failed - updating ContextHolder to contain null Authentication", failed);
+				}
 				ctx.setAuthentication(null);
 				request.getPortletSession().setAttribute(
 						AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY,
@@ -251,9 +260,12 @@ public class PortletProcessingInterceptor implements
 	 * @return the determined credentials object, or null if none found
 	 */
 	protected Object getCredentialsFromRequest(PortletRequest request) {
-		return request.getAuthType();
+		if (useAuthTypeAsCredentials) {
+			return request.getAuthType();
+		}
+		
+		return "dummy";
 	}
-
 
 	/**
 	 * Callback for custom processing prior to the authentication attempt.
@@ -286,20 +298,23 @@ public class PortletProcessingInterceptor implements
 		throws IOException {}
 
 
-	public AuthenticationManager getAuthenticationManager() {
-		return authenticationManager;
-	}
-
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
-	}
-
-	public List getUserNameAttributes() {
-		return userNameAttributes;
 	}
 
 	public void setUserNameAttributes(List userNameAttributes) {
 		this.userNameAttributes = userNameAttributes;
 	}
 
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+        this.authenticationDetailsSource = authenticationDetailsSource;
+    }
+
+    /**
+     *  
+     * @param useAuthTypeAsCredentials
+     */
+	public void setUseAuthTypeAsCredentials(boolean useAuthTypeAsCredentials) {
+		this.useAuthTypeAsCredentials = useAuthTypeAsCredentials;
+	}
 }

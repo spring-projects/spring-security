@@ -24,6 +24,8 @@ import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.context.SecurityContextImpl;
 import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.ui.portlet.PortletAuthenticationDetails;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.mock.web.portlet.MockActionRequest;
@@ -88,41 +90,25 @@ public class PortletTestUtils {
 		return response;
     }
 
-	public static PortletAuthenticationToken createToken(PortletRequest request) {
-		PortletAuthenticationToken token = new PortletAuthenticationToken(TESTUSER, TESTCRED, null);
-		token.setDetails(request);
+	public static PreAuthenticatedAuthenticationToken createToken(PortletRequest request) {
+		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(TESTUSER, TESTCRED);
+		token.setDetails(new PortletAuthenticationDetails(request));
 		return token;
 	}
 
-	public static PortletAuthenticationToken createToken() {
+	public static PreAuthenticatedAuthenticationToken createToken() {
 		MockRenderRequest request = createRenderRequest();
 		return createToken(request);
 	}
 
-	public static PortletAuthenticationToken createAuthenticatedToken(UserDetails user) {
-		PortletAuthenticationToken result = new PortletAuthenticationToken(
+	public static PreAuthenticatedAuthenticationToken createAuthenticatedToken(UserDetails user) {
+	    PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(
 				user, user.getPassword(), user.getAuthorities());
 		result.setAuthenticated(true);
 		return result;
 	}
-	public static PortletAuthenticationToken createAuthenticatedToken() {
+	public static PreAuthenticatedAuthenticationToken createAuthenticatedToken() {
 		return createAuthenticatedToken(createUser());
 	}
-
-    public static void setupSecurityContext(PortletRequest request) {
-		PortletAuthenticationToken token = createToken(request);
-		SecurityContext context = new SecurityContextImpl();
-		context.setAuthentication(token);
-		SecurityContextHolder.setContext(context);
-    }
-
-    public static void setupSecurityContext() {
-		MockRenderRequest request = createRenderRequest();
-		setupSecurityContext(request);
-    }
-
-    public static void cleanupSecurityContext() {
-		SecurityContextHolder.clearContext();
-    }
 
 }

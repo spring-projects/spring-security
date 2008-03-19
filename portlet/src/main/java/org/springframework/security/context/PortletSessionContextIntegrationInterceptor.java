@@ -367,7 +367,6 @@ public class PortletSessionContextIntegrationInterceptor
 
 	}
 
-
 	/**
 	 * Creates a new <code>SecurityContext</code> object.  The specific class is
 	 * determined by the setting of the {@link #context} property.

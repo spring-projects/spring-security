@@ -16,18 +16,7 @@
 
 package org.springframework.security.ui.portlet;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.ui.AuthenticationEntryPoint;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.core.Ordered;
+import org.springframework.security.ui.preauth.PreAuthenticatedProcessingFilterEntryPoint;
 
 /**
  * <p>In the case of relying on Portlet authentication to access Servlet resources
@@ -42,34 +31,6 @@ import org.springframework.core.Ordered;
  * @since 2.0
  * @version $Id$
  */
-public class PortletProcessingFilterEntryPoint implements AuthenticationEntryPoint, Ordered {
-
-	//~ Static fields/initializers =====================================================================================
-
-	private static final Log logger = LogFactory.getLog(PortletProcessingFilterEntryPoint.class);
-
-	//~ Instance fields ================================================================================================
-
-	private int order = Integer.MAX_VALUE; // ~ default
-
-	//~ Methods ========================================================================================================
-
-	public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
-
-	public void commence(ServletRequest request, ServletResponse response,
-			AuthenticationException authException) throws IOException, ServletException {
-
-		if (logger.isDebugEnabled())
-			logger.debug("portlet entry point called. Rejecting access");
-
-		HttpServletResponse httpResponse = (HttpServletResponse)response;
-		httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
-	}
+public class PortletProcessingFilterEntryPoint extends PreAuthenticatedProcessingFilterEntryPoint {
 
 }
