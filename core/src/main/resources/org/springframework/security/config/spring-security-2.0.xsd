@@ -260,7 +260,7 @@
             </xs:annotation>
         </xs:attribute>
     </xs:attributeGroup>
-    <xs:element name="ldap-user-service" substitutionGroup="security:any-user-service">
+    <xs:element name="ldap-user-service">
         <xs:complexType>
             <xs:attributeGroup ref="security:ldap-us.attlist"/>
         </xs:complexType>
@@ -924,7 +924,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="security:any-user-service"/>
+                <xs:group ref="security:any-user-service"/>
                 <xs:element ref="security:password-encoder"/>
             </xs:choice>
             <xs:attributeGroup ref="security:ap.attlist"/>
@@ -940,7 +940,7 @@
     <xs:element name="custom-authentication-provider">
         <xs:complexType/>
     </xs:element>
-    <xs:element name="user-service" substitutionGroup="security:any-user-service">
+    <xs:element name="user-service">
         <xs:annotation>
             <xs:documentation>Creates an in-memory UserDetailsService from a properties file or a
                 list of "user" child elements.</xs:documentation>
@@ -1000,7 +1000,7 @@
             </xs:simpleType>
         </xs:attribute>
     </xs:attributeGroup>
-    <xs:element name="jdbc-user-service" substitutionGroup="security:any-user-service">
+    <xs:element name="jdbc-user-service">
         <xs:annotation>
             <xs:documentation>Causes creation of a JDBC-based UserDetailsService.</xs:documentation>
         </xs:annotation>
@@ -1021,7 +1021,13 @@
             </xs:annotation>
         </xs:attribute>
     </xs:attributeGroup>
-    <xs:element name="any-user-service" abstract="true"/>
+    <xs:group name="any-user-service">
+        <xs:choice>
+            <xs:element ref="security:user-service"/>
+            <xs:element ref="security:jdbc-user-service"/>
+            <xs:element ref="security:ldap-user-service"/>
+        </xs:choice>
+    </xs:group>
     <xs:group name="custom-filter">
         <xs:sequence>
             <xs:element minOccurs="0" ref="security:custom-filter"/>

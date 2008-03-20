@@ -200,7 +200,7 @@ intercept-url.attlist &=
     attribute access {xsd:string}?
 intercept-url.attlist &=
     ## The HTTP Method for which the access configuration attributes should apply. If not specified, the attributes will apply to any method.
-    attribute method {"GET", "DELETE", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"}?
+    attribute method {"GET" | "DELETE" | "HEAD" | "OPTIONS" | "POST" | "PUT" | "TRACE"}?
 
 intercept-url.attlist &=
     ## The filter list for the path. Currently can be set to "none" to remove a path from having any filters applied. The full filter stack (consisting of all defined filters, will be applied to any other paths).
