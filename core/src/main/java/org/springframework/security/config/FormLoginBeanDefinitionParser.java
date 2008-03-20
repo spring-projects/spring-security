@@ -24,7 +24,6 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
     protected final Log logger = LogFactory.getLog(getClass());
 
     static final String ATT_LOGIN_URL = "login-processing-url";
-    static final String DEF_LOGIN_URL = "/j_spring_security_check";
 
     static final String ATT_LOGIN_PAGE = "login-page";
     static final String DEF_LOGIN_PAGE = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL;
@@ -35,11 +34,23 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = "authentication-failure-url";
     static final String DEF_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL + "?" + DefaultLoginPageGeneratingFilter.ERROR_PARAMETER_NAME;
 
+    String defaultLoginProcessingUrl;
+    String filterClassName;
+    
+    RootBeanDefinition filterBean;
+    RootBeanDefinition entryPointBean;
+    String loginPage;
+    
+    FormLoginBeanDefinitionParser(String defaultLoginProcessingUrl, String filterClassName) {
+    	this.defaultLoginProcessingUrl = defaultLoginProcessingUrl;
+    	this.filterClassName = filterClassName;
+    }
+
     public BeanDefinition parse(Element elt, ParserContext parserContext) {
         String loginUrl = null;
         String defaultTargetUrl = null;
         String authenticationFailureUrl = null;
-        String loginPage = null;
+        
         Object source = null;
 
         if (elt != null) {
@@ -52,7 +63,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
 
         ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         
-        RootBeanDefinition filterBean = createFilterBean(loginUrl, defaultTargetUrl, loginPage, authenticationFailureUrl);
+        filterBean = createFilterBean(loginUrl, defaultTargetUrl, loginPage, authenticationFailureUrl);
 
         filterBean.setSource(source);
         filterBean.getPropertyValues().addPropertyValue("authenticationManager",
@@ -62,34 +73,18 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
                 BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProcessingFilterEntryPoint.class);
         entryPointBuilder.setSource(source);
 
+        entryPointBuilder.addPropertyValue("loginFormUrl", StringUtils.hasText(loginPage) ? loginPage : DEF_LOGIN_PAGE);
 
-        // If no login page has been defined, add in the default page generator.
-        if (!StringUtils.hasText(loginPage)) {
-            logger.info("No login page configured in form-login element. The default internal one will be used. Use" +
-                    "the 'loginPage' attribute to specify the URL of the login page.");
-            loginPage = DEF_LOGIN_PAGE;
-            RootBeanDefinition loginPageFilter = new RootBeanDefinition(DefaultLoginPageGeneratingFilter.class);
-            loginPageFilter.getConstructorArgumentValues().addGenericArgumentValue(
-                    new RuntimeBeanReference(BeanIds.FORM_LOGIN_FILTER));
-            parserContext.getRegistry().registerBeanDefinition(BeanIds.DEFAULT_LOGIN_PAGE_GENERATING_FILTER, loginPageFilter);
-        }
-
-        entryPointBuilder.addPropertyValue("loginFormUrl", loginPage);
-
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_FILTER, filterBean);
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_ENTRY_POINT,
-                entryPointBuilder.getBeanDefinition());
+        entryPointBean = (RootBeanDefinition) entryPointBuilder.getBeanDefinition();
 
         return null;
     }
 
     private RootBeanDefinition createFilterBean(String loginUrl, String defaultTargetUrl, String loginPage, String authenticationFailureUrl) {
-        BeanDefinitionBuilder filterBuilder =
-                BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProcessingFilter.class);
-
+        BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(filterClassName);
 
         if (!StringUtils.hasText(loginUrl)) {
-        	loginUrl = DEF_LOGIN_URL;
+        	loginUrl = defaultLoginProcessingUrl;
         }
 
         filterBuilder.addPropertyValue("filterProcessesUrl", loginUrl);
@@ -114,4 +109,16 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
 
         return (RootBeanDefinition) filterBuilder.getBeanDefinition();
     }
+
+	RootBeanDefinition getFilterBean() {
+		return filterBean;
+	}
+
+	RootBeanDefinition getEntryPointBean() {
+		return entryPointBean;
+	}
+
+	String getLoginPage() {
+		return loginPage;
+	}
 }

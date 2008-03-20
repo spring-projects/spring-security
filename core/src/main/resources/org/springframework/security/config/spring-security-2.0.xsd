@@ -4,6 +4,7 @@
     targetNamespace="http://www.springframework.org/schema/security">
 
     <xs:attributeGroup name="hash">
+
         <xs:attribute name="hash" use="required">
             <xs:annotation>
                 <xs:documentation>Defines the hashing algorithm used on user passwords. We recommend
@@ -474,7 +475,8 @@
                 </xs:element>
                 <xs:element name="form-login">
                     <xs:annotation>
-                        <xs:documentation>Sets up a form login configuration</xs:documentation>
+                        <xs:documentation>Sets up a form login configuration for authentication with
+                            a username and password</xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
                         <xs:attributeGroup ref="security:form-login.attlist"/>
@@ -743,6 +745,14 @@
             </xs:annotation>
         </xs:attribute>
     </xs:attributeGroup>
+    <xs:element name="openid-login">
+        <xs:annotation>
+            <xs:documentation>Sets up form login for authentication with an Open ID identity</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attributeGroup ref="security:form-login.attlist"/>
+        </xs:complexType>
+    </xs:element>
     <xs:element name="filter-chain-map">
         <xs:annotation>
             <xs:documentation>Used to explicitly configure a FilterChainProxy instance with a

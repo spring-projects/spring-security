@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -28,6 +30,7 @@ import org.springframework.security.securechannel.SecureChannelProcessor;
 import org.springframework.security.securechannel.RetryWithHttpEntryPoint;
 import org.springframework.security.securechannel.RetryWithHttpsEntryPoint;
 import org.springframework.security.ui.ExceptionTranslationFilter;
+import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.util.AntUrlPathMatcher;
@@ -44,6 +47,7 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
+	protected final Log logger = LogFactory.getLog(getClass());
 
     static final String ATT_REALM = "realm";
     static final String DEF_REALM = "Spring Security Application";
@@ -190,11 +194,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             registry.registerBeanDefinition(BeanIds.CHANNEL_DECISION_MANAGER, channelDecisionManager);
         }
 
-        String realm = element.getAttribute(ATT_REALM);
-        if (!StringUtils.hasText(realm)) {
-        	realm = DEF_REALM;
-        }
-
         Element sessionControlElt = DomUtils.getChildElementByTagName(element, Elements.CONCURRENT_SESSIONS);
         if (sessionControlElt != null) {
             new ConcurrentSessionsBeanDefinitionParser().parse(sessionControlElt, parserContext);
@@ -220,16 +219,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (logoutElt != null || autoConfig) {
             new LogoutBeanDefinitionParser().parse(logoutElt, parserContext);
         }
-
-        Element formLoginElt = DomUtils.getChildElementByTagName(element, Elements.FORM_LOGIN);
-        if (formLoginElt != null || autoConfig) {
-            new FormLoginBeanDefinitionParser().parse(formLoginElt, parserContext);
-        }
-
-        Element basicAuthElt = DomUtils.getChildElementByTagName(element, Elements.BASIC_AUTH);
-        if (basicAuthElt != null || autoConfig) {
-            new BasicAuthenticationBeanDefinitionParser(realm).parse(basicAuthElt, parserContext);
-        }
+        
+        parseBasicFormLoginAndOpenID(element, parserContext, autoConfig);
 
         Element x509Elt = DomUtils.getChildElementByTagName(element, Elements.X509);
         if (x509Elt != null) {
@@ -246,6 +237,104 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         registry.registerBeanDefinition(BeanIds.HTTP_POST_PROCESSOR, new RootBeanDefinition(HttpSecurityConfigPostProcessor.class));
 
         return null;
+    }
+    
+    private void parseBasicFormLoginAndOpenID(Element element, ParserContext parserContext, boolean autoConfig) {
+        RootBeanDefinition formLoginFilter = null;
+        RootBeanDefinition formLoginEntryPoint = null;
+        String formLoginPage = null;        
+        RootBeanDefinition openIDFilter = null;
+        RootBeanDefinition openIDEntryPoint = null;
+        String openIDLoginPage = null;
+    	
+        String realm = element.getAttribute(ATT_REALM);
+        if (!StringUtils.hasText(realm)) {
+        	realm = DEF_REALM;
+        }        
+        
+        Element basicAuthElt = DomUtils.getChildElementByTagName(element, Elements.BASIC_AUTH);
+        if (basicAuthElt != null || autoConfig) {
+            new BasicAuthenticationBeanDefinitionParser(realm).parse(basicAuthElt, parserContext);
+        }        
+        
+    	Element formLoginElt = DomUtils.getChildElementByTagName(element, Elements.FORM_LOGIN);
+        
+        if (formLoginElt != null || autoConfig) {
+        	FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_security_check", 
+        			"org.springframework.security.ui.webapp.AuthenticationProcessingFilter");
+        	
+            parser.parse(formLoginElt, parserContext);
+            formLoginFilter = parser.getFilterBean();
+            formLoginEntryPoint = parser.getEntryPointBean();
+            formLoginPage = parser.getLoginPage();
+        }
+        
+        Element openIDLoginElt = DomUtils.getChildElementByTagName(element, Elements.OPENID_LOGIN);
+
+        if (openIDLoginElt != null) {
+        	FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_openid_security_check", 
+        			"org.springframework.security.ui.openid.OpenIDAuthenticationProcessingFilter");
+        	
+            parser.parse(openIDLoginElt, parserContext);
+            openIDFilter = parser.getFilterBean();
+            openIDEntryPoint = parser.getEntryPointBean();
+            openIDLoginPage = parser.getLoginPage();
+        }
+        
+        if (formLoginFilter == null && openIDFilter == null) {
+        	return;
+        }
+        
+        if (formLoginFilter != null) {
+	        parserContext.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_FILTER, formLoginFilter);
+	        parserContext.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_ENTRY_POINT, formLoginEntryPoint);
+        }        
+
+        if (openIDFilter != null) {
+	        parserContext.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_FILTER, openIDFilter);
+	        parserContext.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_ENTRY_POINT, openIDEntryPoint);
+        }
+
+        // If no login page has been defined, add in the default page generator.
+        if (formLoginPage == null && openIDLoginPage == null) {
+            logger.info("No login page configured. The default internal one will be used. Use the '"
+                     + FormLoginBeanDefinitionParser.ATT_LOGIN_PAGE + "' attribute to set the URL of the login page.");
+            BeanDefinitionBuilder loginPageFilter = 
+            	BeanDefinitionBuilder.rootBeanDefinition(DefaultLoginPageGeneratingFilter.class);
+            
+            if (formLoginFilter != null) {
+            	loginPageFilter.addConstructorArg(new RuntimeBeanReference(BeanIds.FORM_LOGIN_FILTER));
+            }
+            
+            if (openIDFilter != null) {
+            	loginPageFilter.addConstructorArg(new RuntimeBeanReference(BeanIds.OPEN_ID_FILTER));
+            }
+
+            parserContext.getRegistry().registerBeanDefinition(BeanIds.DEFAULT_LOGIN_PAGE_GENERATING_FILTER, 
+            		loginPageFilter.getBeanDefinition());
+        }
+        
+        // We need to establish the main entry point.
+        // Basic takes precedence if explicit element is used and no others are configured
+        if (basicAuthElt != null && formLoginElt == null && openIDLoginElt == null) {
+        	parserContext.getRegistry().registerAlias(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
+        	return;
+        }
+        
+        // If formLogin has been enabled either through an element or auto-config, then it is used if no openID login page
+        // has been set
+        if (formLoginFilter != null && openIDLoginPage == null) {
+        	parserContext.getRegistry().registerAlias(BeanIds.FORM_LOGIN_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
+        	return;        	
+        }
+        
+        // Otherwise use OpenID
+        if (openIDFilter != null && formLoginFilter == null) {
+        	parserContext.getRegistry().registerAlias(BeanIds.OPEN_ID_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
+        	return;        	
+        }
+        
+        throw new IllegalStateException("Couldn't set entry point");
     }
     
     static UrlMatcher createUrlMatcher(Element element) {

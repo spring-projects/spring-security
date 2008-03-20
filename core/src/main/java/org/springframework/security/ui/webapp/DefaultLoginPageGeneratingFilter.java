@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.FilterChainOrder;
@@ -26,21 +27,52 @@ import org.springframework.security.ui.rememberme.AbstractRememberMeServices;
 public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
     public static final String DEFAULT_LOGIN_PAGE_URL = "/spring_security_login";
     public static final String ERROR_PARAMETER_NAME = "login_error";
+    boolean formLoginEnabled;
+    boolean openIdEnabled;
     private String authenticationUrl;
     private String usernameParameter;
     private String passwordParameter;
     private String rememberMeParameter;
-
-    public DefaultLoginPageGeneratingFilter(AuthenticationProcessingFilter authFilter) {
-        authenticationUrl = authFilter.getDefaultFilterProcessesUrl();
-        usernameParameter = authFilter.getUsernameParameter();
-        passwordParameter = authFilter.getPasswordParameter();
-
-        if (authFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
-            rememberMeParameter = ((AbstractRememberMeServices)authFilter.getRememberMeServices()).getParameter();
-        }
+    private String openIDauthenticationUrl;
+    private String openIDusernameParameter;
+    private String openIDrememberMeParameter;
+    
+    public DefaultLoginPageGeneratingFilter(AbstractProcessingFilter filter) {
+    	if (filter instanceof AuthenticationProcessingFilter) {
+    		init((AuthenticationProcessingFilter)filter, null);
+    	} else {
+    		init(null, filter);
+    	}
     }
+    
+    public DefaultLoginPageGeneratingFilter(AuthenticationProcessingFilter authFilter, AbstractProcessingFilter openIDFilter) {
+    	init(authFilter, openIDFilter);
+    }
+    
+    private void init(AuthenticationProcessingFilter authFilter, AbstractProcessingFilter openIDFilter) {
+    	if (authFilter != null) {
+    		formLoginEnabled = true;
+	        authenticationUrl = authFilter.getDefaultFilterProcessesUrl();
+	        usernameParameter = authFilter.getUsernameParameter();
+	        passwordParameter = authFilter.getPasswordParameter();
+	
+	        if (authFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
+	            rememberMeParameter = ((AbstractRememberMeServices)authFilter.getRememberMeServices()).getParameter();
+	        }
+    	}
+    	
+    	if (openIDFilter != null) {
+    		openIdEnabled = true;
+    		openIDauthenticationUrl = openIDFilter.getAuthenticationFailureUrl();
+    		openIDusernameParameter = (String) (new BeanWrapperImpl(openIDFilter)).getPropertyValue("claimedIdentityFieldName");
 
+	        if (openIDFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
+	        	openIDrememberMeParameter = ((AbstractRememberMeServices)openIDFilter.getRememberMeServices()).getParameter();
+	        }
+    	}    	
+    }
+    
+    
     protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (isLoginUrlRequest(request)) {
             response.getOutputStream().print(generateLoginPageHtml(request));
@@ -68,24 +100,59 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
                 }
             }
         }
-
-        return "<html><head><title>Login Page</title></head><body onload='document.f.j_username.focus();'>\n" +
-                (loginError ? ("<font color='red'>Your login attempt was not successful, try again.<br/><br/>Reason: " +
-                        errorMsg + "</font>") : "") +
-                " <form name='f' action='" + request.getContextPath() + authenticationUrl + "' method='POST'>\n" +
-                "   <table>\n" +
-                "     <tr><td>User:</td><td><input type='text' name='" + usernameParameter + "'  value='" + lastUser +
-                "'></td></tr>\n" +
-                "     <tr><td>Password:</td><td><input type='password' name='"+ passwordParameter +"'></td></tr>\n" +
-
-                (rememberMeParameter == null ? "" :
-                "     <tr><td><input type='checkbox' name='"+ rememberMeParameter +
-                        "'></td><td>Remember me on this computer.</td></tr>\n"
-                ) +
-                "     <tr><td colspan='2'><input name=\"submit\" type=\"submit\"></td></tr>\n" +
-                "     <tr><td colspan='2'><input name=\"reset\" type=\"reset\"></td></tr>\n" +
-                "   </table>\n" +
-                " </form></body></html>";
+        
+        StringBuffer sb = new StringBuffer();
+        
+        sb.append("<html><head><title>Login Page</title></head>");
+        
+        if (formLoginEnabled) {
+        	sb.append("<body onload='document.f.").append(usernameParameter).append(".focus();'>\n");
+        }
+        
+        if (loginError) {
+        	sb.append("<p><font color='red'>Your login attempt was not successful, try again.<br/><br/>Reason: ");
+            sb.append(errorMsg);
+            sb.append("</font></p>");
+        }
+        
+        if (formLoginEnabled) {
+        	sb.append("<h3>Login with Username and Password</h3>");
+	        sb.append("<form name='f' action='").append(request.getContextPath()).append(authenticationUrl).append("' method='POST'>\n");
+	        sb.append(" <table>\n");
+	        sb.append("    <tr><td>User:</td><td><input type='text' name='");
+	        sb.append(usernameParameter).append("' value='").append(lastUser).append("'></td></tr>\n");
+	        sb.append("    <tr><td>Password:</td><td><input type='password' name='").append(passwordParameter).append("'/></td></tr>\n");
+	
+	        if (rememberMeParameter != null) {
+	        	sb.append("    <tr><td><input type='checkbox' name='").append(rememberMeParameter).append("'/></td><td>Remember me on this computer.</td></tr>\n");
+	        }
+	
+	        sb.append("    <tr><td colspan='2'><input name=\"submit\" type=\"submit\"/></td></tr>\n");
+	        sb.append("    <tr><td colspan='2'><input name=\"reset\" type=\"reset\"/></td></tr>\n");
+	        sb.append("  </table>\n");
+	        sb.append("</form>");
+        }
+        
+        if(openIdEnabled) {
+        	sb.append("<h3>Login with OpenID Identity</h3>");
+	        sb.append("<form name='oidf' action='").append(request.getContextPath()).append(openIDauthenticationUrl).append("' method='POST'>\n");
+	        sb.append(" <table>\n");
+	        sb.append("    <tr><td>Identity:</td><td><input type='text' name='");
+	        sb.append(openIDusernameParameter).append("'/></td></tr>\n");
+	
+	        if (rememberMeParameter != null) {
+	        	sb.append("    <tr><td><input type='checkbox' name='").append(openIDrememberMeParameter).append("'></td><td>Remember me on this computer.</td></tr>\n");
+	        }
+	
+	        sb.append("    <tr><td colspan='2'><input name=\"submit\" type=\"submit\"/></td></tr>\n");
+	        sb.append("    <tr><td colspan='2'><input name=\"reset\" type=\"reset\"/></td></tr>\n");
+	        sb.append("  </table>\n");
+	        sb.append("</form>");        	
+        }
+        
+        sb.append("</body></html>");
+        
+        return sb.toString();
     }
 
     public int getOrder() {

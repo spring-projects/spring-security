@@ -223,7 +223,7 @@ logout.attlist &=
     attribute invalidate-session {"true" | "false"}?
 
 form-login =
-    ## Sets up a form login configuration
+    ## Sets up a form login configuration for authentication with a username and password
     element form-login {form-login.attlist, empty}
 form-login.attlist &=
     ## The URL that the login form is posted to. If unspecified, it defaults to /j_spring_security_check.
@@ -237,6 +237,11 @@ form-login.attlist &=
 form-login.attlist &=
     ## The URL for the login failure page. If no login failure URL is specified, Spring Security will automatically create a failure login URL at /spring_security_login?login_error and a corresponding filter to render that login failure URL when requested.
     attribute authentication-failure-url {xsd:string}?
+
+openid-login = 
+    ## Sets up form login for authentication with an Open ID identity
+    element openid-login {form-login.attlist, empty}
+
 
 filter-chain-map =
     ## Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
