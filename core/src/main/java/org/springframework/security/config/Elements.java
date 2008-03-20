@@ -22,6 +22,7 @@ abstract class Elements {
 	public static final String CONCURRENT_SESSIONS = "concurrent-session-control";
 	public static final String LOGOUT = "logout";
 	public static final String FORM_LOGIN = "form-login";
+	public static final String OPENID_LOGIN = "openid-login";	
 	public static final String BASIC_AUTH = "http-basic";
 	public static final String REMEMBER_ME = "remember-me";
 	public static final String ANONYMOUS = "anonymous";

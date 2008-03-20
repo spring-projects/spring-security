@@ -31,6 +31,9 @@ public abstract class BeanIds {
 	public static final String AUTHENTICATION_MANAGER = "_authenticationManager";
 	public static final String FORM_LOGIN_FILTER = "_formLoginFilter";
 	public static final String FORM_LOGIN_ENTRY_POINT = "_formLoginEntryPoint";
+	public static final String OPEN_ID_FILTER = "_openIDFilter";
+	public static final String OPEN_ID_ENTRY_POINT = "_openIDFilterEntryPoint";	
+	public static final String MAIN_ENTRY_POINT = "_mainEntryPoint";	
 	public static final String FILTER_CHAIN_PROXY = "_filterChainProxy";
 	public static final String HTTP_SESSION_CONTEXT_INTEGRATION_FILTER = "_httpSessionContextIntegrationFilter";
 	public static final String LOGOUT_FILTER = "_logoutFilter";
