@@ -197,6 +197,6 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
     }
 
     public int getOrder() {
-        return FilterChainOrder.AUTHENTICATION_PROCESSING_FILTER;
+    	return FilterChainOrder.OPENID_PROCESSING_FILTER;
     }
 }
