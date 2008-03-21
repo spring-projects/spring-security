@@ -39,8 +39,8 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * An {@link org.springframework.security.providers.AuthenticationProvider} implementation that provides integration
- * with an LDAP server.
+ * An {@link org.springframework.security.providers.AuthenticationProvider} implementation that authenticates
+ * against an LDAP server.
  * <p>
  * There are many ways in which an LDAP directory can be configured so this class delegates most of
  * its responsibilites to two separate strategy interfaces, {@link LdapAuthenticator}
@@ -73,27 +73,30 @@ import org.apache.commons.logging.LogFactory;
  *
  * A simple configuration might be as follows:
  * <pre>
- *    &lt;bean id="initialDirContextFactory" class="org.springframework.security.providers.ldap.DefaultInitialDirContextFactory">
- *      &lt;constructor-arg value="ldap://monkeymachine:389/dc=springframework,dc=org"/>
- *      &lt;property name="managerDn">&lt;value>cn=manager,dc=springframework,dc=org&lt;/value>&lt;/property>
- *      &lt;property name="managerPassword">&lt;value>password&lt;/value>&lt;/property>
- *    &lt;/bean>
+ *   &lt;bean id=&quot;contextSource&quot;
+ *       class=&quot;org.springframework.security.ldap.DefaultSpringSecurityContextSource&quot;&gt;
+ *     &lt;constructor-arg value=&quot;ldap://monkeymachine:389/dc=springframework,dc=org&quot;/&gt;
+ *     &lt;property name=&quot;userDn&quot; value=&quot;cn=manager,dc=springframework,dc=org&quot;/&gt;
+ *     &lt;property name=&quot;password&quot; value=&quot;password&quot;/&gt;
+ *   &lt;/bean&gt;
  *
- *    &lt;bean id="ldapAuthProvider" class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
- *      &lt;constructor-arg>
- *        &lt;bean class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator">
- *          &lt;constructor-arg>&lt;ref local="initialDirContextFactory"/>&lt;/constructor-arg>
- *          &lt;property name="userDnPatterns">&lt;list>&lt;value>uid={0},ou=people&lt;/value>&lt;/list>&lt;/property>
- *        &lt;/bean>
- *      &lt;/constructor-arg>
- *      &lt;constructor-arg>
- *        &lt;bean class="org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
- *          &lt;constructor-arg>&lt;ref local="initialDirContextFactory"/>&lt;/constructor-arg>
- *          &lt;constructor-arg>&lt;value>ou=groups&lt;/value>&lt;/constructor-arg>
- *          &lt;property name="groupRoleAttribute">&lt;value>ou&lt;/value>&lt;/property>
- *        &lt;/bean>
- *      &lt;/constructor-arg>
- *    &lt;/bean></pre>
+ *   &lt;bean id=&quot;ldapAuthProvider&quot;
+ *       class=&quot;org.springframework.security.providers.ldap.LdapAuthenticationProvider&quot;&gt;
+ *     &lt;constructor-arg&gt;
+ *       &lt;bean class=&quot;org.springframework.security.providers.ldap.authenticator.BindAuthenticator&quot;&gt;
+ *           &lt;constructor-arg ref=&quot;contextSource&quot;/&gt;
+ *           &lt;property name=&quot;userDnPatterns&quot;&gt;&lt;list&gt;&lt;value&gt;uid={0},ou=people&lt;/value&gt;&lt;/list&gt;&lt;/property&gt;
+ *       &lt;/bean&gt;
+ *     &lt;/constructor-arg&gt;
+ *     &lt;constructor-arg&gt;
+ *       &lt;bean class=&quot;org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator&quot;&gt;
+ *           &lt;constructor-arg ref=&quot;contextSource&quot;/&gt;
+ *           &lt;constructor-arg value=&quot;ou=groups&quot;/&gt;
+ *           &lt;property name=&quot;groupRoleAttribute&quot; value=&quot;ou&quot;/&gt;
+ *       &lt;/bean&gt;
+ *     &lt;/constructor-arg&gt;
+ *   &lt;/bean&gt;
+ *    </pre>
  *
  * <p>
  * This would set up the provider to access an LDAP server with URL
