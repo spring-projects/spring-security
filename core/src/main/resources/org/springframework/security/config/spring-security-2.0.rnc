@@ -165,7 +165,7 @@ annotation-driven.attlist &=
 
 http =
     ## Container element for HTTP security configuration
-   element http {http.attlist, (intercept-url+ & form-login? & x509? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous? & port-mappings) }
+   element http {http.attlist, (intercept-url+ & form-login? & openid-login & x509? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous? & port-mappings) }
 http.attlist &=
     ## Automatically registers a login form, BASIC authentication, anonymous authentication, logout services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".
     attribute auto-config {"true" | "false" }?
@@ -240,7 +240,7 @@ form-login.attlist &=
 
 openid-login = 
     ## Sets up form login for authentication with an Open ID identity
-    element openid-login {form-login.attlist, empty}
+    element openid-login {form-login.attlist, user-service-ref?, empty}
 
 
 filter-chain-map =

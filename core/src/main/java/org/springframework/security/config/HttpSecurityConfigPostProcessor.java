@@ -43,6 +43,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         injectUserDetailsServiceIntoRememberMeServices(beanFactory);
         injectUserDetailsServiceIntoX509Provider(beanFactory);
+        injectUserDetailsServiceIntoOpenIDProvider(beanFactory);
 
         injectAuthenticationEntryPointIntoExceptionTranslationFilter(beanFactory);
 
@@ -80,6 +81,20 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
             // ignore
         }
     }
+    
+    private void injectUserDetailsServiceIntoOpenIDProvider(ConfigurableListableBeanFactory beanFactory) {
+        try {
+            BeanDefinition openIDProvider = beanFactory.getBeanDefinition(BeanIds.OPEN_ID_PROVIDER);
+            PropertyValue pv = openIDProvider.getPropertyValues().getPropertyValue("userDetailsService");
+
+            if (pv == null) {
+                openIDProvider.getPropertyValues().addPropertyValue("userDetailsService",
+                    ConfigUtils.getUserDetailsService(beanFactory));
+            }
+        } catch (NoSuchBeanDefinitionException e) {
+            // ignore
+        }
+    }    
 
     /**
      * Sets the authentication manager, (and remember-me services, if required) on any instances of

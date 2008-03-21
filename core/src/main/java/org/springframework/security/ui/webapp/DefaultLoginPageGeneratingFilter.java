@@ -63,7 +63,7 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
     	
     	if (openIDFilter != null) {
     		openIdEnabled = true;
-    		openIDauthenticationUrl = openIDFilter.getAuthenticationFailureUrl();
+    		openIDauthenticationUrl = openIDFilter.getDefaultFilterProcessesUrl();
     		openIDusernameParameter = (String) (new BeanWrapperImpl(openIDFilter)).getPropertyValue("claimedIdentityFieldName");
 
 	        if (openIDFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {

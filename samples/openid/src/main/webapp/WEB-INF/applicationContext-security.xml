@@ -16,10 +16,11 @@
         <intercept-url pattern="/**" access="ROLE_USER"/>
         <intercept-url pattern="/openidlogin.jsp*" filters="none"/>        
         <logout/>
+        <openid-login />
     </http>
 
     <authentication-manager alias="authenticationManager"/>    
-
+<!-- 
     <b:bean id="openIdFilter" class="org.springframework.security.ui.openid.OpenIDAuthenticationProcessingFilter">
         <custom-filter />        
         <b:property name="authenticationManager" ref="authenticationManager"/>
@@ -35,7 +36,7 @@
     <b:bean id="entryPoint" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
         <b:property name="loginFormUrl" value="/openidlogin.jsp" />
     </b:bean>
-
+-->
     <user-service id="userService">
         <user name="http://luke.taylor.myopenid.com/" password="notused" authorities="ROLE_SUPERVISOR,ROLE_USER" />
         <user name="http://luke.taylor.openid.cn/" password="notused" authorities="ROLE_SUPERVISOR,ROLE_USER" />

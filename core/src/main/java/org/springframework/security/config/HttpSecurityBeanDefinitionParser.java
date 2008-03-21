@@ -83,7 +83,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_SERVLET_API_PROVISION = "servlet-api-provision";
     static final String DEF_SERVLET_API_PROVISION = "true";
 
-    static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
+    static final String ATT_ACCESS_MGR = "access-decision-manager-ref";    
+    static final String ATT_USER_SERVICE_REF = "user-service-ref";    
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinitionRegistry registry = parserContext.getRegistry();
@@ -279,6 +280,20 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             openIDFilter = parser.getFilterBean();
             openIDEntryPoint = parser.getEntryPointBean();
             openIDLoginPage = parser.getLoginPage();
+            
+            BeanDefinitionBuilder openIDProviderBuilder = 
+                BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.providers.openid.OpenIDAuthenticationProvider");
+            
+            String userService = openIDLoginElt.getAttribute(ATT_USER_SERVICE_REF);
+            
+            if (StringUtils.hasText(userService)) {
+                openIDProviderBuilder.addPropertyReference("userDetailsService", userService);
+            }
+            
+            BeanDefinition openIDProvider = openIDProviderBuilder.getBeanDefinition();
+            ConfigUtils.getRegisteredProviders(parserContext).add(openIDProvider);
+            
+            parserContext.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_PROVIDER, openIDProvider);
         }
         
         if (formLoginFilter == null && openIDFilter == null) {
