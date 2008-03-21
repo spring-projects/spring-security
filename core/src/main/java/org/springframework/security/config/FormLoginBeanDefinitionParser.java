@@ -58,6 +58,9 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
             defaultTargetUrl = elt.getAttribute(ATT_FORM_LOGIN_TARGET_URL);
             authenticationFailureUrl = elt.getAttribute(ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL);
             loginPage = elt.getAttribute(ATT_LOGIN_PAGE);
+            if (!StringUtils.hasText(loginPage)) {
+            	loginPage = null;
+            }
             source = parserContext.extractSource(elt);
         }
 
@@ -73,7 +76,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
                 BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProcessingFilterEntryPoint.class);
         entryPointBuilder.setSource(source);
 
-        entryPointBuilder.addPropertyValue("loginFormUrl", StringUtils.hasText(loginPage) ? loginPage : DEF_LOGIN_PAGE);
+        entryPointBuilder.addPropertyValue("loginFormUrl", loginPage != null ? loginPage : DEF_LOGIN_PAGE);
 
         entryPointBean = (RootBeanDefinition) entryPointBuilder.getBeanDefinition();
 

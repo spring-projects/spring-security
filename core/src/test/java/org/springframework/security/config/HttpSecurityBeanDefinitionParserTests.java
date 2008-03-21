@@ -123,6 +123,17 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
+    public void formLoginWithNoLoginPageAddsDefaultLoginPageFilter() {
+        setContext(
+                "    <http auto-config='true' path-type='ant' lowercase-comparisons='false'>" +
+                "        <form-login />" +
+                "    </http>" + AUTH_PROVIDER_XML);
+        FilterChainProxy filterChainProxy = getFilterChainProxy();
+        // These will be matched by the default pattern "/**"
+        checkAutoConfigFilters(filterChainProxy.getFilters("/anything"));
+    }
+    
+    @Test
     public void lowerCaseComparisonIsRespectedBySecurityFilterInvocationDefinitionSource() throws Exception {
         setContext(
                 "    <http auto-config='true' path-type='ant' lowercase-comparisons='false'>" +
