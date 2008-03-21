@@ -15,6 +15,8 @@
 
 package org.springframework.security;
 
+import org.springframework.util.Assert;
+
 /**
  * Stores a {@link ConfigAttribute} as a <code>String</code>.
  *
@@ -29,6 +31,7 @@ public class SecurityConfig implements ConfigAttribute {
     //~ Constructors ===================================================================================================
 
     public SecurityConfig(String config) {
+    	Assert.hasText(config, "You must provide a configuration attribute");
         this.attrib = config;
     }
 

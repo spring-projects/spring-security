@@ -15,7 +15,9 @@
 
 package org.springframework.security;
 
-import junit.framework.TestCase;
+import junit.framework.Assert;
+
+import org.junit.Test;
 
 
 /**
@@ -24,73 +26,63 @@ import junit.framework.TestCase;
  * @author Ben Alex
  * @version $Id$
  */
-public class SecurityConfigTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public SecurityConfigTests() {
-        super();
-    }
-
-    public SecurityConfigTests(String arg0) {
-        super(arg0);
-    }
+public class SecurityConfigTests {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(SecurityConfigTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
+	@Test
     public void testHashCode() {
         SecurityConfig config = new SecurityConfig("TEST");
-        assertEquals("TEST".hashCode(), config.hashCode());
+        Assert.assertEquals("TEST".hashCode(), config.hashCode());
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+	public void testCannotConstructWithNullAttribute() {
+   		new SecurityConfig(null); // SEC-727
     }
 
-    public void testNoArgConstructorDoesntExist() {
-        Class clazz = SecurityConfig.class;
-
-        try {
-            clazz.getDeclaredConstructor((Class[]) null);
-            fail("Should have thrown NoSuchMethodException");
-        } catch (NoSuchMethodException expected) {
-            assertTrue(true);
-        }
+    @Test(expected=IllegalArgumentException.class)
+	public void testCannotConstructWithEmptyAttribute() {
+   		new SecurityConfig(""); // SEC-727
     }
 
+    @Test(expected=NoSuchMethodException.class)
+    public void testNoArgConstructorDoesntExist() throws Exception {
+    	SecurityConfig.class.getDeclaredConstructor((Class[]) null);
+    }
+
+	@Test
     public void testObjectEquals() throws Exception {
         SecurityConfig security1 = new SecurityConfig("TEST");
         SecurityConfig security2 = new SecurityConfig("TEST");
-        assertEquals(security1, security2);
+        Assert.assertEquals(security1, security2);
 
         // SEC-311: Must observe symmetry requirement of Object.equals(Object) contract
         String securityString1 = "TEST";
-        assertNotSame(security1, securityString1);
+        Assert.assertNotSame(security1, securityString1);
 
         String securityString2 = "NOT_EQUAL";
-        assertTrue(!security1.equals(securityString2));
+        Assert.assertTrue(!security1.equals(securityString2));
 
         SecurityConfig security3 = new SecurityConfig("NOT_EQUAL");
-        assertTrue(!security1.equals(security3));
+        Assert.assertTrue(!security1.equals(security3));
 
         MockConfigAttribute mock1 = new MockConfigAttribute("TEST");
-        assertEquals(security1, mock1);
+        Assert.assertEquals(security1, mock1);
 
         MockConfigAttribute mock2 = new MockConfigAttribute("NOT_EQUAL");
-        assertTrue(!security1.equals(mock2));
+        Assert.assertTrue(!security1.equals(mock2));
 
         Integer int1 = new Integer(987);
-        assertTrue(!security1.equals(int1));
+        Assert.assertTrue(!security1.equals(int1));
     }
 
+	@Test
     public void testToString() {
         SecurityConfig config = new SecurityConfig("TEST");
-        assertEquals("TEST", config.toString());
-    }
-
+        Assert.assertEquals("TEST", config.toString());
+	}
+	
     //~ Inner Classes ==================================================================================================
 
     private class MockConfigAttribute implements ConfigAttribute {
