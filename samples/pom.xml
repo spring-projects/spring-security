@@ -10,16 +10,13 @@
     <name>Spring Security - Samples</name>
     <packaging>pom</packaging>
     <modules>
-        <!--
-           <module>annotations</module>
-           <module>attributes</module>
-           <module>dms</module>
-        -->
         <module>contacts</module>
         <module>tutorial</module>
         <module>dms</module>
         <module>preauth</module>
         <module>openid</module>
+        <module>ldap</module>
+        <module>portlet</module>        
     </modules>
 
     <dependencies>
