@@ -372,10 +372,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-eclipse-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.5</version>
                 <configuration>
                     <downloadSources>true</downloadSources>
-                    <wtpversion>1.0</wtpversion>
+                    <wtpversion>1.5</wtpversion>
                 </configuration>
             </plugin>
             <plugin>
@@ -666,6 +666,7 @@
     <properties>        
         <spring.version>2.0.8</spring.version>
         <felix.version>1.4.0</felix.version>
+        <jstl.version>1.1.2</jstl.version>
         <docbook.source>${basedir}/src/docbkx</docbook.source>
         <docbook.target>${basedir}/target/site/guide</docbook.target>        
     </properties>
