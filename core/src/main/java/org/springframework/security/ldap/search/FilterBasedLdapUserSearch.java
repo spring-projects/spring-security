@@ -106,7 +106,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
      */
     public DirContextOperations searchForUser(String username) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Searching for user '" + username + "', with user search " + this.toString());
+            logger.debug("Searching for user '" + username + "', with user search " + this);
         }
 
         SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(contextSource);
@@ -162,7 +162,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
         sb.append("searchBase: '").append(searchBase).append("'");
         sb.append(", scope: ")
           .append(searchControls.getSearchScope() == SearchControls.SUBTREE_SCOPE ? "subtree" : "single-level, ");
-        sb.append("searchTimeLimit: ").append(searchControls.getTimeLimit());
+        sb.append(", searchTimeLimit: ").append(searchControls.getTimeLimit());
         sb.append(", derefLinkFlag: ").append(searchControls.getDerefLinkFlag()).append(" ]");
 
         return sb.toString();
