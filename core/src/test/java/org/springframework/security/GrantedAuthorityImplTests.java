@@ -87,10 +87,6 @@ public class GrantedAuthorityImplTests extends TestCase {
 			return this.role.compareTo(((GrantedAuthority)o).getAuthority());
 		}
 
-		private MockGrantedAuthorityImpl() {
-            super();
-        }
-
         public String getAuthority() {
             return this.role;
         }

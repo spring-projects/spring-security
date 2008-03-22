@@ -17,7 +17,6 @@ package org.springframework.security.config;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.Assert;
 

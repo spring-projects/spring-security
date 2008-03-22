@@ -15,7 +15,6 @@
 
 package org.springframework.security.userdetails;
 
-import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
