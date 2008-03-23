@@ -55,14 +55,17 @@ public class PasswordEncoderParser {
     private BeanMetadataElement passwordEncoder;
     private BeanDefinition saltSource;
 
-
     public PasswordEncoderParser(Element element, ParserContext parserContext) {
         parse(element, parserContext);
     }
 
     private void parse(Element element, ParserContext parserContext) {
         String hash = element.getAttribute(ATT_HASH);
-        boolean useBase64 = StringUtils.hasText(element.getAttribute(ATT_BASE_64));
+        boolean useBase64 = false;
+        
+        if (StringUtils.hasText(element.getAttribute(ATT_BASE_64))) {
+            useBase64 = Boolean.parseBoolean(element.getAttribute(ATT_BASE_64));
+        }
 
         String ref = element.getAttribute(ATT_REF);
 
@@ -73,10 +76,10 @@ public class PasswordEncoderParser {
             RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
             beanDefinition.setSource(parserContext.extractSource(element));
             if (useBase64) {
-                if (beanClass.isAssignableFrom(BaseDigestPasswordEncoder.class)) {
+                if (BaseDigestPasswordEncoder.class.isAssignableFrom(beanClass)) {
                     beanDefinition.getPropertyValues().addPropertyValue("encodeHashAsBase64", "true");
                 } else {
-                    logger.warn(ATT_BASE_64 + " isn't compatible with " + OPT_HASH_LDAP_SHA + " and will be ignored");
+                    logger.warn(ATT_BASE_64 + " isn't compatible with " + hash + " and will be ignored");
                 }
             }
             passwordEncoder = beanDefinition;

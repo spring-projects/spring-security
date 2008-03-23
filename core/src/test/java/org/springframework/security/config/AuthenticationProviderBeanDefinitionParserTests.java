@@ -72,19 +72,17 @@ public class AuthenticationProviderBeanDefinitionParserTests {
     }
 
     @Test
-    public void worksWithJdbcUserService() throws Exception {
+    public void passwordIsBase64EncodedWhenBase64IsEnabled() throws Exception {
         setContext(" <authentication-provider>" +
-                "        <password-encoder hash='{sha}'/>" +
+                "        <password-encoder hash='md5' base64='true'/>" +
                 "        <user-service>" +
-                "            <user name='bob' password='{SSHA}PpuEwfdj7M1rs0C2W4ssSM2XEN/Y6S5U' authorities='ROLE_A' />" +
+                "            <user name='bob' password='ErFB811YuLOkbupl5qwXng==' authorities='ROLE_A' />" +
                 "        </user-service>" +
                 "    </authentication-provider>");
 
         getProvider().authenticate(bob);
-    }
-
-
-
+    }    
+    
     @Test
     public void externalUserServiceAndPasswordEncoderWork() throws Exception {
         setContext(" <authentication-provider user-service-ref='customUserService'>" +
