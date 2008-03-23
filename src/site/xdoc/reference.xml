@@ -32,30 +32,18 @@
       <subsection name="Overview of the Reference Documentation">
         <table>
           <tr><th>Document</th><th>Description</th></tr>
-
-			<!--  disabled by Ben Alex on 9 April 2005 as it is still not auto-updating on Monkey Machine nightly build
           <tr>
             <td>
-              <a href="docbook/index.html">Reference Guide HTML One Page per Chapter</a>
+              <a href="reference/springsecurity.html">Reference Guide as HTML</a>
             </td>
             <td>
-              The reference guide using one page per chapter.
-            </td>
-          </tr>
-			 -->
-
-          <tr>
-            <td>
-              <a href="guide/springsecurity.html">Reference Guide HTML Single Page</a>
-            </td>
-            <td>
-              The reference guide in a single html page.
+              The reference guide in a HTML.
             </td>
           </tr>
 
           <tr>
             <td>
-              <a href="guide/springsecurity.pdf">Reference Guide PDF</a>
+              <a href="reference/springsecurity.pdf">Reference Guide PDF</a>
             </td>
             <td>
               The PDF version of the reference guide.
