@@ -27,7 +27,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-	        <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -38,11 +37,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-aop</artifactId>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>cas</groupId>
-            <artifactId>casclient</artifactId>
-            <version>2.1.1</version>
         </dependency>
         <dependency>
           <groupId>net.sf.ehcache</groupId>

@@ -41,8 +41,7 @@
         <dependency>
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
-            <version>1.0.6</version>
-            <optional>true</optional>
+            <scope>test</scope>
         </dependency>        
     </dependencies>
     <build>

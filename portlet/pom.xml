@@ -19,8 +19,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>2.4</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>javax.portlet</groupId>
@@ -31,7 +29,6 @@
         <dependency>
           <groupId>org.springframework</groupId>
           <artifactId>spring-dao</artifactId>
-          <version>${spring.version}</version>
         </dependency>
         <dependency>
           <groupId>org.springframework</groupId>
@@ -42,7 +39,7 @@
           <groupId>org.springframework</groupId>
           <artifactId>spring-mock</artifactId>
           <version>${spring.version}</version>
-          <optional>true</optional>
+          <scope>test</scope>
         </dependency>
         <dependency>
           <groupId>net.sf.ehcache</groupId>

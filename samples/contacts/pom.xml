@@ -28,7 +28,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>${spring.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -47,22 +46,26 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-mock</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>2.4</version>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <version>1.3.0</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>hessian</groupId>
-            <artifactId>hessian</artifactId>
-            <version>3.0.1</version>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>hsqldb</groupId>
@@ -71,10 +74,9 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-mock</artifactId>
-            <version>${spring.version}</version>
-            <scope>test</scope>
+            <groupId>hessian</groupId>
+            <artifactId>hessian</artifactId>
+            <version>3.0.1</version>
         </dependency>
     </dependencies>
 

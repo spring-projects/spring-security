@@ -31,13 +31,11 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-dao</artifactId>
-      <version>${spring.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
-      <version>2.4</version>
       <optional>true</optional>
     </dependency>
     <dependency>
