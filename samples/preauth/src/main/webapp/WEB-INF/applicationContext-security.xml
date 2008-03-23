@@ -53,12 +53,8 @@
 	</bean>
 
     <bean id="authenticationDetailsSource" class="org.springframework.security.ui.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource">
-        <property name="j2eeMappableRolesRetriever">
-        <ref local="j2eeMappableRolesRetriever"/>
-        </property>
-        <property name="j2eeUserRoles2GrantedAuthoritiesMapper">
-        <ref local="j2eeUserRoles2GrantedAuthoritiesMapper"/>
-        </property>
+        <property name="mappableRolesRetriever" ref="j2eeMappableRolesRetriever"/>
+        <property name="userRoles2GrantedAuthoritiesMapper" ref="j2eeUserRoles2GrantedAuthoritiesMapper"/>
     </bean>
 
 	<bean id="j2eeUserRoles2GrantedAuthoritiesMapper" class="org.springframework.security.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper">
@@ -79,9 +75,7 @@
     <bean id="servletContext" class="org.springframework.web.context.support.ServletContextFactoryBean"/>
 
     <bean id="etf" class="org.springframework.security.ui.ExceptionTranslationFilter">
-        <property name="authenticationEntryPoint">
-            <ref local="preAuthenticatedProcessingFilterEntryPoint"/>
-        </property>
+        <property name="authenticationEntryPoint" ref="preAuthenticatedProcessingFilterEntryPoint"/>
     </bean>
 
 	<bean id="httpRequestAccessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
