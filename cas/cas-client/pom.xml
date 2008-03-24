@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-cas-client</artifactId>
-    <name>Spring Security - CAS Client Integration</name>
+    <name>Spring Security - CAS client integration</name>
     <version>2.0-SNAPSHOT</version>
 
     <dependencies>
@@ -34,7 +34,6 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.3.0</version>
             <optional>true</optional>
         </dependency>
     </dependencies>

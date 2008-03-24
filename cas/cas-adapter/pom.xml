@@ -6,7 +6,7 @@
     <version>2.0-SNAPSHOT</version>
   </parent>
   <artifactId>spring-security-cas-adapter</artifactId>
-  <name>Spring Security - CAS Adapter</name>
+  <name>Spring Security - CAS adapter</name>
   <build>
 	  <plugins>
 			<plugin>
