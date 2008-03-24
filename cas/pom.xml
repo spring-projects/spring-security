@@ -7,7 +7,7 @@
         <version>2.0-SNAPSHOT</version>
     </parent>
     <artifactId>spring-security-cas</artifactId>
-    <name>Spring Security - CAS Support</name>
+    <name>Spring Security - CAS support</name>
     <packaging>pom</packaging>
 
     <modules>

@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-captcha</artifactId>
-    <name>Spring Security - Captcha Module</name>
+    <name>Spring Security - Captcha module</name>
     <version>2.0-SNAPSHOT</version>
 
     <dependencies>
