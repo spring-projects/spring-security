@@ -1,10 +1,12 @@
 package org.springframework.security.intercept.method.aopalliance;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.ITargetObject;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
@@ -29,6 +31,11 @@ public class MethodSecurityInterceptorWithAopConfigTests {
         "</b:bean>";
     
     private AbstractXmlApplicationContext appContext;
+    
+    @Before
+    public void clearContext() {
+        SecurityContextHolder.clearContext();
+    }
     
     @After
     public void closeAppContext() {
