@@ -3,7 +3,6 @@ package org.springframework.security.intercept.method.aopalliance;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
-import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.ITargetObject;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
