@@ -34,6 +34,7 @@ import org.springframework.util.ObjectUtils;
  * 
  * @author Ben Alex
  * @version $Id$
+ * @since 2.0
  */
 public abstract class AbstractFallbackMethodDefinitionSource implements MethodDefinitionSource {
 
@@ -144,7 +145,7 @@ public abstract class AbstractFallbackMethodDefinitionSource implements MethodDe
      * Note that the {@link Method#getDeclaringClass()} may not equal the <code>targetClass</code>.
      * Both parameters are provided to assist subclasses which may wish to provide advanced
      * capabilities related to method metadata being "registered" against a method even if the
-     * target class does not declare the method (ie the subclass may only inherit the method).
+     * target class does not declare the method (i.e. the subclass may only inherit the method).
      * 
      * @param method the method for the current invocation (never <code>null</code>)
      * @param targetClass the target class for the invocation (may be <code>null</code>)
@@ -195,6 +196,6 @@ public abstract class AbstractFallbackMethodDefinitionSource implements MethodDe
 		public String toString() {
 			return "CacheKey[" + (targetClass == null ? "-" : targetClass.getName()) + "; " + method + "]";
 		}
-}
+	}
     
 }

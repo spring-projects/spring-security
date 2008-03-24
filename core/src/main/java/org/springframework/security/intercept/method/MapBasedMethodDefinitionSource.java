@@ -42,7 +42,8 @@ import org.springframework.util.ClassUtils;
  * </p>
  * 
  * @author Ben Alex
- * @version $Id: MethodDefinitionMap.java 2558 2008-01-30 15:43:40Z luke_t $
+ * @version $Id$
+ * @since 2.0
  */
 public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefinitionSource implements BeanClassLoaderAware {
     //~ Static fields/initializers =====================================================================================
@@ -217,7 +218,7 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
     protected ConfigAttributeDefinition lookupAttributes(Method method) {
         List attributesToReturn = new ArrayList();
 
-        // Add attributes explictly defined for this method invocation
+        // Add attributes explicitly defined for this method invocation
         merge(attributesToReturn, (ConfigAttributeDefinition) this.methodMap.get(method));
 
         // Add attributes explicitly defined for this method invocation's interfaces
@@ -268,8 +269,8 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
 	/**
 	 * Stores both the Java Method as well as the Class we obtained the Method from. This is necessary because Method only
 	 * provides us access to the declaring class. It doesn't provide a way for us to introspect which Class the Method
-	 * was registered against. If a given Class inherits and redeclares a method (ie calls super();) the registered Class
-	 * and delcaring Class are the same. If a given class merely inherits but does not redeclare a method, the registered
+	 * was registered against. If a given Class inherits and redeclares a method (i.e. calls super();) the registered Class
+	 * and declaring Class are the same. If a given class merely inherits but does not redeclare a method, the registered
 	 * Class will be the Class we're invoking against and the Method will provide details of the declared class.
 	 */
 	private class RegisteredMethod {

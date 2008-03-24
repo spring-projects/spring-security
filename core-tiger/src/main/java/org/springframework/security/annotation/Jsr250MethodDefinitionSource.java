@@ -35,6 +35,7 @@ import org.springframework.security.intercept.method.AbstractFallbackMethodDefin
  *
  * @author Ben Alex
  * @version $Id$
+ * @since 2.0
  */
 public class Jsr250MethodDefinitionSource extends AbstractFallbackMethodDefinitionSource {
 

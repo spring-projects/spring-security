@@ -31,7 +31,7 @@ import java.lang.reflect.Method;
 
 
 /**
- * Abstract implementation of <Code>MethodDefinitionSource</code>.
+ * Abstract implementation of <code>MethodDefinitionSource</code>.
  *
  * @author Ben Alex
  * @version $Id$
