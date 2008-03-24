@@ -52,6 +52,13 @@
 		    <artifactId>aspectjrt</artifactId>
 		    <optional>true</optional>
 	    </dependency>
+	    <dependency>
+	        <groupId>org.aspectj</groupId>
+		    <artifactId>aspectjweaver</artifactId>
+		    <version>1.5.4</version>
+		    <scope>test</scope>
+		    <optional>true</optional>
+	    </dependency>	    
         <dependency>
             <groupId>org.springframework.ldap</groupId>
             <artifactId>spring-ldap</artifactId>
