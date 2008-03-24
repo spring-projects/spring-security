@@ -32,11 +32,13 @@ public class SimpleMethodInvocation implements MethodInvocation {
 
     private Method method;
     private Object[] arguments;
+    private Object targetObject;
 
     //~ Constructors ===================================================================================================
 
-    public SimpleMethodInvocation(Method method, Object[] arguments) {
-        this.method = method;
+    public SimpleMethodInvocation(Object targetObject, Method method, Object[] arguments) {
+        this.targetObject = targetObject;
+    	this.method = method;
         this.arguments = arguments;
     }
 
@@ -57,7 +59,7 @@ public class SimpleMethodInvocation implements MethodInvocation {
     }
 
     public Object getThis() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return targetObject;
     }
 
     public Object proceed() throws Throwable {

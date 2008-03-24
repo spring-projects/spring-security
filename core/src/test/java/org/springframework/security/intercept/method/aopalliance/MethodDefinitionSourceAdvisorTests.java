@@ -15,16 +15,13 @@
 
 package org.springframework.security.intercept.method.aopalliance;
 
+import java.lang.reflect.Method;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.TargetObject;
-
-import org.springframework.security.intercept.method.MethodDefinitionMap;
+import org.springframework.security.intercept.method.MapBasedMethodDefinitionSource;
 import org.springframework.security.intercept.method.MethodDefinitionSourceEditor;
-
-import org.springframework.aop.framework.AopConfigException;
-
-import java.lang.reflect.Method;
 
 
 /**
@@ -50,7 +47,7 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText("org.springframework.security.TargetObject.countLength=ROLE_NOT_USED");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
 
         MethodSecurityInterceptor msi = new MethodSecurityInterceptor();
         msi.setObjectDefinitionSource(map);
@@ -90,7 +87,7 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
         try {
             new MethodDefinitionSourceAdvisor(msi);
             fail("Should have detected null ObjectDefinitionSource and thrown AopConfigException");
-        } catch (AopConfigException expected) {
+        } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
     }
@@ -99,7 +96,7 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
         Class clazz = TargetObject.class;
         Method method = clazz.getMethod("countLength", new Class[] {String.class});
 
-        MethodDefinitionSourceAdvisor.InternalMethodInvocation imi = new MethodDefinitionSourceAdvisor(getInterceptor()).new InternalMethodInvocation(method);
+        MethodDefinitionSourceAdvisor.InternalMethodInvocation imi = new MethodDefinitionSourceAdvisor(getInterceptor()).new InternalMethodInvocation(method, clazz);
 
         try {
             imi.getArguments();
@@ -110,13 +107,6 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
 
         try {
             imi.getStaticPart();
-            fail("Should have thrown UnsupportedOperationException");
-        } catch (UnsupportedOperationException expected) {
-            assertTrue(true);
-        }
-
-        try {
-            imi.getThis();
             fail("Should have thrown UnsupportedOperationException");
         } catch (UnsupportedOperationException expected) {
             assertTrue(true);

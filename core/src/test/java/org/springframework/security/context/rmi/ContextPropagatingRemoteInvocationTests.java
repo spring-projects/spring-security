@@ -59,7 +59,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
         throws Exception {
         Class clazz = TargetObject.class;
         Method method = clazz.getMethod("makeLowerCase", new Class[] {String.class});
-        MethodInvocation mi = new SimpleMethodInvocation(method, new Object[] {"SOME_STRING"});
+        MethodInvocation mi = new SimpleMethodInvocation(new TargetObject(), method, new Object[] {"SOME_STRING"});
 
         ContextPropagatingRemoteInvocationFactory factory = new ContextPropagatingRemoteInvocationFactory();
 

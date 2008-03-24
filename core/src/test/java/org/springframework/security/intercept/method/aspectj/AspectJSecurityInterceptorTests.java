@@ -15,26 +15,23 @@
 
 package org.springframework.security.intercept.method.aspectj;
 
+import java.lang.reflect.Method;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.MockAccessDecisionManager;
+import org.springframework.security.MockApplicationEventPublisher;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockJoinPoint;
 import org.springframework.security.MockRunAsManager;
 import org.springframework.security.TargetObject;
-import org.springframework.security.MockApplicationEventPublisher;
-
 import org.springframework.security.context.SecurityContextHolder;
-
-import org.springframework.security.intercept.method.MethodDefinitionMap;
+import org.springframework.security.intercept.method.MapBasedMethodDefinitionSource;
 import org.springframework.security.intercept.method.MethodDefinitionSourceEditor;
-
 import org.springframework.security.providers.TestingAuthenticationToken;
-
-import java.lang.reflect.Method;
 
 
 /**
@@ -74,7 +71,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText("org.springframework.security.TargetObject.countLength=MOCK_ONE,MOCK_TWO");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
         si.setObjectDefinitionSource(map);
         assertEquals(map, si.getObjectDefinitionSource());
 
@@ -105,7 +102,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText("org.springframework.security.TargetObject.countLength=MOCK_ONE,MOCK_TWO");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
         si.setObjectDefinitionSource(map);
 
         si.afterPropertiesSet();

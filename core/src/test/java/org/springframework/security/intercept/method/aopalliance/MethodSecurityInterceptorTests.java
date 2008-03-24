@@ -455,7 +455,11 @@ public class MethodSecurityInterceptorTests extends TestCase {
             throw new UnsupportedOperationException("mock method not implemented");
         }
 
-        public boolean supports(Class clazz) {
+        public ConfigAttributeDefinition getAttributes(Method method, Class targetClass) {
+            throw new UnsupportedOperationException("mock method not implemented");
+		}
+
+		public boolean supports(Class clazz) {
             if (String.class.isAssignableFrom(clazz)) {
                 return true;
             } else {

@@ -15,63 +15,59 @@
 
 package org.springframework.security.intercept.method;
 
-import org.springframework.security.ConfigAttributeDefinition;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.reflect.Method;
-
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
-import java.util.Collections;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 
 /**
- * Stores a {@link ConfigAttributeDefinition} for each method signature defined in a bean context.<p>For
- * consistency with {@link MethodDefinitionAttributes} as well as support for
- * <code>MethodDefinitionSourceAdvisor</code>, this implementation will return a
- * <code>ConfigAttributeDefinition</code> containing all configuration attributes defined against:
- *  <ul>
- *      <li>The method-specific attributes defined for the intercepted method of the intercepted class.</li>
- *      <li>The method-specific attributes defined by any explicitly implemented interface if that interface
- *      contains a method signature matching that of the intercepted method.</li>
- *  </ul>
- *  </p>
- *  <p>In general you should therefore define the <b>interface method</b>s of your secure objects, not the
- * implementations. For example, define <code>com.company.Foo.findAll=ROLE_TEST</code> but not
- * <code>com.company.FooImpl.findAll=ROLE_TEST</code>.</p>
- *
+ * Stores a {@link ConfigAttributeDefinition} for a method or class signature.
+ * 
+ * <p>
+ * This class is the preferred implementation of {@link MethodDefinitionSource} for XML-based
+ * definition of method security metadata. To assist in XML-based definition, wildcard support
+ * is provided.
+ * </p>
+ * 
  * @author Ben Alex
- * @version $Id$
+ * @version $Id: MethodDefinitionMap.java 2558 2008-01-30 15:43:40Z luke_t $
  */
-public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
+public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefinitionSource implements BeanClassLoaderAware {
     //~ Static fields/initializers =====================================================================================
 
-    private static final Log logger = LogFactory.getLog(MethodDefinitionMap.class);
+    private static final Log logger = LogFactory.getLog(MapBasedMethodDefinitionSource.class);
 
     //~ Instance fields ================================================================================================
+	private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-    /** Map from Method to ApplicationDefinition */
+	/** Map from RegisteredMethod to ConfigAttributeDefinition */
     protected Map methodMap = new HashMap();
 
-    /** Map from Method to name pattern used for registration */
+    /** Map from RegisteredMethod to name pattern used for registration */
     private Map nameMap = new HashMap();
 
     //~ Methods ========================================================================================================
 
-    public MethodDefinitionMap() {
+    public MapBasedMethodDefinitionSource() {
     }
 
     /**
-     * Creates the MethodDefinitionMap from a
+     * Creates the MapBasedMethodDefinitionSource from a
      * @param methodMap map of method names to <tt>ConfigAttributeDefinition</tt>s.
      */
-    public MethodDefinitionMap(Map methodMap) {
+    public MapBasedMethodDefinitionSource(Map methodMap) {
         Iterator iterator = methodMap.entrySet().iterator();
 
         while (iterator.hasNext()) {
@@ -80,15 +76,44 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
         }        
     }
 
+	/**
+	 * Implementation does not support class-level attributes.
+	 */
+	protected ConfigAttributeDefinition findAttributes(Class clazz) {
+		return null;
+	}
+
+	/**
+	 * Will walk the method inheritance tree to find the most specific declaration applicable.
+	 */
+	protected ConfigAttributeDefinition findAttributes(Method method, Class targetClass) {
+		return findAttributesSpecifiedAgainst(method, targetClass);
+	}
+	
+	private ConfigAttributeDefinition findAttributesSpecifiedAgainst(Method method, Class clazz) {
+		RegisteredMethod registeredMethod = new RegisteredMethod(method, clazz);
+		if (methodMap.containsKey(registeredMethod)) {
+			return (ConfigAttributeDefinition) methodMap.get(registeredMethod);
+		}
+		// Search superclass
+		if (clazz.getSuperclass() != null) {
+			return findAttributesSpecifiedAgainst(method, clazz.getSuperclass());
+		}
+		return null;
+	}
+
     /**
-     * Add configuration attributes for a secure method. Method names can end or start with <code>&#42</code>
-     * for matching multiple methods.
+     * Add configuration attributes for a secure method.
      *
      * @param method the method to be secured
      * @param attr required authorities associated with the method
      */
-    public void addSecureMethod(Method method, ConfigAttributeDefinition attr) {
-        logger.info("Adding secure method [" + method + "] with attributes [" + attr + "]");
+    private void addSecureMethod(RegisteredMethod method, ConfigAttributeDefinition attr) {
+    	Assert.notNull(method, "RegisteredMethod required");
+    	Assert.notNull(attr, "Configuration attribute required");
+    	if (logger.isInfoEnabled()) {
+            logger.info("Adding secure method [" + method + "] with attributes [" + attr + "]");
+    	}
         this.methodMap.put(method, attr);
     }
 
@@ -96,47 +121,41 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
      * Add configuration attributes for a secure method. Method names can end or start with <code>&#42</code>
      * for matching multiple methods.
      *
-     * @param name class and method name, separated by a dot
+     * @param name type and method name, separated by a dot
      * @param attr required authorities associated with the method
-     *
-     * @throws IllegalArgumentException DOCUMENT ME!
      */
     public void addSecureMethod(String name, ConfigAttributeDefinition attr) {
-        int lastDotIndex = name.lastIndexOf(".");
+    	int lastDotIndex = name.lastIndexOf(".");
 
         if (lastDotIndex == -1) {
             throw new IllegalArgumentException("'" + name + "' is not a valid method name: format is FQN.methodName");
         }
 
-        String className = name.substring(0, lastDotIndex);
         String methodName = name.substring(lastDotIndex + 1);
-
-        try {
-            Class clazz = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
-            addSecureMethod(clazz, methodName, attr);
-        } catch (ClassNotFoundException ex) {
-            throw new IllegalArgumentException("Class '" + className + "' not found");
-        }
+        Assert.hasText(methodName, "Method not found for '" + name + "'");
+        
+        String typeName = name.substring(0, lastDotIndex);
+        Class type = ClassUtils.resolveClassName(typeName, this.beanClassLoader);
+        
+        addSecureMethod(type, methodName, attr);
     }
 
     /**
-     * Add configuration attributes for a secure method. Method names can end or start with <code>&#42</code>
+     * Add configuration attributes for a secure method. Mapped method names can end or start with <code>&#42</code>
      * for matching multiple methods.
-     *
-     * @param clazz target interface or class
-     * @param mappedName mapped method name
+     * 
+     * @param javaType target interface or class the security configuration attribute applies to
+     * @param mappedName mapped method name, which the javaType has declared or inherited
      * @param attr required authorities associated with the method
-     *
-     * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public void addSecureMethod(Class clazz, String mappedName, ConfigAttributeDefinition attr) {
-        String name = clazz.getName() + '.' + mappedName;
+    public void addSecureMethod(Class javaType, String mappedName, ConfigAttributeDefinition attr) {
+        String name = javaType.getName() + '.' + mappedName;
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Adding secure method [" + name + "] with attributes [" + attr + "]");
+            logger.debug("Request to add secure method [" + name + "] with attributes [" + attr + "]");
         }
 
-        Method[] methods = clazz.getDeclaredMethods();
+        Method[] methods = javaType.getMethods();
         List matchingMethods = new ArrayList();
 
         for (int i = 0; i < methods.length; i++) {
@@ -146,13 +165,14 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
         }
 
         if (matchingMethods.isEmpty()) {
-            throw new IllegalArgumentException("Couldn't find method '" + mappedName + "' on " + clazz);
+            throw new IllegalArgumentException("Couldn't find method '" + mappedName + "' on '" + javaType + "'");
         }
 
         // register all matching methods
         for (Iterator it = matchingMethods.iterator(); it.hasNext();) {
             Method method = (Method) it.next();
-            String regMethodName = (String) this.nameMap.get(method);
+            RegisteredMethod registeredMethod = new RegisteredMethod(method, javaType);
+            String regMethodName = (String) this.nameMap.get(registeredMethod);
 
             if ((regMethodName == null) || (!regMethodName.equals(name) && (regMethodName.length() <= name.length()))) {
                 // no already registered method name, or more specific
@@ -162,8 +182,8 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
                         + "] is more specific than [" + regMethodName + "]");
                 }
 
-                this.nameMap.put(method, name);
-                addSecureMethod(method, attr);
+                this.nameMap.put(registeredMethod, name);
+                addSecureMethod(registeredMethod, attr);
             } else {
                 logger.debug("Keeping attributes for secure method [" + method + "]: current name [" + name
                     + "] is not more specific than [" + regMethodName + "]");
@@ -172,25 +192,12 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
     }
 
     /**
-     * Obtains the configuration attributes explicitly defined against this bean. This method will not return
-     * implicit configuration attributes that may be returned by {@link #lookupAttributes(Method)} as it does not have
-     * access to a method invocation at this time.
+     * Obtains the configuration attributes explicitly defined against this bean.
      *
      * @return the attributes explicitly defined against this bean
      */
     public Collection getConfigAttributeDefinitions() {
         return Collections.unmodifiableCollection(methodMap.values());
-    }
-
-    /**
-     * Obtains the number of configuration attributes explicitly defined against this bean. This method will
-     * not return implicit configuration attributes that may be returned by {@link #lookupAttributes(Method)} as it
-     * does not have access to a method invocation at this time.
-     *
-     * @return the number of configuration attributes explicitly defined against this bean
-     */
-    public int getMethodMapSize() {
-        return this.methodMap.size();
     }
 
     /**
@@ -245,4 +252,55 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
 
         attributes.addAll(toMerge.getConfigAttributes());
     }
+
+	public void setBeanClassLoader(ClassLoader beanClassLoader) {
+		Assert.notNull(beanClassLoader, "Bean class loader required");
+		this.beanClassLoader = beanClassLoader;
+	}
+
+	/**
+	 * @return map size (for unit tests and diagnostics)
+	 */
+	public int getMethodMapSize() {
+		return methodMap.size();
+	}
+	
+	/**
+	 * Stores both the Java Method as well as the Class we obtained the Method from. This is necessary because Method only
+	 * provides us access to the declaring class. It doesn't provide a way for us to introspect which Class the Method
+	 * was registered against. If a given Class inherits and redeclares a method (ie calls super();) the registered Class
+	 * and delcaring Class are the same. If a given class merely inherits but does not redeclare a method, the registered
+	 * Class will be the Class we're invoking against and the Method will provide details of the declared class.
+	 */
+	private class RegisteredMethod {
+		private Method method;
+		private Class registeredJavaType;
+
+		public RegisteredMethod(Method method, Class registeredJavaType) {
+			Assert.notNull(method, "Method required");
+			Assert.notNull(registeredJavaType, "Registered Java Type required");
+			this.method = method;
+			this.registeredJavaType = registeredJavaType;
+		}
+
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj != null && obj instanceof RegisteredMethod) {
+				RegisteredMethod rhs = (RegisteredMethod) obj;
+				return method.equals(rhs.method) && registeredJavaType.equals(rhs.registeredJavaType);
+			}
+			return false;
+		}
+
+		public int hashCode() {
+			return method.hashCode() * registeredJavaType.hashCode();
+		}
+
+		public String toString() {
+			return "RegisteredMethod[" + registeredJavaType.getName() + "; " + method + "]";
+		}
+	}
+    
 }

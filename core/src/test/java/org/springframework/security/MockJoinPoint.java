@@ -34,12 +34,14 @@ public class MockJoinPoint implements JoinPoint {
 
     private Method beingInvoked;
     private Object object;
+    private Class declaringType;
 
     //~ Constructors ===================================================================================================
 
     public MockJoinPoint(Object object, Method beingInvoked) {
         this.object = object;
         this.beingInvoked = beingInvoked;
+        this.declaringType = object.getClass();
     }
 
     //~ Methods ========================================================================================================
@@ -61,7 +63,7 @@ public class MockJoinPoint implements JoinPoint {
     }
 
     public StaticPart getStaticPart() {
-        return new MockStaticPart(beingInvoked);
+        return new MockStaticPart(beingInvoked, declaringType);
     }
 
     public Object getTarget() {
@@ -84,13 +86,15 @@ public class MockJoinPoint implements JoinPoint {
 
     private class MockCodeSignature implements CodeSignature {
         private Method beingInvoked;
+        private Class declaringType;
 
-        public MockCodeSignature(Method beingInvoked) {
+        public MockCodeSignature(Method beingInvoked, Class declaringType) {
             this.beingInvoked = beingInvoked;
+            this.declaringType = declaringType;
         }
 
         public Class getDeclaringType() {
-            throw new UnsupportedOperationException("mock not implemented");
+            return this.declaringType;
         }
 
         public String getDeclaringTypeName() {
@@ -128,9 +132,11 @@ public class MockJoinPoint implements JoinPoint {
 
     private class MockStaticPart implements StaticPart {
         private Method beingInvoked;
-
-        public MockStaticPart(Method beingInvoked) {
+        private Class declaringType;
+        
+        public MockStaticPart(Method beingInvoked, Class declaringType) {
             this.beingInvoked = beingInvoked;
+            this.declaringType = declaringType;
         }
 
         public String getKind() {
@@ -138,7 +144,7 @@ public class MockJoinPoint implements JoinPoint {
         }
 
         public Signature getSignature() {
-            return new MockCodeSignature(beingInvoked);
+            return new MockCodeSignature(beingInvoked, declaringType);
         }
 
         public SourceLocation getSourceLocation() {

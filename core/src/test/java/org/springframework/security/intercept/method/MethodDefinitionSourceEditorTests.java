@@ -18,7 +18,9 @@ package org.springframework.security.intercept.method;
 import junit.framework.TestCase;
 
 import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ITargetObject;
 import org.springframework.security.MockJoinPoint;
+import org.springframework.security.OtherTargetObject;
 import org.springframework.security.TargetObject;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -30,7 +32,7 @@ import java.util.Iterator;
 
 
 /**
- * Tests {@link MethodDefinitionSourceEditor} and its associated {@link MethodDefinitionMap}.
+ * Tests {@link MethodDefinitionSourceEditor} and its associated {@link MapBasedMethodDefinitionSource}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -55,7 +57,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText("org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
 
         Class clazz = TargetObject.class;
         Method method = clazz.getMethod("countLength", new Class[] {String.class});
@@ -101,32 +103,41 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         }
     }
 
-    public void testConcreteClassInvocationsAlsoReturnDefinitionsAgainstInterface()
-        throws Exception {
+    public void testConcreteClassInvocationsAlsoReturnDefinitionsAgainstInterface() throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "org.springframework.security.ITargetObject.makeLower*=ROLE_FROM_INTERFACE\r\norg.springframework.security.ITargetObject.makeUpper*=ROLE_FROM_INTERFACE\r\norg.springframework.security.TargetObject.makeUpper*=ROLE_FROM_IMPLEMENTATION");
+            "org.springframework.security.ITargetObject.computeHashCode*=ROLE_FROM_INTERFACE\r\n" +
+            "org.springframework.security.ITargetObject.makeLower*=ROLE_FROM_INTERFACE\r\n" +
+            "org.springframework.security.ITargetObject.makeUpper*=ROLE_FROM_INTERFACE\r\n" +
+            "org.springframework.security.TargetObject.computeHashCode*=ROLE_FROM_TO\r\n" +
+            "org.springframework.security.OtherTargetObject.computeHashCode*=ROLE_FROM_OTO\r\n" +
+            "org.springframework.security.OtherTargetObject.makeUpper*=ROLE_FROM_IMPLEMENTATION");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
-        assertEquals(3, map.getMethodMapSize());
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        assertEquals(6, map.getMethodMapSize());
 
-        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(TargetObject.class,
-                    "makeLowerCase", new Class[] {String.class}));
+        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(ITargetObject.class, "makeLowerCase", new Class[] {String.class}, new OtherTargetObject()));
         ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition("ROLE_FROM_INTERFACE");
         assertEquals(expectedMakeLower, returnedMakeLower);
 
-        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(TargetObject.class,
-                    "makeUpperCase", new Class[] {String.class}));
-        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition(
-                new String[]{"ROLE_FROM_IMPLEMENTATION","ROLE_FROM_INTERFACE"});
+        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(ITargetObject.class, "makeUpperCase", new Class[] {String.class}, new OtherTargetObject()));
+        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition(new String[]{"ROLE_FROM_IMPLEMENTATION"});
         assertEquals(expectedMakeUpper, returnedMakeUpper);
+
+        ConfigAttributeDefinition returnedComputeHashCode = map.getAttributes(new MockMethodInvocation(ITargetObject.class, "computeHashCode", new Class[] {String.class}, new OtherTargetObject()));
+        ConfigAttributeDefinition expectedComputeHashCode = new ConfigAttributeDefinition(new String[]{"ROLE_FROM_OTO"});
+        assertEquals(expectedComputeHashCode, returnedComputeHashCode);
+
+        returnedComputeHashCode = map.getAttributes(new MockMethodInvocation(ITargetObject.class, "computeHashCode", new Class[] {String.class}, new TargetObject()));
+        expectedComputeHashCode = new ConfigAttributeDefinition(new String[]{"ROLE_FROM_TO"});
+        assertEquals(expectedComputeHashCode, returnedComputeHashCode);
     }
 
     public void testEmptyStringReturnsEmptyMap() {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText("");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
         assertEquals(0, map.getMethodMapSize());
     }
 
@@ -135,7 +146,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         editor.setAsText(
             "org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY\r\norg.springframework.security.TargetObject.make*=ROLE_NINE,ROLE_SUPERVISOR");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
         Iterator iter = map.getConfigAttributeDefinitions().iterator();
         int counter = 0;
 
@@ -152,7 +163,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         editor.setAsText(
             "org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY\r\norg.springframework.security.TargetObject.make*=ROLE_NINE,ROLE_SUPERVISOR");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
     }
 
@@ -161,21 +172,21 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         editor.setAsText(
             "org.springframework.security.TargetObject.*=ROLE_GENERAL\r\norg.springframework.security.TargetObject.makeLower*=ROLE_LOWER\r\norg.springframework.security.TargetObject.make*=ROLE_MAKE\r\norg.springframework.security.TargetObject.makeUpper*=ROLE_UPPER");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
-        assertEquals(5, map.getMethodMapSize());
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        assertEquals(14, map.getMethodMapSize());
 
-        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(TargetObject.class,
-                    "makeLowerCase", new Class[] {String.class}));
+        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
+                    "makeLowerCase", new Class[] {String.class}, new TargetObject()));
         ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition("ROLE_LOWER");
         assertEquals(expectedMakeLower, returnedMakeLower);
 
-        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(TargetObject.class,
-                    "makeUpperCase", new Class[] {String.class}));
+        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
+                    "makeUpperCase", new Class[] {String.class}, new TargetObject()));
         ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition("ROLE_UPPER");
         assertEquals(expectedMakeUpper, returnedMakeUpper);
 
-        ConfigAttributeDefinition returnedCountLength = map.getAttributes(new MockMethodInvocation(TargetObject.class,
-                    "countLength", new Class[] {String.class}));
+        ConfigAttributeDefinition returnedCountLength = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
+                    "countLength", new Class[] {String.class}, new TargetObject()));
         ConfigAttributeDefinition expectedCountLength = new ConfigAttributeDefinition("ROLE_GENERAL");
         assertEquals(expectedCountLength, returnedCountLength);
     }
@@ -184,10 +195,10 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText("org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
 
         ConfigAttributeDefinition configAttributeDefinition = map.getAttributes(new MockMethodInvocation(
-                    TargetObject.class, "makeLowerCase", new Class[] {String.class}));
+                    ITargetObject.class, "makeLowerCase", new Class[] {String.class}, new TargetObject()));
         assertNull(configAttributeDefinition);
     }
 
@@ -195,7 +206,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(null);
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
         assertEquals(0, map.getMethodMapSize());
     }
 
@@ -203,10 +214,10 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText("org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
 
-        ConfigAttributeDefinition returnedCountLength = map.getAttributes(new MockMethodInvocation(TargetObject.class,
-                    "countLength", new Class[] {String.class}));
+        ConfigAttributeDefinition returnedCountLength = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
+                    "countLength", new Class[] {String.class}, new TargetObject()));
         ConfigAttributeDefinition expectedCountLength = new ConfigAttributeDefinition(
                 new String[] {"ROLE_ONE", "ROLE_TWO", "RUN_AS_ENTRY"});
         assertEquals(expectedCountLength, returnedCountLength);
@@ -215,11 +226,13 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
     //~ Inner Classes ==================================================================================================
 
     private class MockMethodInvocation implements MethodInvocation {
-        Method method;
+        private Method method;
+        private Object targetObject;
 
-        public MockMethodInvocation(Class clazz, String methodName, Class[] parameterTypes)
+        public MockMethodInvocation(Class clazz, String methodName, Class[] parameterTypes, Object targetObject)
             throws NoSuchMethodException {
-            method = clazz.getMethod(methodName, parameterTypes);
+            this.method = clazz.getMethod(methodName, parameterTypes);
+            this.targetObject = targetObject;
         }
 
         public Object[] getArguments() {
@@ -235,7 +248,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         }
 
         public Object getThis() {
-            return null;
+            return targetObject;
         }
 
         public Object proceed() throws Throwable {

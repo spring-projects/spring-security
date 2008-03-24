@@ -29,10 +29,6 @@ package org.springframework.security;
 public class OtherTargetObject extends TargetObject implements ITargetObject {
     //~ Methods ========================================================================================================
 
-    public int countLength(String input) {
-        return super.countLength(input);
-    }
-
     public String makeLowerCase(String input) {
         return super.makeLowerCase(input);
     }

@@ -56,7 +56,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         Class clazz = SomeDomainObjectManager.class;
         Method method = clazz.getMethod("someServiceMethod", new Class[] {SomeDomainObject.class});
 
-        return new SimpleMethodInvocation(method, new Object[] {domainObject});
+        return new SimpleMethodInvocation(new SomeDomainObjectManager(), method, new Object[] {domainObject});
     }
 
     public static void main(String[] args) {
@@ -419,7 +419,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         Class clazz = String.class;
         Method method = clazz.getMethod("toString", new Class[]{});
 
-        MethodInvocation mi = new SimpleMethodInvocation(method, new Object[]{domainObject});
+        MethodInvocation mi = new SimpleMethodInvocation(new String(), method, new Object[]{domainObject});
 
         try {
             voter.vote(new UsernamePasswordAuthenticationToken("rod", null), mi, attr);

@@ -71,4 +71,8 @@ public class MockMethodDefinitionSource extends AbstractMethodDefinitionSource {
     protected ConfigAttributeDefinition lookupAttributes(Method method) {
         throw new UnsupportedOperationException("mock method not implemented");
     }
+
+	public ConfigAttributeDefinition getAttributes(Method method, Class targetClass) {
+        throw new UnsupportedOperationException("mock method not implemented");
+	}
 }

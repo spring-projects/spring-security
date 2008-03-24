@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.ITargetObject;
+import org.springframework.security.OtherTargetObject;
 
 import org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor;
 
@@ -88,7 +89,7 @@ public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
         throws Exception {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
-        MethodInvocation mi = MethodInvocationUtils.createFromClass(ITargetObject.class, "makeLowerCase",
+        MethodInvocation mi = MethodInvocationUtils.createFromClass(new OtherTargetObject(), ITargetObject.class, "makeLowerCase",
                 new Class[] {String.class}, new Object[] {"Hello world"});
         MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
 
@@ -117,7 +118,7 @@ public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
         throws Exception {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_NOT_HELD")});
-        MethodInvocation mi = MethodInvocationUtils.createFromClass(ITargetObject.class, "makeLowerCase",
+        MethodInvocation mi = MethodInvocationUtils.createFromClass(new OtherTargetObject(), ITargetObject.class, "makeLowerCase",
                 new Class[] {String.class}, new Object[] {"helloWorld"});
         MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
 

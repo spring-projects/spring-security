@@ -33,7 +33,7 @@ import java.util.LinkedHashMap;
 
 /**
  * Property editor to assist with the setup of a {@link MethodDefinitionSource}.
- * <p>The class creates and populates a {@link MethodDefinitionMap}.</p>
+ * <p>The class creates and populates a {@link MapBasedMethodDefinitionSource}.</p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -47,7 +47,7 @@ public class MethodDefinitionSourceEditor extends PropertyEditorSupport {
 
     public void setAsText(String s) throws IllegalArgumentException {
         if ((s == null) || "".equals(s)) {
-            setValue(new MethodDefinitionMap());
+            setValue(new MapBasedMethodDefinitionSource());
             return;
         }
 
@@ -69,6 +69,6 @@ public class MethodDefinitionSourceEditor extends PropertyEditorSupport {
             mappings.put(name, new ConfigAttributeDefinition(tokens));
         }
 
-        setValue(new MethodDefinitionMap(mappings));
+        setValue(new MapBasedMethodDefinitionSource(mappings));
     }
 }

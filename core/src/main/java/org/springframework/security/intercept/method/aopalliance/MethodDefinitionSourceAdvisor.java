@@ -21,11 +21,10 @@ import java.lang.reflect.Method;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.Pointcut;
-import org.springframework.aop.framework.AopConfigException;
 import org.springframework.aop.support.AbstractPointcutAdvisor;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.security.intercept.method.MethodDefinitionSource;
-
+import org.springframework.util.Assert;
 
 /**
  * Advisor driven by a {@link MethodDefinitionSource}, used to exclude a {@link MethodSecurityInterceptor} from
@@ -55,10 +54,7 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor {
     public MethodDefinitionSourceAdvisor(MethodSecurityInterceptor advice) {
     	this.interceptor = advice;
 
-        if (advice.getObjectDefinitionSource() == null) {
-            throw new AopConfigException("Cannot construct a MethodDefinitionSourceAdvisor using a "
-                + "MethodSecurityInterceptor that has no ObjectDefinitionSource configured");
-        }
+    	Assert.notNull(advice.getObjectDefinitionSource(), "Cannot construct a MethodDefinitionSourceAdvisor using a MethodSecurityInterceptor that has no ObjectDefinitionSource configured");
 
         this.attributeSource = advice.getObjectDefinitionSource();
         this.pointcut = new MethodDefinitionSourcePointcut();
@@ -78,9 +74,7 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor {
     
     class MethodDefinitionSourcePointcut extends StaticMethodMatcherPointcut {
         public boolean matches(Method m, Class targetClass) {
-            MethodInvocation methodInvocation = new InternalMethodInvocation(m);
-
-            return attributeSource.getAttributes(methodInvocation) != null;
+            return attributeSource.getAttributes(m, targetClass) != null;
         }
     }
     
@@ -92,9 +86,11 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor {
      */
     class InternalMethodInvocation implements MethodInvocation {
         private Method method;
+        private Class targetClass;
 
-        public InternalMethodInvocation(Method method) {
+        public InternalMethodInvocation(Method method, Class targetClass) {
             this.method = method;
+            this.targetClass = targetClass;
         }
 
         protected InternalMethodInvocation() {
@@ -114,7 +110,7 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor {
         }
 
         public Object getThis() {
-            throw new UnsupportedOperationException();
+        	return this.targetClass;
         }
 
         public Object proceed() throws Throwable {

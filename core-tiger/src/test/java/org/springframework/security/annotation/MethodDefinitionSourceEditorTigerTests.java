@@ -20,20 +20,17 @@ import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.annotation.test.Entity;
-import org.springframework.security.annotation.test.OrganisationService;
-import org.springframework.security.annotation.test.PersonService;
 import org.springframework.security.annotation.test.PersonServiceImpl;
 import org.springframework.security.annotation.test.Service;
-import org.springframework.security.annotation.test.ServiceImpl;
-import org.springframework.security.intercept.method.MethodDefinitionMap;
+import org.springframework.security.intercept.method.MapBasedMethodDefinitionSource;
 import org.springframework.security.intercept.method.MethodDefinitionSourceEditor;
-import org.aopalliance.intercept.MethodInvocation;
 
 
 /**
- * Extra tests to demonstrate generics behaviour with <code>MethodDefinitionMap</code>.
+ * Extra tests to demonstrate generics behaviour with <code>MapBasedMethodDefinitionSource</code>.
  *
  * @author Ben Alex
  * @version $Id$
@@ -41,58 +38,53 @@ import org.aopalliance.intercept.MethodInvocation;
 public class MethodDefinitionSourceEditorTigerTests extends TestCase {
     //~ Methods ========================================================================================================
 
-    public void testConcreteClassInvocationsAlsoReturnDefinitionsAgainstInterface() throws Exception {
+    public void testConcreteClassInvocations() throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-                "org.springframework.security.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
+                "org.springframework.security.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\n" +
+                "org.springframework.security.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\n" +
+                "org.springframework.security.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
 
         ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(Service.class,
-                "makeLowerCase", new Class[]{Entity.class}));
+                "makeLowerCase", new Class[]{Entity.class}, new PersonServiceImpl()));
         ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition("ROLE_FROM_INTERFACE");
         assertEquals(expectedMakeLower, returnedMakeLower);
 
-        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(ServiceImpl.class,
-                "makeUpperCase", new Class[]{Entity.class}));
-        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition(new String[]{"ROLE_FROM_IMPLEMENTATION", "ROLE_FROM_INTERFACE"});
+        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(Service.class,
+                "makeUpperCase", new Class[]{Entity.class}, new PersonServiceImpl()));
+        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition(new String[]{"ROLE_FROM_IMPLEMENTATION"});
         assertEquals(expectedMakeUpper, returnedMakeUpper);
     }
 
-    public void testGenericsSuperclassDeclarationsAreIncludedWhenSubclassesOverride() throws Exception {
+    public void testBridgeMethodResolution() throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-                "org.springframework.security.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
+                "org.springframework.security.annotation.test.PersonService.makeUpper*=ROLE_FROM_INTERFACE\r\n" +
+                "org.springframework.security.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_ABSTRACT\r\n" +
+        		"org.springframework.security.annotation.test.PersonServiceImpl.makeUpper*=ROLE_FROM_PSI");
 
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
 
-        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(PersonService.class,
-                "makeLowerCase", new Class[]{Entity.class}));
-        ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition("ROLE_FROM_INTERFACE");
-        assertEquals(expectedMakeLower, returnedMakeLower);
-
-        ConfigAttributeDefinition returnedMakeLower2 = map.getAttributes(new MockMethodInvocation(
-                OrganisationService.class, "makeLowerCase", new Class[]{Entity.class}));
-        ConfigAttributeDefinition expectedMakeLower2 = new ConfigAttributeDefinition("ROLE_FROM_INTERFACE");
-        assertEquals(expectedMakeLower2, returnedMakeLower2);
-
-        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(
-                PersonServiceImpl.class, "makeUpperCase", new Class[]{Entity.class}));
-        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition(new String[]{"ROLE_FROM_IMPLEMENTATION", "ROLE_FROM_INTERFACE"});
+        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(Service.class,
+                "makeUpperCase", new Class[]{Entity.class}, new PersonServiceImpl()));
+        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition(new String[]{"ROLE_FROM_PSI"});
         assertEquals(expectedMakeUpper, returnedMakeUpper);
     }
 
     //~ Inner Classes ==================================================================================================
 
     private class MockMethodInvocation implements MethodInvocation {
-        Method method;
+        private Method method;
+        private Object targetObject;
 
-        public MockMethodInvocation(Class clazz, String methodName, Class[] parameterTypes)
+        public MockMethodInvocation(Class clazz, String methodName, Class[] parameterTypes, Object targetObject)
             throws NoSuchMethodException {
-            System.out.println(clazz + " " + methodName + " " + parameterTypes[0]);
-            method = clazz.getMethod(methodName, parameterTypes);
+            this.method = clazz.getMethod(methodName, parameterTypes);
+            this.targetObject = targetObject;
         }
 
         public Object[] getArguments() {
@@ -108,11 +100,12 @@ public class MethodDefinitionSourceEditorTigerTests extends TestCase {
         }
 
         public Object getThis() {
-            return null;
+            return targetObject;
         }
 
         public Object proceed() throws Throwable {
             return null;
         }
     }
+
 }
