@@ -8,12 +8,7 @@
     </parent>
     <artifactId>spring-security-cas</artifactId>
     <name>Spring Security - CAS support</name>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>cas-client</module>
-        <module>cas-adapter</module>
-    </modules>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -24,6 +19,25 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-dao</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>        
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-mock</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jasig.cas</groupId>
+            <artifactId>cas-client-core</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>
