@@ -660,6 +660,13 @@
 		<version>1.2.1</version>
 	    </dependency>
 	    <dependency>
+	        <groupId>org.aspectj</groupId>
+		<artifactId>aspectjweaver</artifactId>
+		<scope>test</scope>
+		<optional>true</optional>
+		<version>1.5.4</version>
+	    </dependency>	    
+	    <dependency>
 	        <groupId>aspectj</groupId>
 	    	<artifactId>aspectjrt</artifactId>
 		    <version>1.5.4</version>
@@ -669,6 +676,13 @@
                 <artifactId>spring-webmvc</artifactId>
                 <version>${spring.version}</version>                
             </dependency>            
+	    <dependency>
+	        <groupId>cglib</groupId>
+		<artifactId>cglib-nodep</artifactId>
+		<scope>test</scope>
+		<optional>true</optional>
+		<version>2.1_3</version>
+	    </dependency>	    
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>

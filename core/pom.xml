@@ -55,7 +55,6 @@
 	    <dependency>
 	        <groupId>org.aspectj</groupId>
 		    <artifactId>aspectjweaver</artifactId>
-		    <version>1.5.4</version>
 		    <scope>test</scope>
 		    <optional>true</optional>
 	    </dependency>	    
@@ -64,6 +63,12 @@
             <artifactId>spring-ldap</artifactId>
             <optional>true</optional>
         </dependency>
+	    <dependency>
+	        <groupId>cglib</groupId>
+		    <artifactId>cglib-nodep</artifactId>
+		    <scope>test</scope>
+		    <optional>true</optional>
+	    </dependency>	    
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>

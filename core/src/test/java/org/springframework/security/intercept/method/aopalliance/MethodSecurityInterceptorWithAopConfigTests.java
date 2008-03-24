@@ -13,6 +13,7 @@ import org.springframework.security.util.InMemoryXmlApplicationContext;
  * Tests for SEC-428. 
  * 
  * @author Luke Taylor 
+ * @author Ben Alex
  */
 public class MethodSecurityInterceptorWithAopConfigTests {
     static final String AUTH_PROVIDER_XML =
@@ -39,7 +40,8 @@ public class MethodSecurityInterceptorWithAopConfigTests {
     
     @After
     public void closeAppContext() {
-        if (appContext != null) {
+        SecurityContextHolder.clearContext();
+    	if (appContext != null) {
             appContext.close();
             appContext = null;
         }
@@ -48,7 +50,7 @@ public class MethodSecurityInterceptorWithAopConfigTests {
     @Test(expected=AuthenticationCredentialsNotFoundException.class)
     public void securityInterceptorIsAppliedWhenUsedWithAopConfig() {
         setContext(
-                "<aop:config>" +
+                "<aop:config proxy-target-class=\"true\">" +
         		"     <aop:pointcut id='targetMethods' expression='execution(* org.springframework.security.TargetObject.*(..))'/>" +
         		"     <aop:advisor advice-ref='securityInterceptor' pointcut-ref='targetMethods' />" +
         		"</aop:config>" +
@@ -56,9 +58,9 @@ public class MethodSecurityInterceptorWithAopConfigTests {
         		"<b:bean id='securityInterceptor' class='org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor' autowire='byType' >" +
         		"     <b:property name='objectDefinitionSource'>" +
                 "       <b:value>" +
-                            "org.springframework.security.ITargetObject.makeLower*=ROLE_A\n" +
-                            "org.springframework.security.ITargetObject.makeUpper*=ROLE_A\n" +
-                            "org.springframework.security.ITargetObject.computeHashCode*=ROLE_B\n" +
+                            "org.springframework.security.TargetObject.makeLower*=ROLE_A\n" +
+                            "org.springframework.security.TargetObject.makeUpper*=ROLE_A\n" +
+                            "org.springframework.security.TargetObject.computeHashCode*=ROLE_B\n" +
                 "       </b:value>" +
                 "     </b:property>" +
         		"</b:bean>" +
