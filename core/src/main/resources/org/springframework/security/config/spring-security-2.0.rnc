@@ -202,6 +202,9 @@ http.attlist &=
 http.attlist &=
     ## Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Spring Security Application".
     attribute realm {xsd:string}?
+http.attlist &=
+    ## Indicates whether an existing session should be invalidated when a user authenticates and a new session started. If set to "none" no change will be made. "newSession" will create a new empty session. "migrateSession" will create a new session and copy the session attributes to the new session. Defaults to "migrateSession".
+    attribute session-fixation-protection {"none" | "newSession" | "migrateSession" }?
 
 
 intercept-url =

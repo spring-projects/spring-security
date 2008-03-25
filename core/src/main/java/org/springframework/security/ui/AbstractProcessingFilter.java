@@ -20,6 +20,7 @@ import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.util.RedirectUtils;
+import org.springframework.security.util.SessionUtils;
 
 import org.springframework.security.context.SecurityContextHolder;
 
@@ -353,9 +354,8 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
             logger.debug("Updated SecurityContextHolder to contain the following Authentication: '" + authResult + "'");
         }
 
-
         if (invalidateSessionOnSuccessfulAuthentication) {
-            startNewSessionIfRequired(request);
+            SessionUtils.startNewSessionIfRequired(request, migrateInvalidatedSessionAttributes, null);
         }
 
         String targetUrl = determineTargetUrl(request);
@@ -374,53 +374,6 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         }
 
         sendRedirect(request, response, targetUrl);
-    }
-
-    private void startNewSessionIfRequired(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-
-        if (session == null) {
-            return;
-        }
-
-        if (!migrateInvalidatedSessionAttributes) {
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Invalidating session without migrating attributes.");
-            }
-
-            session.invalidate();
-            session = null;
-
-            // this is probably not necessary, but seems cleaner since
-            // there already was a session going.
-            request.getSession(true);
-
-        } else {
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Invalidating session and migrating attributes.");
-            }
-
-            HashMap migratedAttributes = new HashMap();
-
-            Enumeration enumer = session.getAttributeNames();
-
-            while (enumer.hasMoreElements()) {
-                String key = (String) enumer.nextElement();
-                migratedAttributes.put(key, session.getAttribute(key));
-            }
-
-            session.invalidate();
-            session = request.getSession(true); // we now have a new session
-
-            Iterator iter = migratedAttributes.entrySet().iterator();
-
-            while (iter.hasNext()) {
-                Map.Entry entry = (Map.Entry) iter.next();
-                session.setAttribute((String) entry.getKey(), entry.getValue());
-            }
-        }
     }
 
     protected String determineTargetUrl(HttpServletRequest request) {
