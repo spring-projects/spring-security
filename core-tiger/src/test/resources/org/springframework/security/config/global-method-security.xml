@@ -8,7 +8,10 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <b:bean id="target" class="org.springframework.security.annotation.BusinessServiceImpl"/>
 
-	<annotation-driven/>
+	<global-method-security>
+		<protect-pointcut expression="execution(* *.someUser*(..))" access="ROLE_USER"/>
+		<protect-pointcut expression="execution(* *.someAdmin*(..))" access="ROLE_ADMIN"/>
+	</global-method-security>
 
     <authentication-provider>
         <user-service>

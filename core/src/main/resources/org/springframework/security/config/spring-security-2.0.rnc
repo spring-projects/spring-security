@@ -143,25 +143,40 @@ intercept-methods.attlist &=
 
 
 protect =
-    ## Defines a protected method and the access control configuration attributes that apply to it
+    ## Defines a protected method and the access control configuration attributes that apply to it. We strongly advise you NOT to mix "protect" declarations with any services provided "global-method-security".
     element protect {protect.attlist, empty}
 protect.attlist &=
     ## A method name
     attribute method {xsd:string}
 protect.attlist &=
-    ## Access configuration attributes list that applies to the method, e.g. "ROLE_A,ROLE_B"
+    ## Access configuration attributes list that applies to the method, e.g. "ROLE_A,ROLE_B".
     attribute access {xsd:string}
 
 
-annotation-driven =
-    ## Activates security annotation scanning. All beans registered in the Spring application context will be scanned for Spring Security annotations. Where found, the beans will automatically be proxied and security authorization applied to the methods accordingly. Please ensure you have the spring-security-tiger-XXX.jar on your classpath.
-	element annotation-driven {annotation-driven.attlist}
-annotation-driven.attlist &=
-    ## Specifies that JSR-250 style attributes are to be used (for example "RolesAllowed" instead of "Secured"). This will require the javax.annotation.security classes on the classpath. Defaults to false.
-    attribute jsr250 {"true" | "false" }?
-annotation-driven.attlist &=
+global-method-security =
+    ## Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for Spring Security annotations and/or matches with the ordered list of "protect-pointcut" sub-elements. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. If you use and enable all three sources of method security metadata (ie "protect-pointcut" declarations, @Secured and also JSR 250 security annotations), the metadata sources will be queried in that order. In practical terms, this enables you to use XML to override method security metadata expressed by way of @Secured annotations, with @Secured annotations overriding method security metadata expressed by JSR 250 annotations. It is perfectly acceptable to mix and match, with a given Java type using a combination of XML, @Secured and JSR 250 to express method security metadata (albeit on different methods).
+	element global-method-security {global-method-security.attlist, protect-pointcut*}
+global-method-security.attlist &=
+    ## Specifies that Spring Security's @Secured annotation should be used. Please ensure you have the spring-security-tiger-xxx.jar on the classpath. Defaults to false.
+    attribute secured {"false" | "true" }?
+global-method-security.attlist &=
+    ## Specifies that JSR-250 style attributes are to be used (for example "RolesAllowed"). This will require the javax.annotation.security classes on the classpath. Defaults to false.
+    attribute jsr250 {"false" | "true" }?
+global-method-security.attlist &=
     ## Optional AccessDecisionManager bean ID to override the default.
     attribute access-decision-manager-ref {xsd:string}?
+
+
+protect-pointcut =
+    ## Defines a protected pointcut and the access control configuration attributes that apply to it. Every bean registered in the Spring application context that provides a method that matches the pointcut will receive security authorization.
+    element protect-pointcut {protect-pointcut.attlist, empty}
+protect-pointcut.attlist &=
+    ## An AspectJ expression, including the 'execution' keyword. For example, 'execution(int com.foo.TargetObject.countLength(String))' (without the quotes).
+    attribute expression {xsd:string}
+protect-pointcut.attlist &=
+    ## Access configuration attributes list that applies to all methods matching the pointcut, e.g. "ROLE_A,ROLE_B"
+    attribute access {xsd:string}
+
 
 http =
     ## Container element for HTTP security configuration

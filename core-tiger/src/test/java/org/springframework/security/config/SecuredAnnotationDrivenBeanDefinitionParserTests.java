@@ -16,14 +16,14 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
  * @author Ben Alex
  * @version $Id$
  */
-public class AnnotationDrivenBeanDefinitionParserTests {
+public class SecuredAnnotationDrivenBeanDefinitionParserTests {
     private ClassPathXmlApplicationContext appContext;
 
     private BusinessService target;
 
     @Before
     public void loadContext() {
-        appContext = new ClassPathXmlApplicationContext("org/springframework/security/config/annotated-method-security.xml");
+        appContext = new ClassPathXmlApplicationContext("org/springframework/security/config/secured-annotated-method-security.xml");
         target = (BusinessService) appContext.getBean("target");
     }
 

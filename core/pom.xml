@@ -49,14 +49,13 @@
         </dependency>
 	    <dependency>
 	        <groupId>aspectj</groupId>
-		    <artifactId>aspectjrt</artifactId>
-		    <optional>true</optional>
+		<artifactId>aspectjrt</artifactId>
+		<optional>true</optional>
 	    </dependency>
 	    <dependency>
 	        <groupId>org.aspectj</groupId>
-		    <artifactId>aspectjweaver</artifactId>
-		    <scope>test</scope>
-		    <optional>true</optional>
+		<artifactId>aspectjweaver</artifactId>
+		<optional>true</optional>
 	    </dependency>	    
         <dependency>
             <groupId>org.springframework.ldap</groupId>

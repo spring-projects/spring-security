@@ -18,6 +18,7 @@ abstract class Elements {
 	public static final String LDAP_PROVIDER = "ldap-authentication-provider";
 	public static final String LDAP_SERVER = "ldap-server";
     public static final String LDAP_USER_SERVICE = "ldap-user-service";
+    public static final String PROTECT_POINTCUT = "protect-pointcut";
     public static final String PROTECT = "protect";
 	public static final String CONCURRENT_SESSIONS = "concurrent-session-control";
 	public static final String LOGOUT = "logout";
@@ -27,7 +28,7 @@ abstract class Elements {
 	public static final String REMEMBER_ME = "remember-me";
 	public static final String ANONYMOUS = "anonymous";
 	public static final String FILTER_CHAIN = "filter-chain";
-	public static final String ANNOTATION_DRIVEN = "annotation-driven";
+	public static final String GLOBAL_METHOD_SECURITY = "global-method-security";
 	public static final String PASSWORD_ENCODER = "password-encoder";
 	public static final String SALT_SOURCE = "salt-source";
 	public static final String PORT_MAPPINGS = "port-mappings";

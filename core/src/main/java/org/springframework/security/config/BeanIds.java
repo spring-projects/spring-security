@@ -48,6 +48,8 @@ public abstract class BeanIds {
 	public static final String SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER = "_securityContextHolderAwareRequestFilter";
 	public static final String METHOD_SECURITY_INTERCEPTOR = "_methodSecurityInterceptor";
 	public static final String METHOD_DEFINITION_SOURCE_ADVISOR = "_methodDefinitionSourceAdvisor";
+	public static final String PROTECT_POINTCUT_POST_PROCESSOR = "_protectPointcutPostProcessor";
+	public static final String DELEGATING_METHOD_DEFINITION_SOURCE = "_delegatingMethodDefinitionSource";
 	public static final String SECURED_METHOD_DEFINITION_SOURCE = "_securedMethodDefinitionSource";
 	public static final String JSR_250_METHOD_DEFINITION_SOURCE = "_jsr250MethodDefinitionSource";
     public static final String EMBEDDED_APACHE_DS = "_apacheDirectoryServerContainer";

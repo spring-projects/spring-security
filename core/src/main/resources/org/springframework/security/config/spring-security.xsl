@@ -10,7 +10,7 @@
     <xsl:output method="xml" indent="yes"/>
 
     <xsl:variable name="elts-to-inline">
-        <xsl:text>,intercept-url,form-login,x509,http-basic,logout,concurrent-session-control,remember-me,anonymous,port-mappings,password-compare-element,salt-source,filter-chain,</xsl:text>
+        <xsl:text>,intercept-url,form-login,x509,http-basic,logout,concurrent-session-control,remember-me,anonymous,port-mappings,password-compare-element,salt-source,filter-chain,protect-pointcut,</xsl:text>
     </xsl:variable>
 
     <xsl:template match="xs:element">

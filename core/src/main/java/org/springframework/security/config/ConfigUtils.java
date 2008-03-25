@@ -51,8 +51,8 @@ public abstract class ConfigUtils {
 
         ManagedList voters = (ManagedList) accessMgr.getPropertyValues().getPropertyValue("decisionVoters").getValue();
         voters.add(voter);
-
-        accessMgr.getPropertyValues().addPropertyValue("decisionVoters", voter);
+        
+        accessMgr.getPropertyValues().addPropertyValue("decisionVoters", voters);
     }
 
     /**

@@ -662,7 +662,6 @@
 	    <dependency>
 	        <groupId>org.aspectj</groupId>
 		<artifactId>aspectjweaver</artifactId>
-		<scope>test</scope>
 		<optional>true</optional>
 		<version>1.5.4</version>
 	    </dependency>	    
