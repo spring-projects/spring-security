@@ -23,14 +23,8 @@ import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.security.ui.WebAuthenticationDetailsSource;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
-
 import org.springframework.security.userdetails.memory.UserAttribute;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -49,9 +43,6 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class AnonymousProcessingFilter  extends SpringSecurityFilter  implements InitializingBean {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final Log logger = LogFactory.getLog(AnonymousProcessingFilter.class);
 
     //~ Instance fields ================================================================================================
 

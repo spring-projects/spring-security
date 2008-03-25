@@ -24,6 +24,7 @@ public abstract class FilterChainOrder {
     public static final int CHANNEL_FILTER              = FILTER_CHAIN_FIRST;
     public static final int CONCURRENT_SESSION_FILTER   = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int HTTP_SESSION_CONTEXT_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
+    public static final int SESSION_FIXATION_FILTER     = FILTER_CHAIN_FIRST + INTERVAL * i++;    
     public static final int LOGOUT_FILTER               = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int X509_FILTER                 = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int PRE_AUTH_FILTER             = FILTER_CHAIN_FIRST + INTERVAL * i++;

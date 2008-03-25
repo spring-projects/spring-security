@@ -27,8 +27,6 @@ import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.util.RedirectUtils;
 import org.springframework.security.context.SecurityContextHolder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -47,9 +45,6 @@ import org.springframework.util.StringUtils;
  * @version $Id$
  */
 public class LogoutFilter extends SpringSecurityFilter {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final Log logger = LogFactory.getLog(LogoutFilter.class);
 
     //~ Instance fields ================================================================================================
 

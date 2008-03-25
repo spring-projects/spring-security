@@ -29,9 +29,6 @@ import org.springframework.security.ui.rememberme.NullRememberMeServices;
 import org.springframework.security.ui.rememberme.RememberMeServices;
 import org.springframework.security.ui.savedrequest.SavedRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -146,8 +143,6 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     protected AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     private AuthenticationManager authenticationManager;
-
-    protected final Log logger = LogFactory.getLog(this.getClass());
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 

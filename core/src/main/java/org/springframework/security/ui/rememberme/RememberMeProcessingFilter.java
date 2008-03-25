@@ -27,9 +27,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.util.Assert;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -56,9 +53,6 @@ import java.io.IOException;
  */
 public class RememberMeProcessingFilter extends SpringSecurityFilter implements InitializingBean,
         ApplicationEventPublisherAware {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final Log logger = LogFactory.getLog(RememberMeProcessingFilter.class);
 
     //~ Instance fields ================================================================================================
 

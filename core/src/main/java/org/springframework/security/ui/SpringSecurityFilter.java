@@ -1,5 +1,7 @@
 package org.springframework.security.ui;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.Ordered;
 
 
@@ -21,7 +23,8 @@ import java.io.IOException;
  * @version $Id$
  */
 public abstract class SpringSecurityFilter implements Filter, Ordered {
-
+    protected final Log logger = LogFactory.getLog(this.getClass());
+    
     /**
      * Does nothing. We use IoC container lifecycle services instead.
      *

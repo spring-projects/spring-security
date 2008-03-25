@@ -38,13 +38,8 @@ import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.userdetails.UserDetailsChecker;
 import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
@@ -104,8 +99,6 @@ import javax.servlet.http.HttpServletResponse;
 public class SwitchUserProcessingFilter extends SpringSecurityFilter implements InitializingBean,
         ApplicationEventPublisherAware, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
-
-    private static final Log logger = LogFactory.getLog(SwitchUserProcessingFilter.class);
 
     public static final String SPRING_SECURITY_SWITCH_USERNAME_KEY = "j_username";
     public static final String ROLE_PREVIOUS_ADMINISTRATOR = "ROLE_PREVIOUS_ADMINISTRATOR";

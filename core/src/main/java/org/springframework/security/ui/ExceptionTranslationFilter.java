@@ -27,10 +27,6 @@ import org.springframework.security.util.PortResolver;
 import org.springframework.security.util.PortResolverImpl;
 import org.springframework.security.util.ThrowableAnalyzer;
 import org.springframework.security.util.ThrowableCauseExtractor;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.util.Assert;
@@ -79,10 +75,6 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class ExceptionTranslationFilter extends SpringSecurityFilter implements InitializingBean {
-
-    //~ Static fields/initializers =====================================================================================
-
-	private static final Log logger = LogFactory.getLog(ExceptionTranslationFilter.class);
 
 	//~ Instance fields ================================================================================================
 

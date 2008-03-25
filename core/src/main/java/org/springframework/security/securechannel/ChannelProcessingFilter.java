@@ -24,9 +24,6 @@ import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -50,9 +47,6 @@ import java.util.Collection;
  * @version $Id$
  */
 public class ChannelProcessingFilter extends SpringSecurityFilter implements InitializingBean {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final Log logger = LogFactory.getLog(ChannelProcessingFilter.class);
 
     //~ Instance fields ================================================================================================
 

@@ -17,9 +17,6 @@ import org.springframework.security.ui.WebAuthenticationDetailsSource;
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.context.SecurityContextHolder;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -35,8 +32,6 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSecurityFilter implements
         InitializingBean, ApplicationEventPublisherAware {
-
-    protected final Log logger = LogFactory.getLog(getClass());
 
     private ApplicationEventPublisher eventPublisher = null;
 

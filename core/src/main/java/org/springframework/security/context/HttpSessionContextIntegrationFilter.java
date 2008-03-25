@@ -25,8 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
@@ -99,8 +97,6 @@ import org.springframework.security.ui.FilterChainOrder;
  */
 public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter implements InitializingBean {
     //~ Static fields/initializers =====================================================================================
-
-    protected static final Log logger = LogFactory.getLog(HttpSessionContextIntegrationFilter.class);
 
     static final String FILTER_APPLIED = "__spring_security_session_integration_filter_applied";
 
