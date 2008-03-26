@@ -167,7 +167,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
         if (entryPoints.size() == 1) {
             mainEntryPoint = (AuthenticationEntryPoint) entryPoints.get(0);
         } else {
-            mainEntryPoint = (AuthenticationEntryPoint) entryPointMap.get(BeanIds.MAIN_ENTRY_POINT);
+            mainEntryPoint = (AuthenticationEntryPoint) beanFactory.getBean(BeanIds.MAIN_ENTRY_POINT);
             
             if (mainEntryPoint == null) {
             	mainEntryPoint = (AuthenticationEntryPoint) entryPointMap.get(BeanIds.FORM_LOGIN_ENTRY_POINT);
