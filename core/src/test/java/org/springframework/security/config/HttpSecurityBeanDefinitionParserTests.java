@@ -6,6 +6,7 @@ import org.springframework.security.intercept.web.FilterInvocationDefinitionSour
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.securechannel.ChannelProcessingFilter;
 import org.springframework.security.ui.ExceptionTranslationFilter;
+import org.springframework.security.ui.SessionFixationProtectionFilter;
 import org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
@@ -56,7 +57,7 @@ public class HttpSecurityBeanDefinitionParserTests {
 
     @Test
     public void httpAutoConfigSetsUpCorrectFilterList() {
-        setContext("<http auto-config='true'/>" + AUTH_PROVIDER_XML);
+        setContext("<http auto-config='true' />" + AUTH_PROVIDER_XML);
 
         FilterChainProxy filterChainProxy = getFilterChainProxy();
 
@@ -66,11 +67,12 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     private void checkAutoConfigFilters(List filterList) {
-        assertEquals("Expected 10 filters in chain", 10, filterList.size());
+        assertEquals("Expected 11 filters in chain", 11, filterList.size());
 
         Iterator filters = filterList.iterator();
 
         assertTrue(filters.next() instanceof HttpSessionContextIntegrationFilter);
+        assertTrue(filters.next() instanceof SessionFixationProtectionFilter);        
         assertTrue(filters.next() instanceof LogoutFilter);
         assertTrue(filters.next() instanceof AuthenticationProcessingFilter);
         assertTrue(filters.next() instanceof DefaultLoginPageGeneratingFilter);
@@ -185,7 +187,7 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         List filters = filterChainProxy.getFilters("/someurl");
 
-        assertEquals("Expected 11 filters in chain", 11, filters.size());
+        assertEquals("Expected 12 filters in chain", 12, filters.size());
 
         assertTrue(filters.get(0) instanceof ChannelProcessingFilter);
     }
@@ -216,7 +218,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='userFilter2' class='org.springframework.security.util.MockFilter'/>");
         List filters = getFilterChainProxy().getFilters("/someurl");
 
-        assertEquals(11, filters.size());
+        assertEquals(12, filters.size());
         assertTrue(filters.get(1) instanceof OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator);
         assertEquals("userFilter", ((OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator)filters.get(1)).getBeanName());
     }
@@ -242,9 +244,18 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>"  + AUTH_PROVIDER_XML);
         List filters = getFilterChainProxy().getFilters("/someurl");
 
-        assertTrue(filters.get(2) instanceof X509PreAuthenticatedProcessingFilter);
+        assertTrue(filters.get(3) instanceof X509PreAuthenticatedProcessingFilter);
     }
 
+    @Test
+    public void disablingSessionProtectionRemovesFilter() throws Exception {
+        setContext(
+                "<http auto-config='true' session-fixation-protection='none'/>" + AUTH_PROVIDER_XML);
+        List filters = getFilterChainProxy().getFilters("/someurl");
+
+        assertFalse(filters.get(1) instanceof SessionFixationProtectionFilter);
+    }
+    
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
     }

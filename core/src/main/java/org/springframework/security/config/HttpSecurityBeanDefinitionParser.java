@@ -30,6 +30,7 @@ import org.springframework.security.securechannel.SecureChannelProcessor;
 import org.springframework.security.securechannel.RetryWithHttpEntryPoint;
 import org.springframework.security.securechannel.RetryWithHttpsEntryPoint;
 import org.springframework.security.ui.ExceptionTranslationFilter;
+import org.springframework.security.ui.SessionFixationProtectionFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.RegexUrlPathMatcher;
@@ -53,6 +54,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String DEF_REALM = "Spring Security Application";
 
     static final String ATT_PATH_PATTERN = "pattern";
+    
+    static final String ATT_SESSION_FIXATION_PROTECTION = "session-fixation-protection";
+    static final String OPT_SESSION_FIXATION_NO_PROTECTION = "none";
+    static final String OPT_SESSION_FIXATION_CLEAN_SESSION = "newSession";    
+    static final String OPT_SESSION_FIXATION_MIGRATE_SESSION = "migrateSession";
 
     static final String ATT_PATH_TYPE = "path-type";
     static final String DEF_PATH_TYPE_ANT = "ant";
@@ -109,6 +115,21 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         	httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.TRUE);
         	httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
         }
+        
+        String sessionFixationAttribute = element.getAttribute(ATT_SESSION_FIXATION_PROTECTION);
+        
+        if(!StringUtils.hasText(sessionFixationAttribute)) {
+        	sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
+        }
+        
+        if (!sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION)) {
+        	BeanDefinitionBuilder sessionFixationFilter = 
+        		BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionFilter.class);
+        	sessionFixationFilter.addPropertyValue("migrateSessionAttributes", 
+        			sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION));
+        	parserContext.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, 
+        			sessionFixationFilter.getBeanDefinition());
+        }
 
         BeanDefinitionBuilder filterSecurityInterceptorBuilder
                 = BeanDefinitionBuilder.rootBeanDefinition(FilterSecurityInterceptor.class);
@@ -127,6 +148,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (!StringUtils.hasText(provideServletApi)) {
         	provideServletApi = DEF_SERVLET_API_PROVISION;
         }
+
         if ("true".equals(provideServletApi)) {
             parserContext.getRegistry().registerBeanDefinition(BeanIds.SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER,
                     new RootBeanDefinition(SecurityContextHolderAwareRequestFilter.class));
@@ -134,7 +156,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         filterChainProxy.getPropertyValues().addPropertyValue("filterChainMap", filterChainMap);
 
-        // Set up the access manager and authentication mananger references for http
+        // Set up the access manager and authentication manager references for http
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
         if (!StringUtils.hasText(accessManagerId)) {
