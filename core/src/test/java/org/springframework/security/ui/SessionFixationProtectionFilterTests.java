@@ -45,7 +45,6 @@ public class SessionFixationProtectionFilterTests {
         SessionFixationProtectionFilter filter = new SessionFixationProtectionFilter();
         HttpServletRequest request = new MockHttpServletRequest();
         String sessionId = request.getSession().getId();
-//        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", null));
         
         filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
         
@@ -68,7 +67,7 @@ public class SessionFixationProtectionFilterTests {
         SessionFixationProtectionFilter filter = new SessionFixationProtectionFilter();
         HttpServletRequest request = new MockHttpServletRequest();
         String sessionId = request.getSession().getId();
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", null));
+        authenticateUser();
         
         filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
         
@@ -83,7 +82,7 @@ public class SessionFixationProtectionFilterTests {
         
         filter.doFilter(request, new MockHttpServletResponse(), new UserAuthenticatingFilterChain());
         
-        assertFalse("Session Id should have changed", sessionId.equals(request.getSession().getId()));         
+        assertFalse(sessionId.equals(request.getSession().getId()));         
     }
     
     @Test
@@ -99,12 +98,47 @@ public class SessionFixationProtectionFilterTests {
                 SessionFixationProtectionFilter.SessionFixationProtectionResponseWrapper);
         assertTrue("New session should have been created by session wrapper",
                 ((SessionFixationProtectionFilter.SessionFixationProtectionResponseWrapper)chain.getResponse()).isNewSessionStarted());
-        assertFalse("Session Id should have changed", sessionId.equals(request.getSession().getId()));
+        assertFalse(sessionId.equals(request.getSession().getId()));
+    }
+    
+    @Test
+    public void wrapperSendErrorCreatesNewSession() throws Exception {
+        authenticateUser();
+        SessionFixationProtectionFilter filter = new SessionFixationProtectionFilter();
+        HttpServletRequest request = new MockHttpServletRequest();
+        String sessionId = request.getSession().getId();
+        SessionFixationProtectionFilter.SessionFixationProtectionResponseWrapper wrapper = 
+            filter.new SessionFixationProtectionResponseWrapper(new MockHttpServletResponse(), request);
+        wrapper.sendError(HttpServletResponse.SC_FORBIDDEN);
+        assertFalse(sessionId.equals(request.getSession().getId()));
+        
+        // Message version
+        request = new MockHttpServletRequest();
+        sessionId = request.getSession().getId();
+        wrapper = filter.new SessionFixationProtectionResponseWrapper(new MockHttpServletResponse(), request);
+        wrapper.sendError(HttpServletResponse.SC_FORBIDDEN, "Hi. I'm your friendly forbidden message.");
+        assertFalse(sessionId.equals(request.getSession().getId()));        
+    }
+
+    @Test
+    public void wrapperRedirectCreatesNewSession() throws Exception {
+        authenticateUser();
+        SessionFixationProtectionFilter filter = new SessionFixationProtectionFilter();
+        HttpServletRequest request = new MockHttpServletRequest();
+        String sessionId = request.getSession().getId();
+        SessionFixationProtectionFilter.SessionFixationProtectionResponseWrapper wrapper = 
+            filter.new SessionFixationProtectionResponseWrapper(new MockHttpServletResponse(), request);
+        wrapper.sendRedirect("/somelocation");
+        assertFalse(sessionId.equals(request.getSession().getId()));
+    }
+    
+    private void authenticateUser() {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", null));
     }
     
     private class UserAuthenticatingFilterChain implements FilterChain {
-        public void doFilter(ServletRequest request, ServletResponse response) throws IOException {           
-            SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", null));
+        public void doFilter(ServletRequest request, ServletResponse response) throws IOException { 
+            authenticateUser();
         }
     }
     

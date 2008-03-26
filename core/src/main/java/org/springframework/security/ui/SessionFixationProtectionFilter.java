@@ -99,13 +99,16 @@ public class SessionFixationProtectionFilter extends SpringSecurityFilter {
     /**
      * Response wrapper to handle the situation where we need to migrate the session after a redirect or sendError.
      * Similar in function to Martin Algesten's OnRedirectUpdateSessionResponseWrapper used in 
-     * HttpSessionContextIntegrationFilter.  
+     * HttpSessionContextIntegrationFilter.
+     * <p>
+     * Only used to wrap the response if the conditions are right at the start of the request to potentially 
+     * require starting a new session, i.e. that the user isn't authenticated and a session existed to begin with.  
      */
-    private class SessionFixationProtectionResponseWrapper extends HttpServletResponseWrapper {
+    class SessionFixationProtectionResponseWrapper extends HttpServletResponseWrapper {
         private HttpServletRequest request;
         private boolean newSessionStarted;
 
-        public SessionFixationProtectionResponseWrapper(HttpServletResponse response, HttpServletRequest request) {
+        SessionFixationProtectionResponseWrapper(HttpServletResponse response, HttpServletRequest request) {
             super(response);
             this.request = request;
         }
@@ -148,9 +151,8 @@ public class SessionFixationProtectionFilter extends SpringSecurityFilter {
             newSessionStarted = true;
         }
 
-        private boolean isNewSessionStarted() {
+        boolean isNewSessionStarted() {
             return newSessionStarted;
         }
-    }    
-
+    }
 }

@@ -36,7 +36,7 @@ public final class SessionUtils {
         String originalSessionId = session.getId();
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Invalidating session " + (migrateAttributes ? "and" : "without") +  " migrating attributes.");
+            logger.debug("Invalidating session with Id '" + originalSessionId +"' " + (migrateAttributes ? "and" : "without") +  " migrating attributes.");
         }        
 
         HashMap attributesToMigrate = null;
@@ -55,6 +55,10 @@ public final class SessionUtils {
         session.invalidate();
         session = request.getSession(true); // we now have a new session
 
+        if (logger.isDebugEnabled()) {
+            logger.debug("Started new session: " + session.getId());
+        }
+        
         if (attributesToMigrate != null) {
             Iterator iter = attributesToMigrate.entrySet().iterator();
 
