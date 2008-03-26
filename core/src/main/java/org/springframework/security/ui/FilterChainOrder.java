@@ -17,7 +17,7 @@ public abstract class FilterChainOrder {
      * The first position at which a Spring Security filter will be found. Any filter with an order less than this will
      * be guaranteed to be placed before the Spring Security filters in the stack.
      */
-    public static final int FILTER_CHAIN_FIRST = Ordered.HIGHEST_PRECEDENCE + 1000;
+    public static final int FILTER_CHAIN_FIRST = 0;
     private static final int INTERVAL = 100;
     private static int i = 1;
 
