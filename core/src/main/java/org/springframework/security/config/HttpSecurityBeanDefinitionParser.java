@@ -126,7 +126,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         	BeanDefinitionBuilder sessionFixationFilter = 
         		BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionFilter.class);
         	sessionFixationFilter.addPropertyValue("migrateSessionAttributes", 
-        			sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION));
+        			Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
         	parserContext.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, 
         			sessionFixationFilter.getBeanDefinition());
         }
