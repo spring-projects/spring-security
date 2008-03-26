@@ -22,6 +22,11 @@
 			/WEB-INF/applicationContext-security-ns.xml
 		</param-value>
 	</context-param>
+	
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>/WEB-INF/classes/log4j.properties</param-value>
+    </context-param>	
 
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
@@ -49,6 +54,10 @@
     <listener>
       <listener-class>org.springframework.security.ui.session.HttpSessionEventPublisher</listener-class>
     </listener>
+    
+    <listener>
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>    
 
   <!--
 	- Provides core MVC application controller. See contacts-servlet.xml.
