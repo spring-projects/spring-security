@@ -115,21 +115,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         	httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.TRUE);
         	httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
         }
-        
-        String sessionFixationAttribute = element.getAttribute(ATT_SESSION_FIXATION_PROTECTION);
-        
-        if(!StringUtils.hasText(sessionFixationAttribute)) {
-        	sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
-        }
-        
-        if (!sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION)) {
-        	BeanDefinitionBuilder sessionFixationFilter = 
-        		BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionFilter.class);
-        	sessionFixationFilter.addPropertyValue("migrateSessionAttributes", 
-        			Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
-        	parserContext.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, 
-        			sessionFixationFilter.getBeanDefinition());
-        }
 
         BeanDefinitionBuilder filterSecurityInterceptorBuilder
                 = BeanDefinitionBuilder.rootBeanDefinition(FilterSecurityInterceptor.class);
@@ -222,6 +207,24 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             new ConcurrentSessionsBeanDefinitionParser().parse(sessionControlElt, parserContext);
         }
 
+        String sessionFixationAttribute = element.getAttribute(ATT_SESSION_FIXATION_PROTECTION);
+        
+        if(!StringUtils.hasText(sessionFixationAttribute)) {
+        	sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
+        }
+        
+        if (!sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION)) {
+        	BeanDefinitionBuilder sessionFixationFilter = 
+        		BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionFilter.class);
+        	sessionFixationFilter.addPropertyValue("migrateSessionAttributes", 
+        			Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
+        	if (sessionControlElt != null) {
+        		sessionFixationFilter.addPropertyReference("sessionRegistry", BeanIds.SESSION_REGISTRY);
+        	}
+        	parserContext.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, 
+        			sessionFixationFilter.getBeanDefinition());
+        }        
+
         boolean autoConfig = false;
         if ("true".equals(element.getAttribute(ATT_AUTO_CONFIG))) {
         	autoConfig = true;
@@ -237,7 +240,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (rememberMeElt != null || autoConfig) {
             new RememberMeBeanDefinitionParser().parse(rememberMeElt, parserContext);
         }
-
+        
         Element logoutElt = DomUtils.getChildElementByTagName(element, Elements.LOGOUT);
         if (logoutElt != null || autoConfig) {
             new LogoutBeanDefinitionParser().parse(logoutElt, parserContext);

@@ -80,7 +80,11 @@ public class SessionFixationProtectionFilter extends SpringSecurityFilter {
         this.migrateSessionAttributes = migrateSessionAttributes;
     }
 
-    public int getOrder() {
+    public void setSessionRegistry(SessionRegistry sessionRegistry) {
+		this.sessionRegistry = sessionRegistry;
+	}
+
+	public int getOrder() {
         return FilterChainOrder.SESSION_FIXATION_FILTER;
     }
     
