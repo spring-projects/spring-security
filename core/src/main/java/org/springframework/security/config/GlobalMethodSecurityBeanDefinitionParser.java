@@ -10,6 +10,8 @@ import org.springframework.aop.config.AopNamespaceUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -28,7 +30,6 @@ import org.w3c.dom.Element;
 /**
  * Processes the top-level "global-method-security" element.
  * 
- *
  * @author Ben Alex
  * @version $Id$
  */
@@ -41,16 +42,16 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_ACCESS = "access";
     private static final String ATT_EXPRESSION = "expression";
     private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
-    private static final String ATT_USE_JSR250 = "jsr250";
-    private static final String ATT_USE_SECURED = "secured";
+    private static final String ATT_USE_JSR250 = "jsr250-annotations";
+    private static final String ATT_USE_SECURED = "secured-annotations";
 
     private void validatePresent(String className) {
     	Assert.isTrue(ClassUtils.isPresent(className), "Cannot locate '" + className + "'");
     }
     
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        boolean useJsr250 = "true".equals(element.getAttribute(ATT_USE_JSR250));
-        boolean useSecured = "true".equals(element.getAttribute(ATT_USE_SECURED));
+        boolean useJsr250 = "enabled".equals(element.getAttribute(ATT_USE_JSR250));
+        boolean useSecured = "enabled".equals(element.getAttribute(ATT_USE_SECURED));
 
         // Check the required classes are present
         if (useSecured) {
@@ -91,23 +92,15 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
         
         // Create our list of method metadata delegates
-        List delegates = new ArrayList();
+        ManagedList delegates = new ManagedList();
         delegates.add(mapBasedMethodDefinitionSource);
         
         if (useSecured) {
-        	try {
-            	delegates.add(BeanUtils.instantiateClass(ClassUtils.forName(SECURED_METHOD_DEFINITION_SOURCE_CLASS)));
-        	} catch (ClassNotFoundException shouldNotHappen) {
-        		throw new IllegalStateException(shouldNotHappen);
-        	}
+            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(SECURED_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
         }
         
         if (useJsr250) {
-        	try {
-        		delegates.add(BeanUtils.instantiateClass(ClassUtils.forName(JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS)));
-        	} catch (ClassNotFoundException shouldNotHappen) {
-        		throw new IllegalStateException(shouldNotHappen);
-        	}
+            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());            
         }
         
     	// Register our DelegatingMethodDefinitionSource

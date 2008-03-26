@@ -12,7 +12,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-	<global-method-security secured="true"/>
+	<global-method-security secured-annotations="enabled"/>
 
     <http>
         <intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>

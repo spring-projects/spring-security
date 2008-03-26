@@ -157,13 +157,13 @@ global-method-security =
     ## Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for Spring Security annotations and/or matches with the ordered list of "protect-pointcut" sub-elements. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. If you use and enable all three sources of method security metadata (ie "protect-pointcut" declarations, @Secured and also JSR 250 security annotations), the metadata sources will be queried in that order. In practical terms, this enables you to use XML to override method security metadata expressed by way of @Secured annotations, with @Secured annotations overriding method security metadata expressed by JSR 250 annotations. It is perfectly acceptable to mix and match, with a given Java type using a combination of XML, @Secured and JSR 250 to express method security metadata (albeit on different methods).
 	element global-method-security {global-method-security.attlist, protect-pointcut*}
 global-method-security.attlist &=
-    ## Specifies that Spring Security's @Secured annotation should be used. Please ensure you have the spring-security-tiger-xxx.jar on the classpath. Defaults to false.
-    attribute secured {"false" | "true" }?
+    ## Specifies whether the use of Spring Security's @Secured annotations should be enabled for this application context. Please ensure you have the spring-security-tiger-xxx.jar on the classpath. Defaults to "disabled".
+    attribute secured-annotations {"disabled" | "enabled" }?
 global-method-security.attlist &=
-    ## Specifies that JSR-250 style attributes are to be used (for example "RolesAllowed"). This will require the javax.annotation.security classes on the classpath. Defaults to false.
-    attribute jsr250 {"false" | "true" }?
+    ## Specifies whether JSR-250 style attributes are to be used (for example "RolesAllowed"). This will require the javax.annotation.security classes on the classpath. Defaults to "disabled".
+    attribute jsr250-annotations {"disabled" | "enabled" }?
 global-method-security.attlist &=
-    ## Optional AccessDecisionManager bean ID to override the default.
+    ## Optional AccessDecisionManager bean ID to override the default used for method security.
     attribute access-decision-manager-ref {xsd:string}?
 
 
@@ -311,7 +311,7 @@ anonymous =
     ## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
     element anonymous {anonymous.attlist}
 anonymous.attlist &=
-    ## The key used between the provider and filter. This generally does not need to be set. If unset, it will default to "doesNotMatter".
+    ## The key shared between the provider and filter. This generally does not need to be set. If unset, it will default to "doesNotMatter".
     attribute key {xsd:string}?
 anonymous.attlist &= 
     ## The username that should be assigned to the anonymous request. This allows the principal to be identified, which may be important for logging and auditing. if unset, defaults to "anonymousUser".

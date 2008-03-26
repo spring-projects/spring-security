@@ -8,7 +8,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <b:bean id="target" class="org.springframework.security.annotation.Jsr250BusinessServiceImpl"/>
 
-	<global-method-security jsr250="true"/>
+	<global-method-security jsr250-annotations="enabled"/>
 
     <authentication-provider>
         <user-service>
