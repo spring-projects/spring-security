@@ -154,6 +154,19 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
     public void setSearchTimeLimit(int searchTimeLimit) {
         searchControls.setTimeLimit(searchTimeLimit);
     }
+    
+	/**
+	 * Specifies the attributes that will be returned as part of the search.
+	 *<p>
+	 * null indicates that all attributes will be returned.
+	 * An empty array indicates no attributes are returned.
+	 *
+	 * @param attrs An array of attribute names identifying the attributes that
+	 * 		    will be returned. Can be null.
+	 */
+	public void setReturningAttributes(String[] attrs) {
+	    searchControls.setReturningAttributes(attrs);
+	}
 
     public String toString() {
         StringBuffer sb = new StringBuffer();
@@ -164,7 +177,6 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
           .append(searchControls.getSearchScope() == SearchControls.SUBTREE_SCOPE ? "subtree" : "single-level, ");
         sb.append(", searchTimeLimit: ").append(searchControls.getTimeLimit());
         sb.append(", derefLinkFlag: ").append(searchControls.getDerefLinkFlag()).append(" ]");
-
         return sb.toString();
     }
 }
