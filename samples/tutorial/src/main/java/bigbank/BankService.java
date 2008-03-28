@@ -4,10 +4,10 @@ import org.springframework.security.annotation.Secured;
 
 public interface BankService {
 	
-	@Secured("IS_AUTHENTICATED_REMEMBERED")
+	@Secured("IS_AUTHENTICATED_ANONYMOUSLY")
 	public Account readAccount(Long id);
 		
-	@Secured("IS_AUTHENTICATED_REMEMBERED")
+	@Secured("IS_AUTHENTICATED_ANONYMOUSLY")
 	public Account[] findAccounts();
 	
 	@Secured("ROLE_TELLER")
