@@ -2,6 +2,7 @@ package org.springframework.security.config;
 
 import org.springframework.security.userdetails.jdbc.JdbcUserDetailsManager;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 
 import org.w3c.dom.Element;
@@ -17,7 +18,7 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
         return JdbcUserDetailsManager.class;
     }
 
-    protected void doParse(Element element, BeanDefinitionBuilder builder) {
+    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         // TODO: Set authenticationManager property
         String dataSource = element.getAttribute(ATT_DATA_SOURCE);
         // An explicit dataSource was specified, so use it

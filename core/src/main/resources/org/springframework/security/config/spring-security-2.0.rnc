@@ -29,7 +29,11 @@ id =
 ref =
     ## Defines a reference to a Spring bean Id.
     attribute ref {xsd:string}
-    
+
+cache-ref =
+    ## Defines a reference to a cache for use with a UserDetailsService.
+    attribute cache-ref {xsd:string}
+
 user-service-ref =
     ## A reference to a user-service (or UserDetailsService bean) Id
     attribute user-service-ref {xsd:string}
@@ -104,6 +108,8 @@ ldap-us.attlist &=
     group-search-base-attribute?
 ldap-us.attlist &=
     group-role-attribute-attribute?
+ldap-us.attlist &=
+    cache-ref?
 
 ldap-authentication-provider =
     ## Sets up an ldap authentication provider
@@ -391,7 +397,9 @@ jdbc-user-service =
 jdbc-user-service.attlist &=
 	  ## The bean ID of the DataSource which provides the required tables.
     attribute data-source-ref {xsd:string}
-    
+jdbc-user-service.attlist &=
+    cache-ref?
+
 any-user-service = user-service | jdbc-user-service | ldap-user-service
     
 custom-filter =

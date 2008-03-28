@@ -74,8 +74,16 @@ public abstract class ConfigUtils {
     }
 
 
+    /**
+     * Obtains a user details service for use in RememberMeServices etc. Will return a caching version
+     * if available so should not be used for beans which need to separate the two. 
+     */
     static UserDetailsService getUserDetailsService(ConfigurableListableBeanFactory bf) {
-        Map services = bf.getBeansOfType(UserDetailsService.class);
+        Map services = bf.getBeansOfType(CachingUserDetailsService.class);
+        
+        if (services.size() == 0) {
+        	services = bf.getBeansOfType(UserDetailsService.class);
+        }
 
         if (services.size() == 0) {
             throw new IllegalArgumentException("No UserDetailsService registered.");

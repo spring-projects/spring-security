@@ -16,6 +16,8 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.security.concurrent.ConcurrentSessionFilter;
@@ -52,30 +54,46 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
         configureFilterChain(beanFactory);
     }
 
-    private void injectUserDetailsServiceIntoRememberMeServices(ConfigurableListableBeanFactory beanFactory) {
+    private void injectUserDetailsServiceIntoRememberMeServices(ConfigurableListableBeanFactory bf) {
         try {
-            BeanDefinition rememberMeServices = beanFactory.getBeanDefinition(BeanIds.REMEMBER_ME_SERVICES);
+            BeanDefinition rememberMeServices = bf.getBeanDefinition(BeanIds.REMEMBER_ME_SERVICES);
             PropertyValue pv = rememberMeServices.getPropertyValues().getPropertyValue("userDetailsService");
 
             if (pv == null) {
                 rememberMeServices.getPropertyValues().addPropertyValue("userDetailsService",
-                    ConfigUtils.getUserDetailsService(beanFactory));
+                    ConfigUtils.getUserDetailsService(bf));
+            } else {
+            	RuntimeBeanReference cachingUserService = getCachingUserService(bf, pv.getValue());
+            	
+            	if (cachingUserService != null) {
+            		rememberMeServices.getPropertyValues().addPropertyValue("userDetailsService", cachingUserService);
+            	}            	
             }
         } catch (NoSuchBeanDefinitionException e) {
             // ignore
         }
     }
 
-    private void injectUserDetailsServiceIntoX509Provider(ConfigurableListableBeanFactory beanFactory) {
+    private void injectUserDetailsServiceIntoX509Provider(ConfigurableListableBeanFactory bf) {
         try {
-            BeanDefinition x509AuthProvider = beanFactory.getBeanDefinition(BeanIds.X509_AUTH_PROVIDER);
+            BeanDefinition x509AuthProvider = bf.getBeanDefinition(BeanIds.X509_AUTH_PROVIDER);
             PropertyValue pv = x509AuthProvider.getPropertyValues().getPropertyValue("preAuthenticatedUserDetailsService");
 
             if (pv == null) {
                 UserDetailsByNameServiceWrapper preAuthUserService = new UserDetailsByNameServiceWrapper();
-                preAuthUserService.setUserDetailsService(ConfigUtils.getUserDetailsService(beanFactory));
+                preAuthUserService.setUserDetailsService(ConfigUtils.getUserDetailsService(bf));
                 x509AuthProvider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService",
                         preAuthUserService);
+            } else {
+            	RootBeanDefinition preAuthUserService = (RootBeanDefinition) pv.getValue();
+            	Object userService = 
+            		preAuthUserService.getPropertyValues().getPropertyValue("userDetailsService").getValue();
+            	
+            	RuntimeBeanReference cachingUserService = getCachingUserService(bf, userService);
+            	
+            	if (cachingUserService != null) {
+            		preAuthUserService.getPropertyValues().addPropertyValue("userDetailsService", cachingUserService);
+            	}
             }
         } catch (NoSuchBeanDefinitionException e) {
             // ignore
@@ -94,7 +112,22 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
         } catch (NoSuchBeanDefinitionException e) {
             // ignore
         }
-    }    
+    }
+    
+    private RuntimeBeanReference getCachingUserService(ConfigurableListableBeanFactory bf, Object userServiceRef) {
+    	Assert.isInstanceOf(RuntimeBeanReference.class, userServiceRef, 
+    			"userDetailsService property value must be a RuntimeBeanReference");
+    	
+    	String id = ((RuntimeBeanReference)userServiceRef).getBeanName();
+    	// Overwrite with the caching version if available
+    	String cachingId = id + AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX;
+    	
+    	if (bf.containsBeanDefinition(cachingId)) {
+    		return new RuntimeBeanReference(cachingId);
+    	}
+    	
+    	return null;
+    }
 
     /**
      * Sets the authentication manager, (and remember-me services, if required) on any instances of
@@ -148,7 +181,7 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
      * <ol>
      * <li>If only one, use that one.</li>
      * <li>If more than one, use the form login entry point (if form login is being used), then try basic</li>
-     * <li>If still null, throw an exception (for now). TODO: Examine additional beans and types and make decision</li>
+     * <li>If still null, throw an exception (for now).</li>
      * </ol>
      *
      */
@@ -257,6 +290,6 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
     }
 
     public int getOrder() {
-        return HIGHEST_PRECEDENCE;
+        return HIGHEST_PRECEDENCE + 1;
     }
 }

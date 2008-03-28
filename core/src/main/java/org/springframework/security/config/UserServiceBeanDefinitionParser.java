@@ -4,6 +4,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.security.userdetails.memory.InMemoryDaoImpl;
 import org.springframework.security.userdetails.memory.UserMap;
@@ -36,7 +37,7 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
         return InMemoryDaoImpl.class;
     }
 
-    protected void doParse(Element element, BeanDefinitionBuilder builder) {
+    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         String userProperties = element.getAttribute(ATT_PROPERTIES);
         List userElts = DomUtils.getChildElementsByTagName(element, ELT_USER);
 
