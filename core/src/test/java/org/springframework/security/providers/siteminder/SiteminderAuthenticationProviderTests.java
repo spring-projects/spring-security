@@ -15,9 +15,6 @@
 
 package org.springframework.security.providers.siteminder;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import junit.framework.TestCase;
 
 import org.springframework.security.AccountExpiredException;
@@ -31,7 +28,7 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.LockedException;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.dao.UserCache;
+import org.springframework.security.providers.dao.MockUserCache;
 import org.springframework.security.providers.dao.cache.EhCacheBasedUserCache;
 import org.springframework.security.providers.dao.cache.NullUserCache;
 import org.springframework.security.userdetails.User;
@@ -402,21 +399,6 @@ public class SiteminderAuthenticationProviderTests extends TestCase {
             } else {
                 throw new UsernameNotFoundException("Could not find: " + username);
             }
-        }
-    }
-
-    private class MockUserCache implements UserCache {
-        private Map cache = new HashMap();
-
-        public UserDetails getUserFromCache(String username) {
-            return (User) cache.get(username);
-        }
-
-        public void putUserInCache(UserDetails user) {
-            cache.put(user.getUsername(), user);
-        }
-
-        public void removeUserFromCache(String username) {
         }
     }
 }

@@ -42,8 +42,6 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -530,19 +528,5 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 throw new UsernameNotFoundException("Could not find: " + username);
             }
         }
-    }
-
-    private class MockUserCache implements UserCache {
-        private Map cache = new HashMap();
-
-        public UserDetails getUserFromCache(String username) {
-            return (User) cache.get(username);
-        }
-
-        public void putUserInCache(UserDetails user) {
-            cache.put(user.getUsername(), user);
-        }
-
-        public void removeUserFromCache(String username) {}
     }
 }
