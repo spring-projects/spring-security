@@ -29,29 +29,10 @@
     <bean id="casAuthenticationProvider" class="org.springframework.security.providers.cas.CasAuthenticationProvider">
         <sec:custom-authentication-provider />
         <property name="userDetailsService" ref="userService"/>
-        <property name="casProxyDecider">
-            <bean class="org.springframework.security.providers.cas.proxy.RejectProxyTickets"/>
-        </property>
+        <property name="serviceProperties" ref="serviceProperties" />
         <property name="ticketValidator">
-            <bean class="org.springframework.security.providers.cas.ticketvalidator.CasProxyTicketValidator">
-                <property name="casValidate" value="https://localhost:9443/cas/proxyValidate"/>
-                <property name="proxyCallbackUrl" value="https://localhost:8443/cas-sample/casProxy/receptor"/>
-                <property name="serviceProperties" ref="serviceProperties"/>
-                <property name="trustStore" value="../../certificates/server.jks"/>
-                <property name="trustPassword" value="password"/>
-                <!-- <property name="trustStore"><value>/some/path/to/your/lib/security/cacerts</value></property> -->
-            </bean>
-        </property>
-        <property name="statelessTicketCache">
-            <bean class="org.springframework.security.providers.cas.cache.EhCacheBasedTicketCache">
-                <property name="cache">
-                    <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-                        <property name="cacheManager">
-                            <bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
-                        </property>
-                        <property name="cacheName" value="ticketCache"/>
-                    </bean>
-                </property>
+        	<bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+        		<constructor-arg index="0" value="https://localhost:9443/cas" />
             </bean>
         </property>
         <property name="key" value="an_id_for_this_auth_provider_only"/>

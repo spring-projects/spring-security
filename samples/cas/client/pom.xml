@@ -38,12 +38,7 @@
             <artifactId>spring-aop</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-          <groupId>net.sf.ehcache</groupId>
-          <artifactId>ehcache</artifactId>
-          <version>1.3.0</version>
-          <scope>runtime</scope>
-        </dependency>        
+    
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -83,6 +78,16 @@
                             <trustPassword>password</trustPassword>
                         </connector>
                     </connectors>
+			         <systemProperties>
+			            <systemProperty>
+			              <name>javax.net.ssl.trustStore</name>
+			               <value>../../certificates/server.jks</value>
+			            </systemProperty>
+			            <systemProperty>
+			            	<name>javax.net.ssl.trustStorePassword</name>
+			            	<value>password</value>
+			            </systemProperty>
+					</systemProperties>
                 </configuration>
             </plugin>
         </plugins>
