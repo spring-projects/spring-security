@@ -13,6 +13,7 @@
   <modules>
     <module>webwork</module>
     <module>other</module>
+    <module>captcha</module>
   </modules>
 
   <dependencies>
@@ -22,4 +23,17 @@
       <version>2.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
+  
+  <build>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <source>1.5</source>
+                  <target>1.5</target>
+              </configuration>
+          </plugin>
+      </plugins>
+  </build>
 </project>

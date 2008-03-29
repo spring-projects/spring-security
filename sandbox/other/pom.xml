@@ -9,14 +9,20 @@
     <version>2.0-SNAPSHOT</version>
   </parent>
   <artifactId>spring-security-sandbox-other</artifactId>
-  <name>Spring Security - Sandbox other</name>
-  <description>Spring Security Miscellaneus sandbox utilities</description>
+  <name>Spring Security - Other Sandbox Code</name>
+  <description>Spring Security Miscellaneous sandbox utilities</description>
   <dependencies>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-core</artifactId>
+      <classifier>tests</classifier>
+      <version>${project.version}</version>
+    </dependency>    
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-mock</artifactId>
@@ -45,6 +51,18 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+        <groupId>aspectj</groupId>
+	    <artifactId>aspectjrt</artifactId>
+	    <version>1.5.4</version>	    
+	    <optional>true</optional>
+    </dependency>
+    <dependency>
+        <groupId>org.aspectj</groupId>
+	    <artifactId>aspectjweaver</artifactId>
+	    <version>1.5.4</version>
+	    <optional>true</optional>
+    </dependency>	        
+    <dependency>
       <groupId>ldapsdk</groupId>
       <artifactId>ldapsdk</artifactId>
       <version>4.1</version>
@@ -62,16 +80,4 @@
           <scope>test</scope>
       </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.4</source>
-          <target>1.4</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
