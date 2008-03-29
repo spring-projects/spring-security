@@ -22,6 +22,7 @@ import org.apache.commons.codec.binary.Base64;
 
 import org.springframework.util.Assert;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 
 
@@ -82,11 +83,12 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 
         try {
             sha = MessageDigest.getInstance("SHA");
+            sha.update(rawPass.getBytes("UTF-8"));
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new IllegalStateException("No SHA implementation available!", e);
-        }
-
-        sha.update(rawPass.getBytes());
+		} catch (UnsupportedEncodingException ue) {
+			throw new IllegalStateException("UTF-8 not supported!", ue);
+		}
 
         if (salt != null) {
             Assert.isInstanceOf(byte[].class, salt, "Salt value must be a byte array");

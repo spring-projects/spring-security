@@ -3,6 +3,7 @@ package org.springframework.security.providers.encoding;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -72,7 +73,13 @@ public class MessageDigestPasswordEncoder extends BaseDigestPasswordEncoder {
 
         MessageDigest messageDigest = getMessageDigest();
 
-        byte[] digest = messageDigest.digest(saltedPass.getBytes());
+        byte[] digest;
+		
+        try {
+			digest = messageDigest.digest(saltedPass.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException("UTF-8 not supported!");
+		}
 
         if (getEncodeHashAsBase64()) {
             return new String(Base64.encodeBase64(digest));
