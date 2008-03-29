@@ -16,7 +16,6 @@
         <module>openid</module>
         <module>samples</module>
         <module>cas</module>
-        <module>captcha</module>
         <module>acl</module>
         <module>taglibs</module>
   </modules>
@@ -375,7 +374,7 @@
                 <version>2.5</version>
                 <configuration>
                     <downloadSources>true</downloadSources>
-                    <wtpversion>1.5</wtpversion>
+                    <wtpversion>2.0</wtpversion>
                 </configuration>
             </plugin>
             <plugin>
