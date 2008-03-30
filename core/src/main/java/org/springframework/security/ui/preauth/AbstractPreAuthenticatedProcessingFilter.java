@@ -63,11 +63,11 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
     /**
      * Do the actual authentication for a pre-authenticated user.
      */
-    private void doAuthenticate(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+    private void doAuthenticate(HttpServletRequest request, HttpServletResponse response) {
         Authentication authResult = null;
 
-        Object principal = getPreAuthenticatedPrincipal(httpRequest);
-        Object credentials = getPreAuthenticatedCredentials(httpRequest);
+        Object principal = getPreAuthenticatedPrincipal(request);
+        Object credentials = getPreAuthenticatedCredentials(request);
 
         if (principal == null) {
             if (logger.isDebugEnabled()) {
@@ -83,11 +83,11 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
 
         try {
             PreAuthenticatedAuthenticationToken authRequest = new PreAuthenticatedAuthenticationToken(principal, credentials);
-            authRequest.setDetails(authenticationDetailsSource.buildDetails(httpRequest));
+            authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
             authResult = authenticationManager.authenticate(authRequest);
-            successfulAuthentication(httpRequest, httpResponse, authResult);
+            successfulAuthentication(request, response, authResult);
         } catch (AuthenticationException failed) {
-            unsuccessfulAuthentication(httpRequest, httpResponse, failed);
+            unsuccessfulAuthentication(request, response, failed);
         }
     }
 
@@ -144,7 +144,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
         this.authenticationManager = authenticationManager;
     }
 
-    protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest);
+    protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest request);
 
-    protected abstract Object getPreAuthenticatedCredentials(HttpServletRequest httpRequest);
+    protected abstract Object getPreAuthenticatedCredentials(HttpServletRequest request);
 }
