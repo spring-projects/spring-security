@@ -130,8 +130,8 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
     }
 
     /**
-     * Sets the authentication manager, (and remember-me services, if required) on any instances of
-     * AbstractProcessingFilter
+     * Sets the remember-me services, if required, on any instances of AbstractProcessingFilter and 
+     * BasicProcessingFilter.
      */
     private void injectRememberMeServicesIntoFiltersRequiringIt(ConfigurableListableBeanFactory beanFactory) {
         Map beans = beanFactory.getBeansOfType(RememberMeServices.class);
@@ -148,6 +148,10 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
         } else {
             throw new SecurityConfigurationException("More than one RememberMeServices bean found.");
         }
+        
+        if (rememberMeServices == null) {
+            return;
+        }
 
         // Address AbstractProcessingFilter instances
         Iterator filters = beanFactory.getBeansOfType(AbstractProcessingFilter.class).values().iterator();
@@ -155,10 +159,8 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
         while (filters.hasNext()) {
             AbstractProcessingFilter filter = (AbstractProcessingFilter) filters.next();
 
-            if (rememberMeServices != null) {
-                logger.info("Using RememberMeServices " + rememberMeServices + " with filter " + filter);
-                filter.setRememberMeServices(rememberMeServices);
-            }
+            logger.info("Using RememberMeServices " + rememberMeServices + " with filter " + filter);
+            filter.setRememberMeServices(rememberMeServices);
         }
 
         // Address BasicProcessingFilter instance, if it exists
@@ -166,13 +168,12 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
         // Most of the time a user won't present such a parameter with their BASIC authentication request.
         // In the future we might support setting the AbstractRememberMeServices.alwaysRemember = true, but I am reluctant to
         // do so because it seems likely to lead to lower security for 99.99% of users if they set the property to true.
-       	BasicProcessingFilter filter = (BasicProcessingFilter) getBeanOfType(BasicProcessingFilter.class, beanFactory);
+        if (beanFactory.containsBean(BeanIds.BASIC_AUTHENTICATION_FILTER)) {
+            BasicProcessingFilter filter = (BasicProcessingFilter) beanFactory.getBean(BeanIds.BASIC_AUTHENTICATION_FILTER);
 
-        if (filter != null && rememberMeServices != null) {
             logger.info("Using RememberMeServices " + rememberMeServices + " with filter " + filter);
             filter.setRememberMeServices(rememberMeServices);
         }
-
     }
 
     /**
@@ -279,14 +280,6 @@ public class HttpSecurityConfigPostProcessor implements BeanFactoryPostProcessor
         Collections.sort(orderedFilters, new OrderComparator());
 
         return orderedFilters;
-    }
-
-    private Object getBeanOfType(Class clazz, ConfigurableListableBeanFactory beanFactory) {
-        Map beans = beanFactory.getBeansOfType(clazz);
-
-        Assert.isTrue(beans.size() == 1, "Required a single bean of type " + clazz + " but found " + beans.size());
-
-        return beans.values().toArray()[0];
     }
 
     public int getOrder() {

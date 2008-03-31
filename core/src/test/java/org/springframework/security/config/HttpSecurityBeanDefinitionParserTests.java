@@ -325,6 +325,18 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue("ExceptionTranslationFilter should be configured with custom entry point", 
                 etf.getAuthenticationEntryPoint() instanceof MockAuthenticationEntryPoint);
     }
+    
+    @Test
+    /** SEC-742 */
+    public void rememberMeServicesWorksWithoutBasicProcessingFilter() {
+        setContext(
+                "    <http>" +
+                "        <form-login login-page='/login.jsp' default-target-url='/messageList.html'/>" +
+                "        <logout logout-success-url='/login.jsp'/>" +
+                "        <anonymous username='guest' granted-authority='guest'/>" +
+                "        <remember-me />" +
+                "    </http>" + AUTH_PROVIDER_XML);
+    }
 
     @Test
     public void disablingSessionProtectionRemovesFilter() throws Exception {
