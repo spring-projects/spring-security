@@ -95,7 +95,7 @@ public class PortletProcessingInterceptor implements HandlerInterceptor, Initial
 	
 	private AuthenticationDetailsSource authenticationDetailsSource;
 	
-	private boolean useAuthTypeAsCredentials = true;
+	private boolean useAuthTypeAsCredentials = false;
 
 	public PortletProcessingInterceptor() {
 	    authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
@@ -311,7 +311,9 @@ public class PortletProcessingInterceptor implements HandlerInterceptor, Initial
     }
 
     /**
-     *  
+     * It true, the "authType" proerty of the <tt>PortletRequest</tt> will be used as the credentials.
+     * Defaults to false.
+     * 
      * @param useAuthTypeAsCredentials
      */
 	public void setUseAuthTypeAsCredentials(boolean useAuthTypeAsCredentials) {

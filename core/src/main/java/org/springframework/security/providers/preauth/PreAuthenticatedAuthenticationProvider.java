@@ -117,7 +117,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     /** 
      * If true, causes the provider to throw a BadCredentialsException if the presented authentication 
      * request is invalid (contains a null principal or credentials). Otherwise it will just return 
-     * null.  
+     * null. Defaults to false.
      */    
     public void setThrowExceptionWhenTokenRejected(boolean throwExceptionWhenTokenRejected) {
         this.throwExceptionWhenTokenRejected = throwExceptionWhenTokenRejected;
