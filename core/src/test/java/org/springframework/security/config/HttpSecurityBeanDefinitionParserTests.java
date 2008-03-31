@@ -1,5 +1,10 @@
 package org.springframework.security.config;
 
+import org.springframework.security.concurrent.ConcurrentLoginException;
+import org.springframework.security.concurrent.ConcurrentSessionController;
+import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
+import org.springframework.security.concurrent.ConcurrentSessionFilter;
+import org.springframework.security.concurrent.SessionRegistryImpl;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
@@ -7,6 +12,7 @@ import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.securechannel.ChannelProcessingFilter;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.ui.SessionFixationProtectionFilter;
+import org.springframework.security.ui.WebAuthenticationDetails;
 import org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
@@ -18,13 +24,17 @@ import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.PortMapperImpl;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.anonymous.AnonymousProcessingFilter;
+import org.springframework.security.Authentication;
 import org.springframework.security.MockFilterChain;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.SecurityConfig;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -248,13 +258,57 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
+    public void concurrentSessionSupportAddsFilterAndExpectedBeans() throws Exception {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <concurrent-session-control session-registry-alias='seshRegistry' expired-url='/expired'/>" +
+                "</http>"  + AUTH_PROVIDER_XML);
+        List filters = getFilterChainProxy().getFilters("/someurl");
+        
+        assertTrue(filters.get(0) instanceof ConcurrentSessionFilter);        
+        assertNotNull(appContext.getBean("seshRegistry"));
+        assertNotNull(appContext.getBean(BeanIds.CONCURRENT_SESSION_CONTROLLER));
+    }    
+
+    @Test(expected=ConcurrentLoginException.class)
+    public void concurrentSessionMaxSessionsIsCorrectlyConfigured() throws Exception {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <concurrent-session-control max-sessions='2' exception-if-maximum-exceeded='true' />" +
+                "</http>"  + AUTH_PROVIDER_XML);
+        ConcurrentSessionControllerImpl seshController = (ConcurrentSessionControllerImpl) appContext.getBean(BeanIds.CONCURRENT_SESSION_CONTROLLER);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("bob", "pass");
+        // Register 2 sessions and then check a third
+        MockHttpServletRequest req = new MockHttpServletRequest();
+        req.setSession(new MockHttpSession());
+        auth.setDetails(new WebAuthenticationDetails(req));
+        try {
+        	seshController.checkAuthenticationAllowed(auth);
+        } catch (ConcurrentLoginException e) {
+        	fail("First login should be allowed");
+        }        
+        seshController.registerSuccessfulAuthentication(auth);
+        req.setSession(new MockHttpSession());
+        try {
+        	seshController.checkAuthenticationAllowed(auth);
+        } catch (ConcurrentLoginException e) {
+        	fail("Second login should be allowed");
+        }
+        auth.setDetails(new WebAuthenticationDetails(req));
+        seshController.registerSuccessfulAuthentication(auth);
+        req.setSession(new MockHttpSession());
+        auth.setDetails(new WebAuthenticationDetails(req));
+        seshController.checkAuthenticationAllowed(auth);
+    }
+
+    @Test
     public void disablingSessionProtectionRemovesFilter() throws Exception {
         setContext(
                 "<http auto-config='true' session-fixation-protection='none'/>" + AUTH_PROVIDER_XML);
         List filters = getFilterChainProxy().getFilters("/someurl");
 
         assertFalse(filters.get(1) instanceof SessionFixationProtectionFilter);
-    }
+    }    
     
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);

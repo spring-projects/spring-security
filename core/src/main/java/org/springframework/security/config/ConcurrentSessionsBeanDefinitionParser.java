@@ -23,6 +23,12 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionParser {
+
+    static final String ATT_EXPIRY_URL = "expired-url";
+    static final String ATT_MAX_SESSIONS = "max-sessions";
+    static final String ATT_EXCEPTION_IF_MAX_EXCEEDED = "exception-if-maximum-exceeded";
+    static final String ATT_SESSION_REGISTRY_ALIAS = "session-registry-alias";    
+	
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinitionRegistry beanRegistry = parserContext.getRegistry();
 
@@ -38,26 +44,32 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
         filterBuilder.setSource(source);
         controllerBuilder.setSource(source);
 
-        String expiryUrl = element.getAttribute("expiryUrl");
+        String expiryUrl = element.getAttribute(ATT_EXPIRY_URL);
 
         if (StringUtils.hasText(expiryUrl)) {
-            filterBuilder.addPropertyValue("expiryUrl", expiryUrl);
+            filterBuilder.addPropertyValue("expiredUrl", expiryUrl);
         }
 
-        String maxSessions = element.getAttribute("maxSessions");
+        String maxSessions = element.getAttribute(ATT_MAX_SESSIONS);
 
-        if (StringUtils.hasText(expiryUrl)) {
+        if (StringUtils.hasText(maxSessions)) {
             controllerBuilder.addPropertyValue("maximumSessions", maxSessions);
         }
 
-        String exceptionIfMaximumExceeded = element.getAttribute("exceptionIfMaximumExceeded");
+        String exceptionIfMaximumExceeded = element.getAttribute(ATT_EXCEPTION_IF_MAX_EXCEEDED);
 
-        if (StringUtils.hasText(expiryUrl)) {
+        if (StringUtils.hasText(exceptionIfMaximumExceeded)) {
             controllerBuilder.addPropertyValue("exceptionIfMaximumExceeded", exceptionIfMaximumExceeded);
         }
 
         BeanDefinition controller = controllerBuilder.getBeanDefinition();
         beanRegistry.registerBeanDefinition(BeanIds.SESSION_REGISTRY, sessionRegistry);
+        
+        String registryAlias = element.getAttribute(ATT_SESSION_REGISTRY_ALIAS);
+        if (StringUtils.hasText(registryAlias)) {
+        	beanRegistry.registerAlias(BeanIds.SESSION_REGISTRY, registryAlias);
+        }
+
         beanRegistry.registerBeanDefinition(BeanIds.CONCURRENT_SESSION_CONTROLLER, controller);
         beanRegistry.registerBeanDefinition(BeanIds.CONCURRENT_SESSION_FILTER, filterBuilder.getBeanDefinition());
 

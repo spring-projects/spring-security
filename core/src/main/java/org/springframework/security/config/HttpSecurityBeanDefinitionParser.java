@@ -90,7 +90,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String DEF_SERVLET_API_PROVISION = "true";
 
     static final String ATT_ACCESS_MGR = "access-decision-manager-ref";    
-    static final String ATT_USER_SERVICE_REF = "user-service-ref";    
+    static final String ATT_USER_SERVICE_REF = "user-service-ref";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinitionRegistry registry = parserContext.getRegistry();

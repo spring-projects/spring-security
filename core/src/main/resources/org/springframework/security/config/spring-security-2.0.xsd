@@ -2,6 +2,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:security="http://www.springframework.org/schema/security" elementFormDefault="qualified"
     targetNamespace="http://www.springframework.org/schema/security">
+
     <xs:attributeGroup name="hash">
         <xs:attribute name="hash" use="required">
             <xs:annotation>
@@ -92,35 +93,7 @@
             </xs:annotation>
         </xs:attribute>
     </xs:attributeGroup>
-    <xs:element name="password-encoder">
-        <xs:annotation>
-            <xs:documentation>element which defines a password encoding strategy. Used by an
-                authentication provider to convert submitted passwords to hashed versions, for
-                example.</xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs="0" name="salt-source">
-                    <xs:complexType>
-                        <xs:attribute name="user-property" type="xs:string">
-                            <xs:annotation>
-                                <xs:documentation>A property of the UserDetails object which will be
-                                    used as salt by a password encoder. Typically something like
-                                    "username" might be used. </xs:documentation>
-                            </xs:annotation>
-                        </xs:attribute>
-                        <xs:attribute name="system-wide" type="xs:string">
-                            <xs:annotation>
-                                <xs:documentation>A single value that will be used as the salt for a
-                                    password encoder. </xs:documentation>
-                            </xs:annotation>
-                        </xs:attribute>
-                    </xs:complexType>
-                </xs:element>
-            </xs:sequence>
-            <xs:attributeGroup ref="security:password-encoder.attlist"/>
-        </xs:complexType>
-    </xs:element>
+
     <xs:attributeGroup name="password-encoder.attlist">
         <xs:attribute name="ref" type="xs:string">
             <xs:annotation>
@@ -365,7 +338,35 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs="0" ref="security:password-encoder"/>
+                <xs:element minOccurs="0" name="password-encoder">
+                    <xs:annotation>
+                        <xs:documentation>element which defines a password encoding strategy. Used
+                            by an authentication provider to convert submitted passwords to hashed
+                            versions, for example.</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element minOccurs="0" name="salt-source">
+                                <xs:complexType>
+                                    <xs:attribute name="user-property" type="xs:string">
+                                        <xs:annotation>
+                                            <xs:documentation>A property of the UserDetails object
+                                                which will be used as salt by a password encoder.
+                                                Typically something like "username" might be used. </xs:documentation>
+                                        </xs:annotation>
+                                    </xs:attribute>
+                                    <xs:attribute name="system-wide" type="xs:string">
+                                        <xs:annotation>
+                                            <xs:documentation>A single value that will be used as
+                                                the salt for a password encoder. </xs:documentation>
+                                        </xs:annotation>
+                                    </xs:attribute>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attributeGroup ref="security:password-encoder.attlist"/>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
             <xs:attributeGroup ref="security:password-compare.attlist"/>
         </xs:complexType>
@@ -706,6 +707,11 @@
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
+        <xs:attribute name="entry-point-ref" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Allows a customized AuthenticationEntryPoint to be used.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:attributeGroup>
 
     <xs:attributeGroup name="intercept-url.attlist">
@@ -935,6 +941,12 @@
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
+        <xs:attribute name="session-registry-alias" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Allows you to define an alias for the SessionRegistry bean in
+                    order to access it in your own configuration</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:attributeGroup>
 
     <xs:attributeGroup name="remember-me.attlist">
@@ -1019,7 +1031,35 @@
         <xs:complexType>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:group ref="security:any-user-service"/>
-                <xs:element ref="security:password-encoder"/>
+                <xs:element name="password-encoder">
+                    <xs:annotation>
+                        <xs:documentation>element which defines a password encoding strategy. Used
+                            by an authentication provider to convert submitted passwords to hashed
+                            versions, for example.</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element minOccurs="0" name="salt-source">
+                                <xs:complexType>
+                                    <xs:attribute name="user-property" type="xs:string">
+                                        <xs:annotation>
+                                            <xs:documentation>A property of the UserDetails object
+                                                which will be used as salt by a password encoder.
+                                                Typically something like "username" might be used. </xs:documentation>
+                                        </xs:annotation>
+                                    </xs:attribute>
+                                    <xs:attribute name="system-wide" type="xs:string">
+                                        <xs:annotation>
+                                            <xs:documentation>A single value that will be used as
+                                                the salt for a password encoder. </xs:documentation>
+                                        </xs:annotation>
+                                    </xs:attribute>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attributeGroup ref="security:password-encoder.attlist"/>
+                    </xs:complexType>
+                </xs:element>
             </xs:choice>
             <xs:attributeGroup ref="security:ap.attlist"/>
         </xs:complexType>

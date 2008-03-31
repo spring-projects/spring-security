@@ -211,6 +211,9 @@ http.attlist &=
 http.attlist &=
     ## Indicates whether an existing session should be invalidated when a user authenticates and a new session started. If set to "none" no change will be made. "newSession" will create a new empty session. "migrateSession" will create a new session and copy the session attributes to the new session. Defaults to "migrateSession".
     attribute session-fixation-protection {"none" | "newSession" | "migrateSession" }?
+http.attlist &=
+    ## Allows a customized AuthenticationEntryPoint to be used.
+    attribute entry-point-ref {xsd:string}?
 
 
 intercept-url =
@@ -307,6 +310,10 @@ concurrent-sessions.attlist &=
     attribute expired-url {xsd:string}?
 concurrent-sessions.attlist &=
     attribute exception-if-maximum-exceeded {"true" | "false"}?
+concurrent-sessions.attlist &=
+    ## Allows you to define an alias for the SessionRegistry bean in order to access it in your own configuration
+    attribute session-registry-alias {xsd:string}?
+
 
 remember-me =
     element remember-me {remember-me.attlist}
