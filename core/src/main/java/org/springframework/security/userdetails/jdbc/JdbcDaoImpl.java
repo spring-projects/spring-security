@@ -51,9 +51,7 @@ import javax.sql.DataSource;
  * <p>
  * A default database structure is assumed, (see {@link #DEF_USERS_BY_USERNAME_QUERY} and {@link
  * #DEF_AUTHORITIES_BY_USERNAME_QUERY}, which most users of this class will need to override, if using an existing
- * scheme. This may be done by setting the default query strings used. If this does not provide enough flexibility,
- * another strategy would be to subclass this class and override the {@link MappingSqlQuery} instances used, via the
- * {@link #initMappingSqlQueries()} extension point.
+ * scheme. This may be done by setting the default query strings used.
  * <p>
  * In order to minimise backward compatibility issues, this DAO does not recognise the expiration of user
  * accounts or the expiration of user credentials. However, it does recognise and honour the user enabled/disabled
@@ -93,9 +91,9 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-    protected MappingSqlQuery authoritiesByUsernameMapping;
-    protected MappingSqlQuery groupAuthoritiesByUsernameMapping;
-    protected MappingSqlQuery usersByUsernameMapping;
+    private MappingSqlQuery authoritiesByUsernameMapping;
+    private MappingSqlQuery groupAuthoritiesByUsernameMapping;
+    private MappingSqlQuery usersByUsernameMapping;
 
     private String authoritiesByUsernameQuery;
     private String groupAuthoritiesByUsernameQuery;
@@ -137,7 +135,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     /**
      * Extension point to allow other MappingSqlQuery objects to be substituted in a subclass
      */
-    protected void initMappingSqlQueries() {
+    private void initMappingSqlQueries() {
         this.usersByUsernameMapping = new UsersByUsernameMapping(getDataSource());
         this.authoritiesByUsernameMapping = new AuthoritiesByUsernameMapping(getDataSource());
         this.groupAuthoritiesByUsernameMapping = new GroupAuthoritiesByUsernameMapping(getDataSource());
@@ -288,7 +286,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     /**
      * Query object to look up a user's authorities.
      */
-    protected class AuthoritiesByUsernameMapping extends MappingSqlQuery {
+    private class AuthoritiesByUsernameMapping extends MappingSqlQuery {
         protected AuthoritiesByUsernameMapping(DataSource ds) {
             super(ds, authoritiesByUsernameQuery);
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -303,7 +301,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
         }
     }
 
-    protected class GroupAuthoritiesByUsernameMapping extends MappingSqlQuery {
+    private class GroupAuthoritiesByUsernameMapping extends MappingSqlQuery {
         protected GroupAuthoritiesByUsernameMapping(DataSource ds) {
             super(ds, groupAuthoritiesByUsernameQuery);
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -321,7 +319,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     /**
      * Query object to look up a user.
      */
-    protected class UsersByUsernameMapping extends MappingSqlQuery {
+    private class UsersByUsernameMapping extends MappingSqlQuery {
         protected UsersByUsernameMapping(DataSource ds) {
             super(ds, usersByUsernameQuery);
             declareParameter(new SqlParameter(Types.VARCHAR));

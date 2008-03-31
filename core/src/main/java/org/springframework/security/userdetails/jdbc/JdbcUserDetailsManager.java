@@ -116,27 +116,27 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     private String groupAuthoritiesSql = DEF_GROUP_AUTHORITIES_QUERY_SQL;
     private String deleteGroupAuthoritySql = DEF_DELETE_GROUP_AUTHORITY_SQL;
 
-    protected SqlUpdate insertUser;
-    protected SqlUpdate deleteUser;
-    protected SqlUpdate updateUser;
-    protected SqlUpdate insertAuthority;
-    protected SqlUpdate deleteUserAuthorities;
-    protected SqlQuery  userExistsQuery;
-    protected SqlUpdate changePassword;
+    private SqlUpdate insertUser;
+    private SqlUpdate deleteUser;
+    private SqlUpdate updateUser;
+    private SqlUpdate insertAuthority;
+    private SqlUpdate deleteUserAuthorities;
+    private SqlQuery  userExistsQuery;
+    private SqlUpdate changePassword;
 
-    protected SqlQuery  findAllGroupsQuery;
-    protected SqlQuery  findUsersInGroupQuery;
-    protected SqlUpdate insertGroup;
-    protected SqlQuery  findGroupIdQuery;
-    protected SqlUpdate insertGroupAuthority;
-    protected SqlUpdate deleteGroup;
-    protected SqlUpdate deleteGroupMembers;
-    protected SqlUpdate deleteGroupAuthorities;
-    protected SqlUpdate renameGroup;
-    protected SqlUpdate insertGroupMember;
-    protected SqlUpdate deleteGroupMember;
-    protected SqlQuery groupAuthoritiesQuery;
-    protected SqlUpdate deleteGroupAuthority;
+    private SqlQuery  findAllGroupsQuery;
+    private SqlQuery  findUsersInGroupQuery;
+    private SqlUpdate insertGroup;
+    private SqlQuery  findGroupIdQuery;
+    private SqlUpdate insertGroupAuthority;
+    private SqlUpdate deleteGroup;
+    private SqlUpdate deleteGroupMembers;
+    private SqlUpdate deleteGroupAuthorities;
+    private SqlUpdate renameGroup;
+    private SqlUpdate insertGroupMember;
+    private SqlUpdate deleteGroupMember;
+    private SqlQuery groupAuthoritiesQuery;
+    private SqlUpdate deleteGroupAuthority;
 
     private AuthenticationManager authenticationManager;
 
@@ -414,7 +414,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
     //~ Inner Classes ==================================================================================================
 
-    protected class InsertUser extends SqlUpdate {
+    private class InsertUser extends SqlUpdate {
 
         public InsertUser(DataSource ds) {
             super(ds, createUserSql);
@@ -425,7 +425,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
     }
 
-    protected class DeleteUser extends SqlUpdate {
+    private class DeleteUser extends SqlUpdate {
         public DeleteUser(DataSource ds) {
             super(ds, deleteUserSql);
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -433,7 +433,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
     }
 
-    protected class InsertAuthority extends SqlUpdate {
+    private class InsertAuthority extends SqlUpdate {
         public InsertAuthority(DataSource ds) {
             super(ds, createAuthoritySql);
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -442,7 +442,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
     }
 
-    protected class DeleteUserAuthorities extends SqlUpdate {
+    private class DeleteUserAuthorities extends SqlUpdate {
         public DeleteUserAuthorities(DataSource ds) {
             super(ds, deleteUserAuthoritiesSql);
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -450,7 +450,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
     }
 
-    protected class UpdateUser extends SqlUpdate {
+    private class UpdateUser extends SqlUpdate {
         public UpdateUser(DataSource ds) {
             super(ds, updateUserSql);
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -460,7 +460,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
     }
 
-    protected class ChangePassword extends SqlUpdate {
+    private class ChangePassword extends SqlUpdate {
         public ChangePassword(DataSource ds) {
             super(ds, changePasswordSql);
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -470,7 +470,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     }
 
 
-    protected class UserExistsQuery extends MappingSqlQuery {
+    private class UserExistsQuery extends MappingSqlQuery {
         public UserExistsQuery(DataSource ds) {
             super(ds, userExistsSql);
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -482,7 +482,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
     }
 
-    protected class AllGroupsQuery extends MappingSqlQuery {
+    private class AllGroupsQuery extends MappingSqlQuery {
         public AllGroupsQuery(DataSource ds) {
             super(ds, findAllGroupsSql);
             compile();
@@ -493,7 +493,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
     }
 
-    protected class GroupMembersQuery extends MappingSqlQuery {
+    private class GroupMembersQuery extends MappingSqlQuery {
         public GroupMembersQuery(DataSource ds) {
             super(ds, findUsersInGroupSql);
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -505,7 +505,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
     }
 
-    protected class InsertGroup extends SqlUpdate {
+    private class InsertGroup extends SqlUpdate {
         public InsertGroup(DataSource ds) {
             super(ds, insertGroupSql);
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -525,7 +525,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
     }
 
-    protected class InsertGroupAuthority extends SqlUpdate {
+    private class InsertGroupAuthority extends SqlUpdate {
         public InsertGroupAuthority(DataSource ds) {
             super(ds, insertGroupAuthoritySql);
             declareParameter(new SqlParameter(Types.INTEGER));
@@ -542,7 +542,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
     }
 
-    protected class DeleteGroupMembers extends SqlUpdate {
+    private class DeleteGroupMembers extends SqlUpdate {
         public DeleteGroupMembers(DataSource ds) {
             super(ds, deleteGroupMembersSql);
             declareParameter(new SqlParameter(Types.INTEGER));
@@ -558,7 +558,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
     }
 
-    protected class RenameGroup extends SqlUpdate {
+    private class RenameGroup extends SqlUpdate {
         public RenameGroup(DataSource ds) {
             super(ds, renameGroupSql);
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -585,7 +585,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         }
     }
 
-    protected class GroupAuthoritiesByGroupNameMapping extends MappingSqlQuery {
+    private class GroupAuthoritiesByGroupNameMapping extends MappingSqlQuery {
          protected GroupAuthoritiesByGroupNameMapping(DataSource ds) {
              super(ds, groupAuthoritiesSql);
              declareParameter(new SqlParameter(Types.VARCHAR));
