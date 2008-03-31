@@ -45,6 +45,7 @@ import org.w3c.dom.Element;
  *
  * @author Luke Taylor
  * @author Ben Alex
+ * @since 2.0
  * @version $Id$
  */
 public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
@@ -91,6 +92,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     static final String ATT_ACCESS_MGR = "access-decision-manager-ref";    
     static final String ATT_USER_SERVICE_REF = "user-service-ref";
+    
+    static final String ATT_ENTRY_POINT_REF = "entry-point-ref";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinitionRegistry registry = parserContext.getRegistry();
@@ -357,6 +360,14 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
         
         // We need to establish the main entry point.
+        // First check if a custom entry point bean is set
+        String customEntryPoint = element.getAttribute(ATT_ENTRY_POINT_REF);
+        
+        if (StringUtils.hasText(customEntryPoint)) {
+            parserContext.getRegistry().registerAlias(customEntryPoint, BeanIds.MAIN_ENTRY_POINT);
+            return;
+        }
+        
         // Basic takes precedence if explicit element is used and no others are configured
         if (basicAuthElt != null && formLoginElt == null && openIDLoginElt == null) {
         	parserContext.getRegistry().registerAlias(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);

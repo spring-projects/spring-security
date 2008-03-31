@@ -1,47 +1,48 @@
 package org.springframework.security.config;
 
-import org.springframework.security.concurrent.ConcurrentLoginException;
-import org.springframework.security.concurrent.ConcurrentSessionController;
-import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
-import org.springframework.security.concurrent.ConcurrentSessionFilter;
-import org.springframework.security.concurrent.SessionRegistryImpl;
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
-import org.springframework.security.intercept.web.FilterSecurityInterceptor;
-import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
-import org.springframework.security.intercept.web.FilterInvocation;
-import org.springframework.security.securechannel.ChannelProcessingFilter;
-import org.springframework.security.ui.ExceptionTranslationFilter;
-import org.springframework.security.ui.SessionFixationProtectionFilter;
-import org.springframework.security.ui.WebAuthenticationDetails;
-import org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter;
-import org.springframework.security.ui.basicauth.BasicProcessingFilter;
-import org.springframework.security.ui.logout.LogoutFilter;
-import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
-import org.springframework.security.ui.rememberme.PersistentTokenBasedRememberMeServices;
-import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
-import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
-import org.springframework.security.util.FilterChainProxy;
-import org.springframework.security.util.PortMapperImpl;
-import org.springframework.security.util.InMemoryXmlApplicationContext;
-import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.anonymous.AnonymousProcessingFilter;
-import org.springframework.security.Authentication;
-import org.springframework.security.MockFilterChain;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.SecurityConfig;
-import org.springframework.beans.BeanUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Iterator;
+import java.util.List;
+
+import org.junit.After;
+import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
-
-import static org.junit.Assert.*;
-import org.junit.Test;
-import org.junit.After;
-
-import java.util.Iterator;
-import java.util.List;
+import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.MockAuthenticationEntryPoint;
+import org.springframework.security.MockFilterChain;
+import org.springframework.security.SecurityConfig;
+import org.springframework.security.concurrent.ConcurrentLoginException;
+import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
+import org.springframework.security.concurrent.ConcurrentSessionFilter;
+import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.intercept.web.FilterInvocation;
+import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
+import org.springframework.security.intercept.web.FilterSecurityInterceptor;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.anonymous.AnonymousProcessingFilter;
+import org.springframework.security.securechannel.ChannelProcessingFilter;
+import org.springframework.security.ui.ExceptionTranslationFilter;
+import org.springframework.security.ui.SessionFixationProtectionFilter;
+import org.springframework.security.ui.WebAuthenticationDetails;
+import org.springframework.security.ui.basicauth.BasicProcessingFilter;
+import org.springframework.security.ui.logout.LogoutFilter;
+import org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter;
+import org.springframework.security.ui.rememberme.PersistentTokenBasedRememberMeServices;
+import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
+import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
+import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.util.FilterChainProxy;
+import org.springframework.security.util.InMemoryXmlApplicationContext;
+import org.springframework.security.util.PortMapperImpl;
+import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 
 /**
  * @author Luke Taylor
@@ -299,6 +300,18 @@ public class HttpSecurityBeanDefinitionParserTests {
         req.setSession(new MockHttpSession());
         auth.setDetails(new WebAuthenticationDetails(req));
         seshController.checkAuthenticationAllowed(auth);
+    }
+    
+    @Test
+    public void customEntryPointIsSupported() {
+        setContext(
+                "<http auto-config='true' entry-point-ref='entryPoint'/>" +
+                "<b:bean id='entryPoint' class='org.springframework.security.MockAuthenticationEntryPoint'>" +
+                "    <b:constructor-arg value='/customlogin'/>" +
+                "</b:bean>" + AUTH_PROVIDER_XML);
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilterChainProxy().getFilters("/someurl").get(9);
+        assertTrue("ExceptionTranslationFilter should be configured with custom entry point", 
+                etf.getAuthenticationEntryPoint() instanceof MockAuthenticationEntryPoint);
     }
 
     @Test
