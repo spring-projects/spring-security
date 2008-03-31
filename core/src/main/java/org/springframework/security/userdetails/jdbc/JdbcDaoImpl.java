@@ -142,7 +142,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     }
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
-        List users = usersByUsernameMapping.execute(username);
+        List users = loadUsersByUsername(username);
 
         if (users.size() == 0) {
             throw new UsernameNotFoundException(
@@ -154,11 +154,11 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
         Set dbAuthsSet = new HashSet();
 
         if (enableAuthorities) {
-            dbAuthsSet.addAll(authoritiesByUsernameMapping.execute(user.getUsername()));
+            dbAuthsSet.addAll(loadUserAuthorities(user.getUsername()));
         }
 
         if (enableGroups) {
-            dbAuthsSet.addAll(groupAuthoritiesByUsernameMapping.execute(user.getUsername()));
+            dbAuthsSet.addAll(loadGroupAuthorities(user.getUsername()));
         }
 
         List dbAuths = new ArrayList(dbAuthsSet);
@@ -173,13 +173,48 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 
         GrantedAuthority[] arrayAuths = (GrantedAuthority[]) dbAuths.toArray(new GrantedAuthority[dbAuths.size()]);
 
-        String returnUsername = user.getUsername();
+        return createUserDetails(username, user, arrayAuths);
+    }
+    
+    /** 
+     * Executes the <tt>usersByUsernameQuery</tt> and returns a list of UserDetails objects (there should normally 
+     * only be one matching user). 
+     */
+    protected List loadUsersByUsername(String username) {
+        return usersByUsernameMapping.execute(username);
+    }
+    
+    /**
+     * Loads authorities by executing the authoritiesByUsernameQuery.
+     *  
+     * @return a list of GrantedAuthority objects for the user
+     */
+    protected List loadUserAuthorities(String username) {
+        return authoritiesByUsernameMapping.execute(username);
+    }
+    
+    protected List loadGroupAuthorities(String username) {
+        return groupAuthoritiesByUsernameMapping.execute(username);
+    }
+    
+    /**
+     * Can be overridden to customize the creation of the final UserDetailsObject returnd from <tt>loadUserByUsername</tt>.
+     * 
+     * @param username the name originally passed to loadUserByUsername
+     * @param userFromUserQuery the object returned from the execution of the 
+     * @param combinedAuthorities the combined array of authorities from all the authority loading queries.
+     * @return the final UserDetails which should be used in the system.
+     */
+    protected UserDetails createUserDetails(String username, UserDetails userFromUserQuery, 
+            GrantedAuthority[] combinedAuthorities) {
+        String returnUsername = userFromUserQuery.getUsername();
 
         if (!usernameBasedPrimaryKey) {
             returnUsername = username;
         }
 
-        return new User(returnUsername, user.getPassword(), user.isEnabled(), true, true, true, arrayAuths);
+        return new User(returnUsername, userFromUserQuery.getPassword(), userFromUserQuery.isEnabled(), 
+                true, true, true, combinedAuthorities);
     }
 
     /**
