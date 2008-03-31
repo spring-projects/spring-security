@@ -319,6 +319,8 @@ remember-me =
     element remember-me {remember-me.attlist}
 remember-me.attlist &=
     (attribute key {xsd:string} | (attribute token-repository-ref {xsd:string} | attribute data-source-ref {xsd:string}))
+remember-me.attlist &=
+    user-service-ref?
 
 anonymous =
     ## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.

@@ -35,6 +35,7 @@ import org.springframework.security.ui.WebAuthenticationDetails;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
 import org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter;
+import org.springframework.security.ui.rememberme.AbstractRememberMeServices;
 import org.springframework.security.ui.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
@@ -247,6 +248,17 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(rememberMeServices instanceof PersistentTokenBasedRememberMeServices);
     }
 
+    @Test
+    public void rememberMeServiceConfigurationParsesWithCustomUserService() {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <remember-me key='doesntmatter' user-service-ref='userService'/>" +
+                "</http>" +
+                "<b:bean id='userService' " +
+                        "class='org.springframework.security.userdetails.MockUserDetailsService'/> " + AUTH_PROVIDER_XML);
+//        AbstractRememberMeServices rememberMeServices = (AbstractRememberMeServices) appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
+    }    
+    
     @Test
     public void x509SupportAddsFilterAtExpectedPosition() throws Exception {
         setContext(

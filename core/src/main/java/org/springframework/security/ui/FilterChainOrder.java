@@ -1,6 +1,5 @@
 package org.springframework.security.ui;
 
-import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 import java.util.Map;
@@ -53,6 +52,7 @@ public abstract class FilterChainOrder {
         filterNameToOrder.put("PRE_AUTH_FILTER", new Integer(PRE_AUTH_FILTER));
         filterNameToOrder.put("CAS_PROCESSING_FILTER", new Integer(CAS_PROCESSING_FILTER));
         filterNameToOrder.put("AUTHENTICATION_PROCESSING_FILTER", new Integer(AUTHENTICATION_PROCESSING_FILTER));
+        filterNameToOrder.put("OPENID_PROCESSING_FILTER", new Integer(OPENID_PROCESSING_FILTER));
         filterNameToOrder.put("BASIC_PROCESSING_FILTER", new Integer(BASIC_PROCESSING_FILTER));
         filterNameToOrder.put("SERVLET_API_SUPPORT_FILTER", new Integer(SERVLET_API_SUPPORT_FILTER));
         filterNameToOrder.put("REMEMBER_ME_FILTER", new Integer(REMEMBER_ME_FILTER));

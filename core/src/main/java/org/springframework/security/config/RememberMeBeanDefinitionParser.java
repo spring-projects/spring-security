@@ -27,6 +27,8 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
 	static final String ATT_DATA_SOURCE = "data-source";
 	static final String ATT_TOKEN_REPOSITORY = "token-repository-ref";
+	static final String ATT_USER_SERVICE_REF = "user-service-ref";
+	
 	protected final Log logger = LogFactory.getLog(getClass());
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
@@ -34,11 +36,13 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         String dataSource = null;
         String key = null;
         Object source = null;
+        String userServiceRef = null;
 
         if (element != null) {
             tokenRepository = element.getAttribute(ATT_TOKEN_REPOSITORY);
             dataSource = element.getAttribute(ATT_DATA_SOURCE);
             key = element.getAttribute(ATT_KEY);
+            userServiceRef = element.getAttribute(ATT_USER_SERVICE_REF);            
             source = parserContext.extractSource(element);
         }
 
@@ -83,6 +87,10 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         filter.setSource(source);
         services.setSource(source);
         provider.setSource(source);
+
+        if (StringUtils.hasText(userServiceRef)) {
+            services.getPropertyValues().addPropertyValue("userDetailsService", new RuntimeBeanReference(userServiceRef));
+        }
 
         provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
         services.getPropertyValues().addPropertyValue(ATT_KEY, key);
