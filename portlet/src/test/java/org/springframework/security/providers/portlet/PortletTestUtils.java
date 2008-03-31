@@ -20,9 +20,6 @@ import javax.portlet.PortletRequest;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.context.SecurityContextImpl;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.ui.portlet.PortletAuthenticationDetails;
@@ -56,7 +53,7 @@ public class PortletTestUtils {
 	//~ Methods ========================================================================================================
 
 	public static UserDetails createUser() {
-		return new User(PortletTestUtils.TESTUSER, PortletTestUtils.TESTCRED, true, true, true, true,
+		return new User(PortletTestUtils.TESTUSER, "dummy", true, true, true, true,
 			new GrantedAuthority[] {new GrantedAuthorityImpl(TESTROLE1), new GrantedAuthorityImpl(TESTROLE2)});
 	}
 
@@ -65,7 +62,7 @@ public class PortletTestUtils {
 		request.setUserPrincipal(new TestingAuthenticationToken(TESTUSER, TESTCRED, null));
 		request.addUserRole(PORTALROLE1);
 		request.addUserRole(PORTALROLE2);
-		request.setAuthType(PortletRequest.FORM_AUTH);
+//		request.setAuthType(PortletRequest.FORM_AUTH);
     }
 
     public static MockRenderRequest createRenderRequest() {
@@ -107,6 +104,7 @@ public class PortletTestUtils {
 		result.setAuthenticated(true);
 		return result;
 	}
+
 	public static PreAuthenticatedAuthenticationToken createAuthenticatedToken() {
 		return createAuthenticatedToken(createUser());
 	}
