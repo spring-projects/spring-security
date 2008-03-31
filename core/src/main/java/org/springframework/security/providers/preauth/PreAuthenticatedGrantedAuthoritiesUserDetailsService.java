@@ -1,5 +1,6 @@
 package org.springframework.security.providers.preauth;
 
+import org.springframework.security.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.GrantedAuthoritiesContainer;

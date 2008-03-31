@@ -26,8 +26,8 @@ import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.rememberme.RememberMeServices;
+import org.springframework.security.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.util.FilterChainProxy;
-import org.springframework.security.providers.preauth.UserDetailsByNameServiceWrapper;
 import org.springframework.util.Assert;
 
 /**

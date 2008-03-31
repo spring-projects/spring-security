@@ -72,7 +72,7 @@
     <bean id="portletAuthProvider" class="org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationProvider">
         <sec:custom-authentication-provider/>
         <property name="preAuthenticatedUserDetailsService">
-            <bean class="org.springframework.security.providers.preauth.UserDetailsByNameServiceWrapper">
+            <bean class="org.springframework.security.userdetails.UserDetailsByNameServiceWrapper">
                 <property name="userDetailsService" ref="userDetailsService"/>
             </bean>
         </property>

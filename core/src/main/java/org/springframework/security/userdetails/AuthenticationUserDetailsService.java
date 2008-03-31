@@ -1,7 +1,5 @@
-package org.springframework.security.providers.preauth;
+package org.springframework.security.userdetails;
 
-import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.Authentication;
 
 
