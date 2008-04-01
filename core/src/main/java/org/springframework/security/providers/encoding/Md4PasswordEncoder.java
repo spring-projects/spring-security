@@ -51,7 +51,7 @@ public class Md4PasswordEncoder extends BaseDigestPasswordEncoder {
 		try {
 			passBytes = saltedPass.getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			throw new IllegalStateException("UTF-8 not supported!", e);
+			throw new IllegalStateException("UTF-8 not supported!");
 		}
 		
 		Md4 md4 = new Md4();

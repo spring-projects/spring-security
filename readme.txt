@@ -10,21 +10,16 @@ Spring Security provides security services for
 The Spring Framework (http://www.springframework.org).
 
 For a detailed list of features and access to the latest release, please visit
-http://acegisecurity.org.
+http://www.springframework.org/projects/.
 
--------------------------------------------------------------------------------
-SIGNED JAR FILES
--------------------------------------------------------------------------------
-
-JAR files are no longer signed. They were signed in releases 1.0.0 and earlier.
 
 -------------------------------------------------------------------------------
 BUILDING
 -------------------------------------------------------------------------------
 
 Spring Security is built using Maven. Please read the "Building" page
-at http://acegisecurity.org. This page is also included in the /docs directory
-of official release ZIPs.
+at http://static.springframework.org/spring-security/site/building.html. 
+This page is also included in the /docs directory of official release ZIPs.
 
 -------------------------------------------------------------------------------
 QUICK START
