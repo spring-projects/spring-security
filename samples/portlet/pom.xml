@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-portlet</artifactId>
-			<version>${spring.version}</version>
+			<version>2.0.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
