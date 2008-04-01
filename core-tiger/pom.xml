@@ -78,6 +78,7 @@
                             *;resolution:=optional
                         </Import-Package>
                     </instructions>
+                    <excludeDependencies>true</excludeDependencies>                    
                 </configuration>
             </plugin>
         </plugins>
