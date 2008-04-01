@@ -76,6 +76,11 @@
             <artifactId>hessian</artifactId>
             <version>3.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
