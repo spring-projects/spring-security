@@ -49,6 +49,7 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @verion $Id$
+ * @since 2.0
  *
  */
 public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
@@ -88,7 +89,7 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 		try {
 			methods = bean.getClass().getMethods();
 		} catch (Exception e) {
-			throw new IllegalStateException(e);
+			throw new IllegalStateException(e.getMessage());
 		}
 		
 		// Check to see if any of those methods are compatible with our pointcut expressions
