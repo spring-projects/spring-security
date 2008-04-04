@@ -133,8 +133,6 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
 
         preAuthenticationChecks.check(user);
         
-        // This check must come here, as we don't want to tell users
-        // about account status unless they presented the correct credentials
         try {
             additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
         } catch (AuthenticationException exception) {
