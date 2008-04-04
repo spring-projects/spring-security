@@ -18,15 +18,15 @@ import java.io.Serializable;
 
 
 /**
- * Interface representing the identity of an individual domain object instance.
+ * Represents the identity of an individual domain object instance.
  *
- * <P>
- * As implementations are used as the key for caching and lookup, it is
- * essential that implementations provide methods so that object-equality
- * rather than reference-equality can be relied upon by caches. In other
- * words, a cache can consider two <code>ObjectIdentity</code>s equal if
- * <code>identity1.equals(identity2)</code>, rather than reference-equality of
- * <code>identity1==identity2</code>.
+ * <p>
+ * As implementations of <tt>ObjectIdentity</tt> are used as the key to represent 
+ * domain objects in the ACL subsystem, it is essential that implementations provide
+ * methods so that object-equality rather than reference-equality can be relied upon
+ * reliably. In other words, the ACL subsystem can consider two 
+ * <tt>ObjectIdentity</tt>s equal if <tt>identity1.equals(identity2)</tt>, rather than 
+ * reference-equality of <tt>identity1==identity2</tt>.
  * </p>
  *
  * @author Ben Alex
@@ -36,35 +36,37 @@ public interface ObjectIdentity extends Serializable {
     //~ Methods ========================================================================================================
 
     /**
-     * Refer to the <code>java.lang.Object</code> documentation for the interface contract.
-     *
      * @param obj to be compared
      *
-     * @return <code>true</code> if the objects are equal, <code>false</code> otherwise
+     * @return <tt>true</tt> if the objects are equal, <tt>false</tt> otherwise
+     * @see Object#equals(Object)
      */
     boolean equals(Object obj);
 
     /**
      * Obtains the actual identifier. This identifier must not be reused to represent other domain objects with
-     * the same <code>javaType</code>.<p>Because ACLs are largely immutable, it is strongly recommended to use
+     * the same <tt>javaType</tt>.
+     * 
+     * <p>Because ACLs are largely immutable, it is strongly recommended to use
      * a synthetic identifier (such as a database sequence number for the primary key). Do not use an identifier with
-     * business meaning, as that business meaning may change.</p>
+     * business meaning, as that business meaning may change in the future such change will cascade to the ACL 
+     * subsystem data.</p>
      *
-     * @return the identifier (unique within this <code>javaType</code>
+     * @return the identifier (unique within this <tt>javaType</tt>; never <tt>null</tt>)
      */
     Serializable getIdentifier();
 
     /**
-     * Obtains the Java type represented by the domain object.
+     * Obtains the Java type represented by the domain object. The Java type can be an interface or a class, but is
+     * most often the domain object implementation class.
      *
-     * @return the Java type of the domain object
+     * @return the Java type of the domain object (never <tt>null</tt>)
      */
     Class getJavaType();
 
     /**
-     * Refer to the <code>java.lang.Object</code> documentation for the interface contract.
-     *
-     * @return a hash code representation of this object
+     * @return a hash code representation of the <tt>ObjectIdentity</tt>
+     * @see Object#hashCode()
      */
     int hashCode();
 }

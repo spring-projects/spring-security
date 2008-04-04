@@ -23,13 +23,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public final class AclFormattingUtils {
-    //~ Constructors ===================================================================================================
-
-    private AclFormattingUtils() {
-    }
-
-    //~ Methods ========================================================================================================
+public abstract class AclFormattingUtils {
 
     public static String demergePatterns(String original, String removeBits) {
         Assert.notNull(original, "Original string required");

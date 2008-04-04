@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 
 /**
- * A mutable <code>Acl</code>.
+ * A mutable <tt>Acl</tt>.
  *
  * <p>
  * A mutable ACL must ensure that appropriate security checks are performed
@@ -37,9 +37,9 @@ public interface MutableAcl extends Acl {
 
     /**
      * Retrieves all of the non-deleted {@link AccessControlEntry} instances currently stored by the
-     * <code>MutableAcl</code>. The returned objects should be immutable outside the package, and therefore it is safe
-     * to return them to the caller for informational purposes. The <code>AccessControlEntry</code> information is
-     * needed so that invocations of update and delete methods on the <code>MutableAcl</code> can refer to a valid
+     * <tt>MutableAcl</tt>. The returned objects should be immutable outside the package, and therefore it is safe
+     * to return them to the caller for informational purposes. The <tt>AccessControlEntry</tt> information is
+     * needed so that invocations of update and delete methods on the <tt>MutableAcl</tt> can refer to a valid
      * {@link AccessControlEntry#getId()}.
      *
      * @return DOCUMENT ME!
@@ -47,9 +47,9 @@ public interface MutableAcl extends Acl {
     AccessControlEntry[] getEntries();
 
     /**
-     * Obtains an identifier that represents this <code>MutableAcl</code>.
+     * Obtains an identifier that represents this <tt>MutableAcl</tt>.
      *
-     * @return the identifier, or <code>null</code> if unsaved
+     * @return the identifier, or <tt>null</tt> if unsaved
      */
     Serializable getId();
 
