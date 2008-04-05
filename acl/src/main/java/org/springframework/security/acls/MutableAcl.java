@@ -57,6 +57,13 @@ public interface MutableAcl extends Acl {
         throws NotFoundException;
 
     /**
+     * Changes the present owner to a different owner.
+     * 
+     * @param newOwner the new owner (mandatory; cannot be null)
+     */
+    void setOwner(Sid newOwner);
+
+    /**
      * Change the value returned by {@link Acl#isEntriesInheriting()}.
      *
      * @param entriesInheriting the new value
