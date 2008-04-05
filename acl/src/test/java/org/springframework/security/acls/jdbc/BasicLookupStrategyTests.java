@@ -3,9 +3,9 @@ package org.springframework.security.acls.jdbc;
 import java.util.Map;
 
 import junit.framework.Assert;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -21,6 +21,8 @@ import org.springframework.security.TestDataSource;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AuditableAccessControlEntry;
 import org.springframework.security.acls.MutableAcl;
+import org.springframework.security.acls.NotFoundException;
+import org.springframework.security.acls.Permission;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
 import org.springframework.security.acls.domain.BasePermission;
@@ -247,7 +249,7 @@ public class BasicLookupStrategyTests {
     /**
      * Test created from SEC-590.
      */
-/*    @Test
+    @Test
     public void testReadAllObjectIdentitiesWhenLastElementIsAlreadyCached() throws Exception {
         String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (4,2,104,null,1,1);"
                 + "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (5,2,105,4,1,1);"
@@ -286,7 +288,7 @@ public class BasicLookupStrategyTests {
         Acl foundParent2Acl = (Acl) foundAcls.get(parent2Oid);
         Assert.assertNotNull(foundParent2Acl);
         Assert.assertTrue(foundParent2Acl.isGranted(checkPermission, sids, false));
-    }*/
+    }
     
     @Test
     public void testAclsWithDifferentSerializableTypesAsObjectIdentities() throws Exception {

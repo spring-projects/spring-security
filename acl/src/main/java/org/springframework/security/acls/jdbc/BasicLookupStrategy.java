@@ -385,48 +385,53 @@ public final class BasicLookupStrategy implements LookupStrategy {
         Set currentBatchToLoad = new HashSet(); // contains ObjectIdentitys
 
         for (int i = 0; i < objects.length; i++) {
-            // Check we don't already have this ACL in the results
+        	boolean aclFound = false;
+
+        	// Check we don't already have this ACL in the results
             if (result.containsKey(objects[i])) {
-                continue; // already in results, so move to next element
+                aclFound = true;
             }
 
             // Check cache for the present ACL entry
-            Acl acl = aclCache.getFromCache(objects[i]);
-
-            // Ensure any cached element supports all the requested SIDs
-            // (they should always, as our base impl doesn't filter on SID)
-            if (acl != null) {
-                if (acl.isSidLoaded(sids)) {
-                    result.put(acl.getObjectIdentity(), acl);
-
-                    continue; // now in results, so move to next element
-                } else {
-                    throw new IllegalStateException(
-                        "Error: SID-filtered element detected when implementation does not perform SID filtering "
-                                + "- have you added something to the cache manually?");
+            if (!aclFound) {
+            	Acl acl = aclCache.getFromCache(objects[i]);
+            	
+                // Ensure any cached element supports all the requested SIDs
+                // (they should always, as our base impl doesn't filter on SID)
+                if (acl != null) {
+                    if (acl.isSidLoaded(sids)) {
+                        result.put(acl.getObjectIdentity(), acl);
+                        aclFound = true;
+                    } else {
+                        throw new IllegalStateException(
+                            "Error: SID-filtered element detected when implementation does not perform SID filtering "
+                                    + "- have you added something to the cache manually?");
+                    }
                 }
             }
-
-            // To get this far, we have no choice but to retrieve it via JDBC
-            // (although we don't do it until we get a batch of them to load)
-            currentBatchToLoad.add(objects[i]);
+            
+            // Load the ACL from the database
+            if (!aclFound) {
+                currentBatchToLoad.add(objects[i]);
+            }
 
             // Is it time to load from JDBC the currentBatchToLoad?
             if ((currentBatchToLoad.size() == this.batchSize) || ((i + 1) == objects.length)) {
-                Map loadedBatch = lookupObjectIdentities((ObjectIdentity[]) currentBatchToLoad.toArray(
-                            new ObjectIdentity[] {}), sids);
+            	if (currentBatchToLoad.size() > 0) {
+            		Map loadedBatch = lookupObjectIdentities((ObjectIdentity[]) currentBatchToLoad.toArray(new ObjectIdentity[] {}), sids);
 
-                // Add loaded batch (all elements 100% initialized) to results
-                result.putAll(loadedBatch);
-
-                // Add the loaded batch to the cache
-                Iterator loadedAclIterator = loadedBatch.values().iterator();
-
-                while (loadedAclIterator.hasNext()) {
-                    aclCache.putInCache((AclImpl) loadedAclIterator.next());
-                }
-
-                currentBatchToLoad.clear();
+	                // Add loaded batch (all elements 100% initialized) to results
+	                result.putAll(loadedBatch);
+	
+	                // Add the loaded batch to the cache
+	                Iterator loadedAclIterator = loadedBatch.values().iterator();
+	
+	                while (loadedAclIterator.hasNext()) {
+	                    aclCache.putInCache((AclImpl) loadedAclIterator.next());
+	                }
+	
+	                currentBatchToLoad.clear();
+            	}
             }
         }
 
