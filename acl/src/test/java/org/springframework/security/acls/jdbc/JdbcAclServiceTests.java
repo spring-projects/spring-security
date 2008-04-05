@@ -326,21 +326,6 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         }
     }
     
-    public void testDeleteAllAclsRemovesAclClassRecord() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("ben", "ignored",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ADMINISTRATOR")});
-        auth.setAuthenticated(true);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        
-        // Remove all acls associated with a certain class type
-        jdbcMutableAclService.deleteAcl(topParentOid, true);
-        
-        // Check the acl_class table is empty
-        assertEquals(0, getJdbcTemplate().queryForList(SELECT_ALL_CLASSES, new Object[] {"org.springframework.security.TargetObject"} ).size());
-    }
-    
     public void testDeleteAclRemovesRowsFromDatabase() throws Exception {
         Authentication auth = new TestingAuthenticationToken("ben", "ignored",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ADMINISTRATOR")});

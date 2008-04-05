@@ -60,6 +60,7 @@ import javax.sql.DataSource;
 public class JdbcMutableAclService extends JdbcAclService implements MutableAclService {
     //~ Instance fields ================================================================================================
 
+	private boolean foreignKeysInDatabase = false;
     private AclCache aclCache;
     private String deleteClassByClassNameString = "DELETE FROM acl_class WHERE class=?";
     private String deleteEntryByObjectIdentityForeignKey = "DELETE FROM acl_entry WHERE acl_object_identity=?";
@@ -73,8 +74,6 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         + "(object_id_class, object_id_identity, owner_sid, entries_inheriting) " + "VALUES (?, ?, ?, ?)";
     private String insertSid = "INSERT INTO acl_sid (principal, sid) VALUES (?, ?)";
     private String selectClassPrimaryKey = "SELECT id FROM acl_class WHERE class=?";
-    private String selectCountObjectIdentityRowsForParticularClassNameString = "SELECT COUNT(acl_object_identity.id) "
-        + "FROM acl_object_identity, acl_class WHERE acl_class.id = acl_object_identity.object_id_class and class=?";
     private String selectObjectIdentityPrimaryKey = "SELECT acl_object_identity.id FROM acl_object_identity, acl_class "
         + "WHERE acl_object_identity.object_id_class = acl_class.id and acl_class.class=? "
         + "and acl_object_identity.object_id_identity = ?";
@@ -237,58 +236,60 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         Assert.notNull(objectIdentity, "Object Identity required");
         Assert.notNull(objectIdentity.getIdentifier(), "Object Identity doesn't provide an identifier");
 
-        // Recursively call this method for children, or handle children if they don't want automatic recursion
-        ObjectIdentity[] children = findChildren(objectIdentity);
-
-        if (deleteChildren && children != null) {
-            for (int i = 0; i < children.length; i++) {
-                deleteAcl(children[i], true);
-            }
-        } else if (children != null) {
-            throw new ChildrenExistException("Cannot delete '" + objectIdentity + "' (has " + children.length
-                + " children)");
+        if (deleteChildren) {
+        	ObjectIdentity[] children = findChildren(objectIdentity);
+        	if (children != null) {
+            	for (int i = 0; i < children.length; i++) {
+                    deleteAcl(children[i], true);
+                }
+        	}
+        } else {
+        	if (!foreignKeysInDatabase) {
+        		// We need to perform a manual verification for what a FK would normally do
+        		// We generally don't do this, in the interests of deadlock management
+        		ObjectIdentity[] children = findChildren(objectIdentity);
+        		if (children != null) {
+                    throw new ChildrenExistException("Cannot delete '" + objectIdentity + "' (has " + children.length
+                            + " children)");
+        		}
+        	}
         }
 
+        Long oidPrimaryKey = retrieveObjectIdentityPrimaryKey(objectIdentity);
+        
         // Delete this ACL's ACEs in the acl_entry table
-        deleteEntries(objectIdentity);
+        deleteEntries(oidPrimaryKey);
 
         // Delete this ACL's acl_object_identity row
-        deleteObjectIdentityAndOptionallyClass(objectIdentity);
+        deleteObjectIdentity(oidPrimaryKey);
 
         // Clear the cache
         aclCache.evictFromCache(objectIdentity);
     }
 
     /**
-     * Deletes all ACEs defined in the acl_entry table belonging to the presented ObjectIdentity
+     * Deletes all ACEs defined in the acl_entry table belonging to the presented ObjectIdentity primary key.
      *
-     * @param oid the rows in acl_entry to delete
+     * @param oidPrimaryKey the rows in acl_entry to delete
      */
-    protected void deleteEntries(ObjectIdentity oid) {
-        jdbcTemplate.update(deleteEntryByObjectIdentityForeignKey,
-                new Object[] {retrieveObjectIdentityPrimaryKey(oid)});
+    protected void deleteEntries(Long oidPrimaryKey) {
+    	jdbcTemplate.update(deleteEntryByObjectIdentityForeignKey,
+                new Object[] {oidPrimaryKey});
     }
 
     /**
-     * Deletes a single row from acl_object_identity that is associated with the presented ObjectIdentity. In
-     * addition, deletes the corresponding row from acl_class if there are no more entries in acl_object_identity that
-     * use that particular acl_class. This keeps the acl_class table reasonably small.
+     * Deletes a single row from acl_object_identity that is associated with the presented ObjectIdentity primary key.
+     * 
+     * <p>
+     * We do not delete any entries from acl_class, even if no classes are using that class any longer. This is a
+     * deadlock avoidance approach.
+     * </p>
      *
-     * @param oid to delete the acl_object_identity (and clean up acl_class for that class name if appropriate)
+     * @param oidPrimaryKey to delete the acl_object_identity
      */
-    protected void deleteObjectIdentityAndOptionallyClass(ObjectIdentity oid) {
+    protected void deleteObjectIdentity(Long oidPrimaryKey) {
         // Delete the acl_object_identity row
-        jdbcTemplate.update(deleteObjectIdentityByPrimaryKey, new Object[] {retrieveObjectIdentityPrimaryKey(oid)});
-
-        // Delete the acl_class row, assuming there are no other references to it in acl_object_identity
-        Object[] className = {oid.getJavaType().getName()};
-        long numObjectIdentities = jdbcTemplate.queryForLong(selectCountObjectIdentityRowsForParticularClassNameString,
-                className);
-
-        if (numObjectIdentities == 0) {
-            // No more rows
-            jdbcTemplate.update(deleteClassByClassNameString, className);
-        }
+        jdbcTemplate.update(deleteObjectIdentityByPrimaryKey, new Object[] {oidPrimaryKey});
     }
 
     /**
@@ -324,7 +325,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         Assert.notNull(acl.getId(), "Object Identity doesn't provide an identifier");
 
         // Delete this ACL's ACEs in the acl_entry table
-        deleteEntries(acl.getObjectIdentity());
+        deleteEntries(retrieveObjectIdentityPrimaryKey(acl.getObjectIdentity()));
 
         // Create this ACL's ACEs in the acl_entry table
         createEntries(acl);
