@@ -67,6 +67,10 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
 
         AccessControlEntryImpl rhs = (AccessControlEntryImpl) arg0;
 
+        if (this.acl == null && rhs.getAcl() != null) {
+        	return false;
+        }
+        
         if ((this.auditFailure != rhs.isAuditFailure()) || (this.auditSuccess != rhs.isAuditSuccess())
             || (this.granting != rhs.isGranting()) || !this.acl.equals(rhs.getAcl()) || !this.id.equals(rhs.getId())
             || !this.permission.equals(rhs.getPermission()) || !this.sid.equals(rhs.getSid())) {
