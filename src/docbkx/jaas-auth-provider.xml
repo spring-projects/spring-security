@@ -1,10 +1,8 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="jaas"><info><title>Java Authentication and Authorization Service (JAAS)
-        Provider</title></info>
-    
-    
-    <section xml:id="jaas-overview"><info><title>Overview</title></info>
-        
-        
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="jaas">
+    <info><title>Java Authentication and Authorization Service (JAAS) Provider</title></info>
+
+    <section xml:id="jaas-overview">
+        <info><title>Overview</title></info>
         <para>Spring Security provides a package able to delegate
             authentication requests to the Java Authentication and Authorization
             Service (JAAS). This package is discussed in detail below.</para>
@@ -16,9 +14,8 @@
             syntax in order to understand this section.</para>
     </section>
     
-    <section xml:id="jaas-config"><info><title>Configuration</title></info>
-        
-        
+    <section xml:id="jaas-config">
+        <info><title>Configuration</title></info>
         <para>The <literal>JaasAuthenticationProvider</literal> attempts to
             authenticate a user’s principal and credentials through JAAS.</para>
         
@@ -36,34 +33,31 @@
             above JAAS login configuration file:</para>
         
         <para><programlisting>
-             &amp;lt;bean id="jaasAuthenticationProvider"
-            class="org.springframework.security.providers.jaas.JaasAuthenticationProvider"&amp;gt;
-  &amp;lt;property name="loginConfig"&amp;gt;
-    &amp;lt;value&amp;gt;/WEB-INF/login.conf&amp;lt;/value&amp;gt;
-  &amp;lt;/property&amp;gt;
-  &amp;lt;property name="loginContextName"&amp;gt;
-    &amp;lt;value&amp;gt;JAASTest&amp;lt;/value&amp;gt;
-  &amp;lt;/property&amp;gt;
-  &amp;lt;property name="callbackHandlers"&amp;gt;
-    &amp;lt;list&amp;gt;
-      &amp;lt;bean class="org.springframework.security.providers.jaas.JaasNameCallbackHandler"/&amp;gt;
-      &amp;lt;bean class="org.springframework.security.providers.jaas.JaasPasswordCallbackHandler"/&amp;gt;
-    &amp;lt;/list&amp;gt;
-  &amp;lt;/property&amp;gt;
-  &amp;lt;property name="authorityGranters"&amp;gt;
-    &amp;lt;list&amp;gt;
-      &amp;lt;bean class="org.springframework.security.providers.jaas.TestAuthorityGranter"/&amp;gt;
-    &amp;lt;/list&amp;gt;
-  &amp;lt;/property&amp;gt;
-&amp;lt;/bean&amp;gt; 
-
+             <![CDATA[
+<bean id="jaasAuthenticationProvider"
+            class="org.springframework.security.providers.jaas.JaasAuthenticationProvider">
+  <property name="loginConfig" value="/WEB-INF/login.conf"/>
+  <property name="loginContextName" value="JAASTest"/>
+  <property name="callbackHandlers">
+    <list>
+      <bean class="org.springframework.security.providers.jaas.JaasNameCallbackHandler"/>
+      <bean class="org.springframework.security.providers.jaas.JaasPasswordCallbackHandler"/>
+    </list>
+  </property>
+  <property name="authorityGranters">
+    <list>
+      <bean class="org.springframework.security.providers.jaas.TestAuthorityGranter"/>
+    </list>
+  </property>
+</bean> 
+]]>
         </programlisting></para>
         
         <para>The <literal>CallbackHandler</literal>s and
             <literal>AuthorityGranter</literal>s are discussed below.</para>
         
-        <section xml:id="jaas-callbackhandler"><info><title xml:id="jaas-callback-handler">JAAS CallbackHandler</title></info>
-            
+        <section xml:id="jaas-callbackhandler">
+            <info><title xml:id="jaas-callback-handler">JAAS CallbackHandler</title></info>
             
             <para>Most JAAS <literal>LoginModule</literal>s require a callback
                 of some sort. These callbacks are usually used to obtain the
@@ -102,7 +96,8 @@
                 being wrapped.</para>
         </section>
         
-        <section xml:id="jaas-authoritygranter"><info><title xml:id="jaas-authority-granter">JAAS AuthorityGranter</title></info>
+        <section xml:id="jaas-authoritygranter">
+            <info><title xml:id="jaas-authority-granter">JAAS AuthorityGranter</title></info>
             
             
             <para>JAAS works with principals. Even "roles" are represented as
