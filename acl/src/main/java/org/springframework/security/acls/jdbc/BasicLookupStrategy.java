@@ -275,7 +275,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
         String sql = computeRepeatingSql("(ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY = ? and ACL_CLASS.CLASS = ?)",
                 objectIdentities.length);
 
-        jdbcTemplate.query(sql,
+        Set parentsToLookup = (Set) jdbcTemplate.query(sql,
             new PreparedStatementSetter() {
                 public void setValues(PreparedStatement ps)
                     throws SQLException {
@@ -293,6 +293,11 @@ public final class BasicLookupStrategy implements LookupStrategy {
                     }
                 }
             }, new ProcessResultSet(acls, sids));
+        
+        // Lookup the parents, now that our JdbcTemplate has released the database connection (SEC-547)
+        if (parentsToLookup.size() > 0) {
+        	lookupPrimaryKeys(acls, parentsToLookup, sids);
+        }
 
         // Finally, convert our "acls" containing StubAclParents into true Acls
         Map resultMap = new HashMap();
@@ -324,7 +329,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
 
         String sql = computeRepeatingSql("(ACL_OBJECT_IDENTITY.ID = ?)", findNow.size());
 
-        jdbcTemplate.query(sql,
+        Set parentsToLookup = (Set) jdbcTemplate.query(sql,
             new PreparedStatementSetter() {
                 public void setValues(PreparedStatement ps)
                     throws SQLException {
@@ -337,6 +342,11 @@ public final class BasicLookupStrategy implements LookupStrategy {
                     }
                 }
             }, new ProcessResultSet(acls, sids));
+        
+        // Lookup the parents, now that our JdbcTemplate has released the database connection (SEC-547)
+        if (parentsToLookup.size() > 0) {
+        	lookupPrimaryKeys(acls, parentsToLookup, sids);
+        }
     }
 
     /**
@@ -428,6 +438,17 @@ public final class BasicLookupStrategy implements LookupStrategy {
             this.sids = sids; // can be null
         }
 
+        /**
+         * Implementation of {@link ResultSetExtractor#extractData(ResultSet)}.
+         * Creates an {@link Acl} for each row in the {@link ResultSet} and
+         * ensures it is in member field <tt>acls</tt>.  Any {@link Acl} with
+         * a parent will have the parents id returned in a set.  The returned
+         * set of ids may requires further processing.
+         * @param rs The {@link ResultSet} to be processed
+         * @return a list of parent IDs remaining to be looked up (may be empty, but never <tt>null</tt>)
+         * @throws SQLException
+         * @throws DataAccessException
+         */
         public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
             Set parentIdsToLookup = new HashSet(); // Set of parent_id Longs
 
@@ -457,13 +478,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
                 }
             }
 
-            // Lookup parents, adding Acls (with StubAclParents) to "acl" map
-            if (parentIdsToLookup.size() > 0) {
-                lookupPrimaryKeys(acls, parentIdsToLookup, sids);
-            }
-
-            // Return null to meet ResultSetExtractor method contract
-            return null;
+            // Return the parents left to lookup to the calller
+            return parentIdsToLookup;
         }
     }
 
