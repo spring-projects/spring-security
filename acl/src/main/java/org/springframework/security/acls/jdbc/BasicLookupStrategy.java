@@ -97,19 +97,30 @@ public final class BasicLookupStrategy implements LookupStrategy {
     private static String computeRepeatingSql(String repeatingSql, int requiredRepetitions) {
         Assert.isTrue(requiredRepetitions >= 1, "Must be => 1");
 
-        String startSql = "select ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY, ACL_ENTRY.ACE_ORDER, "
-            + "ACL_OBJECT_IDENTITY.ID as ACL_ID, " + "ACL_OBJECT_IDENTITY.PARENT_OBJECT, "
-            + "ACL_OBJECT_IDENTITY,ENTRIES_INHERITING, "
-            + "ACL_ENTRY.ID as ACE_ID, ACL_ENTRY.MASK, ACL_ENTRY.GRANTING, "
-            + "ACL_ENTRY.AUDIT_SUCCESS, ACL_ENTRY.AUDIT_FAILURE, "
-            + "ACL_SID.PRINCIPAL as ACE_PRINCIPAL, ACL_SID.SID as ACE_SID, "
-            + "ACLI_SID.PRINCIPAL as ACL_PRINCIPAL, ACLI_SID.SID as ACL_SID, " + "ACL_CLASS.CLASS "
-            + "from ACL_OBJECT_IDENTITY, ACL_SID ACLI_SID, ACL_CLASS "
-            + "LEFT JOIN ACL_ENTRY ON ACL_OBJECT_IDENTITY.ID = ACL_ENTRY.ACL_OBJECT_IDENTITY "
-            + "LEFT JOIN ACL_SID ON ACL_ENTRY.SID = ACL_SID.ID where ACLI_SID.ID = ACL_OBJECT_IDENTITY.OWNER_SID "
-            + "and ACL_CLASS.ID = ACL_OBJECT_IDENTITY.OBJECT_ID_CLASS " + "and ( ";
+        String startSql = "select ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY, " 
+	        + "ACL_ENTRY.ACE_ORDER,  "
+	        + "ACL_OBJECT_IDENTITY.ID as ACL_ID, " 
+	        + "ACL_OBJECT_IDENTITY.PARENT_OBJECT, "
+	        + "ACL_OBJECT_IDENTITY.ENTRIES_INHERITING, " 
+	        + "ACL_ENTRY.ID as ACE_ID, "
+	        + "ACL_ENTRY.MASK,  "
+	        + "ACL_ENTRY.GRANTING,  "
+	        + "ACL_ENTRY.AUDIT_SUCCESS, " 
+	        + "ACL_ENTRY.AUDIT_FAILURE,  "
+	        + "ACL_SID.PRINCIPAL as ACE_PRINCIPAL, " 
+	        + "ACL_SID.SID as ACE_SID,  "
+	        + "ACLI_SID.PRINCIPAL as ACL_PRINCIPAL, " 
+	        + "ACLI_SID.SID as ACL_SID, "
+	        + "ACL_CLASS.CLASS " 
+	        + "from ACL_OBJECT_IDENTITY " 
+	        + "left join ACL_SID ACLI_SID on  ACLI_SID.ID = ACL_OBJECT_IDENTITY.OWNER_SID " 
+	        + "left join ACL_CLASS on ACL_CLASS.ID = ACL_OBJECT_IDENTITY.OBJECT_ID_CLASS   "
+	        + "left join ACL_ENTRY on ACL_OBJECT_IDENTITY.ID = ACL_ENTRY.ACL_OBJECT_IDENTITY " 
+	        + "left join ACL_SID on ACL_ENTRY.SID = ACL_SID.ID  "
+	        + "where ( ";
 
-        String endSql = ") order by ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY asc, ACL_ENTRY.ACE_ORDER asc";
+        String endSql = ") order by ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY" 
+        	+ " asc, ACL_ENTRY.ACE_ORDER asc";
 
         StringBuffer sqlStringBuffer = new StringBuffer();
         sqlStringBuffer.append(startSql);

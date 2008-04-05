@@ -65,13 +65,13 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     private String deleteEntryByObjectIdentityForeignKey = "DELETE FROM acl_entry WHERE acl_object_identity=?";
     private String deleteObjectIdentityByPrimaryKey = "DELETE FROM acl_object_identity WHERE id=?";
     private String identityQuery = "call identity()";
-    private String insertClass = "INSERT INTO acl_class (id, class) VALUES (null, ?)";
+    private String insertClass = "INSERT INTO acl_class (class) VALUES (?)";
     private String insertEntry = "INSERT INTO acl_entry "
-        + "(id, acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure)"
-        + "VALUES (null, ?, ?, ?, ?, ?, ?, ?)";
+        + "(acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure)"
+        + "VALUES (?, ?, ?, ?, ?, ?, ?)";
     private String insertObjectIdentity = "INSERT INTO acl_object_identity "
-        + "(id, object_id_class, object_id_identity, owner_sid, entries_inheriting) " + "VALUES (null, ?, ?, ?, ?)";
-    private String insertSid = "INSERT INTO acl_sid (id, principal, sid) VALUES (null, ?, ?)";
+        + "(object_id_class, object_id_identity, owner_sid, entries_inheriting) " + "VALUES (?, ?, ?, ?)";
+    private String insertSid = "INSERT INTO acl_sid (principal, sid) VALUES (?, ?)";
     private String selectClassPrimaryKey = "SELECT id FROM acl_class WHERE class=?";
     private String selectCountObjectIdentityRowsForParticularClassNameString = "SELECT COUNT(acl_object_identity.id) "
         + "FROM acl_object_identity, acl_class WHERE acl_class.id = acl_object_identity.object_id_class and class=?";
@@ -379,4 +379,10 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
             throw new NotFoundException("Unable to locate ACL to update");
         }
     }
+
+	public void setIdentityQuery(String identityQuery) {
+		Assert.hasText(identityQuery, "New identity query is required");
+		this.identityQuery = identityQuery;
+	}
+    
 }
