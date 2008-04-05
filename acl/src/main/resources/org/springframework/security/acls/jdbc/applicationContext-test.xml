@@ -63,7 +63,7 @@
 	</bean>
 
     <bean id="dataSource" class="org.springframework.security.TestDataSource">
-        <constructor-arg value="test" />
+        <constructor-arg value="acltest" />
     </bean>
 
 </beans>

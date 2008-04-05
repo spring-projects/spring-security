@@ -240,11 +240,11 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         // Recursively call this method for children, or handle children if they don't want automatic recursion
         ObjectIdentity[] children = findChildren(objectIdentity);
 
-        if (deleteChildren) {
+        if (deleteChildren && children != null) {
             for (int i = 0; i < children.length; i++) {
                 deleteAcl(children[i], true);
             }
-        } else if (children.length > 0) {
+        } else if (children != null) {
             throw new ChildrenExistException("Cannot delete '" + objectIdentity + "' (has " + children.length
                 + " children)");
         }
@@ -332,11 +332,22 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         // Change the mutable columns in acl_object_identity
         updateObjectIdentity(acl);
 
-        // Clear the cache
-        aclCache.evictFromCache(acl.getObjectIdentity());
+        // Clear the cache, including children
+        clearCacheIncludingChildren(acl.getObjectIdentity());
 
         // Retrieve the ACL via superclass (ensures cache registration, proper retrieval etc)
         return (MutableAcl) super.readAclById(acl.getObjectIdentity());
+    }
+    
+    private void clearCacheIncludingChildren(ObjectIdentity objectIdentity) {
+    	Assert.notNull(objectIdentity, "ObjectIdentity required");
+        ObjectIdentity[] children = findChildren(objectIdentity);
+        if (children != null) {
+        	for (int i = 0; i < children.length; i++) {
+        		clearCacheIncludingChildren(children[i]);
+        	}
+        }
+        aclCache.evictFromCache(objectIdentity);
     }
 
     /**
