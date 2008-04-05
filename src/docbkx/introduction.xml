@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
 
-<chapter id="introduction">
+<chapter version="5.0" xml:id="introduction"
+    xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
     
 <title>Introduction</title>
 
-<sect1 id="what-is-acegi-security">
+<sect1 xml:id="what-is-acegi-security">
     <title>What is Spring Security?</title>
     
     <para>Spring Security provides comprehensive security services for
@@ -173,8 +173,8 @@
         </listitem>
     </itemizedlist>
     
-    <para>(* Denotes provided by a third party; check our <ulink
-        url="http://acegisecurity.org/powering.html">integration page</ulink>
+    <para>(* Denotes provided by a third party; check our <link
+        xlink:href="http://acegisecurity.org/powering.html">integration page</link>
         for links to the latest details)</para>
     
     <para>Many independent software vendors (ISVs) adopt Spring Security
@@ -214,7 +214,7 @@
         which we'll explore later in this reference guide.</para>
 </sect1>
 
-<sect1 id="history">
+<sect1 xml:id="history">
     <title>History</title>
     
     <para>Spring Security began in late 2003 as "The Acegi Security System
@@ -261,7 +261,7 @@
         peers.</para>
 </sect1>
 
-<sect1 id="release-numbering">
+<sect1 xml:id="release-numbering">
     <title>Release Numbering</title>
     
     <para>It is useful to understand how Spring Security release numbers

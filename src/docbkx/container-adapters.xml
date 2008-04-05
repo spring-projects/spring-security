@@ -1,12 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">  
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="ca"><info><title>Container Adapter Authentication</title></info>
+  
 
-<chapter id="ca">
-  <title>Container Adapter Authentication</title>
-
-  <sect1 id="ca-overview">
-    <title>Overview</title>
+  <section xml:id="ca-overview">
+    <info><title>Overview</title></info>
+    
 
     <para>Very early versions of Spring Security exclusively used
     Container Adapters for interfacing authentication with end users.
@@ -45,10 +42,10 @@
     <para>Spring Security currently supports Jetty, Catalina (Tomcat),
     JBoss and Resin. Additional container adapters can easily be
     written</para>
-  </sect1>
+  </section>
 
-  <sect1 id="ca-adapter">
-    <title>Adapter Authentication Provider</title>
+  <section xml:id="ca-adapter"><info><title>Adapter Authentication Provider</title></info>
+    
 
     <para>As is always the case, the container adapter generated
     <literal>Authentication</literal> object still needs to be
@@ -103,10 +100,10 @@
     <literal>DaoAuthenticationProvider</literal>, ensure you set its
     <literal>forcePrincipalAsString</literal> property to
     <literal>true</literal>.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="ca-jetty">
-    <title>Jetty</title>
+  <section xml:id="ca-jetty"><info><title>Jetty</title></info>
+    
 
     <para>The following was tested with Jetty 4.2.18.</para>
 
@@ -172,10 +169,10 @@
     <literal>&lt;realm-name&gt;</literal> as your
     <literal>jetty.xml</literal> (in the example above, "Spring Powered
     Realm").</para>
-  </sect1>
+  </section>
 
-  <sect1 id="ca-jboss">
-    <title>JBoss</title>
+  <section xml:id="ca-jboss"><info><title>JBoss</title></info>
+    
 
     <para>The following was tested with JBoss 3.2.6.</para>
 
@@ -302,10 +299,10 @@
     <para>JBoss is a widely-used container adapter (mostly due to the need
     to support legacy EJBs), so please let us know if you have any
     difficulties.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="ca-resin">
-    <title>Resin</title>
+  <section xml:id="ca-resin"><info><title>Resin</title></info>
+    
 
     <para>The following was tested with Resin 3.0.6.</para>
 
@@ -377,10 +374,10 @@
     indicated in your <literal>web.xml</literal> does not matter with
     Resin, as the relevant authentication class is indicated by the
     <literal>&lt;authenticator&gt;</literal> setting</para>
-  </sect1>
+  </section>
 
-  <sect1 id="ca-tomcat">
-    <title>Tomcat</title>
+  <section xml:id="ca-tomcat"><info><title>Tomcat</title></info>
+    
 
     <para>The following was tested with Jakarta Tomcat 4.1.30 and
     5.0.19.</para>
@@ -449,5 +446,5 @@ cd /
 $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
     <para>Finally, restart Tomcat.</para>
-  </sect1>
+  </section>
 </chapter>

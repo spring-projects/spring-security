@@ -1,12 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="authentication-common-auth-services"><info><title>Common Authentication Services</title></info>
+  
 
-<chapter id="authentication-common-auth-services">
-  <title>Common Authentication Services</title>
-
-  <sect1 id="mechanisms-providers-entry-points">
-    <title>Mechanisms, Providers and Entry Points</title>
+  <section xml:id="mechanisms-providers-entry-points"><info><title>Mechanisms, Providers and Entry Points</title></info>
+    
 
     <para>If you're using Spring Security-provided authentication
     approaches, you'll usually need to configure a web filter, together
@@ -23,17 +19,17 @@
     this:</para>
 
     <para><programlisting>
-<![CDATA[ 
-    <filter>
-        <filter-name>filterChainProxy</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
+ 
+    &lt;filter&gt;
+        &lt;filter-name&gt;filterChainProxy&lt;/filter-name&gt;
+        &lt;filter-class&gt;org.springframework.web.filter.DelegatingFilterProxy&lt;/filter-class&gt;
+    &lt;/filter&gt;
 
-    <filter-mapping>
-      <filter-name>filterChainProxy</filter-name>
-      <url-pattern>/*</url-pattern>
-    </filter-mapping>
-]]></programlisting></para>
+    &lt;filter-mapping&gt;
+      &lt;filter-name&gt;filterChainProxy&lt;/filter-name&gt;
+      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;/filter-mapping&gt;
+</programlisting></para>
 
     <para>The above declarations will cause every web request to be passed
         through to the bean called <literal>filterChainProxy</literal>
@@ -230,10 +226,10 @@
     point to use for each authentication approach is discussed in the
     authentication approach-specific chapters of this reference
     guide.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="userdetails-and-associated-types">
-    <title>UserDetails and Associated Types</title>
+  <section xml:id="userdetails-and-associated-types"><info><title>UserDetails and Associated Types</title></info>
+    
 
     <para>As mentioned in the first part of the reference guide, most
     authentication providers take advantage of the
@@ -277,8 +273,8 @@
     that, Spring Security does include a couple of useful base
     implementations, which we'll look at below.</para>
 
-    <sect2 id="in-memory-service">
-      <title>In-Memory Authentication</title>
+    <section xml:id="in-memory-service"><info><title>In-Memory Authentication</title></info>
+      
 
       <para>Whilst it is easy to use create a custom
       <literal>UserDetailsService</literal> implementation that extracts
@@ -329,10 +325,10 @@
       useful for simple applications that have a larger number of users,
       or deployment-time configuration changes, but do not wish to use a
       full database for handling authentication details.</para>
-    </sect2>
+    </section>
 
-    <sect2 id="jdbc-service">
-      <title>JDBC Authentication</title>
+    <section xml:id="jdbc-service"><info><title>JDBC Authentication</title></info>
+      
 
       <para>Spring Security also includes a
       <literal>UserDetailsService</literal> that can obtain authentication
@@ -376,11 +372,11 @@
       <literal>UserDetailsService</literal>. The base implementation
       provided with Spring Security is intended for typical situations,
       and does not offer infinite configuration flexibility.</para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1 id="concurrent-sessions">
-    <title>Concurrent Session Handling</title>
+  <section xml:id="concurrent-sessions"><info><title>Concurrent Session Handling</title></info>
+    
 
     <para>Spring Security is able to prevent a principal from concurrently
     authenticating to the same application more than a specified number of
@@ -433,10 +429,10 @@
 &lt;/bean&gt;
 
 &lt;bean id="sessionRegistry" class="org.springframework.security.concurrent.SessionRegistryImpl"/&gt;</programlisting></para>
-  </sect1>
+  </section>
 
-  <sect1 id="authentication-taglibs">
-    <title>Authentication Tag Libraries</title>
+  <section xml:id="authentication-taglibs"><info><title>Authentication Tag Libraries</title></info>
+    
 
     <para><literal>AuthenticationTag</literal> is used to simply output a
     property of the current principal's
@@ -453,5 +449,5 @@
     <literal>UserDetails</literal> object, which is generally the case
     when using the typical
     <literal>DaoAuthenticationProvider</literal>.</para>
-  </sect1>
+  </section>
 </chapter>

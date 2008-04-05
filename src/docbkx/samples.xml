@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:id="sample-apps">
+    
+<info><title xml:id="samples">Sample Applications</title></info>
 
-<chapter id="sample-apps">
-<title id="samples">Sample Applications</title>
 
-<sect1 id="contacts-sample">
-    <title id="contacts">Contacts</title>
+<section xml:id="contacts-sample">
+    <info><title xml:id="contacts">Contacts</title></info>
+    
     
     <para>Included with Spring Security is a very simple application that
         can demonstrate the basic security facilities provided by the system
@@ -22,7 +21,7 @@
         <literal>spring-security-sample-contacts-cas.war</literal> is designed
         to work with a JA-SIG CAS server. If you're just wanting to see how
         the sample application works, please use
-        <literal><literal>spring-security-sample-contacts-filter.war</literal></literal>
+        <literal>spring-security-sample-contacts-filter.war</literal>
         as it does not require special configuration of your container. This
         is also the artifact included in official release ZIPs.</para>
     
@@ -82,7 +81,7 @@
         <literal>MethodSecurityInterceptor</literal> is securing the business
         objects. If you're using or
         <literal>spring-security-sample-contacts-cas.war</literal>, the
-        <literal><literal>spring-security-sample-contacts-filter.war</literal></literal>
+        <literal>spring-security-sample-contacts-filter.war</literal>
         <literal>FilterSecurityInterceptor</literal> is also securing the HTTP
         requests. If using either of these WARs, be sure to try visiting
         <literal>http://localhost:8080/contacts/secure/super</literal>, which
@@ -104,10 +103,10 @@
         and the password to use. Note that you may need to edit
         <literal>client.properties</literal> to use a different target
         URL.</para>
-</sect1>
+</section>
 
-<sect1 id="tutorial-sample">
-    <title>Tutorial Sample</title>
+<section xml:id="tutorial-sample"><info><title>Tutorial Sample</title></info>
+    
     
     <para>Whilst the <link linkend="contacts-sample">Contacts
         Sample</link> is quite advanced in that it illustrates the more
@@ -117,36 +116,33 @@
     
     <para>The compiled tutorial is included in the distribution ZIP file,
         ready to be deployed into your web container. Authentication is
-        handled by the <link linkend="dao-provider">DaoAuthenticationProvider</link>, using the
-        <link linkend="in-memory-service">in-memory</link>
+        handled by the <link xlink:href="dao-auth-provider.xml">DaoAuthenticationProvider</link>, using the
+        <link xlink:href="in-memory-service">in-memory</link>
         <literal>UserDetailsService</literal> that sources information from
         the <literal>users.properties</literal> file located in the WAR's
-        <literal>/WEB-INF</literal> directory. The <link linkend="form">form-based</link> 
+        <literal>/WEB-INF</literal> directory. The <link xlink:href="form-authentication.xml">form-based</link> 
         authentication mechanism is used, with the commonly-used 
-        <link linkend="remember-me">remember-me</link>
+        <link xlink:href="#remember-me">remember-me</link>
         authentication provider used to automatically remember the login using
         cookies.</para>
     
     <para>In terms of authorization, to keep things simple we've
-        configured the tutorial to only perform some basic <link
-            linkend="filter-invocation-authorization">web filter
-            authorization</link>. We've wired two common <link
-                linkend="pre-invocation">pre-invocation access decision voters</link>,
+        configured the tutorial to only perform some basic <link xlink:href="#filter-invocation-authorization">web filter
+            authorization</link>. We've wired two common <link xlink:href="#pre-invocation">pre-invocation access decision voters</link>,
         being the <literal>RoleVoter</literal> and
         <literal>AuthenticatedVoter</literal>, such that
         <literal>ROLE_*</literal> configuration attributes and
         <literal>IS_AUTHENTICATED_*</literal> configuration attributes may be
         used. Of course, it's extremely easy to add in other providers, with
         most users probably starting with some services-layer security using
-        <link linkend="aop-alliance">MethodSecurityInterceptor</link>.</para>
+        <link xlink:href="#aop-alliance">MethodSecurityInterceptor</link>.</para>
     
     <para>We recommend you start with the tutorial sample, as the XML is
-        minimal and easy to follow. All of the needed <link
-            linkend="filters">filters</link> are configured properly, and using
+        minimal and easy to follow. All of the needed <link xlink:href="#supporting-infrastructure">filters</link> are configured properly, and using
         best practise. Most importantly, you can easily this one XML file (and
         its corresponding <literal>web.xml</literal> entries) to your existing
         application. Only when this basic integration is achieved do we
         suggest you attempt adding in method authorization or domain object
         security.</para>
-</sect1>
+</section>
 </chapter>

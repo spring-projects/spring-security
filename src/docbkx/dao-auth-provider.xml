@@ -1,12 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="dao-provider"><info><title>DAO Authentication Provider</title></info>
 
-<chapter id="dao-provider">
-<title>DAO Authentication Provider</title>
 
-<sect1 id="dao-provider-overview">
-    <title>Overview</title>
+<section xml:id="dao-provider-overview"><info><title>Overview</title></info>
+    
     
     <para>Spring Security includes a production-quality
         <literal>AuthenticationProvider</literal> implementation called
@@ -22,10 +18,10 @@
         presented, and the provider will actually evaluate the validity or
         otherwise of the password presented in an authentication request
         object.</para>
-</sect1>
+</section>
 
-<sect1 id="dao-provider-config">
-    <title>Configuration</title>
+<section xml:id="dao-provider-config"><info><title>Configuration</title></info>
+    
     
     <para>Aside from adding DaoAuthenticationProvider to your
         ProviderManager list (as discussed at the start of this part of the
@@ -126,5 +122,5 @@
         prior to Spring Security 0.6), you should set the
         <literal>DaoAuthenticationProvider.forcePrincipalAsString</literal>
         property to <literal>true</literal> in your application context</para>
-</sect1>
+</section>
 </chapter>

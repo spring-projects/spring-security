@@ -1,12 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="cas"><info><title>CAS Authentication</title></info>
+  
 
-<chapter id="cas">
-  <title>CAS Authentication</title>
-
-  <sect1 id="cas-overview">
-    <title>Overview</title>
+  <section xml:id="cas-overview">
+      <info><title>Overview</title></info>
+    
 
     <para>JA-SIG produces an enterprise-wide single sign on system known
     as CAS. Unlike other initiatives, JA-SIG's Central Authentication
@@ -24,10 +21,10 @@
     file, you will still need the CAS Java Server Pages and
     <literal>web.xml</literal> to customise and deploy your CAS
     server.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="cas-how-it-works">
-    <title>How CAS Works</title>
+  <section xml:id="cas-how-it-works"><info><title>How CAS Works</title></info>
+    
 
     <para>Whilst the CAS web site above contains two documents that detail
     the architecture of CAS, we present the general overview again here
@@ -106,7 +103,7 @@
     <para>The basic interaction between a web browser, CAS server and n
     Spring Security-secured service is as follows:</para>
 
-    <orderedlist>
+    <orderedlist inheritnum="ignore" continuation="restarts">
       <listitem>
         <para>The web user is browsing the service's public pages. CAS or
         Spring Security is not involved.</para>
@@ -301,18 +298,18 @@
     <para>It's good that you're still here! It might sound involved, but
     you can relax as Spring Security classes hide much of the complexity.
     Let's now look at how this is configured</para>
-  </sect1>
+  </section>
 
-  <sect1 id="cas-server">
-    <title>Optional CAS Server Setup</title>
+  <section xml:id="cas-server"><info><title>Optional CAS Server Setup</title></info>
+    
 
     <para>Spring Security can even act as the backend which a CAS version
     2.0 or 3.0 server utilises. The configuration approach is described
     below. Of course, if you have an existing CAS environment you might
     just like to use it instead.</para>
 
-    <sect2 id="cas-server-2">
-      <title>CAS Version 2.0</title>
+    <section xml:id="cas-server-2"><info><title>CAS Version 2.0</title></info>
+      
 
       <para>As mentioned above, Spring Security includes a
       <literal>PasswordHandler</literal> that bridges your existing
@@ -402,10 +399,10 @@
       web container's documentation on setting up HTTPS, if you need some
       additional help or a test certificate you might like to check the
       <literal>samples/contacts/etc/ssl</literal> directory</para>
-    </sect2>
+    </section>
 
-    <sect2 id="cas-server-3">
-      <title>CAS Version 3.0</title>
+    <section xml:id="cas-server-3"><info><title>CAS Version 3.0</title></info>
+      
 
       <para>As mentioned above, Spring Security includes an
       <literal>AuthenticationHandler</literal> that bridges your existing
@@ -493,11 +490,11 @@
       additional help or a test certificate you might like to check the
       CAS documentation on setting up SSL:
       <literal>http://www.ja-sig.org/products/cas/server/ssl/index.html</literal></para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1 id="cas-client">
-    <title>Configuration of CAS Client</title>
+  <section xml:id="cas-client"><info><title>Configuration of CAS Client</title></info>
+    
 
     <para>The web application side of CAS is made easy due to Spring
     Security. It is assumed you already know the basics of using Spring
@@ -508,11 +505,11 @@
     to your application context. This represents your service:</para>
 
     <para><programlisting>
-<![CDATA[ 
-<bean id="serviceProperties" class="org.springframework.security.ui.cas.ServiceProperties">
-  <property name="service" value="https://localhost:8443/contacts-cas/j_spring_cas_security_check"/>
-  <property name="sendRenew"><value>false</value></property>
-</bean> ]]>
+ 
+&lt;bean id="serviceProperties" class="org.springframework.security.ui.cas.ServiceProperties"&gt;
+  &lt;property name="service" value="https://localhost:8443/contacts-cas/j_spring_cas_security_check"/&gt;
+  &lt;property name="sendRenew"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt; 
     </programlisting></para>
 
     <para>The <literal>service</literal> must equal a URL that will be
@@ -526,38 +523,38 @@
     <para>The following beans should be configured to commence the CAS
     authentication process:</para>
 
-    <para><programlisting><![CDATA[ 
-<bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter">
-  <property name="authenticationManager" ref="authenticationManager"/>
-  <property name="authenticationFailureUrl" value="/casfailed.jsp"/>
-  <property name="defaultTargetUrl" value="/"/>
-  <property name="filterProcessesUrl" value="/j_spring_cas_security_check"/>
-</bean>
+    <para><programlisting> 
+&lt;bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter"&gt;
+  &lt;property name="authenticationManager" ref="authenticationManager"/&gt;
+  &lt;property name="authenticationFailureUrl" value="/casfailed.jsp"/&gt;
+  &lt;property name="defaultTargetUrl" value="/"/&gt;
+  &lt;property name="filterProcessesUrl" value="/j_spring_cas_security_check"/&gt;
+&lt;/bean&gt;
 
-<bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
-  <property name="authenticationEntryPoint" ref="casProcessingFilterEntryPoint"/>
-</bean>
+&lt;bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter"&gt;
+  &lt;property name="authenticationEntryPoint" ref="casProcessingFilterEntryPoint"/&gt;
+&lt;/bean&gt;
 
-<bean id="casProcessingFilterEntryPoint"
-        class="org.springframework.security.ui.cas.CasProcessingFilterEntryPoint">
-  <property name="loginUrl" value="https://localhost:8443/cas/login"/>
-  <property name="serviceProperties" ref="serviceProperties"/>
-</bean>
- ]]>
+&lt;bean id="casProcessingFilterEntryPoint"
+        class="org.springframework.security.ui.cas.CasProcessingFilterEntryPoint"&gt;
+  &lt;property name="loginUrl" value="https://localhost:8443/cas/login"/&gt;
+  &lt;property name="serviceProperties" ref="serviceProperties"/&gt;
+&lt;/bean&gt;
+ 
     </programlisting></para>
 
     <para>You will also need to add the <literal>CasProcessingFilter</literal> to web.xml:</para>
 
-    <para><programlisting><![CDATA[ 
-<filter>
-    <filter-name>casProcessingFilter</filter-name>
-    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-</filter>
+    <para><programlisting> 
+&lt;filter&gt;
+    &lt;filter-name&gt;casProcessingFilter&lt;/filter-name&gt;
+    &lt;filter-class&gt;org.springframework.web.filter.DelegatingFilterProxy&lt;/filter-class&gt;
+&lt;/filter&gt;
 
-<filter-mapping>
-  <filter-name>casProcessingFilter</filter-name>
-  <url-pattern>/*</url-pattern>
-</filter-mapping> ]]>
+&lt;filter-mapping&gt;
+  &lt;filter-name&gt;casProcessingFilter&lt;/filter-name&gt;
+  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt; 
     </programlisting></para>
 
     <para>The <literal>CasProcessingFilter</literal> has very similar
@@ -671,10 +668,10 @@
     <para>There is also a <literal>contacts-cas.war</literal> file in the
     sample applications directory. This sample application uses the above
     settings and can be deployed to see CAS in operation</para>
-  </sect1>
+  </section>
 
-  <sect1 id="cas-advanced">
-    <title>Advanced Issues</title>
+  <section xml:id="cas-advanced"><info><title>Advanced Issues</title></info>
+    
 
     <para>The <literal>CasAuthenticationProvider</literal> distinguishes
     between stateful and stateless clients. A stateful client is
@@ -733,5 +730,5 @@
 
     <para>It is hoped you find CAS integration easy and useful with Spring
     Security classes. Welcome to enterprise-wide single sign on!</para>
-  </sect1>
+  </section>
 </chapter>

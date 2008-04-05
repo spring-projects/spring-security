@@ -1,14 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
-                         
-                         
-<chapter id="channel-security">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="channel-security">
 
-<title>Channel Security</title>
+<info><title>Channel Security</title></info>
 
-<sect1 id="channel-security-overview">
-    <title>Overview</title>
+<section xml:id="channel-security-overview">
+    <info><title>Overview</title></info>
+    
     
     <para>In addition to coordinating the authentication and authorization
         requirements of your application, Spring Security is also able to
@@ -37,39 +33,39 @@
         <literal>&lt;welcome-file&gt;</literal> points to an HTTPS location,
         and the application never directs the user to an HTTP location. Spring
         Security provides a solution to assist with the latter.</para>
-</sect1>
+</section>
 
-<sect1 id="channel-security-config">
-    <title>Configuration</title>
+<section xml:id="channel-security-config"><info><title>Configuration</title></info>
+    
         
     <para>To use chanel security, you should define the following the filter in your application
         context:</para>
     
-    <para><programlisting><![CDATA[ 
-    <bean id="channelProcessingFilter" class="org.springframework.security.securechannel.ChannelProcessingFilter">
-        <property name="channelDecisionManager" ref="channelDecisionManager"/>
-        <property name="filterInvocationDefinitionSource">
-            <security:filter-invocation-definition-source path-type="regex">
-                <security:intercept-url pattern="\A/secure/.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
-                <security:intercept-url pattern="\A/acegilogin.jsp.*\" access="REQUIRES_SECURE_CHANNEL"/>
-                <security:intercept-url pattern="\A/j_spring_security_check.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
-                <security:intercept-url pattern="\A/.*\Z" access="REQUIRES_INSECURE_CHANNEL"/>
-            </security:filter-invocation-definition-source>                
-        </property>
-    </bean>
+    <para><programlisting> 
+    &lt;bean id="channelProcessingFilter" class="org.springframework.security.securechannel.ChannelProcessingFilter"&gt;
+        &lt;property name="channelDecisionManager" ref="channelDecisionManager"/&gt;
+        &lt;property name="filterInvocationDefinitionSource"&gt;
+            &lt;security:filter-invocation-definition-source path-type="regex"&gt;
+                &lt;security:intercept-url pattern="\A/secure/.*\Z" access="REQUIRES_SECURE_CHANNEL"/&gt;
+                &lt;security:intercept-url pattern="\A/acegilogin.jsp.*\" access="REQUIRES_SECURE_CHANNEL"/&gt;
+                &lt;security:intercept-url pattern="\A/j_spring_security_check.*\Z" access="REQUIRES_SECURE_CHANNEL"/&gt;
+                &lt;security:intercept-url pattern="\A/.*\Z" access="REQUIRES_INSECURE_CHANNEL"/&gt;
+            &lt;/security:filter-invocation-definition-source&gt;                
+        &lt;/property&gt;
+    &lt;/bean&gt;
         
-    <bean id="channelDecisionManager" class="org.springframework.security.securechannel.ChannelDecisionManagerImpl">
-        <property name="channelProcessors">
-            <list>
-            <ref bean="secureChannelProcessor"/>
-            <ref bean="insecureChannelProcessor"/>
-            </list>
-        </property>
-    </bean>
+    &lt;bean id="channelDecisionManager" class="org.springframework.security.securechannel.ChannelDecisionManagerImpl"&gt;
+        &lt;property name="channelProcessors"&gt;
+            &lt;list&gt;
+            &lt;ref bean="secureChannelProcessor"/&gt;
+            &lt;ref bean="insecureChannelProcessor"/&gt;
+            &lt;/list&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
         
-    <bean id="secureChannelProcessor" class="org.springframework.security.securechannel.SecureChannelProcessor"/>
-    <bean id="insecureChannelProcessor" class="org.springframework.security.securechannel.InsecureChannelProcessor"/>
-     ]]>    
+    &lt;bean id="secureChannelProcessor" class="org.springframework.security.securechannel.SecureChannelProcessor"/&gt;
+    &lt;bean id="insecureChannelProcessor" class="org.springframework.security.securechannel.InsecureChannelProcessor"/&gt;
+         
     </programlisting></para>
     
     <para>Like <literal>FilterSecurityInterceptor</literal>, Apache Ant
@@ -126,10 +122,10 @@
         <literal>REQUIRES_SECURE_CHANNEL</literal>, and that the
         <literal>AuthenticationProcessingFilterEntryPoint.forceHttps</literal>
         property is <literal>true</literal>.</para>
-</sect1>
+</section>
 
-<sect1 id="channel-security-conclusion">
-    <title>Conclusion</title>
+<section xml:id="channel-security-conclusion"><info><title>Conclusion</title></info>
+    
     
     <para>Once configured, using the channel security filter is very easy.
         Simply request pages without regard to the protocol (ie HTTP or HTTPS)
@@ -161,5 +157,5 @@
         <literal>AccessDecisionVoter</literal> will ultimately result in an
         <literal>AccessDeniedException</literal> (depending on the governing
         <literal>AccessDecisionManager</literal>).</para>
-</sect1>
+</section>
 </chapter>

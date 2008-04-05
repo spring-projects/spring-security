@@ -1,12 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">                         
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="anonymous"><info><title>Anonymous Authentication</title></info>
 
-<chapter id="anonymous">
-<title>Anonymous Authentication</title>
 
-<sect1 id="anonymous-overview">
-    <title>Overview</title>
+<section xml:id="anonymous-overview"><info><title>Overview</title></info>
+    
     
     <para>Particularly in the case of web request URI security, sometimes
         it is more convenient to assign configuration attributes against every
@@ -22,10 +18,10 @@
         <literal>SecurityContextHolder</literal> always contains an
         <literal>Authentication</literal> object, and never
         <literal>null</literal>.</para>
-</sect1>
+</section>
 
-<sect1 id="anonymous-config">
-    <title>Configuration</title>
+<section xml:id="anonymous-config"><info><title>Configuration</title></info>
+    
     
     <para>Spring Security provides three classes that together provide an
         anonymous authentication feature.
@@ -105,5 +101,5 @@
         principals would always be deemed "authenticated" and never be given
         an opportunity to login via form, basic, digest or some other normal
         authentication mechanism</para>
-</sect1>
+</section>
 </chapter>

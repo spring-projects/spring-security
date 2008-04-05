@@ -1,12 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">                         
-
-<chapter id="runas">
-    <title>Run-As Authentication Replacement</title>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="runas"><info><title>Run-As Authentication Replacement</title></info>
     
-    <sect1 id="runas-overview">
-        <title>Overview</title>
+    
+    <section xml:id="runas-overview"><info><title>Overview</title></info>
+        
         
         <para>The <literal>AbstractSecurityInterceptor</literal> is able to
             temporarily replace the <literal>Authentication</literal> object in
@@ -30,10 +26,10 @@
             remoting protocols based on the contents of the
             <literal>SecurityContextHolder</literal>, these run-as replacements
             are particularly useful when calling remote web services</para>
-    </sect1>
+    </section>
     
-    <sect1 id="runas-config">
-        <title>Configuration</title>
+    <section xml:id="runas-config"><info><title>Configuration</title></info>
+        
         
         <para>A <literal>RunAsManager</literal> interface is provided by Acegi
             Security:</para>
@@ -107,5 +103,5 @@
             <literal>RunAsManagerImpl</literal>. The
             <literal>RunAsUserToken</literal> is immutable after creation for
             security reasons</para>
-    </sect1>
+    </section>
 </chapter>

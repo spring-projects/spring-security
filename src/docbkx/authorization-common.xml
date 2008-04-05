@@ -1,12 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="authorization-common"><info><title>Common Authorization Concepts</title></info>
+  
 
-<chapter id="authorization-common">
-  <title>Common Authorization Concepts</title>
-
-  <sect1 id="authorities">
-    <title>Authorities</title>
+  <section xml:id="authorities"><info><title>Authorities</title></info>
+    
 
     <para>As briefly mentioned in the Authentication section, all
     <literal>Authentication</literal> implementations are required to
@@ -53,10 +49,10 @@
     <literal>AuthenticationProvider</literal>s included with the security
     architecture use <literal>GrantedAuthorityImpl</literal> to populate
     the <literal>Authentication</literal> object.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="pre-invocation">
-    <title>Pre-Invocation Handling</title>
+  <section xml:id="pre-invocation"><info><title>Pre-Invocation Handling</title></info>
+    
 
     <para>The <literal>AccessDecisionManager</literal> is called by the
     <literal>AbstractSecurityInterceptor</literal> and is responsible for
@@ -100,9 +96,7 @@ public boolean supports(Class clazz);</programlisting></para>
 
     <para><mediaobject>
         <imageobject role="html">
-          <imagedata align="center"
-                     fileref="images/AccessDecisionVoting.gif"
-                     format="GIF" />
+          <imagedata align="center" fileref="images/AccessDecisionVoting.gif" format="GIF"/>
         </imageobject>
 
         <caption>
@@ -252,10 +246,10 @@ public boolean supports(Class clazz);</programlisting></para>
     <para>TODO: Remove references to the old ACL package when it's
     deprecated, and have all references to the replacement package limited
     to the chapter describing the new ACL implementation.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="after-invocation">
-    <title>After Invocation Handling</title>
+  <section xml:id="after-invocation"><info><title>After Invocation Handling</title></info>
+    
 
     <para>Whilst the <literal>AccessDecisionManager</literal> is called by
     the <literal>AbstractSecurityInterceptor</literal> before proceeding
@@ -272,8 +266,7 @@ public boolean supports(Class clazz);</programlisting></para>
 
     <para><mediaobject>
         <imageobject>
-          <imagedata align="center" fileref="images/AfterInvocation.gif"
-                     format="GIF" />
+          <imagedata align="center" fileref="images/AfterInvocation.gif" format="GIF"/>
         </imageobject>
 
         <caption>
@@ -314,8 +307,8 @@ public boolean supports(Class clazz);</programlisting></para>
     achieved through a <literal>ROLE_USER</literal> or
     <literal>ROLE_AUTHENTICATED</literal> configuration attribute</para>
 
-    <sect2 id="after-invocation-acl-aware">
-      <title>ACL-Aware AfterInvocationProviders</title>
+    <section xml:id="after-invocation-acl-aware"><info><title>ACL-Aware AfterInvocationProviders</title></info>
+      
 
       <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
       ACL module. The new ACL module is a significant rewrite of the
@@ -398,10 +391,10 @@ public boolean supports(Class clazz);</programlisting></para>
 
       <para>The Contacts sample application demonstrates these two
       <literal>AfterInvocationProvider</literal>s.</para>
-    </sect2>
+    </section>
 
-    <sect2 id="after-invocation-acl-aware-old">
-      <title>ACL-Aware AfterInvocationProviders (old ACL module)</title>
+    <section xml:id="after-invocation-acl-aware-old"><info><title>ACL-Aware AfterInvocationProviders (old ACL module)</title></info>
+      
 
       <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
       ACL module. The new ACL module is a significant rewrite of the
@@ -478,11 +471,11 @@ public boolean supports(Class clazz);</programlisting></para>
 
       <para>The Contacts sample application demonstrates these two
       <literal>AfterInvocationProvider</literal>s.</para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1 id="authorization-taglibs">
-    <title>Authorization Tag Libraries</title>
+  <section xml:id="authorization-taglibs"><info><title>Authorization Tag Libraries</title></info>
+    
 
     <para><literal>AuthorizeTag</literal> is used to include content if
     the current principal holds certain
@@ -569,5 +562,5 @@ public boolean supports(Class clazz);</programlisting></para>
     should be considered deprecated. For the sake of historical reference,
     works exactly the samae as
     <literal>AccessControlListTag</literal>.</para>
-  </sect1>
+  </section>
 </chapter>

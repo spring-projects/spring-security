@@ -1,12 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">    
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="technical-overview"><info><title>Technical Overview</title></info>
+  
 
-<chapter id="technical-overview">
-  <title>Technical Overview</title>
-
-  <sect1 id="runtime-environment">
-    <title>Runtime Environment</title>
+  <section xml:id="runtime-environment"><info><title>Runtime Environment</title></info>
+    
 
     <para>Spring Security is written to execute within a standard Java 1.4
     Runtime Environment. It also supports Java 5.0, although the Java
@@ -25,10 +21,10 @@
     <para>This above design offers maximum deployment time flexibility, as
     you can simply copy your target artifact (be it a JAR, WAR or EAR)
     from one system to another and it will immediately work.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="shared-components">
-    <title>Shared Components</title>
+  <section xml:id="shared-components"><info><title>Shared Components</title></info>
+    
 
     <para>Let's explore some of the most important shared components in
     Spring Security. Components are considered "shared" if they are
@@ -223,10 +219,10 @@ String username = obj.toString();
     <para>Now that you've gained an understanding of these repeatedly-used
     components, let's take a closer look at the process of
     authentication.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="common-authentication">
-    <title>Authentication</title>
+  <section xml:id="common-authentication"><info><title>Authentication</title></info>
+    
 
     <para>As mentioned in the beginning of this reference guide, Spring
     Security can participate in many different authentication
@@ -241,7 +237,7 @@ String username = obj.toString();
     <para>Consider a typical web application's authentication
     process:</para>
 
-    <orderedlist>
+    <orderedlist inheritnum="ignore" continuation="restarts">
       <listitem>
         <para>You visit the home page, and click on a link.</para>
       </listitem>
@@ -385,10 +381,10 @@ String username = obj.toString();
     from a location, build a Spring Security-specific Authentication
     object, and put it onto the SecurityContextHolder. It's quite easy to
     do this, and it is a fully-supported integration approach.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="secure-objects">
-    <title>Secure Objects</title>
+  <section xml:id="secure-objects"><info><title>Secure Objects</title></info>
+    
 
     <para>If you're familiar with AOP, you'd be aware there are different
     types of advice available: before, after, throws and around. An around
@@ -479,15 +475,11 @@ String username = obj.toString();
 
     <para><mediaobject>
         <imageobject role="html">
-          <imagedata align="center"
-                     fileref="images/SecurityInterception.gif"
-                     format="GIF" />
+          <imagedata align="center" fileref="images/SecurityInterception.gif" format="GIF"/>
         </imageobject>
 
         <imageobject role="fo">
-          <imagedata align="center"
-                     fileref="images/SecurityInterception.gif"
-                     format="GIF" />
+          <imagedata align="center" fileref="images/SecurityInterception.gif" format="GIF"/>
         </imageobject>
 
         <caption>
@@ -507,10 +499,10 @@ String username = obj.toString();
     <literal>JoinPoint</literal> and web request
     <literal>FilterInterceptor</literal>) with complete
     transparency.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="common-conclusion">
-    <title>Conclusion</title>
+  <section xml:id="common-conclusion"><info><title>Conclusion</title></info>
+    
 
     <para>Congratulations! You have enough of a high-level picture of
     Spring Security to embark on your project. We've explored the shared
@@ -518,5 +510,5 @@ String username = obj.toString();
     authorization concept of a "secure object". Everything that follows in
     this reference guide may or may not apply to your particular needs,
     and can be read in any order.</para>
-  </sect1>
+  </section>
 </chapter>

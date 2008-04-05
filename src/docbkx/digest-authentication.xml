@@ -1,12 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">                         
-
-<chapter id="digest">
-    <title>Digest Authentication</title>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="digest"><info><title>Digest Authentication</title></info>
     
-    <sect1 id="digest-overview">
-        <title>Overview</title>
+    
+    <section xml:id="digest-overview"><info><title>Overview</title></info>
+        
         
         <para>Spring Security provides a
             <literal>DigestProcessingFilter</literal> which is capable of
@@ -80,10 +76,10 @@
             "<literal>nonce</literal>" token instead. In our testing, Spring
             Security implementation works reliably with FireFox and Internet
             Explorer, correctly handling nonce timeouts etc.</para>
-    </sect1>
+    </section>
     
-    <sect1 id="digest-config">
-        <title>Configuration</title>
+    <section xml:id="digest-config"><info><title>Configuration</title></info>
+        
         
         <para>Now that we've reviewed the theory, let's see how to use it. To
             implement HTTP Digest Authentication, it is necessary to define
@@ -141,5 +137,5 @@
             if you wish to explore these features in more detail. As far as we are
             aware, Spring Security's implementation does comply with the minimum
             standards of this RFC.</para>
-    </sect1>
+    </section>
 </chapter>

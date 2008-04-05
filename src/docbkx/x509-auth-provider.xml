@@ -1,10 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
-<chapter id="x509">
-    <title>X.509 Authentication</title>
-    <sect1 id="x509-overview">
-        <title>Overview</title>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="x509"><info><title>X.509 Authentication</title></info>
+    
+    <section xml:id="x509-overview"><info><title>Overview</title></info>
+        
         <para>The most common use of X.509 certificate authentication is in verifying the identity
             of a server when using SSL, most commonly when using HTTPS from a browser. The browser
             will automatically check that the certificate presented by a server has been issued (ie
@@ -22,25 +19,22 @@
         <para>You should be familiar with using certificates and setting up client authentication
             for your servlet container before attempting to use it with Spring Security. Most of the
             work is in creating and installing suitable certificates and keys. For example, if
-            you're using Tomcat then read the instructions here <ulink
-                url="http://tomcat.apache.org/tomcat-6.0-doc/ssl-howto.html"/>. It's important that
+            you're using Tomcat then read the instructions here <uri xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://tomcat.apache.org/tomcat-6.0-doc/ssl-howto.html">http://tomcat.apache.org/tomcat-6.0-doc/ssl-howto.html</uri>. It's important that
             you get this working before trying it out with Spring Security</para>
-    </sect1>
-    <sect1>
-        <title>Adding X.509 Authentication to Your Web Application</title>
-        <para> Enabling X.509 client authentication is very straightforward. Just add the <literal
-                >&lt;x509/&gt;</literal> element to your http security namespace configuration. <programlisting><![CDATA[
-    <http>
+    </section>
+    <section><info><title>Adding X.509 Authentication to Your Web Application</title></info>
+        
+        <para> Enabling X.509 client authentication is very straightforward. Just add the <literal>&lt;x509/&gt;</literal> element to your http security namespace configuration. <programlisting>
+    &lt;http&gt;
      ...
-        <x509 subject-principal-regex="CN=(.*?)," user-service-ref="userService"/>
+        &lt;x509 subject-principal-regex="CN=(.*?)," user-service-ref="userService"/&gt;
      ...
-    </http>]]>
+    &lt;/http&gt;
             </programlisting> The element has two optional attributes: <itemizedlist>
                 <listitem>
                     <para><literal>subject-principal-regex</literal>. The regular expression used to
                         extract a username from the certificate's subject name. The default value is
-                        shown above. This is the username which will be passed to the <literal
-                            >UserDetailsService</literal> to load the authorities for the
+                        shown above. This is the username which will be passed to the <literal>UserDetailsService</literal> to load the authorities for the
                     user.</para>
                 </listitem>
                 <listitem>
@@ -59,9 +53,9 @@
             security context. If no certificate is found, or no corresponding user could be found
             then the security context will remain empty. This means that you can easily use X.509
             authentication with other options such as a form-based login. </para>
-    </sect1>
-    <sect1 id="x509-ssl-config">
-        <title>Setting up SSL in Tomcat</title>
+    </section>
+    <section xml:id="x509-ssl-config"><info><title>Setting up SSL in Tomcat</title></info>
+        
         <para>There are some pre-generated certificates in the  
             <filename>samples/certificate</filename> directory in the Spring Security project.  
             You can use these to enable SSL for testing if you don't want to generate your own. The file
@@ -74,19 +68,19 @@
             To run tomcat with SSL support, drop the <filename>server.jks</filename> file into the 
             tomcat <filename>conf</filename> directory and add the following connector to the
             <filename>server.xml</filename> file 
-                <programlisting><![CDATA[ 
-    <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" scheme="https" secure="true"
+                <programlisting> 
+    &lt;Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" scheme="https" secure="true"
                 clientAuth="true" sslProtocol="TLS" 
                 keystoreFile="${catalina.home}/conf/server.jks"
                 keystoreType="JKS" keystorePass="password"
                 truststoreFile="${catalina.home}/conf/server.jks"
                 truststoreType="JKS" truststorePass="password"
-     /> ]]>
+     /&gt; 
                 </programlisting>
             <parameter>clientAuth</parameter> can also be set to <parameter>want</parameter> if you still
             want SSL connections to succeed even if the client doesn't provide a certificate.
             Clients which don't present a certificate won't be able to access any objects secured by 
             Spring Security unless you use a non-X.509 authentication mechanism, such as form authentication.
         </para>
-    </sect1>
+    </section>
 </chapter>

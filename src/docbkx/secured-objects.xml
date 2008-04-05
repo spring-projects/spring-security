@@ -1,12 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="secure-object-impls"><info><title>Secure Object Implementations</title></info>
+  
 
-<chapter id="secure-object-impls">
-  <title>Secure Object Implementations</title>
-
-  <sect1 id="aop-alliance">
-    <title>AOP Alliance (MethodInvocation) Security Interceptor</title>
+  <section xml:id="aop-alliance"><info><title>AOP Alliance (MethodInvocation) Security Interceptor</title></info>
+    
 
     <para>To secure <literal>MethodInvocation</literal>s, developers
     simply add a properly configured
@@ -215,10 +211,10 @@ public float getBalance(int id);
 &lt;/property&gt;
 &lt;property name="proxyTargetClass" value="true"/&gt;
 &lt;/bean&gt;        </programlisting>
-  </sect1>
+  </section>
 
-  <sect1 id="aspectj">
-    <title>AspectJ (JoinPoint) Security Interceptor</title>
+  <section xml:id="aspectj"><info><title>AspectJ (JoinPoint) Security Interceptor</title></info>
+    
 
     <para>The AspectJ security interceptor is very similar to the AOP
     Alliance security interceptor discussed in the previous section.
@@ -338,10 +334,10 @@ if (this.securityInterceptor == null)
     your application, using whatever means you think fit (eg <literal>new
     Person();</literal>) and they will have the security interceptor
     applied.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="filter-invocation-authorization">
-    <title>FilterInvocation Security Interceptor</title>
+  <section xml:id="filter-invocation-authorization"><info><title>FilterInvocation Security Interceptor</title></info>
+    
 
       <para>To secure <classname>FilterInvocation</classname>s, developers need
     to add a <literal>FilterSecurityInterceptor</literal> to their filter chain. 
@@ -350,30 +346,30 @@ if (this.securityInterceptor == null)
     <para>In the application context you will need to configure three
     beans:</para>
 
-    <programlisting><![CDATA[ 
-<bean id="exceptionTranslationFilter"
-        class="org.springframework.security.ui.ExceptionTranslationFilter">
-    <property name="authenticationEntryPoint"><ref local="authenticationEntryPoint"/></property>
-</bean>
+    <programlisting> 
+&lt;bean id="exceptionTranslationFilter"
+        class="org.springframework.security.ui.ExceptionTranslationFilter"&gt;
+    &lt;property name="authenticationEntryPoint"&gt;&lt;ref local="authenticationEntryPoint"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
 
-<bean id="authenticationEntryPoint"
-        class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
-    <property name="loginFormUrl"><value>/acegilogin.jsp</value></property>
-    <property name="forceHttps"><value>false</value></property>
-</bean>
+&lt;bean id="authenticationEntryPoint"
+        class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint"&gt;
+    &lt;property name="loginFormUrl"&gt;&lt;value&gt;/acegilogin.jsp&lt;/value&gt;&lt;/property&gt;
+    &lt;property name="forceHttps"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;
 
-<bean id="filterSecurityInterceptor"
-        class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
-    <property name="authenticationManager"><ref bean="authenticationManager"/></property>
-    <property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
-    <property name="objectDefinitionSource">
-    <property name="filterInvocationDefinitionSource">
-        <security:filter-invocation-definition-source path-type="regex">
-            <security:intercept-url pattern="\A/secure/super/.*\Z" access="ROLE_WE_DONT_HAVE"/>
-            <security:intercept-url pattern="\A/secure/.*\" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
-        </security:filter-invocation-definition-source>                
-    </property>
-</bean> ]]>        </programlisting>
+&lt;bean id="filterSecurityInterceptor"
+        class="org.springframework.security.intercept.web.FilterSecurityInterceptor"&gt;
+    &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+    &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+    &lt;property name="objectDefinitionSource"&gt;
+    &lt;property name="filterInvocationDefinitionSource"&gt;
+        &lt;security:filter-invocation-definition-source path-type="regex"&gt;
+            &lt;security:intercept-url pattern="\A/secure/super/.*\Z" access="ROLE_WE_DONT_HAVE"/&gt;
+            &lt;security:intercept-url pattern="\A/secure/.*\" access="ROLE_SUPERVISOR,ROLE_TELLER"/&gt;
+        &lt;/security:filter-invocation-definition-source&gt;                
+    &lt;/property&gt;
+&lt;/bean&gt;         </programlisting>
 
     <para>The <classname>ExceptionTranslationFilter</classname> provides
     the bridge between Java exceptions and HTTP responses. It is solely
@@ -496,5 +492,5 @@ if (this.securityInterceptor == null)
     <literal>AccessDecisionManager</literal> or the
     <literal>RunAsManager</literal>. If neither of these can process a
     given configuration attribute, an exception is thrown.</para>
-  </sect1>
+  </section>
 </chapter>

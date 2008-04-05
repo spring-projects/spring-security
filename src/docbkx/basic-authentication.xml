@@ -1,13 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
-                         
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="basic"><info><title>BASIC Authentication Mechanism</title></info>
 
-<chapter id="basic">
-<title>BASIC Authentication Mechanism</title>
 
-<sect1 id="basic-overview">
-    <title>Overview</title>
+<section xml:id="basic-overview"><info><title>Overview</title></info>
+    
     
     <para>Spring Security provides a
         <literal>BasicProcessingFilter</literal> which is capable of
@@ -21,10 +16,10 @@
         is very widely deployed in user agents and implementation is extremely
         simple (it's just a Base64 encoding of the username:password,
         specified in an HTTP header).</para>
-</sect1>
+</section>
 
-<sect1 id="basic-config">
-    <title>Configuration</title>
+<section xml:id="basic-config"><info><title>Configuration</title></info>
+    
     
     <para>To implement HTTP Basic Authentication, it is necessary to
         define <literal>BasicProcessingFilter</literal> in the filter chain.
@@ -61,5 +56,5 @@
         only time the filter chain will be interrupted is if authentication
         fails and the <literal>AuthenticationEntryPoint</literal> is called,
         as discussed in the previous paragraph</para>
-</sect1>
+</section>
 </chapter>

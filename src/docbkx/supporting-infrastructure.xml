@@ -1,17 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
-
-<chapter id="supporting-infrastructure">
-  <title>Supporting Infrastructure</title>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="supporting-infrastructure"><info><title>Supporting Infrastructure</title></info>
+  
 
   <para>This chapter introduces some of the supplementary and supporting
   infrastructure used by Spring Security. If a capability is not directly
   related to security, yet included in the Spring Security project, we
   will discuss it in this chapter.</para>
 
-  <sect1 id="localization">
-    <title>Localization</title>
+  <section xml:id="localization"><info><title>Localization</title></info>
+    
 
     <para>Spring Security supports localization of exception messages that
     end users are likely to see. If your application is designed for
@@ -75,10 +71,10 @@
     <literal>CookieLocaleResolver</literal>,
     <literal>FixedLocaleResolver</literal>,
     <literal>SessionLocaleResolver</literal> etc)</para>
-  </sect1>
+  </section>
 
-  <sect1 id="filters">
-    <title>Filters</title>
+  <section xml:id="filters"><info><title>Filters</title></info>
+    
 
     <para>Spring Security uses many filters, as referred to throughout the
     remainder of this reference guide. You have a choice in how these
@@ -90,17 +86,17 @@
       something like this in the web.xml file:
       
         <programlisting>
-            <![CDATA[
-    <filter>
-        <filter-name>myFilter</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
+            
+    &lt;filter&gt;
+        &lt;filter-name&gt;myFilter&lt;/filter-name&gt;
+        &lt;filter-class&gt;org.springframework.web.filter.DelegatingFilterProxy&lt;/filter-class&gt;
+    &lt;/filter&gt;
 
-    <filter-mapping>
-      <filter-name>myFilter</filter-name>
-      <url-pattern>/*</url-pattern>
-    </filter-mapping>
-             ]]>
+    &lt;filter-mapping&gt;
+      &lt;filter-name&gt;myFilter&lt;/filter-name&gt;
+      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;/filter-mapping&gt;
+             
         </programlisting>     
        
         Notice that the filter  is actually a <literal>DelegatingFilterProxy</literal>, 
@@ -149,13 +145,13 @@
     The filter chain is then declared in the application context, using
     code such as this:</para>
 
-    <para><programlisting><![CDATA[ 
-<bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
-    <sec:filter-chain-map path-type="ant">
-        <sec:filter-chain pattern="/webServices/**" filters="httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
-        <sec:filter-chain pattern="/**" filters="httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
-    </sec:filter-chain-map>
-</bean> ]]>        </programlisting></para>
+    <para><programlisting> 
+&lt;bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy"&gt;
+    &lt;sec:filter-chain-map path-type="ant"&gt;
+        &lt;sec:filter-chain pattern="/webServices/**" filters="httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/&gt;
+        &lt;sec:filter-chain pattern="/**" filters="httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/&gt;
+    &lt;/sec:filter-chain-map&gt;
+&lt;/bean&gt;         </programlisting></para>
 
     <para>You may notice similarities with the way
     <literal>FilterSecurityInterceptor</literal> is declared. Both regular
@@ -228,7 +224,7 @@
     using, the order of the <literal>&lt;filter-mapping&gt;</literal>s
     should be as follows:</para>
 
-    <orderedlist>
+    <orderedlist inheritnum="ignore" continuation="restarts">
       <listitem>
         <para><literal>ChannelProcessingFilter</literal>, because it might
         need to redirect to a different protocol</para>
@@ -276,7 +272,7 @@
         <literal>SecurityContextHolder</literal>, and the request presents
         a cookie that enables remember-me services to take place, a
         suitable remembered
-        <literal><literal>Authentication</literal></literal> object will
+        <literal>Authentication</literal> object will
         be put there</para>
       </listitem>
 
@@ -312,5 +308,5 @@
     before the SiteMesh filters are called. This enables the
     <literal>SecurityContextHolder</literal> to be populated in time for
     use by SiteMesh decorators</para>
-  </sect1>
+  </section>
 </chapter>

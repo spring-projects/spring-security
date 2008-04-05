@@ -1,36 +1,33 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
-
-<chapter id="form">
-    <title>Form Authentication Mechanism</title>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="form"><info><title>Form Authentication Mechanism</title></info>
     
-    <sect1 id="form-overview">
-        <title>Overview</title>
+    
+    <section xml:id="form-overview">
+        <info><title>Overview</title></info>
+        
         
         <para>HTTP Form Authentication involves using the
             <literal>AuthenticationProcessingFilter</literal> to process a login
             form. This is the most common way that application authenticate end
             users. Form-based authentication is entirely compatible with the DAO
             and JAAS authentication providers.</para>
-    </sect1>
+    </section>
     
-    <sect1 id="form-config">
-        <title>Configuration</title>
+    <section xml:id="form-config"><info><title>Configuration</title></info>
+        
         
         <para>The login form simply contains <literal>j_username</literal> and
             <literal>j_password</literal> input fields, and posts to a URL that is
             monitored by the filter (by default
             <literal>j_spring_security_check</literal>). You should add an 
             <literal>AuthenticationProcessingFilter</literal> to you application context:
-            <programlisting><![CDATA[             
-    <bean id="authenticationProcessingFilter"
-            class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
-        <property name="authenticationManager" ref="authenticationManager"/>
-        <property name="authenticationFailureUrl" value="/acegilogin.jsp?login_error=1"/>
-        <property name="defaultTargetUrl" value="/"/>
-        <property name="filterProcessesUrl" value="/j_spring_security_check"/>
-    </bean> ]]>        
+            <programlisting>             
+    &lt;bean id="authenticationProcessingFilter"
+            class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter"&gt;
+        &lt;property name="authenticationManager" ref="authenticationManager"/&gt;
+        &lt;property name="authenticationFailureUrl" value="/acegilogin.jsp?login_error=1"/&gt;
+        &lt;property name="defaultTargetUrl" value="/"/&gt;
+        &lt;property name="filterProcessesUrl" value="/j_spring_security_check"/&gt;
+    &lt;/bean&gt;         
             </programlisting></para>
         
         <para>The configured <literal>AuthenticationManager</literal>
@@ -58,5 +55,5 @@
             If for some reason the <literal>HttpSession</literal> does not
             indicate the target URL, the browser will be redirected to the
             <literal>defaultTargetUrl</literal> property.</para>
-    </sect1>
+    </section>
 </chapter>

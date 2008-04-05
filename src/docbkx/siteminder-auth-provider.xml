@@ -1,12 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="siteminder"><info><title>Siteminder Authentication Mechanism</title></info>
 
-<chapter id="siteminder">
-<title>Siteminder Authentication Mechanism</title>
 
-<sect1 id="siteminder-overview">
-    <title>Overview</title>
+<section xml:id="siteminder-overview"><info><title>Overview</title></info>
+    
     
     <para>Siteminder is a commercial single sign on solution by Computer
         Associates.</para>
@@ -29,10 +25,10 @@
         identifies the authenticated principal (please refer to your
         organization's "single sign-on" group for header details in your
         particular configuration).</para>
-</sect1>
+</section>
 
-<sect1 id="siteminder-config">
-    <title>Configuration</title>
+<section xml:id="siteminder-config"><info><title>Configuration</title></info>
+    
     
     <para>The first step in setting up Spring Security's Siteminder
         support is to define the authentication mechanism that will inspect
@@ -80,5 +76,5 @@
         support form-based authentication in your development environment
         (where Siteminder is typically not installed), specify the form's
         username parameter as well. Just don't do this in production!</para>
-</sect1>
+</section>
 </chapter>

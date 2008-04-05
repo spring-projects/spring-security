@@ -1,12 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">  
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="remember-me"><info><title>Remember-Me Authentication</title></info>
 
-<chapter id="remember-me">
-<title>Remember-Me Authentication</title>
 
-<sect1 id="remember-me-overview">
-    <title>Overview</title>
+<section xml:id="remember-me-overview">
+    <info><title>Overview</title></info>
+    
     
     <para>Remember-me authentication refers to web sites being able to
         remember the identity of a principal between sessions. This is
@@ -16,10 +13,10 @@
         that such operations can take place, along with providing a concrete
         implementation that uses hashing to preserve the security of
         cookie-based tokens.</para>
-</sect1>
+</section>
 
-<sect1 id="remember-me-config">
-    <title>Configuration</title>
+<section xml:id="remember-me-config"><info><title>Configuration</title></info>
+    
     
     <para>Remember-me authentication is not used with basic
         authentication, given it is often not used with
@@ -117,5 +114,5 @@
         a call to <literal>RememberMeProcessingFilter</literal> into your
         <literal>FilterChainProxy</literal> (typically immediately after your
         <literal>AuthenticationProcessingFilter</literal>)</para>
-</sect1>
+</section>
 </chapter>

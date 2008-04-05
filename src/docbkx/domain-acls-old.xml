@@ -1,12 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-                         "http://www.docbook.org/xml/4.4/docbookx.dtd">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="domain-acls-old">
+  <info><title>Domain Object Security (old ACL module)</title></info>
+  
 
-<chapter id="domain-acls-old">
-  <title>Domain Object Security (old ACL module)</title>
-
-  <section id="domain-acls-overview-old">
-    <title>Overview</title>
+  <section xml:id="domain-acls-overview-old"><info><title>Overview</title></info>
+    
 
     <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
     ACL module. The new ACL module is a significant rewrite of the
@@ -35,7 +32,7 @@
     more interesting, your customers can allow other users to see their
     customer records, such as their "puppy preschool "mentor or president
     of their local "Pony Club". Using Spring Security as the foundation,
-    you have several approaches that can be used:<orderedlist>
+    you have several approaches that can be used:<orderedlist inheritnum="ignore" continuation="restarts">
         <listitem>
           <para>Write your business methods to enforce the security. You
           could consult a collection within the
@@ -95,8 +92,8 @@
     about below.</para>
   </section>
 
-  <section id="domain-acls-basic-old">
-    <title>Basic ACL Package</title>
+  <section xml:id="domain-acls-basic-old"><info><title>Basic ACL Package</title></info>
+    
 
     <para>Please note that our Basic ACL services are currently being
     refactored. We expect release 1.1.0 will contain this new code.
@@ -112,8 +109,7 @@
 
     <para><mediaobject>
         <imageobject role="html">
-          <imagedata align="center" fileref="images/ACLSecurity.gif"
-                     format="GIF" />
+          <imagedata align="center" fileref="images/ACLSecurity.gif" format="GIF"/>
         </imageobject>
 
         <caption>
@@ -171,8 +167,7 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
 
     <para><mediaobject>
         <imageobject role="html">
-          <imagedata align="center" fileref="images/BasicAclProvider.gif"
-                     format="GIF" />
+          <imagedata align="center" fileref="images/BasicAclProvider.gif" format="GIF"/>
         </imageobject>
 
         <caption>
@@ -463,8 +458,7 @@ END;
 
     <mediaobject>
       <imageobject role="html">
-        <imagedata align="center" fileref="images/Permissions.gif"
-                   format="GIF" />
+        <imagedata align="center" fileref="images/Permissions.gif" format="GIF"/>
       </imageobject>
 
       <caption>

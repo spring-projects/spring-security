@@ -1,16 +1,17 @@
-<chapter id="taglib">    
-    <title>Tag Libraries</title>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="taglib">
+    <info><title>Tag Libraries</title></info>    
     
-    <sect1 id="taglib-overview">
-        <title>Overview</title>
+    
+    <section xml:id="taglib-overview"><info><title>Overview</title></info>
+        
         
         <para>Spring Security comes bundled with several JSP tag libraries
             that eases JSP writing. The tag libraries provide a range of different
             services.</para>
-    </sect1>
+    </section>
     
-    <sect1 id="taglib-config">
-        <title>Configuration</title>
+    <section xml:id="taglib-config"><info><title>Configuration</title></info>
+        
         
         <para>All taglib classes are included in the core
             <literal>spring-security-xx.jar</literal> file, with the
@@ -28,10 +29,10 @@
             &lt;taglib-uri&gt;http://www.springframework.org/security/tags&lt;/taglib-uri&gt;
             &lt;taglib-location&gt;/WEB-INF/security.tld&lt;/taglib-location&gt;
             &lt;/taglib&gt;       </programlisting></para>
-    </sect1>
+    </section>
     
-    <sect1 id="taglib-usage">
-        <title>Usage</title>
+    <section xml:id="taglib-usage"><info><title>Usage</title></info>
+        
         
         <para>Now that you've configured the tag libraries, refer to the
             individual reference guide sections for details on how to use them.
@@ -40,5 +41,5 @@
                 &lt;%@ taglib prefix='security' uri='http://www.springframework.org/security/tags' %&gt;
                 
             </programlisting></para>
-    </sect1>
+    </section>
 </chapter>

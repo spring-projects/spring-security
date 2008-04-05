@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-        "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<book xmlns:xi="http://www.w3.org/2001/XInclude">
-  <bookinfo>
-    <title>Spring Security</title>
+<book version="5.0" xml:id="spring-security-reference-guide" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink" 
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+    
+    <info>
+        <title>Spring Security</title>
+        
+        <subtitle>Reference Documentation</subtitle>
+        
+        <author>
+            <personname>Ben Alex</personname>
+        </author>
+                
+        <releaseinfo>2.0-SNAPSHOT</releaseinfo>
+        
+    </info>
+    
+  <toc/>
 
-    <subtitle>Reference Documentation</subtitle>
-
-    <releaseinfo>2.0-SNAPSHOT</releaseinfo>
-
-    <authorgroup>
-      <author>
-        <firstname>Ben</firstname>
-        <surname>Alex</surname>
-      </author>
-    </authorgroup>
-  </bookinfo>
-
-  <toc></toc>
-
-  <preface id="preface">
+  <preface xml:id="preface">
     <title>Preface</title>
 
     <para>Spring Security provides a comprehensive security solution for
@@ -76,13 +75,13 @@
     basis.</para>
 
     <para>We hope that you find this reference guide useful, and we welcome
-    your feedback and <link linkend="jira">suggestions</link>.</para>
+      your feedback and <link xlink:href="#jira">suggestions</link>.</para>
 
-    <para>Finally, welcome to the Spring Security <link linkend="community" >community</link>.
+    <para>Finally, welcome to the Spring Security <link xlink:href="#community" >community</link>.
     </para>
   </preface>
 
-  <part id="overall-architecture">
+  <part xml:id="overall-architecture">
     <title>Overall Architecture</title>
 
     <partintro>
@@ -103,10 +102,9 @@
     <xi:include href="channel-security.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
     
     <xi:include href="taglibs.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
- 
   </part>
 
-  <part id="authentication">
+  <part xml:id="authentication">
     <title>Authentication</title>
 
     <partintro>
@@ -122,8 +120,6 @@
     <xi:include href="dao-auth-provider.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>    
 
     <xi:include href="jaas-auth-provider.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
-    
-    <xi:include href="siteminder-auth-provider.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
     <xi:include href="runas-auth-provider.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
     
@@ -147,7 +143,7 @@
 
   </part>
 
-  <part id="authorization">
+  <part xml:id="authorization">
     <title>Authorization</title>
 
     <partintro>
@@ -175,7 +171,7 @@
     
   </part>
 
-  <part id="resources">
+  <part xml:id="resources">
     <title>Other Resources</title>
 
     <partintro>
