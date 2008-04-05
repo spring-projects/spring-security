@@ -81,7 +81,7 @@ public class JdbcAclService implements AclService {
                     public Object mapRow(ResultSet rs, int rowNum)
                         throws SQLException {
                         String javaType = rs.getString("class");
-                        Long identifier = rs.getLong("obj_id");
+                        Long identifier = new Long(rs.getLong("obj_id"));
 
                         return new ObjectIdentityImpl(javaType, identifier);
                     }
