@@ -17,6 +17,7 @@ package org.springframework.security.acls.objectidentity;
 import org.springframework.security.acls.IdentityUnavailableException;
 
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.io.Serializable;
@@ -75,7 +76,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
     public ObjectIdentityImpl(Object object) throws IdentityUnavailableException {
         Assert.notNull(object, "object cannot be null");
 
-        this.javaType = object.getClass();
+        this.javaType = ClassUtils.getUserClass(object.getClass());
 
         Object result;
 
