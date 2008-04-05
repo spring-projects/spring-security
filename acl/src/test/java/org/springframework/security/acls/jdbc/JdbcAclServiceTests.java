@@ -20,6 +20,7 @@ import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.acls.AccessControlEntry;
+import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AlreadyExistsException;
 import org.springframework.security.acls.ChildrenExistException;
 import org.springframework.security.acls.MutableAcl;
@@ -225,11 +226,15 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
     /**
      * Test method that demonstrates eviction failure from cache - SEC-676
      */
-/*    public void testDeleteAclAlsoDeletesChildren() throws Exception {
+    public void testDeleteAclAlsoDeletesChildren() throws Exception {
         ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
         ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
         ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
 
+        // Check the childOid really is a child of middleParentOid
+        Acl childAcl = jdbcMutableAclService.readAclById(childOid);
+        assertEquals(middleParentOid, childAcl.getParentAcl().getObjectIdentity());
+        
         // Delete the mid-parent and test if the child was deleted, as well
         jdbcMutableAclService.deleteAcl(middleParentOid, true);
         
@@ -251,7 +256,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         Acl acl = jdbcMutableAclService.readAclById(topParentOid);
         assertNotNull(acl);
         assertEquals(((MutableAcl) acl).getObjectIdentity(), topParentOid);
-    }*/
+    }
     
     public void testConstructorRejectsNullParameters() throws Exception {
         try {

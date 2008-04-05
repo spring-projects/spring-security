@@ -81,13 +81,13 @@ public class JdbcAclService implements AclService {
                     public Object mapRow(ResultSet rs, int rowNum)
                         throws SQLException {
                         String javaType = rs.getString("class");
-                        String identifier = rs.getString("obj_id");
+                        Long identifier = rs.getLong("obj_id");
 
                         return new ObjectIdentityImpl(javaType, identifier);
                     }
                 });
 
-        return (ObjectIdentityImpl[]) objects.toArray(new ObjectIdentityImpl[] {});
+        return (ObjectIdentityImpl[]) objects.toArray(new ObjectIdentityImpl[objects.size()]);
     }
 
     public Acl readAclById(ObjectIdentity object, Sid[] sids) throws NotFoundException {
