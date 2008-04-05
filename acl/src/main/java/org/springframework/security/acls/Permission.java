@@ -14,13 +14,15 @@
  */
 package org.springframework.security.acls;
 
+import java.io.Serializable;
+
 /**
  * Represents a permission granted to a {@link org.springframework.security.acls.sid.Sid Sid} for a given domain object.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public interface Permission {
+public interface Permission extends Serializable {
     //~ Static fields/initializers =====================================================================================
 
     char RESERVED_ON = '~';

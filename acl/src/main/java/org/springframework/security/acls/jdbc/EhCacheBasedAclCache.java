@@ -14,20 +14,28 @@
  */
 package org.springframework.security.acls.jdbc;
 
+import java.io.Serializable;
+
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 
 import org.springframework.security.acls.MutableAcl;
+import org.springframework.security.acls.domain.AclAuthorizationStrategy;
+import org.springframework.security.acls.domain.AclImpl;
+import org.springframework.security.acls.domain.AuditLogger;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
-
+import org.springframework.security.util.FieldUtils;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
 
 
 /**
  * Simple implementation of {@link AclCache} that delegates to EH-CACHE.
+ * 
+ * <p>
+ * Designed to handle the transient fields in {@link AclImpl}. Note that this implementation assumes all
+ * {@link AclImpl} instances share the same {@link AuditLogger} and {@link AclAuthorizationStrategy} instance.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -36,6 +44,8 @@ public class EhCacheBasedAclCache implements AclCache {
     //~ Instance fields ================================================================================================
 
     private Ehcache cache;
+    private AuditLogger auditLogger;
+    private AclAuthorizationStrategy aclAuthorizationStrategy;
 
     //~ Constructors ===================================================================================================
 
@@ -81,10 +91,10 @@ public class EhCacheBasedAclCache implements AclCache {
             return null;
         }
 
-        return (MutableAcl) element.getValue();
+        return initializeTransientFields((MutableAcl)element.getValue());
     }
 
-    public MutableAcl getFromCache(Serializable pk) {
+	public MutableAcl getFromCache(Serializable pk) {
         Assert.notNull(pk, "Primary key (identifier) required");
 
         Element element = null;
@@ -97,7 +107,7 @@ public class EhCacheBasedAclCache implements AclCache {
             return null;
         }
 
-        return (MutableAcl) element.getValue();
+        return initializeTransientFields((MutableAcl) element.getValue());
     }
 
     public void putInCache(MutableAcl acl) {
@@ -105,6 +115,13 @@ public class EhCacheBasedAclCache implements AclCache {
         Assert.notNull(acl.getObjectIdentity(), "ObjectIdentity required");
         Assert.notNull(acl.getId(), "ID required");
 
+        if (this.aclAuthorizationStrategy == null) {
+            if (acl instanceof AclImpl) {
+            	this.aclAuthorizationStrategy = (AclAuthorizationStrategy) FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy", acl);
+            	this.auditLogger = (AuditLogger) FieldUtils.getProtectedFieldValue("auditLogger", acl);
+            }
+        }
+        
         if ((acl.getParentAcl() != null) && (acl.getParentAcl() instanceof MutableAcl)) {
             putInCache((MutableAcl) acl.getParentAcl());
         }
@@ -112,4 +129,12 @@ public class EhCacheBasedAclCache implements AclCache {
         cache.put(new Element(acl.getObjectIdentity(), acl));
         cache.put(new Element(acl.getId(), acl));
     }
+
+    private MutableAcl initializeTransientFields(MutableAcl value) {
+    	if (value instanceof AclImpl) {
+    		FieldUtils.setProtectedFieldValue("aclAuthorizationStrategy", value, this.aclAuthorizationStrategy);
+    		FieldUtils.setProtectedFieldValue("auditLogger", value, this.auditLogger);
+    	}
+    	return value;
+	}
 }

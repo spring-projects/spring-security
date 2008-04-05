@@ -216,7 +216,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
 		// access
 		MutableAcl parentAcl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
 		parentAcl.insertAce(null, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
-		MutableAcl childAcl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
+		MutableAcl childAcl = new AclImpl(identity, new Long(2), aclAuthorizationStrategy, new ConsoleAuditLogger());
 
 		// Check against the 'child' acl, which doesn't offer any authorization
 		// rights on CHANGE_OWNERSHIP

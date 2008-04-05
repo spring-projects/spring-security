@@ -67,12 +67,50 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
 
         AccessControlEntryImpl rhs = (AccessControlEntryImpl) arg0;
 
-        if (this.acl == null && rhs.getAcl() != null) {
-        	return false;
+        if (this.acl == null) {
+        	if (rhs.getAcl() != null) {
+        		return false;
+        	}
+        	// Both this.acl and rhs.acl are null and thus equal
+        } else {
+        	// this.acl is non-null
+        	if (rhs.getAcl() == null) {
+        		return false;
+        	}
+        	
+        	// Both this.acl and rhs.acl are non-null, so do a comparison
+        	if (this.acl.getObjectIdentity() == null) {
+        		if (rhs.acl.getObjectIdentity() != null) {
+        			return false;
+        		}
+        		// Both this.acl and rhs.acl are null and thus equal
+        	} else {
+        		// Both this.acl.objectIdentity and rhs.acl.objectIdentity are non-null
+            	if (!this.acl.getObjectIdentity().equals(rhs.getAcl().getObjectIdentity())) {
+            		return false;
+            	}
+        	}
+        }
+        
+        if (this.id == null) {
+        	if (rhs.id != null) {
+        		return false;
+        	}
+        	// Both this.id and rhs.id are null and thus equal
+        } else {
+        	// this.id is non-null
+        	if (rhs.id == null) {
+        		return false;
+        	}
+
+        	// Both this.id and rhs.id are non-null
+        	if (!this.id.equals(rhs.id)) {
+        		return false;
+        	}
         }
         
         if ((this.auditFailure != rhs.isAuditFailure()) || (this.auditSuccess != rhs.isAuditSuccess())
-            || (this.granting != rhs.isGranting()) || !this.acl.equals(rhs.getAcl()) || !this.id.equals(rhs.getId())
+            || (this.granting != rhs.isGranting())
             || !this.permission.equals(rhs.getPermission()) || !this.sid.equals(rhs.getSid())) {
             return false;
         }

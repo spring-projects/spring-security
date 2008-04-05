@@ -14,6 +14,8 @@
  */
 package org.springframework.security.acls.sid;
 
+import java.io.Serializable;
+
 /**
  * A security identity recognised by the ACL system.
  *
@@ -29,7 +31,7 @@ package org.springframework.security.acls.sid;
  * @author Ben Alex
  * @version $Id$
  */
-public interface Sid {
+public interface Sid extends Serializable {
     //~ Methods ========================================================================================================
 
     /**

@@ -31,7 +31,7 @@ import java.io.Serializable;
  * @version $Id$
  *
  */
-public interface AccessControlEntry {
+public interface AccessControlEntry extends Serializable {
     //~ Methods ========================================================================================================
 
     Acl getAcl();

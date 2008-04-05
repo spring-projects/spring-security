@@ -1,11 +1,25 @@
 package org.springframework.security.acls.jdbc;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -18,12 +32,7 @@ import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
-
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
-import org.junit.After;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.springframework.security.util.FieldUtils;
 
 /**
  * Tests {@link EhCacheBasedAclCache}
@@ -38,7 +47,8 @@ public class EhCacheBasedAclCacheTests {
     @BeforeClass
     public static void initCacheManaer() {
         cacheManager = new CacheManager();
-        cacheManager.addCache(new Cache("ehcachebasedacltests", 500, false, false, 30, 30));
+        // Use disk caching immediately (to test for serialization issue reported in SEC-527)
+        cacheManager.addCache(new Cache("ehcachebasedacltests", 0, true, false, 30, 30));
     }
 
     @AfterClass
@@ -115,6 +125,36 @@ public class EhCacheBasedAclCacheTests {
             assertTrue(true);
         }
     }
+    
+    // SEC-527
+    @Test
+    public void testDiskSerializationOfMutableAclObjectInstance() throws Exception {
+        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
+                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
+                new GrantedAuthorityImpl("ROLE_GENERAL") });
+        MutableAcl acl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
+
+        // Serialization test
+        File file = File.createTempFile("SEC_TEST", ".object");
+        FileOutputStream fos = new FileOutputStream(file);
+    	ObjectOutputStream oos = new ObjectOutputStream(fos);
+    	oos.writeObject(acl);
+    	oos.close();
+        
+    	FileInputStream fis = new FileInputStream(file);
+    	ObjectInputStream ois = new ObjectInputStream(fis);
+    	MutableAcl retrieved = (MutableAcl) ois.readObject();
+    	ois.close();
+    	
+        assertEquals(acl, retrieved);
+        
+        Object retrieved1 = FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy", retrieved);
+        assertEquals(null, retrieved1);
+        
+        Object retrieved2 = FieldUtils.getProtectedFieldValue("auditLogger", retrieved);
+        assertEquals(null, retrieved2);
+    }
 
     @Test
     public void cacheOperationsAclWithoutParent() throws Exception {
@@ -127,9 +167,13 @@ public class EhCacheBasedAclCacheTests {
                 new GrantedAuthorityImpl("ROLE_GENERAL") });
         MutableAcl acl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
 
+        assertEquals(0, cache.getDiskStoreSize());
         myCache.putInCache(acl);
         assertEquals(cache.getSize(), 2);
-
+        assertEquals(2, cache.getDiskStoreSize());
+        assertTrue(cache.isElementOnDisk(acl.getObjectIdentity()));
+        assertFalse(cache.isElementInMemory(acl.getObjectIdentity()));
+        
         // Check we can get from cache the same objects we put in
         assertEquals(myCache.getFromCache(new Long(1)), acl);
         assertEquals(myCache.getFromCache(identity), acl);
@@ -140,14 +184,17 @@ public class EhCacheBasedAclCacheTests {
 
         myCache.putInCache(acl2);
         assertEquals(cache.getSize(), 4);
+        assertEquals(4, cache.getDiskStoreSize());
 
         // Try to evict an entry that doesn't exist
         myCache.evictFromCache(new Long(3));
         myCache.evictFromCache(new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102)));
         assertEquals(cache.getSize(), 4);
+        assertEquals(4, cache.getDiskStoreSize());
 
         myCache.evictFromCache(new Long(1));
         assertEquals(cache.getSize(), 2);
+        assertEquals(2, cache.getDiskStoreSize());
 
         // Check the second object inserted
         assertEquals(myCache.getFromCache(new Long(2)), acl2);
@@ -177,8 +224,12 @@ public class EhCacheBasedAclCacheTests {
         
         acl.setParent(parentAcl);
 
+        assertEquals(0, cache.getDiskStoreSize());
         myCache.putInCache(acl);
         assertEquals(cache.getSize(), 4);
+        assertEquals(4, cache.getDiskStoreSize());
+        assertTrue(cache.isElementOnDisk(acl.getObjectIdentity()));
+        assertFalse(cache.isElementInMemory(acl.getObjectIdentity()));
 
         // Check we can get from cache the same objects we put in
         assertEquals(myCache.getFromCache(new Long(1)), acl);

@@ -86,8 +86,6 @@ public class AccessControlEntryTests extends TestCase {
 				BasePermission.ADMINISTRATION, true, true, true)));
 		Assert.assertFalse(ace.equals(new AccessControlEntryImpl(new Long(2), mockAcl, sid,
 				BasePermission.ADMINISTRATION, true, true, true)));
-		Assert.assertFalse(ace.equals(new AccessControlEntryImpl(new Long(1), new MockAcl(), sid,
-				BasePermission.ADMINISTRATION, true, true, true)));
 		Assert.assertFalse(ace.equals(new AccessControlEntryImpl(new Long(1), mockAcl, new PrincipalSid("scott"),
 				BasePermission.ADMINISTRATION, true, true, true)));
 		Assert.assertFalse(ace.equals(new AccessControlEntryImpl(new Long(1), mockAcl, sid, BasePermission.WRITE, true,

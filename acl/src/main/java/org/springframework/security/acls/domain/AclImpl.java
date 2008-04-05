@@ -14,6 +14,11 @@
  */
 package org.springframework.security.acls.domain;
 
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+
 import org.springframework.security.acls.AccessControlEntry;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AuditableAcl;
@@ -24,14 +29,7 @@ import org.springframework.security.acls.Permission;
 import org.springframework.security.acls.UnloadedSidException;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.sid.Sid;
-
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
 
 
 /**
@@ -42,10 +40,10 @@ import java.util.Vector;
  */
 public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
     //~ Instance fields ================================================================================================
-
+	
     private Acl parentAcl;
-    private AclAuthorizationStrategy aclAuthorizationStrategy;
-    private AuditLogger auditLogger;
+    private transient AclAuthorizationStrategy aclAuthorizationStrategy;
+    private transient AuditLogger auditLogger;
     private List aces = new Vector();
     private ObjectIdentity objectIdentity;
     private Serializable id;
@@ -368,6 +366,8 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
         sb.append("inheriting: ").append(this.entriesInheriting).append("; ");
         sb.append("parent: ").append((this.parentAcl == null) ? "Null" : this.parentAcl.getObjectIdentity().toString());
+        sb.append("aclAuthorizationStrategy: ").append(this.aclAuthorizationStrategy).append("; ");
+        sb.append("auditLogger: ").append(this.auditLogger);
         sb.append("]");
 
         return sb.toString();
@@ -404,4 +404,36 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
             ace.setAuditFailure(auditFailure);
         }
     }
+    
+	public boolean equals(Object obj) {
+		if (obj instanceof AclImpl) {
+			
+			AclImpl rhs = (AclImpl) obj;
+			if (this.aces.equals(rhs.aces)) {
+				if ((this.parentAcl == null && rhs.parentAcl == null) || (this.parentAcl.equals(rhs.parentAcl))) {
+					if ((this.objectIdentity == null && rhs.objectIdentity == null) || (this.objectIdentity.equals(rhs.objectIdentity))) {
+						if ((this.id == null && rhs.id == null) || (this.id.equals(rhs.id))) {
+							if ((this.owner == null && rhs.owner == null) || this.owner.equals(rhs.owner)) {
+								if (this.entriesInheriting == rhs.entriesInheriting) {
+									if ((this.loadedSids == null && rhs.loadedSids == null)) {
+										return true;
+									}
+									if (this.loadedSids.length == rhs.loadedSids.length) {
+										for (int i = 0; i < this.loadedSids.length; i++) {
+											if (!this.loadedSids[i].equals(rhs.loadedSids[i])) {
+												return false;
+											}
+										}
+										return true;
+									}
+								}								
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+    
 }
