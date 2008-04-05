@@ -144,7 +144,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(this.getClass().getName()).append("[");
-        sb.append("Java Type: ").append(this.javaType);
+        sb.append("Java Type: ").append(this.javaType.getName());
         sb.append("; Identifier: ").append(this.identifier).append("]");
 
         return sb.toString();
