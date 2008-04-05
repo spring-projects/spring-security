@@ -54,7 +54,7 @@ public class SecureDocumentDaoImpl extends DocumentDaoImpl implements SecureDocu
             MutableAcl aclParent = (MutableAcl) mutableAclService.readAclById(parentIdentity);
             acl.setParent(aclParent);
         }
-        acl.insertAce(null, BasePermission.ADMINISTRATION, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication()), true);
+        acl.insertAce(acl.getEntries().length, BasePermission.ADMINISTRATION, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication()), true);
 
         mutableAclService.updateAcl(acl);
     }

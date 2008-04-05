@@ -14,7 +14,6 @@
  */
 package org.springframework.security.acls;
 
-import java.io.Serializable;
 
 
 /**
@@ -27,5 +26,5 @@ import java.io.Serializable;
 public interface AuditableAcl extends MutableAcl {
     //~ Methods ========================================================================================================
 
-    void updateAuditing(Serializable aceId, boolean auditSuccess, boolean auditFailure);
+    void updateAuditing(int aceIndex, boolean auditSuccess, boolean auditFailure);
 }

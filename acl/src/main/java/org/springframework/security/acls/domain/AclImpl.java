@@ -114,34 +114,22 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
     //~ Methods ========================================================================================================
 
-    public void deleteAce(Serializable aceId) throws NotFoundException {
-        aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
-
-        synchronized (aces) {
-            int offset = findAceOffset(aceId);
-
-            if (offset == -1) {
-                throw new NotFoundException("Requested ACE ID not found");
-            }
-
-            this.aces.remove(offset);
+    private void verifyAceIndexExists(int aceIndex) {
+        if (aceIndex < 0) {
+        	throw new NotFoundException("aceIndex must be greater than or equal to zero");
+        }
+        if (aceIndex > this.aces.size()) {
+        	throw new NotFoundException("aceIndex must correctly refer to an index of the AccessControlEntry collection");
         }
     }
-
-    private int findAceOffset(Serializable aceId) {
-        Assert.notNull(aceId, "ACE ID is required");
-
+    
+    public void deleteAce(int aceIndex) throws NotFoundException {
+        aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
+        verifyAceIndexExists(aceIndex);
+        
         synchronized (aces) {
-            for (int i = 0; i < aces.size(); i++) {
-                AccessControlEntry ace = (AccessControlEntry) aces.get(i);
-
-                if (ace.getId().equals(aceId)) {
-                    return i;
-                }
-            }
+            this.aces.remove(aceIndex);
         }
-
-        return -1;
     }
 
     public AccessControlEntry[] getEntries() {
@@ -165,26 +153,22 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         return parentAcl;
     }
 
-    public void insertAce(Serializable afterAceId, Permission permission, Sid sid, boolean granting)
+    public void insertAce(int atIndexLocation, Permission permission, Sid sid, boolean granting)
         throws NotFoundException {
         aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
         Assert.notNull(permission, "Permission required");
         Assert.notNull(sid, "Sid required");
+        if (atIndexLocation < 0) {
+        	throw new NotFoundException("atIndexLocation must be greater than or equal to zero");
+        }
+        if (atIndexLocation > this.aces.size()) {
+        	throw new NotFoundException("atIndexLocation must be less than or equal to the size of the AccessControlEntry collection");
+        }
 
         AccessControlEntryImpl ace = new AccessControlEntryImpl(null, this, sid, permission, granting, false, false);
 
         synchronized (aces) {
-            if (afterAceId != null) {
-                int offset = findAceOffset(afterAceId);
-
-                if (offset == -1) {
-                    throw new NotFoundException("Requested ACE ID not found");
-                }
-
-                this.aces.add(offset + 1, ace);
-            } else {
-                this.aces.add(ace);
-            }
+            this.aces.add(atIndexLocation, ace);
         }
     }
 
@@ -372,33 +356,23 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         return sb.toString();
     }
 
-    public void updateAce(Serializable aceId, Permission permission)
+    public void updateAce(int aceIndex, Permission permission)
         throws NotFoundException {
         aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
-
+        verifyAceIndexExists(aceIndex);
+        
         synchronized (aces) {
-            int offset = findAceOffset(aceId);
-
-            if (offset == -1) {
-                throw new NotFoundException("Requested ACE ID not found");
-            }
-
-            AccessControlEntryImpl ace = (AccessControlEntryImpl) aces.get(offset);
+            AccessControlEntryImpl ace = (AccessControlEntryImpl) aces.get(aceIndex);
             ace.setPermission(permission);
         }
     }
 
-    public void updateAuditing(Serializable aceId, boolean auditSuccess, boolean auditFailure) {
+    public void updateAuditing(int aceIndex, boolean auditSuccess, boolean auditFailure) {
         aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_AUDITING);
-
+        verifyAceIndexExists(aceIndex);
+        
         synchronized (aces) {
-            int offset = findAceOffset(aceId);
-
-            if (offset == -1) {
-                throw new NotFoundException("Requested ACE ID not found");
-            }
-
-            AccessControlEntryImpl ace = (AccessControlEntryImpl) aces.get(offset);
+            AccessControlEntryImpl ace = (AccessControlEntryImpl) aces.get(aceIndex);
             ace.setAuditSuccess(auditSuccess);
             ace.setAuditFailure(auditFailure);
         }
@@ -406,7 +380,6 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
     
 	public boolean equals(Object obj) {
 		if (obj instanceof AclImpl) {
-			
 			AclImpl rhs = (AclImpl) obj;
 			if (this.aces.equals(rhs.aces)) {
 				if ((this.parentAcl == null && rhs.parentAcl == null) || (this.parentAcl.equals(rhs.parentAcl))) {

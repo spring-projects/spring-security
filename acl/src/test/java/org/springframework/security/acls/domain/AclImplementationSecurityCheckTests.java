@@ -114,7 +114,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
 		// Let's give the principal the ADMINISTRATION permission, without
 		// granting access
 		MutableAcl aclFirstDeny = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
-		aclFirstDeny.insertAce(null, BasePermission.ADMINISTRATION, new PrincipalSid(auth), false);
+		aclFirstDeny.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth), false);
 
 		// The CHANGE_GENERAL test should pass as the principal has ROLE_GENERAL
 		try {
@@ -143,7 +143,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
 		}
 
 		// Add granting access to this principal
-		aclFirstDeny.insertAce(null, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
+		aclFirstDeny.insertAce(1, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
 		// and try again for CHANGE_AUDITING - the first ACE's granting flag
 		// (false) will deny this access
 		try {
@@ -158,7 +158,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
 		// permission, with granting access
 		MutableAcl aclFirstAllow = new AclImpl(identity, new Long(1), aclAuthorizationStrategy,
 				new ConsoleAuditLogger());
-		aclFirstAllow.insertAce(null, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
+		aclFirstAllow.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
 
 		// The CHANGE_AUDITING test should pass as there is one ACE with
 		// granting access
@@ -171,7 +171,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
 		}
 
 		// Add a deny ACE and test again for CHANGE_AUDITING
-		aclFirstAllow.insertAce(null, BasePermission.ADMINISTRATION, new PrincipalSid(auth), false);
+		aclFirstAllow.insertAce(1, BasePermission.ADMINISTRATION, new PrincipalSid(auth), false);
 		try {
 			aclAuthorizationStrategy.securityCheck(aclFirstAllow, AclAuthorizationStrategy.CHANGE_AUDITING);
 			Assert.assertTrue(true);
@@ -215,7 +215,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
 		// Let's give the principal an ADMINISTRATION permission, with granting
 		// access
 		MutableAcl parentAcl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
-		parentAcl.insertAce(null, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
+		parentAcl.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
 		MutableAcl childAcl = new AclImpl(identity, new Long(2), aclAuthorizationStrategy, new ConsoleAuditLogger());
 
 		// Check against the 'child' acl, which doesn't offer any authorization
@@ -244,7 +244,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
 		MutableAcl rootParentAcl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy,
 				new ConsoleAuditLogger());
 		parentAcl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
-		rootParentAcl.insertAce(null, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
+		rootParentAcl.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
 		parentAcl.setEntriesInheriting(true);
 		parentAcl.setParent(rootParentAcl);
 		childAcl.setParent(parentAcl);

@@ -14,9 +14,9 @@
  */
 package org.springframework.security.acls;
 
-import org.springframework.security.acls.sid.Sid;
-
 import java.io.Serializable;
+
+import org.springframework.security.acls.sid.Sid;
 
 
 /**
@@ -33,18 +33,7 @@ import java.io.Serializable;
 public interface MutableAcl extends Acl {
     //~ Methods ========================================================================================================
 
-    void deleteAce(Serializable aceId) throws NotFoundException;
-
-    /**
-     * Retrieves all of the non-deleted {@link AccessControlEntry} instances currently stored by the
-     * <tt>MutableAcl</tt>. The returned objects should be immutable outside the package, and therefore it is safe
-     * to return them to the caller for informational purposes. The <tt>AccessControlEntry</tt> information is
-     * needed so that invocations of update and delete methods on the <tt>MutableAcl</tt> can refer to a valid
-     * {@link AccessControlEntry#getId()}.
-     *
-     * @return DOCUMENT ME!
-     */
-    AccessControlEntry[] getEntries();
+    void deleteAce(int aceIndex) throws NotFoundException;
 
     /**
      * Obtains an identifier that represents this <tt>MutableAcl</tt>.
@@ -53,7 +42,7 @@ public interface MutableAcl extends Acl {
      */
     Serializable getId();
 
-    void insertAce(Serializable afterAceId, Permission permission, Sid sid, boolean granting)
+    void insertAce(int atIndexLocation, Permission permission, Sid sid, boolean granting)
         throws NotFoundException;
 
     /**
@@ -77,6 +66,6 @@ public interface MutableAcl extends Acl {
      */
     void setParent(Acl newParent);
 
-    void updateAce(Serializable aceId, Permission permission)
+    void updateAce(int aceIndex, Permission permission)
         throws NotFoundException;
 }

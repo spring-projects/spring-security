@@ -66,7 +66,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
             acl = mutableAclService.createAcl(oid);
         }
 
-        acl.insertAce(null, permission, recipient, true);
+        acl.insertAce(acl.getEntries().length, permission, recipient, true);
         mutableAclService.updateAcl(acl);
 
         if (logger.isDebugEnabled()) {
@@ -113,7 +113,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
 
         for (int i = 0; i < entries.length; i++) {
             if (entries[i].getSid().equals(recipient) && entries[i].getPermission().equals(permission)) {
-                acl.deleteAce(entries[i].getId());
+                acl.deleteAce(i);
             }
         }
 

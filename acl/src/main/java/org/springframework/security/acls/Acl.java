@@ -32,10 +32,11 @@ import java.io.Serializable;
  * </p>
  *
  * <p>
- * TODO: Clarify this paragraph
- * An implementation represents the {@link org.springframework.security.acls.Permission}
- * list applicable for some or all {@link org.springframework.security.acls.sid.Sid}
- * instances.
+ * Implementing classes may elect to return instances that represent 
+ * {@link org.springframework.security.acls.Permission} information for either
+ * some OR all {@link org.springframework.security.acls.sid.Sid}
+ * instances. Therefore, an instance may NOT necessarily contain ALL <tt>Sid</tt>s
+ * for a given domain object.
  * </p>
  *
  * @author Ben Alex
@@ -49,9 +50,9 @@ public interface Acl extends Serializable {
      * 
      * <p>This method is typically used for administrative purposes.</p>
      * 
-     * <p>The order that entries appear in the array is unspecified. However, if implementations use
-     * particular ordering logic in authorization decisions, the entries returned by this method 
-     * <em>MUST</em> be ordered in that manner.</p>
+     * <p>The order that entries appear in the array is important for methods declared in the
+     * {@link MutableAcl} interface. Furthermore, some implementations MAY use ordering as
+     * part of advanced permission checking.</p>
      * 
      * <p>Do <em>NOT</em> use this method for making authorization decisions. Instead use {@link
      * #isGranted(Permission[], Sid[], boolean)}.</p>

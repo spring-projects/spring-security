@@ -108,10 +108,10 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         child.setParent(middleParent);
 
         // Now let's add a couple of permissions
-        topParent.insertAce(null, BasePermission.READ, new PrincipalSid(auth), true);
-        topParent.insertAce(null, BasePermission.WRITE, new PrincipalSid(auth), false);
-        middleParent.insertAce(null, BasePermission.DELETE, new PrincipalSid(auth), true);
-        child.insertAce(null, BasePermission.DELETE, new PrincipalSid(auth), false);
+        topParent.insertAce(0, BasePermission.READ, new PrincipalSid(auth), true);
+        topParent.insertAce(1, BasePermission.WRITE, new PrincipalSid(auth), false);
+        middleParent.insertAce(0, BasePermission.DELETE, new PrincipalSid(auth), true);
+        child.insertAce(0, BasePermission.DELETE, new PrincipalSid(auth), false);
 
         // Explictly save the changed ACL
         jdbcMutableAclService.updateAcl(topParent);
@@ -144,10 +144,8 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
 
         // Check the retrieved rights are correct
         assertTrue(topParent.isGranted(new Permission[] {BasePermission.READ}, new Sid[] {new PrincipalSid(auth)}, false));
-        assertFalse(topParent.isGranted(new Permission[] {BasePermission.WRITE}, new Sid[] {new PrincipalSid(auth)},
-                false));
-        assertTrue(middleParent.isGranted(new Permission[] {BasePermission.DELETE}, new Sid[] {new PrincipalSid(auth)},
-                false));
+        assertFalse(topParent.isGranted(new Permission[] {BasePermission.WRITE}, new Sid[] {new PrincipalSid(auth)}, false));
+        assertTrue(middleParent.isGranted(new Permission[] {BasePermission.DELETE}, new Sid[] {new PrincipalSid(auth)}, false));
         assertFalse(child.isGranted(new Permission[] {BasePermission.DELETE}, new Sid[] {new PrincipalSid(auth)}, false));
 
         try {
@@ -186,10 +184,10 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         }
 
         // Let's add an identical permission to the child, but it'll appear AFTER the current permission, so has no impact
-        child.insertAce(null, BasePermission.DELETE, new PrincipalSid(auth), true);
+        child.insertAce(1, BasePermission.DELETE, new PrincipalSid(auth), true);
 
         // Let's also add another permission to the child
-        child.insertAce(null, BasePermission.CREATE, new PrincipalSid(auth), true);
+        child.insertAce(2, BasePermission.CREATE, new PrincipalSid(auth), true);
 
         // Save the changed child
         jdbcMutableAclService.updateAcl(child);
@@ -213,7 +211,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         assertNotNull(entry.getId());
 
         // Now delete that first ACE
-        child.deleteAce(entry.getId());
+        child.deleteAce(0);
 
         // Save and check it worked
         child = jdbcMutableAclService.updateAcl(child);

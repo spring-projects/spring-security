@@ -75,12 +75,12 @@ public class AclPermissionInheritanceTests extends TestCase {
 		aclService.updateAcl(child);
 
 		parent = (AclImpl) aclService.readAclById(rootObject);
-		parent.insertAce(null, BasePermission.READ, 
+		parent.insertAce(0, BasePermission.READ, 
 				new PrincipalSid("john"), true);
 		aclService.updateAcl(parent);
 
 		parent = (AclImpl) aclService.readAclById(rootObject);
-		parent.insertAce(null, BasePermission.READ, 
+		parent.insertAce(1, BasePermission.READ, 
 				new PrincipalSid("joe"), true);
 		aclService.updateAcl(parent);
 
@@ -109,11 +109,11 @@ public class AclPermissionInheritanceTests extends TestCase {
 		child.setParent(parent);
 		aclService.updateAcl(child);
 
-		parent.insertAce(null, BasePermission.ADMINISTRATION, 
+		parent.insertAce(0, BasePermission.ADMINISTRATION, 
 				new GrantedAuthoritySid("ROLE_ADMINISTRATOR"), true);
 		aclService.updateAcl(parent);
 
-		parent.insertAce(null, BasePermission.DELETE, new PrincipalSid("terry"), true);
+		parent.insertAce(1, BasePermission.DELETE, new PrincipalSid("terry"), true);
 		aclService.updateAcl(parent);
 
 		child = (MutableAcl) aclService.readAclById(

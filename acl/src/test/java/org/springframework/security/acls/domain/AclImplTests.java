@@ -138,14 +138,14 @@ public class AclImplTests extends TestCase {
         MutableAcl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, null, true, new PrincipalSid(
                 "johndoe"));
         try {
-            acl.insertAce(new Long(1), null, new GrantedAuthoritySid("ROLE_IGNORED"), true);
+            acl.insertAce(0, null, new GrantedAuthoritySid("ROLE_IGNORED"), true);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
         try {
-            acl.insertAce(new Long(1), BasePermission.READ, null, true);
+            acl.insertAce(0, BasePermission.READ, null, true);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
@@ -168,7 +168,7 @@ public class AclImplTests extends TestCase {
         MockAclService service = new MockAclService();
 
         // Insert one permission
-        acl.insertAce(null, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST1"), true);
+        acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST1"), true);
         service.updateAcl(acl);
         // Check it was successfully added
         assertEquals(1, acl.getEntries().length);
@@ -177,7 +177,7 @@ public class AclImplTests extends TestCase {
         assertEquals(acl.getEntries()[0].getSid(), new GrantedAuthoritySid("ROLE_TEST1"));
 
         // Add a second permission
-        acl.insertAce(null, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true);
+        acl.insertAce(1, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true);
         service.updateAcl(acl);
         // Check it was added on the last position
         assertEquals(2, acl.getEntries().length);
@@ -186,7 +186,7 @@ public class AclImplTests extends TestCase {
         assertEquals(acl.getEntries()[1].getSid(), new GrantedAuthoritySid("ROLE_TEST2"));
 
         // Add a third permission, after the first one
-        acl.insertAce(acl.getEntries()[0].getId(), BasePermission.WRITE, new GrantedAuthoritySid("ROLE_TEST3"), false);
+        acl.insertAce(1, BasePermission.WRITE, new GrantedAuthoritySid("ROLE_TEST3"), false);
         service.updateAcl(acl);
         assertEquals(3, acl.getEntries().length);
         // Check the third entry was added between the two existent ones
@@ -213,11 +213,11 @@ public class AclImplTests extends TestCase {
         MockAclService service = new MockAclService();
 
         // Insert one permission
-        acl.insertAce(null, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST1"), true);
+        acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST1"), true);
         service.updateAcl(acl);
 
         try {
-            acl.insertAce(new Long(5), BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true);
+            acl.insertAce(55, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true);
             fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
@@ -240,28 +240,28 @@ public class AclImplTests extends TestCase {
         MockAclService service = new MockAclService();
 
         // Add several permissions
-        acl.insertAce(null, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST1"), true);
-        acl.insertAce(null, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true);
-        acl.insertAce(null, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST3"), true);
+        acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST1"), true);
+        acl.insertAce(1, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true);
+        acl.insertAce(2, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST3"), true);
         service.updateAcl(acl);
 
         // Delete first permission and check the order of the remaining permissions is kept
-        acl.deleteAce(new Long(1));
+        acl.deleteAce(0);
         assertEquals(2, acl.getEntries().length);
         assertEquals(acl.getEntries()[0].getSid(), new GrantedAuthoritySid("ROLE_TEST2"));
         assertEquals(acl.getEntries()[1].getSid(), new GrantedAuthoritySid("ROLE_TEST3"));
 
         // Add one more permission and remove the permission in the middle
-        acl.insertAce(null, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST4"), true);
+        acl.insertAce(2, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST4"), true);
         service.updateAcl(acl);
-        acl.deleteAce(new Long(2));
+        acl.deleteAce(1);
         assertEquals(2, acl.getEntries().length);
         assertEquals(acl.getEntries()[0].getSid(), new GrantedAuthoritySid("ROLE_TEST2"));
         assertEquals(acl.getEntries()[1].getSid(), new GrantedAuthoritySid("ROLE_TEST4"));
 
         // Remove remaining permissions
-        acl.deleteAce(new Long(1));
-        acl.deleteAce(new Long(3));
+        acl.deleteAce(1);
+        acl.deleteAce(0);
         assertEquals(0, acl.getEntries().length);
     }
 
@@ -278,7 +278,7 @@ public class AclImplTests extends TestCase {
         MutableAcl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, null, true, new PrincipalSid(
                 "johndoe"));
         try {
-            acl.deleteAce(new Long(1));
+            acl.deleteAce(99);
             fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
@@ -327,10 +327,10 @@ public class AclImplTests extends TestCase {
                 "johndoe"));
 
         // Grant some permissions
-        rootAcl.insertAce(null, BasePermission.READ, new PrincipalSid("ben"), false);
-        rootAcl.insertAce(null, BasePermission.WRITE, new PrincipalSid("scott"), true);
-        rootAcl.insertAce(null, BasePermission.WRITE, new PrincipalSid("rod"), false);
-        rootAcl.insertAce(null, BasePermission.WRITE, new GrantedAuthoritySid("WRITE_ACCESS_ROLE"), true);
+        rootAcl.insertAce(0, BasePermission.READ, new PrincipalSid("ben"), false);
+        rootAcl.insertAce(1, BasePermission.WRITE, new PrincipalSid("scott"), true);
+        rootAcl.insertAce(2, BasePermission.WRITE, new PrincipalSid("rod"), false);
+        rootAcl.insertAce(3, BasePermission.WRITE, new GrantedAuthoritySid("WRITE_ACCESS_ROLE"), true);
 
         // Check permissions granting
         Permission[] permissions = new Permission[] { BasePermission.READ, BasePermission.CREATE };
@@ -394,14 +394,14 @@ public class AclImplTests extends TestCase {
         parentAcl1.setParent(grandParentAcl);
 
         // Add some permissions
-        grandParentAcl.insertAce(null, BasePermission.READ, new GrantedAuthoritySid("ROLE_USER_READ"), true);
-        grandParentAcl.insertAce(null, BasePermission.WRITE, new PrincipalSid("ben"), true);
-        grandParentAcl.insertAce(null, BasePermission.DELETE, new PrincipalSid("ben"), false);
-        grandParentAcl.insertAce(null, BasePermission.DELETE, new PrincipalSid("scott"), true);
-        parentAcl1.insertAce(null, BasePermission.READ, new PrincipalSid("scott"), true);
-        parentAcl1.insertAce(null, BasePermission.DELETE, new PrincipalSid("scott"), false);
-        parentAcl2.insertAce(null, BasePermission.CREATE, new PrincipalSid("ben"), true);
-        childAcl1.insertAce(null, BasePermission.CREATE, new PrincipalSid("scott"), true);
+        grandParentAcl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_USER_READ"), true);
+        grandParentAcl.insertAce(1, BasePermission.WRITE, new PrincipalSid("ben"), true);
+        grandParentAcl.insertAce(2, BasePermission.DELETE, new PrincipalSid("ben"), false);
+        grandParentAcl.insertAce(3, BasePermission.DELETE, new PrincipalSid("scott"), true);
+        parentAcl1.insertAce(0, BasePermission.READ, new PrincipalSid("scott"), true);
+        parentAcl1.insertAce(1, BasePermission.DELETE, new PrincipalSid("scott"), false);
+        parentAcl2.insertAce(0, BasePermission.CREATE, new PrincipalSid("ben"), true);
+        childAcl1.insertAce(0, BasePermission.CREATE, new PrincipalSid("scott"), true);
 
         // Check granting process for parent1
         assertTrue(parentAcl1.isGranted(new Permission[] { BasePermission.READ }, new Sid[] { new PrincipalSid("scott") },
@@ -464,9 +464,9 @@ public class AclImplTests extends TestCase {
                 "johndoe"));
         MockAclService service = new MockAclService();
 
-        acl.insertAce(null, BasePermission.READ, new GrantedAuthoritySid("ROLE_USER_READ"), true);
-        acl.insertAce(null, BasePermission.WRITE, new GrantedAuthoritySid("ROLE_USER_READ"), true);
-        acl.insertAce(null, BasePermission.CREATE, new PrincipalSid("ben"), true);
+        acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_USER_READ"), true);
+        acl.insertAce(1, BasePermission.WRITE, new GrantedAuthoritySid("ROLE_USER_READ"), true);
+        acl.insertAce(2, BasePermission.CREATE, new PrincipalSid("ben"), true);
         service.updateAcl(acl);
 
         assertEquals(acl.getEntries()[0].getPermission(), BasePermission.READ);
@@ -474,9 +474,9 @@ public class AclImplTests extends TestCase {
         assertEquals(acl.getEntries()[2].getPermission(), BasePermission.CREATE);
 
         // Change each permission
-        acl.updateAce(new Long(1), BasePermission.CREATE);
-        acl.updateAce(new Long(2), BasePermission.DELETE);
-        acl.updateAce(new Long(3), BasePermission.READ);
+        acl.updateAce(0, BasePermission.CREATE);
+        acl.updateAce(1, BasePermission.DELETE);
+        acl.updateAce(2, BasePermission.READ);
 
         // Check the change was successfuly made
         assertEquals(acl.getEntries()[0].getPermission(), BasePermission.CREATE);
@@ -498,8 +498,8 @@ public class AclImplTests extends TestCase {
                 "johndoe"));
         MockAclService service = new MockAclService();
 
-        acl.insertAce(null, BasePermission.READ, new GrantedAuthoritySid("ROLE_USER_READ"), true);
-        acl.insertAce(null, BasePermission.WRITE, new GrantedAuthoritySid("ROLE_USER_READ"), true);
+        acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_USER_READ"), true);
+        acl.insertAce(1, BasePermission.WRITE, new GrantedAuthoritySid("ROLE_USER_READ"), true);
         service.updateAcl(acl);
 
         assertFalse(((AuditableAccessControlEntry) acl.getEntries()[0]).isAuditFailure());
@@ -508,8 +508,8 @@ public class AclImplTests extends TestCase {
         assertFalse(((AuditableAccessControlEntry) acl.getEntries()[1]).isAuditSuccess());
 
         // Change each permission
-        ((AuditableAcl) acl).updateAuditing(new Long(1), true, true);
-        ((AuditableAcl) acl).updateAuditing(new Long(2), true, true);
+        ((AuditableAcl) acl).updateAuditing(0, true, true);
+        ((AuditableAcl) acl).updateAuditing(1, true, true);
 
         // Check the change was successfuly made
         assertTrue(((AuditableAccessControlEntry) acl.getEntries()[0]).isAuditFailure());
@@ -534,8 +534,8 @@ public class AclImplTests extends TestCase {
         MutableAcl parentAcl = new AclImpl(identity2, new Long(2), strategy, auditLogger, null, null, true, new PrincipalSid(
                 "johndoe"));
         MockAclService service = new MockAclService();
-        acl.insertAce(null, BasePermission.READ, new GrantedAuthoritySid("ROLE_USER_READ"), true);
-        acl.insertAce(null, BasePermission.WRITE, new GrantedAuthoritySid("ROLE_USER_READ"), true);
+        acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_USER_READ"), true);
+        acl.insertAce(1, BasePermission.WRITE, new GrantedAuthoritySid("ROLE_USER_READ"), true);
         service.updateAcl(acl);
         
         assertEquals(acl.getId(), new Long(1));
