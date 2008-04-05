@@ -318,11 +318,14 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
     public void testDeleteAclWithChildrenThrowsException() throws Exception {
         try {
             ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+            jdbcMutableAclService.setForeignKeysInDatabase(false); // switch on FK checking in the class, not database
             jdbcMutableAclService.deleteAcl(topParentOid, false);
             fail("It should have thrown ChildrenExistException");
         }
         catch (ChildrenExistException expected) {
             assertTrue(true);
+        } finally {
+            jdbcMutableAclService.setForeignKeysInDatabase(true); // restore to the default
         }
     }
     

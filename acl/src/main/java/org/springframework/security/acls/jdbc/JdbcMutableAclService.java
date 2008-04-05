@@ -60,7 +60,7 @@ import javax.sql.DataSource;
 public class JdbcMutableAclService extends JdbcAclService implements MutableAclService {
     //~ Instance fields ================================================================================================
 
-	private boolean foreignKeysInDatabase = false;
+	private boolean foreignKeysInDatabase = true;
     private AclCache aclCache;
     private String deleteClassByClassNameString = "DELETE FROM acl_class WHERE class=?";
     private String deleteEntryByObjectIdentityForeignKey = "DELETE FROM acl_entry WHERE acl_object_identity=?";
@@ -385,5 +385,12 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 		Assert.hasText(identityQuery, "New identity query is required");
 		this.identityQuery = identityQuery;
 	}
-    
+
+	/**
+	 * @param foreignKeysInDatabase if false this class will perform additional FK constrain checking, which may
+	 * cause deadlocks (the default is true, so deadlocks are avoided but the database is expected to enforce FKs)
+	 */
+	public void setForeignKeysInDatabase(boolean foreignKeysInDatabase) {
+		this.foreignKeysInDatabase = foreignKeysInDatabase;
+	}
 }
