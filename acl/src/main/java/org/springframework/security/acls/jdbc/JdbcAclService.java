@@ -28,6 +28,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -96,10 +97,7 @@ public class JdbcAclService implements AclService {
 
     public Acl readAclById(ObjectIdentity object, Sid[] sids) throws NotFoundException {
         Map map = readAclsById(new ObjectIdentity[] {object}, sids);
-
-        if (map.size() == 0) {
-            throw new NotFoundException("Could not find ACL");
-        }
+        Assert.isTrue(map.containsKey(object), "There should have been an Acl entry for ObjectIdentity " + object);
 
         return (Acl) map.get(object);
     }
@@ -108,11 +106,21 @@ public class JdbcAclService implements AclService {
         return readAclById(object, null);
     }
 
-    public Map readAclsById(ObjectIdentity[] objects) {
+    public Map readAclsById(ObjectIdentity[] objects) throws NotFoundException {
         return readAclsById(objects, null);
     }
 
     public Map readAclsById(ObjectIdentity[] objects, Sid[] sids) throws NotFoundException {
-        return lookupStrategy.readAclsById(objects, sids);
+        Map result = lookupStrategy.readAclsById(objects, sids);
+        
+        // Check every requested object identity was found (throw NotFoundException if needed)
+        for (int i = 0; i < objects.length; i++) {
+            if (!result.containsKey(objects[i])) {
+                throw new NotFoundException("Unable to find ACL information for object identity '"
+                    + objects[i].toString() + "'");
+            }
+        }
+        
+        return result;
     }
 }

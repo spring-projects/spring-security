@@ -14,6 +14,23 @@
  */
 package org.springframework.security.acls.jdbc;
 
+import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.security.acls.AccessControlEntry;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.MutableAcl;
@@ -30,31 +47,8 @@ import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.acls.sid.GrantedAuthoritySid;
 import org.springframework.security.acls.sid.PrincipalSid;
 import org.springframework.security.acls.sid.Sid;
-
 import org.springframework.security.util.FieldUtils;
-
-import org.springframework.dao.DataAccessException;
-
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.ResultSetExtractor;
-
 import org.springframework.util.Assert;
-
-import java.lang.reflect.Field;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
 
 
 /**
@@ -346,22 +340,21 @@ public final class BasicLookupStrategy implements LookupStrategy {
     }
 
     /**
-     * The main method.<p>WARNING: This implementation completely disregards the "sids" parameter! Every item
+     * The main method.<p>WARNING: This implementation completely disregards the "sids" argument! Every item
      * in the cache is expected to contain all SIDs. If you have serious performance needs (eg a very large number of
      * SIDs per object identity), you'll probably want to develop a custom {@link LookupStrategy} implementation
      * instead.</p>
      *  <p>The implementation works in batch sizes specfied by {@link #batchSize}.</p>
      *
-     * @param objects DOCUMENT ME!
-     * @param sids DOCUMENT ME!
+     * @param objects the identities to lookup (required)
+     * @param sids the SIDs for which identities are required (ignored by this implementation)
      *
-     * @return DOCUMENT ME!
-     *
-     * @throws NotFoundException DOCUMENT ME!
-     * @throws IllegalStateException DOCUMENT ME!
+     * @return a <tt>Map</tt> where keys represent the {@link ObjectIdentity} of the located {@link Acl} and values
+     *         are the located {@link Acl} (never <tt>null</tt> although some entries may be missing; this method
+     *         should not throw {@link NotFoundException}, as a chain of {@link LookupStrategy}s may be used
+     *         to automatically create entries if required) 
      */
-    public Map readAclsById(ObjectIdentity[] objects, Sid[] sids)
-        throws NotFoundException {
+    public Map readAclsById(ObjectIdentity[] objects, Sid[] sids) {
         Assert.isTrue(batchSize >= 1, "BatchSize must be >= 1");
         Assert.notEmpty(objects, "Objects to lookup required");
 
@@ -413,14 +406,6 @@ public final class BasicLookupStrategy implements LookupStrategy {
                 }
 
                 currentBatchToLoad.clear();
-            }
-        }
-
-        // Now we're done, check every requested object identity was found (throw NotFoundException if needed)
-        for (int i = 0; i < objects.length; i++) {
-            if (!result.containsKey(objects[i])) {
-                throw new NotFoundException("Unable to find ACL information for object identity '"
-                    + objects[i].toString() + "'");
             }
         }
 

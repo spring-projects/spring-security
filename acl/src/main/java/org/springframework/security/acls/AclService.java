@@ -34,66 +34,67 @@ public interface AclService {
      *
      * @param parentIdentity to locate children of
      *
-     * @return the children (or <code>null</code> if none were found)
+     * @return the children (or <tt>null</tt> if none were found)
      */
     ObjectIdentity[] findChildren(ObjectIdentity parentIdentity);
 
     /**
      * Same as {@link #readAclsById(ObjectIdentity[])} except it returns only a single Acl.<p>This method
      * should not be called as it does not leverage the underlaying implementation's potential ability to filter
-     * <code>Acl</code> entries based on a {@link Sid} parameter.</p>
+     * <tt>Acl</tt> entries based on a {@link Sid} parameter.</p>
      *
-     * @param object DOCUMENT ME!
+     * @param object to locate an {@link Acl} for
      *
-     * @return DOCUMENT ME!
+     * @return the {@link Acl} for the requested {@link ObjectIdentity} (never <tt>null</tt>)
      *
-     * @throws NotFoundException DOCUMENT ME!
+     * @throws NotFoundException if an {@link Acl} was not found for the requested {@link ObjectIdentity}
      */
     Acl readAclById(ObjectIdentity object) throws NotFoundException;
 
     /**
      * Same as {@link #readAclsById(ObjectIdentity[], Sid[])} except it returns only a single Acl.
      *
-     * @param object DOCUMENT ME!
-     * @param sids DOCUMENT ME!
+     * @param object to locate an {@link Acl} for
+     * @param sids the security identities for which  {@link Acl} information is required 
+     *        (may be <tt>null</tt> to denote all entries)
      *
-     * @return DOCUMENT ME!
+     * @return the {@link Acl} for the requested {@link ObjectIdentity} (never <tt>null</tt>)
      *
-     * @throws NotFoundException DOCUMENT ME!
+     * @throws NotFoundException if an {@link Acl} was not found for the requested {@link ObjectIdentity}
      */
     Acl readAclById(ObjectIdentity object, Sid[] sids)
         throws NotFoundException;
 
     /**
-     * Obtains all the <code>Acl</code>s that apply for the passed <code>Object</code>s.<p>The returned map is
-     * keyed on the passed objects, with the values being the <code>Acl</code> instances. Any unknown objects will not
+     * Obtains all the <tt>Acl</tt>s that apply for the passed <tt>Object</tt>s.<p>The returned map is
+     * keyed on the passed objects, with the values being the <tt>Acl</tt> instances. Any unknown objects will not
      * have a map key.</p>
      *
-     * @param objects the objects to find ACL information for
+     * @param objects the objects to find {@link Acl} information for
      *
-     * @return a map with zero or more elements (never <code>null</code>)
+     * @return a map with exactly one element for each {@link ObjectIdentity} passed as an argument (never <tt>null</tt>)
      *
-     * @throws NotFoundException DOCUMENT ME!
+     * @throws NotFoundException if an {@link Acl} was not found for each requested {@link ObjectIdentity}
      */
     Map readAclsById(ObjectIdentity[] objects) throws NotFoundException;
 
     /**
-     * Obtains all the <code>Acl</code>s that apply for the passed <code>Object</code>s, but only for the
+     * Obtains all the <tt>Acl</tt>s that apply for the passed <tt>Object</tt>s, but only for the
      * security identifies passed.<p>Implementations <em>MAY</em> provide a subset of the ACLs via this method
      * although this is NOT a requirement. This is intended to allow performance optimisations within implementations.
      * Callers should therefore use this method in preference to the alternative overloaded version which does not
      * have performance optimisation opportunities.</p>
-     *  <p>The returned map is keyed on the passed objects, with the values being the <code>Acl</code>
-     * instances. Any unknown objects (or objects for which the interested <code>Sid</code>s do not have entries) will
+     *  <p>The returned map is keyed on the passed objects, with the values being the <tt>Acl</tt>
+     * instances. Any unknown objects (or objects for which the interested <tt>Sid</tt>s do not have entries) will
      * not have a map key.</p>
      *
-     * @param objects the objects to find ACL information for
-     * @param sids the security identities for which ACL information is required (may be <code>null</code> to denote
-     *        all entries)
+     * @param objects the objects to find {@link Acl} information for
+     * @param sids the security identities for which  {@link Acl} information is required 
+     *        (may be <tt>null</tt> to denote all entries)
      *
-     * @return a map with zero or more elements (never <code>null</code>)
+     * @return a map with exactly one element for each {@link ObjectIdentity} passed as an argument (never <tt>null</tt>)
      *
-     * @throws NotFoundException DOCUMENT ME!
+     * @throws NotFoundException if an {@link Acl} was not found for each requested {@link ObjectIdentity}
      */
     Map readAclsById(ObjectIdentity[] objects, Sid[] sids)
         throws NotFoundException;
