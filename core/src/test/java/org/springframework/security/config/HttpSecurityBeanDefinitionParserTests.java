@@ -345,7 +345,27 @@ public class HttpSecurityBeanDefinitionParserTests {
         List filters = getFilterChainProxy().getFilters("/someurl");
 
         assertFalse(filters.get(1) instanceof SessionFixationProtectionFilter);
-    }    
+    }
+    
+    /**
+     * See SEC-750. If the http security post processor causes beans to be instantiated too eagerly, they way miss
+     * additional processing. In this method we have a UserDetailsService which is referenced from the namespace
+     * and also has a post processor registered which will modify it.
+     */
+    @Test
+    public void httpElementDoesntInterfereWithBeanPostProcessing() {
+        setContext(
+                "<http auto-config='true'/>" +
+                "<authentication-provider user-service-ref='myUserService'/>" +
+                "<b:bean id='myUserService' class='org.springframework.security.config.PostProcessedMockUserDetailsService'/>" +
+                "<b:bean id='beanPostProcessor' class='org.springframework.security.config.MockUserServiceBeanPostProcessor'/>"
+        );
+
+        PostProcessedMockUserDetailsService service = (PostProcessedMockUserDetailsService)appContext.getBean("myUserService");
+
+        assertEquals("Hello from the post processor!", service.getPostProcessorWasHere());
+    }
+    
     
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);

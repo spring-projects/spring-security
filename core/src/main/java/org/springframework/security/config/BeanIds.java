@@ -17,6 +17,7 @@ public abstract class BeanIds {
 	static final String INTERCEPT_METHODS_BEAN_FACTORY_POST_PROCESSOR = "_interceptMethodsBeanfactoryPP";
     static final String CONTEXT_SOURCE_SETTING_POST_PROCESSOR = "_contextSettingPostProcessor";
     static final String HTTP_POST_PROCESSOR = "_httpConfigBeanFactoryPostProcessor";
+    static final String FILTER_CHAIN_POST_PROCESSOR = "_filterChainProxyPostProcessor";
 
     public static final String JDBC_USER_DETAILS_MANAGER = "_jdbcUserDetailsManager";
 	public static final String USER_DETAILS_SERVICE = "_userDetailsService";
@@ -59,4 +60,5 @@ public abstract class BeanIds {
     public static final String X509_FILTER = "_x509ProcessingFilter";
     public static final String X509_AUTH_PROVIDER = "_x509AuthenitcationProvider";
     public static final String PRE_AUTH_ENTRY_POINT = "_preAuthenticatedProcessingFilterEntryPoint";
+    public static final String REMEMBER_ME_SERVICES_INJECTION_POST_PROCESSOR = "_rememberMeServicesInjectionBeanPostProcessor";
 }

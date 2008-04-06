@@ -208,6 +208,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         Element sessionControlElt = DomUtils.getChildElementByTagName(element, Elements.CONCURRENT_SESSIONS);
         if (sessionControlElt != null) {
             new ConcurrentSessionsBeanDefinitionParser().parse(sessionControlElt, parserContext);
+            logger.info("Concurrent session filter in use, setting 'forceEagerSessionCreation' to true");
+            httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
         }
 
         String sessionFixationAttribute = element.getAttribute(ATT_SESSION_FIXATION_PROTECTION);
@@ -242,6 +244,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         Element rememberMeElt = DomUtils.getChildElementByTagName(element, Elements.REMEMBER_ME);
         if (rememberMeElt != null || autoConfig) {
             new RememberMeBeanDefinitionParser().parse(rememberMeElt, parserContext);
+            // Post processor to inject RememberMeServices into filters which need it
+            RootBeanDefinition rememberMeInjectionPostProcessor = new RootBeanDefinition(RememberMeServicesInjectionBeanPostProcessor.class);
+            rememberMeInjectionPostProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            registry.registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES_INJECTION_POST_PROCESSOR, rememberMeInjectionPostProcessor);            
         }
         
         Element logoutElt = DomUtils.getChildElementByTagName(element, Elements.LOGOUT);
@@ -266,7 +272,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         RootBeanDefinition postProcessor = new RootBeanDefinition(HttpSecurityConfigPostProcessor.class);
         postProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         registry.registerBeanDefinition(BeanIds.HTTP_POST_PROCESSOR, postProcessor);
-
+        
+        // Post processor specifically to assemble and order the filter chain immediately before the FilterChainProxy is initialized.
+        RootBeanDefinition filterChainPostProcessor = new RootBeanDefinition(FilterChainProxyPostProcessor.class);
+        filterChainPostProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        registry.registerBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR, filterChainPostProcessor);
+        
         return null;
     }
     
@@ -326,22 +337,22 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             parserContext.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_PROVIDER, openIDProvider);
         }
         
-        if (formLoginFilter == null && openIDFilter == null) {
-        	return;
-        }
+        boolean needLoginPage = false;
         
         if (formLoginFilter != null) {
+        	needLoginPage = true;
 	        parserContext.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_FILTER, formLoginFilter);
 	        parserContext.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_ENTRY_POINT, formLoginEntryPoint);
         }        
 
         if (openIDFilter != null) {
+        	needLoginPage = true;
 	        parserContext.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_FILTER, openIDFilter);
 	        parserContext.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_ENTRY_POINT, openIDEntryPoint);
         }
 
         // If no login page has been defined, add in the default page generator.
-        if (formLoginPage == null && openIDLoginPage == null) {
+        if (needLoginPage && formLoginPage == null && openIDLoginPage == null) {
             logger.info("No login page configured. The default internal one will be used. Use the '"
                      + FormLoginBeanDefinitionParser.ATT_LOGIN_PAGE + "' attribute to set the URL of the login page.");
             BeanDefinitionBuilder loginPageFilter = 

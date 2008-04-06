@@ -2,6 +2,7 @@ package org.springframework.security.config;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -78,22 +79,22 @@ public abstract class ConfigUtils {
      * Obtains a user details service for use in RememberMeServices etc. Will return a caching version
      * if available so should not be used for beans which need to separate the two. 
      */
-    static UserDetailsService getUserDetailsService(ConfigurableListableBeanFactory bf) {
-        Map services = bf.getBeansOfType(CachingUserDetailsService.class);
+    static RuntimeBeanReference getUserDetailsService(ConfigurableListableBeanFactory bf) {
+        String[] services = bf.getBeanNamesForType(CachingUserDetailsService.class, false, false);
         
-        if (services.size() == 0) {
-        	services = bf.getBeansOfType(UserDetailsService.class);
+        if (services.length == 0) {
+        	services = bf.getBeanNamesForType(UserDetailsService.class);
         }
 
-        if (services.size() == 0) {
+        if (services.length == 0) {
             throw new IllegalArgumentException("No UserDetailsService registered.");
 
-        } else if (services.size() > 1) {
+        } else if (services.length > 1) {
             throw new IllegalArgumentException("More than one UserDetailsService registered. Please" +
                     "use a specific Id in your configuration");
         }
 
-        return (UserDetailsService) services.values().toArray()[0];
+        return new RuntimeBeanReference(services[0]);
     }
 
     private static AuthenticationManager getAuthenticationManager(ConfigurableListableBeanFactory bf) {
