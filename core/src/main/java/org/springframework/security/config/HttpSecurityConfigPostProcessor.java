@@ -1,8 +1,5 @@
 package org.springframework.security.config;
 
-import java.util.Iterator;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
@@ -16,17 +13,14 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.core.Ordered;
-import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.AuthenticationEntryPoint;
-import org.springframework.security.ui.basicauth.BasicProcessingFilter;
-import org.springframework.security.ui.rememberme.RememberMeServices;
 import org.springframework.security.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.util.Assert;
 
 /**
  * Responsible for tying up the HTTP security configuration once all the beans are registered.
  * This class does not actually instantiate any beans (for example, it should not call {@link BeanFactory#getBean(String)}).
- * All the wiring up should be done using bean definitions or bean references to avoid. This approach should avoid any
+ * All the wiring up should be done using bean definitions or bean references to avoid this. This approach should avoid any
  * conflict with other processors.
  *
  * @author Luke Taylor
