@@ -176,12 +176,11 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
 
     /**
      * Returns the first filter chain matching the supplied URL.
-     * TODO: Change tests and make package protected access.
      *
      * @param url the request URL
      * @return an ordered array of Filters defining the filter chain
      */
-    public List getFilters(String url)  {
+    List getFilters(String url)  {
         Iterator filterChains = filterChainMap.entrySet().iterator();
 
         while (filterChains.hasNext()) {

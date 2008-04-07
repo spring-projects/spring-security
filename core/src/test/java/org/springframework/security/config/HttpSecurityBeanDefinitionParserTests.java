@@ -2,6 +2,7 @@ package org.springframework.security.config;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,6 +41,7 @@ import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 import org.springframework.security.util.PortMapperImpl;
 import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Luke Taylor
@@ -64,12 +66,10 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void httpAutoConfigSetsUpCorrectFilterList() {
+    public void httpAutoConfigSetsUpCorrectFilterList() throws Exception {
         setContext("<http auto-config='true' />" + AUTH_PROVIDER_XML);
 
-        FilterChainProxy filterChainProxy = getFilterChainProxy();
-
-        List filterList = filterChainProxy.getFilters("/anyurl");
+        List filterList = getFilters("/anyurl");
 
         checkAutoConfigFilters(filterList);
     }
@@ -93,54 +93,49 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void filterListShouldBeEmptyForUnprotectedUrl() {
+    public void filterListShouldBeEmptyForUnprotectedUrl() throws Exception {
         setContext(
                 "    <http auto-config='true'>" +
                 "        <intercept-url pattern='/unprotected' filters='none' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
 
-        FilterChainProxy filterChainProxy = getFilterChainProxy();
-
-        List filters = filterChainProxy.getFilters("/unprotected");
+        List filters = getFilters("/unprotected");
 
         assertTrue(filters.size() == 0);
     }
 
     @Test
-    public void regexPathsWorkCorrectly() {
+    public void regexPathsWorkCorrectly() throws Exception {
         setContext(
                 "    <http auto-config='true' path-type='regex'>" +
                 "        <intercept-url pattern='\\A\\/[a-z]+' filters='none' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
-        FilterChainProxy filterChainProxy = getFilterChainProxy();
-        assertEquals(0, filterChainProxy.getFilters("/imlowercase").size());
+        assertEquals(0, getFilters("/imlowercase").size());
         // This will be matched by the default pattern ".*"
-        checkAutoConfigFilters(filterChainProxy.getFilters("/ImCaughtByTheUniversalMatchPattern"));
+        checkAutoConfigFilters(getFilters("/ImCaughtByTheUniversalMatchPattern"));
     }
 
     @Test
-    public void lowerCaseComparisonAttributeIsRespectedByFilterChainProxy() {
+    public void lowerCaseComparisonAttributeIsRespectedByFilterChainProxy() throws Exception {
         setContext(
                 "    <http auto-config='true' path-type='ant' lowercase-comparisons='false'>" +
                 "        <intercept-url pattern='/Secure*' filters='none' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
-        FilterChainProxy filterChainProxy = getFilterChainProxy();
-        assertEquals(0, filterChainProxy.getFilters("/Secure").size());
+        assertEquals(0, getFilters("/Secure").size());
         // These will be matched by the default pattern "/**"
-        checkAutoConfigFilters(filterChainProxy.getFilters("/secure"));
-        checkAutoConfigFilters(filterChainProxy.getFilters("/ImCaughtByTheUniversalMatchPattern"));
+        checkAutoConfigFilters(getFilters("/secure"));
+        checkAutoConfigFilters(getFilters("/ImCaughtByTheUniversalMatchPattern"));
 
     }
 
     @Test
-    public void formLoginWithNoLoginPageAddsDefaultLoginPageFilter() {
+    public void formLoginWithNoLoginPageAddsDefaultLoginPageFilter() throws Exception {
         setContext(
                 "    <http auto-config='true' path-type='ant' lowercase-comparisons='false'>" +
                 "        <form-login />" +
                 "    </http>" + AUTH_PROVIDER_XML);
-        FilterChainProxy filterChainProxy = getFilterChainProxy();
         // These will be matched by the default pattern "/**"
-        checkAutoConfigFilters(filterChainProxy.getFilters("/anything"));
+        checkAutoConfigFilters(getFilters("/anything"));
     }
     
     @Test
@@ -186,10 +181,9 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void oncePerRequestAttributeIsSupported() {
+    public void oncePerRequestAttributeIsSupported() throws Exception {
         setContext("<http once-per-request='true'><http-basic /></http>" + AUTH_PROVIDER_XML);
-        FilterChainProxy filterChainProxy = getFilterChainProxy();
-        List filters = filterChainProxy.getFilters("/someurl");
+        List filters = getFilters("/someurl");
         
         FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) filters.get(filters.size() - 1);
         
@@ -199,8 +193,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void accessDeniedPageAttributeIsSupported() throws Exception {
         setContext("<http access-denied-page='/access-denied'><http-basic /></http>" + AUTH_PROVIDER_XML);
-        FilterChainProxy filterChainProxy = getFilterChainProxy();
-        List filters = filterChainProxy.getFilters("/someurl");
+        List filters = getFilters("/someurl");
         
         ExceptionTranslationFilter etf = (ExceptionTranslationFilter) filters.get(filters.size() - 2);
         
@@ -208,13 +201,12 @@ public class HttpSecurityBeanDefinitionParserTests {
     }    
     
     @Test
-    public void interceptUrlWithRequiresChannelAddsChannelFilterToStack() {
+    public void interceptUrlWithRequiresChannelAddsChannelFilterToStack() throws Exception {
         setContext(
                 "    <http auto-config='true'>" +
                 "        <intercept-url pattern='/**' requires-channel='https' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
-        FilterChainProxy filterChainProxy = getFilterChainProxy();
-        List filters = filterChainProxy.getFilters("/someurl");
+        List filters = getFilters("/someurl");
 
         assertEquals("Expected 12 filters in chain", 12, filters.size());
 
@@ -237,7 +229,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void externalFiltersAreTreatedCorrectly() {
+    public void externalFiltersAreTreatedCorrectly() throws Exception {
         // Decorated user-filter should be added to stack. The other one should be ignored
         setContext(
                 "<http auto-config='true'/>" + AUTH_PROVIDER_XML +
@@ -245,7 +237,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "    <custom-filter after='SESSION_CONTEXT_INTEGRATION_FILTER'/>" +
                 "</b:bean>" +
                 "<b:bean id='userFilter2' class='org.springframework.security.util.MockFilter'/>");
-        List filters = getFilterChainProxy().getFilters("/someurl");
+        List filters = getFilters("/someurl");
 
         assertEquals(12, filters.size());
         assertTrue(filters.get(1) instanceof OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator);
@@ -282,7 +274,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true'>" +
                 "    <x509 />" +
                 "</http>"  + AUTH_PROVIDER_XML);
-        List filters = getFilterChainProxy().getFilters("/someurl");
+        List filters = getFilters("/someurl");
 
         assertTrue(filters.get(3) instanceof X509PreAuthenticatedProcessingFilter);
     }
@@ -293,7 +285,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true'>" +
                 "    <concurrent-session-control session-registry-alias='seshRegistry' expired-url='/expired'/>" +
                 "</http>"  + AUTH_PROVIDER_XML);
-        List filters = getFilterChainProxy().getFilters("/someurl");
+        List filters = getFilters("/someurl");
         
         assertTrue(filters.get(0) instanceof ConcurrentSessionFilter);        
         assertNotNull(appContext.getBean("seshRegistry"));
@@ -332,13 +324,13 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
     
     @Test
-    public void customEntryPointIsSupported() {
+    public void customEntryPointIsSupported() throws Exception {
         setContext(
                 "<http auto-config='true' entry-point-ref='entryPoint'/>" +
                 "<b:bean id='entryPoint' class='org.springframework.security.MockAuthenticationEntryPoint'>" +
                 "    <b:constructor-arg value='/customlogin'/>" +
                 "</b:bean>" + AUTH_PROVIDER_XML);
-        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilterChainProxy().getFilters("/someurl").get(9);
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilters("/someurl").get(9);
         assertTrue("ExceptionTranslationFilter should be configured with custom entry point", 
                 etf.getAuthenticationEntryPoint() instanceof MockAuthenticationEntryPoint);
     }
@@ -359,7 +351,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void disablingSessionProtectionRemovesFilter() throws Exception {
         setContext(
                 "<http auto-config='true' session-fixation-protection='none'/>" + AUTH_PROVIDER_XML);
-        List filters = getFilterChainProxy().getFilters("/someurl");
+        List filters = getFilters("/someurl");
 
         assertFalse(filters.get(1) instanceof SessionFixationProtectionFilter);
     }
@@ -387,6 +379,13 @@ public class HttpSecurityBeanDefinitionParserTests {
         appContext = new InMemoryXmlApplicationContext(context);
     }
 
+    private List getFilters(String url) throws Exception {
+        FilterChainProxy fcp = (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
+        Method getFilters = fcp.getClass().getDeclaredMethod("getFilters", String.class);
+        getFilters.setAccessible(true);
+        return (List) ReflectionUtils.invokeMethod(getFilters, fcp, new Object[] {url});
+    }
+    
     private FilterChainProxy getFilterChainProxy() {
         return (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
     }
