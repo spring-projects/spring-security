@@ -55,7 +55,7 @@ public class Md4PasswordEncoder extends BaseDigestPasswordEncoder {
 		}
 		
 		Md4 md4 = new Md4();
-		md4.update(passBytes, 0, saltedPass.length());
+		md4.update(passBytes, 0, passBytes.length);
 		
 		byte[] resBuf = md4.digest();
 

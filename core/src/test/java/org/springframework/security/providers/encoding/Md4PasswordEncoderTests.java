@@ -45,6 +45,12 @@ public class Md4PasswordEncoderTests extends TestCase {
 		String encodedPassword = md4.encodePassword("", null);
 		assertEquals("MdbP4NFq6TG3PFnX4MCJwA==", encodedPassword);
 	}
+	
+	public void testNonAsciiPasswordHasCorrectHash() {
+		Md4PasswordEncoder md4 = new Md4PasswordEncoder();
+		String encodedPassword = md4.encodePassword("你好", null);
+		assertEquals("a7f1196539fd1f85f754ffd185b16e6e", encodedPassword);		
+	}
 
 	public void testIsHexPasswordValid() {
 		Md4PasswordEncoder md4 = new Md4PasswordEncoder();
