@@ -2,6 +2,8 @@ package org.springframework.security.config;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.parsing.BeanComponentDefinition;
+import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -30,7 +32,11 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
     static final String ATT_SESSION_REGISTRY_ALIAS = "session-registry-alias";    
 	
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        BeanDefinitionRegistry beanRegistry = parserContext.getRegistry();
+    	CompositeComponentDefinition compositeDef =
+			new CompositeComponentDefinition(element.getTagName(), parserContext.extractSource(element));
+		parserContext.pushContainingComponent(compositeDef);
+    	
+    	BeanDefinitionRegistry beanRegistry = parserContext.getRegistry();
 
         RootBeanDefinition sessionRegistry = new RootBeanDefinition(SessionRegistryImpl.class);
         BeanDefinitionBuilder filterBuilder =
@@ -42,8 +48,10 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
 
         Object source = parserContext.extractSource(element);
         filterBuilder.setSource(source);
+        filterBuilder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         controllerBuilder.setSource(source);
-
+        controllerBuilder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        
         String expiryUrl = element.getAttribute(ATT_EXPIRY_URL);
 
         if (StringUtils.hasText(expiryUrl)) {
@@ -64,6 +72,7 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
 
         BeanDefinition controller = controllerBuilder.getBeanDefinition();
         beanRegistry.registerBeanDefinition(BeanIds.SESSION_REGISTRY, sessionRegistry);
+        parserContext.registerComponent(new BeanComponentDefinition(sessionRegistry, BeanIds.SESSION_REGISTRY));
         
         String registryAlias = element.getAttribute(ATT_SESSION_REGISTRY_ALIAS);
         if (StringUtils.hasText(registryAlias)) {
@@ -71,12 +80,16 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
         }
 
         beanRegistry.registerBeanDefinition(BeanIds.CONCURRENT_SESSION_CONTROLLER, controller);
+        parserContext.registerComponent(new BeanComponentDefinition(controller, BeanIds.CONCURRENT_SESSION_CONTROLLER));
         beanRegistry.registerBeanDefinition(BeanIds.CONCURRENT_SESSION_FILTER, filterBuilder.getBeanDefinition());
-
+        parserContext.registerComponent(new BeanComponentDefinition(filterBuilder.getBeanDefinition(), BeanIds.CONCURRENT_SESSION_FILTER));
+        
         BeanDefinition providerManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
 
         providerManager.getPropertyValues().addPropertyValue("sessionController", controller);
-
+        
+        parserContext.popAndRegisterContainingComponent();
+        
         return null;
     }
 }

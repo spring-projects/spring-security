@@ -6,6 +6,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
@@ -28,6 +29,7 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         RootBeanDefinition authProvider = new RootBeanDefinition(DaoAuthenticationProvider.class);
+        authProvider.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         authProvider.setSource(parserContext.extractSource(element));
 
         Element passwordEncoderElt = DomUtils.getChildElementByTagName(element, Elements.PASSWORD_ENCODER);
@@ -48,7 +50,8 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
         // We need to register the provider to access it in the post processor to check if it has a cache
         final String id = parserContext.getReaderContext().generateBeanName(authProvider);
         parserContext.getRegistry().registerBeanDefinition(id, authProvider);                    
-
+        parserContext.registerComponent(new BeanComponentDefinition(authProvider, id));
+        
         String ref = element.getAttribute(ATT_USER_DETAILS_REF);        
         
         if (StringUtils.hasText(ref)) {        	
@@ -86,9 +89,11 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
         cacheResolverBldr.addConstructorArg(ref);        
         cacheResolverBldr.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         BeanDefinition cacheResolver = cacheResolverBldr.getBeanDefinition();
-        parserContext.getRegistry().registerBeanDefinition(
-        		parserContext.getReaderContext().generateBeanName(cacheResolver), cacheResolver);
-
+        
+        String name = parserContext.getReaderContext().generateBeanName(cacheResolver);
+        parserContext.getRegistry().registerBeanDefinition(name , cacheResolver);
+        parserContext.registerComponent(new BeanComponentDefinition(cacheResolver, name));
+        
         ConfigUtils.getRegisteredProviders(parserContext).add(new RuntimeBeanReference(id));        
         
         return null;

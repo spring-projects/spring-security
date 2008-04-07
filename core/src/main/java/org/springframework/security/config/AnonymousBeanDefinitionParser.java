@@ -3,6 +3,7 @@ package org.springframework.security.config;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
@@ -61,6 +62,7 @@ public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
 
         BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         RootBeanDefinition provider = new RootBeanDefinition(AnonymousAuthenticationProvider.class);
+        provider.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         provider.setSource(source);
         provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
 
@@ -68,7 +70,8 @@ public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
         authMgrProviderList.add(provider);
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.ANONYMOUS_PROCESSING_FILTER, filter);
-
+        parserContext.registerComponent(new BeanComponentDefinition(filter, BeanIds.ANONYMOUS_PROCESSING_FILTER));
+        
         return null;
     }
 }

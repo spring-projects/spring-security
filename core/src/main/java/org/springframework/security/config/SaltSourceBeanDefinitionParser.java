@@ -1,13 +1,12 @@
 package org.springframework.security.config;
 
-import org.springframework.security.providers.dao.salt.ReflectionSaltSource;
-import org.springframework.security.providers.dao.salt.SystemWideSaltSource;
-import org.springframework.beans.factory.xml.BeanDefinitionParser;
-import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.xml.BeanDefinitionParser;
+import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.providers.dao.salt.ReflectionSaltSource;
+import org.springframework.security.providers.dao.salt.SystemWideSaltSource;
 import org.springframework.util.StringUtils;
-
 import org.w3c.dom.Element;
 
 /**
@@ -27,7 +26,8 @@ public class SaltSourceBeanDefinitionParser implements BeanDefinitionParser {
             saltSource = new RootBeanDefinition(ReflectionSaltSource.class);
             saltSource.getPropertyValues().addPropertyValue("userPropertyToUse", userProperty);
             saltSource.setSource(parserContext.extractSource(element));
-
+            saltSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            
             return saltSource;
         }
 
@@ -37,6 +37,7 @@ public class SaltSourceBeanDefinitionParser implements BeanDefinitionParser {
             saltSource = new RootBeanDefinition(SystemWideSaltSource.class);
             saltSource.getPropertyValues().addPropertyValue("systemWideSalt", systemWideSalt);
             saltSource.setSource(parserContext.extractSource(element));
+            saltSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
             return saltSource;
         }

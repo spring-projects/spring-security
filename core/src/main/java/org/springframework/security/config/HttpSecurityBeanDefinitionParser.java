@@ -29,6 +29,7 @@ import org.springframework.security.securechannel.InsecureChannelProcessor;
 import org.springframework.security.securechannel.SecureChannelProcessor;
 import org.springframework.security.securechannel.RetryWithHttpEntryPoint;
 import org.springframework.security.securechannel.RetryWithHttpsEntryPoint;
+import org.springframework.security.ui.AccessDeniedHandlerImpl;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.ui.SessionFixationProtectionFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
@@ -94,8 +95,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_USER_SERVICE_REF = "user-service-ref";
     
     static final String ATT_ENTRY_POINT_REF = "entry-point-ref";
-    
     static final String ATT_ONCE_PER_REQUEST = "once-per-request";
+    static final String ATT_ACCESS_DENIED_PAGE = "access-denied-page";
+    
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinitionRegistry registry = parserContext.getRegistry();
@@ -126,6 +128,14 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         BeanDefinitionBuilder exceptionTranslationFilterBuilder
                 = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
+        
+        String accessDeniedPage = element.getAttribute(ATT_ACCESS_DENIED_PAGE); 
+        if (StringUtils.hasText(accessDeniedPage)) {
+            AccessDeniedHandlerImpl accessDeniedHandler = new AccessDeniedHandlerImpl();
+            accessDeniedHandler.setErrorPage(accessDeniedPage);
+            exceptionTranslationFilterBuilder.addPropertyValue("accessDeniedHandler", accessDeniedHandler);
+        }
+        
 
         Map filterChainMap =  new LinkedHashMap();
         

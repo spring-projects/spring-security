@@ -2,6 +2,7 @@ package org.springframework.security.config;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
@@ -28,7 +29,9 @@ public class BasicAuthenticationBeanDefinitionParser implements BeanDefinitionPa
 	public BeanDefinition parse(Element elt, ParserContext parserContext) {
         BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(BasicProcessingFilter.class);
 	    RootBeanDefinition entryPoint = new RootBeanDefinition(BasicProcessingFilterEntryPoint.class);
-
+	    entryPoint.setSource(parserContext.extractSource(elt));
+	    entryPoint.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+	    
 	    entryPoint.getPropertyValues().addPropertyValue("realmName", realmName);
 	
 	    parserContext.getRegistry().registerBeanDefinition(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT, entryPoint);
@@ -38,7 +41,8 @@ public class BasicAuthenticationBeanDefinitionParser implements BeanDefinitionPa
 
 	    parserContext.getRegistry().registerBeanDefinition(BeanIds.BASIC_AUTHENTICATION_FILTER,
 	            filterBuilder.getBeanDefinition());
-
+	    parserContext.registerComponent(new BeanComponentDefinition(filterBuilder.getBeanDefinition(), 
+	    		BeanIds.BASIC_AUTHENTICATION_FILTER));
 	    return null;
 	}
 }
