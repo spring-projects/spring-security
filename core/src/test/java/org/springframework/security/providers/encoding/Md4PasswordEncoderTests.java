@@ -48,7 +48,7 @@ public class Md4PasswordEncoderTests extends TestCase {
 	
 	public void testNonAsciiPasswordHasCorrectHash() {
 		Md4PasswordEncoder md4 = new Md4PasswordEncoder();
-		String encodedPassword = md4.encodePassword("你好", null);
+		String encodedPassword = md4.encodePassword("\u4F60\u597d", null);
 		assertEquals("a7f1196539fd1f85f754ffd185b16e6e", encodedPassword);		
 	}
 
