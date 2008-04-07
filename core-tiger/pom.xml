@@ -74,7 +74,7 @@
                         <Implementation-Title>${pom.name}</Implementation-Title>
                         <Implementation-Version>${pom.version}</Implementation-Version>
                         <Import-Package>
-                            org.springframework*;resolution:=optional;version="[2.0,2.5]",
+                            org.springframework*;resolution:=optional;version="[2.0,2.6)",
                             *;resolution:=optional
                         </Import-Package>
                     </instructions>
