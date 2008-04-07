@@ -190,13 +190,23 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
+    public void oncePerRequestAttributeIsSupported() {
+        setContext("<http once-per-request='true'><http-basic /></http>" + AUTH_PROVIDER_XML);
+        FilterChainProxy filterChainProxy = getFilterChainProxy();
+        List filters = filterChainProxy.getFilters("/someurl");
+        
+        FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) filters.get(filters.size() - 1);
+        
+        assertTrue(fsi.isObserveOncePerRequest());
+    }    
+    
+    @Test
     public void interceptUrlWithRequiresChannelAddsChannelFilterToStack() {
         setContext(
                 "    <http auto-config='true'>" +
                 "        <intercept-url pattern='/**' requires-channel='https' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
         FilterChainProxy filterChainProxy = getFilterChainProxy();
-
         List filters = filterChainProxy.getFilters("/someurl");
 
         assertEquals("Expected 12 filters in chain", 12, filters.size());

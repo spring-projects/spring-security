@@ -710,6 +710,18 @@
         used.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="once-per-request">
+      <xs:annotation>
+        <xs:documentation>Corresponds to the observeOncePerRequest property of
+          FilterSecurityInterceptor. Defaults to "false"</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="true"/>
+          <xs:enumeration value="false"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="intercept-url.attlist">
     <xs:attribute name="pattern" use="required" type="xs:string">

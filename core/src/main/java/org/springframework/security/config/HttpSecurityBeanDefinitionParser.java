@@ -94,6 +94,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_USER_SERVICE_REF = "user-service-ref";
     
     static final String ATT_ENTRY_POINT_REF = "entry-point-ref";
+    
+    static final String ATT_ONCE_PER_REQUEST = "once-per-request";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinitionRegistry registry = parserContext.getRegistry();
@@ -156,6 +158,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 new RuntimeBeanReference(accessManagerId));
         filterSecurityInterceptorBuilder.addPropertyValue("authenticationManager",
                 ConfigUtils.registerProviderManagerIfNecessary(parserContext));
+        
+        if ("true".equals(element.getAttribute(ATT_ONCE_PER_REQUEST))) {
+        	filterSecurityInterceptorBuilder.addPropertyValue("observeOncePerRequest", Boolean.TRUE);
+        }
 
         // SEC-501 - should paths stored in request maps be converted to lower case
         // true if Ant path and using lower case

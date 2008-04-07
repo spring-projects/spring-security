@@ -214,6 +214,9 @@ http.attlist &=
 http.attlist &=
     ## Allows a customized AuthenticationEntryPoint to be used.
     attribute entry-point-ref {xsd:string}?
+http.attlist &=
+    ## Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "false"
+    attribute once-per-request {"true" | "false"}?
 
 
 intercept-url =
