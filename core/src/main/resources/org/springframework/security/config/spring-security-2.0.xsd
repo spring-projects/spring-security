@@ -144,6 +144,12 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:simpleType name="boolean">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="true"/>
+      <xs:enumeration value="false"/>
+    </xs:restriction>
+  </xs:simpleType>
   <xs:element name="ldap-server">
     <xs:annotation>
       <xs:documentation>Defines an LDAP server location or starts an embedded server. The url
@@ -609,7 +615,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="http.attlist">
-    <xs:attribute name="auto-config">
+    <xs:attribute name="auto-config" type="security:boolean">
       <xs:annotation>
         <xs:documentation>Automatically registers a login form, BASIC authentication, anonymous
           authentication, logout services, remember-me and servlet-api-integration. If set to
@@ -617,12 +623,6 @@
           configuration of each by providing the respective element). If unspecified, defaults to
           "false".</xs:documentation>
       </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="true"/>
-          <xs:enumeration value="false"/>
-        </xs:restriction>
-      </xs:simpleType>
     </xs:attribute>
     <xs:attribute name="create-session">
       <xs:annotation>
@@ -650,30 +650,18 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="lowercase-comparisons">
+    <xs:attribute name="lowercase-comparisons" type="security:boolean">
       <xs:annotation>
         <xs:documentation>Whether test URLs should be converted to lower case prior to comparing
           with defined path patterns. If unspecified, defaults to "true".</xs:documentation>
       </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="true"/>
-          <xs:enumeration value="false"/>
-        </xs:restriction>
-      </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="servlet-api-provision">
+    <xs:attribute name="servlet-api-provision" type="security:boolean">
       <xs:annotation>
         <xs:documentation>Provides versions of HttpServletRequest security methods such as
           isUserInRole() and getPrincipal() which are implemented by accessing the Spring
           SecurityContext. Defaults to "true".</xs:documentation>
       </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="true"/>
-          <xs:enumeration value="false"/>
-        </xs:restriction>
-      </xs:simpleType>
     </xs:attribute>
     <xs:attribute name="access-decision-manager-ref" type="xs:string">
       <xs:annotation>
@@ -710,17 +698,17 @@
         used.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="once-per-request">
+    <xs:attribute name="once-per-request" type="security:boolean">
       <xs:annotation>
         <xs:documentation>Corresponds to the observeOncePerRequest property of
           FilterSecurityInterceptor. Defaults to "false"</xs:documentation>
       </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="true"/>
-          <xs:enumeration value="false"/>
-        </xs:restriction>
-      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="access-denied-page" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Allows the access denied page to be set (the user will be redirected here
+          if an AccessDeniedException is raised).</xs:documentation>
+      </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="intercept-url.attlist">
@@ -794,17 +782,11 @@
           specified, defaults to /.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="invalidate-session">
+    <xs:attribute name="invalidate-session" type="security:boolean">
       <xs:annotation>
         <xs:documentation>Specifies whether a logout also causes HttpSession invalidation, which is
           generally desirable. If unspecified, defaults to true.</xs:documentation>
       </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="true"/>
-          <xs:enumeration value="false"/>
-        </xs:restriction>
-      </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="form-login.attlist">
@@ -914,16 +896,10 @@
           context.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="lowercase-comparisons">
+    <xs:attribute name="lowercase-comparisons" type="security:boolean">
       <xs:annotation>
         <xs:documentation>as for http element</xs:documentation>
       </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="true"/>
-          <xs:enumeration value="false"/>
-        </xs:restriction>
-      </xs:simpleType>
     </xs:attribute>
     <xs:attribute name="path-type">
       <xs:annotation>
@@ -942,14 +918,7 @@
   <xs:attributeGroup name="concurrent-sessions.attlist">
     <xs:attribute name="max-sessions" type="xs:positiveInteger"/>
     <xs:attribute name="expired-url" type="xs:string"/>
-    <xs:attribute name="exception-if-maximum-exceeded">
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="true"/>
-          <xs:enumeration value="false"/>
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:attribute>
+    <xs:attribute name="exception-if-maximum-exceeded" type="security:boolean"/>
     <xs:attribute name="session-registry-alias" type="xs:string">
       <xs:annotation>
         <xs:documentation>Allows you to define an alias for the SessionRegistry bean in order to
@@ -1136,17 +1105,11 @@
           comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="locked">
+    <xs:attribute name="locked" type="security:boolean">
       <xs:annotation>
         <xs:documentation>Can be set to "true" to mark an account as locked and
         unusable.</xs:documentation>
       </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="true"/>
-          <xs:enumeration value="false"/>
-        </xs:restriction>
-      </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="jdbc-user-service" substitutionGroup="security:any-user-service">

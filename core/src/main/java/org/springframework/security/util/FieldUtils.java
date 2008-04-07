@@ -17,6 +17,7 @@ package org.springframework.security.util;
 
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 
@@ -56,8 +57,7 @@ public final class FieldUtils {
      *
      * @throws IllegalStateException if field could not be found
      */
-    public static Field getField(Class clazz, String fieldName)
-        throws IllegalStateException {
+    public static Field getField(Class clazz, String fieldName) throws IllegalStateException {
         Assert.notNull(clazz, "Class required");
         Assert.hasText(fieldName, "Field name required");
 
@@ -71,6 +71,31 @@ public final class FieldUtils {
 
             throw new IllegalStateException("Could not locate field '" + fieldName + "' on class " + clazz);
         }
+    }
+    
+    /**
+     * Returns the value of a (nested) field on a bean. Intended for testing.
+     * @param bean the object
+     * @param fieldName the field name, with "." separating nested properties
+     * @return the value of the nested field
+     */
+    public static Object getFieldValue(Object bean, String fieldName) throws IllegalAccessException {
+        Assert.notNull(bean, "Bean cannot be null");        
+        Assert.hasText(fieldName, "Field name required");        
+        String[] nestedFields = StringUtils.tokenizeToStringArray(fieldName, ".");
+        Class componentClass = bean.getClass();
+        Field field = null;
+        Object value = bean;
+        
+        for (int i=0; i < nestedFields.length; i++) {
+            field = getField(componentClass, nestedFields[i]);
+            field.setAccessible(true);
+            value = field.get(value);            
+            componentClass = value.getClass();
+        }
+        
+        return value;
+        
     }
 
     public static String getMutatorName(String fieldName) {

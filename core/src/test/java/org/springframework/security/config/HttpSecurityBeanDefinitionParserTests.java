@@ -1,10 +1,6 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.Iterator;
 import java.util.List;
@@ -35,11 +31,11 @@ import org.springframework.security.ui.WebAuthenticationDetails;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
 import org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter;
-import org.springframework.security.ui.rememberme.AbstractRememberMeServices;
 import org.springframework.security.ui.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.util.FieldUtils;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 import org.springframework.security.util.PortMapperImpl;
@@ -198,6 +194,17 @@ public class HttpSecurityBeanDefinitionParserTests {
         FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) filters.get(filters.size() - 1);
         
         assertTrue(fsi.isObserveOncePerRequest());
+    }
+    
+    @Test
+    public void accessDeniedPageAttributeIsSupported() throws Exception {
+        setContext("<http access-denied-page='/access-denied'><http-basic /></http>" + AUTH_PROVIDER_XML);
+        FilterChainProxy filterChainProxy = getFilterChainProxy();
+        List filters = filterChainProxy.getFilters("/someurl");
+        
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) filters.get(filters.size() - 2);
+        
+        assertEquals("/access-denied", FieldUtils.getFieldValue(etf, "accessDeniedHandler.errorPage"));
     }    
     
     @Test
@@ -375,7 +382,6 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         assertEquals("Hello from the post processor!", service.getPostProcessorWasHere());
     }
-    
     
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);

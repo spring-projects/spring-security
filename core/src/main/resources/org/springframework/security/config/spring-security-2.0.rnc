@@ -1,12 +1,9 @@
-
-namespace beans = "http://www.springframework.org/schema/beans"
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
-namespace security = "http://www.springframework.org/schema/security"
 datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
 
 default namespace = "http://www.springframework.org/schema/security"
 
-start = http | ldap-server | authentication-provider | ldap-authentication-provider | user-service
+start = http | ldap-server | authentication-provider | ldap-authentication-provider | any-user-service | ldap-server | ldap-authentication-provider
 
 hash =
     ## Defines the hashing algorithm used on user passwords. We recommend strongly against using MD4, as it is a very weak hashing algorithm.
@@ -52,6 +49,8 @@ user-property =
 system-wide =
     ## A single value that will be used as the salt for a password encoder. 
     attribute system-wide {xsd:string}
+    
+boolean = "true" | "false"
 
 
 ldap-server =
@@ -189,7 +188,7 @@ http =
    element http {http.attlist, (intercept-url+ & form-login? & openid-login & x509? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous? & port-mappings) }
 http.attlist &=
     ## Automatically registers a login form, BASIC authentication, anonymous authentication, logout services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".
-    attribute auto-config {"true" | "false" }?
+    attribute auto-config {boolean}?
 http.attlist &=
     ## Controls the eagerness with which an HTTP session is created. If not set, defaults to "ifRequired".
     attribute create-session {"ifRequired" | "always" | "never" }?
@@ -198,10 +197,10 @@ http.attlist &=
     path-type?
 http.attlist &=
     ## Whether test URLs should be converted to lower case prior to comparing with defined path patterns. If unspecified, defaults to "true".
-    attribute lowercase-comparisons {"true" | "false"}?
+    attribute lowercase-comparisons {boolean}?
 http.attlist &=
     ## Provides versions of HttpServletRequest security methods such as isUserInRole() and getPrincipal() which are implemented by accessing the Spring SecurityContext. Defaults to "true".
-    attribute servlet-api-provision {"true" | "false"}?
+    attribute servlet-api-provision {boolean}?
 http.attlist &=
     ## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.
     attribute access-decision-manager-ref {xsd:string}?
@@ -216,8 +215,10 @@ http.attlist &=
     attribute entry-point-ref {xsd:string}?
 http.attlist &=
     ## Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "false"
-    attribute once-per-request {"true" | "false"}?
-
+    attribute once-per-request {boolean}?
+http.attlist &=
+    ## Allows the access denied page to be set (the user will be redirected here if an AccessDeniedException is raised).
+    attribute access-denied-page {xsd:string}?
 
 intercept-url =
     ## Specifies the access attributes and/or filter list for a particular set of URLs.
@@ -250,7 +251,7 @@ logout.attlist &=
     attribute logout-success-url {xsd:string}?
 logout.attlist &=
 	## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
-    attribute invalidate-session {"true" | "false"}?
+    attribute invalidate-session {boolean}?
 
 form-login =
     ## Sets up a form login configuration for authentication with a username and password
@@ -294,7 +295,7 @@ fids.attlist &=
     id?
 fids.attlist &=
     ## as for http element
-    attribute lowercase-comparisons {"true" | "false"}?
+    attribute lowercase-comparisons {boolean}?
 fids.attlist &=
     ## as for http element
     path-type?
@@ -312,7 +313,7 @@ concurrent-sessions.attlist &=
 concurrent-sessions.attlist &=
     attribute expired-url {xsd:string}?
 concurrent-sessions.attlist &=
-    attribute exception-if-maximum-exceeded {"true" | "false"}?
+    attribute exception-if-maximum-exceeded {boolean}?
 concurrent-sessions.attlist &=
     ## Allows you to define an alias for the SessionRegistry bean in order to access it in your own configuration
     attribute session-registry-alias {xsd:string}?
@@ -400,7 +401,7 @@ user.attlist &=
     attribute authorities {xsd:string}
 user.attlist &=
 	  ## Can be set to "true" to mark an account as locked and unusable.
-    attribute locked {"true" | "false"}?
+    attribute locked {boolean}?
 
 
 jdbc-user-service =
