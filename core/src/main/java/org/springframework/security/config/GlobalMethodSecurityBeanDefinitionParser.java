@@ -110,6 +110,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         delegatingMethodDefinitionSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         delegatingMethodDefinitionSource.setSource(parserContext.extractSource(element));
         delegatingMethodDefinitionSource.getPropertyValues().addPropertyValue("methodDefinitionSources", delegates);
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE, delegatingMethodDefinitionSource);
         
         // Register the applicable AccessDecisionManager, handling the special JSR 250 voter if being used
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
