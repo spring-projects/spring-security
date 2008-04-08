@@ -67,23 +67,21 @@
         example:</para>
     
     <para><programlisting>
-        &lt;bean id="filterInvocationInterceptor"
-        class="org.springframework.security.intercept.web.FilterSecurityInterceptor"&gt;
-        &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
-        &lt;property name="accessDecisionManager"&gt;&lt;ref local="httpRequestAccessDecisionManager"/&gt;&lt;/property&gt;
-        &lt;property name="objectDefinitionSource"&gt;
-        &lt;value&gt;
-        CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-        PATTERN_TYPE_APACHE_ANT
-        /index.jsp=ROLE_ANONYMOUS,ROLE_USER
-        /hello.htm=ROLE_ANONYMOUS,ROLE_USER
-        /logoff.jsp=ROLE_ANONYMOUS,ROLE_USER
-        /acegilogin.jsp*=ROLE_ANONYMOUS,ROLE_USER
-        /**=ROLE_USER
-        &lt;/value&gt;
-        &lt;/property&gt;
-        &lt;/bean&gt;
-        
+<![CDATA[        
+<bean id="filterInvocationInterceptor"
+    class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+  <property name="authenticationManager" ref="authenticationManager"/>
+  <property name="accessDecisionManager" ref="httpRequestAccessDecisionManager"/>
+  <property name="objectDefinitionSource">
+    <security:filter-invocation-definition-source>
+      <security:intercept-url pattern='/index.jsp' access='ROLE_ANONYMOUS,ROLE_USER'/>
+      <security:intercept-url pattern='/hello.htm' access='ROLE_ANONYMOUS,ROLE_USER'/>
+      <security:intercept-url pattern='/logoff.jsp' access='ROLE_ANONYMOUS,ROLE_USER'/>
+      <security:intercept-url pattern='/login.jsp' access='ROLE_ANONYMOUS,ROLE_USER'/>
+      <security:intercept-url pattern='/**' access='ROLE_USER'/>
+    </security:filter-invocation-definition-source>" +
+  </property>
+</bean>]]>
     </programlisting>Rounding out the anonymous authentication discussion
         is the <literal>AuthenticationTrustResolver</literal> interface, with
         its corresponding <literal>AuthenticationTrustResolverImpl</literal>

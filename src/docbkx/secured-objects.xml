@@ -347,29 +347,29 @@ if (this.securityInterceptor == null)
     beans:</para>
 
     <programlisting> 
-&lt;bean id="exceptionTranslationFilter"
-        class="org.springframework.security.ui.ExceptionTranslationFilter"&gt;
-    &lt;property name="authenticationEntryPoint"&gt;&lt;ref local="authenticationEntryPoint"/&gt;&lt;/property&gt;
-&lt;/bean&gt;
+<![CDATA[
+<bean id="exceptionTranslationFilter"
+        class="org.springframework.security.ui.ExceptionTranslationFilter">
+  <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
+</bean>
 
-&lt;bean id="authenticationEntryPoint"
-        class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint"&gt;
-    &lt;property name="loginFormUrl"&gt;&lt;value&gt;/acegilogin.jsp&lt;/value&gt;&lt;/property&gt;
-    &lt;property name="forceHttps"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
-&lt;/bean&gt;
+<bean id="authenticationEntryPoint"
+        class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+  <property name="loginFormUrl" value="/acegilogin.jsp"/>
+  <property name="forceHttps" value="false"/>
+</bean>
 
-&lt;bean id="filterSecurityInterceptor"
-        class="org.springframework.security.intercept.web.FilterSecurityInterceptor"&gt;
-    &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
-    &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
-    &lt;property name="objectDefinitionSource"&gt;
-    &lt;property name="filterInvocationDefinitionSource"&gt;
-        &lt;security:filter-invocation-definition-source path-type="regex"&gt;
-            &lt;security:intercept-url pattern="\A/secure/super/.*\Z" access="ROLE_WE_DONT_HAVE"/&gt;
-            &lt;security:intercept-url pattern="\A/secure/.*\" access="ROLE_SUPERVISOR,ROLE_TELLER"/&gt;
-        &lt;/security:filter-invocation-definition-source&gt;                
-    &lt;/property&gt;
-&lt;/bean&gt;         </programlisting>
+<bean id="filterSecurityInterceptor"
+        class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+  <property name="authenticationManager" ref="authenticationManager"/>
+  <property name="accessDecisionManager" ref="accessDecisionManager"/>
+  <property name="objectDefinitionSource">
+    <security:filter-invocation-definition-source>
+      <security:intercept-url pattern="/secure/super/**" access="ROLE_WE_DONT_HAVE"/>
+      <security:intercept-url pattern="/secure/**" access="ROLE_SUPERVISOR,ROLE_TELLER"/>    
+    </security:filter-invocation-definition-source>                
+  </property>
+</bean>]]>         </programlisting>
 
     <para>The <classname>ExceptionTranslationFilter</classname> provides
     the bridge between Java exceptions and HTTP responses. It is solely
@@ -407,9 +407,12 @@ if (this.securityInterceptor == null)
     Level Design section of this document.</para>
 
     <para>The <literal>FilterSecurityInterceptor</literal> can be
-    configured with configuration attributes in two ways. The first is via
-    a property editor and the application context, which is shown above.
-    The second is via writing your own
+    configured with configuration attributes in two ways. The first, 
+    which is shown above, is using the <literal>&lt;filter-invocation-definition-source&gt;</literal>
+    namespace element. This is similar to the <literal>&lt;filter-chain-map&gt;</literal>
+    used to configure a <literal>FilterChainProxy</literal> but the <literal>&lt;intercept-url&gt;</literal>
+    child elements only use the <literal>pattern</literal> and <literal>access</literal> attributes.
+    The second is by writing your own
     <literal>ObjectDefinitionSource</literal>, although this is beyond the
     scope of this document. Irrespective of the approach used, the
     <literal>ObjectDefinitionSource</literal> is responsible for returning
@@ -430,8 +433,8 @@ if (this.securityInterceptor == null)
     little relevance to most users of the
     <literal>FilterSecurityInterceptor</literal>.</para>
 
-    <para>If using the application context property editor approach (as
-    shown above), commas are used to delimit the different configuration
+    <para>When using the namespace option to configure the interceptor, 
+        commas are used to delimit the different configuration
     attributes that apply to each HTTP URL. Each configuration attribute
     is assigned into its own <literal>SecurityConfig</literal> object. The
     <literal>SecurityConfig</literal> object is discussed in the High
@@ -441,27 +444,26 @@ if (this.securityInterceptor == null)
     configuration attributes against <literal>FilterInvocations</literal>
     based on expression evaluation of the request URL. Two standard
     expression syntaxes are supported. The default is to treat all
-    expressions as regular expressions. Alternatively, the presence of a
-    <literal>PATTERN_TYPE_APACHE_ANT</literal> directive will cause all
-    expressions to be treated as Apache Ant paths. It is not possible to
+    expressions as Apache Ant paths and regular expressions are also supported
+    for ore complex cases. The <literal>path-type</literal> attribute is used
+    to specify the type of pattern being used. It is not possible to
     mix expression syntaxes within the same definition. For example, the
-    earlier configuration could be generated using Apache Ant paths as
-    follows:</para>
+    previous configuration using regular expressions instead of Ant paths would be
+    written as follows:</para>
 
-    <programlisting>&lt;bean id="filterInvocationInterceptor"
-        class="org.springframework.security.intercept.web.FilterSecurityInterceptor"&gt;
-&lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
-&lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
-&lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
-&lt;property name="objectDefinitionSource"&gt;
-&lt;value&gt;
-  CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-  PATTERN_TYPE_APACHE_ANT
-  /secure/super/**=ROLE_WE_DONT_HAVE
-  /secure/**=ROLE_SUPERVISOR,ROLE_TELLER
-&lt;/value&gt;
-&lt;/property&gt;
-&lt;/bean&gt;        </programlisting>
+    <programlisting><![CDATA[
+<bean id="filterInvocationInterceptor"
+        class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+  <property name="authenticationManager" ref="authenticationManager"/>
+  <property name="accessDecisionManager" ref="accessDecisionManager"/>
+  <property name="runAsManager" ref="runAsManager"/>
+  <property name="objectDefinitionSource">
+    <security:filter-invocation-definition-source path-type="regex">
+      <security:intercept-url pattern="\A/secure/super/.*\Z" access="ROLE_WE_DONT_HAVE"/>
+      <security:intercept-url pattern="\A/secure/.*\" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
+    </security:filter-invocation-definition-source>  
+  </property>
+</bean>]]>        </programlisting>
 
     <para>Irrespective of the type of expression syntax used, expressions
     are always evaluated in the order they are defined. Thus it is
@@ -473,15 +475,6 @@ if (this.securityInterceptor == null)
     <literal>/secure/</literal> pattern would always match and the
     <literal>/secure/super/</literal> pattern would never be
     evaluated.</para>
-
-    <para>The special keyword
-    <literal>CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON</literal> causes
-    the <literal>FilterInvocationDefinitionSource</literal> to
-    automatically convert a request URL to lowercase before comparison
-    against the expressions. Whilst by default the case of the request URL
-    is not converted, it is generally recommended to use
-    <literal>CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON</literal> and
-    write each expression assuming lowercase.</para>
 
     <para>As with other security interceptors, the
     <literal>validateConfigAttributes</literal> property is observed. When

@@ -1,7 +1,8 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="authentication-common-auth-services"><info><title>Common Authentication Services</title></info>
-  
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="authentication-common-auth-services">
+  <info><title>Common Authentication Services</title></info>
 
-  <section xml:id="mechanisms-providers-entry-points"><info><title>Mechanisms, Providers and Entry Points</title></info>
+  <section xml:id="mechanisms-providers-entry-points">
+    <info><title>Mechanisms, Providers and Entry Points</title></info>
     
 
     <para>If you're using Spring Security-provided authentication
@@ -18,17 +19,16 @@
     Spring Security application will have such an entry, and it looks like
     this:</para>
 
-    <para><programlisting>
- 
-    &lt;filter&gt;
-        &lt;filter-name&gt;filterChainProxy&lt;/filter-name&gt;
-        &lt;filter-class&gt;org.springframework.web.filter.DelegatingFilterProxy&lt;/filter-class&gt;
-    &lt;/filter&gt;
+    <para><programlisting><![CDATA[
+    <filter>
+        <filter-name>filterChainProxy</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
 
-    &lt;filter-mapping&gt;
-      &lt;filter-name&gt;filterChainProxy&lt;/filter-name&gt;
-      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-    &lt;/filter-mapping&gt;
+    <filter-mapping>
+      <filter-name>filterChainProxy</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>]]>
 </programlisting></para>
 
     <para>The above declarations will cause every web request to be passed
@@ -38,30 +38,27 @@
      As explained in the filters section of this reference guide, the
     <classname>FilterChainProxy</classname> is a generally-useful class
     that enables web requests to be passed to different filters based on
-    the URL patterns. Those delegated filters are managed inside the
+    URL patterns. Those delegated filters are managed inside the
     application context, so they can benefit from dependency injection.
     Let's have a look at what the FilterChainProxy bean definition would
     look like inside your application context:</para>
 
-    <para><programlisting>&lt;bean id="filterChainProxy"
-        class="org.springframework.security.util.FilterChainProxy"&gt;
-&lt;property name="filterInvocationDefinitionSource"&gt;
-&lt;value&gt;
-  CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-  PATTERN_TYPE_APACHE_ANT
-  /**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor,switchUserProcessingFilter
-&lt;/value&gt;
-&lt;/property&gt;
-&lt;/bean&gt;</programlisting></para>
+    <para><programlisting><![CDATA[
+<bean id="filterChainProxy"
+        class="org.springframework.security.util.FilterChainProxy">
+  <security:filter-chain-map path-type="ant">
+    <security:filter-chain pattern="/**" filters="httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor,switchUserProcessingFilter"/>
+  </security:filter-chain-map>
+</bean>]]></programlisting></para>
 
-    <para>Internally Spring Security will use a
-    <literal>PropertyEditor</literal> to convert the string presented in
-    the above XML fragment into a
-    <literal>FilterInvocationDefinitionSource</literal> object. What's
-    important to note at this stage is that a series of filters will be
+    <para>The <literal>filter-chain-map</literal> syntax from the security namespace
+      allows you to define the mapping from URLs to filter chains, using a sequence of
+      <literal>filter-chain</literal> child elements. Each of these defines a set of URLs using
+      the <literal>pattern</literal> attribute and a chain of filters using the <literal>filters</literal>
+      attribute.What's important to note at this stage is that a series of filters will be
     run - in the order specified by the declaration - and each of those
-    filters are actually the <literal>&lt;bean id&gt;</literal> of another
-    bean inside the application context. So, in our case some extra beans
+    filters are actually the <literal>id</literal> of another
+    bean in the application context. So, in our case some extra beans
     will also appear in the application context, and they'll be named
     <literal>httpSessionContextIntegrationFilter</literal>,
     <literal>logoutFilter</literal> and so on. The order that the filters

@@ -145,13 +145,15 @@
     The filter chain is then declared in the application context, using
     code such as this:</para>
 
-    <para><programlisting> 
-&lt;bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy"&gt;
-    &lt;sec:filter-chain-map path-type="ant"&gt;
-        &lt;sec:filter-chain pattern="/webServices/**" filters="httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/&gt;
-        &lt;sec:filter-chain pattern="/**" filters="httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/&gt;
-    &lt;/sec:filter-chain-map&gt;
-&lt;/bean&gt;         </programlisting></para>
+    <para><programlisting><![CDATA[
+<bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
+    <sec:filter-chain-map path-type="ant">
+        <sec:filter-chain pattern="/webServices/**" filters="httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
+        <sec:filter-chain pattern="/**" filters="httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
+    </sec:filter-chain-map>
+</bean>
+]]>         
+    </programlisting></para>
 
     <para>You may notice similarities with the way
     <literal>FilterSecurityInterceptor</literal> is declared. Both regular

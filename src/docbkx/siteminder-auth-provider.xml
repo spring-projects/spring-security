@@ -58,7 +58,7 @@
         username parameter as well - just don't do this in production!</para>
     
     <para>Note that you'll need a
-        <literal><literal>SiteminderAuthenticationProvider</literal></literal>
+        <literal>SiteminderAuthenticationProvider</literal>
         configured against your <literal>ProviderManager</literal> in order to
         use the Siteminder authentication mechanism. Normally an
         <literal>AuthenticationProvider</literal> expects the password
