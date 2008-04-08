@@ -9,7 +9,7 @@
         <subtitle>Reference Documentation</subtitle>
         
         <author>
-            <personname>Ben Alex</personname>
+            <personname>Ben Alex, Luke Taylor</personname>
         </author>
                 
         <releaseinfo>2.0-SNAPSHOT</releaseinfo>
@@ -80,6 +80,23 @@
     <para>Finally, welcome to the Spring Security <link xlink:href="#community" >community</link>.
     </para>
   </preface>
+  
+  <part xml:id="getting-started">
+    <title>Getting Started</title>
+    <partintro>
+    <para>The remaining parts of this guide provide an in-depth discussion of the
+      framework architecture and implementation classes, an understanding of which is important
+      if you need to do any serious customization. In this part, we take a slightly
+      gentler look at how to get started using some of the features of Spring Security 2.0.
+      The use of namespace configuration provides a much simpler path to securing
+      your application with little or no knowledge of the classes involved, unlike the traditional
+      Spring bean approach which required you to configure large numbers of beans.
+    </para>
+    </partintro>
+    
+    <xi:include href="namespace-config.xml" />
+
+  </part>
 
   <part xml:id="overall-architecture">
     <title>Overall Architecture</title>
@@ -93,15 +110,15 @@
       integration.</para>
     </partintro>
 
-    <xi:include href="introduction.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <xi:include href="introduction.xml" />
     
-    <xi:include href="technical-overview.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <xi:include href="technical-overview.xml" />
 
-    <xi:include href="supporting-infrastructure.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <xi:include href="supporting-infrastructure.xml" />
     
-    <xi:include href="channel-security.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <xi:include href="channel-security.xml" />
     
-    <xi:include href="taglibs.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <xi:include href="taglibs.xml" />
   </part>
 
   <part xml:id="authentication">
@@ -117,21 +134,21 @@
 
     <xi:include href="common-auth-services.xml" />
 
-    <xi:include href="dao-auth-provider.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>    
+    <xi:include href="dao-auth-provider.xml" />    
 
-    <xi:include href="jaas-auth-provider.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <xi:include href="jaas-auth-provider.xml" />
 
-    <xi:include href="runas-auth-provider.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <xi:include href="runas-auth-provider.xml" />
     
-    <xi:include href="form-authentication.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <xi:include href="form-authentication.xml" />
     
-    <xi:include href="basic-authentication.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <xi:include href="basic-authentication.xml" />
     
-    <xi:include href="digest-authentication.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <xi:include href="digest-authentication.xml" />
     
-    <xi:include href="remember-me-authentication.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>    
+    <xi:include href="remember-me-authentication.xml" />    
     
-    <xi:include href="anon-auth-provider.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>    
+    <xi:include href="anon-auth-provider.xml" />    
 
     <xi:include href="x509-auth-provider.xml"/>
 

@@ -1,7 +1,8 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="secure-object-impls"><info><title>Secure Object Implementations</title></info>
-  
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="secure-object-impls">
+  <info><title>Secure Object Implementations</title></info>
 
-  <section xml:id="aop-alliance"><info><title>AOP Alliance (MethodInvocation) Security Interceptor</title></info>
+  <section xml:id="aop-alliance">
+    <info><title>AOP Alliance (MethodInvocation) Security Interceptor</title></info>
     
 
     <para>To secure <literal>MethodInvocation</literal>s, developers

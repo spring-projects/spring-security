@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="namespace-config" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <info>
+    <title>Security Namespace Configuration</title>
+  </info>
+  <section>
+    <info>
+      <title>Introduction</title>
+    </info>
+    <para>
+      Namespace configuration is a feature of Spring 2.0 which allows a bean or beans to be
+      configured by parsing XML elements from a namespace which are included in your application
+      context file (in addition to elements from the tradtitional Spring "beans" namespace). You can
+      find more information in the Spring
+      <link xlink:href="http://static.springframework.org/spring/docs/2.5.x/reference/xsd-config.html">
+        Reference Documentation</link>. A namespace element be used simply to allow a more concise
+      way of configuring an existing bean or, more powerfully, to define an alternative
+      configuration syntax which more closely matches the problem domain and hides the underlying
+      complexity from the user. A relatively simple element may conceal the fact that many beans and
+      processing steps are being added to the application context. For example, adding the following
+      element from the securty namespace to an application context will start up an embedded LDAP
+      server for testing use within the application:
+      <programlisting><![CDATA[ 
+  <security:ldap-server id="embeddedLdapServer"/>
+]]></programlisting>
+      which is much simpler than wiring up the equivalent Apache Directory Server beans. The most
+      common alterative configuration requirements are supported by attributes on the
+      <literal>ldap-server</literal> element.
+      <footnote>
+        <para>You can find out more about the use of the
+          <literal>ldap-server</literal>
+          element in the chapter on
+          <link xlink:href="ldap">LDAP</link>.</para>
+      </footnote>. The user is isolated from worrying about which beans they need to be set
+      on and what the bean property names are. Use of a good XML editor while editing the
+      configuration file should provide information on the attributes and elements that are
+      available (and their purpose).
+    </para>
+    <para>
+      To start using the security namespace in your application context, all you need to do is add
+      the schema declaration to your application context file:
+<programlisting>
+  <![CDATA[
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:security="http://www.springframework.org/schema/security"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+              http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">  
+    ...
+</beans>
+  ]]></programlisting>
+      In many of the examples you will see (and in the sample) applications, we will often use "security" as the default
+      namespace rather than "beans", which means we can omit the prefix on all the security namespace elements,
+      making the context easier to read. You may also want to do this if you have your application context divided up
+      into separate files and have most of your security configuration in one of them. Your application context file would then
+      start like this
+      <programlisting><![CDATA[
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+   xmlns:beans="http://www.springframework.org/schema/beans">
+    ...
+</beans:beans>
+]]></programlisting>
+    </para>
+  </section>
+  <section>
+    <info>
+      <title>Design</title>
+    </info>
+    <para>
+      The namespace is designed to capture the most common uses of the framework and provide a simplified and concise
+    syntax for enabling them within an application. The design is largely based around the large-scale dependencies
+    within the framework, and can be divided up into the following areas:
+    <itemizedlist>
+      <listitem><para><emphasis>Web/HTTP Security</emphasis> - the most complex part. Sets up the filters and 
+        related service beans used to apply the framework authentication mechanisms, secure URLs, render login and error pages and much more.</para></listitem>
+      <listitem><para><emphasis>Business Object (Method) Security</emphasis> - options for securing the service layer.</para></listitem>
+      <listitem><para><emphasis>AuthenticationManager</emphasis> - handles authentication requests from other parts of the framework.</para></listitem>
+      <listitem><para><emphasis>AccessDecisionManager</emphasis> - provides access decisions for web and method security.</para></listitem>
+      <listitem><para><emphasis>AuthenticationProvider</emphasis>s - mechanisms against which the authentication manager authenticates users.
+      The namespace provides supports for several standard options and also a means of adding custom beans declared using a traditional syntax. </para></listitem>
+      <listitem><para><emphasis>UserDetailsService</emphasis> - closely related to authentication providers, but often also required by other beans.</para></listitem>
+      <!-- todo: diagram and link to other sections which describe the interfaces -->
+    </itemizedlist>    
+    </para>
+    
+  </section>
+</chapter>
