@@ -34,7 +34,7 @@
           <tr><th>Document</th><th>Description</th></tr>
           <tr>
             <td>
-              <a href="reference/springsecurity.html">Reference Guide as HTML</a>
+              <a href="reference/html/springsecurity.html">Reference Guide as HTML</a>
             </td>
             <td>
               The reference guide in a HTML.
@@ -43,7 +43,7 @@
 
           <tr>
             <td>
-              <a href="reference/springsecurity.pdf">Reference Guide PDF</a>
+              <a href="reference/pdf/springsecurity.pdf">Reference Guide PDF</a>
             </td>
             <td>
               The PDF version of the reference guide.
