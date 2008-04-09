@@ -252,7 +252,7 @@
         <para>
           In practice you will need a more scalable source of user information than a few names added to the context file.
           Most likely you will want to store your user information in something like a database or an LDAP server. LDAP namespace
-          configuration is dealt with in the <link xlink:href="#lpap">LDAP chapter</link>, so we won't cover it here. If you have a
+          configuration is dealt with in the <link xlink:href="#ldap">LDAP chapter</link>, so we won't cover it here. If you have a
           custom implementation of Spring Security's <classname>UserDetailsService</classname>, called "myUserDetailsService" in your
           application context, then you can authenticate against this using
           <programlisting><![CDATA[
