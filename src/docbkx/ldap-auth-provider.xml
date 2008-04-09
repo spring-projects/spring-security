@@ -167,7 +167,7 @@
                 </itemizedlist>
                 So if we used the following configuration
                 <programlisting><![CDATA[
-    <ldap-authentication-provider user-dn-pattern="uid={0},ou=people group-search-base="ou=groups" />
+    <ldap-authentication-provider user-dn-pattern="uid={0},ou=people" group-search-base="ou=groups" />
     ]]></programlisting>
                 and authenticated successfully as user
                 <quote>ben</quote>, the subsequent loading of authorities would perform a search

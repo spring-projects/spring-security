@@ -131,7 +131,7 @@
     for more information</para>
 
       <para>Rather than using <literal>DelegatingFilterProxy</literal>, we
-    strongly recommend to use <literal>FilterChainProxy</literal> instead.
+    strongly recommend that you use <literal>FilterChainProxy</literal> instead.
           Whilst <literal>DelegatingFilterProxy</literal> is a very useful class,
     the problem is that the number of lines of code required for
     <literal>&lt;filter&gt;</literal> and
