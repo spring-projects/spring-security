@@ -23,7 +23,7 @@
   <security:ldap-server />
 ]]></programlisting>
       This is much simpler than wiring up the equivalent Apache Directory Server beans. The most
-      common alterative configuration requirements are supported by attributes on the
+      common alternative configuration requirements are supported by attributes on the
       <literal>ldap-server</literal>
       element and the user is isolated from worrying about which beans they need to be set on and
       what the bean property names are.
@@ -126,7 +126,7 @@
     <section>
       <info><title><literal>web.xml</literal> Configuration</title></info>
       <para>
-       The first thing you need to do is add the following fiter declaration to your
+       The first thing you need to do is add the following filter declaration to your
       <literal>web.xml</literal>
       file:
       <programlisting>
@@ -196,7 +196,7 @@
       </para>
       <para>
         At this point you should be able to start up your application and you will be required to
-        log in to proceed. Try it out, or try experimenting with the "tutorial" sample applicaition
+        log in to proceed. Try it out, or try experimenting with the "tutorial" sample application
         that comes with the project. The above configuration actually adds quite a few services to
         the application because we have used the
         <literal>auto-config</literal>
@@ -222,19 +222,23 @@
   </http>
   ]]>
           </programlisting>
-         These other elements are responsible for setting up form-login,  see 
+         These other elements are responsible for setting up form-login, 
           <link xlink:href="#anonymous">anonymous authentication</link>, basic authentication, logout handling and remember-me services
           respectively. They each have attributes which can be used to alter their behaviour. For example, if you
           want to supply your own login page, you could use:
           <programlisting><![CDATA[
   <http auto-config='true'>
+    <intercept-url pattern="/login.jsp*" filters="none"/>  
     <intercept-url pattern="/**" access="ROLE_USER" />
     <form-login login-page='/login.jsp'/>
   </http>
   ]]>
           </programlisting>
           Note that you can still use <literal>auto-config</literal>. The <literal>form-login</literal> element just overrides the 
-          default settings. If you want to use basic authentication instead of form login, then change the configuration to
+          default settings. Also note that we've added an extra <literal>intercept-url</literal> element to say that any requests
+          for the login page should be excluded from processing by the security filters. Otherwise the request would be matched by
+          the pattern <literal>/**</literal> and it wouldn't be possible to access the login page itself!
+          If you want to use basic authentication instead of form login, then change the configuration to
           <programlisting><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/**" access="ROLE_USER" />
@@ -247,34 +251,35 @@
           through a login form embedded in another web page.
         </para>
       </section>
-      <section>
-        <title>Configuring other Authentication Providers</title>
-        <para>
-          In practice you will need a more scalable source of user information than a few names added to the context file.
-          Most likely you will want to store your user information in something like a database or an LDAP server. LDAP namespace
-          configuration is dealt with in the <link xlink:href="#ldap">LDAP chapter</link>, so we won't cover it here. If you have a
-          custom implementation of Spring Security's <classname>UserDetailsService</classname>, called "myUserDetailsService" in your
-          application context, then you can authenticate against this using
-          <programlisting><![CDATA[
+    </section>
+    <section>
+      <title>Configuring other Authentication Providers</title>
+      <para>
+        In practice you will need a more scalable source of user information than a few names added to the context file.
+        Most likely you will want to store your user information in something like a database or an LDAP server. LDAP namespace
+        configuration is dealt with in the <link xlink:href="#ldap">LDAP chapter</link>, so we won't cover it here. If you have a
+        custom implementation of Spring Security's <classname>UserDetailsService</classname>, called "myUserDetailsService" in your
+        application context, then you can authenticate against this using
+        <programlisting><![CDATA[
   <authentication-provider user-service-ref='myUserDetailsService'/>
   ]]>
-          </programlisting>
-          If you want to use a database, then you can use 
-          <programlisting><![CDATA[
+        </programlisting>
+        If you want to use a database, then you can use 
+        <programlisting><![CDATA[
   <authentication-provider>
     <jdbc-user-service data-source-ref="securityDataSource"/>
   </authentication-provider>
   ]]>
-          </programlisting>
-          Where "securityDataSource" is the name of a <classname>DataSource</classname> bean in the application context,
-          pointing at a database containing the standard Spring Security user data tables. Alternatively, you could configure
-          a Spring Security <classname>JdbcDaoImpl</classname> bean and point at that using the <literal>user-service-ref</literal>
-          attribute.
-        </para>
-        <section><title>Adding a Password Encoder</title>
+        </programlisting>
+        Where "securityDataSource" is the name of a <classname>DataSource</classname> bean in the application context,
+        pointing at a database containing the standard Spring Security user data tables. Alternatively, you could configure
+        a Spring Security <classname>JdbcDaoImpl</classname> bean and point at that using the <literal>user-service-ref</literal>
+        attribute.
+      </para>
+      <section><title>Adding a Password Encoder</title>
         <para>
-          Often your password data will be encoded using a hashing algorithm. This is supported by the <literal>&gt;password-encoder&lt;</literal>
-          element. With SHA-encoded passwords, the original authentication provider configuration would look like this: 
+          Often your password data will be encoded using a hashing algorithm. This is supported by the <literal>&lt;password-encoder&gt;</literal>
+          element. With SHA encoded passwords, the original authentication provider configuration would look like this: 
           <programlisting><![CDATA[
   <authentication-provider>
     <password-encoder hash="sha"/>
@@ -286,22 +291,20 @@
   ]]>
           </programlisting> 
         </para>
-          <para>
-            When using hashed passwords, it's also a good idea to use a salt value to protect against dictionary attacks and Spring Security supports this too.
-            Ideally you would want to use a randomly generated salt value for each user, but you can use any property of the <classname>UserDetails</classname>
-            object which is loaded by your <classname>UserDetailsService</classname>. For example, to use the <literal>username</literal> property, you would use
-            <programlisting><![CDATA[
+        <para>
+          When using hashed passwords, it's also a good idea to use a salt value to protect against dictionary attacks and Spring Security supports this too.
+          Ideally you would want to use a randomly generated salt value for each user, but you can use any property of the <classname>UserDetails</classname>
+          object which is loaded by your <classname>UserDetailsService</classname>. For example, to use the <literal>username</literal> property, you would use
+          <programlisting><![CDATA[
     <password-encoder hash="sha">
       <salt-source user-property="username"/>
     </password-encoder>
     ]]></programlisting>
-            You can use a custom password ecoder bean by using the <literal>ref</literal> attribute of <literal>password-encoder</literal>. This should
-            contain the name of a bean in the application context which is an instance of Spring Security's <interfacename>PasswordEncoder</interfacename>
-            interface.
-          </para>
-        </section>
+          You can use a custom password encoder bean by using the <literal>ref</literal> attribute of <literal>password-encoder</literal>. This should
+          contain the name of a bean in the application context which is an instance of Spring Security's <interfacename>PasswordEncoder</interfacename>
+          interface.
+        </para>
       </section>
     </section>
-    
   </section>
 </chapter>

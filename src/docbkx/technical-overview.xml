@@ -1,8 +1,8 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="technical-overview"><info><title>Technical Overview</title></info>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="technical-overview">
+  <info><title>Technical Overview</title></info>
   
-
-  <section xml:id="runtime-environment"><info><title>Runtime Environment</title></info>
-    
+  <section xml:id="runtime-environment">
+    <info><title>Runtime Environment</title></info>
 
     <para>Spring Security is written to execute within a standard Java 1.4
     Runtime Environment. It also supports Java 5.0, although the Java
@@ -477,11 +477,9 @@ String username = obj.toString();
         <imageobject role="html">
           <imagedata align="center" fileref="images/SecurityInterception.gif" format="GIF"/>
         </imageobject>
-
         <imageobject role="fo">
-          <imagedata align="center" fileref="images/SecurityInterception.gif" format="GIF"/>
+          <imagedata align="center" fileref="resources/images/SecurityInterception.gif" format="GIF"/>
         </imageobject>
-
         <caption>
           <para>Figure 1: The key "secure object" model</para>
         </caption>

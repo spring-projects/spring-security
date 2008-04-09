@@ -84,15 +84,17 @@
   <part xml:id="getting-started">
     <title>Getting Started</title>
     <partintro>
-    <para>The remaining parts of this guide provide an in-depth discussion of the
+    <para>The later parts of this guide provide an in-depth discussion of the
       framework architecture and implementation classes, an understanding of which is important
       if you need to do any serious customization. In this part, we take a slightly
       gentler look at how to get started using some of the features of Spring Security 2.0.
-      The use of namespace configuration provides a much simpler path to securing
+      In particular, the use of namespace configuration provides a much simpler path to securing
       your application with little or no knowledge of the classes involved, unlike the traditional
       Spring bean approach which required you to configure large numbers of beans.
     </para>
     </partintro>
+    
+    <xi:include href="introduction.xml" />    
     
     <xi:include href="namespace-config.xml" />
 
@@ -109,8 +111,6 @@
       are necessary to successfully planning and executing a Spring Security
       integration.</para>
     </partintro>
-
-    <xi:include href="introduction.xml" />
     
     <xi:include href="technical-overview.xml" />
 

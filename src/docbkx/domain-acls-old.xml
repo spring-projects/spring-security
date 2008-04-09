@@ -108,6 +108,9 @@
     access control list (ACL) lookups.</para>
 
     <para><mediaobject>
+        <imageobject>
+          <imagedata role="fo" align="center" fileref="resources/images/ACLSecurity.gif" format="GIF"/>
+        </imageobject>
         <imageobject role="html">
           <imagedata align="center" fileref="images/ACLSecurity.gif" format="GIF"/>
         </imageobject>
@@ -166,6 +169,9 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
     implementation, which is shown in Figure 7.</para>
 
     <para><mediaobject>
+        <imageobject role="fo">
+          <imagedata align="center" fileref="resources/images/BasicAclProvider.gif" format="GIF"/>
+        </imageobject>
         <imageobject role="html">
           <imagedata align="center" fileref="images/BasicAclProvider.gif" format="GIF"/>
         </imageobject>
@@ -457,6 +463,9 @@ END;
     for more information.</para>
 
     <mediaobject>
+      <imageobject role="fo">
+        <imagedata align="center" fileref="resources/images/Permissions.gif" format="GIF"/>
+      </imageobject>
       <imageobject role="html">
         <imagedata align="center" fileref="images/Permissions.gif" format="GIF"/>
       </imageobject>

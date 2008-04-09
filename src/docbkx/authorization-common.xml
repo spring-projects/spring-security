@@ -95,6 +95,9 @@ public boolean supports(Class clazz);</programlisting></para>
     based on voting. Figure 4 illustrates the relevant classes.</para>
 
     <para><mediaobject>
+        <imageobject role="fo">
+          <imagedata align="center" fileref="resources/images/AccessDecisionVoting.gif" format="GIF"/>
+        </imageobject>
         <imageobject role="html">
           <imagedata align="center" fileref="images/AccessDecisionVoting.gif" format="GIF"/>
         </imageobject>
@@ -266,7 +269,10 @@ public boolean supports(Class clazz);</programlisting></para>
 
     <para><mediaobject>
         <imageobject>
-          <imagedata align="center" fileref="images/AfterInvocation.gif" format="GIF"/>
+          <imagedata role="fo" align="center" fileref="resources/images/AfterInvocation.gif" format="GIF"/>
+        </imageobject>
+        <imageobject>
+          <imagedata role="html" align="center" fileref="images/AfterInvocation.gif" format="GIF"/>
         </imageobject>
 
         <caption>
