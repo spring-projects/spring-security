@@ -61,10 +61,11 @@
     ...
 </beans:beans>
 ]]></programlisting>
+      We'll assume this syntax is being used from now on in this chapter.
     </para>
     <section>
       <info>
-        <title>Design</title>
+        <title>Design of the Namespace</title>
       </info>
       <para>
         The namespace is designed to capture the most common uses of the framework and provide a simplified and concise
@@ -75,14 +76,79 @@
             related service beans used to apply the framework authentication mechanisms, to secure URLs, render login and error pages and much more.</para></listitem>
           <listitem><para><emphasis>Business Object (Method) Security</emphasis> - options for securing the service layer.</para></listitem>
           <listitem><para><emphasis>AuthenticationManager</emphasis> - handles authentication requests from other parts of the framework.</para></listitem>
-          <listitem><para><emphasis>AccessDecisionManager</emphasis> - provides access decisions for web and method security.</para></listitem>
+          <listitem><para><emphasis>AccessDecisionManager</emphasis> - provides access decisions for web and method security. A default one will be registered, but you can also
+          choose to use a custom one, declared using normal Spring bean syntax.</para></listitem>
           <listitem><para><emphasis>AuthenticationProvider</emphasis>s - mechanisms against which the authentication manager authenticates users.
             The namespace provides supports for several standard options and also a means of adding custom beans declared using a traditional syntax. </para></listitem>
           <listitem><para><emphasis>UserDetailsService</emphasis> - closely related to authentication providers, but often also required by other beans.</para></listitem>
           <!-- todo: diagram and link to other sections which describe the interfaces -->
         </itemizedlist>    
       </para>
+      <para>We'll see how these work together in the next section.</para>
       
+    </section>
+  </section>
+  <section>
+    <info><title>Example Configurations</title></info>
+    <para>
+      In this section, we'll look at how you can build up a namespace configuration to use different features of the framework.
+    </para>
+    
+    <section>
+    <info><title>A Minimal Configuration</title></info>
+    <para>
+      Let's assume you want to get up and running as quickly as possible and add authentication support and access control to an existing
+      web application, with a few test logins. The first thing you need to do is add the follwing fiter declaration to your <literal>web.xml</literal> 
+      file:
+<programlisting>
+<![CDATA[  
+<filter>
+  <filter-name>springSecurityFilterChain</filter-name>
+  <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+</filter>
+  
+<filter-mapping>
+  <filter-name>springSecurityFilterChain</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping>]]>   
+</programlisting>      
+      This provides a hook into the Spring Security web infrastructure. You can find more details of how this works in 
+      <link xlink:href="#todo">TODO</link>. You're then ready to start editing your application context file.
+      Web security services are configured using the <literal>&lt;http&gt;</literal> element.
+      All you need to begin with is
+<programlisting><![CDATA[
+  <http auto-config='true'>
+    <intercept-url pattern="/**" access="ROLE_USER" />
+  </http>
+  ]]>
+</programlisting>
+      Which says that we want all URLs within our application to be secured, requiring the role <literal>ROLE_USER</literal>
+       to access them. To add some users, you can define a set of test data directly in the namespace:
+      <programlisting><![CDATA[
+  <authentication-provider>
+    <user-service>
+      <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
+      <user name="bob" password="bobspassword" authorities="ROLE_USER" />
+    </user-service>
+  </authentication-provider>
+  ]]>
+      </programlisting>
+      This defines two users, their passwords and their roles within the application (which will be used for access control). The
+      <literal>&lt;authentication-provider&gt;</literal> element specifies that the user information will be registered with the authentication
+      manager and used to process authentication requests. 
+      <sidebar><para>If you are familiar with previous versions of the framework, the <literal>&lt;authentication-provider&gt;</literal>
+        element creates a <literal>DaoAuthenticationProvider</literal> bean and the <literal>&lt;user-service&gt;</literal> element creates
+      an <classname>InMemoryDaoImpl</classname>. A <literal>ProviderManager</literal> bean is always created by the namespace processing system
+       and the <literal>AuthenticationProvider</literal> is automatically registered with it.</para></sidebar>
+    </para>
+    <para>
+      At this point you should be able to start up your application and you will be required to log in to proceed. Try it out, or try
+      experimenting with the "tutorial" sample applicaition that comes with the project.
+      This configuration actually adds quite a few services to the application automatically (mainly because we have added the <literal>auto-config</literal>
+      attribute. For example, form login processing and "remember-me" services are automatically enabled. You might also be wondering where the 
+      login form came from when you were prompted to log in. This was also generated automatically, since we didn't explicitly configure a login page URL, but the namespace offers plenty
+      of options to allow you to custmize this kind of thing.
+    </para>
     </section>
   </section>
 </chapter>
