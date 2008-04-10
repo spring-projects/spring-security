@@ -25,13 +25,13 @@
         via hooks in the <literal>AbstractProcessingFilter</literal>
         superclass. The hooks will invoke a concrete
         <literal>RememberMeServices</literal> at the appropriate times. The
-        interface looks like this:</para>
-    
-    <para><programlisting>public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
-        public void loginFail(HttpServletRequest request, HttpServletResponse response);
-        public void loginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication successfulAuthentication);</programlisting></para>
-    
-    <para>Please refer to JavaDocs for a fuller discussion on what the
+        interface looks like this:
+    <programlisting>
+  Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
+  void loginFail(HttpServletRequest request, HttpServletResponse response);
+  void loginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication successfulAuthentication);
+    </programlisting>
+        Please refer to JavaDocs for a fuller discussion on what the
         methods do, although note at this stage
         <literal>AbstractProcessingFilter</literal> only calls the
         <literal>loginFail()</literal> and <literal>loginSuccess()</literal>
@@ -53,12 +53,13 @@
         the browser upon successful interactive authentication, with that
         cookie being composed as follows:</para>
     
-    <para><programlisting>base64(username + ":" + expirationTime + ":" + md5Hex(username + ":" + expirationTime + ":" password + ":" + key))
-        
-        username:         As identifiable to TokenBasedRememberMeServices.getUserDetailsService()
-        password:         That matches the relevant UserDetails retrieved from TokenBasedRememberMeServices.getUserDetailsService()
-        expirationTime:   The date and time when the remember-me token expires, expressed in milliseconds
-        key:              A private key to prevent modification of the remember-me token
+    <para><programlisting>
+base64(username + ":" + expirationTime + ":" + md5Hex(username + ":" + expirationTime + ":" password + ":" + key))
+
+username:         As identifiable to TokenBasedRememberMeServices.getUserDetailsService()
+password:         That matches the relevant UserDetails retrieved from TokenBasedRememberMeServices.getUserDetailsService()
+expirationTime:   The date and time when the remember-me token expires, expressed in milliseconds
+key:              A private key to prevent modification of the remember-me token
     </programlisting></para>
     
     <para>As such the remember-me token is valid only for the period
@@ -90,21 +91,22 @@
         remember-me services are as follows:</para>
     
     <para><programlisting>
-        &lt;bean id="rememberMeProcessingFilter"
-        class="org.springframework.security.ui.rememberme.RememberMeProcessingFilter"&gt;
-        &lt;property name="rememberMeServices"&gt;&lt;ref local="rememberMeServices"/&gt;&lt;/property&gt;
-        &lt;/bean&gt;
+<![CDATA[        
+<bean id="rememberMeProcessingFilter"
+    class="org.springframework.security.ui.rememberme.RememberMeProcessingFilter">
+  <property name="rememberMeServices" ref="rememberMeServices"/>
+</bean>
         
-        &lt;bean id="rememberMeServices" class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices"&gt;
-        &lt;property name="userDetailsService"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
-        &lt;property name="key"&gt;&lt;value&gt;springRocks&lt;/value&gt;&lt;/property&gt;
-        &lt;/bean&gt;
+<bean id="rememberMeServices" class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices">
+  <property name="userDetailsService" ref="jdbcDaoImpl"/>
+  <property name="key" value="springRocks"/>
+</bean>
         
-        &lt;bean id="rememberMeAuthenticationProvider"
-        class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider"&gt;
-        &lt;property name="key"&gt;&lt;value&gt;springRocks&lt;/value&gt;&lt;/property&gt;
-        &lt;/bean&gt;
-        
+<bean id="rememberMeAuthenticationProvider"
+    class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider">
+  <property name="key" value="springRocks"/>
+</bean>
+]]>        
     </programlisting>Don't forget to add your
         <literal>RememberMeServices</literal> implementation to your
         <literal>AuthenticationProcessingFilter.setRememberMeServices()</literal>

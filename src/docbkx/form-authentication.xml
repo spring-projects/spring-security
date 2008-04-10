@@ -20,14 +20,14 @@
             monitored by the filter (by default
             <literal>j_spring_security_check</literal>). You should add an 
             <literal>AuthenticationProcessingFilter</literal> to you application context:
-            <programlisting>             
-    &lt;bean id="authenticationProcessingFilter"
-            class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter"&gt;
-        &lt;property name="authenticationManager" ref="authenticationManager"/&gt;
-        &lt;property name="authenticationFailureUrl" value="/acegilogin.jsp?login_error=1"/&gt;
-        &lt;property name="defaultTargetUrl" value="/"/&gt;
-        &lt;property name="filterProcessesUrl" value="/j_spring_security_check"/&gt;
-    &lt;/bean&gt;         
+            <programlisting><![CDATA[    
+<bean id="authenticationProcessingFilter"
+    class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
+  <property name="authenticationManager" ref="authenticationManager"/>
+  <property name="authenticationFailureUrl" value="/login.jsp?login_error=1"/>
+  <property name="defaultTargetUrl" value="/"/>
+  <property name="filterProcessesUrl" value="/j_spring_security_check"/>
+</bean> ]]>        
             </programlisting></para>
         
         <para>The configured <literal>AuthenticationManager</literal>

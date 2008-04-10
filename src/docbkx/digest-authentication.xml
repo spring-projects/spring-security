@@ -33,10 +33,11 @@
             This is a value the server generates. Spring Security's nonce adopts
             the following format:</para>
         
-        <para><programlisting>base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
+        <para><programlisting>
+    base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
             
-            expirationTime:   The date and time when the nonce expires, expressed in milliseconds
-            key:              A private key to prevent modification of the nonce token
+    expirationTime:   The date and time when the nonce expires, expressed in milliseconds
+    key:              A private key to prevent modification of the nonce token
         </programlisting></para>
         
         <para>The <literal>DigestProcessingFilterEntryPoint</literal> has a
@@ -89,18 +90,20 @@
             collaborators:</para>
         
         <para><programlisting>
-            &lt;bean id="digestProcessingFilter" class="org.springframework.security.ui.digestauth.DigestProcessingFilter"&gt;
-            &lt;property name="userDetailsService"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
-            &lt;property name="authenticationEntryPoint"&gt;&lt;ref local="digestProcessingFilterEntryPoint"/&gt;&lt;/property&gt;
-            &lt;property name="userCache"&gt;&lt;ref local="userCache"/&gt;&lt;/property&gt;
-            &lt;/bean&gt;
-            
-            &lt;bean id="digestProcessingFilterEntryPoint"
-            class="org.springframework.security.ui.digestauth.DigestProcessingFilterEntryPoint"&gt;
-            &lt;property name="realmName"&gt;&lt;value&gt;Contacts Realm via Digest Authentication&lt;/value&gt;&lt;/property&gt;
-            &lt;property name="key"&gt;&lt;value&gt;acegi&lt;/value&gt;&lt;/property&gt;
-            &lt;property name="nonceValiditySeconds"&gt;&lt;value&gt;10&lt;/value&gt;&lt;/property&gt;
-            &lt;/bean&gt;
+<![CDATA[
+<bean id="digestProcessingFilter" 
+    class="org.springframework.security.ui.digestauth.DigestProcessingFilter">
+  <property name="userDetailsService" ref="jdbcDaoImpl"/>
+  <property name="authenticationEntryPoint" ref="digestProcessingFilterEntryPoint"/>
+  <property name="userCache" ref="userCache"/>
+</bean>
+
+<bean id="digestProcessingFilterEntryPoint"
+    class="org.springframework.security.ui.digestauth.DigestProcessingFilterEntryPoint">
+  <property name="realmName" value="Contacts Realm via Digest Authentication"/>
+  <property name="key" value="acegi"/>
+  <property name="nonceValiditySeconds" value="10"/>
+</bean>]]>
             
         </programlisting></para>
         

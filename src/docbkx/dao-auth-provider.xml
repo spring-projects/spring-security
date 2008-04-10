@@ -1,9 +1,10 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="dao-provider"><info><title>DAO Authentication Provider</title></info>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="dao-provider">
 
+<info><title>DAO Authentication Provider</title></info>
 
-<section xml:id="dao-provider-overview"><info><title>Overview</title></info>
-    
-    
+<section xml:id="dao-provider-overview">
+    <info><title>Overview</title></info>
+
     <para>Spring Security includes a production-quality
         <literal>AuthenticationProvider</literal> implementation called
         <literal>DaoAuthenticationProvider</literal>. This authentication
@@ -20,8 +21,8 @@
         object.</para>
 </section>
 
-<section xml:id="dao-provider-config"><info><title>Configuration</title></info>
-    
+<section xml:id="dao-provider-config">
+    <info><title>Configuration</title></info>
     
     <para>Aside from adding DaoAuthenticationProvider to your
         ProviderManager list (as discussed at the start of this part of the
@@ -29,12 +30,15 @@
         configured to present a UsernamePasswordAuthenticationToken, the
         configuration of the provider itself is rather simple:</para>
     
-    <para><programlisting>&lt;bean id="daoAuthenticationProvider"
-        class="org.springframework.security.providers.dao.DaoAuthenticationProvider"&gt;
-        &lt;property name="userDetailsService"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
-        &lt;property name="saltSource"&gt;&lt;ref bean="saltSource"/&gt;&lt;/property&gt;
-        &lt;property name="passwordEncoder"&gt;&lt;ref bean="passwordEncoder"/&gt;&lt;/property&gt;
-        &lt;/bean&gt;        </programlisting></para>
+    <para><programlisting>
+        <![CDATA[
+<bean id="daoAuthenticationProvider"
+    class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+  <property name="userDetailsService" ref="inMemoryDaoImpl"/>
+  <property name="saltSource" ref bean="saltSource"/>
+  <property name="passwordEncoder" ref="passwordEncoder"/>
+</bean>  ]]>      
+    </programlisting></para>
     
     <para>The <literal>PasswordEncoder</literal> and
         <literal>SaltSource</literal> are optional. A
@@ -65,31 +69,26 @@
         A usable caching implementation is also provided,
         <literal>EhCacheBasedUserCache</literal>, which is configured as
         follows:</para>
+    <para><programlisting><![CDATA[
+<bean id="daoAuthenticationProvider"
+    class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+  <property name="userDetailsService"><ref bean="userDetailsService"/></property>
+  <property name="userCache"><ref bean="userCache"/></property>
+</bean>
+        
+<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+  <property name="configLocation" value="classpath:/ehcache-failsafe.xml"/>
+</bean>
     
-    <para><programlisting>&lt;bean id="daoAuthenticationProvider"
-        class="org.springframework.security.providers.dao.DaoAuthenticationProvider"&gt;
-        &lt;property name="userDetailsService"&gt;&lt;ref bean="userDetailsService"/&gt;&lt;/property&gt;
-        &lt;property name="userCache"&gt;&lt;ref bean="userCache"/&gt;&lt;/property&gt;
-        &lt;/bean&gt;
-        
-        &lt;bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"&gt;
-        &lt;property name="configLocation"&gt;
-        &lt;value&gt;classpath:/ehcache-failsafe.xml&lt;/value&gt;
-        &lt;/property&gt;
-        &lt;/bean&gt;
-        
-        &lt;bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean"&gt;
-        &lt;property name="cacheManager"&gt;
-        &lt;ref local="cacheManager"/&gt;
-        &lt;/property&gt;
-        &lt;property name="cacheName"&gt;
-        &lt;value&gt;userCache&lt;/value&gt;
-        &lt;/property&gt;
-        &lt;/bean&gt;
-        
-        &lt;bean id="userCache" class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache"&gt;
-        &lt;property name="cache"&gt;&lt;ref local="userCacheBackend"/&gt;&lt;/property&gt;
-        &lt;/bean&gt;        </programlisting></para>
+<bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+  <property name="cacheManager" ref="cacheManager"/>
+  <property name="cacheName" value="userCache"/>
+</bean>
+
+<bean id="userCache" class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache">
+  <property name="cache" ref="userCacheBackend"/>
+</bean>]]>        
+    </programlisting></para>
     
     <para>All Spring Security EH-CACHE implementations (including
         <literal>EhCacheBasedUserCache</literal>) require an EH-CACHE

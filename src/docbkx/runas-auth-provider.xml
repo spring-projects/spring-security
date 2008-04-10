@@ -1,8 +1,8 @@
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="runas"><info><title>Run-As Authentication Replacement</title></info>
     
     
-    <section xml:id="runas-overview"><info><title>Overview</title></info>
-        
+    <section xml:id="runas-overview">
+        <info><title>Overview</title></info>
         
         <para>The <literal>AbstractSecurityInterceptor</literal> is able to
             temporarily replace the <literal>Authentication</literal> object in
@@ -28,15 +28,15 @@
             are particularly useful when calling remote web services</para>
     </section>
     
-    <section xml:id="runas-config"><info><title>Configuration</title></info>
-        
-        
-        <para>A <literal>RunAsManager</literal> interface is provided by Acegi
-            Security:</para>
-        
-        <para><programlisting>public Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config);
-            public boolean supports(ConfigAttribute attribute);
-            public boolean supports(Class clazz);</programlisting></para>
+    <section xml:id="runas-config">
+        <info><title>Configuration</title></info>
+        <para>A <literal>RunAsManager</literal> interface is provided by Spring Security:
+            <programlisting>
+  Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config);
+  boolean supports(ConfigAttribute attribute);
+  boolean supports(Class clazz);
+            </programlisting>
+        </para>
         
         <para>The first method returns the <literal>Authentication</literal>
             object that should replace the existing
@@ -84,20 +84,17 @@
             the hash of a key is stored in all generated tokens. The
             <literal>RunAsManagerImpl</literal> and
             <literal>RunAsImplAuthenticationProvider</literal> is created in the
-            bean context with the same key:</para>
-        
-        <para><programlisting>
-            &lt;bean id="runAsManager" class="org.springframework.security.runas.RunAsManagerImpl"&gt;
-            &lt;property name="key"&gt;&lt;value&gt;my_run_as_password&lt;/value&gt;&lt;/property&gt;
-            &lt;/bean&gt;
-            
-            &lt;bean id="runAsAuthenticationProvider"
-            class="org.springframework.security.runas.RunAsImplAuthenticationProvider"&gt;
-            &lt;property name="key"&gt;&lt;value&gt;my_run_as_password&lt;/value&gt;&lt;/property&gt;
-            &lt;/bean&gt;
-            
-        </programlisting></para>
-        
+            bean context with the same key:
+            <programlisting>
+<![CDATA[
+<bean id="runAsManager" class="org.springframework.security.runas.RunAsManagerImpl">
+  <property name="key" value="my_run_as_password"/>
+</bean>
+
+<bean id="runAsAuthenticationProvider"
+    class="org.springframework.security.runas.RunAsImplAuthenticationProvider">
+  <property name="key" value="my_run_as_password"/>
+</bean>]]></programlisting></para>
         <para>By using the same key, each <literal>RunAsUserToken</literal>
             can be validated it was created by an approved
             <literal>RunAsManagerImpl</literal>. The

@@ -1,4 +1,6 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="supporting-infrastructure"><info><title>Supporting Infrastructure</title></info>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="supporting-infrastructure" xmlns:xlink="http://www.w3.org/1999/xlink">
+  
+  <info><title>Supporting Infrastructure</title></info>
   
 
   <para>This chapter introduces some of the supplementary and supporting
@@ -6,9 +8,8 @@
   related to security, yet included in the Spring Security project, we
   will discuss it in this chapter.</para>
 
-  <section xml:id="localization"><info><title>Localization</title></info>
-    
-
+  <section xml:id="localization">
+    <title>Localization</title>
     <para>Spring Security supports localization of exception messages that
     end users are likely to see. If your application is designed for
     English users, you don't need to do anything as by default all
@@ -36,9 +37,11 @@
     inside your application context to refer to the messages. An example
     is shown below:</para>
 
-    <para><programlisting>&lt;bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource"&gt;
-&lt;property name="basename"&gt;&lt;value&gt;org/acegisecurity/messages&lt;/value&gt;&lt;/property&gt;
-&lt;/bean&gt;        </programlisting></para>
+    <para><programlisting><![CDATA[
+<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+  <property name="basename" value="org/acegisecurity/messages"/>
+</bean>
+]]></programlisting></para>
 
     <para>The <literal>messages.properties</literal> is named in
     accordance with standard resource bundles and represents the default
@@ -73,20 +76,22 @@
     <literal>SessionLocaleResolver</literal> etc)</para>
   </section>
 
-  <section xml:id="filters"><info><title>Filters</title></info>
-    
+  <section xml:id="filters">
+    <info><title>Filters</title></info>
 
     <para>Spring Security uses many filters, as referred to throughout the
-    remainder of this reference guide. You have a choice in how these
-    filters are added to your web application, in that you can use either
-        Spring's <literal>DelegatingFilterProxy</literal> or
+      remainder of this reference guide. If you are using <link xlink:href="#namespace-config">namespace configuration</link>,
+      then the you don't usually have to declare the filter beans explicitly. There may be times when you want full control
+      over the security filter chain, either because you are using features which aren't supported in the namespace, or you
+      are using your own customized versions of classes.</para>
+    <para>In this case, you have a choice in how these filters are added to your web application, in that you can use either
+        Spring's <literal>DelegatingFilterProxy</literal> or 
     <literal>FilterChainProxy</literal>. We'll look at both below.</para>
       
     <para>When using <literal>DelegatingFilterProxy</literal>, you will see
       something like this in the web.xml file:
       
         <programlisting>
-            
     &lt;filter&gt;
         &lt;filter-name&gt;myFilter&lt;/filter-name&gt;
         &lt;filter-class&gt;org.springframework.web.filter.DelegatingFilterProxy&lt;/filter-class&gt;
@@ -96,7 +101,6 @@
       &lt;filter-name&gt;myFilter&lt;/filter-name&gt;
       &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
     &lt;/filter-mapping&gt;
-             
         </programlisting>     
        
         Notice that the filter  is actually a <literal>DelegatingFilterProxy</literal>, 
@@ -147,10 +151,12 @@
 
     <para><programlisting><![CDATA[
 <bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
-    <sec:filter-chain-map path-type="ant">
-        <sec:filter-chain pattern="/webServices/**" filters="httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
-        <sec:filter-chain pattern="/**" filters="httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
-    </sec:filter-chain-map>
+  <sec:filter-chain-map path-type="ant">
+     <sec:filter-chain pattern="/webServices/**" 
+         filters="httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
+     <sec:filter-chain pattern="/**" 
+         filters="httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
+  </sec:filter-chain-map>
 </bean>
 ]]>         
     </programlisting></para>
@@ -209,7 +215,9 @@
     any servlet container lifecycle invocations are not delegated through
     to <literal>DelegatingFilterProxy</literal>.</para>
 
-    <para>You can also omit a URI pattern from the filter chain by using
+    <para>In the same way that you can use the attribute <literal>filters = "none"</literal>
+      when using <link xlink:href="#namespace-auto-config">namespace configuration</link>,
+      you can omit a URI pattern from the filter chain by using
     the token <literal>#NONE#</literal> on the right-hand side of the
     <literal>&lt;URI Pattern&gt; = &lt;Filter Chain&gt;</literal>
     expression. For example, using the example above, if you wanted to
@@ -310,5 +318,45 @@
     before the SiteMesh filters are called. This enables the
     <literal>SecurityContextHolder</literal> to be populated in time for
     use by SiteMesh decorators</para>
+  </section>
+  
+  <section xml:id="taglib">
+    <info><title>Tag Libraries</title></info> 
+
+    <para>Spring Security comes bundled with several JSP tag libraries which provide a range of different
+      services.</para>
+    
+    <section xml:id="taglib-config">
+      <info><title>Configuration</title></info>
+      <para>All taglib classes are included in the core
+        <literal>spring-security-xx.jar</literal> file, with the
+        <literal>security.tld</literal> located in the JAR's
+        <literal>META-INF</literal> directory. This means for JSP 1.2+ web
+        containers you can simply include the JAR in the WAR's
+        <literal>WEB-INF/lib</literal> directory and it will be available. If
+        you're using a JSP 1.1 container, you'll need to declare the JSP
+        taglib in your <literal>web.xml file</literal>, and include
+        <literal>security.tld</literal> in the <literal>WEB-INF/lib</literal>
+        directory. The following fragment is added to
+        <literal>web.xml</literal>:
+<programlisting><![CDATA[
+<taglib>
+  <taglib-uri>http://www.springframework.org/security/tags</taglib-uri> 
+  <taglib-location>/WEB-INF/security.tld</taglib-location>
+</taglib>
+]]></programlisting></para>
+    </section>
+    
+    <section xml:id="taglib-usage">
+      <info><title>Usage</title></info>
+      <para>Now that you've configured the tag libraries, refer to the
+        individual reference guide sections for details on how to use them.
+        Note that when using the tags, you should include the taglib reference
+        in your JSP: 
+<programlisting>
+  &lt;%@ taglib prefix='security' uri='http://www.springframework.org/security/tags' %&gt;
+          
+        </programlisting></para>
+    </section>
   </section>
 </chapter>

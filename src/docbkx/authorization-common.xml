@@ -2,7 +2,6 @@
   
 
   <section xml:id="authorities"><info><title>Authorities</title></info>
-    
 
     <para>As briefly mentioned in the Authentication section, all
     <literal>Authentication</literal> implementations are required to
@@ -15,11 +14,11 @@
     decisions.</para>
 
     <para><literal>GrantedAuthority</literal> is an interface with only
-    one method:</para>
-
-    <para><programlisting>public String getAuthority();</programlisting></para>
-
-    <para>This method allows <literal>AccessDecisionManager</literal>s to
+    one method:
+      <programlisting>
+  String getAuthority();
+    </programlisting>
+    This method allows <literal>AccessDecisionManager</literal>s to
     obtain a precise <literal>String</literal> representation of the
     <literal>GrantedAuthority</literal>. By returning a representation as
     a <literal>String</literal>, a <literal>GrantedAuthority</literal> can
@@ -58,13 +57,13 @@
     <literal>AbstractSecurityInterceptor</literal> and is responsible for
     making final access control decisions. The
     <literal>AccessDecisionManager</literal> interface contains three
-    methods:</para>
-
-    <para><programlisting>public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config) throws AccessDeniedException;
-public boolean supports(ConfigAttribute attribute);
-public boolean supports(Class clazz);</programlisting></para>
-
-    <para>As can be seen from the first method, the
+    methods:
+      <programlisting>
+ void decide(Authentication authentication, Object object, ConfigAttributeDefinition config) throws AccessDeniedException;
+ boolean supports(ConfigAttribute attribute);
+ boolean supports(Class clazz);
+      </programlisting>
+    As can be seen from the first method, the
     <literal>AccessDecisionManager</literal> is passed via method
     parameters all information that is likely to be of value in assessing
     an authorization decision. In particular, passing the secure
@@ -115,13 +114,13 @@ public boolean supports(Class clazz);</programlisting></para>
     assessment of the votes.</para>
 
     <para>The <literal>AccessDecisionVoter</literal> interface has three
-    methods:</para>
-
-    <para><programlisting>public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config);
-public boolean supports(ConfigAttribute attribute);
-public boolean supports(Class clazz);</programlisting></para>
-
-    <para>Concrete implementations return an <literal>int</literal>, with
+    methods:
+<programlisting>
+int vote(Authentication authentication, Object object, ConfigAttributeDefinition config);
+boolean supports(ConfigAttribute attribute);
+boolean supports(Class clazz);
+</programlisting>
+    Concrete implementations return an <literal>int</literal>, with
     possible values being reflected in the
     <literal>AccessDecisionVoter</literal> static fields
     <literal>ACCESS_ABSTAIN</literal>, <literal>ACCESS_DENIED</literal>
@@ -176,34 +175,36 @@ public boolean supports(Class clazz);</programlisting></para>
     voter included with Spring Security. It integrates with Spring
     Security's <literal>AclManager</literal> (discussed later). This voter
     is designed to have multiple instances in the same application
-    context, such as:</para>
+    context, such as:
+<programlisting>
+<![CDATA[
+<bean id="aclContactReadVoter"
+    class="org.springframework.security.vote.BasicAclEntryVoter">
+  <property name="processConfigAttribute" value="ACL_CONTACT_READ"/>
+  <property name="processDomainObjectClass" value="sample.contact.Contact"/>
+  <property name="aclManager" ref="aclManager"/>
+  <property name="requirePermission">
+    <list>
+      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/>
+    </list>
+  </property>
+</bean>
 
-    <para><programlisting>&lt;bean id="aclContactReadVoter"
-        class="org.springframework.security.vote.BasicAclEntryVoter"&gt;
-&lt;property name="processConfigAttribute"&gt;&lt;value&gt;ACL_CONTACT_READ&lt;/value&gt;&lt;/property&gt;
-&lt;property name="processDomainObjectClass"&gt;&lt;value&gt;sample.contact.Contact&lt;/value&gt;&lt;/property&gt;
-&lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
-&lt;property name="requirePermission"&gt;
-&lt;list&gt;
-  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
-  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/&gt;
-&lt;/list&gt;
-&lt;/property&gt;
-&lt;/bean&gt;
-
-&lt;bean id="aclContactDeleteVoter" class="org.springframework.security.vote.BasicAclEntryVoter"&gt;
-&lt;property name="processConfigAttribute"&gt;&lt;value&gt;ACL_CONTACT_DELETE&lt;/value&gt;&lt;/property&gt;
-&lt;property name="processDomainObjectClass"&gt;&lt;value&gt;sample.contact.Contact&lt;/value&gt;&lt;/property&gt;
-&lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
-&lt;property name="requirePermission"&gt;
-&lt;list&gt;
-  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
-  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.DELETE"/&gt;
-&lt;/list&gt;
-&lt;/property&gt;
-&lt;/bean&gt;        </programlisting></para>
-
-    <para>In the above example, you'd define
+<bean id="aclContactDeleteVoter" 
+    class="org.springframework.security.vote.BasicAclEntryVoter">
+  <property name="processConfigAttribute" value="ACL_CONTACT_DELETE"/>
+  <property name="processDomainObjectClass" value="sample.contact.Contact"/>
+  <property name="aclManager" ref="aclManager"/>
+  <property name="requirePermission">
+    <list>
+      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.DELETE"/>
+    </list>
+  </property>
+</bean>
+]]></programlisting>
+      In the above example, you'd define
     <literal>ACL_CONTACT_READ</literal> or
     <literal>ACL_CONTACT_DELETE</literal> against some methods on a
     <literal>MethodSecurityInterceptor</literal> or
@@ -251,9 +252,8 @@ public boolean supports(Class clazz);</programlisting></para>
     to the chapter describing the new ACL implementation.</para>
   </section>
 
-  <section xml:id="after-invocation"><info><title>After Invocation Handling</title></info>
-    
-
+  <section xml:id="after-invocation">
+    <info><title>After Invocation Handling</title></info>
     <para>Whilst the <literal>AccessDecisionManager</literal> is called by
     the <literal>AbstractSecurityInterceptor</literal> before proceeding
     with the secure object invocation, some applications need a way of
@@ -274,7 +274,6 @@ public boolean supports(Class clazz);</programlisting></para>
         <imageobject>
           <imagedata role="html" align="center" fileref="images/AfterInvocation.gif" format="GIF"/>
         </imageobject>
-
         <caption>
           <para>Figure 5: After Invocation Implementation</para>
         </caption>
@@ -341,22 +340,20 @@ public boolean supports(Class clazz);</programlisting></para>
       <literal>Contact</literal> is all that is available before the
       secure object is invoked. The
       <literal>AclAfterInvocationProvider</literal> delivers a solution,
-      and is configured as follows:</para>
-
-      <para><programlisting>&lt;bean id="afterAclRead"
-          class="org.springframework.security.afterinvocation.AclEntryAfterInvocationProvider"&gt;
-&lt;constructor-arg&gt;
-&lt;ref bean="aclService"/&gt;
-&lt;/constructor-arg&gt;
-&lt;constructor-arg&gt;
-&lt;list&gt;
-  &lt;ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/&gt;
-  &lt;ref local="org.springframework.security.acls.domain.BasePermission.READ"/&gt;
-&lt;/list&gt;
-&lt;/constructor-arg&gt;
-&lt;/bean&gt;      </programlisting></para>
-
-      <para>In the above example, the <literal>Contact</literal> will be
+      and is configured as follows:
+<programlisting><![CDATA[
+<bean id="afterAclRead"
+   class="org.springframework.security.afterinvocation.AclEntryAfterInvocationProvider">
+  <constructor-arg ref="aclService"/>
+  <constructor-arg>
+    <list>
+      <ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
+      <ref local="org.springframework.security.acls.domain.BasePermission.READ"/>
+    </list>
+  </constructor-arg>
+</bean>
+]]></programlisting>
+        In the above example, the <literal>Contact</literal> will be
       retrieved and passed to the
       <literal>AclEntryAfterInvocationProvider</literal>. The provider
       will thrown an <literal>AccessDeniedException</literal> if one of
@@ -373,22 +370,20 @@ public boolean supports(Class clazz);</programlisting></para>
       elements for which a principal does not have access. It never thrown
       an <literal>AccessDeniedException</literal> - simply silently
       removes the offending elements. The provider is configured as
-      follows:</para>
-
-      <para><programlisting>&lt;bean id="afterAclCollectionRead"
-          class="org.springframework.security.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider"&gt;
-&lt;constructor-arg&gt;
-&lt;ref bean="aclService"/&gt;
-&lt;/constructor-arg&gt;
-&lt;constructor-arg&gt;
-&lt;list&gt;
-  &lt;ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/&gt;
-  &lt;ref local="org.springframework.security.acls.domain.BasePermission.READ"/&gt;
-&lt;/list&gt;
-&lt;/constructor-arg&gt;
-&lt;/bean&gt;    </programlisting></para>
-
-      <para>As you can imagine, the returned <literal>Object</literal>
+      follows:
+<programlisting><![CDATA[
+<bean id="afterAclCollectionRead"
+    class="org.springframework.security.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider">
+  <constructor-arg ref="aclService"/>
+  <constructor-arg>
+    <list>
+      <ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
+      <ref local="org.springframework.security.acls.domain.BasePermission.READ"/>
+    </list>
+  </constructor-arg>
+</bean>
+]]>    </programlisting>
+        As you can imagine, the returned <literal>Object</literal>
       must be a <literal>Collection</literal> or array for this provider
       to operate. It will remove any element if the
       <literal>AclManager</literal> indicates the
@@ -427,16 +422,18 @@ public boolean supports(Class clazz);</programlisting></para>
       <literal>BasicAclAfterInvocationProvider</literal> delivers a
       solution, and is configured as follows:</para>
 
-      <para><programlisting>&lt;bean id="afterAclRead"
-          class="org.springframework.security.afterinvocation.BasicAclEntryAfterInvocationProvider"&gt;
-&lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
-&lt;property name="requirePermission"&gt;
-&lt;list&gt;
-  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
-  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/&gt;
-&lt;/list&gt;
-&lt;/property&gt;
-&lt;/bean&gt;       </programlisting></para>
+      <para><programlisting><![CDATA[
+<bean id="afterAclRead"
+    class="org.springframework.security.afterinvocation.BasicAclEntryAfterInvocationProvider">
+  <property name="aclManager"><ref local="aclManager"/></property>
+  <property name="requirePermission">
+    <list>
+      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/>
+    </list>
+  </property>
+</bean> 
+]]>      </programlisting></para>
 
       <para>In the above example, the <literal>Contact</literal> will be
       retrieved and passed to the
@@ -455,20 +452,20 @@ public boolean supports(Class clazz);</programlisting></para>
       elements for which a principal does not have access. It never thrown
       an <literal>AccessDeniedException</literal> - simply silently
       removes the offending elements. The provider is configured as
-      follows:</para>
-
-      <para><programlisting>&lt;bean id="afterAclCollectionRead"
-          class="org.springframework.security.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider"&gt;
-&lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
-&lt;property name="requirePermission"&gt;
-&lt;list&gt;
-  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
-  &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/&gt;
-&lt;/list&gt;
-&lt;/property&gt;
-&lt;/bean&gt;       </programlisting></para>
-
-      <para>As you can imagine, the returned <literal>Object</literal>
+      follows:
+<programlisting><![CDATA[
+<bean id="afterAclCollectionRead"
+    class="org.springframework.security.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider">
+  <property name="aclManager"><ref local="aclManager"/></property>
+  <property name="requirePermission">
+    <list>
+      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/>
+    </list>
+  </property>
+</bean> 
+]]></programlisting>
+        As you can imagine, the returned <literal>Object</literal>
       must be a <literal>Collection</literal> or array for this provider
       to operate. It will remove any element if the
       <literal>AclManager</literal> indicates the
@@ -490,11 +487,14 @@ public boolean supports(Class clazz);</programlisting></para>
     <para>The following JSP fragment illustrates how to use the
     <literal>AuthorizeTag</literal>:</para>
 
-    <para><programlisting>&lt;security:authorize ifAllGranted="ROLE_SUPERVISOR"&gt;
-&lt;td&gt;
-&lt;A HREF="del.htm?id=&lt;c:out value="${contact.id}"/&gt;"&gt;Del&lt;/A&gt;
-&lt;/td&gt;
-&lt;/security:authorize&gt;          </programlisting></para>
+    <para><programlisting>
+<![CDATA[
+<security:authorize ifAllGranted="ROLE_SUPERVISOR">
+<td>
+<a href="del.htm?id=<c:out value="${contact.id}"/>">Del</a>
+</td>
+</security:authorize>
+]]></programlisting></para>
 
     <para>This tag would cause the tag's body to be output if the
     principal has been granted ROLE_SUPERVISOR.</para>
@@ -551,13 +551,13 @@ public boolean supports(Class clazz);</programlisting></para>
     object.</para>
 
     <para>The following JSP fragment illustrates how to use the
-    <literal>AccessControlListTag</literal>:</para>
-
-    <para><programlisting>&lt;security:accesscontrollist domainObject="${contact}" hasPermission="8,16"&gt;
-&lt;td&gt;&lt;A HREF="&lt;c:url value="del.htm"&gt;&lt;c:param name="contactId" value="${contact.id}"/&gt;&lt;/c:url&gt;"&gt;Del&lt;/A&gt;&lt;/td&gt;
-&lt;/security:accesscontrollist&gt;</programlisting></para>
-
-    <para>This tag would cause the tag's body to be output if the
+    <literal>AccessControlListTag</literal>:
+<programlisting><![CDATA[
+<security:accesscontrollist domainObject="${contact}" hasPermission="8,16">
+<td><a href="<c:url value="del.htm"><c:param name="contactId" value="${contact.id}"/></c:url>">Del</a></td>
+</security:accesscontrollist>
+]]></programlisting>
+    This tag would cause the tag's body to be output if the
     principal holds either permission 16 or permission 1 for the "contact"
     domain object. The numbers are actually integers that are used with
     <literal>BasePermission</literal> bit masking. Please refer to the ACL

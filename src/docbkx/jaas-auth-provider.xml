@@ -21,19 +21,16 @@
         
         <para>Let’s assume we have a JAAS login configuration file,
             <literal>/WEB-INF/login.conf</literal>, with the following
-            contents:</para>
-        
-        <para><programlisting>JAASTest {
-            sample.SampleLoginModule required;
-            };</programlisting></para>
-        
+            contents:
+<programlisting>
+JAASTest {
+    sample.SampleLoginModule required;
+};</programlisting></para>      
         <para>Like all Spring Security beans, the
             <literal>JaasAuthenticationProvider</literal> is configured via the
             application context. The following definitions would correspond to the
-            above JAAS login configuration file:</para>
-        
-        <para><programlisting>
-             <![CDATA[
+            above JAAS login configuration file:
+<programlisting><![CDATA[
 <bean id="jaasAuthenticationProvider"
             class="org.springframework.security.providers.jaas.JaasAuthenticationProvider">
   <property name="loginConfig" value="/WEB-INF/login.conf"/>
@@ -50,8 +47,7 @@
     </list>
   </property>
 </bean> 
-]]>
-        </programlisting></para>
+]]></programlisting></para>
         
         <para>The <literal>CallbackHandler</literal>s and
             <literal>AuthorityGranter</literal>s are discussed below.</para>
@@ -98,7 +94,6 @@
         
         <section xml:id="jaas-authoritygranter">
             <info><title xml:id="jaas-authority-granter">JAAS AuthorityGranter</title></info>
-            
             
             <para>JAAS works with principals. Even "roles" are represented as
                 principals in JAAS. Spring Security, on the other hand, works with

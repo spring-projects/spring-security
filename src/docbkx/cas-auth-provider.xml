@@ -3,7 +3,6 @@
 
   <section xml:id="cas-overview">
       <info><title>Overview</title></info>
-    
 
     <para>JA-SIG produces an enterprise-wide single sign on system known
     as CAS. Unlike other initiatives, JA-SIG's Central Authentication
@@ -15,22 +14,17 @@
     server.</para>
 
     <para>You can learn more about CAS at
-    <literal>http://www.ja-sig.org/products/cas/</literal>. You will need
-    to visit this URL to download the CAS Server files. Whilst Spring
-    Security includes two CAS libraries in the "-with-dependencies" ZIP
-    file, you will still need the CAS Java Server Pages and
-    <literal>web.xml</literal> to customise and deploy your CAS
-    server.</para>
+    <literal>http://www.ja-sig.org/products/cas/</literal>. You will also need
+    to visit this site to download the CAS Server files.</para>
   </section>
 
-  <section xml:id="cas-how-it-works"><info><title>How CAS Works</title></info>
-    
+  <section xml:id="cas-how-it-works">
+    <info><title>How CAS Works</title></info>
 
-    <para>Whilst the CAS web site above contains two documents that detail
+    <para>Whilst the CAS web site contains documents that detail
     the architecture of CAS, we present the general overview again here
-    within the context of Spring Security. The following refers to both
-    CAS 2.0 (produced by Yale) and CAS 3.0 (produced by JA-SIG), being the
-    versions of CAS that Spring Security supports.</para>
+    within the context of Spring Security. Spring Security 2.0 supports
+    CAS 3. At the time of writing, the CAS server was at version 3.2.</para>
 
     <para>Somewhere in your enterprise you will need to setup a CAS
     server. The CAS server is simply a standard WAR file, so there isn't
@@ -38,69 +32,27 @@
     you will customise the login and other single sign on pages displayed
     to users.</para>
 
-    <para>If you are deploying CAS 2.0, you will also need to specify in
-    the web.xml a <literal>PasswordHandler</literal>. The
-    <literal>PasswordHandler</literal> has a simple method that returns a
-    boolean as to whether a given username and password is valid. Your
-    <literal>PasswordHandler</literal> implementation will need to link
-    into some type of backend authentication repository, such as an LDAP
-    server or database.</para>
-
-    <para>If you are already running an existing CAS 2.0 server instance,
-    you will have already established a
-    <literal>PasswordHandler</literal>. If you do not already have a
-    <literal>PasswordHandler</literal>, you might prefer to use Spring
-    Security's <literal>CasPasswordHandler</literal> class. This class
-    delegates through to the standard Spring Security
-    <literal>AuthenticationManager</literal>, enabling you to use a
-    security configuration you might already have in place. You do not
-    need to use the <literal>CasPasswordHandler</literal> class on your
-    CAS server if you do not wish. Spring Security will function as a CAS
-    client successfully irrespective of the
-    <literal>PasswordHandler</literal> you've chosen for your CAS
-    server.</para>
-
-    <para>If you are deploying CAS 3.0, you will also need to specify an
+    <para>When deploying a CAS 3.2 server, you will also need to specify an
     <literal>AuthenticationHandler</literal> in the
-    deployerConfigContext.xml included with CAS. The
+    <filename>deployerConfigContext.xml</filename> included with CAS. The
     <literal>AuthenticationHandler</literal> has a simple method that
     returns a boolean as to whether a given set of Credentials is valid.
     Your <literal>AuthenticationHandler</literal> implementation will need
     to link into some type of backend authentication repository, such as
     an LDAP server or database. CAS itself includes numerous
     <literal>AuthenticationHandler</literal>s out of the box to assist
-    with this.</para>
+    with this. When you download and deploy the server war file, it is set up
+    to successfully authenticate users who enter a password matching their
+    username, which is sueful for testing.</para>
 
-    <para>If you are already running an existing CAS 3.0 server instance,
-    you will have already established an
-    <literal>AuthenticationHandler</literal>. If you do not already have
-    an <literal>AuthenticationHandler</literal>, you might prefer to use
-    Spring Security <literal>CasAuthenticationHandler</literal> class.
-    This class delegates through to the standard Spring Security
-    <literal>AuthenticationManager</literal>, enabling you to use a
-    security configuration you might already have in place. You do not
-    need to use the <literal>CasAuthenticationHandler</literal> class on
-    your CAS server if you do not wish. Spring Security will function as a
-    CAS client successfully irrespective of the
-    <literal>AuthenticationHandler</literal> you've chosen for your CAS
-    server.</para>
-
-    <para>Apart from the CAS server itself, the other key player is of
+    <para>Apart from the CAS server itself, the other key players are of
     course the secure web applications deployed throughout your
     enterprise. These web applications are known as "services". There are
     two types of services: standard services and proxy services. A proxy
     service is able to request resources from other services on behalf of
     the user. This will be explained more fully later.</para>
 
-    <para>Services can be developed in a large variety of languages, due
-    to CAS 2.0's very light XML-based protocol. The JA-SIG CAS home page
-    contains a clients archive which demonstrates CAS clients in Java,
-    Active Server Pages, Perl, Python and others. Naturally, Java support
-    is very strong given the CAS server is written in Java. You do not
-    need to use any of CAS' client classes in applications secured by
-    Spring Security. This is handled transparently for you.</para>
-
-    <para>The basic interaction between a web browser, CAS server and n
+    <para>The basic interaction between a web browser, CAS server and a
     Spring Security-secured service is as follows:</para>
 
     <orderedlist inheritnum="ignore" continuation="restarts">

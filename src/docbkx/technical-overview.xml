@@ -23,8 +23,8 @@
     from one system to another and it will immediately work.</para>
   </section>
 
-  <section xml:id="shared-components"><info><title>Shared Components</title></info>
-    
+  <section xml:id="shared-components">
+    <info><title>Shared Components</title></info>
 
     <para>Let's explore some of the most important shared components in
     Spring Security. Components are considered "shared" if they are

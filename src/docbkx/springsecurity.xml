@@ -117,8 +117,7 @@
     <xi:include href="supporting-infrastructure.xml" />
     
     <xi:include href="channel-security.xml" />
-    
-    <xi:include href="taglibs.xml" />
+
   </part>
 
   <part xml:id="authentication">
@@ -193,8 +192,7 @@
 
     <partintro>
       <para>In addition to this reference guide, a number of other resources
-      exist to help you learn how to use Spring Security. These resources are
-      discussed in this section.</para>
+      exist to help you learn how to use Spring Security.</para>
     </partintro>
 
     <xi:include href="samples.xml"/>

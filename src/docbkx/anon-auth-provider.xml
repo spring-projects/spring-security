@@ -40,17 +40,17 @@
         filter and authentication provider appears as follows:</para>
     
     <para><programlisting>
-        &lt;bean id="anonymousProcessingFilter"
-        class="org.springframework.security.providers.anonymous.AnonymousProcessingFilter"&gt;
-        &lt;property name="key"&gt;&lt;value&gt;foobar&lt;/value&gt;&lt;/property&gt;
-        &lt;property name="userAttribute"&gt;&lt;value&gt;anonymousUser,ROLE_ANONYMOUS&lt;/value&gt;&lt;/property&gt;
-        &lt;/bean&gt;
-        
-        &lt;bean id="anonymousAuthenticationProvider"
-        class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider"&gt;
-        &lt;property name="key"&gt;&lt;value&gt;foobar&lt;/value&gt;&lt;/property&gt;
-        &lt;/bean&gt;
-        
+<![CDATA[
+<bean id="anonymousProcessingFilter"
+    class="org.springframework.security.providers.anonymous.AnonymousProcessingFilter">
+  <property name="key" value="foobar"/>
+  <property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS"/>
+</bean>
+
+<bean id="anonymousAuthenticationProvider"
+    class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
+  <property name="key" value="foobar"/>
+</bean>]]>
     </programlisting></para>
     
     <para>The <literal>key</literal> is shared between the filter and
