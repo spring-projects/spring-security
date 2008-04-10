@@ -7,19 +7,19 @@
         
         <para>HTTP Form Authentication involves using the
             <literal>AuthenticationProcessingFilter</literal> to process a login
-            form. This is the most common way that application authenticate end
+            form. This is the most common way for an application to authenticate end
             users. Form-based authentication is entirely compatible with the DAO
             and JAAS authentication providers.</para>
     </section>
     
-    <section xml:id="form-config"><info><title>Configuration</title></info>
-        
+    <section xml:id="form-config">
+        <info><title>Configuration</title></info>
         
         <para>The login form simply contains <literal>j_username</literal> and
             <literal>j_password</literal> input fields, and posts to a URL that is
             monitored by the filter (by default
-            <literal>j_spring_security_check</literal>). You should add an 
-            <literal>AuthenticationProcessingFilter</literal> to you application context:
+            <literal>/j_spring_security_check</literal>). You should add an 
+            <literal>AuthenticationProcessingFilter</literal> to your application context:
             <programlisting><![CDATA[    
 <bean id="authenticationProcessingFilter"
     class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
@@ -44,14 +44,13 @@
             <literal>SecurityContextHolder</literal>.</para>
         
         <para>Once the <literal>SecurityContextHolder</literal> has been
-            updated, the browser will need to be redirected to the target URL. The
-            target URL is usually indicated by the <literal>HttpSession</literal>
-            attribute specified by
+            updated, the browser will need to be redirected to the target URL which 
+            is usually indicated by the <literal>HttpSession</literal> attribute stored under
             <literal>AbstractProcessingFilter.SPRING_SECURITY_TARGET_URL_KEY</literal>.
             This attribute is automatically set by the
             <literal>ExceptionTranslationFilter</literal> when an
             <literal>AuthenticationException</literal> occurs, so that after login
-            is completed the user can return to what they were trying to access.
+            is completed the user can return to what they were originally trying to access.
             If for some reason the <literal>HttpSession</literal> does not
             indicate the target URL, the browser will be redirected to the
             <literal>defaultTargetUrl</literal> property.</para>
