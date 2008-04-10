@@ -51,7 +51,12 @@
     two types of services: standard services and proxy services. A proxy
     service is able to request resources from other services on behalf of
     the user. This will be explained more fully later.</para>
-
+    
+<!--
+  <section xml:id="cas-sequence">
+    <title>Spring Security and CAS Interaction Sequence</title>
+  
+  TODO: Needs reviewed
     <para>The basic interaction between a web browser, CAS server and a
     Spring Security-secured service is as follows:</para>
 
@@ -251,201 +256,15 @@
     you can relax as Spring Security classes hide much of the complexity.
     Let's now look at how this is configured</para>
   </section>
-
-  <section xml:id="cas-server"><info><title>Optional CAS Server Setup</title></info>
-    
-
-    <para>Spring Security can even act as the backend which a CAS version
-    2.0 or 3.0 server utilises. The configuration approach is described
-    below. Of course, if you have an existing CAS environment you might
-    just like to use it instead.</para>
-
-    <section xml:id="cas-server-2"><info><title>CAS Version 2.0</title></info>
-      
-
-      <para>As mentioned above, Spring Security includes a
-      <literal>PasswordHandler</literal> that bridges your existing
-      <literal>AuthenticationManager</literal> into CAS 2.0. You do not
-      need to use this <literal>PasswordHandler</literal> to use Spring
-      Security on the client side (any CAS
-      <literal>PasswordHandler</literal> will do).</para>
-
-      <para>To install, you will need to download and extract the CAS
-      server archive. We used version 2.0.12. There will be a
-      <literal>/web</literal> directory in the root of the deployment.
-      Copy an <literal>applicationContext.xml</literal> containing your
-      <literal>AuthenticationManager</literal> as well as the
-      <literal>CasPasswordHandler</literal> into the
-      <literal>/web/WEB-INF</literal> directory. A sample
-      <literal>applicationContext.xml</literal> is included below:</para>
-
-      <programlisting>
-&lt;bean id="inMemoryDaoImpl" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl"&gt;
-&lt;property name="userMap"&gt;
-&lt;value&gt;
-  rod=koala,ROLES_IGNORED_BY_CAS
-  dianne=emu,ROLES_IGNORED_BY_CAS
-  scott=wombat,ROLES_IGNORED_BY_CAS
-  peter=opal,disabled,ROLES_IGNORED_BY_CAS
-&lt;/value&gt;
-&lt;/property&gt;
-&lt;/bean&gt;
-
-&lt;bean id="daoAuthenticationProvider"
-          class="org.springframework.security.providers.dao.DaoAuthenticationProvider"&gt;
-&lt;property name="userDetailsService"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
-&lt;/bean&gt;
-
-&lt;bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager"&gt;
-&lt;property name="providers"&gt;
-&lt;list&gt;
-  &lt;ref bean="daoAuthenticationProvider"/&gt;
-&lt;/list&gt;
-&lt;/property&gt;
-&lt;/bean&gt;
-
-&lt;bean id="casPasswordHandler" class="org.springframework.security.adapters.cas.CasPasswordHandler"&gt;
-&lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
-&lt;/bean&gt;
-
-    </programlisting>
-
-      <para>Note the granted authorities are ignored by CAS because it has
-      no way of communicating the granted authorities to calling
-      applications. CAS is only concerned with username and passwords (and
-      the enabled/disabled status).</para>
-
-      <para>Next you will need to edit the existing
-      <literal>/web/WEB-INF/web.xml</literal> file. Add (or edit in the
-      case of the <literal>authHandler</literal> property) the following
-      lines:</para>
-
-      <para><programlisting>
-
-&lt;context-param&gt;
-&lt;param-name&gt;edu.yale.its.tp.cas.authHandler&lt;/param-name&gt;
-&lt;param-value&gt;org.springframework.security.adapters.cas.CasPasswordHandlerProxy&lt;/param-value&gt;
-&lt;/context-param&gt;
-
-&lt;context-param&gt;
-&lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-&lt;param-value&gt;/WEB-INF/applicationContext.xml&lt;/param-value&gt;
-&lt;/context-param&gt;
-
-&lt;listener&gt;
-&lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
-&lt;/listener&gt;
-
-    </programlisting></para>
-
-      <para>Copy the <literal>spring.jar</literal> and
-      <literal>acegi-security.jar</literal> files into
-      <literal>/web/WEB-INF/lib</literal>. Now use the <literal>ant
-      dist</literal> task in the <literal>build.xml</literal> in the root
-      of the directory structure. This will create
-      <literal>/lib/cas.war</literal>, which is ready for deployment to
-      your servlet container.</para>
-
-      <para>Note CAS heavily relies on HTTPS. You can't even test the
-      system without an HTTPS certificate. Whilst you should refer to your
-      web container's documentation on setting up HTTPS, if you need some
-      additional help or a test certificate you might like to check the
-      <literal>samples/contacts/etc/ssl</literal> directory</para>
-    </section>
-
-    <section xml:id="cas-server-3"><info><title>CAS Version 3.0</title></info>
-      
-
-      <para>As mentioned above, Spring Security includes an
-      <literal>AuthenticationHandler</literal> that bridges your existing
-      <literal>AuthenticationManager</literal> into CAS 3.0. You do not
-      need to use this <literal>AuthenticationHandler</literal> to use
-      Spring Security on the client side (any CAS
-      <literal>AuthenticationHandler</literal> will do).</para>
-
-      <para>To install, you will need to download and extract the CAS
-      server archive. We used version 3.0.4. There will be a
-      <literal>/webapp</literal> directory in the root of the deployment.
-      Edit the an <literal>deployerConfigContext.xml</literal> so that it
-      contains your <literal>AuthenticationManager</literal> as well as
-      the <literal>CasAuthenticationHandler</literal>. A sample
-      <literal>applicationContext.xml</literal> is included below:</para>
-
-      <programlisting>
-&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
-&lt;beans&gt;
-	&lt;bean
-		id="authenticationManager"
-		class="org.jasig.cas.authentication.AuthenticationManagerImpl"&gt;
-		&lt;property name="credentialsToPrincipalResolvers"&gt;
-			&lt;list&gt;
-				&lt;bean class="org.jasig.cas.authentication.principal.UsernamePasswordCredentialsToPrincipalResolver" /&gt;
-				&lt;bean class="org.jasig.cas.authentication.principal.HttpBasedServiceCredentialsToPrincipalResolver" /&gt;
-			&lt;/list&gt;
-		&lt;/property&gt;
-
-		&lt;property name="authenticationHandlers"&gt;
-			&lt;list&gt;
-				&lt;bean class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler" /&gt;
-				&lt;bean class="org.springframework.security.adapters.cas3.CasAuthenticationHandler"&gt;
-					&lt;property name="authenticationManager" ref="authenticationManager" /&gt;
-				&lt;/bean&gt;
-			&lt;/list&gt;
-		&lt;/property&gt;
-	&lt;/bean&gt;
-
-
-	&lt;bean id="inMemoryDaoImpl" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl"&gt;
-  		&lt;property name="userMap"&gt;
-			&lt;value&gt;
-				rod=koala,ROLES_IGNORED_BY_CAS
-				dianne=emu,ROLES_IGNORED_BY_CAS
-				scott=wombat,ROLES_IGNORED_BY_CAS
-				peter=opal,disabled,ROLES_IGNORED_BY_CAS
-			&lt;/value&gt;
-		&lt;/property&gt;
-	&lt;/bean&gt;
-
-	&lt;bean id="daoAuthenticationProvider"
-          class="org.springframework.security.providers.dao.DaoAuthenticationProvider"&gt;
-     	&lt;property name="userDetailsService"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
-	&lt;/bean&gt;
-
-	&lt;bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager"&gt;
-		&lt;property name="providers"&gt;
-		  &lt;list&gt;
-		    &lt;ref bean="daoAuthenticationProvider"/&gt;
-		  &lt;/list&gt;
-		&lt;/property&gt;
-	&lt;/bean&gt;
-&lt;/beans&gt;
-
-    </programlisting>
-
-      <para>Note the granted authorities are ignored by CAS because it has
-      no way of communicating the granted authorities to calling
-      applications. CAS is only concerned with username and passwords (and
-      the enabled/disabled status).</para>
-
-      <para>Copy <literal>acegi-security.jar</literal> and
-      <literal>acegi-security-cas.jar</literal> files into
-      <literal>/localPlugins/lib</literal>. Now use the <literal>ant
-      war</literal> task in the <literal>build.xml</literal> in the
-      /localPlugins directory. This will create
-      <literal>/localPlugins/target/cas.war</literal>, which is ready for
-      deployment to your servlet container.</para>
-
-      <para>Note CAS heavily relies on HTTPS. You can't even test the
-      system without an HTTPS certificate. Whilst you should refer to your
-      web container's documentation on setting up HTTPS, if you need some
-      additional help or a test certificate you might like to check the
-      CAS documentation on setting up SSL:
-      <literal>http://www.ja-sig.org/products/cas/server/ssl/index.html</literal></para>
-    </section>
+-->
   </section>
 
-  <section xml:id="cas-client"><info><title>Configuration of CAS Client</title></info>
+  <section xml:id="cas-client">
+    <info><title>Configuration of CAS Client</title></info>
+    
+    <para>
+      TODO: This section needs to be reviewed following CAS client updates for Spring Security 2.0
+    </para>
     
 
     <para>The web application side of CAS is made easy due to Spring
@@ -622,8 +441,8 @@
     settings and can be deployed to see CAS in operation</para>
   </section>
 
-  <section xml:id="cas-advanced"><info><title>Advanced Issues</title></info>
-    
+  <section xml:id="cas-advanced">
+    <info><title>Advanced Issues</title></info>
 
     <para>The <literal>CasAuthenticationProvider</literal> distinguishes
     between stateful and stateless clients. A stateful client is
