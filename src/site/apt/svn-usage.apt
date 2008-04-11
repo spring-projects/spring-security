@@ -31,7 +31,7 @@ Subversion Usage
 +----------------------------------------------------------------------------------------------------------------------+
 
     Specific tagged releases can be checked out from the URL
-    {{{"http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/tags/"}}}.
+    {{{http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/tags/}}}.
 
 
 

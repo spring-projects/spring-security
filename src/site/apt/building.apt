@@ -6,13 +6,13 @@ Building the Project
               
 * Install Maven
 
-	This project uses {{{"http://maven.apache.org/"}Maven}} as a build tool.
-	We recommend you to install Maven 2.0.7 or greater before trying
+	This project uses {{{http://maven.apache.org/}Maven}} as a build tool.
+	We recommend you to install Maven 2.0.8 or greater before trying
 	the following.
 
 * Check out the source code
 
-	To checkout Spring Security from SVN, see our {{{"svn-usage.html"}SVN Usage}} page.
+	To checkout Spring Security from SVN, see our {{{svn-usage.html}SVN Usage}} page.
 
 * Building with Maven
 
