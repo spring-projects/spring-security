@@ -28,6 +28,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
     static final String DEF_LOGIN_PAGE = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL;
 
     static final String ATT_FORM_LOGIN_TARGET_URL = "default-target-url";
+    static final String ATT_ALWAYS_USE_DEFAULT_TARGET_URL = "always-use-default-target";    
     static final String DEF_FORM_LOGIN_TARGET_URL = "/";
 
     static final String ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = "authentication-failure-url";
@@ -49,6 +50,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         String loginUrl = null;
         String defaultTargetUrl = null;
         String authenticationFailureUrl = null;
+        String alwaysUseDefault = null;
         
         Object source = null;
 
@@ -56,6 +58,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
             loginUrl = elt.getAttribute(ATT_LOGIN_URL);
             defaultTargetUrl = elt.getAttribute(ATT_FORM_LOGIN_TARGET_URL);
             authenticationFailureUrl = elt.getAttribute(ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL);
+            alwaysUseDefault = elt.getAttribute(ATT_ALWAYS_USE_DEFAULT_TARGET_URL);
             loginPage = elt.getAttribute(ATT_LOGIN_PAGE);
             if (!StringUtils.hasText(loginPage)) {
             	loginPage = null;
@@ -65,7 +68,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
 
         ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         
-        filterBean = createFilterBean(loginUrl, defaultTargetUrl, loginPage, authenticationFailureUrl);
+        filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault, loginPage, authenticationFailureUrl);
 
         filterBean.setSource(source);
         filterBean.getPropertyValues().addPropertyValue("authenticationManager",
@@ -82,13 +85,19 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         return null;
     }
 
-    private RootBeanDefinition createFilterBean(String loginUrl, String defaultTargetUrl, String loginPage, String authenticationFailureUrl) {
+    private RootBeanDefinition createFilterBean(String loginUrl, String defaultTargetUrl, String alwaysUseDefault, 
+    		String loginPage, String authenticationFailureUrl) {
+    	
         BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(filterClassName);
 
         if (!StringUtils.hasText(loginUrl)) {
         	loginUrl = defaultLoginProcessingUrl;
         }
 
+        if ("true".equals(alwaysUseDefault)) {
+        	filterBuilder.addPropertyValue("alwaysUseDefaultTargetUrl", Boolean.TRUE);
+        }
+        
         filterBuilder.addPropertyValue("filterProcessesUrl", loginUrl);
 
 

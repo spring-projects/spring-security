@@ -131,11 +131,23 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void formLoginWithNoLoginPageAddsDefaultLoginPageFilter() throws Exception {
         setContext(
-                "    <http auto-config='true' path-type='ant' lowercase-comparisons='false'>" +
-                "        <form-login />" +
-                "    </http>" + AUTH_PROVIDER_XML);
+                "<http auto-config='true' path-type='ant' lowercase-comparisons='false'>" +
+                "   <form-login />" +
+                "</http>" + AUTH_PROVIDER_XML);
         // These will be matched by the default pattern "/**"
         checkAutoConfigFilters(getFilters("/anything"));
+    }
+
+    @Test
+    public void formLoginAlwaysUseDefaultSetsCorrectProperty() throws Exception {
+        setContext(
+                "<http>" +
+                "   <form-login default-target-url='/default' always-use-default-target='true' />" +
+                "</http>" + AUTH_PROVIDER_XML);
+        // These will be matched by the default pattern "/**"
+        AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) getFilters("/anything").get(2);
+        assertEquals("/default", filter.getDefaultTargetUrl());
+        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "alwaysUseDefaultTargetUrl"));
     }
     
     @Test
@@ -384,10 +396,6 @@ public class HttpSecurityBeanDefinitionParserTests {
         Method getFilters = fcp.getClass().getDeclaredMethod("getFilters", String.class);
         getFilters.setAccessible(true);
         return (List) ReflectionUtils.invokeMethod(getFilters, fcp, new Object[] {url});
-    }
-    
-    private FilterChainProxy getFilterChainProxy() {
-        return (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
     }
 
     private FilterInvocation createFilterinvocation(String path, String method) {

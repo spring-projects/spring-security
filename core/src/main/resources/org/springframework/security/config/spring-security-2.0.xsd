@@ -296,7 +296,46 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" ref="security:password-compare"/>
+        <xs:element minOccurs="0" name="password-compare">
+          <xs:annotation>
+            <xs:documentation>Specifies that an LDAP provider should use an LDAP compare operation
+              of the user's password to authenticate the user</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element minOccurs="0" name="password-encoder">
+                <xs:annotation>
+                  <xs:documentation>element which defines a password encoding strategy. Used by an
+                    authentication provider to convert submitted passwords to hashed versions, for
+                    example.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element minOccurs="0" name="salt-source">
+                      <xs:complexType>
+                        <xs:attribute name="user-property" type="xs:string">
+                          <xs:annotation>
+                            <xs:documentation>A property of the UserDetails object which will be
+                              used as salt by a password encoder. Typically something like
+                              "username" might be used. </xs:documentation>
+                          </xs:annotation>
+                        </xs:attribute>
+                        <xs:attribute name="system-wide" type="xs:string">
+                          <xs:annotation>
+                            <xs:documentation>A single value that will be used as the salt for a
+                              password encoder. </xs:documentation>
+                          </xs:annotation>
+                        </xs:attribute>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attributeGroup ref="security:password-encoder.attlist"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attributeGroup ref="security:password-compare.attlist"/>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
       <xs:attributeGroup ref="security:ldap-ap.attlist"/>
     </xs:complexType>
@@ -337,46 +376,6 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
-  <xs:element name="password-compare">
-    <xs:annotation>
-      <xs:documentation>Specifies that an LDAP provider should use an LDAP compare operation of the
-        user's password to authenticate the user</xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="password-encoder">
-          <xs:annotation>
-            <xs:documentation>element which defines a password encoding strategy. Used by an
-              authentication provider to convert submitted passwords to hashed versions, for
-              example.</xs:documentation>
-          </xs:annotation>
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element minOccurs="0" name="salt-source">
-                <xs:complexType>
-                  <xs:attribute name="user-property" type="xs:string">
-                    <xs:annotation>
-                      <xs:documentation>A property of the UserDetails object which will be used as
-                        salt by a password encoder. Typically something like "username" might be
-                        used. </xs:documentation>
-                    </xs:annotation>
-                  </xs:attribute>
-                  <xs:attribute name="system-wide" type="xs:string">
-                    <xs:annotation>
-                      <xs:documentation>A single value that will be used as the salt for a password
-                        encoder. </xs:documentation>
-                    </xs:annotation>
-                  </xs:attribute>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-            <xs:attributeGroup ref="security:password-encoder.attlist"/>
-          </xs:complexType>
-        </xs:element>
-      </xs:sequence>
-      <xs:attributeGroup ref="security:password-compare.attlist"/>
-    </xs:complexType>
-  </xs:element>
   <xs:attributeGroup name="password-compare.attlist">
     <xs:attribute name="password-attribute" type="xs:string">
       <xs:annotation>
@@ -803,6 +802,12 @@
           login page without having first requested a secured operation that triggers
           authentication. If unspecified, defaults to the root of the
         application.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="always-use-default-target" type="security:boolean">
+      <xs:annotation>
+        <xs:documentation>Whether the user should always be redirected to the default-target-url
+          after login. </xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="login-page" type="xs:string">
