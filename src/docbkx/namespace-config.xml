@@ -174,10 +174,7 @@
   ]]>
       </programlisting>
         This defines two users, their passwords and their roles within the application (which will
-        be used for access control). The
-        <literal>&lt;authentication-provider&gt;</literal>
-        element specifies that the user information will be registered with the authentication
-        manager and used to process authentication requests.
+        be used for access control). 
         <sidebar>
           <para>If you are familiar with previous versions of the framework, you can probably
           already guess roughly what's going on here. The &lt;http&gt; element is 
@@ -192,6 +189,9 @@
             <classname>AuthenticationProvider</classname>
             is automatically registered with it.</para>
         </sidebar>
+        The <literal>&lt;authentication-provider&gt;</literal>
+        element specifies that the user information will be registered with the authentication
+        manager and used to process authentication requests.        
       </para>
       <para>
         At this point you should be able to start up your application and you will be required to
