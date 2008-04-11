@@ -1,5 +1,7 @@
 package org.springframework.security;
 
+import java.io.Serializable;
+
 /**
  * Indicates that a object stores GrantedAuthority objects.
  * <p>
@@ -10,6 +12,6 @@ package org.springframework.security;
  * @author Luke Taylor
  * @since 2.0
  */
-public interface GrantedAuthoritiesContainer {
+public interface GrantedAuthoritiesContainer extends Serializable {
     GrantedAuthority[] getGrantedAuthorities();
 }
