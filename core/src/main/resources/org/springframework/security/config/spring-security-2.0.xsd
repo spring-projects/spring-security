@@ -1173,6 +1173,12 @@
             in the chain</xs:documentation>
         </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="position" type="security:named-security-filter">
+        <xs:annotation>
+          <xs:documentation>The explicit position at which the custom-filter should be placed in the
+            chain. Use if you are replacing a standard filter.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="after">
@@ -1191,6 +1197,14 @@
       <xs:annotation>
         <xs:documentation>The filter immediately before which the custom-filter should be placed in
           the chain</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="position">
+    <xs:attribute name="position" use="required" type="security:named-security-filter">
+      <xs:annotation>
+        <xs:documentation>The explicit position at which the custom-filter should be placed in the
+          chain. Use if you are replacing a standard filter.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -1213,6 +1227,7 @@
       <xs:enumeration value="NTLM_FILTER"/>
       <xs:enumeration value="FILTER_SECURITY_INTERCEPTOR"/>
       <xs:enumeration value="SWITCH_USER_FILTER"/>
+      <xs:enumeration value="LAST"/>
     </xs:restriction>
   </xs:simpleType>
 </xs:schema>

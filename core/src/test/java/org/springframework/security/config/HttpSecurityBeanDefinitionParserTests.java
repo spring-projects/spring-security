@@ -248,12 +248,17 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='userFilter' class='org.springframework.security.util.MockFilter'>" +
                 "    <custom-filter after='SESSION_CONTEXT_INTEGRATION_FILTER'/>" +
                 "</b:bean>" +
-                "<b:bean id='userFilter2' class='org.springframework.security.util.MockFilter'/>");
+                "<b:bean id='userFilter2' class='org.springframework.security.util.MockFilter'>" +
+                "    <custom-filter position='FIRST'/>" +
+                "</b:bean>" +                
+                "<b:bean id='userFilter3' class='org.springframework.security.util.MockFilter'/>");
         List filters = getFilters("/someurl");
 
-        assertEquals(12, filters.size());
-        assertTrue(filters.get(1) instanceof OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator);
-        assertEquals("userFilter", ((OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator)filters.get(1)).getBeanName());
+        assertEquals(13, filters.size());
+        assertTrue(filters.get(0) instanceof OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator);        
+        assertTrue(filters.get(2) instanceof OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator);
+        assertEquals("userFilter", ((OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator)filters.get(2)).getBeanName());
+        assertEquals("userFilter2", ((OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator)filters.get(0)).getBeanName());        
     }
 
     @Test

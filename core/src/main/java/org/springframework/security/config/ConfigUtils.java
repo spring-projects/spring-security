@@ -1,5 +1,9 @@
 package org.springframework.security.config;
 
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -13,14 +17,10 @@ import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.vote.AffirmativeBased;
 import org.springframework.security.vote.AuthenticatedVoter;
 import org.springframework.security.vote.RoleVoter;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Map;
+import org.springframework.util.StringUtils;
 
 /**
- * Utitily methods used internally by the Spring Security namespace configuration code.
+ * Utility methods used internally by the Spring Security namespace configuration code.
  *
  * @author Luke Taylor
  * @author Ben Alex
@@ -43,6 +43,18 @@ public abstract class ConfigUtils {
 
             parserContext.getRegistry().registerBeanDefinition(BeanIds.ACCESS_MANAGER, accessMgr);
         }
+    }
+    
+    public static int countNonEmpty(String[] objects) {        
+    	int nonNulls = 0;
+    	
+    	for (int i = 0; i < objects.length; i++) {
+    		if (StringUtils.hasText(objects[i])) {
+    			nonNulls++;
+    		}
+    	}
+        
+    	return nonNulls;
     }
 
     public static void addVoter(BeanDefinition voter, ParserContext parserContext) {

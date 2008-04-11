@@ -420,14 +420,19 @@ any-user-service = user-service | jdbc-user-service | ldap-user-service
     
 custom-filter =
     ## Used to indicate that a filter bean declaration should be incorporated into the security filter chain. If neither the 'after' or 'before' options are supplied, then the filter must implement the Ordered interface directly. 
-    element custom-filter {after | before}?
+    element custom-filter {after | before | position}?
 after =
     ## The filter immediately after which the custom-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters. 
     attribute after {named-security-filter}
 before =
     ## The filter immediately before which the custom-filter should be placed in the chain
     attribute before {named-security-filter}
+position =
+    ## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
+    attribute position {named-security-filter}
 
-named-security-filter = "FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "SESSION_CONTEXT_INTEGRATION_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_PROCESSING_FILTER" | "AUTHENTICATION_PROCESSING_FILTER" | "BASIC_PROCESSING_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "NTLM_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER"
+
+
+named-security-filter = "FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "SESSION_CONTEXT_INTEGRATION_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_PROCESSING_FILTER" | "AUTHENTICATION_PROCESSING_FILTER" | "BASIC_PROCESSING_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "NTLM_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
     
     

@@ -1,25 +1,25 @@
 package org.springframework.security.config;
 
-import org.springframework.security.ui.FilterChainOrder;
-import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
-import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.core.Ordered;
-import org.springframework.util.StringUtils;
-import org.springframework.util.Assert;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
+import java.io.IOException;
 
 import javax.servlet.Filter;
+import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.FilterChain;
-import java.io.IOException;
+
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
+import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.core.Ordered;
+import org.springframework.security.ui.FilterChainOrder;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /**
  * Replaces a Spring bean of type "Filter" with a wrapper class which implements the <tt>Ordered</tt>
@@ -33,6 +33,7 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
 
     public static final String ATT_AFTER = "after";
     public static final String ATT_BEFORE = "before";
+    public static final String ATT_POSITION = "position";    
 
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder, ParserContext parserContext) {
         Element elt = (Element)node;
@@ -56,7 +57,17 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
     private String getOrder(Element elt, ParserContext pc) {
         String after = elt.getAttribute(ATT_AFTER);
         String before = elt.getAttribute(ATT_BEFORE);
-
+        String position = elt.getAttribute(ATT_POSITION);
+        
+        if(ConfigUtils.countNonEmpty(new String[] {after, before, position}) != 1) {
+        	pc.getReaderContext().error("A single '" + ATT_AFTER + "', '" + ATT_BEFORE + "', or '" +
+        			ATT_POSITION + "' attribute must be supplied", pc.extractSource(elt));
+        }
+        
+        if (StringUtils.hasText(position)) {
+        	return Integer.toString(FilterChainOrder.getOrder(position));
+        }
+        
         if (StringUtils.hasText(after)) {
             return Integer.toString(FilterChainOrder.getOrder(after) + 1);
         }
