@@ -37,7 +37,8 @@ Subversion Usage
 
 * Nightly Snapshots
 
-    If you'd prefer not to use the subversion client directly, please see our {{{downloads.html}downloads page}} for
+    If you'd prefer not to use the subversion client directly, please see our 
+    {{{http://s3browse.com/explore/maven.springframework.org/snapshot/org/springframework/security/}downloads page}} for
     nightly snapshots. Note that these are taken from the trunk and may not be suitable for new users.
 
 
