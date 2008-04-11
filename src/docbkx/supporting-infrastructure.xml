@@ -80,7 +80,7 @@
     <info><title>Filters</title></info>
 
     <para>Spring Security uses many filters, as referred to throughout the
-      remainder of this reference guide. If you are using <link xlink:href="#namespace-config">namespace configuration</link>,
+      remainder of this reference guide. If you are using <link xlink:href="#ns-config">namespace configuration</link>,
       then the you don't usually have to declare the filter beans explicitly. There may be times when you want full control
       over the security filter chain, either because you are using features which aren't supported in the namespace, or you
       are using your own customized versions of classes.</para>

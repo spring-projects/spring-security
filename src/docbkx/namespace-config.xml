@@ -4,9 +4,7 @@
     <title>Security Namespace Configuration</title>
   </info>
   <section>
-    <info>
-      <title>Introduction</title>
-    </info>
+    <title>Introduction</title>
     <para>
       Namespace configuration has been available since version 2.0 of the Spring framework. It
       allows you to supplement the traditional Spring beans application context syntax with elements
@@ -113,18 +111,21 @@
           <!-- todo: diagram and link to other sections which describe the interfaces -->
         </itemizedlist>
       </para>
-      <para>We'll see how these work together in the next section.</para>
+      <para>We'll see how these work together in the following sections.</para>
     </section>
   </section>
-  <section>
-    <title>Example Configurations</title>
+  <section xml:id="ns-getting-started">
+    <title>Getting Started with Security Namespace Cofiguration</title>
     <para>
-      In this section, we'll look at how you can build up a namespace configuration to use different
+      In this section, we'll look at how you can build up a namespace configuration to use some of the main
       features of the framework. Let's assume you initially want to get up and running as quickly as possible 
       and add authentication support and access control to an existing web application, with a few 
-      test logins.</para>
-    <section>
-      <info><title><literal>web.xml</literal> Configuration</title></info>
+      test logins. The we'll look at how to change over to authenticating against a database or other
+      security information repository. In later sections we'll introduce more advanced namespace configuration
+      options.
+    </para>
+    <section xml:id="ns-web-xml">
+      <title><literal>web.xml</literal> Configuration</title>
       <para>
        The first thing you need to do is add the following filter declaration to your
       <literal>web.xml</literal>
@@ -149,10 +150,8 @@
       </para>
     </section>
     
-    <section xml:id="namespace-minimal">
-      <info>
-        <title>A Minimal <literal>&lt;http&gt;</literal>Configuration</title>
-      </info>
+    <section xml:id="ns-minimal">
+      <title>A Minimal <literal>&lt;http&gt;</literal>Configuration</title>
       <para>
  All you need to enable web security to begin with is
         <programlisting><![CDATA[
@@ -182,8 +181,8 @@
         <sidebar>
           <para>If you are familiar with previous versions of the framework, you can probably
           already guess roughly what's going on here. The &lt;http&gt; element is 
-          responsible for creating a <classname>FilterChainProxy</classname> and the required
-          list filter beans which it uses. Common issues like filter incorrect ordering are no 
+          responsible for creating a <classname>FilterChainProxy</classname> and the
+            filter beans which it uses. Common issues like incorrect filter ordering are no 
           longer an issue as the filter positions are predefined.</para>
           <para>The <literal>&lt;authentication-provider&gt;</literal>
             element creates a <classname>DaoAuthenticationProvider</classname>
@@ -201,12 +200,9 @@
         the application because we have used the
         <literal>auto-config</literal>
         attribute. For example, form login processing and "remember-me" services are automatically
-        enabled. You might also be wondering where the login form came from when you were prompted
-        to log in. This was also generated automatically, since we didn't explicitly set a URL for the
-        login page, but the namespace offers plenty of options to allow you to customize this
-        kind of thing.
+        enabled.
       </para>
-      <section xml:id="namespace-auto-config">
+      <section xml:id="ns-auto-config">
         <title>What does <literal>auto-config</literal> Include?</title>
         <para>
           The <literal>auto-config</literal> attribute, as we have used it above, is just a 
@@ -222,40 +218,51 @@
   </http>
   ]]>
           </programlisting>
-         These other elements are responsible for setting up form-login, 
+          These other elements are responsible for setting up form-login, 
           <link xlink:href="#anonymous">anonymous authentication</link>, basic authentication, logout handling and remember-me services
-          respectively. They each have attributes which can be used to alter their behaviour. For example, if you
-          want to supply your own login page, you could use:
-          <programlisting><![CDATA[
+          respectively. They each have attributes which can be used to alter their behaviour.
+          </para>
+      </section>
+      <section xml:id="ns-form-and-basic">
+        <title>Form and Basic Login Options</title>
+      <para>
+        You might be wondering where the login form came from when you were prompted
+        to log in, since we made no mention of any HTML files or JSPs. In fact, since we didn't explicitly 
+        set a URL for the login page, Spring Security generates one automatically, based on the features
+        that are enabled and using standard values for the URL which processes the submitted login,
+        the default target URL the user will be sent to ad so on. However, the namespace offers plenty of 
+        suppport to allow you to customize these options.
+        For example, if you want to supply your own login page, you could use:
+        <programlisting><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/login.jsp*" filters="none"/>  
     <intercept-url pattern="/**" access="ROLE_USER" />
     <form-login login-page='/login.jsp'/>
   </http>
   ]]>
-          </programlisting>
-          Note that you can still use <literal>auto-config</literal>. The <literal>form-login</literal> element just overrides the 
-          default settings. Also note that we've added an extra <literal>intercept-url</literal> element to say that any requests
-          for the login page should be excluded from processing by the security filters. Otherwise the request would be matched by
-          the pattern <literal>/**</literal> and it wouldn't be possible to access the login page itself!
-          If you want to use basic authentication instead of form login, then change the configuration to
-          <programlisting><![CDATA[
+        </programlisting>
+        Note that you can still use <literal>auto-config</literal>. The <literal>form-login</literal> element just overrides the 
+        default settings. Also note that we've added an extra <literal>intercept-url</literal> element to say that any requests
+        for the login page should be excluded from processing by the security filters. Otherwise the request would be matched by
+        the pattern <literal>/**</literal> and it wouldn't be possible to access the login page itself!
+        If you want to use basic authentication instead of form login, then change the configuration to
+        <programlisting><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <http-basic />
   </http>
   ]]>
-          </programlisting>
-          Basic authentication will then take precedence and will be used to prompt for a login when a user attempts to access
-          a protected resource. Note that form login is still available in this configuration if you wish to use it, for example
-          through a login form embedded in another web page.
-        </para>
-      </section>
+        </programlisting>
+        Basic authentication will then take precedence and will be used to prompt for a login when a user attempts to access
+        a protected resource. Form login is still available in this configuration if you wish to use it, for example
+        through a login form embedded in another web page.
+      </para>
+        </section>
     </section>
-    <section>
-      <title>Configuring other Authentication Providers</title>
+    <section xml:id="ns-auth-providers">
+      <title>Using other Authentication Providers</title>
       <para>
-        In practice you will need a more scalable source of user information than a few names added to the context file.
+        In practice you will need a more scalable source of user information than a few names added to the application context file.
         Most likely you will want to store your user information in something like a database or an LDAP server. LDAP namespace
         configuration is dealt with in the <link xlink:href="#ldap">LDAP chapter</link>, so we won't cover it here. If you have a
         custom implementation of Spring Security's <classname>UserDetailsService</classname>, called "myUserDetailsService" in your
@@ -306,17 +313,21 @@
         </para>
       </section>
     </section>
-    <section xml:id="namespace-requires-channel">
+  </section>
+  <section xml:id="ns-web-advanced">
+    <title>Advanced Web Features</title>
+
+    <section xml:id="ns-requires-channel">
       <title>Adding HTTP/HTTPS Channel Security</title>
       <para>If your application supports both HTTP and HTTPS, and you require that particular URLs can only be accessed over HTTPS, then this is
         directly supported using the <literal>requires-channel</literal> attribute on <literal>&lt;intercept-url&gt;</literal>:
-<programlisting><![CDATA[
-<http>
-  <intercept-url pattern="/secure/**" access="ROLE_USER" requires-channel="https"/>
-  <intercept-url pattern="/**" access="ROLE_USER" requires-channel="any"/>  
-  ...
-</http>]]>
-</programlisting>
+        <programlisting><![CDATA[
+  <http>
+    <intercept-url pattern="/secure/**" access="ROLE_USER" requires-channel="https"/>
+    <intercept-url pattern="/**" access="ROLE_USER" requires-channel="any"/>  
+    ...
+  </http>]]>
+        </programlisting>
         With this configuration in place, if a user attempts to access anything matching the "/secure/**"
         pattern using HTTP, they will first be redirected to an HTTPS URL.        
         The available options are "http", "https" or "any". Using the value "any" means that either HTTP or HTTPS
@@ -324,17 +335,115 @@
       </para>
       <para>
         If your application uses non-standard ports for HTTP and/or HTTPS, you can specify a list of port mappings as follows:
-<programlisting>        
-<![CDATA[     
-<http>
-  ...
-  <port-mappings>
-    <port-mapping http="9080" https="9443"/>
-  </port-mappings>
-</http>]]>
-</programlisting>
+        <programlisting>        
+          <![CDATA[     
+  <http>
+    ...
+    <port-mappings>
+      <port-mapping http="9080" https="9443"/>
+    </port-mappings>
+  </http>]]>
+        </programlisting>
         You can find a more in-depth discussion of channel security in <xref xlink:href="#channel-security"/>.
       </para>
     </section>
+    
+    <section xml:id="ns-concurrent-session">
+      <title>Concurrent Session Control</title>
+      <para>
+        If you wish to place constraints on a single user's ability to log in to your application, 
+        Spring Security supports this out of the box with the following simple addition:
+        <programlisting><![CDATA[     
+  <http>
+    ...
+    <concurrent-session-control max-sessions="1" />
+  </http>]]>
+        </programlisting>
+        This will prevent a user from logging in multiple times - a second login will cause the first to 
+        be invalidated. Often you would prefer to prevent a second login, in which case you can use
+        <programlisting><![CDATA[     
+  <http>
+    ...
+    <concurrent-session-control max-sessions="1" exception-if-maximum-exceeded="true"/>
+  </http>]]>
+        </programlisting>
+        The second login will then be rejected. <!-- TODO: Link to main section in docs -->
+      </para>
+    </section>
+    
+    <section xml:id="ns-openid">
+      <title>OpenID Login</title>
+      <para>The namespace supports <link xlink:href="http://openid.net/">OpenID</link> login eiter instead of, or in addition to
+      normal form-based login, with a simple change:
+        <programlisting><![CDATA[
+  <http auto-config='true'>
+    <intercept-url pattern="/**" access="ROLE_USER" />
+    <openid-login />
+  </http>
+  ]]></programlisting>
+        You should then register yourself with an OpenID provider (such as myopenid.com), and
+        add the user information to your in-memory <literal>&lt;user-service&gt;</literal>: 
+        <programlisting><![CDATA[
+  <user name="http://jimi.hendrix.myopenid.com/" password="notused" authorities="ROLE_USER" />
+  ]]></programlisting>
+        You should be able to login using the <literal>myopenid.com</literal> site to authenticate.
+      </para>
+    </section>
+    <section xml:id="ns-custom-filters">
+      <title>Adding in Your Own Filters</title>
+      <para>If you've used Spring Security before, you'll know that the framework maintains a chain
+      of filters in order to apply its services. You may want to add your own filters to the stack at
+      particular locations, or use a customized version of an existing filter. How can you do this with
+      namespace configuration, since the filter chain is not directly exposed?
+      </para>
+      <para>The order of the filters is always strictly enforced when using the namespace. Each Spring Security
+      filter implements the Spring <interfacename>Ordered</interfacename> interface and the filters are sorted
+      during initialization. The standard filters each have an alias in the namespace:
+      <table>
+        <title>Standard Filter Aliases and Ordering</title>
+        <tgroup cols="2" align="center">
+          <thead><row>
+            <entry>Alias</entry><entry>Filter Class</entry>
+          </row></thead>
+          <tbody>
+            <row><entry> CHANNEL_FILTER</entry><entry>ChannelProcessingFilter</entry></row>
+            <row><entry> CONCURRENT_SESSION_FILTER</entry><entry>ConcurrentSessionFilter</entry></row>
+            <row><entry> SESSION_CONTEXT_INTEGRATION_FILTER</entry><entry>HttpSessionContextIntegrationFilter</entry></row>
+            <row><entry> LOGOUT_FILTER </entry><entry>LogoutFilter</entry></row>
+            <row><entry> X509_FILTER </entry><entry>X509PreAuthenticatedProcessigFilter</entry></row>
+            <row><entry> PRE_AUTH_FILTER </entry><entry>Subclass of AstractPreAuthenticatedProcessingFilter</entry></row>
+            <row><entry> CAS_PROCESSING_FILTER </entry><entry>CasProcessingFilter</entry></row>
+            <row><entry> AUTHENTICATION_PROCESSING_FILTER </entry><entry>AuthenticationProcessingFilter</entry></row>
+            <row><entry> BASIC_PROCESSING_FILTER </entry><entry>BasicProcessingFilter</entry></row>
+            <row><entry> SERVLET_API_SUPPORT_FILTER</entry><entry>classname</entry></row>
+            <row><entry> REMEMBER_ME_FILTER </entry><entry>RememberMeProcessingFilter</entry></row>
+            <row><entry> ANONYMOUS_FILTER </entry><entry>AnonymousProcessingFilter</entry></row>
+            <row><entry> EXCEPTION_TRANSLATION_FILTER </entry><entry>ExceptionTranslationFilter</entry></row>
+            <row><entry> NTLM_FILTER </entry><entry>NtlmProcessingFilter</entry></row>
+            <row><entry> FILTER_SECURITY_INTERCEPTOR </entry><entry>FilterSecurityInterceptor</entry></row>
+            <row><entry> SWITCH_USER_FILTER </entry><entry>SwitchUserProcessingFilter</entry></row>             
+          </tbody>
+        </tgroup>
+      </table>
+        You can add your own filter to the stack, using the <literal>custom-filter</literal> element and one of these
+        names to specify the position your filter should appear at:
+        <programlisting><![CDATA[
+  <beans:bean id="myFilter" class="com.mycompany.MySpecialAuthenticationFilter">
+    <custom-filter position="AUTHENTICATION_PROCESSING_FILTER"/>
+  </beans:bean>
+  ]]></programlisting>
+        You can also use the <literal>after</literal> or <literal>before</literal> attribtues if you want your filter
+        to be inserted before or after another filter in the stack. The names "FIRST" and "LAST" can be used to indicate
+        that you want your filter to appear before or after the entire stack, respectively.
+      </para>
+    </section>
+
   </section>
+  
+  <section xml:id="ns-method-security">
+    <title>Namespace Support for Method Security</title>
+    
+    <para>TODO</para>
+  </section>
+  
 </chapter>

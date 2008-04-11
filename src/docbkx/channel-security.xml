@@ -36,7 +36,7 @@
 
 <section xml:id="channel-security-config">
     <info><title>Configuration</title></info>
-    <para>Channel security is supported by the <link xlink:href="#namespace-auto-config">security namespace</link>
+    <para>Channel security is supported by the <link xlink:href="#ns-requires-channel">security namespace</link>
         by means of the <literal>requires-channel</literal> attribute on the <literal>&lt;intercept-url&gt;</literal>
         element and this is the simplest (and recommended approach)</para>
     <para>To confiure channel security explicitly, you would define the following the filter in your application
@@ -53,7 +53,7 @@
       &lt;security:intercept-url pattern="\A/.*\Z" access="REQUIRES_INSECURE_CHANNEL"/&gt;
     &lt;/security:filter-invocation-definition-source&gt;                
   &lt;/property&gt;
-  &lt;/bean&gt;
+&lt;/bean&gt;
     
 &lt;bean id="channelDecisionManager" class="org.springframework.security.securechannel.ChannelDecisionManagerImpl"&gt;
   &lt;property name="channelProcessors"&gt;
