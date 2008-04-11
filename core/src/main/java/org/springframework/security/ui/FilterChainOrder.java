@@ -43,7 +43,7 @@ public abstract class FilterChainOrder {
     private static final Map filterNameToOrder = new LinkedHashMap();
 
     static {
-        filterNameToOrder.put("FIRST", Integer.MIN_VALUE);
+        filterNameToOrder.put("FIRST", new Integer(Integer.MIN_VALUE));
         filterNameToOrder.put("CHANNEL_FILTER", new Integer(CHANNEL_FILTER));
         filterNameToOrder.put("CONCURRENT_SESSION_FILTER", new Integer(CONCURRENT_SESSION_FILTER));
         filterNameToOrder.put("SESSION_CONTEXT_INTEGRATION_FILTER", new Integer(HTTP_SESSION_CONTEXT_FILTER));
@@ -61,7 +61,7 @@ public abstract class FilterChainOrder {
         filterNameToOrder.put("NTLM_FILTER", new Integer(NTLM_FILTER));
         filterNameToOrder.put("FILTER_SECURITY_INTERCEPTOR", new Integer(FILTER_SECURITY_INTERCEPTOR));
         filterNameToOrder.put("SWITCH_USER_FILTER", new Integer(SWITCH_USER_FILTER));
-        filterNameToOrder.put("LAST", Integer.MAX_VALUE);
+        filterNameToOrder.put("LAST", new Integer(Integer.MAX_VALUE));
     }
 
     /** Allows filters to be used by name in the XSD file without explicit reference to Java constants */
