@@ -21,6 +21,9 @@ import org.springframework.security.util.SessionUtils;
  * This is essentially a generalization of the functionality that was implemented for SEC-399. Additionally, it will
  * update the configured SessionRegistry if one is in use, thus preventing problems when used with Spring Security's
  * concurrent session control.
+ * <p>
+ * If the response has already been committed when the filter checks the authentication state, then it isn't possible 
+ * to create a new session and the filter will print a warning to that effect. 
  * 
  * @author Martin Algesten
  * @author Luke Taylor
@@ -65,7 +68,7 @@ public class SessionFixationProtectionFilter extends SpringSecurityFilter {
             chain.doFilter(request, wrapper);
         } finally {
             if (!wrapper.isNewSessionStarted()) {
-                startNewSessionIfRequired(request);
+                startNewSessionIfRequired(request, response);
             }
         }
     }
@@ -94,8 +97,12 @@ public class SessionFixationProtectionFilter extends SpringSecurityFilter {
      * If the user is now authenticated, a new session will be created, the session attributes copied to it (if 
      * <tt>migrateSessionAttributes</tt> is set and the sessionRegistry updated with the new session information.
      */
-    protected void startNewSessionIfRequired(HttpServletRequest request) {
+    protected void startNewSessionIfRequired(HttpServletRequest request, HttpServletResponse response) {
         if (isAuthenticated()) {
+            if (request.getSession(false) != null && response.isCommitted()) {
+                logger.warn("Response is already committed. Unable to create new session.");
+            }
+            
             SessionUtils.startNewSessionIfRequired(request, migrateSessionAttributes, sessionRegistry);
         }
     }
@@ -151,7 +158,7 @@ public class SessionFixationProtectionFilter extends SpringSecurityFilter {
             if (newSessionStarted) {
                 return;
             }
-            startNewSessionIfRequired(request);
+            startNewSessionIfRequired(request, this);
             newSessionStarted = true;
         }
 
