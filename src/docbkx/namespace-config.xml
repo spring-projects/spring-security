@@ -564,7 +564,40 @@
     ... 
   </http>
   ]]></programlisting>
+      </para>
+    </section>
+    
+    <section xml:id="ns-auth-manager">
+      <title>The Authentication Manager</title>
+      <para>
+        We've touched on the idea that the namespace configuration automatically registers an authentication manager bean for
+        you. This is an instance of Spring Security's <classname>ProviderManager</classname> class, which you may already 
+        be familiar with if you've used the framework before. 
+      </para>
+      <para>
+        You may want to register additional <classname>AuthenticationProvider</classname> beans with the <classname>ProviderManager</classname>
+        and you can do this using the <literal>&lt;custom-authentication-provider&gt;</literal> element within the bean. For example:
+<programlisting><![CDATA[
+  <bean id="casAuthenticationProvider" 
+      class="org.springframework.security.providers.cas.CasAuthenticationProvider">
+    <security:custom-authentication-provider />
+    ...
+  </bean>
+  ]]></programlisting>
+      </para>
+      <para>
+        Another common requirement is that another bean in the context may require a reference to the <interfacename>AuthenticationManager</interfacename>.
+        There is a special element which lets you register an alias for the <interfacename>AuthenticationManager</interfacename> and you can then
+        use this name elsewhere in your application context.
+<programlisting><![CDATA[        
+  <security:authentication-manager alias="authenticationManager"/>
         
+  <bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter">
+     <security:custom-filter position="CAS_PROCESSING_FILTER"/>
+     <property name="authenticationManager" ref="authenticationManager"/>
+     ...
+  </bean>
+  ]]></programlisting>          
       </para>
     </section>
     
