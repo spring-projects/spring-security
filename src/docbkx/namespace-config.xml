@@ -519,22 +519,54 @@
         </para>
       </section>
       
-      <section xml:id="ns-global-method-access-mgr">
-        <title>Customizing the AccessDecisionManager</title>
-        <para>
-          The default namespace-registered AccessDecisionManager will be used automatically to 
-          control method access. For more complex requirements you can specify another instance 
-          using the <literal>access-decision-manager-ref</literal> attribute:
-
-          <programlisting><![CDATA[
-  <global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
-    ... 
-  </global-method-security>
-]]></programlisting>
-        </para>
-      </section>
     </section>
 
   </section>
   
+  <section xml:id="ns-access-manager">
+    <title>The Default AccessDecisionManager</title>
+    <para>
+      This section assumes you have some knowledge of the underlying architecture for access-control within 
+      Spring Security. If you don't you can skip it and come back to it later, as this section is only really relevant for 
+      people who need to do some customization in order to use more than simple role based security.
+    </para>
+    <para>
+      When you use a namespace configuration, a default instance of <interfacename>AccessDecisionManager</interfacename>
+      is automatically registered for you and will be used for making access decisions for method invocations
+      and web URL access, based on the access attributes you specify in your <literal>intercept-url</literal> and 
+      <literal>protect-pointcut</literal> declarations (and in annotations if you are using annotation secured methods).      
+    </para>
+    <para>
+      The default strategy is to use an <classname>AffirmativeBased</classname> <interfacename>AccessDecisionManager</interfacename>
+      with a <classname>RoleVoter</classname> and an <classname>AuthenticatedVoter</classname>.
+    </para>
+      
+    <section xml:id="ns-custom-access-mgr">
+      <title>Customizing the AccessDecisionManager</title>
+      <para>
+        If you need to use a more complicated access control strategy then it is easy to set an alternative for both
+        method and web security.
+      </para>
+      <para>
+        For method security, you  do this by setting the <literal>access-decision-manager-ref</literal> attribute 
+        on <literal>global-security</literal>to the Id of the appropriate 
+        <interfacename>AccessDecisionManager</interfacename> bean in the application context:
+        <programlisting><![CDATA[
+  <global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
+    ... 
+  </global-method-security>
+  ]]></programlisting>
+      </para>
+      <para>
+        The syntax for web security is the same, but on the <literal>http</literal> element:
+        <programlisting><![CDATA[
+  <http access-decision-manager-ref="myAccessDecisionManagerBean">
+    ... 
+  </http>
+  ]]></programlisting>
+        
+      </para>
+    </section>
+    
+  </section>
 </chapter>
