@@ -188,16 +188,8 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
             return;
         }
 
-        HttpSession httpSession = null;
-
-        try {
-            httpSession = request.getSession(forceEagerSessionCreation);
-        }
-        catch (IllegalStateException ignored) {
-        }
-
+        HttpSession httpSession = safeGetSession(request, forceEagerSessionCreation);
         boolean httpSessionExistedAtStartOfRequest = httpSession != null;
-
         SecurityContext contextBeforeChainExecution = readSecurityContextFromSession(httpSession);
 
         // Make the HttpSession null, as we don't want to keep a reference to it lying
@@ -346,13 +338,7 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
                                                HttpServletRequest request,
                                                boolean httpSessionExistedAtStartOfRequest,
                                                int contextHashBeforeChainExecution) {
-        HttpSession httpSession = null;
-
-        try {
-            httpSession = request.getSession(false);
-        }
-        catch (IllegalStateException ignored) {
-        }
+        HttpSession httpSession = safeGetSession(request, false);
 
         if (httpSession == null) {
             if (httpSessionExistedAtStartOfRequest) {
@@ -375,11 +361,8 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
                         logger.debug("HttpSession being created as SecurityContextHolder contents are non-default");
                     }
 
-                    try {
-                        httpSession = request.getSession(true);
-                    }
-                    catch (IllegalStateException ignored) {
-                    }
+                    httpSession = safeGetSession(request, true);
+                    
                 } else {
                     if (logger.isDebugEnabled()) {
                         logger.debug("HttpSession is null, but SecurityContextHolder has not changed from default: ' "
@@ -399,6 +382,15 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
                 logger.debug("SecurityContext stored to HttpSession: '" + securityContext + "'");
             }
         }
+    }
+    
+    private HttpSession safeGetSession(HttpServletRequest request, boolean allowCreate) {
+        try {
+            return request.getSession(allowCreate);
+        }
+        catch (IllegalStateException ignored) {
+            return null;
+        }        
     }
 
     public SecurityContext generateNewContext() throws ServletException {
