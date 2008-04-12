@@ -357,7 +357,16 @@
       <title>Concurrent Session Control</title>
       <para>
         If you wish to place constraints on a single user's ability to log in to your application, 
-        Spring Security supports this out of the box with the following simple addition:
+        Spring Security supports this out of the box with the following simple additions. First you need to add the 
+        following listener to your <filename>web.xml</filename> file to keep Spring Security updated about
+        session lifecycle events:
+        <programlisting>        
+          <![CDATA[         
+<listener>
+  <listener-class>org.springframework.security.ui.session.HttpSessionEventPublisher</listener-class>
+</listener>
+]]></programlisting>
+        Then add the following line to your application context:
         <programlisting><![CDATA[     
   <http>
     ...
