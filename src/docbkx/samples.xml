@@ -3,74 +3,74 @@
 <info><title xml:id="samples">Sample Applications</title></info>
 
 
+<section xml:id="tutorial-sample">
+    <info><title>Tutorial Sample</title></info>
+    
+    <para> The tutorial sample is a nice basic example to get you started. It uses
+        simple namespace configuration throughout.
+    </para>
+    <para>The compiled tutorial is included in the distribution ZIP file,
+        ready to be deployed into your web container. 
+        The <link xlink:href="#form">form-based</link> 
+        authentication mechanism is used, with the commonly-used 
+        <link xlink:href="#remember-me">remember-me</link>
+        authentication provider used to automatically remember the login using
+        cookies.</para>
+    
+    <para>We recommend you start with the tutorial sample, as the XML is
+        minimal and easy to follow. Most importantly, you can easily add 
+        this one XML file (and its corresponding <literal>web.xml</literal> entries) to your existing
+        application. Only when this basic integration is achieved do we
+        suggest you attempt adding in method authorization or domain object
+        security.</para>
+</section>
+
 <section xml:id="contacts-sample">
-    <info><title xml:id="contacts">Contacts</title></info>
+    <title xml:id="contacts">Contacts</title>
     
+    <para>
+        The Contacts Sample is quite an advanced example in that it 
+        illustrates the more powerful features of domain object access control lists
+        in addition to basic application security.
+    </para>
     
-    <para>Included with Spring Security is a very simple application that
-        can demonstrate the basic security facilities provided by the system
-        (and confirm your Container Adapter is properly configured if you're
-        using one).</para>
-    
-    <para>If you build from Subversion, the Contacts sample application
-        includes three deployable versions:
-        <literal>spring-security-sample-contacts-filter.war</literal> is
-        configured with the HTTP Session Authentication approach.
-        <literal>spring-security-sample-contacts-ca.war</literal> is
-        configured to use a Container Adapter. Finally,
-        <literal>spring-security-sample-contacts-cas.war</literal> is designed
-        to work with a JA-SIG CAS server. If you're just wanting to see how
-        the sample application works, please use
-        <literal>spring-security-sample-contacts-filter.war</literal>
-        as it does not require special configuration of your container. This
-        is also the artifact included in official release ZIPs.</para>
-    
-    <para>To deploy, simply copy the relevant WAR file from Spring
+    <para>To deploy, simply copy the WAR file from Spring
         Security distribution into your container’s <literal>webapps</literal>
-        directory.</para>
+        directory. The war should be called <filename>spring-security-samples-contacts-2.0.0.war</filename>
+        (the appended version number will vary depending on what release you are using).
+    </para>
     
     <para>After starting your container, check the application can load.
         Visit
-        <literal>http://localhost:8080/spring-security-sample-contacts-filter</literal>
+        <literal>http://localhost:8080/contacts</literal>
         (or whichever URL is appropriate for your web container and the WAR
-        you deployed). A random contact should be displayed. Click "Refresh"
-        several times and you will see different contacts. The business method
-        that provides this random contact is not secured.</para>
+        you deployed). </para>
     
     <para>Next, click "Debug". You will be prompted to authenticate, and a
         series of usernames and passwords are suggested on that page. Simply
         authenticate with any of these and view the resulting page. It should
-        contain a success message similar to the following:</para>
-    
-    <blockquote>
-        <para>Context on SecurityContextHolder is of type:
-            org.springframework.security.context.SecurityContextImpl</para>
+        contain a success message similar to the following:
+    <literallayout>
+        Authentication object is of type: org.springframework.security.providers.UsernamePasswordAuthenticationToken
         
-        <para>The Context implements SecurityContext.</para>
+        Authentication object as a String: 
+          org.springframework.security.providers.UsernamePasswordAuthenticationToken@1f127853: 
+          Principal: org.springframework.security.userdetails.User@b07ed00: 
+          Username: rod; Password: [PROTECTED]; Enabled: true; AccountNonExpired: true; 
+          credentialsNonExpired: true; AccountNonLocked: true; 
+          Granted Authorities: ROLE_SUPERVISOR, ROLE_USER; Password: [PROTECTED]; Authenticated: true; 
+          Details: org.springframework.security.ui.WebAuthenticationDetails@0: 
+          RemoteIpAddress: 127.0.0.1; SessionId: k5qypsawgpwb; 
+          Granted Authorities: ROLE_SUPERVISOR, ROLE_USER
         
-        <para>Authentication object is of type:
-            org.springframework.security.adapters.PrincipalSpringSecurityUserToken</para>
+        Authentication object holds the following granted authorities:
         
-        <para>Authentication object as a String:
-            org.springframework.security.adapters.PrincipalSpringSecurityUserToken@e9a7c2:
-            Username: rod; Password: [PROTECTED]; Authenticated: true; Granted
-            Authorities: ROLE_TELLER, ROLE_SUPERVISOR</para>
+        ROLE_SUPERVISOR (getAuthority(): ROLE_SUPERVISOR)
+        ROLE_USER (getAuthority(): ROLE_USER)
         
-        <para>Authentication object holds the following granted
-            authorities:</para>
-        
-        <para>ROLE_TELLER (getAuthority(): ROLE_TELLER)</para>
-        
-        <para>ROLE_SUPERVISOR (getAuthority(): ROLE_SUPERVISOR)</para>
-        
-        <para>SUCCESS! Your [container adapter|web filter] appears to be
-            properly configured!</para>
-    </blockquote>
-    
-    <para>If you receive a different message, and deployed
-        <literal>spring-security-sample-contacts-ca.war</literal>, check you
-        have properly configured your Container Adapter as described elsewhere
-        in this reference guide.</para>
+        SUCCESS! Your web filters appear to be properly configured!        
+    </literallayout>
+    </para>
     
     <para>Once you successfully receive the above message, return to the
         sample application's home page and click "Manage". You can then try
@@ -79,20 +79,13 @@
         <literal>ROLE_SUPERVISOR</literal> are granted access to delete their
         contacts. Behind the scenes, the
         <literal>MethodSecurityInterceptor</literal> is securing the business
-        objects. If you're using or
-        <literal>spring-security-sample-contacts-cas.war</literal>, the
-        <literal>spring-security-sample-contacts-filter.war</literal>
-        <literal>FilterSecurityInterceptor</literal> is also securing the HTTP
-        requests. If using either of these WARs, be sure to try visiting
-        <literal>http://localhost:8080/contacts/secure/super</literal>, which
-        will demonstrate access being denied by the
-        <literal>FilterSecurityInterceptor</literal>. Note the sample
-        application enables you to modify the access control lists associated
+        objects. </para>
+         <para>The application allows you to modify the access control lists associated
         with different contacts. Be sure to give this a try and understand how
-        it works by reviewing the sample application's application context XML
-        files.</para>
-    
-    <para>The Contacts sample application also include a
+        it works by reviewing the application context XML files.</para>
+<!--
+    TODO: Reintroduce standalone client example.
+    <para>The Contacts sample application also includes a
         <literal>client</literal> directory. Inside you will find a small
         application that queries the backend business objects using several
         web services protocols. This demonstrates how to use Spring Security
@@ -103,46 +96,9 @@
         and the password to use. Note that you may need to edit
         <literal>client.properties</literal> to use a different target
         URL.</para>
+-->        
+        
 </section>
 
-<section xml:id="tutorial-sample"><info><title>Tutorial Sample</title></info>
-    
-    
-    <para>Whilst the <link linkend="contacts-sample">Contacts
-        Sample</link> is quite advanced in that it illustrates the more
-        powerful features of domain object access control lists and so on,
-        sometimes you just want to start with a nice basic example. The
-        tutorial sample is intended to provide this for you.</para>
-    
-    <para>The compiled tutorial is included in the distribution ZIP file,
-        ready to be deployed into your web container. Authentication is
-        handled by the <link xlink:href="dao-auth-provider.xml">DaoAuthenticationProvider</link>, using the
-        <link xlink:href="in-memory-service">in-memory</link>
-        <literal>UserDetailsService</literal> that sources information from
-        the <literal>users.properties</literal> file located in the WAR's
-        <literal>/WEB-INF</literal> directory. The <link xlink:href="form-authentication.xml">form-based</link> 
-        authentication mechanism is used, with the commonly-used 
-        <link xlink:href="#remember-me">remember-me</link>
-        authentication provider used to automatically remember the login using
-        cookies.</para>
-    
-    <para>In terms of authorization, to keep things simple we've
-        configured the tutorial to only perform some basic <link xlink:href="#filter-invocation-authorization">web filter
-            authorization</link>. We've wired two common <link xlink:href="#pre-invocation">pre-invocation access decision voters</link>,
-        being the <literal>RoleVoter</literal> and
-        <literal>AuthenticatedVoter</literal>, such that
-        <literal>ROLE_*</literal> configuration attributes and
-        <literal>IS_AUTHENTICATED_*</literal> configuration attributes may be
-        used. Of course, it's extremely easy to add in other providers, with
-        most users probably starting with some services-layer security using
-        <link xlink:href="#aop-alliance">MethodSecurityInterceptor</link>.</para>
-    
-    <para>We recommend you start with the tutorial sample, as the XML is
-        minimal and easy to follow. All of the needed <link xlink:href="#supporting-infrastructure">filters</link> are configured properly, and using
-        best practise. Most importantly, you can easily this one XML file (and
-        its corresponding <literal>web.xml</literal> entries) to your existing
-        application. Only when this basic integration is achieved do we
-        suggest you attempt adding in method authorization or domain object
-        security.</para>
-</section>
+
 </chapter>
