@@ -472,19 +472,20 @@ if (obj instanceof UserDetails) {
 
     <para>Because <literal>AbstractSecurityInterceptor</literal> is the
     central template class, it seems fitting that the first figure should
-    be devoted to it.</para>
-
-    <para><mediaobject>
+    be devoted to it.
+      
+    <figure>
+      <title>The key "secure object" model</title>
+      <mediaobject>
         <imageobject role="html">
           <imagedata align="center" fileref="images/SecurityInterception.gif" format="GIF"/>
         </imageobject>
         <imageobject role="fo">
           <imagedata align="center" fileref="resources/images/SecurityInterception.gif" format="GIF"/>
         </imageobject>
-        <caption>
-          <para>Figure 1: The key "secure object" model</para>
-        </caption>
-      </mediaobject></para>
+      </mediaobject>
+    </figure>
+    </para>
 
     <para>Only developers contemplating an entirely new way of
     intercepting and authorizing requests would need to use secure objects

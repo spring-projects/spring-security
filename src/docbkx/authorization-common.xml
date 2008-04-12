@@ -93,21 +93,18 @@
     <literal>AccessDecisionManager</literal> to control all aspects of
     authorization, Spring Security includes several
     <literal>AccessDecisionManager</literal> implementations that are
-    based on voting. Figure 4 illustrates the relevant classes.</para>
-
-    <para><mediaobject>
+    based on voting. <xref linkend="authz-access-voting"/> illustrates the relevant classes.</para>
+      <figure xml:id="authz-access-voting">
+        <title>Voting Decision Manager</title>
+      <mediaobject>
         <imageobject role="fo">
           <imagedata align="center" fileref="resources/images/AccessDecisionVoting.gif" format="GIF"/>
         </imageobject>
         <imageobject role="html">
           <imagedata align="center" fileref="images/AccessDecisionVoting.gif" format="GIF"/>
         </imageobject>
-
-        <caption>
-          <para>Figure 4: Voting Decision Manager</para>
-        </caption>
-      </mediaobject></para>
-
+      </mediaobject>
+      </figure>
     <para>Using this approach, a series of
     <literal>AccessDecisionVoter</literal> implementations are polled on
     an authorization decision. The
@@ -265,21 +262,23 @@ boolean supports(Class clazz);
     several concrete implementations that integrate with its ACL
     capabilities.</para>
 
-    <para>Figure 5 illustrates Spring Security's
+    <para><xref linkend="authz-after-invocation"/> illustrates Spring Security's
     <literal>AfterInvocationManager</literal> and its concrete
-    implementations.</para>
-
-    <para><mediaobject>
-        <imageobject>
-          <imagedata role="fo" align="center" fileref="resources/images/AfterInvocation.gif" format="GIF"/>
+    implementations.
+      
+    <figure xml:id="authz-after-invocation">
+      <title>After Invocation Implementation</title>
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata  align="center" fileref="resources/images/AfterInvocation.gif" format="GIF"/>
         </imageobject>
-        <imageobject>
-          <imagedata role="html" align="center" fileref="images/AfterInvocation.gif" format="GIF"/>
+        <imageobject role="html">
+          <imagedata  align="center" fileref="images/AfterInvocation.gif" format="GIF"/>
         </imageobject>
-        <caption>
-          <para>Figure 5: After Invocation Implementation</para>
-        </caption>
-      </mediaobject></para>
+      </mediaobject>
+    
+    </figure>
+    </para>
 
     <para>Like many other parts of Spring Security,
     <literal>AfterInvocationManager</literal> has a single concrete
@@ -315,7 +314,6 @@ boolean supports(Class clazz);
     <literal>ROLE_AUTHENTICATED</literal> configuration attribute</para>
 
     <section xml:id="after-invocation-acl-aware"><info><title>ACL-Aware AfterInvocationProviders</title></info>
-      
 
       <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
       ACL module. The new ACL module is a significant rewrite of the

@@ -104,21 +104,21 @@
 
     <para>The <literal>org.springframework.security.acl</literal> package
     is very simple, comprising only a handful of interfaces and a single
-    class, as shown in Figure 6. It provides the basic foundation for
-    access control list (ACL) lookups.</para>
+    class, as shown in <xref linkend="acl-manager"/>. It provides the basic foundation for
+    access control list (ACL) lookups.
 
-    <para><mediaobject>
-        <imageobject>
-          <imagedata role="fo" align="center" fileref="resources/images/ACLSecurity.gif" format="GIF"/>
+    <figure xml:id="acl-manager">
+      <title>Access Control List Manager</title>
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata align="center" fileref="resources/images/ACLSecurity.gif" format="GIF"/>
         </imageobject>
         <imageobject role="html">
           <imagedata align="center" fileref="images/ACLSecurity.gif" format="GIF"/>
         </imageobject>
-
-        <caption>
-          <para>Figure 6: Access Control List Manager</para>
-        </caption>
-      </mediaobject></para>
+      </mediaobject>
+    </figure>
+    </para>
 
     <para>The central interface is <literal>AclManager</literal>, which is
     defined by two methods:</para>
@@ -166,20 +166,19 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
     implementation.</para>
 
     <para>Spring Security includes a production-quality ACL provider
-    implementation, which is shown in Figure 7.</para>
+    implementation, which is shown in <xref linkend="acl-basic-mgr"/>.
 
-    <para><mediaobject>
+    <figure xml:id="acl-basic-mgr">
+      <title>Basic ACL Manager</title>
+      <mediaobject>
         <imageobject role="fo">
           <imagedata align="center" fileref="resources/images/BasicAclProvider.gif" format="GIF"/>
         </imageobject>
         <imageobject role="html">
           <imagedata align="center" fileref="images/BasicAclProvider.gif" format="GIF"/>
         </imageobject>
-
-        <caption>
-          <para>Figure 7: Basic ACL Manager</para>
-        </caption>
-      </mediaobject></para>
+      </mediaobject>
+    </figure></para>
 
     <para>The implementation is based on integer masking, which is
     commonly used for ACL permissions given its flexibility and speed.
@@ -462,6 +461,8 @@ END;
     <literal>GrantedAuthority</literal>[]s. Please refer to the JavaDocs
     for more information.</para>
 
+    <figure xml:id="acl-instantiation">
+      <title>ACL Instantiation Approach</title>
     <mediaobject>
       <imageobject role="fo">
         <imagedata align="center" fileref="resources/images/Permissions.gif" format="GIF"/>
@@ -469,13 +470,10 @@ END;
       <imageobject role="html">
         <imagedata align="center" fileref="images/Permissions.gif" format="GIF"/>
       </imageobject>
-
-      <caption>
-        <para>Figure 8: ACL Instantiation Approach</para>
-      </caption>
     </mediaobject>
+    </figure>
 
-    <para>The above figure explains the key relationships between objects
+    <para><xref linkend="acl-instantiation"/> explains the key relationships between objects
     in the Basic ACL package.</para>
   </section>
 </chapter>
