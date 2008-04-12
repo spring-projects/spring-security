@@ -1,9 +1,9 @@
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" 
     xml:id="community"
     xmlns:xlink="http://www.w3.org/1999/xlink" >
-    
-    
-    <info><title>Community Support</title></info>
+
+    <info>
+        <title>Spring Security Community</title></info>
 
 
 <section xml:id="jira">
@@ -18,27 +18,30 @@
     <para>If possible, in your issue report please provide a JUnit test
         that demonstrates any incorrect behaviour. Or, better yet, provide a
         patch that corrects the issue. Similarly, enhancements are welcome to
-        be logged in the issue tracker, although we only accept commit enhancement requests
+        be logged in the issue tracker, although we only accept enhancement requests
         if you include corresponding unit tests. This is necessary to ensure
         project test coverage is adequately maintained.</para>
     
     <para>You can access the issue tracker at 
-        <link xlink:href="http://jira.springframework.org/browse/SEC">http://jira.springframework.org/browse/SEC</link>.</para>
+        <link xlink:href="http://jira.springframework.org/browse/SEC">http://jira.springframework.org/browse/SEC</link>.
+    </para>
 </section>
 
-<section xml:id="becoming-involved"><info><title>Becoming Involved</title></info>
+<section xml:id="becoming-involved">
+    <info><title>Becoming Involved</title></info>
     
-    
-    <para>We welcome you to become involved in Spring Security project.
-        There are many ways of contributing, including reading the mailing
-        list and responding to questions from other people, writing new code,
+    <para>We welcome your involvement in Spring Security project.
+        There are many ways of contributing, including reading the forum
+        and responding to questions from other people, writing new code,
         improving existing code, assisting with documentation, developing
         samples or tutorials, or simply making suggestions.</para>
-    
+<!-- TODO: Not currently there on SSec 2.0    
     <para>Please read our project policies web page that is available on
         Spring Security home page. This explains the path to become a
         committer, and the administration approaches we use within the
         project.</para>
+        
+        -->
 </section>
 
 <section xml:id="further-info">
@@ -48,13 +51,9 @@
         Spring Community Forum web site at  
         <uri xlink:href="http://forum.springframework.org">http://forum.springframework.org</uri>
         to discuss Spring Security with other users of the framework. 
-        Remember to use the JIRA for bug reports, as explained above.
+        Remember to use JIRA for bug reports, as explained above.
         Everyone is also welcome to join the Acegisecurity-developer mailing
-        list and participate in design discussions. It's also a good way of
-        finding out what's happening with regard to release timing, and the
-        traffic volume is quite light. Finally, our project home page (where
-        you can obtain the latest release of the project and convenient links
-        to Subversion, JIRA, mailing lists, forums etc) is at 
-        <uri xlink:href="http://static.springframework.org/spring-security/site/">http://static.springframework.org/spring-security/site/</uri>.</para>
+        list and participate in design discussions. The
+        traffic volume is very light.</para>
 </section>
 </chapter>

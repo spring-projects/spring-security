@@ -86,17 +86,27 @@
     <partintro>
     <para>The later parts of this guide provide an in-depth discussion of the
       framework architecture and implementation classes, an understanding of which is important
-      if you need to do any serious customization. In this part, we take a slightly
-      gentler look at how to get started using some of the features of Spring Security 2.0.
-      In particular, we'll look at namespace configuration which provides a much simpler path to securing
-      your application with little or no knowledge of the classes involved, unlike the traditional
-      Spring bean approach which required you to configure large numbers of beans.
+      if you need to do any serious customization. In this part, we'll introduce Spring Security 2.0,
+      give a brief overview of the project's history and take a slightly
+      gentler look at how to get started using the framework.
+      In particular, we'll look at namespace configuration which provides a much simpler way of securing
+      your application compared to the traditional Spring bean approach where you had to wire up all the 
+      implementation classes individually.
+    </para>
+    <para>
+      We'll also take a look at the sample applications that are available. It's worth trying to run
+      these and experimenting with them a bit even before you read the later sections - you can dip back into them
+      as your understanding of the framework increases.
     </para>
     </partintro>
     
     <xi:include href="introduction.xml" />    
     
     <xi:include href="namespace-config.xml" />
+    
+    <xi:include href="samples.xml"/>
+    
+    <xi:include href="community.xml"/>     
 
   </part>
 
@@ -187,17 +197,4 @@
     
   </part>
 
-  <part xml:id="resources">
-    <title>Other Resources</title>
-
-    <partintro>
-      <para>In addition to this reference guide, a number of other resources
-      exist to help you learn how to use Spring Security.</para>
-    </partintro>
-
-    <xi:include href="samples.xml"/>
-    
-    <xi:include href="community.xml"/>    
- 
-  </part>
 </book>
