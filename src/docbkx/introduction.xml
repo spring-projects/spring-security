@@ -76,6 +76,10 @@
         </listitem>
         
         <listitem>
+            <para>OpenID authentication</para>
+        </listitem>
+        
+        <listitem>
             <para>Computer Associates Siteminder</para>
         </listitem>
         
@@ -251,14 +255,14 @@
         use in numerous production software projects and many hundreds of
         improvements and community contributions.</para>
     
-    <para>Since work began on the 2.0 release, the project has been
-        rebranded as "Spring Security".</para>
+    <para>Acegi Security became an official Spring Portfolio project 
+        towards the end of 2007 and was rebranded as "Spring Security".</para>
     
     <para>Today Spring Security enjoys a strong and active open source
         community. There are thousands of messages about Spring Security on
-        the support forums. Fourteen developers work on the code itself, with
-        an active community who also regularly share patches and support their
-        peers.</para>
+        the support forums. There is an active core of developers work 
+        who work on the code itself and an active community which also 
+        regularly share patches and support their peers.</para>
 </sect1>
 
 <sect1 xml:id="release-numbering">

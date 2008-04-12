@@ -73,12 +73,13 @@
     object. You can use the following code block - from anywhere in your
     application - to do this:</para>
 
-    <programlisting>Object obj = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    <programlisting>
+Object obj = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 if (obj instanceof UserDetails) {
-String username = ((UserDetails)obj).getUsername();
+  String username = ((UserDetails)obj).getUsername();
 } else {
-String username = obj.toString();
+  String username = obj.toString();
 }</programlisting>
 
     <para>The above code introduces a number of interesting relationships
@@ -221,8 +222,8 @@ String username = obj.toString();
     authentication.</para>
   </section>
 
-  <section xml:id="common-authentication"><info><title>Authentication</title></info>
-    
+  <section xml:id="common-authentication">
+    <info><title>Authentication</title></info>
 
     <para>As mentioned in the beginning of this reference guide, Spring
     Security can participate in many different authentication

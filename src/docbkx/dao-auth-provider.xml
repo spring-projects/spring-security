@@ -72,8 +72,8 @@
     <para><programlisting><![CDATA[
 <bean id="daoAuthenticationProvider"
     class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
-  <property name="userDetailsService"><ref bean="userDetailsService"/></property>
-  <property name="userCache"><ref bean="userCache"/></property>
+  <property name="userDetailsService" ref="userDetailsService"/>
+  <property name="userCache" ref="userCache"/>
 </bean>
         
 <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
@@ -98,6 +98,10 @@
         Spring's factory classes, please refer to the Spring documentation for
         further details on how to optimise the cache storage location, memory
         usage, eviction policies, timeouts etc.</para>
+    <note><para>In the majority of cases, where your application is a stateful web
+        application, you don't need to use a cache as the user's authentication
+        information will be stored in the <literal>HttpSession</literal>.
+    </para></note>
     
     <para>A design decision was made not to support account locking in the
         <literal>DaoAuthenticationProvider</literal>, as doing so would have

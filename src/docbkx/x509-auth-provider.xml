@@ -54,7 +54,8 @@
             then the security context will remain empty. This means that you can easily use X.509
             authentication with other options such as a form-based login. </para>
     </section>
-    <section xml:id="x509-ssl-config"><info><title>Setting up SSL in Tomcat</title></info>
+    <section xml:id="x509-ssl-config">
+        <info><title>Setting up SSL in Tomcat</title></info>
         
         <para>There are some pre-generated certificates in the  
             <filename>samples/certificate</filename> directory in the Spring Security project.  
