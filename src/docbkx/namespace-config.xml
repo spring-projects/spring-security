@@ -162,7 +162,12 @@
 </programlisting>
         Which says that we want all URLs within our application to be secured, requiring the role
         <literal>ROLE_USER</literal>
-        to access them. To add some users, you can define a set of test data directly in the
+        to access them.
+        <note><para>You can use multiple <literal>&lt;intercept-url&gt;</literal> elements to define
+        different access requirements for different sets of URLs, but they will be evaluated in the 
+        order listed and the first match will be used. So you must put the most specific matches at the top.</para></note>
+        
+        To add some users, you can define a set of test data directly in the
         namespace:
         <programlisting><![CDATA[
   <authentication-provider>
@@ -401,9 +406,9 @@
       during initialization. The standard filters each have an alias in the namespace:
       <table>
         <title>Standard Filter Aliases and Ordering</title>
-        <tgroup cols="2" align="center">
+        <tgroup cols="2" align="left">
           <thead><row>
-            <entry>Alias</entry><entry>Filter Class</entry>
+            <entry align="center">Alias</entry><entry align="center">Filter Class</entry>
           </row></thead>
           <tbody>
             <row><entry> CHANNEL_FILTER</entry><entry>ChannelProcessingFilter</entry></row>
@@ -437,13 +442,66 @@
         that you want your filter to appear before or after the entire stack, respectively.
       </para>
     </section>
-
   </section>
   
   <section xml:id="ns-method-security">
-    <title>Namespace Support for Method Security</title>
+    <title>Method Security</title>
+
+    <para>
+      Spring Security 2.0 has improved support substantially for adding security to your service layer methods. If you are
+      using Java 5 or greater, then support for JSR-250 security annotations is provided, as well as the framework's native
+      <literal>@secured</literal> annotation. You can apply security to a single bean, using the <literal>intercept-methods</literal>
+      element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the
+      AspectJ style pointcuts.
+    </para>
     
-    <para>TODO</para>
+    <section xml:id="ns-global-method">
+      <title>The <literal>&lt;global-method-security&gt;</literal> Element</title>
+      <para>
+        This element is used to enable annotation based security in your application (by setting the appropriate
+        attributes on the element), and also to group together security pointcut declarations which will be applied across your 
+        entire application context. You should only declare one <literal>&lt;global-method-security&gt;</literal> element.
+        The following declaration would enable support for both types of annotations:
+<programlisting><![CDATA[
+  <global-method-security secured-annotations="enabled" jsr250-annotations="true"/>
+  ]]>
+</programlisting>        
+      </para>
+      <section xml:id="ns-protect-pointcut">
+        <title>Adding Security Pointcuts using <literal>protect-pointcut</literal></title>
+        <para>
+          The use of <literal>protect-pointcut</literal> is particularly powerful, as it allows you to
+          apply security to many beans with only a simple declaration. Consider the following example:
+          <programlisting><![CDATA[
+	<global-method-security>
+    <protect-pointcut expression="execution(* com.mycompany.*Service.*(..))" access="ROLE_USER"/>
+	</global-method-security>
+]]>
+          </programlisting>
+          This will protect all methods on beans declared in the application context whose classes
+          are in the <literal>com.mycompany</literal> package and whose class names end in "Service".
+          Only users with the <literal>ROLE_USER</literal> role will be able to invoke these methods.
+          As with URL matching, the most specific matches must come first in the list of pointcuts, as the
+          first matching expression will be used.
+        </para>
+      </section>
+      
+      <section xml:id="ns-global-method-access-mgr">
+        <title>Customizing the AccessDecisionManager</title>
+        <para>
+          The default namespace-registered AccessDecisionManager will be used automatically to 
+          control method access. For more complex requirements you can specify another instance 
+          using the <literal>access-decision-manager-ref</literal> attribute:
+
+          <programlisting><![CDATA[
+  <global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
+    ... 
+  </global-method-security>
+]]></programlisting>
+        </para>
+      </section>
+    </section>
+
   </section>
   
 </chapter>

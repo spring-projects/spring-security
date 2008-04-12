@@ -1,7 +1,8 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="authorization-common"><info><title>Common Authorization Concepts</title></info>
-  
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="authorization-common">
+  <info><title>Common Authorization Concepts</title></info>
 
-  <section xml:id="authorities"><info><title>Authorities</title></info>
+  <section xml:id="authorities">
+    <info><title>Authorities</title></info>
 
     <para>As briefly mentioned in the Authentication section, all
     <literal>Authentication</literal> implementations are required to
