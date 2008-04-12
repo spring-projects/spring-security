@@ -51,7 +51,8 @@
     the <literal>Authentication</literal> object.</para>
   </section>
 
-  <section xml:id="pre-invocation"><info><title>Pre-Invocation Handling</title></info>
+  <section xml:id="pre-invocation">
+    <info><title>Pre-Invocation Handling</title></info>
     
 
     <para>The <literal>AccessDecisionManager</literal> is called by the
@@ -426,7 +427,7 @@ boolean supports(Class clazz);
       <para><programlisting><![CDATA[
 <bean id="afterAclRead"
     class="org.springframework.security.afterinvocation.BasicAclEntryAfterInvocationProvider">
-  <property name="aclManager"><ref local="aclManager"/></property>
+  <property name="aclManager" ref="aclManager"/>
   <property name="requirePermission">
     <list>
       <ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
@@ -457,7 +458,7 @@ boolean supports(Class clazz);
 <programlisting><![CDATA[
 <bean id="afterAclCollectionRead"
     class="org.springframework.security.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider">
-  <property name="aclManager"><ref local="aclManager"/></property>
+  <property name="aclManager" ref="aclManager"/>
   <property name="requirePermission">
     <list>
       <ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
@@ -492,7 +493,7 @@ boolean supports(Class clazz);
 <![CDATA[
 <security:authorize ifAllGranted="ROLE_SUPERVISOR">
 <td>
-<a href="del.htm?id=<c:out value="${contact.id}"/>">Del</a>
+  <a href="del.htm?id=<c:out value="${contact.id}"/>">Del</a>
 </td>
 </security:authorize>
 ]]></programlisting></para>
