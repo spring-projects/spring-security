@@ -16,14 +16,15 @@
 
 
     <http auto-config="true" realm="Contacts Realm">
-        <intercept-url pattern="/index.jsp" access="ROLE_ANONYMOUS,ROLE_USER"/>
-        <intercept-url pattern="/hello.htm" access="ROLE_ANONYMOUS,ROLE_USER"/>
+        <intercept-url pattern="/" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <intercept-url pattern="/hello.htm" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>        
         <intercept-url pattern="/switchuser.jsp" access="ROLE_SUPERVISOR"/>
         <intercept-url pattern="/j_spring_security_switch_user" access="ROLE_SUPERVISOR"/>
-        <intercept-url pattern="/acegilogin.jsp*" access="ROLE_ANONYMOUS,ROLE_USER"/>
         <intercept-url pattern="/**" access="ROLE_USER"/>
 
-        <form-login login-page="/acegilogin.jsp" authentication-failure-url="/acegilogin.jsp?login_error=1"/>
+        <form-login login-page="/login.jsp" authentication-failure-url="/acegilogin.jsp?login_error=1"/>
         <logout logout-success-url="/index.jsp"/>
     </http>
 
@@ -39,7 +40,7 @@
         based on the role granted the ability to 'switch' to another user -->
    <!-- In this example 'rod' has ROLE_SUPERVISOR that can switch to regular ROLE_USER(s) -->
    <b:bean id="switchUserProcessingFilter" class="org.springframework.security.ui.switchuser.SwitchUserProcessingFilter" autowire="byType">
-       <custom-filter after="SWITCH_USER_FILTER"/>       
+       <custom-filter position="SWITCH_USER_FILTER"/>       
        <b:property name="targetUrl" value="/secure/index.htm"/>
    </b:bean>
 
