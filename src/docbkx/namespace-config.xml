@@ -161,12 +161,11 @@
   ]]>
 </programlisting>
         Which says that we want all URLs within our application to be secured, requiring the role
-        <literal>ROLE_USER</literal>
-        to access them.
-        <note><para>You can use multiple <literal>&lt;intercept-url&gt;</literal> elements to define
+        <literal>ROLE_USER</literal> to access them.</para>
+      <note><para>You can use multiple <literal>&lt;intercept-url&gt;</literal> elements to define
         different access requirements for different sets of URLs, but they will be evaluated in the 
         order listed and the first match will be used. So you must put the most specific matches at the top.</para></note>
-        
+      <para>
         To add some users, you can define a set of test data directly in the
         namespace:
         <programlisting><![CDATA[
@@ -179,25 +178,27 @@
   ]]>
       </programlisting>
         This defines two users, their passwords and their roles within the application (which will
-        be used for access control). 
-        <sidebar>
-          <para>If you are familiar with previous versions of the framework, you can probably
-          already guess roughly what's going on here. The &lt;http&gt; element is 
-          responsible for creating a <classname>FilterChainProxy</classname> and the
-            filter beans which it uses. Common issues like incorrect filter ordering are no 
-          longer an issue as the filter positions are predefined.</para>
-          <para>The <literal>&lt;authentication-provider&gt;</literal>
-            element creates a <classname>DaoAuthenticationProvider</classname>
-            bean and the <literal>&lt;user-service&gt;</literal> element creates an 
-            <classname>InMemoryDaoImpl</classname>. A <literal>ProviderManager</literal>
-            bean is always created by the namespace processing system and the
-            <classname>AuthenticationProvider</classname>
-            is automatically registered with it.</para>
-        </sidebar>
+        be used for access control). It is also possible to load user information from
+        a standard properties file using the <literal>properties</literal> attribute on 
+        <literal>user-service</literal>. 
         The <literal>&lt;authentication-provider&gt;</literal>
         element specifies that the user information will be registered with the authentication
         manager and used to process authentication requests.        
       </para>
+      <sidebar>
+        <para>If you are familiar with previous versions of the framework, you can probably
+          already guess roughly what's going on here. The &lt;http&gt; element is 
+          responsible for creating a <classname>FilterChainProxy</classname> and the
+          filter beans which it uses. Common issues like incorrect filter ordering are no 
+          longer an issue as the filter positions are predefined.</para>
+        <para>The <literal>&lt;authentication-provider&gt;</literal>
+          element creates a <classname>DaoAuthenticationProvider</classname>
+          bean and the <literal>&lt;user-service&gt;</literal> element creates an 
+          <classname>InMemoryDaoImpl</classname>. A <literal>ProviderManager</literal>
+          bean is always created by the namespace processing system and the
+          <classname>AuthenticationProvider</classname>
+          is automatically registered with it.</para>
+      </sidebar>
       <para>
         At this point you should be able to start up your application and you will be required to
         log in to proceed. Try it out, or try experimenting with the "tutorial" sample application
@@ -451,6 +452,27 @@
         that you want your filter to appear before or after the entire stack, respectively.
       </para>
     </section>
+    
+    <section xml:id="ns-session-fixation">
+      <title>Session Fixation Attack Protection</title>
+      <para>
+        <link xlink:href="http://en.wikipedia.org/wiki/Session_fixation">Session fixation</link> 
+        attacks are a potential risk where it is possible for a malicious attacker to create
+        a session by accessing a site, then persuade another user to log in with the same session 
+        (by sending them a link containing the session identifier as a parameter, for example). Spring Security
+        protects against this automatically by creating a new session when a user logs in. If you don't require
+        this protection, or it conflicts with some other requirement, you can control the behaviour using the
+        <literal>session-fixation-protection</literal> attribute on <literal>&lt;http&gt;</literal>, which 
+        has three options
+        <itemizedlist>
+          <listitem><para><literal>migrateSession</literal> - creates a new session and copies the existing 
+          session attributes to the new session. This is the default.</para></listitem>
+          <listitem><para><literal>none</literal> - Don't do anything. The original session will be retained.</para></listitem>
+          <listitem><para><literal>newSession</literal> - Create a new "clean" session, without copying the existing session data.</para></listitem>
+        </itemizedlist>
+      </para>
+    </section>
+    
   </section>
   
   <section xml:id="ns-method-security">
