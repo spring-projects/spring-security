@@ -51,7 +51,7 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-        <groupId>aspectj</groupId>
+        <groupId>org.aspectj</groupId>
 	    <artifactId>aspectjrt</artifactId>
 	    <version>1.5.4</version>	    
 	    <optional>true</optional>

@@ -16,7 +16,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>aspectj</groupId>
+            <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
             <optional>true</optional>
         </dependency>

@@ -16,7 +16,8 @@
         <module>preauth</module>
         <module>openid</module>
         <module>ldap</module>
-        <module>portlet</module>        
+        <module>portlet</module>
+        <module>cas</module>        
     </modules>
     <dependencies>
         <dependency>
@@ -24,7 +25,7 @@
             <artifactId>servlet-api</artifactId>
         </dependency>        
 	<dependency>
-	    <groupId>aspectj</groupId>
+	    <groupId>org.aspectj</groupId>
 	    <artifactId>aspectjrt</artifactId>
 	</dependency>
         <dependency>
