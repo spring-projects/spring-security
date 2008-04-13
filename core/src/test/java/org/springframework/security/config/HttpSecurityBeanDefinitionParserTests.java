@@ -32,8 +32,10 @@ import org.springframework.security.ui.WebAuthenticationDetails;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
 import org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter;
+import org.springframework.security.ui.rememberme.NullRememberMeServices;
 import org.springframework.security.ui.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
+import org.springframework.security.ui.rememberme.RememberMeServices;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FieldUtils;
@@ -74,7 +76,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         checkAutoConfigFilters(filterList);
     }
 
-    private void checkAutoConfigFilters(List filterList) {
+    private void checkAutoConfigFilters(List filterList) throws Exception {
         assertEquals("Expected 11 filters in chain", 11, filterList.size());
 
         Iterator filters = filterList.iterator();
@@ -82,7 +84,13 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof HttpSessionContextIntegrationFilter);
         assertTrue(filters.next() instanceof SessionFixationProtectionFilter);        
         assertTrue(filters.next() instanceof LogoutFilter);
-        assertTrue(filters.next() instanceof AuthenticationProcessingFilter);
+        Object authProcFilter = filters.next();
+        assertTrue(authProcFilter instanceof AuthenticationProcessingFilter);
+        // Check RememberMeServices has been set on AuthenticationProcessingFilter        
+        Object rms = FieldUtils.getFieldValue(authProcFilter, "rememberMeServices");
+        assertNotNull(rms);
+        assertTrue(rms instanceof RememberMeServices);
+        assertFalse(rms instanceof NullRememberMeServices);
         assertTrue(filters.next() instanceof DefaultLoginPageGeneratingFilter);
         assertTrue(filters.next() instanceof BasicProcessingFilter);
         assertTrue(filters.next() instanceof SecurityContextHolderAwareRequestFilter);

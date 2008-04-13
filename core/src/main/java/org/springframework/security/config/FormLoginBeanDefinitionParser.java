@@ -60,6 +60,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
             authenticationFailureUrl = elt.getAttribute(ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL);
             alwaysUseDefault = elt.getAttribute(ATT_ALWAYS_USE_DEFAULT_TARGET_URL);
             loginPage = elt.getAttribute(ATT_LOGIN_PAGE);
+            
             if (!StringUtils.hasText(loginPage)) {
             	loginPage = null;
             }
@@ -69,17 +70,19 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         
         filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault, loginPage, authenticationFailureUrl);
-
         filterBean.setSource(source);
         filterBean.getPropertyValues().addPropertyValue("authenticationManager",
                 new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
+        
+        if (parserContext.getRegistry().containsBeanDefinition(BeanIds.REMEMBER_ME_SERVICES)) {
+            filterBean.getPropertyValues().addPropertyValue("rememberMeServices", 
+                    new RuntimeBeanReference(BeanIds.REMEMBER_ME_SERVICES) );
+        }
 
         BeanDefinitionBuilder entryPointBuilder =
                 BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProcessingFilterEntryPoint.class);
         entryPointBuilder.setSource(source);
-
         entryPointBuilder.addPropertyValue("loginFormUrl", loginPage != null ? loginPage : DEF_LOGIN_PAGE);
-
         entryPointBean = (RootBeanDefinition) entryPointBuilder.getBeanDefinition();
 
         return null;
@@ -99,7 +102,6 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         }
         
         filterBuilder.addPropertyValue("filterProcessesUrl", loginUrl);
-
 
         if (!StringUtils.hasText(defaultTargetUrl)) {
             defaultTargetUrl = DEF_FORM_LOGIN_TARGET_URL;
