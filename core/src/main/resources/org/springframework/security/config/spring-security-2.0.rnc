@@ -415,6 +415,16 @@ jdbc-user-service.attlist &=
     attribute data-source-ref {xsd:string}
 jdbc-user-service.attlist &=
     cache-ref?
+jdbc-user-service.attlist &=
+    ## An SQL statement to query a username, password, and enabled status given a username
+    attribute users-by-username-query {xsd:string}?
+jdbc-user-service.attlist &=
+    ## An SQL statement to query for a user's granted authorities given a username.
+    attribute authorities-by-username-query {xsd:string}?
+jdbc-user-service.attlist &=
+    ## An SQL statement to query user's group authorities given a username.
+    attribute group-authorities-by-username-query {xsd:string}?
+    
 
 any-user-service = user-service | jdbc-user-service | ldap-user-service
     

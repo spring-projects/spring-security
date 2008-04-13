@@ -1144,6 +1144,24 @@
         UserDetailsService.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="users-by-username-query" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>An SQL statement to query a username, password, and enabled status given a
+          username</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="authorities-by-username-query" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>An SQL statement to query for a user's granted authorities given a
+          username.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group-authorities-by-username-query" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>An SQL statement to query user's group authorities given a
+        username.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="any-user-service" abstract="true"/>
   <xs:group name="custom-filter">

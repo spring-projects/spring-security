@@ -53,6 +53,16 @@ public class JdbcUserServiceBeanDefinitionParserTests {
     }
 
     @Test
+    public void usernameAndGroupQueriesAreParsedCorrectly() {
+        setContext("<jdbc-user-service id='myUserService' " +
+        		"data-source-ref='dataSource' " +
+        		"users-by-username-query='select username,password,enabled from users where username = ?' " +
+        		"authorities-by-username-query='select username,authority from authorities where username = ?'/>" + DATA_SOURCE);
+        JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext.getBean("myUserService");
+        assertTrue(mgr.loadUserByUsername("rod") != null);
+    }
+    
+    @Test
     public void cacheRefIsparsedCorrectly() {
         setContext("<jdbc-user-service id='myUserService' cache-ref='userCache' data-source-ref='dataSource'/>" 
         		+ DATA_SOURCE +USER_CACHE_XML);
