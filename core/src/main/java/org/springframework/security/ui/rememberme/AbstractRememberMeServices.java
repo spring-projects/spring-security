@@ -19,7 +19,6 @@ import org.springframework.security.userdetails.UserDetailsChecker;
 import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.ServletRequestUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -232,14 +231,20 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
             return true;
         }
 
-        if (!ServletRequestUtils.getBooleanParameter(request, parameter, false)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Did not send remember-me cookie (principal did not set parameter '" + parameter + "')");
-            }
-            return false;
+        String paramValue = request.getParameter(parameter);
+        
+        if (paramValue != null) {
+        	if (paramValue.equalsIgnoreCase("true") || paramValue.equalsIgnoreCase("on") ||
+					paramValue.equalsIgnoreCase("yes") || paramValue.equals("1")) {
+        		return true;
+        	}
+        }        
+        
+        if (logger.isDebugEnabled()) {
+            logger.debug("Did not send remember-me cookie (principal did not set parameter '" + parameter + "')");
         }
 
-        return true;
+        return false;
     }
 
     /**
