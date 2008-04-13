@@ -150,6 +150,11 @@ public class SessionFixationProtectionFilter extends SpringSecurityFilter {
             startNewSession();
             super.sendRedirect(location);
         }
+        
+        public void flushBuffer() throws IOException {
+            startNewSession();
+            super.flushBuffer();
+        }
 
         /**
          * Calls <code>startNewSessionIfRequired()</code>
