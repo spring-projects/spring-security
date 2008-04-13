@@ -414,7 +414,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         	return;        	
         }
         
-        throw new IllegalStateException("Couldn't set entry point");
+        parserContext.getReaderContext().error("No AuthenticationEntryPoint could be established. Please" +
+        		"make sure you have a login mechanism configured through the namespace (such as form-login) or" +
+        		"specify a custom AuthenticationEntryPoint with the custom-entry-point-ref  ", 
+                parserContext.extractSource(element));
     }
     
     static UrlMatcher createUrlMatcher(Element element) {
