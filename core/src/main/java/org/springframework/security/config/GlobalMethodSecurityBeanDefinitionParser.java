@@ -35,7 +35,6 @@ import org.w3c.dom.Element;
 class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     public static final String SECURED_DEPENDENCY_CLASS = "org.springframework.security.annotation.Secured";
     public static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.SecuredMethodDefinitionSource";
-    public static final String JSR_250_DEPENDENCY_CLASS = "javax.annotation.security.DenyAll";
     public static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.Jsr250MethodDefinitionSource";
     public static final String JSR_250_VOTER_CLASS = "org.springframework.security.annotation.Jsr250Voter";
     private static final String ATT_ACCESS = "access";
@@ -63,7 +62,6 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (useJsr250) {
         	validatePresent(JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS, element, parserContext);
         	validatePresent(JSR_250_VOTER_CLASS, element, parserContext);
-        	validatePresent(JSR_250_DEPENDENCY_CLASS, element, parserContext);
         }
         
         // Now create a Map<String, ConfigAttribute> for each <protect-pointcut> sub-element
