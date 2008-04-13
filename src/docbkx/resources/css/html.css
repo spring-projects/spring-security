@@ -272,6 +272,10 @@ div.calloutlist * td {
 	font-size: 100%;
 }
 
+.programlisting {
+	clear: both;
+}
+
 .programlisting .interfacename,
 .programlisting .literal,
 .programlisting .classname {
