@@ -475,6 +475,20 @@
       </para>
     </section>
     
+    <section xml:id="ns-entry-point-ref">
+      <title>Setting a Custom <literal>AuthenticationEntryPoint</literal></title>
+      <para>
+        If you aren't using form login, OpenID or basic authentication through the namespace, you may
+        want to define an authentication filter and entry point using a traditional bean syntax and link them
+        into the namespace. You can add the filter as explained in <xref linkend="ns-custom-filters"/>. The 
+        corresponding <literal>AuthenticationEntryPoint</literal> can be set using the <literal>entry-point-ref</literal>
+        attribute on the <literal>&lt;http&gt;</literal> element.
+      </para>
+      <para>
+        The CAS sample is a good example of the use of custom beans with the namespace, including this syntax.
+      </para>
+    </section>  
+    
   </section>
   
   <section xml:id="ns-method-security">
