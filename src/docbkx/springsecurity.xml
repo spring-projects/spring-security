@@ -192,9 +192,7 @@
     <xi:include href="secured-objects.xml"/>
     
     <xi:include href="domain-acls.xml"/>
-    
-    <xi:include href="domain-acls-old.xml"/>
-    
+  
   </part>
 
 </book>

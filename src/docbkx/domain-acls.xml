@@ -1,179 +1,304 @@
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="domain-acls">
-    
-    <info><title>Domain Object Security</title></info>
-    
-    
-    
-    <section xml:id="domain-acls-overview"><info><title>Overview</title></info>
-        
-        
-        <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
-            ACL module. The new ACL module is a significant rewrite of the
-            existing ACL module. The new module can be found under the
-            <literal>org.springframework.security.acls</literal> package, with the
-            old ACL module under
-            <literal>org.springframework.security.acl</literal>. We encourage
-            users to consider testing with the new ACL module and build
-            applications with it. The old ACL module should be considered
-            deprecated and may be removed from a future release.</para>
-        
-        <para>Complex applications often will find the need to define access
-            permissions not simply at a web request or method invocation level.
-            Instead, security decisions need to comprise both who
-            (<literal>Authentication</literal>), where
-            (<literal>MethodInvocation</literal>) and what
-            (<literal>SomeDomainObject</literal>). In other words, authorization
-            decisions also need to consider the actual domain object instance
-            subject of a method invocation.</para>
-        
-        <para>Imagine you're designing an application for a pet clinic. There
-            will be two main groups of users of your Spring-based application:
-            staff of the pet clinic, as well as the pet clinic's customers. The
-            staff will have access to all of the data, whilst your customers will
-            only be able to see their own customer records. To make it a little
-            more interesting, your customers can allow other users to see their
-            customer records, such as their "puppy preschool "mentor or president
-            of their local "Pony Club". Using Spring Security as the foundation,
-            you have several approaches that can be used:<orderedlist inheritnum="ignore" continuation="restarts">
+    <info>
+        <title>Domain Object Security</title>
+    </info>
+    <section xml:id="domain-acls-overview">
+        <info>
+            <title>Overview</title>
+        </info>
+        <para>PLEASE NOTE: Before release 2.0.0, Spring Security was known as Acegi Security. An ACL
+            module was provided with the old Acegi Security releases under the
+                <literal>org.[acegisecurity/springsecurity].acl</literal> package. This old package
+            is now deprecated and will be removed in a future release of Spring Security. This
+            chapter covers the new ACL module, which is officially recommended from Spring Security
+            2.0.0 and above, and can be found under the
+            <literal>org.springframework.security.acls</literal> package.</para>
+        <para>Complex applications often will find the need to define access permissions not simply
+            at a web request or method invocation level. Instead, security decisions need to
+            comprise both who (<literal>Authentication</literal>), where
+            (<literal>MethodInvocation</literal>) and what (<literal>SomeDomainObject</literal>). In
+            other words, authorization decisions also need to consider the actual domain object
+            instance subject of a method invocation.</para>
+        <para>Imagine you're designing an application for a pet clinic. There will be two main
+            groups of users of your Spring-based application: staff of the pet clinic, as well as
+            the pet clinic's customers. The staff will have access to all of the data, whilst your
+            customers will only be able to see their own customer records. To make it a little more
+            interesting, your customers can allow other users to see their customer records, such as
+            their "puppy preschool" mentor or president of their local "Pony Club". Using Spring
+            Security as the foundation, you have several approaches that can be used:<orderedlist
+                inheritnum="ignore" continuation="restarts">
                 <listitem>
-                    <para>Write your business methods to enforce the security. You
-                        could consult a collection within the
-                        <literal>Customer</literal> domain object instance to determine
-                        which users have access. By using the
-                        <literal>SecurityContextHolder.getContext().getAuthentication()</literal>,
+                    <para>Write your business methods to enforce the security. You could consult a
+                        collection within the <literal>Customer</literal> domain object instance to
+                        determine which users have access. By using the
+                            <literal>SecurityContextHolder.getContext().getAuthentication()</literal>,
                         you'll be able to access the <literal>Authentication</literal>
-                        object.</para>
+                    object.</para>
                 </listitem>
-                
                 <listitem>
-                    <para>Write an <literal>AccessDecisionVoter</literal> to enforce
-                        the security from the <literal>GrantedAuthority[]</literal>s
-                        stored in the <literal>Authentication</literal> object. This
-                        would mean your <literal>AuthenticationManager</literal> would
-                        need to populate the <literal>Authentication</literal> with
-                        custom <literal>GrantedAuthority</literal>[]s representing each
-                        of the <literal>Customer</literal> domain object instances the
-                        principal has access to.</para>
+                    <para>Write an <literal>AccessDecisionVoter</literal> to enforce the security
+                        from the <literal>GrantedAuthority[]</literal>s stored in the
+                            <literal>Authentication</literal> object. This would mean your
+                            <literal>AuthenticationManager</literal> would need to populate the
+                            <literal>Authentication</literal> with custom
+                        <literal>GrantedAuthority</literal>[]s representing each of the
+                            <literal>Customer</literal> domain object instances the principal has
+                        access to.</para>
                 </listitem>
-                
                 <listitem>
-                    <para>Write an <literal>AccessDecisionVoter</literal> to enforce
-                        the security and open the target <literal>Customer</literal>
-                        domain object directly. This would mean your voter needs access
-                        to a DAO that allows it to retrieve the
-                        <literal>Customer</literal> object. It would then access the
-                        <literal>Customer</literal> object's collection of approved
-                        users and make the appropriate decision.</para>
+                    <para>Write an <literal>AccessDecisionVoter</literal> to enforce the security
+                        and open the target <literal>Customer</literal> domain object directly. This
+                        would mean your voter needs access to a DAO that allows it to retrieve the
+                            <literal>Customer</literal> object. It would then access the
+                            <literal>Customer</literal> object's collection of approved users and
+                        make the appropriate decision.</para>
                 </listitem>
             </orderedlist></para>
-        
-        <para>Each one of these approaches is perfectly legitimate. However,
-            the first couples your authorization checking to your business code.
-            The main problems with this include the enhanced difficulty of unit
-            testing and the fact it would be more difficult to reuse the
-            <literal>Customer</literal> authorization logic elsewhere. Obtaining
-            the <literal>GrantedAuthority[]</literal>s from the
-            <literal>Authentication</literal> object is also fine, but will not
-            scale to large numbers of <literal>Customer</literal>s. If a user
-            might be able to access 5,000 <literal>Customer</literal>s (unlikely
-            in this case, but imagine if it were a popular vet for a large Pony
-            Club!) the amount of memory consumed and time required to construct
-            the <literal>Authentication</literal> object would be undesirable. The
-            final method, opening the <literal>Customer</literal> directly from
-            external code, is probably the best of the three. It achieves
-            separation of concerns, and doesn't misuse memory or CPU cycles, but
-            it is still inefficient in that both the
-            <literal>AccessDecisionVoter</literal> and the eventual business
-            method itself will perform a call to the DAO responsible for
-            retrieving the <literal>Customer</literal> object. Two accesses per
-            method invocation is clearly undesirable. In addition, with every
-            approach listed you'll need to write your own access control list
-            (ACL) persistence and business logic from scratch.</para>
-        
-        <para>Fortunately, there is another alternative, which we'll talk
-            about below.</para>
+        <para>Each one of these approaches is perfectly legitimate. However, the first couples your
+            authorization checking to your business code. The main problems with this include the
+            enhanced difficulty of unit testing and the fact it would be more difficult to reuse the
+                <literal>Customer</literal> authorization logic elsewhere. Obtaining the
+                <literal>GrantedAuthority[]</literal>s from the <literal>Authentication</literal>
+            object is also fine, but will not scale to large numbers of
+            <literal>Customer</literal>s. If a user might be able to access 5,000
+            <literal>Customer</literal>s (unlikely in this case, but imagine if it were a popular
+            vet for a large Pony Club!) the amount of memory consumed and time required to construct
+            the <literal>Authentication</literal> object would be undesirable. The final method,
+            opening the <literal>Customer</literal> directly from external code, is probably the
+            best of the three. It achieves separation of concerns, and doesn't misuse memory or CPU
+            cycles, but it is still inefficient in that both the
+            <literal>AccessDecisionVoter</literal> and the eventual business method itself will
+            perform a call to the DAO responsible for retrieving the <literal>Customer</literal>
+            object. Two accesses per method invocation is clearly undesirable. In addition, with
+            every approach listed you'll need to write your own access control list (ACL)
+            persistence and business logic from scratch.</para>
+        <para>Fortunately, there is another alternative, which we'll talk about below.</para>
     </section>
-    
-    <section xml:id="domain-acls-key-concepts"><info><title>Key Concepts</title></info>
-        
-        
-        <para>The org.springframework.security.acls package should be
-            consulted for its major interfaces. The key interfaces are:</para>
-        
+    <section xml:id="domain-acls-key-concepts">
+        <info>
+            <title>Key Concepts</title>
+        </info>
+        <para>Spring Security's ACL services are shipped in the
+            <literal>spring-security-acl-xxx.jar</literal>. You will need to add this JAR to your
+            classpath to use Spring Security's domain object instance security capabilities.</para>
+        <para>Spring Security's domain object instance security capabilities centre on the concept
+            of an access control list (ACL). Every domain object instance in your system has its own
+            ACL, and the ACL records details of who can and can't work with that domain object. With
+            this in mind, Spring Security delivers three main ACL-related capabilities to your application:<itemizedlist>
+                <listitem>
+                    <para>A way of efficiently retrieving ACL entries for all of your domain objects
+                        (and modifying those ACLs)</para>
+                </listitem>
+                <listitem>
+                    <para>A way of ensuring a given principal is permitted to work with your
+                        objects, before methods are called</para>
+                </listitem>
+                <listitem>
+                    <para>A way of ensuring a given principal is permitted to work with your objects
+                        (or something they return), after methods are called</para>
+                </listitem>
+            </itemizedlist></para>
+        <para>As indicated by the first bullet point, one of the main capabilities of the Spring
+            Security ACL module is providing a high-performance way of retrieving ACLs. This ACL
+            repository capability is extremely important, because every domain object instance in
+            your system might have several access control entries, and each ACL might inherit from
+            other ACLs in a tree-like structure (this is supported out-of-the-box by Spring
+            Security, and is very commonly used). Spring Security's ACL capability has been
+            carefully designed to provide high performance retrieval of ACLs, together with
+            pluggable caching, deadlock-minimizing database updates, independence from ORM
+            frameworks (we use JDBC directly), proper encapsulation, and transparent database
+            updating.</para>
+        <para>Given databases are central to the operation of the ACL module, let's explore the four
+            main tables used by default in the implementation. The tables are presented below in
+            order of size in a typical Spring Security ACL deployment, with the table with the most
+            rows listed last:</para>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para>ACL_SID allows us to uniquely identify any principal or authority in the
+                        system ("SID" stands for "security identity"). The only columns are the ID,
+                        a textual representation of the SID, and a flag to indicate whether the
+                        textual representation refers to a prncipal name or a
+                            <literal>GrantedAuthority</literal>. Thus, there is a single row for
+                        each unique principal or <literal>GrantedAuthority</literal>. When used in
+                        the context of receiving a permission, a SID is generally called a
+                        "recipient".</para>
+                </listitem>
+                <listitem>
+                    <para>ACL_CLASS allows us to uniquely identify any domain object class in the
+                        system. The only columns are the ID and the Java class name. Thus, there is
+                        a single row for each unique Class we wish to store ACL permissions
+                    for.</para>
+                </listitem>
+                <listitem>
+                    <para>ACL_OBJECT_IDENTITY stores information for each unique domain object
+                        instance in the system. Columns include the ID, a foreign key to the
+                        ACL_CLASS table, a unique identifier so we know which ACL_CLASS instance
+                        we're providing information for, the parent, a foreign key to the ACL_SID
+                        table to represent the owner of the domain object instance, and whether we
+                        allow ACL entries to inherit from any parent ACL. We have a single row for
+                        every domain object instance we're storing ACL permissions for.</para>
+                </listitem>
+                <listitem>
+                    <para>Finally, ACL_ENTRY stores the individual permissions assigned to each
+                        recipient. Columns include a foreign key to the ACL_OBJECT_IDENTITY, the
+                        recipient (ie a foreign key to ACL_SID), whether we'll be auditing or not,
+                        and the integer bit mask that represents the actual permission being granted
+                        or denied. We have a single row for every recipient that receives a
+                        permission to work with a domain object.</para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <para>As mentioned in the last paragraph, the ACL system uses integer bit masking. Don't
+            worry, you need not be aware of the finer points of bit shifting to use the ACL system,
+            but suffice to say that we have 32 bits we can switch on or off. Each of these bits
+            represents a permission, and by default the permissions are read (bit 0), write (bit 1),
+            create (bit 2), delete (bit 3) and administer (bit 4). It's easy to implement your own
+                <literal>Permission</literal> instance if you wish to use other permissions, and the
+            remainder of the ACL framework will operate without knowledge of your extensions.</para>
+        <para>It is important to understand that the number of domain objects in your system has
+            absolutely no bearing on the fact we've chosen to use integer bit masking. Whilst you
+            have 32 bits available for permissions, you could have billions of domain object
+            instances (which will mean billions of rows in ACL_OBJECT_IDENTITY and quite probably
+            ACL_ENTRY). We make this point because we've found sometimes people mistakenly believe
+            they need a bit for each potential domain object, which is not the case.</para>
+        <para>Now that we've provided a basic overview of what the ACL system does, and what it
+            looks like at a table structure, let's explore the key interfaces. The key interfaces
+            are:</para>
         <itemizedlist spacing="compact">
             <listitem>
-                <para><literal>Acl</literal>: Every domain object has one and only
-                    one <literal>Acl</literal> object, which internally holds the
-                    <literal>AccessControlEntry</literal>s as well as knows the owner
-                    of the <literal>Acl</literal>. An Acl does not refer directly to
-                    the domain object, but instead to an
-                    <literal>ObjectIdentity</literal>.</para>
+                <para><literal>Acl</literal>: Every domain object has one and only one
+                    <literal>Acl</literal> object, which internally holds the
+                        <literal>AccessControlEntry</literal>s as well as knows the owner of the
+                        <literal>Acl</literal>. An Acl does not refer directly to the domain object,
+                    but instead to an <literal>ObjectIdentity</literal>. The <literal>Acl</literal>
+                    is stored in the ACL_OBJECT_IDENTITY table.</para>
             </listitem>
-            
             <listitem>
-                <para><literal>AccessControlEntry</literal>: An
-                    Acl holds multiple <literal>AccessControlEntry</literal>s, which
-                    are often abbreviated as ACEs in the framework. Each ACE refers to
-                    a specific tuple of <literal>Permission</literal>,
-                    <literal>Sid</literal> and <literal>Acl</literal>. An ACE can also
-                    be granting or non-granting and contain audit settings.</para>
+                <para><literal>AccessControlEntry</literal>: An <literal>Acl</literal> holds
+                    multiple <literal>AccessControlEntry</literal>s, which are often abbreviated as
+                    ACEs in the framework. Each ACE refers to a specific tuple of
+                        <literal>Permission</literal>, <literal>Sid</literal> and
+                    <literal>Acl</literal>. An ACE can also be granting or non-granting and contain
+                    audit settings. The ACE is stored in the ACL_ENTRY table.</para>
             </listitem>
-            
             <listitem>
-                <para><literal>Permission</literal>: A permission represents an
-                    immutable particular bit mask, and offers convenience functions
-                    for bit masking and outputting information.</para>
+                <para><literal>Permission</literal>: A permission represents a particular immutable
+                    bit mask, and offers convenience functions for bit masking and outputting
+                    information. The basic permissions presented above (bits 0 through 4) are
+                    contained in the <literal>BasePermission</literal> class.</para>
             </listitem>
-            
             <listitem>
-                <para><literal>Sid</literal>: The ACL module needs to refer to
-                    principals and <literal>GrantedAuthority[]</literal>s. A level of
-                    indirection is provided by the <literal>Sid</literal> interface.
-                    Common classes include <literal>PrincipalSid</literal> (to
-                    represent the principal inside an
-                    <literal>Authentication</literal> object) and
-                    <literal>GrantedAuthoritySid</literal>.</para>
+                <para><literal>Sid</literal>: The ACL module needs to refer to principals and
+                        <literal>GrantedAuthority[]</literal>s. A level of indirection is provided
+                    by the <literal>Sid</literal> interface, which is an abbreviation of "security
+                    identity". Common classes include <literal>PrincipalSid</literal> (to represent
+                    the principal inside an <literal>Authentication</literal> object) and
+                        <literal>GrantedAuthoritySid</literal>. The security identity information is
+                    stored in the ACL_SID table.</para>
             </listitem>
-            
             <listitem>
-                <para><literal>ObjectIdentity</literal>: Each domain object is
-                    represented internally within the ACL module by an
-                    <literal>ObjectIdentity</literal>.</para>
+                <para><literal>ObjectIdentity</literal>: Each domain object is represented
+                    internally within the ACL module by an <literal>ObjectIdentity</literal>. The
+                    default implementation is called <literal>ObjectIdentityImpl</literal>.</para>
             </listitem>
-            
             <listitem>
-                <para><literal>AclService</literal>: Retrieves the
-                    <literal>Acl</literal> applicable for a given
-                    <literal>ObjectIdentity</literal>.</para>
+                <para><literal>AclService</literal>: Retrieves the <literal>Acl</literal> applicable
+                    for a given <literal>ObjectIdentity</literal>. In the included implementation
+                        (<literal>JdbcAclService</literal>), retrieval operations are delegated to a
+                        <literal>LookupStrategy</literal>. The <literal>LookupStrategy</literal>
+                    provides a highly optimized strategy for retrieving ACL information, using
+                    batched retrievals <literal>(BasicLookupStrategy</literal>) and supporting
+                    custom implementations that leverage materialized views, hierarchical queries
+                    and similar performance-centric, non-ANSI SQL capabilities.</para>
             </listitem>
-            
             <listitem>
-                <para><literal>MutableAclService</literal>: Allows a modified
-                    <literal>Acl</literal> to be presented for persistence. It is not
-                    essential to use this interface if you do not wish.</para>
+                <para><literal>MutableAclService</literal>: Allows a modified <literal>Acl</literal>
+                    to be presented for persistence. It is not essential to use this interface if
+                    you do not wish.</para>
             </listitem>
         </itemizedlist>
-        
-        <para>The ACL module was based on extensive feedback from the user
-            community following real-world use of the original ACL module. This
-            feedback resulted in a rearchitecture of the ACL module to offer
-            significantly enhanced performance (particularly in the area of
-            database retrieval), significantly better encapsulation, higher
-            cohesion, and enhanced customisation points.</para>
-        
-        <para>The Contacts Sample that ships with Acegi Security 1.0.3 offers
-            a demonstration of the new ACL module. Converting Contacts from using
-            the old module to the new module was relatively simple, and users of
-            the old ACL module will likely find their applications can be modified
-            with relatively little work.</para>
-        
-        <para>We will document the new ACL module more fully with a subsequent
-            release. Please note that the new ACL module should be considered a
-            preview only (ie do not use in production without proper prior
-            testing), and there is a small chance there may be changes between
-            1.0.3 and 1.1.0 when it will become final. Nevertheless,
-            compatibility-affecting changes are considered quite unlikely,
-            especially given the module is already based on several years of
-            feedback from users of the original ACL module.</para>
+        <para>Please note that our out-of-the-box AclService and related database classes all use
+            ANSI SQL. This should therefore work with all major databases. At the time of writing,
+            the system had been successfully tested using Hypersonic SQL, PostgreSQL, Microsoft SQL
+            Server and Oracle.</para>
+        <para>Two samples ship with Spring Security that demonstrate the ACL module. The first is
+            the Contacts Sample, and the other is the Document Management System (DMS) Sample. We
+            suggest taking a look over these for examples.</para>
+    </section>
+    <section xml:id="domain-acls-getting-started">
+        <info>
+            <title>Getting Started</title>
+        </info>
+        <para>To get starting using Spring Security's ACL capability, you will need to store your
+            ACL information somewhere. This necessitates the instantiation of a
+            <literal>DataSource</literal> using Spring. The <literal>DataSource</literal> is then
+            injected into a <literal>JdbcMutableAclService</literal> and
+                <literal>BasicLookupStrategy</literal> instance. The latter provides
+            high-performance ACL retrieval capabilities, and the former provides mutator
+            capabilities. Refer to one of the samples that ship with Spring Security for an example
+            configuration. You'll also need to populate the database with the four ACL-specific
+            tables listed in the last section (refer to the ACL samples for the appropriate SQL
+            statements).</para>
+        <para>Once you've created the required schema and instantiated
+                <literal>JdbcMutableAclService</literal>, you'll next need to ensure your domain
+            model supports interoperability with the Spring Security ACL package. Hopefully
+                <literal>ObjectIdentityImpl</literal> will prove sufficient, as it provides a large
+            number of ways in which it can be used. Most people will have domain objects that
+            contain a <literal>public Serializable getId()</literal> method. If the return type is
+            long, or compatible with long (eg an int), you will find you need not give further
+            consideration to <literal>ObjectIdentity</literal> issues. Many parts of the ACL module
+            rely on long identifiers. If you're not using long (or an int, byte etc), there is a
+            very good chance you'll need to reimplement a number of classes. We do not intend to
+            support non-long identifiers in Spring Security's ACL module, as longs are already
+            compatible with all database sequences, the most common identifier data type, and are of
+            sufficient length to accommodate all common usage scenarios.</para>
+        <para>The following fragment of code shows how to create an <literal>Acl</literal>, or
+            modify an existing
+            <literal>Acl</literal>:<programlisting>// Prepare the information we'd like in our access control entry (ACE)
+ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, new Long(44));
+Sid sid = new PrincipalSid("Samantha");
+Permission p = BasePermission.ADMINISTRATION;
+
+// Create or update the relevant ACL
+MutableAcl acl = null;
+try {
+  acl = (MutableAcl) aclService.readAclById(oi);
+} catch (NotFoundException nfe) {
+  acl = aclService.createAcl(oi);
+}
+
+// Now grant some permissions via an access control entry (ACE)
+acl.insertAce(acl.getEntries().length, p, sid, true);
+aclService.updateAcl(acl);
+</programlisting></para>
+        <para>In the example above, we're retrieving the ACL associated with the "Foo" domain object
+            with identifier number 44. We're then adding an ACE so that a principal named "Samantha"
+            can "administer" the object. The code fragment is relatively self-explanatory, except
+            the insertAce method. The first argument to the insertAce method is determining at what
+            position in the Acl the new entry will be inserted. In the example above, we're just
+            putting the new ACE at the end of the existing ACEs. The final argument is a boolean
+            indicating whether the ACE is granting or denying. Most of the time it will be granting
+            (true), but if it is denying (false), the permissions are effectively being blocked.</para>
+        <para>Spring Security does not provide any special integration to automatically create,
+            update or delete ACLs as part of your DAO or repository operations. Instead, you will
+            need to write code like shown above for your individual domain objects. It's worth
+            considering using AOP on your services layer to automatically integrate the ACL
+            information with your services layer operations. We've found this quite an effective
+            approach in the past.</para>
+        <para>Once you've used the above techniques to store some ACL information in the database,
+            the next step is to actually use the ACL information as part of authorization decision
+            logic. You have a number of choices here. You could write your own
+                <literal>AccessDecisionVoter</literal> or <literal>AfterInvocationProvider</literal>
+            that respectively fires before or after a method invocation. Such classes would use
+                <literal>AclService</literal> to retrieve the relevant ACL and then call
+                <literal>Acl.isGranted(Permission[] permission, Sid[] sids, boolean
+                administrativeMode)</literal> to decide whether permission is granted or denied.
+            Alternately, you could use our <literal>AclEntryVoter</literal>,
+                <literal>AclEntryAfterInvocationProvider</literal> or
+                <literal>AclEntryAfterInvocationCollectionFilteringProvider</literal> classes. All
+            of these classes provide a declarative-based approach to evaluating ACL information at
+            runtime, freeing you from needing to write any code. Please refer to the sample
+            applications to learn how to use these classes.</para>
     </section>
 </chapter>
