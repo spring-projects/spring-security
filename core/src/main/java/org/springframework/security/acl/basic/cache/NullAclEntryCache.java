@@ -26,6 +26,7 @@ import org.springframework.security.acl.basic.BasicAclEntryCache;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public class NullAclEntryCache implements BasicAclEntryCache {
     //~ Methods ========================================================================================================

@@ -48,6 +48,7 @@ import javax.sql.DataSource;
  * If this does not provide enough flexibility, another strategy would be to subclass this class and override the
  * {@link MappingSqlQuery} instance used, via the {@link #initMappingSqlQueries()} extension point.
  * </p>
+ * @deprecated Use new spring-security-acl module instead
  */
 public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
     //~ Static fields/initializers =====================================================================================

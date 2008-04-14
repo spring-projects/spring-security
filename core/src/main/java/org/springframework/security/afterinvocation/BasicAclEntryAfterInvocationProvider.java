@@ -61,6 +61,8 @@ import java.util.Iterator;
  *  <p>If the provided <code>returnObject</code> is <code>null</code>, permission will always be granted and
  * <code>null</code> will be returned.</p>
  *  <p>All comparisons and prefixes are case sensitive.</p>
+ *  
+ *  @deprecated Use new spring-security-acl module instead
  */
 public class BasicAclEntryAfterInvocationProvider implements AfterInvocationProvider, InitializingBean,
     MessageSourceAware {

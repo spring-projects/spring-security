@@ -44,6 +44,7 @@ import org.springframework.security.acl.AclEntry;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public interface EffectiveAclsResolver {
     //~ Methods ========================================================================================================

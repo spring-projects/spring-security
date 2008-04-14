@@ -35,6 +35,7 @@ import java.util.List;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public class AclProviderManager implements AclManager, InitializingBean {
     //~ Static fields/initializers =====================================================================================

@@ -29,6 +29,7 @@ package org.springframework.security.acl.basic;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public interface BasicAclEntryCache {
     //~ Methods ========================================================================================================

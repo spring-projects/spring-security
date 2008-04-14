@@ -30,6 +30,7 @@ import java.io.Serializable;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public class BasicAclEntryHolder implements Serializable {
     //~ Instance fields ================================================================================================

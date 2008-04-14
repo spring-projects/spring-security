@@ -59,6 +59,7 @@ import java.util.Map;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public class BasicAclProvider implements AclProvider, InitializingBean {
     //~ Static fields/initializers =====================================================================================

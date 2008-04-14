@@ -28,6 +28,7 @@ import java.util.Arrays;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public abstract class AbstractBasicAclEntry implements BasicAclEntry {
     //~ Static fields/initializers =====================================================================================

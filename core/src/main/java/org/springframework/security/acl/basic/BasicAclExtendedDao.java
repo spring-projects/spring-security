@@ -29,6 +29,7 @@ import org.springframework.dao.DataAccessException;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public interface BasicAclExtendedDao extends BasicAclDao {
     //~ Methods ========================================================================================================

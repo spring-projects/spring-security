@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public class SimpleAclEntry extends AbstractBasicAclEntry {
     //~ Static fields/initializers =====================================================================================

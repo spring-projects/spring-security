@@ -24,6 +24,7 @@ import org.springframework.security.Authentication;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public interface AclManager {
     //~ Methods ========================================================================================================

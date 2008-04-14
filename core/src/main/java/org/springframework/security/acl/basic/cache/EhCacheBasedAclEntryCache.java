@@ -39,6 +39,7 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public class EhCacheBasedAclEntryCache implements BasicAclEntryCache, InitializingBean {
     //~ Static fields/initializers =====================================================================================

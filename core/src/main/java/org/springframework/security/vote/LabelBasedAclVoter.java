@@ -49,6 +49,7 @@ import java.util.Map;
  * @version $Id$
  *
  * @see org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor
+ * @deprecated Use new spring-security-acl module instead
  */
 public class LabelBasedAclVoter extends AbstractAclVoter {
     //~ Static fields/initializers =====================================================================================

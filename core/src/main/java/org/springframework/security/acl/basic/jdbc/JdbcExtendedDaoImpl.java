@@ -58,6 +58,7 @@ import javax.sql.DataSource;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public class JdbcExtendedDaoImpl extends JdbcDaoImpl implements BasicAclExtendedDao {
     //~ Static fields/initializers =====================================================================================

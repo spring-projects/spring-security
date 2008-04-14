@@ -78,6 +78,7 @@ import java.util.Iterator;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public class BasicAclEntryVoter extends AbstractAclVoter implements InitializingBean {
     //~ Static fields/initializers =====================================================================================

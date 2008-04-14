@@ -44,6 +44,7 @@ import java.util.Vector;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public class GrantedAuthorityEffectiveAclsResolver implements EffectiveAclsResolver {
     //~ Static fields/initializers =====================================================================================

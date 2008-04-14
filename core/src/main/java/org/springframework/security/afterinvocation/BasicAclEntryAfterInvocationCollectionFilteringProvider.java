@@ -65,6 +65,7 @@ import java.util.Iterator;
  * @author Ben Alex
  * @author Paulo Neves
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public class BasicAclEntryAfterInvocationCollectionFilteringProvider implements AfterInvocationProvider,
     InitializingBean {

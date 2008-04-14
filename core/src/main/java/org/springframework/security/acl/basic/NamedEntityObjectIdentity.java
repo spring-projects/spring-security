@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 /**
  * Simple implementation of {@link AclObjectIdentity}.<P>Uses <code>String</code>s to store the identity of the
  * domain object instance. Also offers a constructor that uses reflection to build the identity information.</p>
+ * @deprecated Use new spring-security-acl module instead
  */
 public class NamedEntityObjectIdentity implements AclObjectIdentity {
     //~ Instance fields ================================================================================================

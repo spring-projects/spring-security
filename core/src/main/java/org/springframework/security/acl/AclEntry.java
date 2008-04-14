@@ -24,5 +24,6 @@ import java.io.Serializable;
  *
  * @author Ben Alex
  * @version $Id$
+ * @deprecated Use new spring-security-acl module instead
  */
 public interface AclEntry extends Serializable {}
