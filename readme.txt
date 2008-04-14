@@ -36,6 +36,22 @@ We recommend you visit http://static.springframework.org/spring-security/site an
 read the "Suggested Steps" page.
 
 -------------------------------------------------------------------------------
+MAVEN REPOSITORY DOWNLOADS
+-------------------------------------------------------------------------------
+
+Release jars for the project are available from the central maven repository
+
+http://repo1.maven.org/maven2/org/springframework/security/
+
+Note that milestone releases and snapshots are not uploaded to the central
+repository, but can be obtained from te Spring milestone repository.
+This blog article has full details on how to download milestone or snapshot
+jars or use them in a Maven-based project build:
+
+http://blog.springsource.com/main/2007/09/18/maven-artifacts-2/
+
+
+-------------------------------------------------------------------------------
 OBTAINING SUPPORT
 -------------------------------------------------------------------------------
 
