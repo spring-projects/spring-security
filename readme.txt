@@ -22,19 +22,18 @@ at http://static.springframework.org/spring-security/site/.
 This page is also included in the /docs directory of official release ZIPs.
 
 -------------------------------------------------------------------------------
+DOCUMENTATION
+-------------------------------------------------------------------------------
+
+Be sure to read the Reference Guide, which is available from the web site. 
+Every class also has thorough JavaDocs, which are also available on the web site.
+
+-------------------------------------------------------------------------------
 QUICK START
 -------------------------------------------------------------------------------
 
 We recommend you visit http://static.springframework.org/spring-security/site and 
 read the "Suggested Steps" page.
-
--------------------------------------------------------------------------------
-DOCUMENTATION
--------------------------------------------------------------------------------
-
-Be sure to read the Reference Guide, which is available from the web site (and
-/docs directory as described above). Every class also has thorough JavaDocs.
-The core JavaDocs can be found in /docs/multiproject/acegi-security/apidocs/.
 
 -------------------------------------------------------------------------------
 OBTAINING SUPPORT
