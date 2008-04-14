@@ -17,25 +17,20 @@ http://www.springframework.org/projects/.
 BUILDING
 -------------------------------------------------------------------------------
 
-Spring Security is built using Maven. Please read the "Building" page
-at http://static.springframework.org/spring-security/site/building.html. 
+Spring Security is built using Maven. Please read the "Building from Source" page
+at http://static.springframework.org/spring-security/site/. 
 This page is also included in the /docs directory of official release ZIPs.
 
 -------------------------------------------------------------------------------
 QUICK START
 -------------------------------------------------------------------------------
 
-We recommend you visit http://acegisecurity.org and read the "Suggested Steps"
-page. This page is also included in the /docs directory of official release
-ZIPs.
+We recommend you visit http://static.springframework.org/spring-security/site and 
+read the "Suggested Steps" page.
 
 -------------------------------------------------------------------------------
 DOCUMENTATION
 -------------------------------------------------------------------------------
-
-http://acegisecurity.org has a wide range of articles about Spring Security,
-including links to external resources. A copy of this web site is included in
-the /docs directory of official release ZIPs.
 
 Be sure to read the Reference Guide, which is available from the web site (and
 /docs directory as described above). Every class also has thorough JavaDocs.
@@ -64,7 +59,7 @@ discussions. You can join at:
   https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer.
 
 Links to mailing list archives, the forums, and other useful resources are
-available from http://acegisecurity.org.
+available from the web site.
 
 
 $Id$
