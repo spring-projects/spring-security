@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.acegisecurity</groupId>
 	<artifactId>acegi-security-parent</artifactId>
-	<version>1.0.7-SNAPSHOT</version>
+	<version>1.0.7</version>
 	<name>Acegi Security</name>
 	<packaging>pom</packaging>
 
@@ -32,9 +32,9 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/branches/1.0.x-branch/</connection>
-		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/branches/1.0.x-branch/</developerConnection>
-		<url>http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/branches/1.0.x-branch/</url>
+		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/tags/acegi-security-parent-1.0.7</connection>
+		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/tags/acegi-security-parent-1.0.7</developerConnection>
+		<url>http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/tags/acegi-security-parent-1.0.7</url>
 	</scm>
 
 	<issueManagement>
