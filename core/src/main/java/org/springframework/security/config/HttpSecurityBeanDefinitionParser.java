@@ -169,8 +169,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         filterSecurityInterceptorBuilder.addPropertyValue("authenticationManager",
                 ConfigUtils.registerProviderManagerIfNecessary(parserContext));
         
-        if ("true".equals(element.getAttribute(ATT_ONCE_PER_REQUEST))) {
-        	filterSecurityInterceptorBuilder.addPropertyValue("observeOncePerRequest", Boolean.TRUE);
+        if ("false".equals(element.getAttribute(ATT_ONCE_PER_REQUEST))) {
+        	filterSecurityInterceptorBuilder.addPropertyValue("observeOncePerRequest", Boolean.FALSE);
         }
 
         // SEC-501 - should paths stored in request maps be converted to lower case

@@ -97,7 +97,10 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof RememberMeProcessingFilter);
         assertTrue(filters.next() instanceof AnonymousProcessingFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
-        assertTrue(filters.next() instanceof FilterSecurityInterceptor);
+        Object fsiObj = filters.next();
+        assertTrue(fsiObj instanceof FilterSecurityInterceptor);
+        FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) fsiObj;
+        assertTrue(fsi.isObserveOncePerRequest());
     }
 
     @Test
@@ -202,12 +205,12 @@ public class HttpSecurityBeanDefinitionParserTests {
 
     @Test
     public void oncePerRequestAttributeIsSupported() throws Exception {
-        setContext("<http once-per-request='true'><http-basic /></http>" + AUTH_PROVIDER_XML);
+        setContext("<http once-per-request='false'><http-basic /></http>" + AUTH_PROVIDER_XML);
         List filters = getFilters("/someurl");
         
         FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) filters.get(filters.size() - 1);
         
-        assertTrue(fsi.isObserveOncePerRequest());
+        assertFalse(fsi.isObserveOncePerRequest());
     }
     
     @Test

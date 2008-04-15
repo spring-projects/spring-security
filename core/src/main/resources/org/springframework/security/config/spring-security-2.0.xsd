@@ -700,7 +700,7 @@
     <xs:attribute name="once-per-request" type="security:boolean">
       <xs:annotation>
         <xs:documentation>Corresponds to the observeOncePerRequest property of
-          FilterSecurityInterceptor. Defaults to "false"</xs:documentation>
+          FilterSecurityInterceptor. Defaults to "true"</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="access-denied-page" type="xs:string">

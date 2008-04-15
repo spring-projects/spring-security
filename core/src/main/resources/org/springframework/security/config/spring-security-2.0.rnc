@@ -214,7 +214,7 @@ http.attlist &=
     ## Allows a customized AuthenticationEntryPoint to be used.
     attribute entry-point-ref {xsd:string}?
 http.attlist &=
-    ## Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "false"
+    ## Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "true"
     attribute once-per-request {boolean}?
 http.attlist &=
     ## Allows the access denied page to be set (the user will be redirected here if an AccessDeniedException is raised).
