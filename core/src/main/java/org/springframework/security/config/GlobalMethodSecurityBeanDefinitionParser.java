@@ -138,7 +138,10 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         RootBeanDefinition advisor = new RootBeanDefinition(MethodDefinitionSourceAdvisor.class);
         advisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         advisor.setSource(parserContext.extractSource(element));
-        advisor.getConstructorArgumentValues().addGenericArgumentValue(interceptor);
+        advisor.getConstructorArgumentValues().addGenericArgumentValue(BeanIds.METHOD_SECURITY_INTERCEPTOR);
+        advisor.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE));
+
+        //advisor.getConstructorArgumentValues().addGenericArgumentValue(interceptor);
         parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_DEFINITION_SOURCE_ADVISOR, advisor);
 
         AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);

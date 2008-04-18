@@ -23,13 +23,18 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractPointcutAdvisor;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.security.intercept.method.MethodDefinitionSource;
 import org.springframework.util.Assert;
 
 /**
  * Advisor driven by a {@link MethodDefinitionSource}, used to exclude a {@link MethodSecurityInterceptor} from
- * public (ie non-secure) methods.<p>Because the AOP framework caches advice calculations, this is normally faster
- * than just letting the <code>MethodSecurityInterceptor</code> run and find out itself that it has no work to do.
+ * public (ie non-secure) methods.
+ * <p>
+ * Because the AOP framework caches advice calculations, this is normally faster than just letting the 
+ * <code>MethodSecurityInterceptor</code> run and find out itself that it has no work to do.
  * <p>
  * This class also allows the use of Spring's
  * {@link org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator}, which makes
@@ -42,22 +47,47 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor {
+public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor implements BeanFactoryAware {
     //~ Instance fields ================================================================================================
 
     private MethodDefinitionSource attributeSource;
     private MethodSecurityInterceptor interceptor;
-    private Pointcut pointcut;
+    private Pointcut pointcut = new MethodDefinitionSourcePointcut();
+    private BeanFactory beanFactory;
+    private String adviceBeanName;
+    private final Object adviceMonitor = new Object();
 
     //~ Constructors ===================================================================================================
 
+    /**
+     * @deprecated use the decoupled approach instead
+     */
     public MethodDefinitionSourceAdvisor(MethodSecurityInterceptor advice) {
+    	Assert.notNull(advice.getObjectDefinitionSource(), "Cannot construct a MethodDefinitionSourceAdvisor using a " +
+    			"MethodSecurityInterceptor that has no ObjectDefinitionSource configured");
+
     	this.interceptor = advice;
-
-    	Assert.notNull(advice.getObjectDefinitionSource(), "Cannot construct a MethodDefinitionSourceAdvisor using a MethodSecurityInterceptor that has no ObjectDefinitionSource configured");
-
         this.attributeSource = advice.getObjectDefinitionSource();
-        this.pointcut = new MethodDefinitionSourcePointcut();
+    }
+    
+    /**
+     * Alternative constructor for situations where we want the advisor decoupled from the advice. Instead the advice
+     * bean name should be set. This prevents eager instantiation of the interceptor 
+     * (and hence the AuthenticationManager). See SEC-773, for example.
+     * <p>
+     * This is essentially the approach taken by subclasses of {@link AbstractBeanFactoryPointcutAdvisor}, which this
+     * class should extend in future. The original hierarchy and constructor have been retained for backwards 
+     * compatibilty. 
+     * 
+     * @param adviceBeanName name of the MethodSecurityInterceptor bean
+     * @param attributeSource the attribute source (should be the same as the one used on the interceptor)
+     */
+    public MethodDefinitionSourceAdvisor(String adviceBeanName, MethodDefinitionSource attributeSource) {
+    	Assert.notNull(adviceBeanName, "The adviceBeanName cannot be null");
+    	Assert.notNull(attributeSource, "The attributeSource cannot be null");
+    	
+		this.adviceBeanName = adviceBeanName;
+		this.attributeSource = attributeSource;
     }
 
     //~ Methods ========================================================================================================
@@ -67,7 +97,20 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor {
 	}
 
 	public Advice getAdvice() {
-		return interceptor;
+		synchronized (this.adviceMonitor) {
+			if (interceptor == null) {
+				Assert.notNull(adviceBeanName, "'adviceBeanName' must be set for use with bean factory lookup.");
+				Assert.state(beanFactory != null, "BeanFactory must be set to resolve 'adviceBeanName'");
+				interceptor = (MethodSecurityInterceptor) 
+						beanFactory.getBean(this.adviceBeanName, MethodSecurityInterceptor.class);
+				attributeSource = interceptor.getObjectDefinitionSource();
+			}
+			return interceptor;
+		}
+	}
+	
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		this.beanFactory = beanFactory;
 	}
 
     //~ Inner Classes ==================================================================================================
