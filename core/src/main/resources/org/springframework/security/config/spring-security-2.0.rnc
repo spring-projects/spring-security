@@ -52,6 +52,10 @@ system-wide =
     
 boolean = "true" | "false"
 
+role-prefix =
+    ## A non-empty string prefix that will be added to role strings loaded from persistent storage (e.g. "ROLE_").
+    attribute role-prefix {xsd:string}
+
 
 ldap-server =
     ## Defines an LDAP server location or starts an embedded server. The url indicates the location of a remote server. If no url is given, an embedded server will be started, listening on the supplied port number. The port is optional and defaults to 33389. A Spring LDAP ContextSource bean will be registered for the server with the id supplied. 
@@ -109,6 +113,7 @@ ldap-us.attlist &=
     group-role-attribute-attribute?
 ldap-us.attlist &=
     cache-ref?
+
 
 ldap-authentication-provider =
     ## Sets up an ldap authentication provider
@@ -426,6 +431,8 @@ jdbc-user-service.attlist &=
 jdbc-user-service.attlist &=
     ## An SQL statement to query user's group authorities given a username.
     attribute group-authorities-by-username-query {xsd:string}?
+jdbc-user-service.attlist &=
+    role-prefix?
     
 
 any-user-service = user-service | jdbc-user-service | ldap-user-service

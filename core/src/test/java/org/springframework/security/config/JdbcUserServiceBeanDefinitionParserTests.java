@@ -10,7 +10,9 @@ import org.springframework.security.AuthenticationManager;
 import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.dao.DaoAuthenticationProvider;
+import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.jdbc.JdbcUserDetailsManager;
+import org.springframework.security.util.AuthorityUtils;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
@@ -61,7 +63,7 @@ public class JdbcUserServiceBeanDefinitionParserTests {
         JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext.getBean("myUserService");
         assertTrue(mgr.loadUserByUsername("rod") != null);
     }
-    
+
     @Test
     public void cacheRefIsparsedCorrectly() {
         setContext("<jdbc-user-service id='myUserService' cache-ref='userCache' data-source-ref='dataSource'/>" 
@@ -94,6 +96,15 @@ public class JdbcUserServiceBeanDefinitionParserTests {
         provider.authenticate(new UsernamePasswordAuthenticationToken("rod","koala"));
         assertNotNull("Cache should contain user after authentication", provider.getUserCache().getUserFromCache("rod"));      
     }
+    
+    @Test
+    public void rolePrefixIsUsedWhenSet() {
+        setContext("<jdbc-user-service id='myUserService' role-prefix='PREFIX_' data-source-ref='dataSource'/>" + DATA_SOURCE);
+        JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext.getBean("myUserService");
+        UserDetails rod = mgr.loadUserByUsername("rod");
+        assertTrue(AuthorityUtils.authorityArrayToSet(rod.getAuthorities()).contains("PREFIX_ROLE_SUPERVISOR"));
+    }    
+    
 
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);

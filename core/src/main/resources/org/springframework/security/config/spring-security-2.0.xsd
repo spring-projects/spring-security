@@ -150,6 +150,14 @@
       <xs:enumeration value="false"/>
     </xs:restriction>
   </xs:simpleType>
+  <xs:attributeGroup name="role-prefix">
+    <xs:attribute name="role-prefix" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>A non-empty string prefix that will be added to role strings loaded from
+          persistent storage (e.g. "ROLE_").</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="ldap-server">
     <xs:annotation>
       <xs:documentation>Defines an LDAP server location or starts an embedded server. The url
@@ -1166,6 +1174,12 @@
       <xs:annotation>
         <xs:documentation>An SQL statement to query user's group authorities given a
         username.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="role-prefix" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>A non-empty string prefix that will be added to role strings loaded from
+          persistent storage (e.g. "ROLE_").</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
