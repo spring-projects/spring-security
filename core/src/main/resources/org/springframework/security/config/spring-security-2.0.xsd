@@ -1116,6 +1116,12 @@
         unusable.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="disabled" type="security:boolean">
+      <xs:annotation>
+        <xs:documentation>Can be set to "true" to mark an account as disabled and
+        unusable.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="jdbc-user-service" substitutionGroup="security:any-user-service">
     <xs:annotation>

@@ -405,7 +405,9 @@ user.attlist &=
 user.attlist &=
 	  ## Can be set to "true" to mark an account as locked and unusable.
     attribute locked {boolean}?
-
+user.attlist &=
+	  ## Can be set to "true" to mark an account as disabled and unusable.
+    attribute disabled {boolean}?
 
 jdbc-user-service =
 	  ## Causes creation of a JDBC-based UserDetailsService.

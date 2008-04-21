@@ -1,6 +1,9 @@
 package org.springframework.security.config;
 
+import static org.junit.Assert.*;
+
 import org.springframework.security.util.InMemoryXmlApplicationContext;
+import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.beans.FatalBeanException;
@@ -42,6 +45,21 @@ public class UserServiceBeanDefinitionParserTests {
         userService.loadUserByUsername("joe");
     }
 
+    @Test
+    public void disabledAndEmbeddedFlagsAreSupported() {
+        setContext(
+                "<user-service id='service'>" +
+                "    <user name='joe' password='joespassword' authorities='ROLE_A' locked='true'/>" +
+                "    <user name='bob' password='bobspassword' authorities='ROLE_A' disabled='true'/>" +
+                "</user-service>");
+        UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
+        UserDetails joe = userService.loadUserByUsername("joe");
+        assertFalse(joe.isAccountNonLocked());
+        UserDetails bob = userService.loadUserByUsername("bob");
+        assertFalse(bob.isEnabled());
+    }
+    
+    
     @Test(expected=FatalBeanException.class)
     public void userWithBothPropertiesAndEmbeddedUsersThrowsException() {
         setContext(
