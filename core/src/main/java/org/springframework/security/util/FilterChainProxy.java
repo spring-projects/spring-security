@@ -116,8 +116,8 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
         if (fids != null) {
             Assert.isNull(uncompiledFilterChainMap, "Set the filterChainMap or FilterInvocationDefinitionSource but not both");
             FIDSToFilterChainMapConverter converter = new FIDSToFilterChainMapConverter(fids, applicationContext);
-            setFilterChainMap(converter.getFilterChainMap());
-            setMatcher(converter.getMatcher());
+            setMatcher(converter.getMatcher());            
+            setFilterChainMap(converter.getFilterChainMap());            
             fids = null;
         }
 

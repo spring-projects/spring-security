@@ -137,6 +137,12 @@ public class FilterChainProxyTests {
         doNormalOperation(filterChainProxy);
     }
 
+    @Test    
+    public void proxyPathWithoutLowerCaseConversionShouldntMatchDifferentCasePath() throws Exception {
+        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChainNonLowerCase", FilterChainProxy.class);
+        assertNull(filterChainProxy.getFilters("/some/other/path/blah"));
+    }
+    
     @Test
     public void normalOperationWithNewConfig() throws Exception {
         FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxy", FilterChainProxy.class);
@@ -163,7 +169,8 @@ public class FilterChainProxyTests {
         assertEquals(1, filters.size());
         assertTrue(filters.get(0) instanceof MockFilter);
 
-        filters = filterChainProxy.getFilters("/sOme/other/path/blah");
+        filters = filterChainProxy.getFilters("/some/other/path/blah");
+        assertNotNull(filters);
         assertEquals(3, filters.size());
         assertTrue(filters.get(0) instanceof HttpSessionContextIntegrationFilter);
         assertTrue(filters.get(1) instanceof MockFilter);

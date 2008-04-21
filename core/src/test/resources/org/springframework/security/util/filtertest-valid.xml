@@ -53,6 +53,17 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
       </property>
     </bean>
 
+	<bean id="filterChainNonLowerCase" class="org.springframework.security.util.FilterChainProxy">
+      <property name="filterInvocationDefinitionSource">
+         <value>
+		    PATTERN_TYPE_APACHE_ANT
+            /foo/**=mockFilter
+            /SOME/other/path/**=sif,mockFilter,mockFilter2
+            /do/not/filter=#NONE#
+         </value>
+      </property>
+    </bean>
+
     <bean id="newFilterChainProxy" class="org.springframework.security.util.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
