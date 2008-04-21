@@ -119,5 +119,9 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
         public String getBeanName() {
             return beanName;
         }
+
+		public String toString() {
+			return getClass() + "[ delegate=" + delegate + "; order=" + getOrder() + "]";
+		}
     }
 }
