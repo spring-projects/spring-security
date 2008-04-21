@@ -41,12 +41,15 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
         Set authorities = AuthorityUtils.authorityArrayToSet(ben.getAuthorities());
         assertEquals(2, authorities.size());
-        assertTrue(authorities.contains(new GrantedAuthorityImpl("ROLE_DEVELOPERS")));
+        assertTrue(authorities.contains("ROLE_DEVELOPERS"));
     }
 
     @Test
     public void differentUserSearchBaseWorksAsExpected() throws Exception {
-        setContext("<ldap-user-service id='ldapUDS' user-search-base='ou=otherpeople' user-search-filter='(cn={0})' group-search-filter='member={0}' /><ldap-server />");
+        setContext("<ldap-user-service id='ldapUDS' " +
+                "       user-search-base='ou=otherpeople' " +
+                "       user-search-filter='(cn={0})' " +
+                "       group-search-filter='member={0}' /><ldap-server />");
 
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails joe = uds.loadUserByUsername("Joe Smeth");
@@ -54,6 +57,27 @@ public class LdapUserServiceBeanDefinitionParserTests {
         assertEquals("Joe Smeth", joe.getUsername());
     }
 
+    @Test
+    public void rolePrefixIsSupported() throws Exception {
+        setContext(
+                "<ldap-user-service id='ldapUDS' " +
+                "     user-search-filter='(uid={0})' " +
+                "     group-search-filter='member={0}' role-prefix='PREFIX_'/>" +
+                "<ldap-user-service id='ldapUDSNoPrefix' " +
+        		"     user-search-filter='(uid={0})' " +
+        		"     group-search-filter='member={0}' role-prefix='none'/><ldap-server />");
+
+        UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+        UserDetails ben = uds.loadUserByUsername("ben");
+        assertTrue(AuthorityUtils.authorityArrayToSet(ben.getAuthorities()).contains("PREFIX_DEVELOPERS"));
+        
+        uds = (UserDetailsService) appCtx.getBean("ldapUDSNoPrefix");
+        ben = uds.loadUserByUsername("ben");
+        assertTrue(AuthorityUtils.authorityArrayToSet(ben.getAuthorities()).contains("DEVELOPERS"));        
+    }
+    
+    
+    
     @Test
     public void differentGroupRoleAttributeWorksAsExpected() throws Exception {
         setContext("<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' group-role-attribute='ou' group-search-filter='member={0}' /><ldap-server />");

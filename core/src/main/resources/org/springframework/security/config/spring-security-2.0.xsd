@@ -297,6 +297,12 @@
         UserDetailsService.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="role-prefix" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>A non-empty string prefix that will be added to role strings loaded from
+          persistent storage (e.g. "ROLE_").</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="ldap-authentication-provider">
     <xs:annotation>
@@ -381,6 +387,12 @@
         <xs:documentation>A specific pattern used to build the user's DN, for example
           "uid={0},ou=people". The key "{0}" must be present and will be substituted with the
           username.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="role-prefix" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>A non-empty string prefix that will be added to role strings loaded from
+          persistent storage (e.g. "ROLE_").</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>

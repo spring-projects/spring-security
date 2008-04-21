@@ -27,6 +27,8 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
     public static final String ATT_GROUP_ROLE_ATTRIBUTE = "group-role-attribute";    
     public static final String DEF_GROUP_SEARCH_FILTER = "(uniqueMember={0})";
     public static final String DEF_GROUP_SEARCH_BASE = "ou=groups";
+    
+    static final String ATT_ROLE_PREFIX = "role-prefix";    
 
     protected Class getBeanClass(Element element) {
         return LdapUserDetailsService.class;
@@ -61,13 +63,13 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
             return null;
         }
         
-        RootBeanDefinition search = new RootBeanDefinition(FilterBasedLdapUserSearch.class);
-        search.setSource(source);
-        search.getConstructorArgumentValues().addIndexedArgumentValue(0, userSearchBase);
-        search.getConstructorArgumentValues().addIndexedArgumentValue(1, userSearchFilter);
-        search.getConstructorArgumentValues().addIndexedArgumentValue(2, parseServerReference(elt, parserContext));
+        BeanDefinitionBuilder searchBuilder = BeanDefinitionBuilder.rootBeanDefinition(FilterBasedLdapUserSearch.class);
+        searchBuilder.setSource(source);
+        searchBuilder.addConstructorArg(userSearchBase);
+        searchBuilder.addConstructorArg(userSearchFilter);
+        searchBuilder.addConstructorArg(parseServerReference(elt, parserContext));
         
-        return search;
+        return (RootBeanDefinition) searchBuilder.getBeanDefinition();
     }
     
     static RuntimeBeanReference parseServerReference(Element elt, ParserContext parserContext) {
@@ -87,7 +89,8 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
         String groupSearchFilter = elt.getAttribute(ATT_GROUP_SEARCH_FILTER);
         String groupSearchBase = elt.getAttribute(ATT_GROUP_SEARCH_BASE);
         String groupRoleAttribute = elt.getAttribute(ATT_GROUP_ROLE_ATTRIBUTE);
-
+        String rolePrefix = elt.getAttribute(ATT_ROLE_PREFIX);
+        
         if (!StringUtils.hasText(groupSearchFilter)) {
             groupSearchFilter = DEF_GROUP_SEARCH_FILTER;
         }
@@ -96,16 +99,23 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
             groupSearchBase = DEF_GROUP_SEARCH_BASE;
         }
         
-        RootBeanDefinition populator = new RootBeanDefinition(DefaultLdapAuthoritiesPopulator.class);
+        BeanDefinitionBuilder populator = BeanDefinitionBuilder.rootBeanDefinition(DefaultLdapAuthoritiesPopulator.class);
         populator.setSource(parserContext.extractSource(elt));
-        populator.getConstructorArgumentValues().addIndexedArgumentValue(0, parseServerReference(elt, parserContext));
-        populator.getConstructorArgumentValues().addIndexedArgumentValue(1, groupSearchBase);
-        populator.getPropertyValues().addPropertyValue("groupSearchFilter", groupSearchFilter);
+        populator.addConstructorArg(parseServerReference(elt, parserContext));
+        populator.addConstructorArg(groupSearchBase);
+        populator.addPropertyValue("groupSearchFilter", groupSearchFilter);
+        
+        if (StringUtils.hasText(rolePrefix)) {
+            if ("none".equals(rolePrefix)) {
+                rolePrefix = "";
+            }
+            populator.addPropertyValue("rolePrefix", rolePrefix);
+        }                
         
         if (StringUtils.hasLength(groupRoleAttribute)) {
-            populator.getPropertyValues().addPropertyValue("groupRoleAttribute", groupRoleAttribute);
+            populator.addPropertyValue("groupRoleAttribute", groupRoleAttribute);
         }
         
-        return populator;
+        return (RootBeanDefinition) populator.getBeanDefinition();
     }
 }

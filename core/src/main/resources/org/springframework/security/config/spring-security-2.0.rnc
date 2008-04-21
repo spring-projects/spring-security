@@ -113,7 +113,8 @@ ldap-us.attlist &=
     group-role-attribute-attribute?
 ldap-us.attlist &=
     cache-ref?
-
+ldap-us.attlist &=
+    role-prefix?
 
 ldap-authentication-provider =
     ## Sets up an ldap authentication provider
@@ -133,6 +134,8 @@ ldap-ap.attlist &=
 ldap-ap.attlist &=
     ## A specific pattern used to build the user's DN, for example "uid={0},ou=people". The key "{0}" must be present and will be substituted with the username.
     attribute user-dn-pattern {xsd:string}?
+ldap-ap.attlist &=
+    role-prefix?
 
 password-compare-element =
     ## Specifies that an LDAP provider should use an LDAP compare operation of the user's password to authenticate the user
