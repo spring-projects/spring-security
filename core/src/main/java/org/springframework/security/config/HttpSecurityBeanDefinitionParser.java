@@ -408,15 +408,21 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         	return;        	
         }
         
-        // Otherwise use OpenID
+        // Otherwise use OpenID if enabled
         if (openIDFilter != null && formLoginFilter == null) {
         	parserContext.getRegistry().registerAlias(BeanIds.OPEN_ID_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
         	return;        	
         }
         
-        parserContext.getReaderContext().error("No AuthenticationEntryPoint could be established. Please" +
-        		"make sure you have a login mechanism configured through the namespace (such as form-login) or" +
-        		"specify a custom AuthenticationEntryPoint with the custom-entry-point-ref  ", 
+        // If X.509 has been enabled, use the preauth entry point.
+        if (DomUtils.getChildElementByTagName(element, Elements.X509) != null) {
+            parserContext.getRegistry().registerAlias(BeanIds.PRE_AUTH_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
+            return;
+        }
+        
+        parserContext.getReaderContext().error("No AuthenticationEntryPoint could be established. Please " +
+        		"make sure you have a login mechanism configured through the namespace (such as form-login) or " +
+        		"specify a custom AuthenticationEntryPoint with the custom-entry-point-ref attribute ", 
                 parserContext.extractSource(element));
     }
     
