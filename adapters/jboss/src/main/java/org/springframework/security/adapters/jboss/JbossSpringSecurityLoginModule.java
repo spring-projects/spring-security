@@ -57,7 +57,7 @@ import javax.security.auth.login.LoginException;
  * which is subsequently available from <code>java:comp/env/security/subject</code>.</p>
  *
  * @author Ben Alex
- * @author Sergio Bern�
+ * @author Sergio Bern
  * @version $Id:JbossSpringSecurityLoginModule.java 2151 2007-09-22 11:54:13Z luke_t $
  */
 public class JbossSpringSecurityLoginModule extends AbstractServerLoginModule {
