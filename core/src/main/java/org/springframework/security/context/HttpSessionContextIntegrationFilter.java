@@ -180,6 +180,8 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
             throw new IllegalArgumentException(
                     "If using forceEagerSessionCreation, you must set allowSessionCreation to also be true");
         }
+        
+        contextObject = generateNewContext();
     }
 
     public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
