@@ -1,7 +1,5 @@
 package org.springframework.security.config;
 
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -11,7 +9,6 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.AuthenticationManager;
 import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.vote.AffirmativeBased;
@@ -102,25 +99,11 @@ public abstract class ConfigUtils {
             throw new IllegalArgumentException("No UserDetailsService registered.");
 
         } else if (services.length > 1) {
-            throw new IllegalArgumentException("More than one UserDetailsService registered. Please" +
+            throw new IllegalArgumentException("More than one UserDetailsService registered. Please " +
                     "use a specific Id in your configuration");
         }
 
         return new RuntimeBeanReference(services[0]);
-    }
-
-    private static AuthenticationManager getAuthenticationManager(ConfigurableListableBeanFactory bf) {
-        Map authManagers = bf.getBeansOfType(AuthenticationManager.class);
-
-        if (authManagers.size() == 0) {
-            throw new IllegalArgumentException("No AuthenticationManager registered. " +
-                    "Make sure you have configured at least one AuthenticationProvider?");
-
-        } else if (authManagers.size() > 1) {
-            throw new IllegalArgumentException("More than one AuthenticationManager registered.");
-        }
-
-        return (AuthenticationManager) authManagers.values().toArray()[0];
     }
 
     static ManagedList getRegisteredProviders(ParserContext parserContext) {
