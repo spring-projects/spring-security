@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.AccessDeniedException;
@@ -77,6 +78,14 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         PostProcessedMockUserDetailsService service = (PostProcessedMockUserDetailsService)appContext.getBean("myUserService");
 
         assertEquals("Hello from the post processor!", service.getPostProcessorWasHere());
+    }
+    
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void duplicateElementCausesError() {
+        setContext(
+                "<global-method-security />" +
+                "<global-method-security />"
+        );
     }
     
     private void setContext(String context) {

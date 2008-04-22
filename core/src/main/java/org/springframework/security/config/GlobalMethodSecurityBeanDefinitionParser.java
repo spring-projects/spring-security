@@ -10,6 +10,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
@@ -50,65 +51,24 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
     
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-    	boolean useJsr250 = "enabled".equals(element.getAttribute(ATT_USE_JSR250));
-        boolean useSecured = "enabled".equals(element.getAttribute(ATT_USE_SECURED));
-
-        // Check the required classes are present
-        if (useSecured) {
-        	validatePresent(SECURED_METHOD_DEFINITION_SOURCE_CLASS, element, parserContext);
-        	validatePresent(SECURED_DEPENDENCY_CLASS, element, parserContext);
-        }
-
-        if (useJsr250) {
-        	validatePresent(JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS, element, parserContext);
-        	validatePresent(JSR_250_VOTER_CLASS, element, parserContext);
-        }
-        
-        // Now create a Map<String, ConfigAttribute> for each <protect-pointcut> sub-element
-        Map pointcutMap = new LinkedHashMap();
-        List protect = DomUtils.getChildElementsByTagName(element, Elements.PROTECT_POINTCUT);
-
-        for (Iterator i = protect.iterator(); i.hasNext();) {
-            Element childElt = (Element) i.next();
-            String accessConfig = childElt.getAttribute(ATT_ACCESS);
-            String expression = childElt.getAttribute(ATT_EXPRESSION);
-            Assert.hasText(accessConfig, "Access configuration required for '" + childElt + "'");
-            Assert.hasText(expression, "Expression required for '" + childElt + "'");
-            
-            ConfigAttributeDefinition def = new ConfigAttributeDefinition(StringUtils.commaDelimitedListToStringArray(accessConfig));
-            pointcutMap.put(expression, def);
-        }
-
-        MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource = new MapBasedMethodDefinitionSource();
-        
-        // Now create and populate our ProtectPointcutBeanPostProcessor, if needed
-        if (pointcutMap.size() > 0) {
-            RootBeanDefinition ppbp = new RootBeanDefinition(ProtectPointcutPostProcessor.class);
-            ppbp.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            ppbp.setSource(parserContext.extractSource(element));
-            ppbp.getConstructorArgumentValues().addGenericArgumentValue(mapBasedMethodDefinitionSource);
-            ppbp.getPropertyValues().addPropertyValue("pointcutMap", pointcutMap);
-            parserContext.getRegistry().registerBeanDefinition(BeanIds.PROTECT_POINTCUT_POST_PROCESSOR, ppbp);
-        }
-        
-        // Create our list of method metadata delegates
+        Object source = parserContext.extractSource(element);
+        // The list of method metadata delegates
         ManagedList delegates = new ManagedList();
+        
+        boolean jsr250Enabled = registerAnnotationBasedMethodDefinitionSources(element, parserContext, delegates);
+        
+        MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource = new MapBasedMethodDefinitionSource();
         delegates.add(mapBasedMethodDefinitionSource);
         
-        if (useSecured) {
-            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(SECURED_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
+        // Now create a Map<String, ConfigAttribute> for each <protect-pointcut> sub-element        
+        Map pointcutMap = parseProtectPointcuts(parserContext, 
+                DomUtils.getChildElementsByTagName(element, Elements.PROTECT_POINTCUT));
+        
+        if (pointcutMap.size() > 0) {
+            registerProtectPointcutPostProcessor(parserContext, pointcutMap, mapBasedMethodDefinitionSource, source);
         }
         
-        if (useJsr250) {
-            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());            
-        }
-        
-    	// Register our DelegatingMethodDefinitionSource
-        RootBeanDefinition delegatingMethodDefinitionSource = new RootBeanDefinition(DelegatingMethodDefinitionSource.class);
-        delegatingMethodDefinitionSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        delegatingMethodDefinitionSource.setSource(parserContext.extractSource(element));
-        delegatingMethodDefinitionSource.getPropertyValues().addPropertyValue("methodDefinitionSources", delegates);
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE, delegatingMethodDefinitionSource);
+        registerDelegatingMethodDefinitionSource(parserContext, delegates, source);
         
         // Register the applicable AccessDecisionManager, handling the special JSR 250 voter if being used
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
@@ -116,36 +76,110 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (!StringUtils.hasText(accessManagerId)) {
             ConfigUtils.registerDefaultAccessManagerIfNecessary(parserContext);
 
-            if (useJsr250) {
+            if (jsr250Enabled) {
                 ConfigUtils.addVoter(new RootBeanDefinition(JSR_250_VOTER_CLASS, null, null), parserContext);                
             }
 
             accessManagerId = BeanIds.ACCESS_MANAGER;
         }
-
-        // MethodSecurityInterceptor
-        RootBeanDefinition interceptor = new RootBeanDefinition(MethodSecurityInterceptor.class);
-        interceptor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        interceptor.setSource(parserContext.extractSource(element));
         
-        interceptor.getPropertyValues().addPropertyValue("accessDecisionManager", new RuntimeBeanReference(accessManagerId));
-        interceptor.getPropertyValues().addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
-        interceptor.getPropertyValues().addPropertyValue("objectDefinitionSource", new RuntimeBeanReference(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE));
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_INTERCEPTOR, interceptor);
-        parserContext.registerComponent(new BeanComponentDefinition(interceptor, BeanIds.METHOD_SECURITY_INTERCEPTOR));
+        registerMethodSecurityInterceptor(parserContext, accessManagerId, source);
         
-        // MethodDefinitionSourceAdvisor
-        RootBeanDefinition advisor = new RootBeanDefinition(MethodDefinitionSourceAdvisor.class);
-        advisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        advisor.setSource(parserContext.extractSource(element));
-        advisor.getConstructorArgumentValues().addGenericArgumentValue(BeanIds.METHOD_SECURITY_INTERCEPTOR);
-        advisor.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE));
-
-        //advisor.getConstructorArgumentValues().addGenericArgumentValue(interceptor);
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_DEFINITION_SOURCE_ADVISOR, advisor);
+        registerAdvisor(parserContext, source);
 
         AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
         
         return null;
     }
+    
+    /**
+     * Checks whether JSR-250 and/or Secured annotations are enabled and adds the appropriate 
+     * MethodDefinitionSource delegates if required. 
+     */
+    private boolean registerAnnotationBasedMethodDefinitionSources(Element element, ParserContext pc, ManagedList delegates) {
+        boolean useJsr250 = "enabled".equals(element.getAttribute(ATT_USE_JSR250));
+        boolean useSecured = "enabled".equals(element.getAttribute(ATT_USE_SECURED));
+        
+        // Check the required classes are present
+        if (useSecured) {
+            validatePresent(SECURED_METHOD_DEFINITION_SOURCE_CLASS, element, pc);
+            validatePresent(SECURED_DEPENDENCY_CLASS, element, pc);
+            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(SECURED_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
+        }
+
+        if (useJsr250) {
+            validatePresent(JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS, element, pc);
+            validatePresent(JSR_250_VOTER_CLASS, element, pc);
+            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());           
+        }
+        
+        return useJsr250;
+    }
+    
+    private void registerDelegatingMethodDefinitionSource(ParserContext parserContext, ManagedList delegates, Object source) {
+        if (parserContext.getRegistry().containsBeanDefinition(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE)) {
+            parserContext.getReaderContext().error("Duplicate <global-method-security> detected.", source);
+        }
+        RootBeanDefinition delegatingMethodDefinitionSource = new RootBeanDefinition(DelegatingMethodDefinitionSource.class);
+        delegatingMethodDefinitionSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        delegatingMethodDefinitionSource.setSource(source);
+        delegatingMethodDefinitionSource.getPropertyValues().addPropertyValue("methodDefinitionSources", delegates);
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE, delegatingMethodDefinitionSource);        
+    }
+    
+    private void registerProtectPointcutPostProcessor(ParserContext parserContext, Map pointcutMap,
+            MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource, Object source) {
+        RootBeanDefinition ppbp = new RootBeanDefinition(ProtectPointcutPostProcessor.class);
+        ppbp.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        ppbp.setSource(source);
+        ppbp.getConstructorArgumentValues().addGenericArgumentValue(mapBasedMethodDefinitionSource);
+        ppbp.getPropertyValues().addPropertyValue("pointcutMap", pointcutMap);
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.PROTECT_POINTCUT_POST_PROCESSOR, ppbp);
+    }
+
+    private Map parseProtectPointcuts(ParserContext parserContext, List protectPointcutElts) {
+        Map pointcutMap = new LinkedHashMap();
+
+        for (Iterator i = protectPointcutElts.iterator(); i.hasNext();) {
+            Element childElt = (Element) i.next();
+            String accessConfig = childElt.getAttribute(ATT_ACCESS);
+            String expression = childElt.getAttribute(ATT_EXPRESSION);
+            
+            if (!StringUtils.hasText(accessConfig)) {
+                parserContext.getReaderContext().error("Access configuration required", parserContext.extractSource(childElt));
+            }
+            
+            if (!StringUtils.hasText(expression)) {
+                parserContext.getReaderContext().error("Pointcut expression required", parserContext.extractSource(childElt));
+            }
+            
+            ConfigAttributeDefinition def = new ConfigAttributeDefinition(StringUtils.commaDelimitedListToStringArray(accessConfig));
+            pointcutMap.put(expression, def);
+        }
+
+        return pointcutMap;
+    }
+    
+    private void registerMethodSecurityInterceptor(ParserContext parserContext, String accessManagerId, Object source) {
+        RootBeanDefinition interceptor = new RootBeanDefinition(MethodSecurityInterceptor.class);
+        interceptor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        interceptor.setSource(source);
+        
+        interceptor.getPropertyValues().addPropertyValue("accessDecisionManager", new RuntimeBeanReference(accessManagerId));
+        interceptor.getPropertyValues().addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
+        interceptor.getPropertyValues().addPropertyValue("objectDefinitionSource", new RuntimeBeanReference(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE));
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_INTERCEPTOR, interceptor);
+        parserContext.registerComponent(new BeanComponentDefinition(interceptor, BeanIds.METHOD_SECURITY_INTERCEPTOR));        
+    }
+    
+    private void registerAdvisor(ParserContext parserContext, Object source) {
+        RootBeanDefinition advisor = new RootBeanDefinition(MethodDefinitionSourceAdvisor.class);
+        advisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        advisor.setSource(source);
+        advisor.getConstructorArgumentValues().addGenericArgumentValue(BeanIds.METHOD_SECURITY_INTERCEPTOR);
+        advisor.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE));
+
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_DEFINITION_SOURCE_ADVISOR, advisor);        
+    }
+    
 }
