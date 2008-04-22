@@ -12,8 +12,6 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  */
 public class AntUrlPathMatcher implements UrlMatcher {
-    private static final Log logger = LogFactory.getLog(AntUrlPathMatcher.class);
-
     private boolean requiresLowerCaseUrl = true;
     private PathMatcher pathMatcher = new AntPathMatcher();
 
@@ -48,4 +46,8 @@ public class AntUrlPathMatcher implements UrlMatcher {
     public boolean requiresLowerCaseUrl() {
         return requiresLowerCaseUrl;
     }
+
+    public String toString() {
+        return getClass().getName() + "[requiresLowerCase='" + requiresLowerCaseUrl + "']";
+    }    
 }

@@ -121,7 +121,7 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
         }
 
 		public String toString() {
-			return getClass() + "[ delegate=" + delegate + "; order=" + getOrder() + "]";
+			return "OrderedFilterDecorator[ delegate=" + delegate + "; order=" + getOrder() + "]";
 		}
     }
 }
