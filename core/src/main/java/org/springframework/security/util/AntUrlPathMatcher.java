@@ -2,8 +2,6 @@ package org.springframework.security.util;
 
 import org.springframework.util.PathMatcher;
 import org.springframework.util.AntPathMatcher;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Ant path strategy for URL matching.
