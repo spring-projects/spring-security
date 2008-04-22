@@ -13,6 +13,7 @@ abstract class Elements {
 	public static final String JDBC_USER_SERVICE = "jdbc-user-service";
 	public static final String FILTER_CHAIN_MAP = "filter-chain-map";
 	public static final String INTERCEPT_METHODS = "intercept-methods";
+    public static final String INTERCEPT_URL = "intercept-url";	
 	public static final String AUTHENTICATION_PROVIDER = "authentication-provider";
 	public static final String HTTP = "http";
 	public static final String LDAP_PROVIDER = "ldap-authentication-provider";

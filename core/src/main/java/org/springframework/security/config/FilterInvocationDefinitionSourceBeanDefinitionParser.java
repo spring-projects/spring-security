@@ -44,8 +44,8 @@ public class FilterInvocationDefinitionSourceBeanDefinitionParser extends Abstra
         UrlMatcher matcher = HttpSecurityBeanDefinitionParser.createUrlMatcher(element);
         boolean convertPathsToLowerCase = (matcher instanceof AntUrlPathMatcher) && matcher.requiresLowerCaseUrl();
         
-        LinkedHashMap requestMap = new LinkedHashMap();
-        HttpSecurityBeanDefinitionParser.parseInterceptUrlsForFilterInvocationRequestMap(interceptUrls, requestMap, 
+        LinkedHashMap requestMap = 
+        HttpSecurityBeanDefinitionParser.parseInterceptUrlsForFilterInvocationRequestMap(interceptUrls,  
                 convertPathsToLowerCase, parserContext);
         
         builder.addConstructorArg(matcher);

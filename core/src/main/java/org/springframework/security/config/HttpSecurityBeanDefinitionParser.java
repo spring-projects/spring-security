@@ -100,151 +100,55 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        BeanDefinitionRegistry registry = parserContext.getRegistry();
-        RootBeanDefinition filterChainProxy = new RootBeanDefinition(FilterChainProxy.class);
-        RootBeanDefinition httpScif = new RootBeanDefinition(HttpSessionContextIntegrationFilter.class);
-
-        BeanDefinition portMapper = new PortMappingsBeanDefinitionParser().parse(
-                DomUtils.getChildElementByTagName(element, Elements.PORT_MAPPINGS), parserContext);
-        registry.registerBeanDefinition(BeanIds.PORT_MAPPER, portMapper);
-
-        RuntimeBeanReference portMapperRef = new RuntimeBeanReference(BeanIds.PORT_MAPPER);
-
-        String createSession = element.getAttribute(ATT_CREATE_SESSION);
-        if (OPT_CREATE_SESSION_ALWAYS.equals(createSession)) {
-        	httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.TRUE);
-        	httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
-        } else if (OPT_CREATE_SESSION_NEVER.equals(createSession)) {
-        	httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.FALSE);
-        	httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
-        } else {
-        	createSession = DEF_CREATE_SESSION_IF_REQUIRED;
-        	httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.TRUE);
-        	httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
-        }
-
-        BeanDefinitionBuilder filterSecurityInterceptorBuilder
-                = BeanDefinitionBuilder.rootBeanDefinition(FilterSecurityInterceptor.class);
-
-        BeanDefinitionBuilder exceptionTranslationFilterBuilder
-                = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
+        ConfigUtils.registerProviderManagerIfNecessary(parserContext);
+        final BeanDefinitionRegistry registry = parserContext.getRegistry();
+        final UrlMatcher matcher = createUrlMatcher(element);
+        final Object source = parserContext.extractSource(element);
+        // SEC-501 - should paths stored in request maps be converted to lower case
+        // true if Ant path and using lower case
+        final boolean convertPathsToLowerCase = (matcher instanceof AntUrlPathMatcher) && matcher.requiresLowerCaseUrl();
         
-        String accessDeniedPage = element.getAttribute(ATT_ACCESS_DENIED_PAGE); 
-        if (StringUtils.hasText(accessDeniedPage)) {
-            AccessDeniedHandlerImpl accessDeniedHandler = new AccessDeniedHandlerImpl();
-            accessDeniedHandler.setErrorPage(accessDeniedPage);
-            exceptionTranslationFilterBuilder.addPropertyValue("accessDeniedHandler", accessDeniedHandler);
-        }
+        final List interceptUrlElts = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
+        final Map filterChainMap =  new LinkedHashMap();
+        final LinkedHashMap channelRequestMap = new LinkedHashMap();
+
+        registerFilterChainProxy(parserContext, filterChainMap, matcher, source);
         
+        parseInterceptUrlsForChannelSecurityAndFilterChain(interceptUrlElts, filterChainMap, channelRequestMap, 
+                convertPathsToLowerCase, parserContext);
 
-        Map filterChainMap =  new LinkedHashMap();
+        registerHttpSessionIntegrationFilter(element, registry);
         
-        UrlMatcher matcher = createUrlMatcher(element);
-        
-        filterChainProxy.getPropertyValues().addPropertyValue("matcher", matcher);
-
-        // Add servlet-api integration filter if required
-        String provideServletApi = element.getAttribute(ATT_SERVLET_API_PROVISION);
-        if (!StringUtils.hasText(provideServletApi)) {
-        	provideServletApi = DEF_SERVLET_API_PROVISION;
-        }
-
-        if ("true".equals(provideServletApi)) {
-            parserContext.getRegistry().registerBeanDefinition(BeanIds.SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER,
-                    new RootBeanDefinition(SecurityContextHolderAwareRequestFilter.class));
-        }
-
-        filterChainProxy.getPropertyValues().addPropertyValue("filterChainMap", filterChainMap);
-
-        // Set up the access manager and authentication manager references for http
+        registerServletApiFilter(element, registry);
+                
+        // Set up the access manager reference for http
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
         if (!StringUtils.hasText(accessManagerId)) {
             ConfigUtils.registerDefaultAccessManagerIfNecessary(parserContext);
             accessManagerId = BeanIds.ACCESS_MANAGER;
         }
-
-        filterSecurityInterceptorBuilder.addPropertyValue("accessDecisionManager",
-                new RuntimeBeanReference(accessManagerId));
-        filterSecurityInterceptorBuilder.addPropertyValue("authenticationManager",
-                ConfigUtils.registerProviderManagerIfNecessary(parserContext));
         
-        if ("false".equals(element.getAttribute(ATT_ONCE_PER_REQUEST))) {
-        	filterSecurityInterceptorBuilder.addPropertyValue("observeOncePerRequest", Boolean.FALSE);
-        }
+        // Register the portMapper. A default will always be created, even if no element exists.
+        BeanDefinition portMapper = new PortMappingsBeanDefinitionParser().parse(
+                DomUtils.getChildElementByTagName(element, Elements.PORT_MAPPINGS), parserContext);
+        registry.registerBeanDefinition(BeanIds.PORT_MAPPER, portMapper);
 
-        // SEC-501 - should paths stored in request maps be converted to lower case
-        // true if Ant path and using lower case
-        boolean convertPathsToLowerCase = (matcher instanceof AntUrlPathMatcher) && matcher.requiresLowerCaseUrl();
-        
-        LinkedHashMap channelRequestMap = new LinkedHashMap();
-        LinkedHashMap filterInvocationDefinitionMap = new LinkedHashMap();
-                
-        List interceptUrlElts = DomUtils.getChildElementsByTagName(element, "intercept-url");
-        parseInterceptUrlsForChannelSecurityAndFilterChain(interceptUrlElts, filterChainMap, channelRequestMap, 
-                convertPathsToLowerCase, parserContext);
-        parseInterceptUrlsForFilterInvocationRequestMap(interceptUrlElts, filterInvocationDefinitionMap, 
-                convertPathsToLowerCase, parserContext);
+        registerExceptionTranslationFilter(element.getAttribute(ATT_ACCESS_DENIED_PAGE), registry);
 
-        DefaultFilterInvocationDefinitionSource interceptorFilterInvDefSource =
-            new DefaultFilterInvocationDefinitionSource(matcher, filterInvocationDefinitionMap);
-        DefaultFilterInvocationDefinitionSource channelFilterInvDefSource =
-            new DefaultFilterInvocationDefinitionSource(matcher, channelRequestMap);
 
-        filterSecurityInterceptorBuilder.addPropertyValue("objectDefinitionSource", interceptorFilterInvDefSource);
-        
-        
-        // Check if we need to register the channel processing beans
         if (channelRequestMap.size() > 0) {
             // At least one channel requirement has been specified
-            RootBeanDefinition channelFilter = new RootBeanDefinition(ChannelProcessingFilter.class);
-            channelFilter.getPropertyValues().addPropertyValue("channelDecisionManager",
-                    new RuntimeBeanReference(BeanIds.CHANNEL_DECISION_MANAGER));
-
-            channelFilter.getPropertyValues().addPropertyValue("filterInvocationDefinitionSource",
-                    channelFilterInvDefSource);
-            RootBeanDefinition channelDecisionManager = new RootBeanDefinition(ChannelDecisionManagerImpl.class);
-            ManagedList channelProcessors = new ManagedList(3);
-            RootBeanDefinition secureChannelProcessor = new RootBeanDefinition(SecureChannelProcessor.class);
-            RootBeanDefinition retryWithHttp = new RootBeanDefinition(RetryWithHttpEntryPoint.class);
-            RootBeanDefinition retryWithHttps = new RootBeanDefinition(RetryWithHttpsEntryPoint.class);
-            retryWithHttp.getPropertyValues().addPropertyValue("portMapper", portMapperRef);
-            retryWithHttps.getPropertyValues().addPropertyValue("portMapper", portMapperRef);
-            secureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttps);
-            RootBeanDefinition inSecureChannelProcessor = new RootBeanDefinition(InsecureChannelProcessor.class);
-            inSecureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttp);
-            channelProcessors.add(secureChannelProcessor);
-            channelProcessors.add(inSecureChannelProcessor);
-            channelDecisionManager.getPropertyValues().addPropertyValue("channelProcessors", channelProcessors);
-
-            registry.registerBeanDefinition(BeanIds.CHANNEL_PROCESSING_FILTER, channelFilter);
-            registry.registerBeanDefinition(BeanIds.CHANNEL_DECISION_MANAGER, channelDecisionManager);
-        }
-
-        Element sessionControlElt = DomUtils.getChildElementByTagName(element, Elements.CONCURRENT_SESSIONS);
-        if (sessionControlElt != null) {
-            new ConcurrentSessionsBeanDefinitionParser().parse(sessionControlElt, parserContext);
-            logger.info("Concurrent session filter in use, setting 'forceEagerSessionCreation' to true");
-            httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
-        }
-
-        String sessionFixationAttribute = element.getAttribute(ATT_SESSION_FIXATION_PROTECTION);
-        
-        if(!StringUtils.hasText(sessionFixationAttribute)) {
-        	sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
-        }
-        
-        if (!sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION)) {
-        	BeanDefinitionBuilder sessionFixationFilter = 
-        		BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionFilter.class);
-        	sessionFixationFilter.addPropertyValue("migrateSessionAttributes", 
-        			Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
-        	if (sessionControlElt != null) {
-        		sessionFixationFilter.addPropertyReference("sessionRegistry", BeanIds.SESSION_REGISTRY);
-        	}
-        	parserContext.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, 
-        			sessionFixationFilter.getBeanDefinition());
+            registerChannelProcessingBeans(parserContext.getRegistry(), matcher, channelRequestMap);
         }        
+                
+        registerFilterSecurityInterceptor(element, registry, matcher, accessManagerId, 
+                parseInterceptUrlsForFilterInvocationRequestMap(interceptUrlElts, convertPathsToLowerCase, parserContext));
+
+        boolean sessionControlEnabled = registerConcurrentSessionControlBeansIfRequired(element, parserContext);
+        
+        registerSessionFixationProtectionFilter(parserContext, element.getAttribute(ATT_SESSION_FIXATION_PROTECTION), 
+                sessionControlEnabled);
 
         boolean autoConfig = false;
         if ("true".equals(element.getAttribute(ATT_AUTO_CONFIG))) {
@@ -278,23 +182,152 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             new X509BeanDefinitionParser().parse(x509Elt, parserContext);
         }
 
-        registry.registerBeanDefinition(BeanIds.FILTER_CHAIN_PROXY, filterChainProxy);
-        registry.registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
-        registry.registerBeanDefinition(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER, httpScif);
-        registry.registerBeanDefinition(BeanIds.EXCEPTION_TRANSLATION_FILTER, exceptionTranslationFilterBuilder.getBeanDefinition());
-        registry.registerBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR, filterSecurityInterceptorBuilder.getBeanDefinition());
-
         // Register the post processor which will tie up the loose ends in the configuration once the app context has been created and all beans are available.
         RootBeanDefinition postProcessor = new RootBeanDefinition(HttpSecurityConfigPostProcessor.class);
         postProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         registry.registerBeanDefinition(BeanIds.HTTP_POST_PROCESSOR, postProcessor);
+
+        return null;
+    }
+    
+    private void registerFilterChainProxy(ParserContext pc, Map filterChainMap, UrlMatcher matcher, Object source) {
+        if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
+            pc.getReaderContext().error("Duplicate <http> element detected", source);
+        }
+        
+        RootBeanDefinition filterChainProxy = new RootBeanDefinition(FilterChainProxy.class);
+        filterChainProxy.setSource(source);
+        filterChainProxy.getPropertyValues().addPropertyValue("matcher", matcher);
+        filterChainProxy.getPropertyValues().addPropertyValue("filterChainMap", filterChainMap);
+        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_CHAIN_PROXY, filterChainProxy);
+        pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
         
         // Post processor specifically to assemble and order the filter chain immediately before the FilterChainProxy is initialized.
         RootBeanDefinition filterChainPostProcessor = new RootBeanDefinition(FilterChainProxyPostProcessor.class);
         filterChainPostProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        registry.registerBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR, filterChainPostProcessor);
+        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR, filterChainPostProcessor);
+    }
+
+    private void registerHttpSessionIntegrationFilter(Element element, BeanDefinitionRegistry registry) {
+        RootBeanDefinition httpScif = new RootBeanDefinition(HttpSessionContextIntegrationFilter.class);
         
-        return null;
+        String createSession = element.getAttribute(ATT_CREATE_SESSION);
+        if (OPT_CREATE_SESSION_ALWAYS.equals(createSession)) {
+            httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.TRUE);
+            httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
+        } else if (OPT_CREATE_SESSION_NEVER.equals(createSession)) {
+            httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.FALSE);
+            httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
+        } else {
+            createSession = DEF_CREATE_SESSION_IF_REQUIRED;
+            httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.TRUE);
+            httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
+        }
+
+        registry.registerBeanDefinition(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER, httpScif);
+    }
+
+    // Adds the servlet-api integration filter if required    
+    private void registerServletApiFilter(Element element, BeanDefinitionRegistry registry) {
+        String provideServletApi = element.getAttribute(ATT_SERVLET_API_PROVISION);
+        if (!StringUtils.hasText(provideServletApi)) {
+            provideServletApi = DEF_SERVLET_API_PROVISION;
+        }
+
+        if ("true".equals(provideServletApi)) {
+            registry.registerBeanDefinition(BeanIds.SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER,
+                    new RootBeanDefinition(SecurityContextHolderAwareRequestFilter.class));
+        }
+    }
+    
+    private boolean registerConcurrentSessionControlBeansIfRequired(Element element, ParserContext parserContext) {
+        Element sessionControlElt = DomUtils.getChildElementByTagName(element, Elements.CONCURRENT_SESSIONS);
+        if (sessionControlElt == null) {
+            return false;
+        }
+        
+        new ConcurrentSessionsBeanDefinitionParser().parse(sessionControlElt, parserContext);
+        logger.info("Concurrent session filter in use, setting 'forceEagerSessionCreation' to true");
+        BeanDefinition sessionIntegrationFilter = parserContext.getRegistry().getBeanDefinition(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER); 
+        sessionIntegrationFilter.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
+        return true;
+    }
+    
+    private void registerExceptionTranslationFilter(String accessDeniedPage, BeanDefinitionRegistry registry) {
+        BeanDefinitionBuilder exceptionTranslationFilterBuilder
+            = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
+ 
+        if (StringUtils.hasText(accessDeniedPage)) {
+            AccessDeniedHandlerImpl accessDeniedHandler = new AccessDeniedHandlerImpl();
+            accessDeniedHandler.setErrorPage(accessDeniedPage);
+            exceptionTranslationFilterBuilder.addPropertyValue("accessDeniedHandler", accessDeniedHandler);
+        }
+
+        registry.registerBeanDefinition(BeanIds.EXCEPTION_TRANSLATION_FILTER, exceptionTranslationFilterBuilder.getBeanDefinition());        
+    }
+    
+    private void registerFilterSecurityInterceptor(Element element, BeanDefinitionRegistry registry, UrlMatcher matcher,
+            String accessManagerId, LinkedHashMap filterInvocationDefinitionMap) {
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(FilterSecurityInterceptor.class);
+
+        builder.addPropertyReference("accessDecisionManager", accessManagerId);
+        builder.addPropertyReference("authenticationManager", BeanIds.AUTHENTICATION_MANAGER);
+        
+        if ("false".equals(element.getAttribute(ATT_ONCE_PER_REQUEST))) {
+            builder.addPropertyValue("observeOncePerRequest", Boolean.FALSE);
+        }
+        
+        builder.addPropertyValue("objectDefinitionSource", 
+                new DefaultFilterInvocationDefinitionSource(matcher, filterInvocationDefinitionMap));
+        registry.registerBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR, builder.getBeanDefinition());
+    }
+    
+    private void registerChannelProcessingBeans(BeanDefinitionRegistry registry, UrlMatcher matcher, LinkedHashMap channelRequestMap) {
+        RootBeanDefinition channelFilter = new RootBeanDefinition(ChannelProcessingFilter.class);
+        channelFilter.getPropertyValues().addPropertyValue("channelDecisionManager",
+                new RuntimeBeanReference(BeanIds.CHANNEL_DECISION_MANAGER));
+        DefaultFilterInvocationDefinitionSource channelFilterInvDefSource =
+            new DefaultFilterInvocationDefinitionSource(matcher, channelRequestMap);
+        
+        
+        channelFilter.getPropertyValues().addPropertyValue("filterInvocationDefinitionSource",
+                channelFilterInvDefSource);
+        RootBeanDefinition channelDecisionManager = new RootBeanDefinition(ChannelDecisionManagerImpl.class);
+        ManagedList channelProcessors = new ManagedList(3);
+        RootBeanDefinition secureChannelProcessor = new RootBeanDefinition(SecureChannelProcessor.class);
+        RootBeanDefinition retryWithHttp = new RootBeanDefinition(RetryWithHttpEntryPoint.class);
+        RootBeanDefinition retryWithHttps = new RootBeanDefinition(RetryWithHttpsEntryPoint.class);
+        RuntimeBeanReference portMapper = new RuntimeBeanReference(BeanIds.PORT_MAPPER);
+        retryWithHttp.getPropertyValues().addPropertyValue("portMapper", portMapper);
+        retryWithHttps.getPropertyValues().addPropertyValue("portMapper", portMapper);
+        secureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttps);
+        RootBeanDefinition inSecureChannelProcessor = new RootBeanDefinition(InsecureChannelProcessor.class);
+        inSecureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttp);
+        channelProcessors.add(secureChannelProcessor);
+        channelProcessors.add(inSecureChannelProcessor);
+        channelDecisionManager.getPropertyValues().addPropertyValue("channelProcessors", channelProcessors);
+
+        registry.registerBeanDefinition(BeanIds.CHANNEL_PROCESSING_FILTER, channelFilter);
+        registry.registerBeanDefinition(BeanIds.CHANNEL_DECISION_MANAGER, channelDecisionManager);
+    }
+    
+    private void registerSessionFixationProtectionFilter(ParserContext parserContext, String sessionFixationAttribute, boolean sessionControlEnabled) {
+        if(!StringUtils.hasText(sessionFixationAttribute)) {
+            sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
+        }
+        
+        if (!sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION)) {
+            BeanDefinitionBuilder sessionFixationFilter = 
+                BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionFilter.class);
+            sessionFixationFilter.addPropertyValue("migrateSessionAttributes", 
+                    Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
+            if (sessionControlEnabled) {
+                sessionFixationFilter.addPropertyReference("sessionRegistry", BeanIds.SESSION_REGISTRY);
+            }
+            parserContext.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, 
+                    sessionFixationFilter.getBeanDefinition());
+        }        
+        
     }
     
     private void parseBasicFormLoginAndOpenID(Element element, ParserContext parserContext, boolean autoConfig) {
@@ -518,9 +551,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
     }
     
-    static void parseInterceptUrlsForFilterInvocationRequestMap(List urlElts, Map filterInvocationDefinitionMap, 
-            boolean useLowerCasePaths, ParserContext parserContext) {
-
+    static LinkedHashMap parseInterceptUrlsForFilterInvocationRequestMap(List urlElts,  boolean useLowerCasePaths, ParserContext parserContext) {
+        LinkedHashMap filterInvocationDefinitionMap = new LinkedHashMap();
+        
         Iterator urlEltsIterator = urlElts.iterator();
         ConfigAttributeEditor editor = new ConfigAttributeEditor();
 
@@ -550,6 +583,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 filterInvocationDefinitionMap.put(new RequestKey(path, method), editor.getValue());
             }
         }
+        
+        return filterInvocationDefinitionMap;
     }
     
 }

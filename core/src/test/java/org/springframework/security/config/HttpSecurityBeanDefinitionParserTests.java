@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -76,6 +77,11 @@ public class HttpSecurityBeanDefinitionParserTests {
         checkAutoConfigFilters(filterList);
     }
 
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void duplicateElementCausesError() throws Exception {
+        setContext("<http auto-config='true' /><http auto-config='true' />" + AUTH_PROVIDER_XML);
+    }    
+    
     private void checkAutoConfigFilters(List filterList) throws Exception {
         assertEquals("Expected 11 filters in chain", 11, filterList.size());
 
