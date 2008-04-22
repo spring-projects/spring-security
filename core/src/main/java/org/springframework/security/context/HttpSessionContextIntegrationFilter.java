@@ -386,7 +386,7 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
         	// See SEC-766
         	if (authenticationTrustResolver.isAnonymous(securityContext.getAuthentication())) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("SecurityContext contents are anonymous - context wil not be stored in HttpSession. ");
+                    logger.debug("SecurityContext contents are anonymous - context will not be stored in HttpSession. ");
                 }
         	} else {
 	            httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
