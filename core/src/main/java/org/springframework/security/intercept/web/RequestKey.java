@@ -3,6 +3,7 @@ package org.springframework.security.intercept.web;
 /**
  * @author Luke Taylor
  * @version $Id$
+ * @since 2.0
  */
 public class RequestKey {
     private String url;
@@ -47,10 +48,10 @@ public class RequestKey {
             return false;
         }
         
-        if (method == null && key.method != null) {
-            return false;
+        if (method == null) {
+        	return key.method == null;
         }
-        
+
         return method.equals(key.method);        
     }
 }
