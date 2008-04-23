@@ -27,7 +27,8 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
     private Log logger = LogFactory.getLog(getClass());
   
     private static final String ATT_USER_DN_PATTERN = "user-dn-pattern";
-    private static final String ATT_USER_PASSWORD= "password-attribute";
+    private static final String ATT_USER_PASSWORD = "password-attribute";
+    private static final String ATT_HASH = PasswordEncoderParser.ATT_HASH; 
     
     private static final String DEF_USER_SEARCH_FILTER="uid={0}";
 
@@ -51,8 +52,9 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
             searchBean.getConstructorArgumentValues().addIndexedArgumentValue(2, contextSource);
         }
         
-        RootBeanDefinition authenticator = new RootBeanDefinition(BindAuthenticator.class); 
+        RootBeanDefinition authenticator = new RootBeanDefinition(BindAuthenticator.class);
         Element passwordCompareElt = DomUtils.getChildElementByTagName(elt, Elements.LDAP_PASSWORD_COMPARE);
+        
         if (passwordCompareElt != null) {
             authenticator = new RootBeanDefinition(PasswordComparisonAuthenticator.class);
             
@@ -62,16 +64,24 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
             }
             
             Element passwordEncoderElement = DomUtils.getChildElementByTagName(passwordCompareElt, Elements.PASSWORD_ENCODER);
+            String hash = passwordCompareElt.getAttribute(ATT_HASH);
             
             if (passwordEncoderElement != null) {
+                if (StringUtils.hasText(hash)) {
+                    parserContext.getReaderContext().warning("Attribute 'hash' cannot be used with 'password-encoder' and " +
+                            "will be ignored.", parserContext.extractSource(elt));
+                }                
                 PasswordEncoderParser pep = new PasswordEncoderParser(passwordEncoderElement, parserContext);
                 authenticator.getPropertyValues().addPropertyValue("passwordEncoder", pep.getPasswordEncoder());
                 
                 if (pep.getSaltSource() != null) {
                     parserContext.getReaderContext().warning("Salt source information isn't valid when used with LDAP", passwordEncoderElement);
                 }
+            } else if (StringUtils.hasText(hash)) {
+                Class encoderClass = (Class) PasswordEncoderParser.ENCODER_CLASSES.get(hash);
+                authenticator.getPropertyValues().addPropertyValue("passwordEncoder", new RootBeanDefinition(encoderClass));
             }
-        }
+        } 
         
         authenticator.getConstructorArgumentValues().addGenericArgumentValue(contextSource);
         authenticator.getPropertyValues().addPropertyValue("userDnPatterns", userDnPatternArray);

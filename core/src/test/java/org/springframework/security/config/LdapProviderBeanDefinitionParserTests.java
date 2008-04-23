@@ -41,9 +41,31 @@ public class LdapProviderBeanDefinitionParserTests {
     public void missingServerEltCausesConfigException() {
         setContext("<ldap-authentication-provider />");
     }
+
     
     @Test
     public void supportsPasswordComparisonAuthentication() {
+        setContext("<ldap-server /> " +
+                "<ldap-authentication-provider user-dn-pattern='uid={0},ou=people'>" +
+                "    <password-compare />" +
+                "</ldap-authentication-provider>");
+        LdapAuthenticationProvider provider = getProvider();
+        provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "benspassword"));        
+    }    
+    
+    
+    @Test
+    public void supportsPasswordComparisonAuthenticationWithHashAttribute() {
+        setContext("<ldap-server /> " +
+                "<ldap-authentication-provider user-dn-pattern='uid={0},ou=people'>" +
+                "    <password-compare password-attribute='uid' hash='plaintext'/>" +
+                "</ldap-authentication-provider>");
+        LdapAuthenticationProvider provider = getProvider();
+        provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "ben"));        
+    }    
+    
+    @Test
+    public void supportsPasswordComparisonAuthenticationWithPasswordEncoder() {
         setContext("<ldap-server /> " +
         		"<ldap-authentication-provider user-dn-pattern='uid={0},ou=people'>" +
         		"    <password-compare password-attribute='uid'>" +
@@ -52,12 +74,11 @@ public class LdapProviderBeanDefinitionParserTests {
         		"</ldap-authentication-provider>");
         LdapAuthenticationProvider provider = getProvider();
         provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "ben"));        
-    }
-
+    }    
+    
     private void setContext(String context) {
         appCtx = new InMemoryXmlApplicationContext(context);
-    }    
-
+    }
 
     private LdapAuthenticationProvider getProvider() {
         ProviderManager authManager = (ProviderManager) appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER);
