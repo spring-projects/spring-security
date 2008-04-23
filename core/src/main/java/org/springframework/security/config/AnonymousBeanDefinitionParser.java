@@ -3,6 +3,7 @@ package org.springframework.security.config;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -70,6 +71,7 @@ public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
         authMgrProviderList.add(provider);
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.ANONYMOUS_PROCESSING_FILTER, filter);
+        ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.ANONYMOUS_PROCESSING_FILTER));
         parserContext.registerComponent(new BeanComponentDefinition(filter, BeanIds.ANONYMOUS_PROCESSING_FILTER));
         
         return null;

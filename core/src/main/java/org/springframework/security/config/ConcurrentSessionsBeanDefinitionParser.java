@@ -83,6 +83,7 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
         parserContext.registerComponent(new BeanComponentDefinition(controller, BeanIds.CONCURRENT_SESSION_CONTROLLER));
         beanRegistry.registerBeanDefinition(BeanIds.CONCURRENT_SESSION_FILTER, filterBuilder.getBeanDefinition());
         parserContext.registerComponent(new BeanComponentDefinition(filterBuilder.getBeanDefinition(), BeanIds.CONCURRENT_SESSION_FILTER));
+        ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.CONCURRENT_SESSION_FILTER));
         
         BeanDefinition providerManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
 

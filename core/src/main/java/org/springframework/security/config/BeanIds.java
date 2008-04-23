@@ -18,6 +18,7 @@ public abstract class BeanIds {
     static final String CONTEXT_SOURCE_SETTING_POST_PROCESSOR = "_contextSettingPostProcessor";
     static final String HTTP_POST_PROCESSOR = "_httpConfigBeanFactoryPostProcessor";
     static final String FILTER_CHAIN_POST_PROCESSOR = "_filterChainProxyPostProcessor";
+    static final String FILTER_LIST = "_filterChainList";
 
     public static final String JDBC_USER_DETAILS_MANAGER = "_jdbcUserDetailsManager";
 	public static final String USER_DETAILS_SERVICE = "_userDetailsService";

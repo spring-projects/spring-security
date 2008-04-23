@@ -9,8 +9,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -22,8 +22,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * Replaces a Spring bean of type "Filter" with a wrapper class which implements the <tt>Ordered</tt>
- * interface. This allows user to add their own filter to the security chain. If the user's filter
+ * Adds the decorated "Filter" bean into the standard filter chain maintained by the FilterChainProxy.  
+ * This allows user to add their own custom filters to the security chain. If the user's filter
  * already implements Ordered, and no "order" attribute is specified, the filter's default order will be used.
  *
  * @author Luke Taylor
@@ -39,16 +39,17 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
         Element elt = (Element)node;
         String order = getOrder(elt, parserContext);
 
-        BeanDefinition filter = holder.getBeanDefinition();
         BeanDefinitionBuilder wrapper = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.config.OrderedFilterBeanDefinitionDecorator$OrderedFilterDecorator");
         wrapper.addConstructorArg(holder.getBeanName());
-        wrapper.addConstructorArg(filter);
+        wrapper.addConstructorArg(new RuntimeBeanReference(holder.getBeanName()));
 
         if (StringUtils.hasText(order)) {
             wrapper.addPropertyValue("order", order);
         }
 
-        return new BeanDefinitionHolder(wrapper.getBeanDefinition(), holder.getBeanName());
+        ConfigUtils.addHttpFilter(parserContext, wrapper.getBeanDefinition());
+        
+        return holder;
     }
 
     /**
@@ -122,6 +123,10 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
 
 		public String toString() {
 			return "OrderedFilterDecorator[ delegate=" + delegate + "; order=" + getOrder() + "]";
+		}
+		
+		Filter getDelegate() {
+			return delegate;
 		}
     }
 }

@@ -259,7 +259,8 @@ public class HttpSecurityBeanDefinitionParserTests {
 
     @Test
     public void externalFiltersAreTreatedCorrectly() throws Exception {
-        // Decorated user-filter should be added to stack. The other one should be ignored
+        // Decorated user-filter should be added to stack. The other MockFilter and the un-decorated standard filter
+    	// should be ignored
         setContext(
                 "<http auto-config='true'/>" + AUTH_PROVIDER_XML +
                 "<b:bean id='userFilter' class='org.springframework.security.util.MockFilter'>" +
@@ -268,7 +269,9 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='userFilter2' class='org.springframework.security.util.MockFilter'>" +
                 "    <custom-filter position='FIRST'/>" +
                 "</b:bean>" +                
-                "<b:bean id='userFilter3' class='org.springframework.security.util.MockFilter'/>");
+                "<b:bean id='userFilter3' class='org.springframework.security.util.MockFilter'/>" +
+                "<b:bean id='userFilter4' class='org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter'/>"
+                );
         List filters = getFilters("/someurl");
 
         assertEquals(13, filters.size());

@@ -97,7 +97,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_ENTRY_POINT_REF = "entry-point-ref";
     static final String ATT_ONCE_PER_REQUEST = "once-per-request";
     static final String ATT_ACCESS_DENIED_PAGE = "access-denied-page";
-    
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         ConfigUtils.registerProviderManagerIfNecessary(parserContext);
@@ -117,9 +116,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         parseInterceptUrlsForChannelSecurityAndFilterChain(interceptUrlElts, filterChainMap, channelRequestMap, 
                 convertPathsToLowerCase, parserContext);
 
-        registerHttpSessionIntegrationFilter(element, registry);
+        registerHttpSessionIntegrationFilter(element, parserContext);
         
-        registerServletApiFilter(element, registry);
+        registerServletApiFilter(element, parserContext);
                 
         // Set up the access manager reference for http
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
@@ -134,15 +133,15 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 DomUtils.getChildElementByTagName(element, Elements.PORT_MAPPINGS), parserContext);
         registry.registerBeanDefinition(BeanIds.PORT_MAPPER, portMapper);
 
-        registerExceptionTranslationFilter(element.getAttribute(ATT_ACCESS_DENIED_PAGE), registry);
+        registerExceptionTranslationFilter(element.getAttribute(ATT_ACCESS_DENIED_PAGE), parserContext);
 
 
         if (channelRequestMap.size() > 0) {
             // At least one channel requirement has been specified
-            registerChannelProcessingBeans(parserContext.getRegistry(), matcher, channelRequestMap);
+            registerChannelProcessingBeans(parserContext, matcher, channelRequestMap);
         }        
                 
-        registerFilterSecurityInterceptor(element, registry, matcher, accessManagerId, 
+        registerFilterSecurityInterceptor(element, parserContext, matcher, accessManagerId, 
                 parseInterceptUrlsForFilterInvocationRequestMap(interceptUrlElts, convertPathsToLowerCase, parserContext));
 
         boolean sessionControlEnabled = registerConcurrentSessionControlBeansIfRequired(element, parserContext);
@@ -200,15 +199,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         filterChainProxy.getPropertyValues().addPropertyValue("matcher", matcher);
         filterChainProxy.getPropertyValues().addPropertyValue("filterChainMap", filterChainMap);
         pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_CHAIN_PROXY, filterChainProxy);
-        pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
-        
-        // Post processor specifically to assemble and order the filter chain immediately before the FilterChainProxy is initialized.
-        RootBeanDefinition filterChainPostProcessor = new RootBeanDefinition(FilterChainProxyPostProcessor.class);
-        filterChainPostProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR, filterChainPostProcessor);
+        pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);        
     }
 
-    private void registerHttpSessionIntegrationFilter(Element element, BeanDefinitionRegistry registry) {
+    private void registerHttpSessionIntegrationFilter(Element element, ParserContext pc) {
         RootBeanDefinition httpScif = new RootBeanDefinition(HttpSessionContextIntegrationFilter.class);
         
         String createSession = element.getAttribute(ATT_CREATE_SESSION);
@@ -224,19 +218,21 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
         }
 
-        registry.registerBeanDefinition(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER, httpScif);
+        pc.getRegistry().registerBeanDefinition(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER, httpScif);
+        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER));
     }
 
     // Adds the servlet-api integration filter if required    
-    private void registerServletApiFilter(Element element, BeanDefinitionRegistry registry) {
+    private void registerServletApiFilter(Element element, ParserContext pc) {
         String provideServletApi = element.getAttribute(ATT_SERVLET_API_PROVISION);
         if (!StringUtils.hasText(provideServletApi)) {
             provideServletApi = DEF_SERVLET_API_PROVISION;
         }
 
         if ("true".equals(provideServletApi)) {
-            registry.registerBeanDefinition(BeanIds.SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER,
+            pc.getRegistry().registerBeanDefinition(BeanIds.SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER,
                     new RootBeanDefinition(SecurityContextHolderAwareRequestFilter.class));
+            ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER));
         }
     }
     
@@ -253,7 +249,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return true;
     }
     
-    private void registerExceptionTranslationFilter(String accessDeniedPage, BeanDefinitionRegistry registry) {
+    private void registerExceptionTranslationFilter(String accessDeniedPage, ParserContext pc) {
         BeanDefinitionBuilder exceptionTranslationFilterBuilder
             = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
  
@@ -263,10 +259,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             exceptionTranslationFilterBuilder.addPropertyValue("accessDeniedHandler", accessDeniedHandler);
         }
 
-        registry.registerBeanDefinition(BeanIds.EXCEPTION_TRANSLATION_FILTER, exceptionTranslationFilterBuilder.getBeanDefinition());        
+        pc.getRegistry().registerBeanDefinition(BeanIds.EXCEPTION_TRANSLATION_FILTER, exceptionTranslationFilterBuilder.getBeanDefinition());
+        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.EXCEPTION_TRANSLATION_FILTER));
     }
     
-    private void registerFilterSecurityInterceptor(Element element, BeanDefinitionRegistry registry, UrlMatcher matcher,
+    private void registerFilterSecurityInterceptor(Element element, ParserContext pc, UrlMatcher matcher,
             String accessManagerId, LinkedHashMap filterInvocationDefinitionMap) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(FilterSecurityInterceptor.class);
 
@@ -279,10 +276,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         
         builder.addPropertyValue("objectDefinitionSource", 
                 new DefaultFilterInvocationDefinitionSource(matcher, filterInvocationDefinitionMap));
-        registry.registerBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR, builder.getBeanDefinition());
+        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR, builder.getBeanDefinition());
+        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.FILTER_SECURITY_INTERCEPTOR));
     }
     
-    private void registerChannelProcessingBeans(BeanDefinitionRegistry registry, UrlMatcher matcher, LinkedHashMap channelRequestMap) {
+    private void registerChannelProcessingBeans(ParserContext pc, UrlMatcher matcher, LinkedHashMap channelRequestMap) {
         RootBeanDefinition channelFilter = new RootBeanDefinition(ChannelProcessingFilter.class);
         channelFilter.getPropertyValues().addPropertyValue("channelDecisionManager",
                 new RuntimeBeanReference(BeanIds.CHANNEL_DECISION_MANAGER));
@@ -307,11 +305,13 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         channelProcessors.add(inSecureChannelProcessor);
         channelDecisionManager.getPropertyValues().addPropertyValue("channelProcessors", channelProcessors);
 
-        registry.registerBeanDefinition(BeanIds.CHANNEL_PROCESSING_FILTER, channelFilter);
-        registry.registerBeanDefinition(BeanIds.CHANNEL_DECISION_MANAGER, channelDecisionManager);
+        pc.getRegistry().registerBeanDefinition(BeanIds.CHANNEL_PROCESSING_FILTER, channelFilter);
+        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.CHANNEL_PROCESSING_FILTER));
+        pc.getRegistry().registerBeanDefinition(BeanIds.CHANNEL_DECISION_MANAGER, channelDecisionManager);
+        
     }
     
-    private void registerSessionFixationProtectionFilter(ParserContext parserContext, String sessionFixationAttribute, boolean sessionControlEnabled) {
+    private void registerSessionFixationProtectionFilter(ParserContext pc, String sessionFixationAttribute, boolean sessionControlEnabled) {
         if(!StringUtils.hasText(sessionFixationAttribute)) {
             sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
         }
@@ -324,13 +324,14 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             if (sessionControlEnabled) {
                 sessionFixationFilter.addPropertyReference("sessionRegistry", BeanIds.SESSION_REGISTRY);
             }
-            parserContext.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, 
+            pc.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, 
                     sessionFixationFilter.getBeanDefinition());
+            ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.SESSION_FIXATION_PROTECTION_FILTER));
         }        
         
     }
     
-    private void parseBasicFormLoginAndOpenID(Element element, ParserContext parserContext, boolean autoConfig) {
+    private void parseBasicFormLoginAndOpenID(Element element, ParserContext pc, boolean autoConfig) {
         RootBeanDefinition formLoginFilter = null;
         RootBeanDefinition formLoginEntryPoint = null;
         String formLoginPage = null;        
@@ -345,7 +346,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         
         Element basicAuthElt = DomUtils.getChildElementByTagName(element, Elements.BASIC_AUTH);
         if (basicAuthElt != null || autoConfig) {
-            new BasicAuthenticationBeanDefinitionParser(realm).parse(basicAuthElt, parserContext);
+            new BasicAuthenticationBeanDefinitionParser(realm).parse(basicAuthElt, pc);
         }        
         
     	Element formLoginElt = DomUtils.getChildElementByTagName(element, Elements.FORM_LOGIN);
@@ -354,7 +355,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         	FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_security_check", 
         			"org.springframework.security.ui.webapp.AuthenticationProcessingFilter");
         	
-            parser.parse(formLoginElt, parserContext);
+            parser.parse(formLoginElt, pc);
             formLoginFilter = parser.getFilterBean();
             formLoginEntryPoint = parser.getEntryPointBean();
             formLoginPage = parser.getLoginPage();
@@ -366,7 +367,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         	FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_openid_security_check", 
         			"org.springframework.security.ui.openid.OpenIDAuthenticationProcessingFilter");
         	
-            parser.parse(openIDLoginElt, parserContext);
+            parser.parse(openIDLoginElt, pc);
             openIDFilter = parser.getFilterBean();
             openIDEntryPoint = parser.getEntryPointBean();
             openIDLoginPage = parser.getLoginPage();
@@ -381,23 +382,25 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             }
             
             BeanDefinition openIDProvider = openIDProviderBuilder.getBeanDefinition();
-            ConfigUtils.getRegisteredProviders(parserContext).add(openIDProvider);
+            ConfigUtils.getRegisteredProviders(pc).add(openIDProvider);
             
-            parserContext.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_PROVIDER, openIDProvider);
+            pc.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_PROVIDER, openIDProvider);
         }
         
         boolean needLoginPage = false;
         
         if (formLoginFilter != null) {
         	needLoginPage = true;
-	        parserContext.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_FILTER, formLoginFilter);
-	        parserContext.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_ENTRY_POINT, formLoginEntryPoint);
+	        pc.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_FILTER, formLoginFilter);
+	        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.FORM_LOGIN_FILTER));
+	        pc.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_ENTRY_POINT, formLoginEntryPoint);
         }        
 
         if (openIDFilter != null) {
         	needLoginPage = true;
-	        parserContext.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_FILTER, openIDFilter);
-	        parserContext.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_ENTRY_POINT, openIDEntryPoint);
+	        pc.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_FILTER, openIDFilter);
+	        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.OPEN_ID_FILTER));
+	        pc.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_ENTRY_POINT, openIDEntryPoint);
         }
 
         // If no login page has been defined, add in the default page generator.
@@ -415,8 +418,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             	loginPageFilter.addConstructorArg(new RuntimeBeanReference(BeanIds.OPEN_ID_FILTER));
             }
 
-            parserContext.getRegistry().registerBeanDefinition(BeanIds.DEFAULT_LOGIN_PAGE_GENERATING_FILTER, 
+            pc.getRegistry().registerBeanDefinition(BeanIds.DEFAULT_LOGIN_PAGE_GENERATING_FILTER, 
             		loginPageFilter.getBeanDefinition());
+            ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.DEFAULT_LOGIN_PAGE_GENERATING_FILTER));
         }
         
         // We need to establish the main entry point.
@@ -424,39 +428,39 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         String customEntryPoint = element.getAttribute(ATT_ENTRY_POINT_REF);
         
         if (StringUtils.hasText(customEntryPoint)) {
-            parserContext.getRegistry().registerAlias(customEntryPoint, BeanIds.MAIN_ENTRY_POINT);
+            pc.getRegistry().registerAlias(customEntryPoint, BeanIds.MAIN_ENTRY_POINT);
             return;
         }
         
         // Basic takes precedence if explicit element is used and no others are configured
         if (basicAuthElt != null && formLoginElt == null && openIDLoginElt == null) {
-        	parserContext.getRegistry().registerAlias(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
+        	pc.getRegistry().registerAlias(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
         	return;
         }
         
         // If formLogin has been enabled either through an element or auto-config, then it is used if no openID login page
         // has been set
         if (formLoginFilter != null && openIDLoginPage == null) {
-        	parserContext.getRegistry().registerAlias(BeanIds.FORM_LOGIN_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
+        	pc.getRegistry().registerAlias(BeanIds.FORM_LOGIN_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
         	return;        	
         }
         
         // Otherwise use OpenID if enabled
         if (openIDFilter != null && formLoginFilter == null) {
-        	parserContext.getRegistry().registerAlias(BeanIds.OPEN_ID_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
+        	pc.getRegistry().registerAlias(BeanIds.OPEN_ID_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
         	return;        	
         }
         
         // If X.509 has been enabled, use the preauth entry point.
         if (DomUtils.getChildElementByTagName(element, Elements.X509) != null) {
-            parserContext.getRegistry().registerAlias(BeanIds.PRE_AUTH_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
+            pc.getRegistry().registerAlias(BeanIds.PRE_AUTH_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
             return;
         }
         
-        parserContext.getReaderContext().error("No AuthenticationEntryPoint could be established. Please " +
+        pc.getReaderContext().error("No AuthenticationEntryPoint could be established. Please " +
         		"make sure you have a login mechanism configured through the namespace (such as form-login) or " +
         		"specify a custom AuthenticationEntryPoint with the custom-entry-point-ref attribute ", 
-                parserContext.extractSource(element));
+                pc.extractSource(element));
     }
     
     static UrlMatcher createUrlMatcher(Element element) {

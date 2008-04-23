@@ -41,6 +41,7 @@ public class BasicAuthenticationBeanDefinitionParser implements BeanDefinitionPa
 
 	    parserContext.getRegistry().registerBeanDefinition(BeanIds.BASIC_AUTHENTICATION_FILTER,
 	            filterBuilder.getBeanDefinition());
+	    ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.BASIC_AUTHENTICATION_FILTER));
 	    parserContext.registerComponent(new BeanComponentDefinition(filterBuilder.getBeanDefinition(), 
 	    		BeanIds.BASIC_AUTHENTICATION_FILTER));
 	    return null;

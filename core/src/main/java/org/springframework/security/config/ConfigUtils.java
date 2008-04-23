@@ -1,7 +1,11 @@
 package org.springframework.security.config;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanMetadataElement;
+import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -83,7 +87,6 @@ public abstract class ConfigUtils {
         return authManager;
     }
 
-
     /**
      * Obtains a user details service for use in RememberMeServices etc. Will return a caching version
      * if available so should not be used for beans which need to separate the two. 
@@ -110,4 +113,50 @@ public abstract class ConfigUtils {
         BeanDefinition authManager = registerProviderManagerIfNecessary(parserContext);
         return (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
     }
+    
+    private static void registerFilterChainPostProcessorIfNecessary(ParserContext pc) {
+    	if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR)) {
+    		return;
+    	}
+        // Post processor specifically to assemble and order the filter chain immediately before the FilterChainProxy is initialized.
+        RootBeanDefinition filterChainPostProcessor = new RootBeanDefinition(FilterChainProxyPostProcessor.class);
+        filterChainPostProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR, filterChainPostProcessor);
+        RootBeanDefinition filterList = new RootBeanDefinition(FilterChainList.class);
+        filterList.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_LIST, filterList);
+    }
+    
+    static void addHttpFilter(ParserContext pc, BeanMetadataElement filter) {
+    	registerFilterChainPostProcessorIfNecessary(pc);
+    	
+    	RootBeanDefinition filterList = (RootBeanDefinition) pc.getRegistry().getBeanDefinition(BeanIds.FILTER_LIST);
+    	
+    	ManagedList filters;
+    	MutablePropertyValues pvs = filterList.getPropertyValues();
+    	if (pvs.contains("filters")) {
+    		filters = (ManagedList) pvs.getPropertyValue("filters").getValue();
+    	} else {
+    		filters = new ManagedList();
+    		pvs.addPropertyValue("filters", filters);
+    	}
+    	
+    	filters.add(filter);
+    }
+
+    /**
+     * Bean which holds the list of filters which are maintained in the context and modified by calls to 
+     * addHttpFilter. The post processor retrieves these before injecting the list into the FilterChainProxy.
+     */
+    public static class FilterChainList {
+    	List filters;
+
+		public List getFilters() {
+			return filters;
+		}
+
+		public void setFilters(List filters) {
+			this.filters = filters;
+		}
+    }    
 }

@@ -103,6 +103,7 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES, services);
         parserContext.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_FILTER, filter);
+        ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.REMEMBER_ME_FILTER));
 
         return null;
     }
