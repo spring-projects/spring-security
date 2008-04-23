@@ -42,6 +42,7 @@ import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
+import org.springframework.security.util.MockFilter;
 import org.springframework.security.util.PortMapperImpl;
 import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.ReflectionUtils;
@@ -259,13 +260,15 @@ public class HttpSecurityBeanDefinitionParserTests {
 
     @Test
     public void externalFiltersAreTreatedCorrectly() throws Exception {
-        // Decorated user-filter should be added to stack. The other MockFilter and the un-decorated standard filter
-    	// should be ignored
+        // Decorated user-filters should be added to stack. The others should be ignored.
         setContext(
                 "<http auto-config='true'/>" + AUTH_PROVIDER_XML +
-                "<b:bean id='userFilter' class='org.springframework.security.util.MockFilter'>" +
-                "    <custom-filter after='SESSION_CONTEXT_INTEGRATION_FILTER'/>" +
+                "<b:bean id='userFilter' class='org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter'>" +
+                "    <custom-filter after='LOGOUT_FILTER'/>" +
                 "</b:bean>" +
+                "<b:bean id='userFilter1' class='org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter'>" +
+                "    <custom-filter before='SESSION_CONTEXT_INTEGRATION_FILTER'/>" +
+                "</b:bean>" +                
                 "<b:bean id='userFilter2' class='org.springframework.security.util.MockFilter'>" +
                 "    <custom-filter position='FIRST'/>" +
                 "</b:bean>" +                
@@ -274,11 +277,10 @@ public class HttpSecurityBeanDefinitionParserTests {
                 );
         List filters = getFilters("/someurl");
 
-        assertEquals(13, filters.size());
-        assertTrue(filters.get(0) instanceof OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator);        
-        assertTrue(filters.get(2) instanceof OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator);
-        assertEquals("userFilter", ((OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator)filters.get(2)).getBeanName());
-        assertEquals("userFilter2", ((OrderedFilterBeanDefinitionDecorator.OrderedFilterDecorator)filters.get(0)).getBeanName());        
+        assertEquals(14, filters.size());
+        assertTrue(filters.get(0) instanceof MockFilter);        
+        assertTrue(filters.get(1) instanceof SecurityContextHolderAwareRequestFilter);
+        assertTrue(filters.get(5) instanceof SecurityContextHolderAwareRequestFilter);
     }
 
     @Test
