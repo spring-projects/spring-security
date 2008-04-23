@@ -18,24 +18,18 @@
 		-->
 	</global-method-security>
 
-    <http>
-        <intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR" requires-channel="https"/>
-        <intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" requires-channel="https"/>
+    <http auto-config="true">
+        <intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
+        <intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
 		<!-- Disable web URI authorization, as we're using <global-method-security> and have @Secured the services layer instead
         <intercept-url pattern="/listAccounts.html" access="IS_AUTHENTICATED_REMEMBERED" />
         <intercept-url pattern="/post.html" access="ROLE_TELLER" />
         -->
         <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 <!--
-    Uncomment to enable X509 client authentication support -->
-        <x509 />
-        <anonymous />
-        <logout /> 
-<!--         
-        <port-mappings>
-            <port-mapping http="8080" https="8443"/>
-        </port-mappings>
- -->
+    Uncomment to enable X509 client authentication support
+        <x509 /> 
+-->
 
         <!-- All of this is unnecessary if auto-config="true"
         <form-login />
