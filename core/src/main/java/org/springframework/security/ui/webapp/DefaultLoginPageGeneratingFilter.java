@@ -23,6 +23,7 @@ import org.springframework.security.ui.rememberme.AbstractRememberMeServices;
  *
  * @author Luke Taylor
  * @version $Id$
+ * @since 2.0
  */
 public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
     public static final String DEFAULT_LOGIN_PAGE_URL = "/spring_security_login";
@@ -71,11 +72,14 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
 	        }
     	}    	
     }
-    
-    
+
     protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (isLoginUrlRequest(request)) {
-            response.getOutputStream().print(generateLoginPageHtml(request));
+            String loginPageHtml = generateLoginPageHtml(request);
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("text/html");
+            response.setContentLength(loginPageHtml.length());
+            response.getOutputStream().print(loginPageHtml);            
 
             return;
         }
