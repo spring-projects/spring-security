@@ -1,0 +1,24 @@
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+  version="1.0">
+
+  <persistence-unit name="SAMPLE" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <class>sample.domain.User</class>
+    <properties>
+      <property name="hibernate.archive.autodetection" value="class" />
+      <property name="hibernate.format_sql" value="true" />
+      <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+      <!-- property name="hibernate.cache.provider_class"
+        value="org.hibernate.cache.EHCacheProvider" />
+      <property name="hibernate.cache.use_second_level_cache" value="true" />
+      <property name="hibernate.cache.use_query_cache" value="true" / -->
+      <property name="hibernate.max_fetch_depth" value="3" />
+      <property name="hibernate.default_batch_fetch_size" value="8" />
+      <property name="hibernate.generate_statistics" value="true" />
+    </properties>
+  </persistence-unit>
+
+</persistence>
