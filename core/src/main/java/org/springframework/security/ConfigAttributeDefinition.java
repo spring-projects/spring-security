@@ -158,8 +158,7 @@ public class ConfigAttributeDefinition implements Serializable {
      * Allows <code>AccessDecisionManager</code>s and other classes to loop through every configuration attribute
      * associated with a target secure object.
      *
-     * @return all the configuration attributes stored by the instance, or <code>null</code> if an
-     *         <code>Iterator</code> is unavailable
+     * @return the configuration attributes stored in this instance.
      */
     public Collection getConfigAttributes() {
         return this.configAttributes;
