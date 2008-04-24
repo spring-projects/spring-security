@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -282,6 +283,15 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.get(1) instanceof SecurityContextHolderAwareRequestFilter);
         assertTrue(filters.get(5) instanceof SecurityContextHolderAwareRequestFilter);
     }
+    
+    @Test(expected=BeanCreationException.class)
+    public void twoFiltersWithSameOrderAreRejected() {
+        setContext(
+                "<http auto-config='true'/>" + AUTH_PROVIDER_XML +
+                "<b:bean id='userFilter' class='org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter'>" +
+                "    <custom-filter position='LOGOUT_FILTER'/>" +
+                "</b:bean>");
+    }
 
     @Test
     public void rememberMeServiceWorksWithTokenRepoRef() {
@@ -413,6 +423,50 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         assertEquals("Hello from the post processor!", service.getPostProcessorWasHere());
     }
+    
+    /**
+     * SEC-795. Two methods that exercise the scenarios that will or won't result in a protected login page warning.
+     * Check the log.
+     */
+    @Test
+    public void unprotectedLoginPageDoesntResultInWarning() {
+        // Anonymous access configured        
+        setContext(
+                "    <http>" +
+                "        <intercept-url pattern='/login.jsp*' access='IS_AUTHENTICATED_ANONYMOUSLY'/>" +
+                "        <intercept-url pattern='/**' access='ROLE_A'/>" +                
+                "        <anonymous />" +
+                "        <form-login login-page='/login.jsp' default-target-url='/messageList.html'/>" +
+                "    </http>" + AUTH_PROVIDER_XML);
+        closeAppContext();
+        // No filters applied to login page
+        setContext(
+                "    <http>" +
+                "        <intercept-url pattern='/login.jsp*' filters='none'/>" +
+                "        <intercept-url pattern='/**' access='ROLE_A'/>" +
+                "        <anonymous />" +
+                "        <form-login login-page='/login.jsp' default-target-url='/messageList.html'/>" +
+                "    </http>" + AUTH_PROVIDER_XML);        
+    }
+    
+    @Test
+    public void protectedLoginPageResultsInWarning() {
+        // Protected, no anonymous filter configured.
+        setContext(
+                "    <http>" +
+                "        <intercept-url pattern='/**' access='ROLE_A'/>" +
+                "        <form-login login-page='/login.jsp' default-target-url='/messageList.html'/>" +
+                "    </http>" + AUTH_PROVIDER_XML);
+        closeAppContext();
+        // Protected, anonymous provider but no access
+        setContext(
+                "    <http>" +
+                "        <intercept-url pattern='/**' access='ROLE_A'/>" +
+                "        <anonymous />" +
+                "        <form-login login-page='/login.jsp' default-target-url='/messageList.html'/>" +
+                "    </http>" + AUTH_PROVIDER_XML);
+    }
+    
     
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);

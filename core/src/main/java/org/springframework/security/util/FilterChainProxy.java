@@ -180,7 +180,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
      * @param url the request URL
      * @return an ordered array of Filters defining the filter chain
      */
-    List getFilters(String url)  {
+    public List getFilters(String url)  {
         Iterator filterChains = filterChainMap.entrySet().iterator();
 
         while (filterChains.hasNext()) {

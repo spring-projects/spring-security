@@ -179,7 +179,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
      * @return the <code>ConfigAttributeDefinition</code> that applies to the specified <code>FilterInvocation</code>
      * or null if no match is foud
      */
-    protected ConfigAttributeDefinition lookupAttributes(String url, String method) {
+    public ConfigAttributeDefinition lookupAttributes(String url, String method) {
         if (stripQueryStringFromUrls) {
             // Strip anything after a question mark symbol, as per SEC-161. See also SEC-321
             int firstQuestionMarkIndex = url.indexOf("?");
