@@ -19,7 +19,7 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
 			classpath:applicationContext-business.xml
-			/WEB-INF/applicationContext-security-ns.xml
+			/WEB-INF/applicationContext-security.xml
 		</param-value>
 	</context-param>
 	
