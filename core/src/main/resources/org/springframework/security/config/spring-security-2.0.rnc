@@ -179,6 +179,8 @@ global-method-security.attlist &=
     ## Optional AccessDecisionManager bean ID to override the default used for method security.
     attribute access-decision-manager-ref {xsd:string}?
 
+custom-after-invocation-provider =
+    element custom-after-invocation-provider {empty}
 
 protect-pointcut =
     ## Defines a protected pointcut and the access control configuration attributes that apply to it. Every bean registered in the Spring application context that provides a method that matches the pointcut will receive security authorization.

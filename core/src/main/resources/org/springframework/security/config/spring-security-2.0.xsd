@@ -529,6 +529,9 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="custom-after-invocation-provider">
+    <xs:complexType/>
+  </xs:element>
   <xs:attributeGroup name="protect-pointcut.attlist">
     <xs:attribute name="expression" use="required" type="xs:string">
       <xs:annotation>
