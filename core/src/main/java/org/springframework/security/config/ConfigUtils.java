@@ -13,6 +13,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.afterinvocation.AfterInvocationProviderManager;
 import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.vote.AffirmativeBased;
@@ -114,7 +115,24 @@ public abstract class ConfigUtils {
         return (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
     }
     
-    private static void registerFilterChainPostProcessorIfNecessary(ParserContext pc) {
+	static ManagedList getRegisteredAfterInvocationProviders(ParserContext parserContext) {
+		BeanDefinition manager = registerAfterInvocationProviderManagerIfNecessary(parserContext);
+		return (ManagedList) manager.getPropertyValues().getPropertyValue("providers").getValue();
+	}    
+    
+    private static BeanDefinition registerAfterInvocationProviderManagerIfNecessary(ParserContext parserContext) {
+        if(parserContext.getRegistry().containsBeanDefinition(BeanIds.AFTER_INVOCATION_MANAGER)) {
+            return parserContext.getRegistry().getBeanDefinition(BeanIds.AFTER_INVOCATION_MANAGER);
+        }
+
+        BeanDefinition manager = new RootBeanDefinition(AfterInvocationProviderManager.class);
+        manager.getPropertyValues().addPropertyValue("providers", new ManagedList());
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.AFTER_INVOCATION_MANAGER, manager);
+
+        return manager;
+	}
+
+	private static void registerFilterChainPostProcessorIfNecessary(ParserContext pc) {
     	if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR)) {
     		return;
     	}
@@ -158,5 +176,5 @@ public abstract class ConfigUtils {
 		public void setFilters(List filters) {
 			this.filters = filters;
 		}
-    }    
+    }
 }

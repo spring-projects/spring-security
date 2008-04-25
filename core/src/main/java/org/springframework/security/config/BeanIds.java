@@ -1,5 +1,7 @@
 package org.springframework.security.config;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+
 /**
  * Contains all the default Bean IDs created by the namespace support in Spring Security 2.
  * <p>
@@ -31,6 +33,7 @@ public abstract class BeanIds {
 	public static final String CONCURRENT_SESSION_CONTROLLER = "_concurrentSessionController";
 	public static final String ACCESS_MANAGER = "_accessManager";
 	public static final String AUTHENTICATION_MANAGER = "_authenticationManager";
+	public static final String AFTER_INVOCATION_MANAGER = "_afterInvocationManager";	
 	public static final String FORM_LOGIN_FILTER = "_formLoginFilter";
 	public static final String FORM_LOGIN_ENTRY_POINT = "_formLoginEntryPoint";
 	public static final String OPEN_ID_FILTER = "_openIDFilter";
@@ -50,6 +53,7 @@ public abstract class BeanIds {
 	public static final String SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER = "_securityContextHolderAwareRequestFilter";
 	public static final String SESSION_FIXATION_PROTECTION_FILTER = "_sessionFixationProtectionFilter";	
 	public static final String METHOD_SECURITY_INTERCEPTOR = "_methodSecurityInterceptor";
+	public static final String METHOD_SECURITY_INTERCEPTOR_POST_PROCESSOR = "_methodSecurityInterceptorPostProcessor";	
 	public static final String METHOD_DEFINITION_SOURCE_ADVISOR = "_methodDefinitionSourceAdvisor";
 	public static final String PROTECT_POINTCUT_POST_PROCESSOR = "_protectPointcutPostProcessor";
 	public static final String DELEGATING_METHOD_DEFINITION_SOURCE = "_delegatingMethodDefinitionSource";
@@ -62,4 +66,5 @@ public abstract class BeanIds {
     public static final String X509_AUTH_PROVIDER = "_x509AuthenitcationProvider";
     public static final String PRE_AUTH_ENTRY_POINT = "_preAuthenticatedProcessingFilterEntryPoint";
     public static final String REMEMBER_ME_SERVICES_INJECTION_POST_PROCESSOR = "_rememberMeServicesInjectionBeanPostProcessor";
+
 }

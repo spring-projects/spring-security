@@ -47,7 +47,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     		parserContext.getReaderContext().error("Cannot locate '" + className + "'", element);
     	}
     }
-    
+
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         Object source = parserContext.extractSource(element);
         // The list of method metadata delegates
@@ -142,22 +142,22 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
             Element childElt = (Element) i.next();
             String accessConfig = childElt.getAttribute(ATT_ACCESS);
             String expression = childElt.getAttribute(ATT_EXPRESSION);
-            
+
             if (!StringUtils.hasText(accessConfig)) {
                 parserContext.getReaderContext().error("Access configuration required", parserContext.extractSource(childElt));
             }
-            
+
             if (!StringUtils.hasText(expression)) {
                 parserContext.getReaderContext().error("Pointcut expression required", parserContext.extractSource(childElt));
             }
-            
+
             ConfigAttributeDefinition def = new ConfigAttributeDefinition(StringUtils.commaDelimitedListToStringArray(accessConfig));
             pointcutMap.put(expression, def);
         }
 
         return pointcutMap;
     }
-    
+
     private void registerMethodSecurityInterceptor(ParserContext parserContext, String accessManagerId, Object source) {
         RootBeanDefinition interceptor = new RootBeanDefinition(MethodSecurityInterceptor.class);
         interceptor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -167,9 +167,12 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         interceptor.getPropertyValues().addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
         interceptor.getPropertyValues().addPropertyValue("objectDefinitionSource", new RuntimeBeanReference(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE));
         parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_INTERCEPTOR, interceptor);
-        parserContext.registerComponent(new BeanComponentDefinition(interceptor, BeanIds.METHOD_SECURITY_INTERCEPTOR));        
+        parserContext.registerComponent(new BeanComponentDefinition(interceptor, BeanIds.METHOD_SECURITY_INTERCEPTOR));
+        
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_INTERCEPTOR_POST_PROCESSOR,
+        		new RootBeanDefinition(MethodSecurityInterceptorPostProcessor.class));
     }
-    
+
     private void registerAdvisor(ParserContext parserContext, Object source) {
         RootBeanDefinition advisor = new RootBeanDefinition(MethodDefinitionSourceAdvisor.class);
         advisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -178,6 +181,5 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         advisor.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE));
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_DEFINITION_SOURCE_ADVISOR, advisor);        
-    }
-    
+    }    
 }
