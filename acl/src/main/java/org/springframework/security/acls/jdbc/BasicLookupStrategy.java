@@ -73,7 +73,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructor accepting mandatory arguments
      *
      * @param dataSource to access the database
@@ -97,30 +97,30 @@ public final class BasicLookupStrategy implements LookupStrategy {
     private static String computeRepeatingSql(String repeatingSql, int requiredRepetitions) {
         Assert.isTrue(requiredRepetitions >= 1, "Must be => 1");
 
-        String startSql = "select ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY, " 
-	        + "ACL_ENTRY.ACE_ORDER,  "
-	        + "ACL_OBJECT_IDENTITY.ID as ACL_ID, " 
-	        + "ACL_OBJECT_IDENTITY.PARENT_OBJECT, "
-	        + "ACL_OBJECT_IDENTITY.ENTRIES_INHERITING, " 
-	        + "ACL_ENTRY.ID as ACE_ID, "
-	        + "ACL_ENTRY.MASK,  "
-	        + "ACL_ENTRY.GRANTING,  "
-	        + "ACL_ENTRY.AUDIT_SUCCESS, " 
-	        + "ACL_ENTRY.AUDIT_FAILURE,  "
-	        + "ACL_SID.PRINCIPAL as ACE_PRINCIPAL, " 
-	        + "ACL_SID.SID as ACE_SID,  "
-	        + "ACLI_SID.PRINCIPAL as ACL_PRINCIPAL, " 
-	        + "ACLI_SID.SID as ACL_SID, "
-	        + "ACL_CLASS.CLASS " 
-	        + "from ACL_OBJECT_IDENTITY " 
-	        + "left join ACL_SID ACLI_SID on  ACLI_SID.ID = ACL_OBJECT_IDENTITY.OWNER_SID " 
-	        + "left join ACL_CLASS on ACL_CLASS.ID = ACL_OBJECT_IDENTITY.OBJECT_ID_CLASS   "
-	        + "left join ACL_ENTRY on ACL_OBJECT_IDENTITY.ID = ACL_ENTRY.ACL_OBJECT_IDENTITY " 
-	        + "left join ACL_SID on ACL_ENTRY.SID = ACL_SID.ID  "
+        String startSql = "select acl_object_identity.object_id_identity, " 
+	        + "acl_entry.ace_order,  "
+	        + "acl_object_identity.id as acl_id, " 
+	        + "acl_object_identity.parent_object, "
+	        + "acl_object_identity.entries_inheriting, " 
+	        + "acl_entry.id as ace_id, "
+	        + "acl_entry.mask,  "
+	        + "acl_entry.granting,  "
+	        + "acl_entry.audit_success, " 
+	        + "acl_entry.audit_failure,  "
+	        + "acl_sid.principal as ace_principal, " 
+	        + "acl_sid.sid as ace_sid,  "
+	        + "acli_sid.principal as acl_principal, " 
+	        + "acli_sid.sid as acl_sid, "
+	        + "acl_class.class " 
+	        + "from acl_object_identity " 
+	        + "left join acl_sid acli_sid on  acli_sid.id = acl_object_identity.owner_sid " 
+	        + "left join acl_class on acl_class.id = acl_object_identity.object_id_class   "
+	        + "left join acl_entry on acl_object_identity.id = acl_entry.acl_object_identity " 
+	        + "left join acl_sid on acl_entry.sid = acl_sid.id  "
 	        + "where ( ";
 
-        String endSql = ") order by ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY" 
-        	+ " asc, ACL_ENTRY.ACE_ORDER asc";
+        String endSql = ") order by acl_object_identity.object_id_identity" 
+        	+ " asc, acl_entry.ace_order asc";
 
         StringBuffer sqlStringBuffer = new StringBuffer();
         sqlStringBuffer.append(startSql);
@@ -196,30 +196,30 @@ public final class BasicLookupStrategy implements LookupStrategy {
      */
     private void convertCurrentResultIntoObject(Map acls, ResultSet rs)
         throws SQLException {
-        Long id = new Long(rs.getLong("ACL_ID"));
+        Long id = new Long(rs.getLong("acl_id"));
 
         // If we already have an ACL for this ID, just create the ACE
         AclImpl acl = (AclImpl) acls.get(id);
 
         if (acl == null) {
             // Make an AclImpl and pop it into the Map
-            ObjectIdentity objectIdentity = new ObjectIdentityImpl(rs.getString("CLASS"),
-                    new Long(rs.getLong("OBJECT_ID_IDENTITY")));
+            ObjectIdentity objectIdentity = new ObjectIdentityImpl(rs.getString("class"),
+                    new Long(rs.getLong("object_id_identity")));
 
             Acl parentAcl = null;
-            long parentAclId = rs.getLong("PARENT_OBJECT");
+            long parentAclId = rs.getLong("parent_object");
 
             if (parentAclId != 0) {
                 parentAcl = new StubAclParent(new Long(parentAclId));
             }
 
-            boolean entriesInheriting = rs.getBoolean("ENTRIES_INHERITING");
+            boolean entriesInheriting = rs.getBoolean("entries_inheriting");
             Sid owner;
 
-            if (rs.getBoolean("ACL_PRINCIPAL")) {
-                owner = new PrincipalSid(rs.getString("ACL_SID"));
+            if (rs.getBoolean("acl_principal")) {
+                owner = new PrincipalSid(rs.getString("acl_sid"));
             } else {
-                owner = new GrantedAuthoritySid(rs.getString("ACL_SID"));
+                owner = new GrantedAuthoritySid(rs.getString("acl_sid"));
             }
 
             acl = new AclImpl(objectIdentity, id, aclAuthorizationStrategy, auditLogger, parentAcl, null,
@@ -229,20 +229,20 @@ public final class BasicLookupStrategy implements LookupStrategy {
 
         // Add an extra ACE to the ACL (ORDER BY maintains the ACE list order)
         // It is permissable to have no ACEs in an ACL (which is detected by a null ACE_SID)
-        if (rs.getString("ACE_SID") != null) {
-            Long aceId = new Long(rs.getLong("ACE_ID"));
+        if (rs.getString("ace_sid") != null) {
+            Long aceId = new Long(rs.getLong("ace_id"));
             Sid recipient;
 
-            if (rs.getBoolean("ACE_PRINCIPAL")) {
-                recipient = new PrincipalSid(rs.getString("ACE_SID"));
+            if (rs.getBoolean("ace_principal")) {
+                recipient = new PrincipalSid(rs.getString("ace_sid"));
             } else {
-                recipient = new GrantedAuthoritySid(rs.getString("ACE_SID"));
+                recipient = new GrantedAuthoritySid(rs.getString("ace_sid"));
             }
 
-            Permission permission = BasePermission.buildFromMask(rs.getInt("MASK"));
-            boolean granting = rs.getBoolean("GRANTING");
-            boolean auditSuccess = rs.getBoolean("AUDIT_SUCCESS");
-            boolean auditFailure = rs.getBoolean("AUDIT_FAILURE");
+            Permission permission = BasePermission.buildFromMask(rs.getInt("mask"));
+            boolean granting = rs.getBoolean("granting");
+            boolean auditSuccess = rs.getBoolean("audit_success");
+            boolean auditFailure = rs.getBoolean("audit_failure");
 
             AccessControlEntryImpl ace = new AccessControlEntryImpl(aceId, acl, recipient, permission, granting,
                     auditSuccess, auditFailure);
@@ -283,7 +283,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
 
         // Make the "acls" map contain all requested objectIdentities
         // (including markers to each parent in the hierarchy)
-        String sql = computeRepeatingSql("(ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY = ? and ACL_CLASS.CLASS = ?)",
+        String sql = computeRepeatingSql("(acl_object_identity.object_id_identity = ? and acl_class.class = ?)",
                 objectIdentities.length);
 
         Set parentsToLookup = (Set) jdbcTemplate.query(sql,
@@ -338,7 +338,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
         Assert.notNull(acls, "ACLs are required");
         Assert.notEmpty(findNow, "Items to find now required");
 
-        String sql = computeRepeatingSql("(ACL_OBJECT_IDENTITY.ID = ?)", findNow.size());
+        String sql = computeRepeatingSql("(acl_object_identity.id = ?)", findNow.size());
 
         Set parentsToLookup = (Set) jdbcTemplate.query(sql,
             new PreparedStatementSetter() {
@@ -473,7 +473,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
                 convertCurrentResultIntoObject(acls, rs);
 
                 // Figure out if this row means we need to lookup another parent
-                long parentId = rs.getLong("PARENT_OBJECT");
+                long parentId = rs.getLong("parent_object");
 
                 if (parentId != 0) {
                     // See if it's already in the "acls"
