@@ -58,14 +58,14 @@ class LdapConfigUtils {
         if (registry.containsBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR)) {
             if (defaultNameRequired) {
                 BeanDefinition bd = registry.getBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR);
-                bd.getPropertyValues().addPropertyValue("defaultNameRequired", defaultNameRequired);
+                bd.getPropertyValues().addPropertyValue("defaultNameRequired", Boolean.valueOf(defaultNameRequired));
             }
             return;
         }
 
         BeanDefinition bd = new RootBeanDefinition(ContextSourceSettingPostProcessor.class); 
         registry.registerBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR, bd);
-        bd.getPropertyValues().addPropertyValue("defaultNameRequired", defaultNameRequired);
+        bd.getPropertyValues().addPropertyValue("defaultNameRequired", Boolean.valueOf(defaultNameRequired));
     }
 
 }
