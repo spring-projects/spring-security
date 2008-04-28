@@ -31,9 +31,9 @@ public interface LdapUserDetails extends UserDetails {
 
     /**
      * The attributes for the user's entry in the directory (or a subset of them, depending on what was
-     * retrieved from the directory)
+     * retrieved from the directory).
      *
-     * @deprecated Map additional attributes to properties in a subclass rather than accessing them here.
+     * @deprecated Map additional attributes to user properties in a custom object rather than accessing them here.
      * @return the user's attributes, or an empty array if none were obtained, never null.
      */
     Attributes getAttributes();
