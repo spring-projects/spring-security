@@ -42,8 +42,6 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
         
         builder.addConstructorArg(parseSearchBean(elt, parserContext));
         builder.addConstructorArg(parseAuthoritiesPopulator(elt, parserContext));
-
-        LdapConfigUtils.registerPostProcessorIfNecessary(parserContext.getRegistry());
     }
     
     static RootBeanDefinition parseSearchBean(Element elt, ParserContext parserContext) {
@@ -74,13 +72,16 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
     
     static RuntimeBeanReference parseServerReference(Element elt, ParserContext parserContext) {
         String server = elt.getAttribute(ATT_SERVER);
-
+        boolean requiresDefaultName = false;
+        
         if (!StringUtils.hasText(server)) {
             server = BeanIds.CONTEXT_SOURCE;
+            requiresDefaultName = true;
         }
 
         RuntimeBeanReference contextSource = new RuntimeBeanReference(server);
         contextSource.setSource(parserContext.extractSource(elt));
+        LdapConfigUtils.registerPostProcessorIfNecessary(parserContext.getRegistry(), requiresDefaultName);
         
         return contextSource;
     }

@@ -75,6 +75,12 @@ public class LdapProviderBeanDefinitionParserTests {
         LdapAuthenticationProvider provider = getProvider();
         provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "ben"));        
     }    
+
+    @Test
+    public void detectsNonStandardServerId() {
+        setContext("<ldap-server id='myServer'/> " +
+                "<ldap-authentication-provider />");
+    }
     
     private void setContext(String context) {
         appCtx = new InMemoryXmlApplicationContext(context);
