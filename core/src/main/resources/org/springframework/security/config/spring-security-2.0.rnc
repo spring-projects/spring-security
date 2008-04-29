@@ -90,10 +90,13 @@ user-search-filter-attribute =
     attribute user-search-filter {xsd:string}
 user-search-base-attribute =
     ## Search base for user searches. Defaults to "".
-    attribute user-search-base {xsd:string}?
+    attribute user-search-base {xsd:string}
 group-role-attribute-attribute =
     ## The LDAP attribute name which contains the role name which will be used within Spring Security. Defaults to "cn".
     attribute group-role-attribute {xsd:string}
+user-details-class-attribute = 
+    ## Allows the objectClass of the user entry to be specified. If set, the framework will attempt to load standard attributes for the defined class into the returned UserDetails object
+    attribute user-details-class {"person" | "inetOrgPerson"}
 
 
 ldap-user-service =
@@ -115,6 +118,8 @@ ldap-us.attlist &=
     cache-ref?
 ldap-us.attlist &=
     role-prefix?
+ldap-us.attlist &=
+    user-details-class-attribute?
 
 ldap-authentication-provider =
     ## Sets up an ldap authentication provider
@@ -136,6 +141,8 @@ ldap-ap.attlist &=
     attribute user-dn-pattern {xsd:string}?
 ldap-ap.attlist &=
     role-prefix?
+ldap-ap.attlist &=
+    user-details-class-attribute?
 
 password-compare-element =
     ## Specifies that an LDAP provider should use an LDAP compare operation of the user's password to authenticate the user

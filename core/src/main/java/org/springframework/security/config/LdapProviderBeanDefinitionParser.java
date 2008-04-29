@@ -93,7 +93,9 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
         RootBeanDefinition ldapProvider = new RootBeanDefinition(LdapAuthenticationProvider.class);
         ldapProvider.getConstructorArgumentValues().addGenericArgumentValue(authenticator);
         ldapProvider.getConstructorArgumentValues().addGenericArgumentValue(LdapUserServiceBeanDefinitionParser.parseAuthoritiesPopulator(elt, parserContext));
-
+        ldapProvider.getPropertyValues().addPropertyValue("userDetailsContextMapper", 
+        		LdapUserServiceBeanDefinitionParser.parseUserDetailsClass(elt, parserContext));
+        
         ConfigUtils.getRegisteredProviders(parserContext).add(ldapProvider);
 
         return null;

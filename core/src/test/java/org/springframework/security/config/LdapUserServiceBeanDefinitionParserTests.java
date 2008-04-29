@@ -7,6 +7,8 @@ import org.springframework.security.util.AuthorityUtils;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.ldap.InetOrgPerson;
+import org.springframework.security.userdetails.ldap.Person;
 
 import org.junit.Test;
 import org.junit.After;
@@ -99,7 +101,28 @@ public class LdapUserServiceBeanDefinitionParserTests {
                 "    <ldap-user-service user-search-filter='(uid={0})' />" +
                 "</authentication-provider>");
     }
-
+    
+    @Test
+    public void personContextMapperIsSupported() {
+        setContext(
+                "<ldap-server />" +
+                "<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' user-details-class='person'/>");
+        UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+        UserDetails ben = uds.loadUserByUsername("ben");
+        assertTrue(ben instanceof Person);
+    }
+    
+    @Test
+    public void inetOrgContextMapperIsSupported() {
+        setContext(
+                "<ldap-server id='someServer'/>" +
+                "<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' user-details-class='inetOrgPerson'/>");
+        UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+        UserDetails ben = uds.loadUserByUsername("ben");
+        assertTrue(ben instanceof InetOrgPerson);
+    }
+    
+    
     private void setContext(String context) {
         appCtx = new InMemoryXmlApplicationContext(context);
     }

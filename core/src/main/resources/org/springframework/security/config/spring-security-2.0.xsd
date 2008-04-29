@@ -238,7 +238,7 @@
     <xs:attribute name="user-search-filter" use="required" type="xs:string"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="user-search-base-attribute">
-    <xs:attribute name="user-search-base" type="xs:string">
+    <xs:attribute name="user-search-base" use="required" type="xs:string">
       <xs:annotation>
         <xs:documentation>Search base for user searches. Defaults to "".</xs:documentation>
       </xs:annotation>
@@ -250,6 +250,21 @@
         <xs:documentation>The LDAP attribute name which contains the role name which will be used
           within Spring Security. Defaults to "cn".</xs:documentation>
       </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="user-details-class-attribute">
+    <xs:attribute name="user-details-class" use="required">
+      <xs:annotation>
+        <xs:documentation>Allows the objectClass of the user entry to be specified. If set, the
+          framework will attempt to load standard attributes for the defined class into the returned
+          UserDetails object</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="person"/>
+          <xs:enumeration value="inetOrgPerson"/>
+        </xs:restriction>
+      </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="ldap-user-service" substitutionGroup="security:any-user-service">
@@ -272,7 +287,11 @@
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="user-search-filter" type="xs:string"/>
-    <xs:attributeGroup ref="security:user-search-base-attribute"/>
+    <xs:attribute name="user-search-base" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Search base for user searches. Defaults to "".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="group-search-filter" type="xs:string">
       <xs:annotation>
         <xs:documentation>Group search filter. Defaults to (uniqueMember={0}). The substituted
@@ -302,6 +321,19 @@
         <xs:documentation>A non-empty string prefix that will be added to role strings loaded from
           persistent storage (e.g. "ROLE_").</xs:documentation>
       </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="user-details-class">
+      <xs:annotation>
+        <xs:documentation>Allows the objectClass of the user entry to be specified. If set, the
+          framework will attempt to load standard attributes for the defined class into the returned
+          UserDetails object</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="person"/>
+          <xs:enumeration value="inetOrgPerson"/>
+        </xs:restriction>
+      </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="ldap-authentication-provider">
@@ -362,7 +394,11 @@
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attributeGroup ref="security:user-search-base-attribute"/>
+    <xs:attribute name="user-search-base" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Search base for user searches. Defaults to "".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="user-search-filter" type="xs:string"/>
     <xs:attribute name="group-search-base" type="xs:string">
       <xs:annotation>
@@ -394,6 +430,19 @@
         <xs:documentation>A non-empty string prefix that will be added to role strings loaded from
           persistent storage (e.g. "ROLE_").</xs:documentation>
       </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="user-details-class">
+      <xs:annotation>
+        <xs:documentation>Allows the objectClass of the user entry to be specified. If set, the
+          framework will attempt to load standard attributes for the defined class into the returned
+          UserDetails object</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="person"/>
+          <xs:enumeration value="inetOrgPerson"/>
+        </xs:restriction>
+      </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="password-compare.attlist">
