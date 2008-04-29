@@ -116,10 +116,21 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
     @Test
     public void testCreateNewUserSucceeds() {
         InetOrgPerson.Essence p = new InetOrgPerson.Essence();
-        p.setDn("whocares");
+        p.setCarLicense("XXX");        
         p.setCn(new String[] {"Joe Smeth"});
+        p.setDepartmentNumber("5679");
+        p.setDescription("Some description");
+        p.setDn("whocares");
+        p.setEmployeeNumber("E781");
+        p.setInitials("J");
+        p.setMail("joe@smeth.com");
+        p.setMobile("+44776542911");
+        p.setOu("Joes Unit");
+        p.setO("Organization");
+        p.setRoomNumber("500X");
         p.setSn("Smeth");
         p.setUid("joe");
+        
         p.setAuthorities(TEST_AUTHORITIES);
 
         mgr.createUser(p.createUserDetails());

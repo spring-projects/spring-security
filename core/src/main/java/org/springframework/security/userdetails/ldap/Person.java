@@ -35,6 +35,8 @@ import java.util.Arrays;
  */
 public class Person extends LdapUserDetailsImpl {
     private String sn;
+    private String description;
+    private String telephoneNumber;
     private List cn = new ArrayList();
 
     protected Person() {
@@ -47,10 +49,20 @@ public class Person extends LdapUserDetailsImpl {
     public String[] getCn() {
         return (String[]) cn.toArray(new String[cn.size()]);
     }
+    
+    public String getDescription() {
+		return description;
+	}
 
-    protected void populateContext(DirContextAdapter adapter) {
+	public String getTelephoneNumber() {
+		return telephoneNumber;
+	}
+
+	protected void populateContext(DirContextAdapter adapter) {
         adapter.setAttributeValue("sn", sn);
         adapter.setAttributeValues("cn", getCn());
+        adapter.setAttributeValue("description", getDescription());
+        adapter.setAttributeValue("telephoneNumber", getTelephoneNumber());
 
         if(getPassword() != null) {
             adapter.setAttributeValue("userPassword", getPassword());
@@ -67,6 +79,8 @@ public class Person extends LdapUserDetailsImpl {
             super(ctx);
             setCn(ctx.getStringAttributes("cn"));
             setSn(ctx.getStringAttribute("sn"));
+            setDescription(ctx.getStringAttribute("description"));
+            setTelephoneNumber(ctx.getStringAttribute("telephoneNumber"));
             Object passo = ctx.getObjectAttribute("userPassword");
 
             if(passo != null) {
@@ -75,9 +89,11 @@ public class Person extends LdapUserDetailsImpl {
             }
         }
 
-        public Essence(Person copyMe) {
+		public Essence(Person copyMe) {
             super(copyMe);
             setSn(copyMe.sn);
+            setDescription(copyMe.getDescription());
+            setTelephoneNumber(copyMe.getTelephoneNumber());
             ((Person) instance).cn = new ArrayList(copyMe.cn);
         }
 
@@ -96,6 +112,14 @@ public class Person extends LdapUserDetailsImpl {
         public void addCn(String value) {
             ((Person) instance).cn.add(value);
         }
+        
+        public void setTelephoneNumber(String tel) {
+        	((Person) instance).telephoneNumber = tel;
+		}
+
+		public void setDescription(String desc) {
+        	((Person) instance).description = desc;
+		}
 
         public LdapUserDetails createUserDetails() {
             Person p = (Person) super.createUserDetails();
