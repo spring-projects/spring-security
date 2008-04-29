@@ -384,5 +384,38 @@
                 property. The authenticator would then call the search object to obtain the correct
                 user's DN before attempting to bind as this user.</para>
         </section>
+        <section>
+            <title>LDAP Attributes and Customized UserDetails</title>
+            <para>
+                The net result of an authentication using <classname>LdapAuthenticationProvider</classname> is the
+                same as a normal Spring Security authentication using the standard <interfacename>UserDetailsService</interfacename>
+                interface. A <interfacename>UserDetails</interfacename> object is created and stored in the 
+                returned <interfacename>Authentication</interfacename> object. As with using a 
+                <interfacename>UserDetailsService</interfacename>, a common requirement is to be able to customize this
+                implementation and add extra properties. When using LDAP, these will normally be attributes from the user entry.
+                The creation of the <interfacename>UserDetails</interfacename> object is controlled by the provider's 
+                <interfacename>UserDetailsContextMapper</interfacename> strategy, which is responsible for mapping user objects
+                to and from LDAP context data:
+                <programlisting><![CDATA[
+public interface UserDetailsContextMapper {
+    UserDetails mapUserFromContext(DirContextOperations ctx, String username, GrantedAuthority[] authority);
+
+    void mapUserToContext(UserDetails user, DirContextAdapter ctx);
+}]]>                    
+                </programlisting>
+                Only the first method is relevant for authentication. If you provide an implememntation of this, you can
+                control exactly how the UserDetails object is created. The first parameter is an instance of Spring LDAP's
+                <interfacename>DirContextOperations</interfacename> which gives you access to the LDAP attributes which were loaded.
+                The <literal>username</literal> parameter is the name used to authenticate and the final parameter is the list of authorities
+                loaded for the user.
+            </para>
+            <para>
+                The way the context data is loaded varies slightly depending on the type of authentication you are using. With the
+                <classname>BindAuthenticatior</classname>, the context returned from the bind operation will be used to read the attributes, 
+                otherwise the data will be read using the standard context obtained from the configured 
+                <interfacename>ContextSource</interfacename> (when a search is configured to locate the user, 
+                this will be the data returned by the search object).
+            </para>
+        </section>
     </section>
 </chapter>
