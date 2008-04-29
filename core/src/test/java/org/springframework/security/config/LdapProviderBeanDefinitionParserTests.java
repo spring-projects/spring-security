@@ -1,14 +1,18 @@
 package org.springframework.security.config;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.After;
+import org.junit.Test;
+import org.springframework.security.Authentication;
 import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.ldap.LdapAuthenticationProvider;
-import org.springframework.security.Authentication;
-import org.springframework.security.util.InMemoryXmlApplicationContext;
+import org.springframework.security.userdetails.ldap.InetOrgPersonContextMapper;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsImpl;
-import static org.junit.Assert.*;
-import org.junit.Test;
-import org.junit.After;
+import org.springframework.security.util.FieldUtils;
+import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 
 /**
@@ -81,6 +85,15 @@ public class LdapProviderBeanDefinitionParserTests {
         setContext("<ldap-server id='myServer'/> " +
                 "<ldap-authentication-provider />");
     }
+    
+    @Test
+    public void inetOrgContextMapperIsSupported() throws Exception {
+        setContext(
+                "<ldap-server id='someServer' url='ldap://127.0.0.1:343/dc=springframework,dc=org'/>" +
+                "<ldap-authentication-provider user-details-class='inetOrgPerson'/>");
+        LdapAuthenticationProvider provider = getProvider();
+        assertTrue(FieldUtils.getFieldValue(provider, "userDetailsContextMapper") instanceof InetOrgPersonContextMapper);
+    }    
     
     private void setContext(String context) {
         appCtx = new InMemoryXmlApplicationContext(context);
