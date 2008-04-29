@@ -221,6 +221,9 @@
         <contributor>
             <name>Martin Algesten</name>
         </contributor>
+        <contributor>
+            <name>Michael Mayr</name>
+        </contributor>        
     </contributors>
 
     <dependencies>
