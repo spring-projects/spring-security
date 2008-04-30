@@ -7,7 +7,7 @@
     </parent>
     <artifactId>spring-security-cas-client</artifactId>
     <name>Spring Security - CAS support</name>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
@@ -39,4 +39,29 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
+    
+    <properties>
+      	<spring.osgi.export>
+      	    org.springframework.security.*;version=${pom.version}
+      	</spring.osgi.export>
+            
+    	<spring.osgi.import>
+    	    org.springframework.security.*;version="[${pom.version},${pom.version}]",
+            org.springframework.beans.*;version="${spring.version.osgi}",
+            org.springframework.context.*;version="${spring.version.osgi}",
+            org.springframework.dao.*;version="${spring.version.osgi}";resolution:=optional,
+            org.springframework.util.*;version="${spring.version.osgi}",
+            javax.servlet.*;version="[2.4.0, 3.0.0)";resolution:=optional,
+            net.sf.ehcache.*;version="[1.4.1, 2.0.0)";resolution:=optional,
+            org.apache.commons.logging.*;version="[1.1.1, 2.0.0)",
+            org.jasig.cas.client.*;version="[3.1.1, 4.0.0)"
+    	</spring.osgi.import>
+
+    	<spring.osgi.private.pkg>
+    	    !org.springframework.security.*
+    	</spring.osgi.private.pkg>
+
+    	<spring.osgi.symbolic.name>org.springframework.security.annotation</spring.osgi.symbolic.name>        
+    </properties>    
+    
 </project>

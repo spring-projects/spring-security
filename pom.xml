@@ -451,6 +451,35 @@
                     </postProcess>
                 </configuration>
             </plugin>
+             <!-- OSGi Felix bundle plugin -->
+             <plugin>
+                 <groupId>org.apache.felix</groupId>
+                 <artifactId>maven-bundle-plugin</artifactId>
+                 <version>1.4.0</version>
+                 <extensions>true</extensions>
+
+                 <configuration>
+                     <obrRepository>NONE</obrRepository>        
+                     <instructions>
+                         <!-- bundle specific conf -->      
+                         <Bundle-Name>${artifactId}</Bundle-Name>
+                         <Bundle-SymbolicName>${spring.osgi.symbolic.name}</Bundle-SymbolicName>
+                         <Bundle-Vendor>SpringSource</Bundle-Vendor>
+                         <Export-Package>${spring.osgi.export}</Export-Package>
+                         <Import-Package>${spring.osgi.import}</Import-Package>
+                         <Private-Package>${spring.osgi.private.pkg}</Private-Package>
+                         <!--Include-Resource>${spring.osgi.include.res}</Include-Resource-->
+                         <!-- jar entries -->
+                         <Implementation-Title>Spring Security</Implementation-Title>
+                         <Implementation-Version>${pom.version}</Implementation-Version>
+                         <Implementation-Vendor>SpringSource</Implementation-Vendor>
+                         <Implementation-Vendor-Id>org.springframework.security</Implementation-Vendor-Id>
+                         <!-- Spring specific entries -->                         
+                         <!--Spring-Version>${spring.maven.artifact.version}</Spring-Version-->
+                     </instructions>
+                     <excludeDependencies>true</excludeDependencies> 
+                 </configuration>
+             </plugin>             
         </plugins>
     </build>
 
@@ -701,7 +730,7 @@
     </dependencyManagement>
     <properties>        
         <spring.version>2.0.8</spring.version>
-        <felix.version>1.4.0</felix.version>
+        <spring.version.osgi>[2.0.8, 3.0.0)</spring.version.osgi>
         <jstl.version>1.1.2</jstl.version>
 
         <docbook.source>${basedir}/src/docbkx</docbook.source>
