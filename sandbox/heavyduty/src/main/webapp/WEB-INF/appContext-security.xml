@@ -30,7 +30,7 @@
 
 
         <!-- All of this is unnecessary if auto-config="true" -->
-        <form-login />
+        <form-login default-target-url="/secure/index.jsp" always-use-default-target="true"/>
         <anonymous />
         <!-- http-basic / -->
         <logout />

@@ -137,7 +137,7 @@
                 <artifactId>maven-jetty-plugin</artifactId>
                 <version>6.1.7</version>
                 <configuration>
-                    <contextPath>/tutorial</contextPath>
+                    <contextPath>/heavyduty</contextPath>
                     <connectors>
                         <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
                             <port>8080</port>
@@ -159,7 +159,7 @@
         </plugins>
     </build>
     <properties>        
-        <spring.version>2.5.3</spring.version>
+        <spring.version>2.5.4</spring.version>
         <spring.security.version>2.0.1-SNAPSHOT</spring.security.version>
     </properties>
 

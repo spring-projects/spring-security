@@ -29,6 +29,8 @@ or if you've authenticated this session.
 </tr>
 </table>
 
+Saved Request: <%= session.getAttribute("SPRING_SECURITY_SAVED_REQUEST_KEY") %>
+
 
 <p><a href="../">Home</a>
 <p><a href="../j_spring_security_logout">Logout</a>
