@@ -53,11 +53,11 @@ public class JdbcAclService implements AclService {
     //~ Static fields/initializers =====================================================================================
 
     protected static final Log log = LogFactory.getLog(JdbcAclService.class);
-    private static final String selectAclObjectWithParent = "SELECT obj.object_id_identity obj_id, class.class class "
-        + "FROM acl_object_identity obj, acl_object_identity parent, acl_class class "
-        + "WHERE obj.parent_object = parent.id AND obj.object_id_class = class.id "
-        + "AND parent.object_id_identity = ? AND parent.object_id_class = ("
-        + "SELECT id FROM acl_class WHERE acl_class.class = ?)";
+    private static final String selectAclObjectWithParent = "select obj.object_id_identity obj_id, class.class class "
+        + "from acl_object_identity obj, acl_object_identity parent, acl_class class "
+        + "where obj.parent_object = parent.id and obj.object_id_class = class.id "
+        + "and parent.object_id_identity = ? and parent.object_id_class = ("
+        + "select id FROM acl_class where acl_class.class = ?)";
 
     //~ Instance fields ================================================================================================
 

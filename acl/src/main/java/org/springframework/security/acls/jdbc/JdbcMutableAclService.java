@@ -62,23 +62,22 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 
 	private boolean foreignKeysInDatabase = true;
     private AclCache aclCache;
-    private String deleteClassByClassNameString = "DELETE FROM acl_class WHERE class=?";
-    private String deleteEntryByObjectIdentityForeignKey = "DELETE FROM acl_entry WHERE acl_object_identity=?";
-    private String deleteObjectIdentityByPrimaryKey = "DELETE FROM acl_object_identity WHERE id=?";
+    private String deleteEntryByObjectIdentityForeignKey = "delete from acl_entry where acl_object_identity=?";
+    private String deleteObjectIdentityByPrimaryKey = "delete from acl_object_identity where id=?";
     private String identityQuery = "call identity()";
-    private String insertClass = "INSERT INTO acl_class (class) VALUES (?)";
-    private String insertEntry = "INSERT INTO acl_entry "
+    private String insertClass = "insert into acl_class (class) values (?)";
+    private String insertEntry = "insert into acl_entry "
         + "(acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure)"
-        + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-    private String insertObjectIdentity = "INSERT INTO acl_object_identity "
-        + "(object_id_class, object_id_identity, owner_sid, entries_inheriting) " + "VALUES (?, ?, ?, ?)";
-    private String insertSid = "INSERT INTO acl_sid (principal, sid) VALUES (?, ?)";
-    private String selectClassPrimaryKey = "SELECT id FROM acl_class WHERE class=?";
-    private String selectObjectIdentityPrimaryKey = "SELECT acl_object_identity.id FROM acl_object_identity, acl_class "
-        + "WHERE acl_object_identity.object_id_class = acl_class.id and acl_class.class=? "
+        + "values (?, ?, ?, ?, ?, ?, ?)";
+    private String insertObjectIdentity = "insert into acl_object_identity "
+        + "(object_id_class, object_id_identity, owner_sid, entries_inheriting) " + "values (?, ?, ?, ?)";
+    private String insertSid = "insert into acl_sid (principal, sid) values (?, ?)";
+    private String selectClassPrimaryKey = "select id from acl_class where class=?";
+    private String selectObjectIdentityPrimaryKey = "select acl_object_identity.id from acl_object_identity, acl_class "
+        + "where acl_object_identity.object_id_class = acl_class.id and acl_class.class=? "
         + "and acl_object_identity.object_id_identity = ?";
-    private String selectSidPrimaryKey = "SELECT id FROM acl_sid WHERE principal=? AND sid=?";
-    private String updateObjectIdentity = "UPDATE acl_object_identity SET "
+    private String selectSidPrimaryKey = "select id from acl_sid where principal=? and sid=?";
+    private String updateObjectIdentity = "update acl_object_identity set "
         + "parent_object = ?, owner_sid = ?, entries_inheriting = ?" + " where id = ?";
 
     //~ Constructors ===================================================================================================
