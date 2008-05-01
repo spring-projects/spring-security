@@ -1,3 +1,4 @@
+package zzz;
 /**
  * @author Luke Taylor
  * @version $Id$
