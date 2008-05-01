@@ -192,7 +192,7 @@
     	    src/main/resources
     	</spring.osgi.include.res>
 -->
-    	<spring.osgi.symbolic.name>org.springframework.security</spring.osgi.symbolic.name>        
+    	<spring.osgi.symbolic.name>org.springframework.security.core</spring.osgi.symbolic.name>        
     </properties>
 
 </project>

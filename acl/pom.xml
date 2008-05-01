@@ -10,6 +10,7 @@
     <artifactId>spring-security-acl</artifactId>
     <name>Spring Security - ACL module</name>
     <version>2.0.1-SNAPSHOT</version>
+    <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
@@ -44,4 +45,29 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
+    <properties>
+        <spring.osgi.export>
+            org.springframework.security.*;version=${pom.version}
+        </spring.osgi.export>
+            
+        <spring.osgi.import>
+            net.sf.ehcache.*;version="[1.4.1, 2.0.0)";resolution:=optional,
+            org.springframework.security.*;version="[${pom.version},${pom.version}]",
+            org.springframework.context.*;version="${spring.version.osgi}",
+            org.springframework.dao.*;version="${spring.version.osgi}";resolution:=optional,
+            org.springframework.jdbc.*;version="${spring.version.osgi}";resolution:=optional,
+            org.springframework.transaction.support.*;version="${spring.version.osgi}";resolution:=optional,
+            org.springframework.util.*;version="${spring.version.osgi}",
+            org.apache.commons.logging.*;version="[1.1.1, 2.0.0)",
+            javax.sql.*
+        </spring.osgi.import>
+
+        <spring.osgi.private.pkg>
+            !org.springframework.security.*
+        </spring.osgi.private.pkg>
+
+        <spring.osgi.symbolic.name>org.springframework.security.acls</spring.osgi.symbolic.name>        
+    </properties>    
+    
 </project>

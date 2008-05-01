@@ -61,7 +61,7 @@
     	    !org.springframework.security.*
     	</spring.osgi.private.pkg>
 
-    	<spring.osgi.symbolic.name>org.springframework.security.annotation</spring.osgi.symbolic.name>        
+    	<spring.osgi.symbolic.name>org.springframework.security.cas</spring.osgi.symbolic.name>        
     </properties>    
     
 </project>
