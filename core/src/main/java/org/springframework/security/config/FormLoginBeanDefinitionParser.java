@@ -46,7 +46,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
     	this.filterClassName = filterClassName;
     }
 
-    public BeanDefinition parse(Element elt, ParserContext parserContext) {
+    public BeanDefinition parse(Element elt, ParserContext pc) {
         String loginUrl = null;
         String defaultTargetUrl = null;
         String authenticationFailureUrl = null;
@@ -55,26 +55,31 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         Object source = null;
 
         if (elt != null) {
+        	source = pc.extractSource(elt);
             loginUrl = elt.getAttribute(ATT_LOGIN_URL);
+            ConfigUtils.validateHttpRedirect(loginUrl, pc, source);
             defaultTargetUrl = elt.getAttribute(ATT_FORM_LOGIN_TARGET_URL);
+            ConfigUtils.validateHttpRedirect(defaultTargetUrl, pc, source);
             authenticationFailureUrl = elt.getAttribute(ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL);
+            ConfigUtils.validateHttpRedirect(authenticationFailureUrl, pc, source);
             alwaysUseDefault = elt.getAttribute(ATT_ALWAYS_USE_DEFAULT_TARGET_URL);
             loginPage = elt.getAttribute(ATT_LOGIN_PAGE);
             
             if (!StringUtils.hasText(loginPage)) {
             	loginPage = null;
             }
-            source = parserContext.extractSource(elt);
+            ConfigUtils.validateHttpRedirect(loginPage, pc, source);
+            
         }
 
-        ConfigUtils.registerProviderManagerIfNecessary(parserContext);
+        ConfigUtils.registerProviderManagerIfNecessary(pc);
         
         filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault, loginPage, authenticationFailureUrl);
         filterBean.setSource(source);
         filterBean.getPropertyValues().addPropertyValue("authenticationManager",
                 new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
         
-        if (parserContext.getRegistry().containsBeanDefinition(BeanIds.REMEMBER_ME_SERVICES)) {
+        if (pc.getRegistry().containsBeanDefinition(BeanIds.REMEMBER_ME_SERVICES)) {
             filterBean.getPropertyValues().addPropertyValue("rememberMeServices", 
                     new RuntimeBeanReference(BeanIds.REMEMBER_ME_SERVICES) );
         }

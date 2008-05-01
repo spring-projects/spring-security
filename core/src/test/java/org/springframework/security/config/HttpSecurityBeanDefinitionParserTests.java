@@ -71,6 +71,11 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
+    public void minimalConfigurationParses() {
+        setContext("<http><http-basic /></http>" + AUTH_PROVIDER_XML);
+    }
+    
+    @Test
     public void httpAutoConfigSetsUpCorrectFilterList() throws Exception {
         setContext("<http auto-config='true' />" + AUTH_PROVIDER_XML);
 
@@ -83,7 +88,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void duplicateElementCausesError() throws Exception {
         setContext("<http auto-config='true' /><http auto-config='true' />" + AUTH_PROVIDER_XML);
     }    
-    
+        
     private void checkAutoConfigFilters(List filterList) throws Exception {
         assertEquals("Expected 11 filters in chain", 11, filterList.size());
 
@@ -168,6 +173,40 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals("/default", filter.getDefaultTargetUrl());
         assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "alwaysUseDefaultTargetUrl"));
     }
+
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void invalidLoginPageIsDetected() throws Exception {
+        setContext(
+                "<http>" +
+                "   <form-login login-page='noLeadingSlash'/>" +
+                "</http>" + AUTH_PROVIDER_XML);
+    }    
+    
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void invalidDefaultTargetUrlIsDetected() throws Exception {
+        setContext(
+                "<http>" +
+                "   <form-login default-target-url='noLeadingSlash'/>" +
+                "</http>" + AUTH_PROVIDER_XML);
+    }    
+
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void invalidLogoutUrlIsDetected() throws Exception {
+        setContext(
+                "<http>" +
+                "   <logout logout-url='noLeadingSlash'/>" +                
+                "   <form-login />" +
+                "</http>" + AUTH_PROVIDER_XML);
+    }    
+    
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void invalidLogoutSuccessUrlIsDetected() throws Exception {
+        setContext(
+                "<http>" +
+                "   <logout logout-success-url='noLeadingSlash'/>" +                
+                "   <form-login />" +
+                "</http>" + AUTH_PROVIDER_XML);
+    }    
     
     @Test
     public void lowerCaseComparisonIsRespectedBySecurityFilterInvocationDefinitionSource() throws Exception {
@@ -207,11 +246,6 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void minimalConfigurationParses() {
-        setContext("<http><http-basic /></http>" + AUTH_PROVIDER_XML);
-    }
-
-    @Test
     public void oncePerRequestAttributeIsSupported() throws Exception {
         setContext("<http once-per-request='false'><http-basic /></http>" + AUTH_PROVIDER_XML);
         List filters = getFilters("/someurl");
@@ -229,6 +263,11 @@ public class HttpSecurityBeanDefinitionParserTests {
         ExceptionTranslationFilter etf = (ExceptionTranslationFilter) filters.get(filters.size() - 2);
         
         assertEquals("/access-denied", FieldUtils.getFieldValue(etf, "accessDeniedHandler.errorPage"));
+    }
+    
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void invalidAccessDeniedUrlIsDetected() throws Exception {
+        setContext("<http auto-config='true' access-denied-page='noLeadingSlash'/>" + AUTH_PROVIDER_XML);
     }    
     
     @Test
@@ -371,7 +410,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         auth.setDetails(new WebAuthenticationDetails(req));
         seshController.checkAuthenticationAllowed(auth);
     }
-    
+
     @Test
     public void customEntryPointIsSupported() throws Exception {
         setContext(

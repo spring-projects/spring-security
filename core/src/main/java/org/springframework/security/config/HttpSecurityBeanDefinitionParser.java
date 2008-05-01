@@ -133,7 +133,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 DomUtils.getChildElementByTagName(element, Elements.PORT_MAPPINGS), parserContext);
         registry.registerBeanDefinition(BeanIds.PORT_MAPPER, portMapper);
 
-        registerExceptionTranslationFilter(element.getAttribute(ATT_ACCESS_DENIED_PAGE), parserContext);
+        registerExceptionTranslationFilter(element, parserContext);
 
 
         if (channelRequestMap.size() > 0) {
@@ -249,7 +249,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return true;
     }
     
-    private void registerExceptionTranslationFilter(String accessDeniedPage, ParserContext pc) {
+    private void registerExceptionTranslationFilter(Element element, ParserContext pc) {
+    	String accessDeniedPage = element.getAttribute(ATT_ACCESS_DENIED_PAGE);
+    	ConfigUtils.validateHttpRedirect(accessDeniedPage, pc, pc.extractSource(element));
         BeanDefinitionBuilder exceptionTranslationFilterBuilder
             = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
  
@@ -327,8 +329,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             pc.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, 
                     sessionFixationFilter.getBeanDefinition());
             ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.SESSION_FIXATION_PROTECTION_FILTER));
-        }        
-        
+        }
     }
     
     private void parseBasicFormLoginAndOpenID(Element element, ParserContext pc, boolean autoConfig) {
@@ -342,12 +343,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         String realm = element.getAttribute(ATT_REALM);
         if (!StringUtils.hasText(realm)) {
         	realm = DEF_REALM;
-        }        
+        }
         
         Element basicAuthElt = DomUtils.getChildElementByTagName(element, Elements.BASIC_AUTH);
         if (basicAuthElt != null || autoConfig) {
             new BasicAuthenticationBeanDefinitionParser(realm).parse(basicAuthElt, pc);
-        }        
+        }
         
     	Element formLoginElt = DomUtils.getChildElementByTagName(element, Elements.FORM_LOGIN);
         

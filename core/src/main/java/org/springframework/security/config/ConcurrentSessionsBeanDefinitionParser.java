@@ -55,6 +55,7 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
         String expiryUrl = element.getAttribute(ATT_EXPIRY_URL);
 
         if (StringUtils.hasText(expiryUrl)) {
+        	ConfigUtils.validateHttpRedirect(expiryUrl, parserContext, source);
             filterBuilder.addPropertyValue("expiredUrl", expiryUrl);
         }
 

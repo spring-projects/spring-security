@@ -31,14 +31,17 @@ public class LogoutBeanDefinitionParser implements BeanDefinitionParser {
         String logoutSuccessUrl = null;
         String invalidateSession = null;
 
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(LogoutFilter.class);
+
         if (element != null) {
+        	Object source = parserContext.extractSource(element);
+        	builder.setSource(source);
             logoutUrl = element.getAttribute(ATT_LOGOUT_URL);
+            ConfigUtils.validateHttpRedirect(logoutUrl, parserContext, source);
             logoutSuccessUrl = element.getAttribute(ATT_LOGOUT_SUCCESS_URL);
+            ConfigUtils.validateHttpRedirect(logoutSuccessUrl, parserContext, source);
             invalidateSession = element.getAttribute(ATT_INVALIDATE_SESSION);
         }
-
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(LogoutFilter.class);
-        builder.setSource(parserContext.extractSource(element));
 
         if (!StringUtils.hasText(logoutUrl)) {
         	logoutUrl = DEF_LOGOUT_URL;

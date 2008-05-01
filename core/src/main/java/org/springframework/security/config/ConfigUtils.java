@@ -177,4 +177,15 @@ public abstract class ConfigUtils {
 			this.filters = filters;
 		}
     }
+    
+    /**
+     * Checks the value of an XML attribute which represents a redirect URL.
+     * If not empty or starting with "/" or "http" it will raise an error. 
+     */
+    static void validateHttpRedirect(String url, ParserContext pc, Object source) {
+    	if (!StringUtils.hasText(url) || url.startsWith("/") || url.toLowerCase().startsWith("http")) {
+    		return;
+    	}
+    	pc.getReaderContext().error(url + " is not a valid redirect URL (must start with '/' or http(s))", source);
+    }
 }
