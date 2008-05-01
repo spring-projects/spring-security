@@ -9,7 +9,7 @@
 
     <modules>
         <module>core</module>            
-        <module>core-tiger</module>
+        <module>core-tiger</module>        
         <module>adapters</module>
         <module>portlet</module>
         <module>ntlm</module>
@@ -528,18 +528,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>                    
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.4</version>
                 <configuration>
                     <aggregate>true</aggregate>
                     <header>Spring Security Framework</header>
                     <quiet>true</quiet>
-                    <excludePackageNames>sample,bigbank</excludePackageNames>                                        
+                    <excludePackageNames>sample,bigbank,zzz</excludePackageNames>                                        
                     <links>
                         <link>
                             http://java.sun.com/j2se/1.5.0/docs/api
                         </link>
                         <link>
-                            http://www.springframework.org/docs/api/
+                            http://static.springframework.org/spring/docs/2.5.x/api/
                         </link>
                         <link>
                             http://commons.apache.org/dbcp/apidocs/
@@ -566,7 +566,7 @@
                             http://developer.ja-sig.org/projects/cas/cas-server-core/cas-server/cas-server-core/apidocs/
                         </link>
                         <link>
-                            http://tomcat.apache.org/tomcat-5.0-doc/servletapi/
+                            http://tomcat.apache.org/tomcat-5.5-doc/servletapi/
                         </link>
                     </links>
                 </configuration>
@@ -574,7 +574,7 @@
                   <reportSet>
                     <reports>
                       <report>javadoc</report>
-                      <!-- <report>test-javadoc</report> -->
+                      <!--<report>test-javadoc</report> -->
                     </reports>
                   </reportSet>
                 </reportSets>                
