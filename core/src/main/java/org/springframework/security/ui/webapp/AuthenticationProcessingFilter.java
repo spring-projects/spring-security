@@ -22,6 +22,7 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.FilterChainOrder;
+import org.springframework.security.util.TextUtils;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
@@ -72,7 +73,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
         HttpSession session = request.getSession(false);
 
         if (session != null || getAllowSessionCreation()) {
-            request.getSession().setAttribute(SPRING_SECURITY_LAST_USERNAME_KEY, username);
+            request.getSession().setAttribute(SPRING_SECURITY_LAST_USERNAME_KEY, TextUtils.escapeEntities(username));
         }
 
         // Allow subclasses to set the "details" property
