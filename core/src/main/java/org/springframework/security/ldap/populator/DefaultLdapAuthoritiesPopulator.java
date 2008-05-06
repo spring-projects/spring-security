@@ -69,13 +69,13 @@ import java.util.Set;
  * <pre>
  * &lt;bean id="ldapAuthoritiesPopulator"
  *       class="org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
- *   &lt;constructor-arg>&lt;ref local="contextSource"/>&lt;/constructor-arg>
- *   &lt;constructor-arg>&lt;value>ou=groups&lt;/value>&lt;/constructor-arg>
- *   &lt;property name="groupRoleAttribute">&lt;value>ou&lt;/value>&lt;/property>
+ *   &lt;constructor-arg ref="contextSource"/>
+ *   &lt;constructor-arg value="ou=groups"/>
+ *   &lt;property name="groupRoleAttribute" value="ou"/>
  * &lt;!-- the following properties are shown with their default values -->
- *   &lt;property name="searchSubTree">&lt;value>false&lt;/value>&lt;/property>
- *   &lt;property name="rolePrefix">&lt;value>ROLE_&lt;/value>&lt;/property>
- *   &lt;property name="convertToUpperCase">&lt;value>true&lt;/value>&lt;/property>
+ *   &lt;property name="searchSubTree" value="false"/>
+ *   &lt;property name="rolePrefix" value="ROLE_"/>
+ *   &lt;property name="convertToUpperCase" value="true"/>
  * &lt;/bean>
  * </pre>
  * A search for roles for user "uid=ben,ou=people,dc=springframework,dc=org" would return the single granted authority
@@ -284,6 +284,10 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         this.groupSearchFilter = groupSearchFilter;
     }
 
+    /**
+     * Sets the prefix which will be prepended to the values loaded from the directory.
+     * Defaults to "ROLE_" for compatibility with <tt>RoleVoter/tt>.
+     */
     public void setRolePrefix(String rolePrefix) {
         Assert.notNull(rolePrefix, "rolePrefix must not be null");
         this.rolePrefix = rolePrefix;
