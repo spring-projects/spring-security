@@ -17,8 +17,6 @@ package org.springframework.security.ldap;
 
 import org.springframework.security.GrantedAuthority;
 
-import org.springframework.security.ldap.LdapDataAccessException;
-
 import org.springframework.ldap.core.DirContextOperations;
 
 
@@ -42,7 +40,6 @@ public interface LdapAuthoritiesPopulator {
      *
      * @return the granted authorities for the given user.
      *
-     * @throws LdapDataAccessException if there is a problem accessing the directory.
      */
     GrantedAuthority[] getGrantedAuthorities(DirContextOperations userData, String username);
 }
