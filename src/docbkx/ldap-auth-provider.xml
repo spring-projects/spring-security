@@ -239,7 +239,7 @@
                     is used, and the login name will be substituted for the parameter
                     <parameter>{0}</parameter>. The pattern should be relative to the DN that the
                     configured
-                    <interfacename>InitialDirContextFactory</interfacename>
+                    <interfacename>SpringSecurityContextSource</interfacename>
                     will bind to (see the section on
                     <link linkend="ldap-context-source">connecting to the LDAP server</link>
                     for more information on this). For example, if you are using an LDAP server with
@@ -323,6 +323,17 @@
                     which will be replaced with the user's login name.</para>
             </section>
         </section>
+        <section xml:id="ldap-authorities">
+            <title>LdapAuthoritiesPopulator</title>
+            <para>
+                After authenticating the user successfully, the <classname>LdapAuthenticationProvider</classname>
+                will attempt to load a set of authorities for the user by calling the configured 
+                <interfacename>LdapAuthoritiesPopulator</interfacename> bean. The <classname>DefaultLdapAuthoritiesPopulator</classname>
+                is an implementation which will load the authorities by searching the directory for groups of which the user is a member
+                (typically these will be <literal>groupOfNames</literal> or <literal>groupOfUniqueNames</literal> entries in the directory).
+                Consult the Javadoc for this class for more details on how it works.
+            </para>
+        </section>
         <section xml:id="ldap-bean-config">
             <info>
                 <title>Spring Bean Configuration</title>
@@ -367,7 +378,7 @@
                 <literal>(member=&lt;user's-DN&gt;)</literal>. The role name will be taken from the
                 <quote>ou</quote>
                 attribute of each match.</para>
-            <para>To configurae a user search object, which uses the filter
+            <para>To configure a user search object, which uses the filter
                 <literal>(uid=&lt;user-login-name&gt;)</literal>
                 for use instead of the DN-pattern (or in addition to it), you would configure the
                 following bean
@@ -403,7 +414,7 @@ public interface UserDetailsContextMapper {
     void mapUserToContext(UserDetails user, DirContextAdapter ctx);
 }]]>                    
                 </programlisting>
-                Only the first method is relevant for authentication. If you provide an implememntation of this, you can
+                Only the first method is relevant for authentication. If you provide an implementation of this interface, you can
                 control exactly how the UserDetails object is created. The first parameter is an instance of Spring LDAP's
                 <interfacename>DirContextOperations</interfacename> which gives you access to the LDAP attributes which were loaded.
                 The <literal>username</literal> parameter is the name used to authenticate and the final parameter is the list of authorities
