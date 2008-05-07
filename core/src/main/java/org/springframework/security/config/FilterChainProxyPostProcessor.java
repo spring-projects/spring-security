@@ -44,7 +44,7 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
     private ListableBeanFactory beanFactory;
     
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if(!beanName.equals(BeanIds.FILTER_CHAIN_PROXY)) {
+        if(!BeanIds.FILTER_CHAIN_PROXY.equals(beanName)) {
             return bean;
         }
         

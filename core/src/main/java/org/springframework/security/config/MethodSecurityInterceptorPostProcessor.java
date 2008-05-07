@@ -23,7 +23,7 @@ public class MethodSecurityInterceptorPostProcessor implements BeanPostProcessor
     private BeanFactory beanFactory;
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if(!beanName.equals(BeanIds.METHOD_SECURITY_INTERCEPTOR)) {
+        if(!BeanIds.METHOD_SECURITY_INTERCEPTOR.equals(beanName)) {
             return bean;
         }
 

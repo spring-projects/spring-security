@@ -33,7 +33,7 @@ public class RememberMeServicesInjectionBeanPostProcessor implements BeanPostPro
                 logger.info("Setting RememberMeServices on bean " + beanName);
                 pf.setRememberMeServices(getRememberMeServices());
             }
-        } else if (beanName.equals(BeanIds.BASIC_AUTHENTICATION_FILTER)) {
+        } else if (BeanIds.BASIC_AUTHENTICATION_FILTER.equals(beanName)) {
             // NB: For remember-me to be sent back, a user must submit a "_spring_security_remember_me" with their login request.
             // Most of the time a user won't present such a parameter with their BASIC authentication request.
             // In the future we might support setting the AbstractRememberMeServices.alwaysRemember = true, but I am reluctant to
