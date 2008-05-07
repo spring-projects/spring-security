@@ -18,6 +18,7 @@ package org.springframework.security.util;
 import org.springframework.security.intercept.web.FilterInvocation;
 
 import org.springframework.security.ui.savedrequest.SavedRequest;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -116,5 +117,9 @@ public final class UrlUtils {
     public static String getRequestUrl(SavedRequest sr) {
         return buildRequestUrl(sr.getServletPath(), sr.getRequestURI(), sr.getContextPath(), sr.getPathInfo(),
             sr.getQueryString());
+    }
+    
+    public static boolean isValidRedirectUrl(String url) {
+    	return !StringUtils.hasText(url) || url.startsWith("/") || url.toLowerCase().startsWith("http");
     }
 }

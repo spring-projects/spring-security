@@ -54,7 +54,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     //~ Methods ========================================================================================================
 
     public void handle(ServletRequest request, ServletResponse response, AccessDeniedException accessDeniedException)
-        throws IOException, ServletException {
+        	throws IOException, ServletException {
         if (errorPage != null) {
             // Put exception into request scope (perhaps of use to a view)
             ((HttpServletRequest) request).setAttribute(SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY,
@@ -80,7 +80,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
      */
     public void setErrorPage(String errorPage) {
         if ((errorPage != null) && !errorPage.startsWith("/")) {
-            throw new IllegalArgumentException("ErrorPage must begin with '/'");
+            throw new IllegalArgumentException("errorPage must begin with '/'");
         }
 
         this.errorPage = errorPage;

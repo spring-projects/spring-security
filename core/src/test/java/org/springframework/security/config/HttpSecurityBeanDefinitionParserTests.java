@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -174,7 +175,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "alwaysUseDefaultTargetUrl"));
     }
 
-    @Test(expected=BeanDefinitionParsingException.class)
+    @Test(expected=BeanCreationException.class)
     public void invalidLoginPageIsDetected() throws Exception {
         setContext(
                 "<http>" +
@@ -182,7 +183,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>" + AUTH_PROVIDER_XML);
     }    
     
-    @Test(expected=BeanDefinitionParsingException.class)
+    @Test(expected=BeanCreationException.class)
     public void invalidDefaultTargetUrlIsDetected() throws Exception {
         setContext(
                 "<http>" +
@@ -190,7 +191,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>" + AUTH_PROVIDER_XML);
     }    
 
-    @Test(expected=BeanDefinitionParsingException.class)
+    @Test(expected=BeanCreationException.class)
     public void invalidLogoutUrlIsDetected() throws Exception {
         setContext(
                 "<http>" +
@@ -199,7 +200,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>" + AUTH_PROVIDER_XML);
     }    
     
-    @Test(expected=BeanDefinitionParsingException.class)
+    @Test(expected=BeanCreationException.class)
     public void invalidLogoutSuccessUrlIsDetected() throws Exception {
         setContext(
                 "<http>" +
@@ -265,7 +266,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals("/access-denied", FieldUtils.getFieldValue(etf, "accessDeniedHandler.errorPage"));
     }
     
-    @Test(expected=BeanDefinitionParsingException.class)
+    @Test(expected=BeanDefinitionStoreException.class)
     public void invalidAccessDeniedUrlIsDetected() throws Exception {
         setContext("<http auto-config='true' access-denied-page='noLeadingSlash'/>" + AUTH_PROVIDER_XML);
     }    

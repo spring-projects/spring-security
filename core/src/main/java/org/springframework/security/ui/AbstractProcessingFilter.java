@@ -21,6 +21,7 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.util.RedirectUtils;
 import org.springframework.security.util.SessionUtils;
+import org.springframework.security.util.UrlUtils;
 
 import org.springframework.security.context.SecurityContextHolder;
 
@@ -43,10 +44,6 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 
 import java.util.Properties;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -215,8 +212,11 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
+        Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");        
         Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
+        Assert.isTrue(UrlUtils.isValidRedirectUrl(defaultTargetUrl), defaultTargetUrl + " isn't a valid redirect URL");        
 //        Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
+        Assert.isTrue(UrlUtils.isValidRedirectUrl(authenticationFailureUrl), authenticationFailureUrl + " isn't a valid redirect URL");
         Assert.notNull(authenticationManager, "authenticationManager must be specified");
         Assert.notNull(rememberMeServices, "rememberMeServices cannot be null");
         Assert.notNull(targetUrlResolver, "targetUrlResolver cannot be null");

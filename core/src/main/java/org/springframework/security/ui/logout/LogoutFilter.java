@@ -26,6 +26,7 @@ import org.springframework.security.Authentication;
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.util.RedirectUtils;
+import org.springframework.security.util.UrlUtils;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -58,6 +59,7 @@ public class LogoutFilter extends SpringSecurityFilter {
     public LogoutFilter(String logoutSuccessUrl, LogoutHandler[] handlers) {
         Assert.notEmpty(handlers, "LogoutHandlers are required");
         this.logoutSuccessUrl = logoutSuccessUrl;
+        Assert.isTrue(UrlUtils.isValidRedirectUrl(logoutSuccessUrl), logoutSuccessUrl + " isn't a valid redirect URL");
         this.handlers = handlers;
     }
 
@@ -161,6 +163,7 @@ public class LogoutFilter extends SpringSecurityFilter {
 
     public void setFilterProcessesUrl(String filterProcessesUrl) {
         Assert.hasText(filterProcessesUrl, "FilterProcessesUrl required");
+        Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");
         this.filterProcessesUrl = filterProcessesUrl;
     }
 

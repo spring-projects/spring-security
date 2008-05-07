@@ -16,6 +16,7 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.afterinvocation.AfterInvocationProviderManager;
 import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.util.UrlUtils;
 import org.springframework.security.vote.AffirmativeBased;
 import org.springframework.security.vote.AuthenticatedVoter;
 import org.springframework.security.vote.RoleVoter;
@@ -180,12 +181,12 @@ public abstract class ConfigUtils {
     
     /**
      * Checks the value of an XML attribute which represents a redirect URL.
-     * If not empty or starting with "/" or "http" it will raise an error. 
+     * If not empty or starting with "$" (potential placeholder), "/" or "http" it will raise an error. 
      */
     static void validateHttpRedirect(String url, ParserContext pc, Object source) {
-    	if (!StringUtils.hasText(url) || url.startsWith("/") || url.toLowerCase().startsWith("http")) {
+    	if (UrlUtils.isValidRedirectUrl(url) || url.startsWith("$")) {
     		return;
     	}
-    	pc.getReaderContext().error(url + " is not a valid redirect URL (must start with '/' or http(s))", source);
+    	pc.getReaderContext().warning(url + " is not a valid redirect URL (must start with '/' or http(s))", source);
     }
 }
