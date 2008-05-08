@@ -342,6 +342,8 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
     public void testLoginSuccessNormalWithNonUserDetailsBasedPrincipal() {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
+        // SEC-822
+        services.setTokenValiditySeconds(5000000);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("d");
         request.addParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER, "true");

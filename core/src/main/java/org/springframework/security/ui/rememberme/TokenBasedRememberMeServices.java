@@ -152,7 +152,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		}
 
 		int tokenLifetime = calculateLoginLifetime(request, successfulAuthentication);
-        long expiryTime = System.currentTimeMillis() + 1000*tokenLifetime;
+        long expiryTime = System.currentTimeMillis() + 1000L*tokenLifetime;
 
         String signatureValue = makeTokenSignature(expiryTime, username, password);
 
