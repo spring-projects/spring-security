@@ -67,12 +67,13 @@
     automation tool. These custom requirements make application security
     interesting, challenging and rewarding.</para>
 
-    <para>This reference guide has been largely restructured for the 1.0.0
-    release of Spring Security (then called Acegi Security). Please read Part
-    I, <link linkend="overall-architecture">Overall Architecture</link>, in
-    its entirety. The remaining parts of the reference guide are structured in
-    a more traditional reference style, designed to be read on an as-required
-    basis.</para>
+    <para>Please read <xref linkend="getting-started"/>, in
+    its entirety to begin with. This will introduce you to the framework and the namespace-based
+    configuration system with which you can get up and running quite quickly. To get more of an understanding
+    of an in-depth understaning of how Spring Security works, and some of the classes you might
+    need to use, you should then read <xref linkend="overall-architecture"/>.
+    The remaining parts of this guide are structured in a more traditional reference style, 
+    designed to be read on an as-required basis.</para>
 
     <para>We hope that you find this reference guide useful, and we welcome
       your feedback and <link xlink:href="#jira">suggestions</link>.</para>
