@@ -174,9 +174,10 @@
                 under the directory entry
                 <literal>ou=groups,dc=springframework,dc=org</literal>, looking for entries which
                 contain the attribute
-                <literal>uniqueMember</literal>
-                with value
-                <literal>uid=ben,ou=people,dc=springframework,dc=org</literal>. For more information
+                <literal>uniqueMember</literal> with value <literal>uid=ben,ou=people,dc=springframework,dc=org</literal>.
+                By default the authority names will have the prefix <literal>ROLE_</literal> prepended. You can
+                change this using the <literal>role-prefix</literal> attribute. If you don't want any prefix, use
+                <literal>role-prefix="none"</literal>. For more information
                 on loading authorities, see the Javadoc for the
                 <classname>DefaultLdapAuthoritiesPopulator</classname>
                 class.
