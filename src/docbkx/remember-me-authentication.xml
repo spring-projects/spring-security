@@ -14,7 +14,13 @@
         these operations to take place, and has two concrete
         remember-me implementations. One uses hashing to preserve the security of
         cookie-based tokens and the other uses a database or other persistent storage
-        mechanism to store the generated tokens.</para>
+        mechanism to store the generated tokens. </para>
+    <para>
+        Note that both implemementations require a <interfacename>UserDetailsService</interfacename>. 
+        If you are using an authentication provider which doesn't use a <interfacename>UserDetailsService</interfacename> 
+        (for example, the LDAP provider) then it won't work unless you also have a <interfacename>UserDetailsService</interfacename> 
+        bean in your application context.
+    </para>
 </section>
     
     <section xml:id="remember-me-hash-token">
@@ -52,10 +58,9 @@
   ]]>
                 </programlisting>
             It is automatically enabled for you if you are using the <link xlink:href="ns-auto-config">auto-config</link> setting.
-            Note that remember-me requires a <interfacename>UserDetailsService</interfacename>. If you are using an authentication
-            provider which doesn't use a <interfacename>UserDetailsService</interfacename> (for example, the LDAP provider) then it won't work
-            unless you also have a <interfacename>UserDetailsService</interfacename> bean in your application context. If you have more than one, 
-            you need to specify which one should be used with the <literal>user-service-ref</literal> attribute. 
+            The <interfacename>UserDetailsService</interfacename> will normally be selected automatically. If you have more than one in
+            your application context, you need to specify which one should be used with the <literal>user-service-ref</literal> attribute,
+            where the value is the name of your <interfacename>UserDetailsService</interfacename> bean.
           </para>
     </section>
     
@@ -78,7 +83,7 @@
     create table persistent_logins (username varchar(64) not null, series varchar(64) primary key, token varchar(64) not null, last_used timestamp not null)    
 </programlisting>                
         </para>
-        <!-- TODO: Add more info on the implementation and behaviour when tokens are stolen etc -->
+        <!-- TODO: Add more info on the implementation and behaviour when tokens are stolen etc. Also some info for admins on invalidating tokens using key, or deleting info from db -->
     </section>    
 
 <section xml:id="remember-me-impls">

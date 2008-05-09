@@ -115,7 +115,7 @@
     </section>
   </section>
   <section xml:id="ns-getting-started">
-    <title>Getting Started with Security Namespace Cofiguration</title>
+    <title>Getting Started with Security Namespace Configuration</title>
     <para>
       In this section, we'll look at how you can build up a namespace configuration to use some of the main
       features of the framework. Let's assume you initially want to get up and running as quickly as possible 
@@ -229,7 +229,18 @@
           These other elements are responsible for setting up form-login, 
           <link xlink:href="#anonymous">anonymous authentication</link>, basic authentication, logout handling and remember-me services
           respectively. They each have attributes which can be used to alter their behaviour.
+        </para>
+        <tip>
+          <title><literal>auto-config</literal> Requires a UserDetailsService</title>
+          <para>An error can occur when using auto-config without a <interfacename>UserDetailsService</interfacename> in
+          your application context (for example, if you are using LDAP authentication). 
+          This is because remember-me is automatically enabled when <literal>auto-config="true"</literal> and it requires
+            an authentication mechanism which uses a <interfacename>UserDetailsService</interfacename> to function (see 
+            the <link xlink:href="#remember-me">Remember-me chapter</link> for more details). If you have an error caused
+            by a missing <interfacename>UserDetailsService</interfacename> then try removing the <literal>auto-config</literal> 
+            setting (and any <literal>remember-me</literal> setting you might have).  
           </para>
+        </tip>
       </section>
       <section xml:id="ns-form-and-basic">
         <title>Form and Basic Login Options</title>
@@ -324,6 +335,11 @@
   </section>
   <section xml:id="ns-web-advanced">
     <title>Advanced Web Features</title>
+    
+    <section xml:id="ns-remember-me">
+      <title>Remember-Me Authentication</title>
+      <para>See the separate <link xlink:href="#remember-me">Remember-Me chapter</link> for information on remember-me namespace configuration.</para>
+    </section>
 
     <section xml:id="ns-requires-channel">
       <title>Adding HTTP/HTTPS Channel Security</title>
