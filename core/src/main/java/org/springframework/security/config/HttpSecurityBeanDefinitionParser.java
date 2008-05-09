@@ -276,8 +276,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             builder.addPropertyValue("observeOncePerRequest", Boolean.FALSE);
         }
         
-        builder.addPropertyValue("objectDefinitionSource", 
-                new DefaultFilterInvocationDefinitionSource(matcher, filterInvocationDefinitionMap));
+        DefaultFilterInvocationDefinitionSource fids = 
+            new DefaultFilterInvocationDefinitionSource(matcher, filterInvocationDefinitionMap);
+        fids.setStripQueryStringFromUrls(matcher instanceof AntUrlPathMatcher);
+        
+        builder.addPropertyValue("objectDefinitionSource", fids);
         pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR, builder.getBeanDefinition());
         ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.FILTER_SECURITY_INTERCEPTOR));
     }
@@ -288,7 +291,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 new RuntimeBeanReference(BeanIds.CHANNEL_DECISION_MANAGER));
         DefaultFilterInvocationDefinitionSource channelFilterInvDefSource =
             new DefaultFilterInvocationDefinitionSource(matcher, channelRequestMap);
-        
+        channelFilterInvDefSource.setStripQueryStringFromUrls(matcher instanceof AntUrlPathMatcher);
         
         channelFilter.getPropertyValues().addPropertyValue("filterInvocationDefinitionSource",
                 channelFilterInvDefSource);

@@ -78,7 +78,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
     DefaultFilterInvocationDefinitionSource(UrlMatcher urlMatcher) {
         this.urlMatcher = urlMatcher;
     }
-
+    
     /**
      * Builds the internal request map from the supplied map. The key elements should be of type {@link RequestKey},
      * which contains a URL path and an optional HTTP method (may be null). The path stored in the key will depend on 
@@ -252,7 +252,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
         return urlMatcher.requiresLowerCaseUrl();
     }
 
-    protected void setStripQueryStringFromUrls(boolean stripQueryStringFromUrls) {
+    public void setStripQueryStringFromUrls(boolean stripQueryStringFromUrls) {
         this.stripQueryStringFromUrls = stripQueryStringFromUrls;
     }
 }

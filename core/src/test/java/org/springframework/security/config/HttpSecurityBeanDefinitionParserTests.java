@@ -83,6 +83,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         List filterList = getFilters("/anyurl");
 
         checkAutoConfigFilters(filterList);
+        assertEquals(true, FieldUtils.getFieldValue(filterList.get(10), "objectDefinitionSource.stripQueryStringFromUrls"));
     }
 
     @Test(expected=BeanDefinitionParsingException.class)
@@ -137,7 +138,9 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "    </http>" + AUTH_PROVIDER_XML);
         assertEquals(0, getFilters("/imlowercase").size());
         // This will be matched by the default pattern ".*"
-        checkAutoConfigFilters(getFilters("/ImCaughtByTheUniversalMatchPattern"));
+        List allFilters = getFilters("/ImCaughtByTheUniversalMatchPattern");
+        checkAutoConfigFilters(allFilters);
+        assertEquals(false, FieldUtils.getFieldValue(allFilters.get(10), "objectDefinitionSource.stripQueryStringFromUrls"));
     }
 
     @Test
