@@ -61,7 +61,7 @@ import java.util.Collection;
  * interceptor. It will also implement the proper handling of secure object invocations, namely:
  * <ol>
  * <li>Obtain the {@link Authentication} object from the {@link SecurityContextHolder}.</li>
- * <li>Determine if the request relates to a secured or public invocation by ooking up the secure object request
+ * <li>Determine if the request relates to a secured or public invocation by looking up the secure object request
  * against the {@link ObjectDefinitionSource}.</li>
  * <li>For an invocation that is secured (there is a
  * <code>ConfigAttributeDefinition</code> for the secure object invocation):
