@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="preauth" xmlns:xlink="http://www.w3.org/1999/xlink">
   <info><title>Pre-Authentication Scenarios</title></info>
-  <s
+  <para>
+    There are situations where you want to use Spring Security for authorization, but the user has already been reliably authenticated
+    by some external system prior to accessing the application. We refer to these situations as <quote>pre-authenticated</quote>
+    scenarios. Examples include X.509, Siteminder and authentication by the J2EE container in which the application is running. 
+    When using pre-authentication, Spring Security has to
+    <orderedlist>
+      <listitem><para>Identify the user making the request.</para></listitem>
+      <listitem><para>Obtain the authorities for the user.</para></listitem>
+    </orderedlist>
+    The details will depend on the external authentication mechanism. A user might be identified by their certificate 
+    information in the case of X.509, or by an HTTP request header, in the case of Siteminder. In some cases, the external
+    mechanism may supply role/authority information for the user but in others the authorities must be obtained from a separate
+    source.
+  </para>
   
+      
   
   
   
