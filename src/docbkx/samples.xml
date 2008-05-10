@@ -1,10 +1,23 @@
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:id="sample-apps">
     
-<info><title xml:id="samples">Sample Applications</title></info>
-
-
-<section xml:id="tutorial-sample">
-    <info><title>Tutorial Sample</title></info>
+<info>
+    <title xml:id="samples">Sample Applications</title>
+</info>
+    <para>
+        There are several sample web applications that are available with the
+        project. To avoid an overly large download, only the "tutorial"
+        and "contacts" samples are included in the distribution file. You can 
+        either build the others yourself, or you can obtain the war files 
+        individually from the central Maven repository. We'd recommend the former.
+        You can get the source as described in <link xlink:href="get-source">the introduction</link>
+        and it's easy to build the project using Maven. There is more information
+        on the project web site at 
+        <link xlink:href="http://www.springframework.org/spring-security/">
+            http://www.springframework.org/spring-security/
+        </link>if you need it.
+    </para>
+    <section xml:id="tutorial-sample">
+    <title>Tutorial Sample</title>
     
     <para> The tutorial sample is a nice basic example to get you started. It uses
         simple namespace configuration throughout.
@@ -23,10 +36,10 @@
         application. Only when this basic integration is achieved do we
         suggest you attempt adding in method authorization or domain object
         security.</para>
-</section>
+    </section>
 
-<section xml:id="contacts-sample">
-    <title xml:id="contacts">Contacts</title>
+    <section xml:id="contacts-sample">
+    <title>Contacts</title>
     
     <para>
         The Contacts Sample is quite an advanced example in that it 
@@ -98,7 +111,27 @@
         URL.</para>
 -->        
         
-</section>
+    </section>
+    
+    <section xml:id="ldap-sample">
+        <title>LDAP Sample</title>
+        <para>
+            The LDAP sample application provides a basic configuration and sets up both a namespace configuration
+            and an equivalent configuration using traditional beans, both in the same application context file.
+            This means there are actually two identical authentication providers configured in this application.
+        </para>
+    </section>
 
+    <section xml:id="cas-sample">
+        <title>CAS Sample</title>
+        <para>
+            The CAS sample requires that you run both a CAS server and CAS client. It isn't included in the distribution so you should check out
+            the project code as described in <link xlink:href="get-source">the introduction</link>. You'll find the relevant files under the 
+            <filename>sample/cas</filename> directory. There's also a <filename>Readme.txt</filename> file in there which explains how to run
+            both the server and the client directly from the source tree, complete with SSL support. You have to download the CAS Server web application 
+            (a war file) from the CAS site and drop it into the <filename>samples/cas/server</filename> directory.
+        </para>
+    </section>
+    
 
 </chapter>
