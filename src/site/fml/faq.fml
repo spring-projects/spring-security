@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <faqs title="Frequently Asked Questions" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-1.x/plugins/faq/faq.xsd">
+      xsi:schemaLocation="http://maven.apache.org/maven-1.x/plugins/faq/faq.xsd">
 
     <part id="general">
     <title>General</title>
@@ -90,5 +90,41 @@
 		</answer>
 		
 		</faq>
-    </part>      
-</faqs>      
+
+    </part>
+    <part>
+     	<title>Common Problems</title>
+ 	    <faq>
+ 	    	<question>My application goes into an "endless loop" when I try to login, what's going on?</question>
+ 	    	<answer><p>A common user problem with infinite loop and redirecting to the login page is caused 
+ 	    		by accidently configuring the login page as a "secured" resource. Make sure your configuration
+ 	    		allows anonymous access to the login page, either by excluding it from the security filter
+ 	    		chain or marking it as requiring ROLE_ANONYMOUS.</p>
+ 	    		<p>If your AccessDecisionManager includes an AutheticatedVoter, you can use the attribute
+ 	    			"IS_AUTHENTICATED_ANONYMOUSLY". This is automatically available if you are using the
+ 	    			standard namespace configuration setup.
+ 	    		</p>
+ 	    		<p>
+ 	    			From Spring Security 2.0.1 onwards, when you are using namespace-based configuration, a check will be made 
+ 	    			on loading the application context and a warning message logged if your login page appears to be protected.
+ 	    		</p>
+ 	    	</answer>
+ 	    </faq>
+    	<faq>
+    		<question>I get an exception with the message "Access is denied (user is anonymous);". What's wrong?</question>
+    		<answer>
+    			<p>
+    			This is a debug level message which occurs the first time an anonymous user attempts to access a protected
+    			resource.
+    			<pre>
+DEBUG [ExceptionTranslationFilter] - Access is denied (user is anonymous); redirecting to authentication entry point
+org.springframework.security.AccessDeniedException: Access is denied
+    at org.springframework.security.vote.AffirmativeBased.decide(AffirmativeBased.java:68)
+    at org.springframework.security.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:262)    				
+    			</pre>
+    				It is normal and shouldn't be anything to worry about.
+    			</p>
+    		</answer>
+    	</faq>
+    </part>
+</faqs>  
