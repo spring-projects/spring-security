@@ -33,6 +33,9 @@
     system, so it's important to understand that they're there, even if
     you don't need to directly interact with them.</para>
 
+
+    <section>
+      <title>SecurityContextHolder, SecurityContext and Authentication Objects</title>
     <para>The most fundamental object is
     <literal>SecurityContextHolder</literal>. This is where we store
     details of the present security context of the application, which
@@ -87,15 +90,25 @@ if (obj instanceof UserDetails) {
     object between <literal>SecurityContextHolder</literal> and
     <literal>Authentication</literal>. The
     <literal>SecurityContextHolder.getContext()</literal> method is
-    actually returning a <literal>SecurityContext</literal>. Spring
+    actually returning a <literal>SecurityContext</literal>. 
+      
+      <!-- Commented out as Captcha sandboxed      
+      Spring
     Security uses a few different <literal>SecurityContext</literal>
     implementations, such as if we need to store special information
-    related to a request that is not principal-specific. A good example of
+    related to a request that is not principal-specific.
+
+    A good example of
     this is our JCaptcha integration, which needs to know whether the
     current request came from a human user or not. Because such a decision
     has nothing at all to do with the principal the request may or may not
     be authenticated as, we store it in the
-    <literal>SecurityContext</literal>.</para>
+    <literal>SecurityContext</literal>. -->
+    </para>
+    </section>
+    
+    <section>
+      <title>The UserDetailsService</title>
 
     <para>Another item to note from the above code fragment is that you
     can obtain a principal from the <literal>Authentication</literal>
@@ -133,6 +146,11 @@ if (obj instanceof UserDetails) {
     whatever your UserDetailsService returns can always be obtained from
     the <literal>SecurityContextHolder</literal>, as per the above code
     fragment.</para>
+    </section>
+    
+    
+    <section xml:id="tech-granted-authority">
+      <title>GrantedAuthority</title>
 
     <para>Besides the principal, another important method provided by
     <literal>Authentication</literal> is
@@ -171,7 +189,12 @@ if (obj instanceof UserDetails) {
     for security purposes. There is simply no justification for doing so -
     always use the <literal>SecurityContextHolder</literal>
     instead.</para>
-
+      
+    </section>
+    
+    
+    <section>
+      <title>Summary</title>
     <para>Just to recap, the major building blocks of Spring Security
     are:</para>
 
@@ -220,6 +243,7 @@ if (obj instanceof UserDetails) {
     <para>Now that you've gained an understanding of these repeatedly-used
     components, let's take a closer look at the process of
     authentication.</para>
+      </section>
   </section>
 
   <section xml:id="common-authentication">
@@ -384,7 +408,8 @@ if (obj instanceof UserDetails) {
     do this, and it is a fully-supported integration approach.</para>
   </section>
 
-  <section xml:id="secure-objects"><info><title>Secure Objects</title></info>
+  <section xml:id="secure-objects">
+    <info><title>Secure Objects</title></info>
     
 
     <para>If you're familiar with AOP, you'd be aware there are different
@@ -501,8 +526,8 @@ if (obj instanceof UserDetails) {
     transparency.</para>
   </section>
 
-  <section xml:id="common-conclusion"><info><title>Conclusion</title></info>
-    
+  <section xml:id="common-conclusion">
+    <info><title>Conclusion</title></info>
 
     <para>Congratulations! You have enough of a high-level picture of
     Spring Security to embark on your project. We've explored the shared
