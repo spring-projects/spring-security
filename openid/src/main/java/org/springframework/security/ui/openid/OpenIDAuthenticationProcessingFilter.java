@@ -78,6 +78,8 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
             throw new AuthenticationServiceException("Consumer error", oice);
         }
 
+        token.setDetails(authenticationDetailsSource.buildDetails(req));
+        
         // delegate to the auth provider
         Authentication authentication = this.getAuthenticationManager().authenticate(token);
 
