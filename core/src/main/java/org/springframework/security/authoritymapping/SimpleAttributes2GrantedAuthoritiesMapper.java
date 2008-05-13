@@ -90,7 +90,7 @@ public class SimpleAttributes2GrantedAuthoritiesMapper implements Attributes2Gra
         return attributePrefix == null ? "" : attributePrefix;
     }
 
-    public void seAttributePrefix(String string) {
+    public void setAttributePrefix(String string) {
         attributePrefix = string;
     }
 
