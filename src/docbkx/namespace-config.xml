@@ -501,7 +501,9 @@
         attribute on the <literal>&lt;http&gt;</literal> element.
       </para>
       <para>
-        The CAS sample is a good example of the use of custom beans with the namespace, including this syntax.
+        The CAS sample is a good example of the use of custom beans with the namespace, including this syntax. If you aren't
+        familiar with authentication entry points, they are discussed in the <link xlink:href="#tech-auth-entry-point">technical
+          overview</link> chapter.
       </para>
     </section>  
     

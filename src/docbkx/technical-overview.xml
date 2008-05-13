@@ -317,22 +317,27 @@ if (obj instanceof UserDetails) {
     <literal>AuthenticationEntryPoint</literal>, an authentication
     mechanism, and an <literal>AuthenticationProvider</literal>.</para>
 
-    <para><literal>ExceptionTranslationFilter</literal> is an Acegi
-    Security filter that has responsibility for detecting any Acegi
-    Security exceptions that are thrown. Such exceptions will generally be
-    thrown by an <literal>AbstractSecurityInterceptor</literal>, which is
-    the main provider of authorization services. We will discuss
-    <literal>AbstractSecurityInterceptor</literal> in the next section,
-    but for now we just need to know that it produces Java exceptions and
-    knows nothing about HTTP or how to go about authenticating a
-    principal. Instead the <literal>ExceptionTranslationFilter</literal>
-    offers this service, with specific responsibility for either returning
-    error code 403 (if the principal has been authenticated and therefore
-    simply lacks sufficient access - as per step seven above), or
-    launching an <literal>AuthenticationEntryPoint</literal> (if the
-    principal has not been authenticated and therefore we need to go
-    commence step three).</para>
+    <section>
+      <title>ExceptionTranslationFilter</title>
+      <para><literal>ExceptionTranslationFilter</literal> is an Acegi
+        Security filter that has responsibility for detecting any Acegi
+        Security exceptions that are thrown. Such exceptions will generally be
+        thrown by an <literal>AbstractSecurityInterceptor</literal>, which is
+        the main provider of authorization services. We will discuss
+        <literal>AbstractSecurityInterceptor</literal> in the next section,
+        but for now we just need to know that it produces Java exceptions and
+        knows nothing about HTTP or how to go about authenticating a
+        principal. Instead the <literal>ExceptionTranslationFilter</literal>
+        offers this service, with specific responsibility for either returning
+        error code 403 (if the principal has been authenticated and therefore
+        simply lacks sufficient access - as per step seven above), or
+        launching an <literal>AuthenticationEntryPoint</literal> (if the
+        principal has not been authenticated and therefore we need to go
+        commence step three).</para>
+    </section>
 
+    <section xml:id="tech-auth-entry-point">
+      <title>AuthenticationEntryPoint</title>
     <para>The <literal>AuthenticationEntryPoint</literal> is responsible
     for step three in the above list. As you can imagine, each web
     application will have a default authentication strategy (well, this
@@ -353,7 +358,9 @@ if (obj instanceof UserDetails) {
     "<literal>Authentication</literal> request" object is built and then
     presented to an
     <interfacename>AuthenticationProvider</interfacename>.</para>
+    </section>
 
+    <section><title>AuthenticationProvider</title>
     <para>The last player in the Spring Security authentication process is
     an <literal>AuthenticationProvider</literal>. Quite simply, it is
     responsible for taking an <literal>Authentication</literal> request
@@ -374,38 +381,42 @@ if (obj instanceof UserDetails) {
     within the <literal>UserDetails</literal> object - will be used when
     building the fully populated <literal>Authentication</literal>
     object.</para>
-
     <para>After the authentication mechanism receives back the
-    fully-populated <literal>Authentication</literal> object, it will deem
-    the request valid, put the <literal>Authentication</literal> into the
-    <literal>SecurityContextHolder</literal>, and cause the original
-    request to be retried (step seven above). If, on the other hand, the
-    <literal>AuthenticationProvider</literal> rejected the request, the
-    authentication mechanism will ask the user agent to retry (step two
-    above).</para>
-
-    <para>Whilst this describes the typical authentication workflow, the
-    good news is that Spring Security doesn't mind how you put an
-    <literal>Authentication</literal> inside the
-    <literal>SecurityContextHolder</literal>. The only critical
-    requirement is that the <literal>SecurityContextHolder</literal>
-    contains an <literal>Authentication</literal> that represents a
-    principal before the <literal>AbstractSecurityInterceptor</literal>
-    needs to authorize a request.</para>
-
-    <para>You can (and many users do) write their own filters or MVC
-    controllers to provide interoperability with authentication systems
-    that are not based on Spring Security. For example, you might be using
-    Container Managed Authentication which makes the current user
-    available from a ThreadLocal or JNDI location. Or you might work for a
-    company that has a legacy proprietary authentication system, which is
-    a corporate "standard" over which you have little control. In such
-    situations it's quite easy to get Spring Security to work, and still
-    provide authorization capabilities. All you need to do is write a
-    filter (or equivalent) that reads the third-party user information
-    from a location, build a Spring Security-specific Authentication
-    object, and put it onto the SecurityContextHolder. It's quite easy to
-    do this, and it is a fully-supported integration approach.</para>
+      fully-populated <literal>Authentication</literal> object, it will deem
+      the request valid, put the <literal>Authentication</literal> into the
+      <literal>SecurityContextHolder</literal>, and cause the original
+      request to be retried (step seven above). If, on the other hand, the
+      <literal>AuthenticationProvider</literal> rejected the request, the
+      authentication mechanism will ask the user agent to retry (step two
+      above).</para>
+      
+    </section>
+    
+    <section>
+      <title>Setting the SecurityContextHolder Contents Directly</title>
+      <para>Whilst this describes the typical authentication workflow, the
+      good news is that Spring Security doesn't mind how you put an
+      <literal>Authentication</literal> inside the
+      <literal>SecurityContextHolder</literal>. The only critical
+      requirement is that the <literal>SecurityContextHolder</literal>
+      contains an <literal>Authentication</literal> that represents a
+      principal before the <literal>AbstractSecurityInterceptor</literal>
+      needs to authorize a request.</para>
+  
+      <para>You can (and many users do) write their own filters or MVC
+      controllers to provide interoperability with authentication systems
+      that are not based on Spring Security. For example, you might be using
+      Container-Managed Authentication which makes the current user
+      available from a ThreadLocal or JNDI location. Or you might work for a
+      company that has a legacy proprietary authentication system, which is
+      a corporate "standard" over which you have little control. In such
+      situations it's quite easy to get Spring Security to work, and still
+      provide authorization capabilities. All you need to do is write a
+      filter (or equivalent) that reads the third-party user information
+      from a location, build a Spring Security-specific Authentication
+      object, and put it onto the SecurityContextHolder. It's quite easy to
+      do this, and it is a fully-supported integration approach.</para>
+    </section>
   </section>
 
   <section xml:id="secure-objects">
