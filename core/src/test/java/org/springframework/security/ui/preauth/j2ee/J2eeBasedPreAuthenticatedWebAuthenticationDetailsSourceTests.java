@@ -130,7 +130,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 		result.setAddPrefixIfAlreadyExisting(false);
 		result.setConvertAttributeToLowerCase(false);
 		result.setConvertAttributeToUpperCase(false);
-		result.seAttributePrefix("");
+		result.setAttributePrefix("");
 		return result;
 	}
 

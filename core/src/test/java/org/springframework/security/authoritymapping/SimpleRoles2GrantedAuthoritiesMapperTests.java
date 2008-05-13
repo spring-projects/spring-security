@@ -65,7 +65,7 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 		String[] expectedGas = { "ROLE_Role1", "ROLE_Role2", "ROLE_ROLE_Role3" };
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = getDefaultMapper();
 		mapper.setAddPrefixIfAlreadyExisting(true);
-		mapper.seAttributePrefix("ROLE_");
+		mapper.setAttributePrefix("ROLE_");
 		testGetGrantedAuthorities(mapper, roles, expectedGas);
 	}
 
@@ -74,7 +74,7 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 		String[] expectedGas = { "ROLE_Role1", "ROLE_Role2", "ROLE_Role3" };
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = getDefaultMapper();
 		mapper.setAddPrefixIfAlreadyExisting(false);
-		mapper.seAttributePrefix("ROLE_");
+		mapper.setAttributePrefix("ROLE_");
 		testGetGrantedAuthorities(mapper, roles, expectedGas);
 	}
 
@@ -83,7 +83,7 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 		String[] expectedGas = { "ROLE_Role1", "ROLE_Role2", "ROLE_role_Role3" };
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = getDefaultMapper();
 		mapper.setAddPrefixIfAlreadyExisting(false);
-		mapper.seAttributePrefix("ROLE_");
+		mapper.setAttributePrefix("ROLE_");
 		testGetGrantedAuthorities(mapper, roles, expectedGas);
 	}
 
@@ -93,7 +93,7 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = getDefaultMapper();
 		mapper.setAddPrefixIfAlreadyExisting(false);
 		mapper.setConvertAttributeToUpperCase(true);
-		mapper.seAttributePrefix("ROLE_");
+		mapper.setAttributePrefix("ROLE_");
 		testGetGrantedAuthorities(mapper, roles, expectedGas);
 	}
 
@@ -111,7 +111,7 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 
 	private SimpleAttributes2GrantedAuthoritiesMapper getDefaultMapper() {
 		SimpleAttributes2GrantedAuthoritiesMapper mapper = new SimpleAttributes2GrantedAuthoritiesMapper();
-		mapper.seAttributePrefix("");
+		mapper.setAttributePrefix("");
 		mapper.setConvertAttributeToLowerCase(false);
 		mapper.setConvertAttributeToUpperCase(false);
 		mapper.setAddPrefixIfAlreadyExisting(false);
