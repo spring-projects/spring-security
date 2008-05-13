@@ -133,5 +133,15 @@
         </para>
     </section>
     
+    <section xml:id="preauth-sample">
+        <title>Pre-Authentication Sample</title>
+        <para>
+            This sample application demonstrates how to wire up beans from the <link xlink:href="#preauth">pre-authentication</link> 
+            framework to make use of login information from a J2EE container. The user 
+            
+            
+        </para>
+    </section>
+    
 
 </chapter>
