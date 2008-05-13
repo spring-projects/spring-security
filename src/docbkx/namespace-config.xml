@@ -526,7 +526,7 @@
         entire application context. You should only declare one <literal>&lt;global-method-security&gt;</literal> element.
         The following declaration would enable support for both types of annotations:
 <programlisting><![CDATA[
-  <global-method-security secured-annotations="enabled" jsr250-annotations="true"/>
+  <global-method-security secured-annotations="enabled" jsr250-annotations="enabled"/>
   ]]>
 </programlisting>        
       </para>
@@ -536,9 +536,9 @@
           The use of <literal>protect-pointcut</literal> is particularly powerful, as it allows you to
           apply security to many beans with only a simple declaration. Consider the following example:
           <programlisting><![CDATA[
-	<global-method-security>
+  <global-method-security>
     <protect-pointcut expression="execution(* com.mycompany.*Service.*(..))" access="ROLE_USER"/>
-	</global-method-security>
+  </global-method-security>
 ]]>
           </programlisting>
           This will protect all methods on beans declared in the application context whose classes
