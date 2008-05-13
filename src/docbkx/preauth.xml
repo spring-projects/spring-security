@@ -1,25 +1,135 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="preauth" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <info><title>Pre-Authentication Scenarios</title></info>
-  <para>
-    There are situations where you want to use Spring Security for authorization, but the user has already been reliably authenticated
-    by some external system prior to accessing the application. We refer to these situations as <quote>pre-authenticated</quote>
-    scenarios. Examples include X.509, Siteminder and authentication by the J2EE container in which the application is running. 
-    When using pre-authentication, Spring Security has to
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="preauth"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <info>
+    <title>Pre-Authentication Scenarios</title>
+  </info>
+  <para> There are situations where you want to use Spring Security for authorization, but the user
+    has already been reliably authenticated by some external system prior to accessing the
+    application. We refer to these situations as <quote>pre-authenticated</quote> scenarios.
+    Examples include X.509, Siteminder and authentication by the J2EE container in which the
+    application is running. When using pre-authentication, Spring Security has to 
     <orderedlist>
-      <listitem><para>Identify the user making the request.</para></listitem>
-      <listitem><para>Obtain the authorities for the user.</para></listitem>
-    </orderedlist>
-    The details will depend on the external authentication mechanism. A user might be identified by their certificate 
-    information in the case of X.509, or by an HTTP request header, in the case of Siteminder. In some cases, the external
-    mechanism may supply role/authority information for the user but in others the authorities must be obtained from a separate
-    source.
+      <listitem>
+        <para>Identify the user making the request. </para>
+      </listitem>
+      <listitem>
+        <para>Obtain the authorities for the user.</para>
+      </listitem>
+    </orderedlist>The details will depend on the external authentication mechanism. A user might be
+    identified by their certificate information in the case of X.509, or by an HTTP request header
+    in the case of Siteminder. If relying on container authentication, the user will be identified
+    by calling the <methodname>getUserPrincipal()</methodname> method on the incoming HTTP request. 
+    In some cases, the external mechanism may supply role/authority information for the user but in 
+    others the authorities must be obtained from a separate source, such as a 
+    <interfacename>UserDetailsService</interfacename>.
   </para>
+  <section>
+    <title>Pre-Authentication Framework Classes</title>
+    <para> Because most pre-authentication mechanisms follow the same pattern, Spring
+      Security has a set of classes which provide an internal framework for implementing
+      pre-authenticated authentication providers. This removes duplication and allows new
+      implementations to be added in a structured fashion, without having to write everything from
+      scratch. You don't need to know about these classes if you want to use something like 
+      <link xlink:href="#x509">X.509 authentication</link>, as it already has a namespace configuration
+      option which is simpler to use and get started with. If you need to use explicit bean confiuration or 
+      are planning on writing your own implementation then an understanding of how the
+      provided implementations work will be useful. You will find the web related classes under the 
+      <package>org.springframework.security.ui.preauth</package> package and the backend classes
+      under <package>org.springframework.security.providers.preauth</package>. We just provide an outline
+      here so you should consult the Javadoc and source where appropriate.
+    </para>
+
+    <section>
+      <title>AbstractPreAuthenticatedProcessingFilter</title>
+      <para>
+         This class will check the current contents of the security context and, if empty, it will attempt to extract 
+         user information from the HTTP request and submit it to the <interfacename>AuthenticationManager</interfacename>.
+         Subclasses override the following methods to obtain this information: 
+<programlisting language="java">
+  protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest request);
   
-      
+  protected abstract Object getPreAuthenticatedCredentials(HttpServletRequest request);
+</programlisting>
+        After calling these, the filter will create a <classname>PreAuthenticatedAuthenticationToken</classname>
+        containing the returned data and submit it for authentication. By <quote>authentication</quote> here, we
+        really just mean further processing to perhaps load the user's authorities, but the standard Spring Security
+        authentication architecture is followed.
+      </para>
+    </section>
+    
+    <section>
+      <title>AbstractPreAuthenticatedAuthenticationDetailsSource</title>
+      <para>
+        Like other Spring Security authentication filters, the pre-authentication filter has an 
+        <literal>authenticationDetailsSource</literal> property which by default will create a
+        <classname>WebAuthenticationDetails</classname> object to store additional information such as
+        the session-identifier and originating IP address in the <literal>details</literal> property of
+        the <interfacename>Authentication</interfacename> object.
+        In cases where user role information can be obtained from the pre-authentication mechanism, the 
+        data is also stored in this property. Subclasses of 
+        <classname>AbstractPreAuthenticatedAuthenticationDetailsSource</classname> use an extended details
+        object which implements the <interfacename>GrantedAuthoritiesContainer</interfacename> interface, thus enabling the 
+        authentication provider to read the authorities which were externally allocated to the user. We'll look at a concrete
+        example next.
+      </para>
+      <section>
+        <title>J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource</title>
+        <para>
+          If the filter is configured with an <literal>authenticationDetailsSource</literal> which is an instance of this
+          class, the authority information is obtained by calling the <methodname>isUserInRole(String role)</methodname> method
+          for each of a pre-determined set of <quote>mappable roles</quote>. The class gets these from a configured
+          <interfacename>MappableAttributesRetriever</interfacename>. Possible implementations include hard-coding a list in the application
+          context and reading the role information from the <literal>&lt;security-role&gt;</literal> information in a 
+          <filename>web.xml</filename> file. The pre-authentication sample application uses the latter approach.
+        </para>
+        <para>There is an additional stage where the roles (or attributes) are mapped to Spring Security
+          <interfacename>GrantedAuthority</interfacename> objects using a configured 
+          <interfacename>Attributes2GrantedAuthoritiesMapper</interfacename>. The default will just add the usual <literal>ROLE_</literal>
+          prefix to the names, but it gives you full control over the behaviour.
+        </para>
+      </section>
+    </section>
+    <section>
+      <title>PreAuthenticatedAuthenticationProvider</title>
+      <para>
+        The pre-authenticated provider has little more to do than load the <interfacename>UserDetails</interfacename>
+        object for the user. It does this by delegating to a <interfacename>AuthenticationUserDetailsService</interfacename>.
+        The latter is similar to the standard <interfacename>UserDetailsService</interfacename> but takes an 
+        <interfacename>Authentication</interfacename> object rather than just user name:
+<programlisting language="java">
+  public interface AuthenticationUserDetailsService {
+    UserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException;
+  }  
+</programlisting>        
+        This interface may have also other uses but with pre-authentication it allows access to the authorities which 
+        were packaged in the <interfacename>Authentication</interfacename> object, as we saw in the previous section.
+        The <classname>PreAuthenticatedGrantedAuthoritiesUserDetailsService</classname> class does this. 
+        Alternatively, it may delegate to a standard <interfacename>UserDetailsService</interfacename> via the
+        <classname>UserDetailsByNameServiceWrapper</classname> implementation. 
+      </para>
+    </section>
+    <section>
+      <title>PreAuthenticatedProcessingFilterEntryPoint</title>
+      <para>
+        The <literal>AuthenticationEntryPoint</literal> was discussed in the <link xlink:href="#tech-auth-entry-point">technical
+        overview</link> chapter. Normally it is responsible for kick-starting the authentication process for an unauthenticated user
+        (when they try to access a protected resource), but in the pre-authenticated case this doesn't apply. You would only
+        configure the <classname>ExceptionTranslationFilter</classname> with an instance of this class if you aren't 
+        using pre-authentication in combination with other authentication mechanisms. 
+        It will be called if the user is rejected by the <classname>AbstractPreAuthenticatedProcessingFilter</classname>  
+        resulting in a null authentication. It always returns a <literal>403</literal>-forbidden response code if called.
+      </para>
+    </section>
+  </section>
   
-  
-  
-  
-  
+  <section>
+    <title>Concrete Implementations</title>
+    <para>
+      TODO.
+    </para>
+  </section>
+
+
+
 </chapter>
