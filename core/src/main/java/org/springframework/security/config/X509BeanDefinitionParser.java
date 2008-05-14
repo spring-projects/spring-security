@@ -45,8 +45,8 @@ public class X509BeanDefinitionParser implements BeanDefinitionParser {
         }
 
         BeanDefinition provider = new RootBeanDefinition(PreAuthenticatedAuthenticationProvider.class);
-        ConfigUtils.getRegisteredProviders(parserContext).add(provider);
         parserContext.getRegistry().registerBeanDefinition(BeanIds.X509_AUTH_PROVIDER, provider);
+        ConfigUtils.getRegisteredProviders(parserContext).add(new RuntimeBeanReference(BeanIds.X509_AUTH_PROVIDER));
 
         String userServiceRef = element.getAttribute(ATT_USER_SERVICE_REF);
 

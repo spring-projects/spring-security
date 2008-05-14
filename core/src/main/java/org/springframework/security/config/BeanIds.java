@@ -1,7 +1,5 @@
 package org.springframework.security.config;
 
-import org.springframework.beans.factory.config.BeanDefinition;
-
 /**
  * Contains all the default Bean IDs created by the namespace support in Spring Security 2.
  * <p>
@@ -18,7 +16,8 @@ public abstract class BeanIds {
     /** Package protected as end users shouldn't really be using this BFPP directly */
 	static final String INTERCEPT_METHODS_BEAN_FACTORY_POST_PROCESSOR = "_interceptMethodsBeanfactoryPP";
     static final String CONTEXT_SOURCE_SETTING_POST_PROCESSOR = "_contextSettingPostProcessor";
-    static final String HTTP_POST_PROCESSOR = "_httpConfigBeanFactoryPostProcessor";
+    static final String ENTRY_POINT_INJECTION_POST_PROCESSOR = "_entryPointInjectionBeanPostProcessor";
+    static final String USER_DETAILS_SERVICE_INJECTION_POST_PROCESSOR = "_userServiceInjectionPostProcessor";
     static final String FILTER_CHAIN_POST_PROCESSOR = "_filterChainProxyPostProcessor";
     static final String FILTER_LIST = "_filterChainList";
 
@@ -63,7 +62,7 @@ public abstract class BeanIds {
     public static final String CONTEXT_SOURCE = "_securityContextSource";
     public static final String PORT_MAPPER = "_portMapper";
     public static final String X509_FILTER = "_x509ProcessingFilter";
-    public static final String X509_AUTH_PROVIDER = "_x509AuthenitcationProvider";
+    public static final String X509_AUTH_PROVIDER = "_x509AuthenticationProvider";
     public static final String PRE_AUTH_ENTRY_POINT = "_preAuthenticatedProcessingFilterEntryPoint";
     public static final String REMEMBER_ME_SERVICES_INJECTION_POST_PROCESSOR = "_rememberMeServicesInjectionBeanPostProcessor";
 

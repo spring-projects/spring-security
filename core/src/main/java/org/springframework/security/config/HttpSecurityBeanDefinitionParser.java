@@ -181,11 +181,14 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             new X509BeanDefinitionParser().parse(x509Elt, parserContext);
         }
 
-        // Register the post processor which will tie up the loose ends in the configuration once the app context has been created and all beans are available.
-        RootBeanDefinition postProcessor = new RootBeanDefinition(HttpSecurityConfigPostProcessor.class);
+        // Register the post processors which will tie up the loose ends in the configuration once the app context has been created and all beans are available.
+        RootBeanDefinition postProcessor = new RootBeanDefinition(EntryPointInjectionBeanPostProcessor.class);
         postProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        registry.registerBeanDefinition(BeanIds.HTTP_POST_PROCESSOR, postProcessor);
-
+        registry.registerBeanDefinition(BeanIds.ENTRY_POINT_INJECTION_POST_PROCESSOR, postProcessor);
+        RootBeanDefinition postProcessor2 = new RootBeanDefinition(UserDetailsServiceInjectionBeanPostProcessor.class);
+        postProcessor2.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        registry.registerBeanDefinition(BeanIds.USER_DETAILS_SERVICE_INJECTION_POST_PROCESSOR, postProcessor2);
+        
         return null;
     }
     

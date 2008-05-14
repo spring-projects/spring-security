@@ -1,6 +1,7 @@
 package org.springframework.security.config;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -87,28 +88,6 @@ public abstract class ConfigUtils {
         parserContext.getRegistry().registerBeanDefinition(BeanIds.AUTHENTICATION_MANAGER, authManager);
 
         return authManager;
-    }
-
-    /**
-     * Obtains a user details service for use in RememberMeServices etc. Will return a caching version
-     * if available so should not be used for beans which need to separate the two. 
-     */
-    static RuntimeBeanReference getUserDetailsService(ConfigurableListableBeanFactory bf) {
-        String[] services = bf.getBeanNamesForType(CachingUserDetailsService.class, false, false);
-        
-        if (services.length == 0) {
-        	services = bf.getBeanNamesForType(UserDetailsService.class);
-        }
-
-        if (services.length == 0) {
-            throw new IllegalArgumentException("No UserDetailsService registered.");
-
-        } else if (services.length > 1) {
-            throw new IllegalArgumentException("More than one UserDetailsService registered. Please " +
-                    "use a specific Id in your configuration");
-        }
-
-        return new RuntimeBeanReference(services[0]);
     }
 
     static ManagedList getRegisteredProviders(ParserContext parserContext) {
