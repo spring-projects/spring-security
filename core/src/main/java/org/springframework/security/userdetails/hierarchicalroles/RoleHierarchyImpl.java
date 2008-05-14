@@ -126,7 +126,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
      * references a set of the reachable lower roles.
      */
     private void buildRolesReachableInOneStepMap() {
-        String parsingRegex = "(\\s*(\\w+)\\s*\\>\\s*(\\w+))";
+        String parsingRegex = "(\\s*([^\\s>]+)\\s*\\>\\s*([^\\s>]+))";
         Pattern pattern = Pattern.compile(parsingRegex);
 
         Matcher roleHierarchyMatcher = pattern.matcher(roleHierarchyStringRepresentation);
