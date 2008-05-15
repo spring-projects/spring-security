@@ -42,16 +42,6 @@ public final class UrlUtils {
      * Obtains the full URL the client used to make the request.<p>Note that the server port will not be shown
      * if it is the default server port for HTTP or HTTPS (ie 80 and 443 respectively).</p>
      *
-     * @param scheme DOCUMENT ME!
-     * @param serverName DOCUMENT ME!
-     * @param serverPort DOCUMENT ME!
-     * @param contextPath DOCUMENT ME!
-     * @param requestUrl DOCUMENT ME!
-     * @param servletPath DOCUMENT ME!
-     * @param requestURI DOCUMENT ME!
-     * @param pathInfo DOCUMENT ME!
-     * @param queryString DOCUMENT ME!
-     *
      * @return the full URL
      */
     private static String buildFullRequestUrl(String scheme, String serverName, int serverPort, String contextPath,
@@ -73,12 +63,6 @@ public final class UrlUtils {
 
     /**
      * Obtains the web application-specific fragment of the URL.
-     *
-     * @param servletPath DOCUMENT ME!
-     * @param requestURI DOCUMENT ME!
-     * @param contextPath DOCUMENT ME!
-     * @param pathInfo DOCUMENT ME!
-     * @param queryString DOCUMENT ME!
      *
      * @return the URL, excluding any server name, context path or servlet path
      */
