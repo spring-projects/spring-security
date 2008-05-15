@@ -1,6 +1,10 @@
 package org.springframework.security.config;
 
-import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
@@ -8,7 +12,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedSet;
-import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.util.StringUtils;
 
 import org.w3c.dom.Element;
@@ -20,7 +23,9 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  */
 public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
-    private Log logger = LogFactory.getLog(getClass());
+	private static final String CONTEXT_SOURCE_CLASS="org.springframework.security.ldap.DefaultSpringSecurityContextSource";
+	
+    private final Log logger = LogFactory.getLog(getClass());
 
     /** Defines the Url of the ldap server to use. If not specified, an embedded apache DS instance will be created */
     private static final String ATT_URL = "url";
@@ -53,7 +58,8 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
         if (!StringUtils.hasText(url)) {
             contextSource = createEmbeddedServer(elt, parserContext);
         } else {
-            contextSource = new RootBeanDefinition(DefaultSpringSecurityContextSource.class);
+            contextSource = new RootBeanDefinition();
+            contextSource.setBeanClassName(CONTEXT_SOURCE_CLASS);
             contextSource.getConstructorArgumentValues().addIndexedArgumentValue(0, url);
         }
 
@@ -92,17 +98,22 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
      */
     private RootBeanDefinition createEmbeddedServer(Element element, ParserContext parserContext) {
         Object source = parserContext.extractSource(element);
-        BeanDefinitionBuilder configuration = BeanDefinitionBuilder.rootBeanDefinition("org.apache.directory.server.configuration.MutableServerStartupConfiguration");
-        BeanDefinitionBuilder partition = BeanDefinitionBuilder.rootBeanDefinition("org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration");
+        BeanDefinitionBuilder configuration = 
+        	BeanDefinitionBuilder.rootBeanDefinition("org.apache.directory.server.configuration.MutableServerStartupConfiguration");
+        BeanDefinitionBuilder partition = 
+        	BeanDefinitionBuilder.rootBeanDefinition("org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration");
         configuration.setSource(source);
         partition.setSource(source);
-
-        DirContextAdapter rootContext = new DirContextAdapter();
-        rootContext.setAttributeValues("objectClass", new String[] {"top", "domain", "extensibleObject"});
-        rootContext.setAttributeValue("dc", "springsecurity");
+        
+        Attributes rootAttributes = new BasicAttributes("dc", "springsecurity");
+        Attribute a = new BasicAttribute("objectClass");
+        a.add("top");
+        a.add("domain");
+        a.add("extensibleObject");
+        rootAttributes.put(a);
 
         partition.addPropertyValue("name", "springsecurity");
-        partition.addPropertyValue("contextEntry", rootContext.getAttributes());
+        partition.addPropertyValue("contextEntry", rootAttributes);
 
         String suffix = element.getAttribute(ATT_ROOT_SUFFIX);
 
@@ -131,15 +142,15 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 
         String url = "ldap://127.0.0.1:" + port + "/" + suffix;
 
-        RootBeanDefinition contextSource = new RootBeanDefinition(DefaultSpringSecurityContextSource.class);
-        contextSource.getConstructorArgumentValues().addIndexedArgumentValue(0, url);
-        contextSource.getPropertyValues().addPropertyValue("userDn", "uid=admin,ou=system");
-        contextSource.getPropertyValues().addPropertyValue("password", "secret");
+        BeanDefinitionBuilder contextSource = BeanDefinitionBuilder.rootBeanDefinition(CONTEXT_SOURCE_CLASS);
+        contextSource.addConstructorArg(url);
+        contextSource.addPropertyValue("userDn", "uid=admin,ou=system");
+        contextSource.addPropertyValue("password", "secret");
 
         RootBeanDefinition apacheContainer = new RootBeanDefinition("org.springframework.security.config.ApacheDSContainer", null, null);
         apacheContainer.setSource(source);
         apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(configuration.getBeanDefinition());
-        apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(contextSource);
+        apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(contextSource.getBeanDefinition());
 
         String ldifs = element.getAttribute(ATT_LDIF_FILE);
         if (!StringUtils.hasText(ldifs)) {
@@ -157,6 +168,6 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.EMBEDDED_APACHE_DS, apacheContainer);
 
-        return contextSource;
+        return (RootBeanDefinition) contextSource.getBeanDefinition();
     }
 }
