@@ -161,9 +161,7 @@
 
     <xi:include href="dao-auth-provider.xml" />    
 
-    <xi:include href="jaas-auth-provider.xml" />
-
-    <xi:include href="runas-auth-provider.xml" />
+    <xi:include href="ldap-auth-provider.xml"/>
     
     <xi:include href="form-authentication.xml" />
     
@@ -171,15 +169,19 @@
     
     <xi:include href="digest-authentication.xml" />
     
-    <xi:include href="remember-me-authentication.xml" />    
+    <xi:include href="remember-me-authentication.xml" />
+
+    <xi:include href="jaas-auth-provider.xml" />
+    
+    <xi:include href="preauth.xml" />    
     
     <xi:include href="anon-auth-provider.xml" />    
 
     <xi:include href="x509-auth-provider.xml"/>
 
-    <xi:include href="ldap-auth-provider.xml"/>
-
     <xi:include href="cas-auth-provider.xml"/>
+
+    <xi:include href="runas-auth-provider.xml" />
 
     <xi:include href="container-adapters.xml"/>
 

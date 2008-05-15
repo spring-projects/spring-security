@@ -137,9 +137,10 @@
         <title>Pre-Authentication Sample</title>
         <para>
             This sample application demonstrates how to wire up beans from the <link xlink:href="#preauth">pre-authentication</link> 
-            framework to make use of login information from a J2EE container. The user 
-            
-            
+            framework to make use of login information from a J2EE container. The user name and roles are those setup by the container.
+        </para>
+        <para>
+            The code is in <filename>samples/preauth</filename>.
         </para>
     </section>
     

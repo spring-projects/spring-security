@@ -73,7 +73,7 @@
         authentication provider to read the authorities which were externally allocated to the user. We'll look at a concrete
         example next.
       </para>
-      <section>
+      <section xml:id="j2ee-preauth-details">
         <title>J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource</title>
         <para>
           If the filter is configured with an <literal>authenticationDetailsSource</literal> which is an instance of this
@@ -126,10 +126,37 @@
   <section>
     <title>Concrete Implementations</title>
     <para>
-      TODO.
+      X.509 authentication is covered in its <link xlink:href="#x509">own chapter</link>. Here we'll look at some classes
+      which provide support for other pre-authenticated scenarios. 
     </para>
+    
+    <section>
+      <title>Request-Header Authentication (Siteminder)</title>
+      <para>
+        An external authentication system may supply information to the application by setting specific headers on the HTTP request.
+        A well known example of this is is Siteminder, which passes the username in a header called <literal>SM_USER</literal>.
+        This mechanism is supported by the class <classname>RequestHeaderPreAuthenticatedProcessingFilter</classname> which
+        simply extracts the username from the header. It defaults to using the name <literal>SM_USER</literal> as the
+        header name. See the Javadoc for more details. 
+      </para>
+      <tip>
+        <para>Note that when using a system like this, the framework performs no authentication checks at all and 
+          it is <emphasis>extremely</emphasis> important that the external system is configured properly and protects all
+          access to the application. If an attacker is able to forge the headers in their original request without this being
+          detected then they could potentially choose any userame they wished.
+        </para> 
+      </tip>
+    </section>
+    
+    <section>
+      <title>J2EE Container Authentication</title>
+      <para>
+        The class <classname>J2eePreAuthenticatedProcessingFilter</classname> will extract the username from the 
+        <literal>userPrincipal</literal> property of the <interfacename>HttpServletRequest</interfacename>. use of this
+        filter would usually be combined with the use of J2EE roles as described above in <xref linkend="j2ee-preauth-details"/>. 
+      </para>
+      
+    </section>
   </section>
-
-
 
 </chapter>
