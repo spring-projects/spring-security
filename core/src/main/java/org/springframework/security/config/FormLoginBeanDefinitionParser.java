@@ -1,5 +1,6 @@
 package org.springframework.security.config;
 
+import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -54,6 +55,18 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         
         Object source = null;
 
+        // Copy values from the session fixation protection filter        
+        final Boolean sessionFixationProtectionEnabled = 
+            new Boolean(pc.getRegistry().containsBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER));
+        Boolean migrateSessionAttributes = Boolean.FALSE;
+        
+        if (sessionFixationProtectionEnabled.booleanValue()) {
+            PropertyValue pv = 
+                    pc.getRegistry().getBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER)
+                        .getPropertyValues().getPropertyValue("migrateSessionAttributes");
+            migrateSessionAttributes = (Boolean)pv.getValue(); 
+        }        
+        
         if (elt != null) {
         	source = pc.extractSource(elt);
             loginUrl = elt.getAttribute(ATT_LOGIN_URL);
@@ -79,9 +92,19 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         filterBean.getPropertyValues().addPropertyValue("authenticationManager",
                 new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
         
+        filterBean.getPropertyValues().addPropertyValue("invalidateSessionOnSuccessfulAuthentication", 
+                sessionFixationProtectionEnabled);
+        filterBean.getPropertyValues().addPropertyValue("migrateInvalidatedSessionAttributes", 
+                migrateSessionAttributes);            
+        
         if (pc.getRegistry().containsBeanDefinition(BeanIds.REMEMBER_ME_SERVICES)) {
             filterBean.getPropertyValues().addPropertyValue("rememberMeServices", 
                     new RuntimeBeanReference(BeanIds.REMEMBER_ME_SERVICES) );
+        }
+        
+        if (pc.getRegistry().containsBeanDefinition(BeanIds.SESSION_REGISTRY)) {
+            filterBean.getPropertyValues().addPropertyValue("sessionRegistry", 
+                    new RuntimeBeanReference(BeanIds.SESSION_REGISTRY));
         }
 
         BeanDefinitionBuilder entryPointBuilder =

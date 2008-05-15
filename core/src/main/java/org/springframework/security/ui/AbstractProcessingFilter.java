@@ -23,6 +23,7 @@ import org.springframework.security.util.RedirectUtils;
 import org.springframework.security.util.SessionUtils;
 import org.springframework.security.util.UrlUtils;
 
+import org.springframework.security.concurrent.SessionRegistry;
 import org.springframework.security.context.SecurityContextHolder;
 
 import org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent;
@@ -207,6 +208,8 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     private boolean allowSessionCreation = true;
     
     private boolean serverSideRedirect = false;
+    
+    private SessionRegistry sessionRegistry;
 
     //~ Methods ========================================================================================================
 
@@ -355,7 +358,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         }
 
         if (invalidateSessionOnSuccessfulAuthentication) {
-            SessionUtils.startNewSessionIfRequired(request, migrateInvalidatedSessionAttributes, null);
+            SessionUtils.startNewSessionIfRequired(request, migrateInvalidatedSessionAttributes, sessionRegistry);
         }
 
         String targetUrl = determineTargetUrl(request);
@@ -567,5 +570,13 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
      */	
 	public void setServerSideRedirect(boolean serverSideRedirect) {
 		this.serverSideRedirect = serverSideRedirect;
-	}	
+	}
+
+	/**
+	 * The session registry needs to be set if session fixation attack protection is in use (and concurrent 
+	 * session control is enabled).
+	 */
+    public void setSessionRegistry(SessionRegistry sessionRegistry) {
+        this.sessionRegistry = sessionRegistry;
+    }
 }
