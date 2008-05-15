@@ -96,8 +96,7 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         Iterator filters = filterList.iterator();
 
-        assertTrue(filters.next() instanceof HttpSessionContextIntegrationFilter);
-        assertTrue(filters.next() instanceof SessionFixationProtectionFilter);        
+        assertTrue(filters.next() instanceof HttpSessionContextIntegrationFilter);     
         assertTrue(filters.next() instanceof LogoutFilter);
         Object authProcFilter = filters.next();
         assertTrue(authProcFilter instanceof AuthenticationProcessingFilter);
@@ -112,6 +111,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof RememberMeProcessingFilter);
         assertTrue(filters.next() instanceof AnonymousProcessingFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
+        assertTrue(filters.next() instanceof SessionFixationProtectionFilter);           
         Object fsiObj = filters.next();
         assertTrue(fsiObj instanceof FilterSecurityInterceptor);
         FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) fsiObj;
@@ -173,7 +173,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "   <form-login default-target-url='/default' always-use-default-target='true' />" +
                 "</http>" + AUTH_PROVIDER_XML);
         // These will be matched by the default pattern "/**"
-        AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) getFilters("/anything").get(2);
+        AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) getFilters("/anything").get(1);
         assertEquals("/default", filter.getDefaultTargetUrl());
         assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "alwaysUseDefaultTargetUrl"));
     }
@@ -264,7 +264,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         setContext("<http access-denied-page='/access-denied'><http-basic /></http>" + AUTH_PROVIDER_XML);
         List filters = getFilters("/someurl");
         
-        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) filters.get(filters.size() - 2);
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) filters.get(filters.size() - 3);
         
         assertEquals("/access-denied", FieldUtils.getFieldValue(etf, "accessDeniedHandler.errorPage"));
     }
@@ -324,7 +324,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals(14, filters.size());
         assertTrue(filters.get(0) instanceof MockFilter);        
         assertTrue(filters.get(1) instanceof SecurityContextHolderAwareRequestFilter);
-        assertTrue(filters.get(5) instanceof SecurityContextHolderAwareRequestFilter);
+        assertTrue(filters.get(4) instanceof SecurityContextHolderAwareRequestFilter);
     }
     
     @Test(expected=BeanCreationException.class)
@@ -368,7 +368,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>"  + AUTH_PROVIDER_XML);
         List filters = getFilters("/someurl");
 
-        assertTrue(filters.get(3) instanceof X509PreAuthenticatedProcessingFilter);
+        assertTrue(filters.get(2) instanceof X509PreAuthenticatedProcessingFilter);
     }
 
     @Test
@@ -422,7 +422,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='entryPoint' class='org.springframework.security.MockAuthenticationEntryPoint'>" +
                 "    <b:constructor-arg value='/customlogin'/>" +
                 "</b:bean>" + AUTH_PROVIDER_XML);
-        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilters("/someurl").get(9);
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilters("/someurl").get(8);
         assertTrue("ExceptionTranslationFilter should be configured with custom entry point", 
                 etf.getAuthenticationEntryPoint() instanceof MockAuthenticationEntryPoint);
     }

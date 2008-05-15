@@ -6,24 +6,23 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.AuthenticationTrustResolverImpl;
 import org.springframework.security.concurrent.SessionRegistry;
+import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.util.SessionUtils;
 
 /**
  * Detects that a user has been authenticated since the start of the request and starts a new session.
  * <p>
- * This is essentially a generalization of the functionality that was implemented for SEC-399. Additionally, it will
- * update the configured SessionRegistry if one is in use, thus preventing problems when used with Spring Security's
- * concurrent session control.
- * <p>
- * If the response has already been committed when the filter checks the authentication state, then it isn't possible 
- * to create a new session and the filter will print a warning to that effect. 
+ * This is essentially a generalization of the functionality that was implemented for SEC-399. 
+ * Additionally, it will update the configured SessionRegistry if one is in use, thus preventing problems when used 
+ * with Spring Security's concurrent session control. 
  * 
  * @author Martin Algesten
  * @author Luke Taylor
@@ -55,22 +54,17 @@ public class SessionFixationProtectionFilter extends SpringSecurityFilter {
         }
         
         request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
-                
-        if (isAuthenticated()) {
-            // We don't have to worry about session fixation attack if already authenticated 
-            chain.doFilter(request, response);
-            return;            
-        }
+
+        HttpSession session = request.getSession();
+        SecurityContext sessionSecurityContext = 
+            (SecurityContext) session.getAttribute(HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY);
         
-        SessionFixationProtectionResponseWrapper wrapper = 
-            new SessionFixationProtectionResponseWrapper(response, request);
-        try {
-            chain.doFilter(request, wrapper);
-        } finally {
-            if (!wrapper.isNewSessionStarted()) {
-                startNewSessionIfRequired(request, response);
-            }
+        if (sessionSecurityContext == null && isAuthenticated()) {
+            // The user has been authenticated during the current request, so do the session migration
+            startNewSessionIfRequired(request, response);
         }
+
+        chain.doFilter(request, response);
     }
     
     private boolean isAuthenticated() {
@@ -92,83 +86,12 @@ public class SessionFixationProtectionFilter extends SpringSecurityFilter {
     }
     
     /**
-     * Called when the an initially unauthenticated request completes or a redirect or sendError occurs.
+     * Called when the a user wasn't authenticated at the start of the request but has been during it
      * <p>
-     * If the user is now authenticated, a new session will be created, the session attributes copied to it (if 
-     * <tt>migrateSessionAttributes</tt> is set and the sessionRegistry updated with the new session information.
+     * A new session will be created, the session attributes copied to it (if 
+     * <tt>migrateSessionAttributes</tt> is set) and the sessionRegistry updated with the new session information.
      */
-    protected void startNewSessionIfRequired(HttpServletRequest request, HttpServletResponse response) {
-        if (isAuthenticated()) {
-            if (request.getSession(false) != null && response.isCommitted()) {
-                logger.warn("Response is already committed. Unable to create new session.");
-            }
-            
-            SessionUtils.startNewSessionIfRequired(request, migrateSessionAttributes, sessionRegistry);
-        }
-    }
-    
-    /**
-     * Response wrapper to handle the situation where we need to migrate the session after a redirect or sendError.
-     * Similar in function to Martin Algesten's OnRedirectUpdateSessionResponseWrapper used in 
-     * HttpSessionContextIntegrationFilter.
-     * <p>
-     * Only used to wrap the response if the conditions are right at the start of the request to potentially 
-     * require starting a new session, i.e. that the user isn't authenticated and a session existed to begin with.  
-     */
-    class SessionFixationProtectionResponseWrapper extends HttpServletResponseWrapper {
-        private HttpServletRequest request;
-        private boolean newSessionStarted;
-
-        SessionFixationProtectionResponseWrapper(HttpServletResponse response, HttpServletRequest request) {
-            super(response);
-            this.request = request;
-        }
-        
-        /**
-         * Makes sure a new session is created before calling the
-         * superclass <code>sendError()</code>
-         */
-        public void sendError(int sc) throws IOException {
-            startNewSession();
-            super.sendError(sc);
-        }
-
-        /**
-         * Makes sure a new session is created before calling the
-         * superclass <code>sendError()</code>
-         */
-        public void sendError(int sc, String msg) throws IOException {
-            startNewSession();
-            super.sendError(sc, msg);
-        }
-
-        /**
-         * Makes sure a new session is created before calling the
-         * superclass <code>sendRedirect()</code>
-         */
-        public void sendRedirect(String location) throws IOException {
-            startNewSession();
-            super.sendRedirect(location);
-        }
-        
-        public void flushBuffer() throws IOException {
-            startNewSession();
-            super.flushBuffer();
-        }
-
-        /**
-         * Calls <code>startNewSessionIfRequired()</code>
-         */
-        private void startNewSession() {
-            if (newSessionStarted) {
-                return;
-            }
-            startNewSessionIfRequired(request, this);
-            newSessionStarted = true;
-        }
-
-        boolean isNewSessionStarted() {
-            return newSessionStarted;
-        }
+    protected void startNewSessionIfRequired(HttpServletRequest request, HttpServletResponse response) {            
+        SessionUtils.startNewSessionIfRequired(request, migrateSessionAttributes, sessionRegistry);
     }
 }

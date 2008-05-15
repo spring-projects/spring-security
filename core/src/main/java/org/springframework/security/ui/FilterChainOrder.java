@@ -22,8 +22,7 @@ public abstract class FilterChainOrder {
 
     public static final int CHANNEL_FILTER              = FILTER_CHAIN_FIRST;
     public static final int CONCURRENT_SESSION_FILTER   = FILTER_CHAIN_FIRST + INTERVAL * i++;
-    public static final int HTTP_SESSION_CONTEXT_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
-    public static final int SESSION_FIXATION_FILTER     = FILTER_CHAIN_FIRST + INTERVAL * i++;    
+    public static final int HTTP_SESSION_CONTEXT_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;    
     public static final int LOGOUT_FILTER               = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int X509_FILTER                 = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int PRE_AUTH_FILTER             = FILTER_CHAIN_FIRST + INTERVAL * i++;
@@ -37,6 +36,7 @@ public abstract class FilterChainOrder {
     public static final int ANONYMOUS_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int EXCEPTION_TRANSLATION_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int NTLM_FILTER                 = FILTER_CHAIN_FIRST + INTERVAL * i++;
+    public static final int SESSION_FIXATION_FILTER     = FILTER_CHAIN_FIRST + INTERVAL * i++;    
     public static final int FILTER_SECURITY_INTERCEPTOR = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int SWITCH_USER_FILTER          = FILTER_CHAIN_FIRST + INTERVAL * i++;
 
@@ -46,7 +46,6 @@ public abstract class FilterChainOrder {
         filterNameToOrder.put("FIRST", new Integer(Integer.MIN_VALUE));
         filterNameToOrder.put("CHANNEL_FILTER", new Integer(CHANNEL_FILTER));
         filterNameToOrder.put("CONCURRENT_SESSION_FILTER", new Integer(CONCURRENT_SESSION_FILTER));
-        filterNameToOrder.put("SESSION_CONTEXT_INTEGRATION_FILTER", new Integer(HTTP_SESSION_CONTEXT_FILTER));
         filterNameToOrder.put("LOGOUT_FILTER", new Integer(LOGOUT_FILTER));
         filterNameToOrder.put("X509_FILTER", new Integer(X509_FILTER));
         filterNameToOrder.put("PRE_AUTH_FILTER", new Integer(PRE_AUTH_FILTER));
@@ -59,6 +58,7 @@ public abstract class FilterChainOrder {
         filterNameToOrder.put("ANONYMOUS_FILTER", new Integer(ANONYMOUS_FILTER));
         filterNameToOrder.put("EXCEPTION_TRANSLATION_FILTER", new Integer(EXCEPTION_TRANSLATION_FILTER));
         filterNameToOrder.put("NTLM_FILTER", new Integer(NTLM_FILTER));
+        filterNameToOrder.put("SESSION_CONTEXT_INTEGRATION_FILTER", new Integer(HTTP_SESSION_CONTEXT_FILTER));        
         filterNameToOrder.put("FILTER_SECURITY_INTERCEPTOR", new Integer(FILTER_SECURITY_INTERCEPTOR));
         filterNameToOrder.put("SWITCH_USER_FILTER", new Integer(SWITCH_USER_FILTER));
         filterNameToOrder.put("LAST", new Integer(Integer.MAX_VALUE));
