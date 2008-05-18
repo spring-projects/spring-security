@@ -251,7 +251,7 @@ intercept-url.attlist &=
     attribute method {"GET" | "DELETE" | "HEAD" | "OPTIONS" | "POST" | "PUT" | "TRACE"}?
 
 intercept-url.attlist &=
-    ## The filter list for the path. Currently can be set to "none" to remove a path from having any filters applied. The full filter stack (consisting of all defined filters, will be applied to any other paths).
+    ## The filter list for the path. Currently can be set to "none" to remove a path from having any filters applied. The full filter stack (consisting of all filters created by the namespace configuration, and any added using 'custom-filter'), will be applied to any other paths.
     attribute filters {"none"}?
 intercept-url.attlist &=
     ## Used to specify that a URL must be accessed over http or https
