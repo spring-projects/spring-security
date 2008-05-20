@@ -26,11 +26,11 @@
     instead are hard-coded in English within Spring Security's
     code.</para>
 
-    <para>Shipping in the <literal>acegi-security-xx.jar</literal> you
+    <para>Shipping in the <literal>spring-security-core-xx.jar</literal> you
     will find an <literal>org.springframework.security</literal> package
     that in turn contains a <literal>messages.properties</literal> file.
     This should be referred to by your
-    <literal>ApplicationContext</literal>, as Acegi Security classes
+    <literal>ApplicationContext</literal>, as Spring Security classes
     implement Spring's <literal>MessageSourceAware</literal> interface and
     expect the message resolver to be dependency injected at application
     context startup time. Usually all you need to do is register a bean
@@ -39,7 +39,7 @@
 
     <para><programlisting><![CDATA[
 <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-  <property name="basename" value="org/acegisecurity/messages"/>
+  <property name="basename" value="org/springframework/security/messages"/>
 </bean>
 ]]></programlisting></para>
 

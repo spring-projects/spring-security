@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="namespace-config" xmlns:xlink="http://www.w3.org/1999/xlink">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="ns-config" xmlns:xlink="http://www.w3.org/1999/xlink">
   <info>
     <title>Security Namespace Configuration</title>
   </info>
@@ -151,7 +151,7 @@
     </section>
     
     <section xml:id="ns-minimal">
-      <title>A Minimal <literal>&lt;http&gt;</literal>Configuration</title>
+      <title>A Minimal <literal>&lt;http&gt;</literal> Configuration</title>
       <para>
  All you need to enable web security to begin with is
         <programlisting><![CDATA[
@@ -196,7 +196,8 @@
         The configuration above defines two users, their passwords and their roles within the application (which will
         be used for access control). It is also possible to load user information from
         a standard properties file using the <literal>properties</literal> attribute on 
-        <literal>user-service</literal>. See <link xlink:href="#in-memory-service"/> for more details. 
+        <literal>user-service</literal>. See the section on 
+        <link xlink:href="#in-memory-service">in-memory authentication</link> for more details. 
         Using the <literal>&lt;authentication-provider&gt;</literal>
         element means that the user information will be used by the authentication
         manager to process authentication requests.        

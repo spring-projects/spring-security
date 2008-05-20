@@ -145,7 +145,7 @@
       <para>
         With some exceptions, we will be discussing the full details of Spring Security
         bean configuration rather than the shorthand
-        <link xlink:href="#namespace-config">namespace syntax</link>. You should review
+        <link xlink:href="#ns-config">namespace syntax</link>. You should review
         the introduction to using namespace configuration and the options it provides
         to see if they will meet your needs. As you come to use the framework more,
         and need to customize the internal behaviour, you will probably want to understand

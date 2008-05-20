@@ -141,10 +141,11 @@
 <bean id="rememberMeProcessingFilter"
     class="org.springframework.security.ui.rememberme.RememberMeProcessingFilter">
   <property name="rememberMeServices" ref="rememberMeServices"/>
+  <property name="authenticationManager" ref="theAuthenticationManager" />    
 </bean>
         
 <bean id="rememberMeServices" class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices">
-  <property name="userDetailsService" ref="jdbcDaoImpl"/>
+  <property name="userDetailsService" ref="myUserDetailsService"/>
   <property name="key" value="springRocks"/>
 </bean>
         
@@ -161,7 +162,7 @@
                 <literal>AuthenticationManager.setProviders()</literal> list, and add
                 <literal>RememberMeProcessingFilter</literal> into your
                 <literal>FilterChainProxy</literal> (typically immediately after your
-                <literal>AuthenticationProcessingFilter</literal>)</para>            
+                <literal>AuthenticationProcessingFilter</literal>).</para>           
         </section>
         <section>
             <title>PersistentTokenBasedRememberMeServices</title>
