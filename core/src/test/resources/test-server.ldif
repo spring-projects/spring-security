@@ -48,6 +48,16 @@ sn: Smeth
 uid: joe
 userPassword: joespassword
 
+dn: cn=mouse\, jerry,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Mouse, Jerry
+sn: Mouse
+uid: jerry
+userPassword: jerryspassword
+
 dn: cn=developers,ou=groups,dc=springframework,dc=org
 objectclass: top
 objectclass: groupOfNames
@@ -62,6 +72,7 @@ objectclass: groupOfNames
 cn: managers
 ou: manager
 member: uid=ben,ou=people,dc=springframework,dc=org
+member: cn=mouse\, jerry,ou=people,dc=springframework,dc=org
 
 dn: cn=submanagers,ou=subgroups,ou=groups,dc=springframework,dc=org
 objectclass: top

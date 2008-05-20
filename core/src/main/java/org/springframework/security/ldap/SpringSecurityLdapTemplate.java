@@ -22,6 +22,7 @@ import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.LdapEncoder;
 import org.springframework.util.Assert;
 
 import org.apache.commons.logging.Log;
@@ -135,9 +136,16 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
      * @return the set of String values for the attribute as a union of the values found in all the matching entries.
      */
     public Set searchForSingleAttributeValues(final String base, final String filter, final Object[] params,
-        final String attributeName) {
-
-        String formattedFilter = MessageFormat.format(filter, params);
+    		final String attributeName) {
+    	// Escape the params acording to RFC2254
+    	Object[] encodedParams = new String[params.length];
+    	
+    	for (int i=0; i < params.length; i++) {
+    		encodedParams[i] = LdapEncoder.filterEncode(params[i].toString());  
+    	}
+    	
+        String formattedFilter = MessageFormat.format(filter, encodedParams);
+        logger.debug("Using filter: " + formattedFilter);
 
         final HashSet set = new HashSet();
 
