@@ -7,7 +7,7 @@ start = http | ldap-server | authentication-provider | ldap-authentication-provi
 
 hash =
     ## Defines the hashing algorithm used on user passwords. We recommend strongly against using MD4, as it is a very weak hashing algorithm.
-    attribute hash {"plaintext" | "sha" | "md5" | "md4" | "{sha}" | "{ssha}"}
+    attribute hash {"plaintext" | "sha" | "sha-256" | "md5" | "md4" | "{sha}" | "{ssha}"}
 base64 = 
     ## Whether a string should be base64 encoded
     attribute base64 {"true" | "false"}
@@ -34,6 +34,10 @@ cache-ref =
 user-service-ref =
     ## A reference to a user-service (or UserDetailsService bean) Id
     attribute user-service-ref {xsd:string}
+
+data-source-ref = 
+    ## A reference to a DataSource bean
+    attribute data-source-ref {xsd:string}    
     
 password-encoder = 
     ## element which defines a password encoding strategy. Used by an authentication provider to convert submitted passwords to hashed versions, for example.
@@ -340,11 +344,25 @@ concurrent-sessions.attlist &=
 
 
 remember-me =
+    ## Sets up remember-me authentication. If used with the "key" attribute (or no attributes) the cookie-only implementation will be used. Specifying "token-repository-ref" or "remember-me-data-source-ref" will use the more secure, persisten token approach.     
     element remember-me {remember-me.attlist}
 remember-me.attlist &=
-    (attribute key {xsd:string} | (attribute token-repository-ref {xsd:string} | attribute data-source-ref {xsd:string}))
+    (attribute key {xsd:string} | token-repository-ref | remember-me-data-source-ref | remember-me-services-ref)
 remember-me.attlist &=
     user-service-ref?
+remember-me.attlist &=
+    ## The period (in seconds) for which the remember-me cookie should be valid. 
+    attribute token-validity-period {xsd:positiveInteger}?
+    
+token-repository-ref =
+    ## Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation. 
+    attribute token-repository-ref {xsd:string}
+remember-me-services-ref =     
+    ## Allows a custom implementation of RememberMeServices to be used.
+    attribute services-ref {xsd:string}?
+remember-me-data-source-ref =
+    ## DataSource bean for the database that contains the token  
+    data-source-ref
 
 anonymous =
     ## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
