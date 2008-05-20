@@ -131,4 +131,18 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         assertTrue(roles.contains("ROLE_SUBMANAGER"));
     }
 
+    @Test
+    public void testUserDnWithEscapedCharacterParameterReturnsExpectedRoles() {
+        populator.setGroupRoleAttribute("ou");
+        populator.setConvertToUpperCase(true);        
+        populator.setGroupSearchFilter("(member={0})");
+
+        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("cn=mouse\\, jerry,ou=people,dc=springframework,dc=org"));
+
+        GrantedAuthority[] authorities = populator.getGrantedAuthorities(ctx, "notused");
+
+        assertEquals("Should have 1 role", 1, authorities.length);
+        assertEquals("ROLE_MANAGER", authorities[0].getAuthority());
+    }    
+    
 }

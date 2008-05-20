@@ -17,13 +17,19 @@ package org.springframework.security.ldap;
 
 import org.springframework.ldap.UncategorizedLdapException;
 import org.springframework.ldap.core.ContextExecutor;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.LdapEncoder;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import java.util.Set;
 
+import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.ldap.LdapName;
 
 /**
  * @author Luke Taylor
@@ -43,22 +49,22 @@ public class SpringSecurityLdapTemplateTests extends AbstractLdapIntegrationTest
     }
 
     @Test
-    public void testCompareOfCorrectValueSucceeds() {
+    public void compareOfCorrectValueSucceeds() {
         assertTrue(template.compare("uid=bob,ou=people", "uid", "bob"));
     }
 
     @Test
-    public void testCompareOfCorrectByteValueSucceeds() {
+    public void compareOfCorrectByteValueSucceeds() {
         assertTrue(template.compare("uid=bob,ou=people", "userPassword", LdapUtils.getUtf8Bytes("bobspassword")));
     }
 
     @Test
-    public void testCompareOfWrongByteValueFails() {
+    public void compareOfWrongByteValueFails() {
         assertFalse(template.compare("uid=bob,ou=people", "userPassword", LdapUtils.getUtf8Bytes("wrongvalue")));
     }
 
     @Test
-    public void testCompareOfWrongValueFails() {
+    public void compareOfWrongValueFails() {
         assertFalse(template.compare("uid=bob,ou=people", "uid", "wrongvalue"));
     }
 
@@ -73,7 +79,7 @@ public class SpringSecurityLdapTemplateTests extends AbstractLdapIntegrationTest
 //    }
 
     @Test
-    public void testNamingExceptionIsTranslatedCorrectly() {
+    public void namingExceptionIsTranslatedCorrectly() {
         try {
             template.executeReadOnly(new ContextExecutor() {
                     public Object executeWithContext(DirContext dirContext) throws NamingException {
@@ -85,7 +91,7 @@ public class SpringSecurityLdapTemplateTests extends AbstractLdapIntegrationTest
     }
 
     @Test
-    public void testRoleSearchReturnsCorrectNumberOfRoles() {
+    public void roleSearchReturnsCorrectNumberOfRoles() {
         String param = "uid=ben,ou=people,dc=springframework,dc=org";
 
         Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "ou");
@@ -104,4 +110,44 @@ public class SpringSecurityLdapTemplateTests extends AbstractLdapIntegrationTest
 
         assertEquals(0, values.size());
     }
+
+    @Test
+    public void roleSearchWithEscapedCharacterSucceeds() throws Exception {
+    	String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
+    	
+        Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "cn");
+
+        assertEquals(1, values.size());
+    }
+    
+    @Test
+    public void nonSpringLdapSearchCodeTestMethod() throws Exception {
+    	java.util.Hashtable env = new java.util.Hashtable();
+    	env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+    	env.put(Context.PROVIDER_URL, "ldap://localhost:53389");
+    	env.put(Context.SECURITY_PRINCIPAL, "");
+    	env.put(Context.SECURITY_CREDENTIALS, "");
+
+    	DirContext ctx = new javax.naming.directory.InitialDirContext(env);
+    	SearchControls controls = new SearchControls();
+    	controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+    	controls.setReturningObjFlag(true);
+    	controls.setReturningAttributes(null);
+    	String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";   	
+    	
+    	javax.naming.NamingEnumeration results = 
+    		ctx.search("ou=groups,dc=springframework,dc=org", 
+    				"(member={0})", new String[] {param}, 
+    				controls);
+    	
+    	assertTrue("Expected a result", results.hasMore());    	
+    }
+
+    @Test
+    public void searchForSingleEntryWithEscapedCharsInDnSucceeds() {
+        String param = "mouse, jerry";
+
+        DirContextOperations jerry = template.searchForSingleEntry("ou=people", "(cn={0})", new String[] {param});
+    }
+    
 }
