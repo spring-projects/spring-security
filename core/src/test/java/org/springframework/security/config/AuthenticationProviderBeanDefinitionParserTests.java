@@ -1,8 +1,12 @@
 package org.springframework.security.config;
 
+import static org.junit.Assert.*;
+
 import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.providers.encoding.ShaPasswordEncoder;
+import org.springframework.security.util.FieldUtils;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 
@@ -72,6 +76,19 @@ public class AuthenticationProviderBeanDefinitionParserTests {
     }
 
     @Test
+    public void providerWithSha256PasswordEncoderIsSupported() throws Exception {
+        setContext(" <authentication-provider>" +
+                "        <password-encoder hash='sha-256'/>" +
+                "        <user-service>" +
+                "            <user name='bob' password='notused' authorities='ROLE_A' />" +
+                "        </user-service>" +
+                "    </authentication-provider>");
+
+        ShaPasswordEncoder encoder = (ShaPasswordEncoder) FieldUtils.getFieldValue(getProvider(), "passwordEncoder");
+        assertEquals("SHA-256", encoder.getAlgorithm());
+    }
+    
+    @Test
     public void passwordIsBase64EncodedWhenBase64IsEnabled() throws Exception {
         setContext(" <authentication-provider>" +
                 "        <password-encoder hash='md5' base64='true'/>" +
@@ -81,7 +98,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
                 "    </authentication-provider>");
 
         getProvider().authenticate(bob);
-    }    
+    }
     
     @Test
     public void externalUserServiceAndPasswordEncoderWork() throws Exception {

@@ -35,6 +35,7 @@ public class PasswordEncoderParser {
     static final String ATT_BASE_64 = "base64";
     static final String OPT_HASH_PLAINTEXT = "plaintext";    
     static final String OPT_HASH_SHA = "sha";
+    static final String OPT_HASH_SHA256 = "sha-256";    
     static final String OPT_HASH_MD4 = "md4";
     static final String OPT_HASH_MD5 = "md5";
     static final String OPT_HASH_LDAP_SHA = "{sha}";
@@ -45,6 +46,7 @@ public class PasswordEncoderParser {
         ENCODER_CLASSES = new HashMap();
         ENCODER_CLASSES.put(OPT_HASH_PLAINTEXT, PlaintextPasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_SHA, ShaPasswordEncoder.class);
+        ENCODER_CLASSES.put(OPT_HASH_SHA256, ShaPasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_MD4, Md4PasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_MD5, Md5PasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_LDAP_SHA, LdapShaPasswordEncoder.class);
@@ -74,6 +76,11 @@ public class PasswordEncoderParser {
         } else {
             Class beanClass = (Class) ENCODER_CLASSES.get(hash);
             RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
+            
+            if (OPT_HASH_SHA256.equals(hash)) {
+            	beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, new Integer(256));
+            }
+            
             beanDefinition.setSource(parserContext.extractSource(element));
             if (useBase64) {
                 if (BaseDigestPasswordEncoder.class.isAssignableFrom(beanClass)) {
