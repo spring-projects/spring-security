@@ -319,8 +319,8 @@ if (obj instanceof UserDetails) {
 
     <section>
       <title>ExceptionTranslationFilter</title>
-      <para><literal>ExceptionTranslationFilter</literal> is an Acegi
-        Security filter that has responsibility for detecting any Acegi
+      <para><literal>ExceptionTranslationFilter</literal> is a Spring
+        Security filter that has responsibility for detecting any Spring
         Security exceptions that are thrown. Such exceptions will generally be
         thrown by an <literal>AbstractSecurityInterceptor</literal>, which is
         the main provider of authorization services. We will discuss
