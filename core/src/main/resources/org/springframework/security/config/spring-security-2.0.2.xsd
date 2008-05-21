@@ -1024,7 +1024,13 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="remember-me.attlist">
-    <xs:attribute name="key" type="xs:string"/>
+    <xs:attribute name="key" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The "key" used to identify cookies from a specific token-based remember-me
+          application. You should set this to a unique value for your
+        application.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="token-repository-ref" type="xs:string">
       <xs:annotation>
         <xs:documentation>Reference to a PersistentTokenRepository bean for use with the persistent
@@ -1043,7 +1049,7 @@
         Id</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="token-validity-period" type="xs:positiveInteger">
+    <xs:attribute name="token-validity-seconds" type="xs:positiveInteger">
       <xs:annotation>
         <xs:documentation>The period (in seconds) for which the remember-me cookie should be valid.
         </xs:documentation>
@@ -1061,8 +1067,10 @@
   <xs:attributeGroup name="remember-me-services-ref">
     <xs:attribute name="services-ref" type="xs:string">
       <xs:annotation>
-        <xs:documentation>Allows a custom implementation of RememberMeServices to be
-        used.</xs:documentation>
+        <xs:documentation>Allows a custom implementation of RememberMeServices to be used. Note that
+          this implementation should return RememberMeAuthenticationToken instances with the same
+          "key" value as specified in the remember-me element. Alternatively it should register its
+          own AuthenticationProvider. </xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>

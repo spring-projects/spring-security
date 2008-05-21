@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
@@ -39,6 +40,7 @@ import org.springframework.security.ui.rememberme.NullRememberMeServices;
 import org.springframework.security.ui.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
 import org.springframework.security.ui.rememberme.RememberMeServices;
+import org.springframework.security.ui.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FieldUtils;
@@ -57,7 +59,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     private AbstractXmlApplicationContext appContext;
     static final String AUTH_PROVIDER_XML =
             "    <authentication-provider>" +
-            "        <user-service>" +
+            "        <user-service id='us'>" +
             "            <user name='bob' password='bobspassword' authorities='ROLE_A,ROLE_B' />" +
             "            <user name='bill' password='billspassword' authorities='ROLE_A,ROLE_B,AUTH_OTHER' />" +
             "        </user-service>" +
@@ -340,23 +342,50 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void rememberMeServiceWorksWithTokenRepoRef() {
         setContext(
                 "<http auto-config='true'>" +
-                "    <remember-me key='doesntmatter' token-repository-ref='tokenRepo'/>" +
+                "    <remember-me token-repository-ref='tokenRepo'/>" +
                 "</http>" +
                 "<b:bean id='tokenRepo' " +
                         "class='org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl'/> " + AUTH_PROVIDER_XML);
         Object rememberMeServices = appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
-
+        
         assertTrue(rememberMeServices instanceof PersistentTokenBasedRememberMeServices);
     }
 
     @Test
+    public void rememberMeServiceWorksWithExternalServicesImpl() throws Exception {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <remember-me key='ourkey' services-ref='rms'/>" +
+                "</http>" +
+                "<b:bean id='rms' class='org.springframework.security.ui.rememberme.TokenBasedRememberMeServices'> " +
+                "    <b:property name='userDetailsService' ref='us'/>" +
+                "    <b:property name='key' value='ourkey'/>" +
+                "    <b:property name='tokenValiditySeconds' value='5000'/>" +
+                "</b:bean>" +
+                AUTH_PROVIDER_XML);
+        
+        assertEquals(5000, FieldUtils.getFieldValue(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES), 
+        		"tokenValiditySeconds"));        
+    }
+
+    @Test
+    public void rememberMeTokenValidityIsParsedCorrectly() throws Exception {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <remember-me key='ourkey' token-validity-seconds='10000' />" +
+                "</http>" + AUTH_PROVIDER_XML);
+        assertEquals(10000, FieldUtils.getFieldValue(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES), 
+				"tokenValiditySeconds"));
+    }    
+    
+    @Test
     public void rememberMeServiceConfigurationParsesWithCustomUserService() {
         setContext(
                 "<http auto-config='true'>" +
-                "    <remember-me key='doesntmatter' user-service-ref='userService'/>" +
+                "    <remember-me key='somekey' user-service-ref='userService'/>" +
                 "</http>" +
-                "<b:bean id='userService' " +
-                        "class='org.springframework.security.userdetails.MockUserDetailsService'/> " + AUTH_PROVIDER_XML);
+                "<b:bean id='userService' class='org.springframework.security.userdetails.MockUserDetailsService'/> " +
+                AUTH_PROVIDER_XML);
 //        AbstractRememberMeServices rememberMeServices = (AbstractRememberMeServices) appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
     }    
     
@@ -509,8 +538,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "        <form-login login-page='/login.jsp' default-target-url='/messageList.html'/>" +
                 "    </http>" + AUTH_PROVIDER_XML);
     }
-    
-    
+
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
     }

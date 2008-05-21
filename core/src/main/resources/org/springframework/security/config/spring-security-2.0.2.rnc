@@ -347,18 +347,24 @@ remember-me =
     ## Sets up remember-me authentication. If used with the "key" attribute (or no attributes) the cookie-only implementation will be used. Specifying "token-repository-ref" or "remember-me-data-source-ref" will use the more secure, persisten token approach.     
     element remember-me {remember-me.attlist}
 remember-me.attlist &=
-    (attribute key {xsd:string} | token-repository-ref | remember-me-data-source-ref | remember-me-services-ref)
+    ## The "key" used to identify cookies from a specific token-based remember-me application. You should set this to a unique value for your application.
+    attribute key {xsd:string}?
+    
+remember-me.attlist &=
+    (token-repository-ref | remember-me-data-source-ref | remember-me-services-ref)
+
 remember-me.attlist &=
     user-service-ref?
+    
 remember-me.attlist &=
     ## The period (in seconds) for which the remember-me cookie should be valid. 
-    attribute token-validity-period {xsd:positiveInteger}?
+    attribute token-validity-seconds {xsd:positiveInteger}?
     
 token-repository-ref =
     ## Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation. 
     attribute token-repository-ref {xsd:string}
 remember-me-services-ref =     
-    ## Allows a custom implementation of RememberMeServices to be used.
+    ## Allows a custom implementation of RememberMeServices to be used. Note that this implementation should return RememberMeAuthenticationToken instances with the same "key" value as specified in the remember-me element. Alternatively it should register its own AuthenticationProvider. 
     attribute services-ref {xsd:string}?
 remember-me-data-source-ref =
     ## DataSource bean for the database that contains the token  

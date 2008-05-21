@@ -23,12 +23,14 @@ import org.w3c.dom.Element;
  */
 public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_KEY = "key";
-    static final String DEF_KEY = "doesNotMatter";
+    static final String DEF_KEY = "SpringSecured";
 
-	static final String ATT_DATA_SOURCE = "data-source";
+	static final String ATT_DATA_SOURCE = "data-source-ref";
+	static final String ATT_SERVICES_REF = "services-ref";
 	static final String ATT_TOKEN_REPOSITORY = "token-repository-ref";
 	static final String ATT_USER_SERVICE_REF = "user-service-ref";
-	
+	static final String ATT_TOKEN_VALIDITY = "token-validity-seconds";
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
@@ -37,32 +39,46 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         String key = null;
         Object source = null;
         String userServiceRef = null;
+        String rememberMeServicesRef = null;
+        String tokenValiditySeconds = null;
 
         if (element != null) {
             tokenRepository = element.getAttribute(ATT_TOKEN_REPOSITORY);
             dataSource = element.getAttribute(ATT_DATA_SOURCE);
             key = element.getAttribute(ATT_KEY);
-            userServiceRef = element.getAttribute(ATT_USER_SERVICE_REF);            
+            userServiceRef = element.getAttribute(ATT_USER_SERVICE_REF);
+            rememberMeServicesRef = element.getAttribute(ATT_SERVICES_REF);
+            tokenValiditySeconds = element.getAttribute(ATT_TOKEN_VALIDITY);
             source = parserContext.extractSource(element);
         }
-
-        RootBeanDefinition filter = new RootBeanDefinition(RememberMeProcessingFilter.class);
-        RootBeanDefinition services = new RootBeanDefinition(PersistentTokenBasedRememberMeServices.class);
-
-        filter.getPropertyValues().addPropertyValue("authenticationManager",
-                new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
+        
+        if (!StringUtils.hasText(key)) {
+        	key = DEF_KEY;
+        }        
+        
+        RootBeanDefinition services = null;
 
         boolean dataSourceSet = StringUtils.hasText(dataSource);
         boolean tokenRepoSet = StringUtils.hasText(tokenRepository);
-
+        boolean servicesRefSet = StringUtils.hasText(rememberMeServicesRef);
+        boolean userServiceSet = StringUtils.hasText(userServiceRef);
+        boolean tokenValiditySet = StringUtils.hasText(tokenValiditySeconds);
+        
+        if (servicesRefSet && (dataSourceSet || tokenRepoSet || userServiceSet || tokenValiditySet)) {
+    		parserContext.getReaderContext().error(ATT_SERVICES_REF + " can't be used in combination with attributes " 
+    				+ ATT_TOKEN_REPOSITORY + "," + ATT_DATA_SOURCE + ", " + ATT_USER_SERVICE_REF + " or " + ATT_TOKEN_VALIDITY, source);        	
+        }
+        
         if (dataSourceSet && tokenRepoSet) {
-            parserContext.getReaderContext().error("Specify tokenRepository or dataSource but not both", element);
+            parserContext.getReaderContext().error("Specify " + ATT_TOKEN_REPOSITORY + " or " + 
+            		ATT_DATA_SOURCE +" but not both", source);
         }
 
         boolean isPersistent = dataSourceSet | tokenRepoSet;
 
         if (isPersistent) {
             Object tokenRepo;
+            services = new RootBeanDefinition(PersistentTokenBasedRememberMeServices.class);
 
             if (tokenRepoSet) {
                 tokenRepo = new RuntimeBeanReference(tokenRepository);
@@ -72,39 +88,51 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
                         new RuntimeBeanReference(dataSource));
             }
             services.getPropertyValues().addPropertyValue("tokenRepository", tokenRepo);
-        } else {
-            isPersistent = false;
+        } else if (!servicesRefSet) {
             services = new RootBeanDefinition(TokenBasedRememberMeServices.class);
         }
 
-        if (!StringUtils.hasText(key) && !isPersistent) {
-        	key = DEF_KEY;
+        if (services != null) {
+	        if (userServiceSet) {
+	            services.getPropertyValues().addPropertyValue("userDetailsService", new RuntimeBeanReference(userServiceRef));
+	        }
+	        
+	        if (tokenValiditySet) {
+	        	services.getPropertyValues().addPropertyValue("tokenValiditySeconds", Integer.parseInt(tokenValiditySeconds));
+	        }
+	        services.setSource(source);
+	        services.getPropertyValues().addPropertyValue(ATT_KEY, key);
+	        parserContext.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES, services);	        
+        } else {
+        	parserContext.getRegistry().registerAlias(rememberMeServicesRef, BeanIds.REMEMBER_ME_SERVICES);
         }
+        
+        registerProvider(parserContext, source, key);        
+        
+        registerFilter(parserContext, source);
 
-        BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
+        return null;
+    }
+    
+    private void registerProvider(ParserContext pc, Object source, String key) {
+        BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(pc);
         RootBeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
-
-        filter.setSource(source);
-        services.setSource(source);
         provider.setSource(source);
-
-        if (StringUtils.hasText(userServiceRef)) {
-            services.getPropertyValues().addPropertyValue("userDetailsService", new RuntimeBeanReference(userServiceRef));
-        }
-
         provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
-        services.getPropertyValues().addPropertyValue(ATT_KEY, key);
-
         ManagedList providers = (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
-        providers.add(provider);
-
+        providers.add(provider);    	
+    }
+    
+    private void registerFilter(ParserContext pc, Object source) {
+        RootBeanDefinition filter = new RootBeanDefinition(RememberMeProcessingFilter.class);
+        filter.setSource(source);
+        filter.getPropertyValues().addPropertyValue("authenticationManager",
+                new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));        
+        
         filter.getPropertyValues().addPropertyValue("rememberMeServices",
                 new RuntimeBeanReference(BeanIds.REMEMBER_ME_SERVICES));
 
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES, services);
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_FILTER, filter);
-        ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.REMEMBER_ME_FILTER));
-
-        return null;
+        pc.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_FILTER, filter);
+        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.REMEMBER_ME_FILTER));    	
     }
 }
