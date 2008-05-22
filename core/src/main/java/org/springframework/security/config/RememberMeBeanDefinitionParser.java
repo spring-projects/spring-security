@@ -98,7 +98,7 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 	        }
 	        
 	        if (tokenValiditySet) {
-	        	services.getPropertyValues().addPropertyValue("tokenValiditySeconds", Integer.parseInt(tokenValiditySeconds));
+	        	services.getPropertyValues().addPropertyValue("tokenValiditySeconds", new Integer(tokenValiditySeconds));
 	        }
 	        services.setSource(source);
 	        services.getPropertyValues().addPropertyValue(ATT_KEY, key);
