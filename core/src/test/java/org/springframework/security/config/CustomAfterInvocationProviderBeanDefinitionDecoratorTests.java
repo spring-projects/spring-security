@@ -21,7 +21,7 @@ public class CustomAfterInvocationProviderBeanDefinitionDecoratorTests {
     }
     
     @Test
-    public void customAuthenticationProviderIsAddedToInterceptor() {
+    public void customAfterInvocationProviderIsAddedToInterceptor() {
         setContext(
                 "<global-method-security />" +
                 "<b:bean id='aip' class='org.springframework.security.config.MockAfterInvocationProvider'>" +
