@@ -76,8 +76,7 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
     protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (isLoginUrlRequest(request)) {
             String loginPageHtml = generateLoginPageHtml(request);
-            response.setCharacterEncoding("UTF-8");
-            response.setContentType("text/html");
+            response.setContentType("text/html;charset=UTF-8");
             response.setContentLength(loginPageHtml.length());
             response.getOutputStream().print(loginPageHtml);            
 
