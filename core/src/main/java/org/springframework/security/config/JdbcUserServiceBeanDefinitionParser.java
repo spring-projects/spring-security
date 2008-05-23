@@ -1,6 +1,5 @@
 package org.springframework.security.config;
 
-import org.springframework.security.userdetails.jdbc.JdbcUserDetailsManager;
 import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -18,8 +17,8 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 	static final String ATT_GROUP_AUTHORITIES_QUERY = "group-authorities-by-username-query";
 	static final String ATT_ROLE_PREFIX = "role-prefix";
 
-    protected Class getBeanClass(Element element) {
-        return JdbcUserDetailsManager.class;
+    protected String getBeanClassName(Element element) {
+        return "org.springframework.security.userdetails.jdbc.JdbcUserDetailsManager";
     }
 
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {

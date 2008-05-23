@@ -1,11 +1,5 @@
 package org.springframework.security.config;
 
-import org.springframework.security.userdetails.ldap.InetOrgPersonContextMapper;
-import org.springframework.security.userdetails.ldap.LdapUserDetailsMapper;
-import org.springframework.security.userdetails.ldap.LdapUserDetailsService;
-import org.springframework.security.userdetails.ldap.PersonContextMapper;
-import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
-import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -35,9 +29,15 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
     static final String ATT_USER_CLASS = "user-details-class";
     static final String OPT_PERSON = "person";
     static final String OPT_INETORGPERSON = "inetOrgPerson";
+    
+    public static final String LDAP_SEARCH_CLASS = "org.springframework.security.ldap.search.FilterBasedLdapUserSearch";
+    public static final String PERSON_MAPPER_CLASS = "org.springframework.security.userdetails.ldap.PersonContextMapper";
+    public static final String INET_ORG_PERSON_MAPPER_CLASS = "org.springframework.security.userdetails.ldap.InetOrgPersonContextMapper";
+    public static final String LDAP_USER_MAPPER_CLASS = "org.springframework.security.userdetails.ldap.LdapUserDetailsMapper";
+    public static final String LDAP_AUTHORITIES_POPULATOR_CLASS = "org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator";
 
-    protected Class getBeanClass(Element element) {
-        return LdapUserDetailsService.class;
+    protected String getBeanClassName(Element element) {
+        return "org.springframework.security.userdetails.ldap.LdapUserDetailsService";
     }
 
     protected void doParse(Element elt, ParserContext parserContext, BeanDefinitionBuilder builder) {
@@ -68,7 +68,7 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
             return null;
         }
         
-        BeanDefinitionBuilder searchBuilder = BeanDefinitionBuilder.rootBeanDefinition(FilterBasedLdapUserSearch.class);
+        BeanDefinitionBuilder searchBuilder = BeanDefinitionBuilder.rootBeanDefinition(LDAP_SEARCH_CLASS);
         searchBuilder.setSource(source);
         searchBuilder.addConstructorArg(userSearchBase);
         searchBuilder.addConstructorArg(userSearchFilter);
@@ -96,12 +96,12 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
     static RootBeanDefinition parseUserDetailsClass(Element elt, ParserContext parserContext) {
     	String userDetailsClass = elt.getAttribute(ATT_USER_CLASS);
     	
-    	if(OPT_PERSON.equals(userDetailsClass)) {
-    		return new RootBeanDefinition(PersonContextMapper.class);
+    	if (OPT_PERSON.equals(userDetailsClass)) {
+    		return new RootBeanDefinition(PERSON_MAPPER_CLASS, null, null);
     	} else if (OPT_INETORGPERSON.equals(userDetailsClass)) {
-    		return new RootBeanDefinition(InetOrgPersonContextMapper.class);
+    		return new RootBeanDefinition(INET_ORG_PERSON_MAPPER_CLASS, null, null);
     	}
-    	return new RootBeanDefinition(LdapUserDetailsMapper.class);
+    	return new RootBeanDefinition(LDAP_USER_MAPPER_CLASS, null, null);
     }
     
     static RootBeanDefinition parseAuthoritiesPopulator(Element elt, ParserContext parserContext) {
@@ -118,7 +118,7 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
             groupSearchBase = DEF_GROUP_SEARCH_BASE;
         }
         
-        BeanDefinitionBuilder populator = BeanDefinitionBuilder.rootBeanDefinition(DefaultLdapAuthoritiesPopulator.class);
+        BeanDefinitionBuilder populator = BeanDefinitionBuilder.rootBeanDefinition(LDAP_AUTHORITIES_POPULATOR_CLASS);
         populator.setSource(parserContext.extractSource(elt));
         populator.addConstructorArg(parseServerReference(elt, parserContext));
         populator.addConstructorArg(groupSearchBase);
@@ -129,7 +129,7 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
                 rolePrefix = "";
             }
             populator.addPropertyValue("rolePrefix", rolePrefix);
-        }                
+        }
         
         if (StringUtils.hasLength(groupRoleAttribute)) {
             populator.addPropertyValue("groupRoleAttribute", groupRoleAttribute);

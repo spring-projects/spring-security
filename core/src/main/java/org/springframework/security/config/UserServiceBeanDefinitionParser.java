@@ -6,7 +6,6 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.security.userdetails.memory.InMemoryDaoImpl;
 import org.springframework.security.userdetails.memory.UserMap;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.util.AuthorityUtils;
@@ -33,8 +32,8 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
 	static final String ATT_DISABLED = "disabled";
     static final String ATT_LOCKED = "locked";
 
-    protected Class getBeanClass(Element element) {
-        return InMemoryDaoImpl.class;
+    protected String getBeanClassName(Element element) {
+        return "org.springframework.security.userdetails.memory.InMemoryDaoImpl";
     }
 
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {

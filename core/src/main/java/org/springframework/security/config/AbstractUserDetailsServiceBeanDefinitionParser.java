@@ -23,12 +23,12 @@ public abstract class AbstractUserDetailsServiceBeanDefinitionParser implements 
 	/**  UserDetailsService bean Id. For use in a stateful context (i.e. in AuthenticationProviderBDP) */
 	private String id;
 	
-	protected abstract Class getBeanClass(Element element);
+	protected abstract String getBeanClassName(Element element);
 	
     protected abstract void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder);	
 	
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
-		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(getBeanClass(element)); 
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(getBeanClassName(element)); 
 		
 		doParse(element, parserContext, builder);
 		

@@ -1,11 +1,8 @@
 package org.springframework.security.config;
 
-import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
-import org.springframework.security.providers.ldap.LdapAuthenticationProvider;
-import org.springframework.security.providers.ldap.authenticator.BindAuthenticator;
-import org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -30,12 +27,16 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_USER_PASSWORD = "password-attribute";
     private static final String ATT_HASH = PasswordEncoderParser.ATT_HASH; 
     
-    private static final String DEF_USER_SEARCH_FILTER="uid={0}";
+    private static final String DEF_USER_SEARCH_FILTER = "uid={0}";
+    
+    private static final String PROVIDER_CLASS = "org.springframework.security.providers.ldap.LdapAuthenticationProvider";
+    private static final String BIND_AUTH_CLASS = "org.springframework.security.providers.ldap.authenticator.BindAuthenticator";
+    private static final String PASSWD_AUTH_CLASS = "org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator";
 
     public BeanDefinition parse(Element elt, ParserContext parserContext) {
         RuntimeBeanReference contextSource = LdapUserServiceBeanDefinitionParser.parseServerReference(elt, parserContext);
         
-        RootBeanDefinition searchBean = LdapUserServiceBeanDefinitionParser.parseSearchBean(elt, parserContext);
+        BeanDefinition searchBean = LdapUserServiceBeanDefinitionParser.parseSearchBean(elt, parserContext);
         String userDnPattern = elt.getAttribute(ATT_USER_DN_PATTERN);
         
         String[] userDnPatternArray = new String[0];
@@ -45,22 +46,25 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
             // TODO: Validate the pattern and make sure it is a valid DN.
         } else if (searchBean == null) {
             logger.info("No search information or DN pattern specified. Using default search filter '" + DEF_USER_SEARCH_FILTER + "'");
-            searchBean = new RootBeanDefinition(FilterBasedLdapUserSearch.class);
-            searchBean.setSource(elt);
-            searchBean.getConstructorArgumentValues().addIndexedArgumentValue(0, "");
-            searchBean.getConstructorArgumentValues().addIndexedArgumentValue(1, DEF_USER_SEARCH_FILTER);
-            searchBean.getConstructorArgumentValues().addIndexedArgumentValue(2, contextSource);
+            BeanDefinitionBuilder searchBeanBuilder = BeanDefinitionBuilder.rootBeanDefinition(LdapUserServiceBeanDefinitionParser.LDAP_SEARCH_CLASS); 
+            searchBeanBuilder.setSource(elt);
+            searchBeanBuilder.addConstructorArg("");
+            searchBeanBuilder.addConstructorArg(DEF_USER_SEARCH_FILTER);
+            searchBeanBuilder.addConstructorArg(contextSource);
+            searchBean = searchBeanBuilder.getBeanDefinition();
         }
         
-        RootBeanDefinition authenticator = new RootBeanDefinition(BindAuthenticator.class);
+        BeanDefinitionBuilder authenticatorBuilder = 
+        	BeanDefinitionBuilder.rootBeanDefinition(BIND_AUTH_CLASS);
         Element passwordCompareElt = DomUtils.getChildElementByTagName(elt, Elements.LDAP_PASSWORD_COMPARE);
         
         if (passwordCompareElt != null) {
-            authenticator = new RootBeanDefinition(PasswordComparisonAuthenticator.class);
+        	authenticatorBuilder = 
+            	BeanDefinitionBuilder.rootBeanDefinition(PASSWD_AUTH_CLASS);
             
             String passwordAttribute = passwordCompareElt.getAttribute(ATT_USER_PASSWORD);
             if (StringUtils.hasText(passwordAttribute)) {
-                authenticator.getPropertyValues().addPropertyValue("passwordAttributeName", passwordAttribute);
+            	authenticatorBuilder.addPropertyValue("passwordAttributeName", passwordAttribute);
             }
             
             Element passwordEncoderElement = DomUtils.getChildElementByTagName(passwordCompareElt, Elements.PASSWORD_ENCODER);
@@ -70,33 +74,34 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
                 if (StringUtils.hasText(hash)) {
                     parserContext.getReaderContext().warning("Attribute 'hash' cannot be used with 'password-encoder' and " +
                             "will be ignored.", parserContext.extractSource(elt));
-                }                
+                }
                 PasswordEncoderParser pep = new PasswordEncoderParser(passwordEncoderElement, parserContext);
-                authenticator.getPropertyValues().addPropertyValue("passwordEncoder", pep.getPasswordEncoder());
+                authenticatorBuilder.addPropertyValue("passwordEncoder", pep.getPasswordEncoder());
                 
                 if (pep.getSaltSource() != null) {
-                    parserContext.getReaderContext().warning("Salt source information isn't valid when used with LDAP", passwordEncoderElement);
+                    parserContext.getReaderContext().warning("Salt source information isn't valid when used with LDAP", 
+                    		passwordEncoderElement);
                 }
             } else if (StringUtils.hasText(hash)) {
                 Class encoderClass = (Class) PasswordEncoderParser.ENCODER_CLASSES.get(hash);
-                authenticator.getPropertyValues().addPropertyValue("passwordEncoder", new RootBeanDefinition(encoderClass));
+                authenticatorBuilder.addPropertyValue("passwordEncoder", new RootBeanDefinition(encoderClass));
             }
-        } 
+        }
         
-        authenticator.getConstructorArgumentValues().addGenericArgumentValue(contextSource);
-        authenticator.getPropertyValues().addPropertyValue("userDnPatterns", userDnPatternArray);
+        authenticatorBuilder.addConstructorArg(contextSource);
+        authenticatorBuilder.addPropertyValue("userDnPatterns", userDnPatternArray);
         
         if (searchBean != null) {
-            authenticator.getPropertyValues().addPropertyValue("userSearch", searchBean);
+        	authenticatorBuilder.addPropertyValue("userSearch", searchBean);
         }
                 
-        RootBeanDefinition ldapProvider = new RootBeanDefinition(LdapAuthenticationProvider.class);
-        ldapProvider.getConstructorArgumentValues().addGenericArgumentValue(authenticator);
-        ldapProvider.getConstructorArgumentValues().addGenericArgumentValue(LdapUserServiceBeanDefinitionParser.parseAuthoritiesPopulator(elt, parserContext));
-        ldapProvider.getPropertyValues().addPropertyValue("userDetailsContextMapper", 
+        BeanDefinitionBuilder ldapProvider = BeanDefinitionBuilder.rootBeanDefinition(PROVIDER_CLASS);
+        ldapProvider.addConstructorArg(authenticatorBuilder.getBeanDefinition());
+        ldapProvider.addConstructorArg(LdapUserServiceBeanDefinitionParser.parseAuthoritiesPopulator(elt, parserContext));
+        ldapProvider.addPropertyValue("userDetailsContextMapper", 
         		LdapUserServiceBeanDefinitionParser.parseUserDetailsClass(elt, parserContext));
         
-        ConfigUtils.getRegisteredProviders(parserContext).add(ldapProvider);
+        ConfigUtils.getRegisteredProviders(parserContext).add(ldapProvider.getBeanDefinition());
 
         return null;
     }
