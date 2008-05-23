@@ -1,21 +1,32 @@
 package org.springframework.security.config;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
+import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 
 public class CustomAuthenticationProviderBeanDefinitionDecoratorTests {
     
     @Test
-    public void decoratorParsesSuccessfully() {
+    public void decoratedProviderParsesSuccessfully() {
         InMemoryXmlApplicationContext ctx = new InMemoryXmlApplicationContext(
-                "<b:bean id='someBean' class='org.springframework.security.config.TestBusinessBeanImpl'>" +
-                "   <intercept-methods>" +
-                "       <protect method='org.springframework.security.config.TestBusinessBean.*' access='ROLE_A' />" +
-                "   </intercept-methods>" +
-                "</b:bean>" + HttpSecurityBeanDefinitionParserTests.AUTH_PROVIDER_XML
+                "<b:bean id='myProvider' class='org.springframework.security.providers.dao.DaoAuthenticationProvider'>" +
+                "  <custom-authentication-provider />" +
+                "  <b:property name='userDetailsService' ref='us'/>" +
+                "</b:bean>" + 
+                "<user-service id='us'>" +
+                " <user name='bob' password='bobspassword' authorities='ROLE_A,ROLE_B' />" +
+                " <user name='bill' password='billspassword' authorities='ROLE_A,ROLE_B,AUTH_OTHER' />" +
+                "</user-service>"
+                
         );
         
-        ctx.getBean("someBean");
+        Object myProvider = ctx.getBean("myProvider");
+        
+        ProviderManager authMgr = (ProviderManager) ctx.getBean(BeanIds.AUTHENTICATION_MANAGER);
+        
+        assertSame(myProvider, authMgr.getProviders().get(0));
     }
 }
