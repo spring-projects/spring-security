@@ -123,6 +123,7 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
         populator.addConstructorArg(parseServerReference(elt, parserContext));
         populator.addConstructorArg(groupSearchBase);
         populator.addPropertyValue("groupSearchFilter", groupSearchFilter);
+        populator.addPropertyValue("searchSubtree", Boolean.TRUE);
         
         if (StringUtils.hasText(rolePrefix)) {
             if ("none".equals(rolePrefix)) {

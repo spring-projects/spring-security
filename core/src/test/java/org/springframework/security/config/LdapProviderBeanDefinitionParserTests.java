@@ -38,8 +38,8 @@ public class LdapProviderBeanDefinitionParserTests {
         Authentication auth = provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "benspassword"));
         LdapUserDetailsImpl ben = (LdapUserDetailsImpl) auth.getPrincipal();
 
-        assertEquals(2, ben.getAuthorities().length);
-    }  
+        assertEquals(3, ben.getAuthorities().length);
+    }
     
     @Test(expected = SecurityConfigurationException.class)
     public void missingServerEltCausesConfigException() {

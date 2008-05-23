@@ -42,7 +42,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
         UserDetails ben = uds.loadUserByUsername("ben");
 
         Set authorities = AuthorityUtils.authorityArrayToSet(ben.getAuthorities());
-        assertEquals(2, authorities.size());
+        assertEquals(3, authorities.size());
         assertTrue(authorities.contains("ROLE_DEVELOPERS"));
     }
 
@@ -88,7 +88,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
         UserDetails ben = uds.loadUserByUsername("ben");
 
         Set authorities = AuthorityUtils.authorityArrayToSet(ben.getAuthorities());
-        assertEquals(2, authorities.size());
+        assertEquals(3, authorities.size());
         assertTrue(authorities.contains(new GrantedAuthorityImpl("ROLE_DEVELOPER")));
         
     }
