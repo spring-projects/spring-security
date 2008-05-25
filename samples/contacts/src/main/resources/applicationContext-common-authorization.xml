@@ -4,7 +4,7 @@
     xmlns:security="http://www.springframework.org/schema/security"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.1.xsd">
 
 <!--
   - Application context containing authentication beans.
@@ -29,7 +29,6 @@
         class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
     <property name="staticField" value="org.springframework.security.acls.domain.BasePermission.DELETE"/>
   </bean>
-
 
   <!-- An access decision voter that reads ROLE_* configuration settings -->
   <bean id="roleVoter" class="org.springframework.security.vote.RoleVoter"/>

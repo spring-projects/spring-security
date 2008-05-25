@@ -27,28 +27,23 @@
 	<!-- HTTP invoker exporter for the ContactManager -->
 	<!-- Spring's HTTP invoker uses Java serialization via HTTP  -->
 	<bean name="/ContactManager-httpinvoker" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
-		<property name="service"><ref bean="contactManager"/></property>
-		<property name="serviceInterface">
-			<value>sample.contact.ContactManager</value>
-		</property>
+		<property name="service" ref="contactManager"/>
+		<property name="serviceInterface" value="sample.contact.ContactManager"/>
 	</bean>
 
 	<!-- Hessian exporter for the ContactManager -->
 	<!-- Hessian is a slim binary HTTP remoting protocol -->
 	<bean name="/ContactManager-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
-		<property name="service"><ref bean="contactManager"/></property>
-		<property name="serviceInterface">
-			<value>sample.contact.ContactManager</value>
+		<property name="service" ref="contactManager"/>
+		<property name="serviceInterface" value="sample.contact.ContactManager"/>
 		</property>
 	</bean>
 
 	<!-- Burlap exporter for the ContactManager -->
 	<!-- Burlap is a slim XML-based HTTP remoting protocol -->
 	<bean name="/ContactManager-burlap" class="org.springframework.remoting.caucho.BurlapServiceExporter">
-		<property name="service"><ref bean="contactManager"/></property>
-		<property name="serviceInterface">
-			<value>sample.contact.ContactManager</value>
-		</property>
+		<property name="service" ref="contactManager"/>
+		<property name="serviceInterface" value="sample.contact.ContactManager"/>
 	</bean>
 
 </beans>
