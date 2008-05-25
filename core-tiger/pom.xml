@@ -89,7 +89,7 @@
             
     	<spring.osgi.import>
     	    javax.annotation.*;version="[1.0.0, 2.0.0)",
-    	    org.springframework.security.*;version="[${pom.version},${pom.version}]",
+    	    org.springframework.security.*;version="[${pom.version.osgi},${pom.version.osgi}]",
     	    org.springframework.core.*;version="${spring.version.osgi}"
     	</spring.osgi.import>
 

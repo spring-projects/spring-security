@@ -42,11 +42,11 @@
     
     <properties>
       	<spring.osgi.export>
-      	    org.springframework.security.*;version=${pom.version}
+      	    org.springframework.security.*;version=${pom.version.osgi}
       	</spring.osgi.export>
             
     	<spring.osgi.import>
-    	    org.springframework.security.*;version="[${pom.version},${pom.version}]",
+    	    org.springframework.security.*;version="[${pom.version.osgi},${pom.version.osgi}]",
             org.springframework.beans.*;version="${spring.version.osgi}",
             org.springframework.context.*;version="${spring.version.osgi}",
             org.springframework.dao.*;version="${spring.version.osgi}";resolution:=optional,

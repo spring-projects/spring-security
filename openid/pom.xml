@@ -41,14 +41,14 @@
 
     <properties>
         <spring.osgi.export>
-            org.springframework.security.*;version=${pom.version}
+            org.springframework.security.*;version=${pom.version.osgi}
         </spring.osgi.export>
             
         <spring.osgi.import>
             javax.servlet.*;version="[2.4.0, 3.0.0)",
             org.apache.commons.logging.*;version="[1.1.1, 2.0.0)",
             org.openid4java.*;version="[0.9.3, 1.0.0)",
-            org.springframework.security.*;version="[${pom.version},${pom.version}]",
+            org.springframework.security.*;version="[${pom.version.osgi},${pom.version.osgi}]",
             org.springframework.beans.*;version="${spring.version.osgi}",
             org.springframework.util.*;version="${spring.version.osgi}"
         </spring.osgi.import>
