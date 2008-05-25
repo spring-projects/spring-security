@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -116,9 +117,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
 
     //~ Methods ========================================================================================================
 
-    /**
-     * The default behavior of this method is to return getCookies() on the wrapped request object.
-     */
     public Cookie[] getCookies() {
         if (savedRequest == null) {
             return super.getCookies();
@@ -129,10 +127,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         }
     }
 
-    /**
-     * The default behavior of this method is to return getDateHeader(String name) on the wrapped request
-     * object.
-     */
     public long getDateHeader(String name) {
         if (savedRequest == null) {
             return super.getDateHeader(name);
@@ -154,9 +148,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         }
     }
 
-    /**
-     * The default behavior of this method is to return getHeader(String name) on the wrapped request object.
-     */
     public String getHeader(String name) {
         if (savedRequest == null) {
             return super.getHeader(name);
@@ -174,9 +165,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         }
     }
 
-    /**
-     * The default behavior of this method is to return getHeaderNames() on the wrapped request object.
-     */
     public Enumeration getHeaderNames() {
         if (savedRequest == null) {
             return super.getHeaderNames();
@@ -185,9 +173,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         }
     }
 
-    /**
-     * The default behavior of this method is to return getHeaders(String name) on the wrapped request object.
-     */
     public Enumeration getHeaders(String name) {
         if (savedRequest == null) {
             return super.getHeaders(name);
@@ -196,10 +181,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         }
     }
 
-    /**
-     * The default behavior of this method is to return getIntHeader(String name) on the wrapped request
-     * object.
-     */
     public int getIntHeader(String name) {
         if (savedRequest == null) {
             return super.getIntHeader(name);
@@ -214,9 +195,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         }
     }
 
-    /**
-     * The default behavior of this method is to return getLocale() on the wrapped request object.
-     */
     public Locale getLocale() {
         if (savedRequest == null) {
             return super.getLocale();
@@ -238,10 +216,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         }
     }
 
-    /**
-     * The default behavior of this method is to return getLocales() on the wrapped request object.
-     *
-     */
     public Enumeration getLocales() {
         if (savedRequest == null) {
             return super.getLocales();
@@ -259,10 +233,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         }
     }
 
-    /**
-     * The default behavior of this method is to return getMethod() on the wrapped request object.
-     *
-     */
     public String getMethod() {
         if (savedRequest == null) {
             return super.getMethod();
@@ -272,75 +242,54 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     }
 
     /**
-     * The default behavior of this method is to return getParameter(String name) on the wrapped request
-     * object.
+     * If the parameter is available from the wrapped request then either
+     * <ol>
+     * <li>There is no saved request (it a normal request)</li>
+     * <li>There is a saved request, but the request has been forwarded/included to a URL with parameters, either
+     * supplementing or overriding the saved request values.</li>
+     * </ol>
+     * In both cases the value from the wrapped request should be used.
+     * <p>
+     * If the value from the wrapped request is null, an attempt will be made to retrieve the parameter
+     * from the SavedRequest, if available..
      */
     public String getParameter(String name) {
-/*
-   if (savedRequest == null) {
-       return super.getParameter(name);
-   } else {
-       String value = null;
-       String[] values = savedRequest.getParameterValues(name);
-       if (values == null)
-           return null;
-       for (int i = 0; i < values.length; i++) {
-           value = values[i];
-           break;
-       }
-       return value;
-   }
- */
-
-        //we do not get value from super.getParameter because there is a bug in Jetty servlet-container
-        String value = null;
-        String[] values = null;
-
-        if (savedRequest == null) {
-            values = super.getParameterValues(name);
-        } else {
-            values = savedRequest.getParameterValues(name);
+        String value = super.getParameter(name);
+        
+        if (value != null || savedRequest == null) {
+        	return value;
         }
 
-        if (values == null) {
-            return null;
-        }
+        String[] values = savedRequest.getParameterValues(name);
+		if (values == null)
+			return null;
+		for (int i = 0; i < values.length; i++) {
+			value = values[i];
+			break;
+		}
 
-        for (int i = 0; i < values.length; i++) {
-            value = values[i];
-
-            break;
-        }
-
-        return value;
+		return value;
     }
 
-    /**
-     * The default behavior of this method is to return getParameterMap() on the wrapped request object.
-     */
     public Map getParameterMap() {
-        if (savedRequest == null) {
-            return super.getParameterMap();
-        } else {
-            return savedRequest.getParameterMap();
+    	Map parameters = super.getParameterMap();
+        
+    	if (savedRequest == null) {
+            return parameters;
         }
+    	
+    	// We have a saved request so merge the values, with the wrapped request taking precedence (see getParameter())
+    	Map newParameters = new HashMap(savedRequest.getParameterMap().size() + parameters.size());
+    	newParameters.putAll(savedRequest.getParameterMap());
+    	newParameters.putAll(parameters);
+    	
+    	return newParameters;
     }
 
-    /**
-     * The default behavior of this method is to return getParameterNames() on the wrapped request object.
-     */
     public Enumeration getParameterNames() {
-        if (savedRequest == null) {
-            return super.getParameterNames();
-        } else {
-            return new Enumerator(savedRequest.getParameterNames());
-        }
+    	return new Enumerator(getParameterMap().keySet());
     }
 
-    /**
-     * The default behavior of this method is to return getParameterValues(String name) on the wrapped request
-     * object.
-     */
     public String[] getParameterValues(String name) {
         if (savedRequest == null) {
             return super.getParameterValues(name);
