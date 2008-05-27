@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
@@ -40,7 +39,6 @@ import org.springframework.security.ui.rememberme.NullRememberMeServices;
 import org.springframework.security.ui.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
 import org.springframework.security.ui.rememberme.RememberMeServices;
-import org.springframework.security.ui.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FieldUtils;
@@ -405,7 +403,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         setContext(
                 "<http auto-config='true'>" +
                 "    <concurrent-session-control session-registry-alias='seshRegistry' expired-url='/expired'/>" +
-                "</http>"  + AUTH_PROVIDER_XML);
+                "</http>" + AUTH_PROVIDER_XML);
         List filters = getFilters("/someurl");
         
         assertTrue(filters.get(0) instanceof ConcurrentSessionFilter);        
@@ -413,6 +411,55 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertNotNull(appContext.getBean(BeanIds.CONCURRENT_SESSION_CONTROLLER));
     }    
 
+    @Test
+    public void externalSessionRegistryBeanIsConfiguredCorrectly() throws Exception {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <concurrent-session-control session-registry-ref='seshRegistry' />" +
+                "</http>" +
+                "<b:bean id='seshRegistry' class='org.springframework.security.concurrent.SessionRegistryImpl'/>" +
+                AUTH_PROVIDER_XML);
+        Object sessionRegistry = appContext.getBean("seshRegistry");
+        Object sessionRegistryFromFilter = FieldUtils.getFieldValue(
+        		appContext.getBean(BeanIds.CONCURRENT_SESSION_FILTER),"sessionRegistry");
+        Object sessionRegistryFromController = FieldUtils.getFieldValue(
+        		appContext.getBean(BeanIds.CONCURRENT_SESSION_CONTROLLER),"sessionRegistry");
+        Object sessionRegistryFromFixationFilter = FieldUtils.getFieldValue(
+        		appContext.getBean(BeanIds.SESSION_FIXATION_PROTECTION_FILTER),"sessionRegistry");
+        
+        assertSame(sessionRegistry, sessionRegistryFromFilter);
+        assertSame(sessionRegistry, sessionRegistryFromController);
+        assertSame(sessionRegistry, sessionRegistryFromFixationFilter);
+    }
+
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void concurrentSessionSupportCantBeUsedWithIndependentControllerBean() throws Exception {
+        setContext(
+                "<authentication-manager alias='authManager' session-controller-ref='sc'/>" +
+                "<http auto-config='true'>" +
+                "    <concurrent-session-control session-registry-alias='seshRegistry' expired-url='/expired'/>" +
+                "</http>" +
+                "<b:bean id='sc' class='org.springframework.security.concurrent.ConcurrentSessionControllerImpl'>" +
+                "  <b:property name='sessionRegistry'>" +
+                "    <b:bean class='org.springframework.security.concurrent.SessionRegistryImpl'/>" +
+                "  </b:property>" +
+                "</b:bean>" + AUTH_PROVIDER_XML);
+    }
+
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void concurrentSessionSupportCantBeUsedWithIndependentControllerBean2() throws Exception {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <concurrent-session-control session-registry-alias='seshRegistry' expired-url='/expired'/>" +
+                "</http>" +
+                "<b:bean id='sc' class='org.springframework.security.concurrent.ConcurrentSessionControllerImpl'>" +
+                "  <b:property name='sessionRegistry'>" +
+                "    <b:bean class='org.springframework.security.concurrent.SessionRegistryImpl'/>" +
+                "  </b:property>" +
+                "</b:bean>" +
+                "<authentication-manager alias='authManager' session-controller-ref='sc'/>" + AUTH_PROVIDER_XML);
+    }    
+    
     @Test(expected=ConcurrentLoginException.class)
     public void concurrentSessionMaxSessionsIsCorrectlyConfigured() throws Exception {
         setContext(

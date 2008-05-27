@@ -489,7 +489,16 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" ref="security:protect"/>
+        <xs:element maxOccurs="unbounded" name="protect">
+          <xs:annotation>
+            <xs:documentation>Defines a protected method and the access control configuration
+              attributes that apply to it. We strongly advise you NOT to mix "protect" declarations
+              with any services provided "global-method-security".</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:attributeGroup ref="security:protect.attlist"/>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
       <xs:attributeGroup ref="security:intercept-methods.attlist"/>
     </xs:complexType>
@@ -502,16 +511,6 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
-  <xs:element name="protect">
-    <xs:annotation>
-      <xs:documentation>Defines a protected method and the access control configuration attributes
-        that apply to it. We strongly advise you NOT to mix "protect" declarations with any services
-        provided "global-method-security".</xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:attributeGroup ref="security:protect.attlist"/>
-    </xs:complexType>
-  </xs:element>
   <xs:attributeGroup name="protect.attlist">
     <xs:attribute name="method" use="required" type="xs:string">
       <xs:annotation>
@@ -1014,12 +1013,28 @@
   </xs:attributeGroup>
   <xs:attributeGroup name="concurrent-sessions.attlist">
     <xs:attribute name="max-sessions" type="xs:positiveInteger"/>
-    <xs:attribute name="expired-url" type="xs:string"/>
-    <xs:attribute name="exception-if-maximum-exceeded" type="security:boolean"/>
+    <xs:attribute name="expired-url" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The URL a user will be redirected to if they attempt to use a session
+          which has been "expired" by the concurrent session controller.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="exception-if-maximum-exceeded" type="security:boolean">
+      <xs:annotation>
+        <xs:documentation>Specifies that an exception should be raised when a user attempts to login
+          twice. The default behaviour is to expire the original session.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="session-registry-alias" type="xs:string">
       <xs:annotation>
         <xs:documentation>Allows you to define an alias for the SessionRegistry bean in order to
           access it in your own configuration</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="session-registry-ref" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>A reference to an external SessionRegistry implementation which will be
+          used in place of the standard one. </xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -1130,8 +1145,8 @@
   <xs:element name="authentication-manager">
     <xs:annotation>
       <xs:documentation>If you are using namespace configuration with Spring Security, an
-        AuthenticationManager will automatically be registered. This element simple allows you to
-        define an alias to allow you to reference the authentication-manager in your own beans.
+        AuthenticationManager will automatically be registered. This element allows you to define an
+        alias to allow you to reference the authentication-manager in your own beans.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
@@ -1139,11 +1154,19 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="authman.attlist">
-    <xs:annotation>
-      <xs:documentation>The alias you wish to use for the AuthenticationManager
-      bean</xs:documentation>
-    </xs:annotation>
-    <xs:attribute name="alias" use="required" type="xs:ID"/>
+    <xs:attribute name="alias" use="required" type="xs:ID">
+      <xs:annotation>
+        <xs:documentation>The alias you wish to use for the AuthenticationManager
+        bean</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="session-controller-ref" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Allows the session controller to be set on the internal
+          AuthenticationManager. This should not be used with the &lt;concurrent-session-control
+          /&gt; element</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="authentication-provider">
     <xs:annotation>

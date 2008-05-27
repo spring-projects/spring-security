@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.MutablePropertyValues;
+import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -22,6 +23,7 @@ import org.springframework.security.vote.AffirmativeBased;
 import org.springframework.security.vote.AuthenticatedVoter;
 import org.springframework.security.vote.RoleVoter;
 import org.springframework.util.StringUtils;
+import org.w3c.dom.Element;
 
 /**
  * Utility methods used internally by the Spring Security namespace configuration code.
@@ -167,5 +169,18 @@ public abstract class ConfigUtils {
     		return;
     	}
     	pc.getReaderContext().warning(url + " is not a valid redirect URL (must start with '/' or http(s))", source);
+    }
+    
+    static void setSessionControllerOnAuthenticationManager(ParserContext pc, String beanName, Element sourceElt) {
+    	BeanDefinition authManager = registerProviderManagerIfNecessary(pc);
+        PropertyValue pv = authManager.getPropertyValues().getPropertyValue("sessionController");
+        
+        if (pv != null && pv.getValue() != null) {
+        	pc.getReaderContext().error("A session controller has already been set on the authentication manager. " +
+        			"The <concurrent-session-control> element isn't compatible with a custom session controller", 
+        			pc.extractSource(sourceElt));
+        }
+        
+        authManager.getPropertyValues().addPropertyValue("sessionController", new RuntimeBeanReference(beanName));
     }
 }

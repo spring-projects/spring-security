@@ -335,13 +335,17 @@ concurrent-session-control =
 concurrent-sessions.attlist &=
     attribute max-sessions {xsd:positiveInteger}?
 concurrent-sessions.attlist &=
+    ## The URL a user will be redirected to if they attempt to use a session which has been "expired" by the concurrent session controller.
     attribute expired-url {xsd:string}?
 concurrent-sessions.attlist &=
+    ## Specifies that an exception should be raised when a user attempts to login twice. The default behaviour is to expire the original session.
     attribute exception-if-maximum-exceeded {boolean}?
 concurrent-sessions.attlist &=
     ## Allows you to define an alias for the SessionRegistry bean in order to access it in your own configuration
     attribute session-registry-alias {xsd:string}?
-
+concurrent-sessions.attlist &=
+    ## A reference to an external SessionRegistry implementation which will be used in place of the standard one. 
+    attribute session-registry-ref {xsd:string}?
 
 remember-me =
     ## Sets up remember-me authentication. If used with the "key" attribute (or no attributes) the cookie-only implementation will be used. Specifying "token-repository-ref" or "remember-me-data-source-ref" will use the more secure, persisten token approach.     
@@ -408,11 +412,15 @@ x509.attlist &=
     user-service-ref?
 
 authentication-manager =
-    ## If you are using namespace configuration with Spring Security, an AuthenticationManager will automatically be registered. This element simple allows you to define an alias to allow you to reference the authentication-manager in your own beans. 
+    ## If you are using namespace configuration with Spring Security, an AuthenticationManager will automatically be registered. This element allows you to define an alias to allow you to reference the authentication-manager in your own beans. 
     element authentication-manager {authman.attlist}
-    ## The alias you wish to use for the AuthenticationManager bean
 authman.attlist &=
+    ## The alias you wish to use for the AuthenticationManager bean
     attribute alias {xsd:ID}
+authman.attlist &=
+    ## Allows the session controller to be set on the internal AuthenticationManager. This should not be used with the <concurrent-session-control /> element
+    attribute session-controller-ref {xsd:string}?
+
 
 authentication-provider =
     ## Indicates that the contained user-service should be used as an authentication source. 
