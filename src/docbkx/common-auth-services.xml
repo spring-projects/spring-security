@@ -6,13 +6,13 @@
       <title>Mechanisms, Providers and Entry Points</title>
     </info>
 
-    <para>If you're using Spring Security-provided authentication
-    approaches, you'll usually need to configure a web filter, together
+    <para>To use Spring Security's authentication services,
+    you'll usually need to configure a web filter, together
     with an <literal>AuthenticationProvider</literal> and
     <literal>AuthenticationEntryPoint</literal>. In this section we are
     going to explore an example application that needs to support both
-    form-based authentication (ie so a nice HTML page is presented to a
-    user for them to login) plus BASIC authentication (ie so a web service
+    form-based authentication (so a nice HTML page is presented to a
+    user for them to login) and BASIC authentication (so a web service
     or similar can access protected resources).</para>
 
     <para>In the web.xml, this application will need a single Spring
@@ -236,7 +236,9 @@
     <literal>UserDetailsService</literal> interfaces. The contract for
     this latter interface consists of a single method:</para>
 
-    <para><programlisting>public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException;</programlisting></para>
+    <para><programlisting>
+  UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException;
+    </programlisting></para>
 
     <para>The returned <literal>UserDetails</literal> is an interface that
     provides getters that guarantee non-null provision of basic
@@ -245,7 +247,7 @@
     authentication providers will use a
     <literal>UserDetailsService</literal>, even if the username and
     password are not actually used as part of the authentication decision.
-    Generally such provider will be using the returned
+    Generally such providers will be using the returned
     <literal>UserDetails</literal> object just for its
     <literal>GrantedAuthority[]</literal> information, because some other
     system (like LDAP or X509 or CAS etc) has undertaken the
