@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.Map.Entry;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -280,9 +282,27 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     	
     	// We have a saved request so merge the values, with the wrapped request taking precedence (see getParameter())
     	Map newParameters = new HashMap(savedRequest.getParameterMap().size() + parameters.size());
-    	newParameters.putAll(savedRequest.getParameterMap());
     	newParameters.putAll(parameters);
     	
+    	Iterator savedParams = savedRequest.getParameterMap().entrySet().iterator();
+    	
+    	while (savedParams.hasNext()) {
+    		Map.Entry entry = (Entry) savedParams.next();
+    		String name = (String) entry.getKey();
+    		String[] savedParamValues = (String[]) entry.getValue();
+    		
+    		if (newParameters.containsKey(name)) {
+    			// merge values
+    			String[] existingValues = (String[]) newParameters.get(name);
+    			String[] mergedValues = new String[savedParamValues.length + existingValues.length];
+    			System.arraycopy(existingValues, 0, mergedValues, 0, existingValues.length);
+    			System.arraycopy(savedParamValues, 0, mergedValues, existingValues.length, savedParamValues.length);
+    			newParameters.put(name, mergedValues);
+    		} else {
+    			newParameters.put(name, savedParamValues);
+    		}
+    	}
+
     	return newParameters;
     }
 
@@ -291,10 +311,23 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     }
 
     public String[] getParameterValues(String name) {
-        if (savedRequest == null) {
-            return super.getParameterValues(name);
-        } else {
-            return savedRequest.getParameterValues(name);
-        }
+    	String[] savedRequestParams = savedRequest == null ? null : savedRequest.getParameterValues(name);
+    	String[] wrappedRequestParams = super.getParameterValues(name);
+
+    	if (savedRequestParams == null && wrappedRequestParams == null) {
+    		return null;
+    	}
+
+    	List combinedParams = new ArrayList();
+
+    	if (wrappedRequestParams != null) {
+    		combinedParams.addAll(Arrays.asList(wrappedRequestParams));
+    	}
+
+    	if (savedRequestParams != null) {
+    		combinedParams.addAll(Arrays.asList(savedRequestParams));
+    	}
+
+    	return (String[]) combinedParams.toArray(new String[combinedParams.size()]);
     }
 }
