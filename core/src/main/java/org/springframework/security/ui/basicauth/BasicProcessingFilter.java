@@ -93,6 +93,7 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
     private AuthenticationManager authenticationManager;
     private RememberMeServices rememberMeServices;
     private boolean ignoreFailure = false;
+    private String credentialsCharset = "UTF-8";
 
     //~ Methods ========================================================================================================
 
@@ -114,8 +115,8 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
         }
 
         if ((header != null) && header.startsWith("Basic ")) {
-            String base64Token = header.substring(6);
-            String token = new String(Base64.decodeBase64(base64Token.getBytes()));
+            byte[] base64Token = header.substring(6).getBytes("UTF-8");
+            String token = new String(Base64.decodeBase64(base64Token), getCredentialsCharset(httpRequest));
 
             String username = "";
             String password = "";
@@ -172,7 +173,7 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
         chain.doFilter(httpRequest, httpResponse);
     }
 
-    private boolean authenticationIsRequired(String username) {
+	private boolean authenticationIsRequired(String username) {
         // Only reauthenticate if username doesn't match SecurityContextHolder and user isn't authenticated
         // (see SEC-53)
         Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
@@ -235,7 +236,16 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
         this.rememberMeServices = rememberMeServices;
     }
 
-    public int getOrder() {
+    public void setCredentialsCharset(String credentialsCharset) {
+    	Assert.hasText(credentialsCharset, "credentialsCharset cannot be null or empty");
+		this.credentialsCharset = credentialsCharset;
+	}
+    
+    protected String getCredentialsCharset(HttpServletRequest httpRequest) {
+		return credentialsCharset;
+	}    
+    
+	public int getOrder() {
         return FilterChainOrder.BASIC_PROCESSING_FILTER;
     }
 }
