@@ -50,7 +50,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="port">
-    <xs:attribute name="port" use="required" type="xs:integer">
+    <xs:attribute name="port" use="required" type="xs:string">
       <xs:annotation>
         <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP server,
           for example.</xs:documentation>
@@ -192,7 +192,7 @@
         <xs:documentation>Specifies a URL.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="port" type="xs:integer">
+    <xs:attribute name="port" type="xs:string">
       <xs:annotation>
         <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP server,
           for example.</xs:documentation>
@@ -1012,7 +1012,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="concurrent-sessions.attlist">
-    <xs:attribute name="max-sessions" type="xs:positiveInteger"/>
+    <xs:attribute name="max-sessions" type="xs:string"/>
     <xs:attribute name="expired-url" type="xs:string">
       <xs:annotation>
         <xs:documentation>The URL a user will be redirected to if they attempt to use a session
@@ -1064,7 +1064,7 @@
         Id</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="token-validity-seconds" type="xs:positiveInteger">
+    <xs:attribute name="token-validity-seconds" type="xs:string">
       <xs:annotation>
         <xs:documentation>The period (in seconds) for which the remember-me cookie should be valid.
         </xs:documentation>
@@ -1122,10 +1122,10 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="http-port">
-    <xs:attribute name="http" use="required" type="xs:integer"/>
+    <xs:attribute name="http" use="required" type="xs:string"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="https-port">
-    <xs:attribute name="https" use="required" type="xs:integer"/>
+    <xs:attribute name="https" use="required" type="xs:string"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="x509.attlist">
     <xs:attribute name="subject-principal-regex" type="xs:string">
