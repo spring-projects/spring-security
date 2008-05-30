@@ -142,7 +142,7 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 	}
 
 	public void addPointcut(String pointcutExpression, ConfigAttributeDefinition definition) {
-		Assert.hasText(pointcutExpression, "An AspecTJ pointcut expression is required");
+		Assert.hasText(pointcutExpression, "An AspectJ pointcut expression is required");
 		Assert.notNull(definition, "ConfigAttributeDefinition required");
 		pointcutMap.put(pointcutExpression, definition);
 		
