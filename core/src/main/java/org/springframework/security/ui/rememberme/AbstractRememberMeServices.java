@@ -348,4 +348,8 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     protected AuthenticationDetailsSource getAuthenticationDetailsSource() {
         return authenticationDetailsSource;
     }
+
+	public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+		this.authenticationDetailsSource = authenticationDetailsSource;
+	}
 }
