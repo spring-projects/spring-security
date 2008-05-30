@@ -45,7 +45,7 @@
     <literal>AuthenticationHandler</literal>s out of the box to assist
     with this. When you download and deploy the server war file, it is set up
     to successfully authenticate users who enter a password matching their
-    username, which is sueful for testing.</para>
+    username, which is useful for testing.</para>
 
     <para>Apart from the CAS server itself, the other key players are of
     course the secure web applications deployed throughout your
@@ -313,7 +313,6 @@
     <para>
       The <classname>CasProcessingFilterEntryPoint</classname> should be selected to
       drive authentication using <link xlink:href="ns-entry-point-ref"><literal>entry-point-ref</literal></link>.
-      
     </para>
 
     <para>The <literal>CasProcessingFilter</literal> has very similar
