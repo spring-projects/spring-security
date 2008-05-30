@@ -30,12 +30,14 @@ import org.springframework.util.Assert;
 
 
 /**
- * Used by the <code>SecurityEnforcementFilter</code> to commence authentication via the JA-SIG Central
- * Authentication Service (CAS).<P>The user's browser will be redirected to the JA-SIG CAS enterprise-wide login
- * page. This page is specified by the <code>loginUrl</code> property. Once login is complete, the CAS login page will
+ * Used by the <code>ExceptionTranslationFilter</code> to commence authentication via the JA-SIG Central
+ * Authentication Service (CAS).
+ * <p>
+ * The user's browser will be redirected to the JA-SIG CAS enterprise-wide login page. 
+ * This page is specified by the <code>loginUrl</code> property. Once login is complete, the CAS login page will
  * redirect to the page indicated by the <code>service</code> property. The <code>service</code> is a HTTP URL
  * belonging to the current application. The <code>service</code> URL is monitored by the {@link CasProcessingFilter},
- * which will validate the CAS login was successful.</p>
+ * which will validate the CAS login was successful.
  *
  * @author Ben Alex
  * @author Scott Battaglia
@@ -65,8 +67,8 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, 
     }
 
     public void commence(final ServletRequest servletRequest, final ServletResponse servletResponse,
-        final AuthenticationException authenticationException)
-        throws IOException, ServletException {
+    		final AuthenticationException authenticationException) throws IOException, ServletException {
+
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
         final String urlEncodedService = CommonUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null, "ticket", this.encodeServiceUrlWithSessionId);
         final String redirectUrl = CommonUtils.constructRedirectUrl(this.loginUrl, "service", urlEncodedService, this.serviceProperties.isSendRenew(), false);
