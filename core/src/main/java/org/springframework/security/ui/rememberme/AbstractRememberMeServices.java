@@ -313,7 +313,14 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         this.alwaysRemember = alwaysRemember;
     }
 
+    /**
+     * Sets the name of the parameter which should be checked for to see if a remember-me has been requested
+     * during a login request. This should be the same name you assign to the checkbox in your login form.
+     * 
+     * @param parameter the HTTP request parameter
+     */
     public void setParameter(String parameter) {
+    	Assert.hasText(parameter, "Parameter name cannot be null");
         this.parameter = parameter;
     }
 
@@ -326,6 +333,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     }
 
     public void setUserDetailsService(UserDetailsService userDetailsService) {
+    	Assert.notNull(userDetailsService, "UserDetailsService canot be null");
         this.userDetailsService = userDetailsService;
     }
 
@@ -350,6 +358,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     }
 
 	public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+		Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource cannot be null");
 		this.authenticationDetailsSource = authenticationDetailsSource;
 	}
 }
