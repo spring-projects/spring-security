@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.ui.savedrequest.SavedRequest;
-import org.springframework.security.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -72,9 +71,6 @@ public class TargetUrlResolverImpl implements TargetUrlResolver {
         if (savedRequest != null) {
             if (!justUseSavedRequestOnGet || savedRequest.getMethod().equals("GET")) {
                 targetUrl = savedRequest.getFullRequestUrl();
-            } else {
-            	// SavedRequest not used
-            	UrlUtils.clearSavedRequest(currentRequest);
             }
         }
 
