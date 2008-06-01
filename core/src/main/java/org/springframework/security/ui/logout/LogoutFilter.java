@@ -132,7 +132,7 @@ public class LogoutFilter extends SpringSecurityFilter {
         String targetUrl = request.getParameter("logoutSuccessUrl");
 
         if(!StringUtils.hasLength(targetUrl)) {
-            targetUrl = logoutSuccessUrl;
+            targetUrl = getLogoutSuccessUrl();
         }
 
         if (!StringUtils.hasLength(targetUrl)) {
@@ -167,6 +167,10 @@ public class LogoutFilter extends SpringSecurityFilter {
         this.filterProcessesUrl = filterProcessesUrl;
     }
 
+    protected String getLogoutSuccessUrl() {
+        return logoutSuccessUrl;
+    }    
+    
     protected String getFilterProcessesUrl() {
         return filterProcessesUrl;
     }
