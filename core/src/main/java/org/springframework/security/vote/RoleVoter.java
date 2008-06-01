@@ -25,9 +25,9 @@ import org.springframework.security.GrantedAuthority;
 /**
  * Votes if any {@link ConfigAttribute#getAttribute()} starts with a prefix
  * indicating that it is a role. The default prefix string is <Code>ROLE_</code>,
- * but this may be overriden to any value. It may also be set to empty, which
+ * but this may be overridden to any value. It may also be set to empty, which
  * means that essentially any attribute will be voted on. As described further
- * below, the effect of an empty prefix may not be quite desireable.
+ * below, the effect of an empty prefix may not be quite desirable.
  * <p>
  * Abstains from voting if no configuration attribute commences with the role
  * prefix. Votes to grant access if there is an exact matching
@@ -40,7 +40,7 @@ import org.springframework.security.GrantedAuthority;
  * ConfigAttribute. When there are different categories of ConfigAttributes
  * used, this will not be optimal since the voter will be voting for attributes
  * which do not represent roles. However, this option may be of some use when
- * using preexisting role names without a prefix, and no ability exists to
+ * using pre-existing role names without a prefix, and no ability exists to
  * prefix them with a role prefix on reading them in, such as provided for
  * example in {@link org.springframework.security.userdetails.jdbc.JdbcDaoImpl}.
  * <p>
@@ -62,8 +62,8 @@ public class RoleVoter implements AccessDecisionVoter {
     }
 
     /**
-     * Allows the default role prefix of <code>ROLE_</code> to be overriden.
-     * May be set to an empty value, although this is usually not desireable.
+     * Allows the default role prefix of <code>ROLE_</code> to be overridden.
+     * May be set to an empty value, although this is usually not desirable.
      *
      * @param rolePrefix the new prefix
      */
