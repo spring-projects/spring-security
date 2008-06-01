@@ -7,7 +7,7 @@ start = http | ldap-server | authentication-provider | ldap-authentication-provi
 
 hash =
     ## Defines the hashing algorithm used on user passwords. We recommend strongly against using MD4, as it is a very weak hashing algorithm.
-    attribute hash {"plaintext" | "sha" | "md5" | "md4" | "{sha}" | "{ssha}"}
+    attribute hash {"plaintext" | "sha" | "sha-256" | "md5" | "md4" | "{sha}" | "{ssha}"}
 base64 = 
     ## Whether a string should be base64 encoded
     attribute base64 {"true" | "false"}
@@ -34,6 +34,10 @@ cache-ref =
 user-service-ref =
     ## A reference to a user-service (or UserDetailsService bean) Id
     attribute user-service-ref {xsd:string}
+
+data-source-ref = 
+    ## A reference to a DataSource bean
+    attribute data-source-ref {xsd:string}    
     
 password-encoder = 
     ## element which defines a password encoding strategy. Used by an authentication provider to convert submitted passwords to hashed versions, for example.
@@ -53,7 +57,7 @@ system-wide =
 boolean = "true" | "false"
 
 role-prefix =
-    ## A non-empty string prefix that will be added to role strings loaded from persistent storage (e.g. "ROLE_").
+    ## A non-empty string prefix that will be added to role strings loaded from persistent storage (e.g. "ROLE_"). Use the value "none" for no prefix in cases where the default is non-empty.
     attribute role-prefix {xsd:string}
 
 
@@ -251,7 +255,7 @@ intercept-url.attlist &=
     attribute method {"GET" | "DELETE" | "HEAD" | "OPTIONS" | "POST" | "PUT" | "TRACE"}?
 
 intercept-url.attlist &=
-    ## The filter list for the path. Currently can be set to "none" to remove a path from having any filters applied. The full filter stack (consisting of all defined filters, will be applied to any other paths).
+    ## The filter list for the path. Currently can be set to "none" to remove a path from having any filters applied. The full filter stack (consisting of all filters created by the namespace configuration, and any added using 'custom-filter'), will be applied to any other paths.
     attribute filters {"none"}?
 intercept-url.attlist &=
     ## Used to specify that a URL must be accessed over http or https
@@ -331,20 +335,44 @@ concurrent-session-control =
 concurrent-sessions.attlist &=
     attribute max-sessions {xsd:positiveInteger}?
 concurrent-sessions.attlist &=
+    ## The URL a user will be redirected to if they attempt to use a session which has been "expired" by the concurrent session controller.
     attribute expired-url {xsd:string}?
 concurrent-sessions.attlist &=
+    ## Specifies that an exception should be raised when a user attempts to login twice. The default behaviour is to expire the original session.
     attribute exception-if-maximum-exceeded {boolean}?
 concurrent-sessions.attlist &=
     ## Allows you to define an alias for the SessionRegistry bean in order to access it in your own configuration
     attribute session-registry-alias {xsd:string}?
-
+concurrent-sessions.attlist &=
+    ## A reference to an external SessionRegistry implementation which will be used in place of the standard one. 
+    attribute session-registry-ref {xsd:string}?
 
 remember-me =
+    ## Sets up remember-me authentication. If used with the "key" attribute (or no attributes) the cookie-only implementation will be used. Specifying "token-repository-ref" or "remember-me-data-source-ref" will use the more secure, persisten token approach.     
     element remember-me {remember-me.attlist}
 remember-me.attlist &=
-    (attribute key {xsd:string} | (attribute token-repository-ref {xsd:string} | attribute data-source-ref {xsd:string}))
+    ## The "key" used to identify cookies from a specific token-based remember-me application. You should set this to a unique value for your application.
+    attribute key {xsd:string}?
+    
+remember-me.attlist &=
+    (token-repository-ref | remember-me-data-source-ref | remember-me-services-ref)
+
 remember-me.attlist &=
     user-service-ref?
+    
+remember-me.attlist &=
+    ## The period (in seconds) for which the remember-me cookie should be valid. 
+    attribute token-validity-seconds {xsd:positiveInteger}?
+    
+token-repository-ref =
+    ## Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation. 
+    attribute token-repository-ref {xsd:string}
+remember-me-services-ref =     
+    ## Allows a custom implementation of RememberMeServices to be used. Note that this implementation should return RememberMeAuthenticationToken instances with the same "key" value as specified in the remember-me element. Alternatively it should register its own AuthenticationProvider. 
+    attribute services-ref {xsd:string}?
+remember-me-data-source-ref =
+    ## DataSource bean for the database that contains the token  
+    data-source-ref
 
 anonymous =
     ## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
@@ -384,11 +412,15 @@ x509.attlist &=
     user-service-ref?
 
 authentication-manager =
-    ## If you are using namespace configuration with Spring Security, an AuthenticationManager will automatically be registered. This element simple allows you to define an alias to allow you to reference the authentication-manager in your own beans. 
+    ## If you are using namespace configuration with Spring Security, an AuthenticationManager will automatically be registered. This element allows you to define an alias to allow you to reference the authentication-manager in your own beans. 
     element authentication-manager {authman.attlist}
-    ## The alias you wish to use for the AuthenticationManager bean
 authman.attlist &=
+    ## The alias you wish to use for the AuthenticationManager bean
     attribute alias {xsd:ID}
+authman.attlist &=
+    ## Allows the session controller to be set on the internal AuthenticationManager. This should not be used with the <concurrent-session-control /> element
+    attribute session-controller-ref {xsd:string}?
+
 
 authentication-provider =
     ## Indicates that the contained user-service should be used as an authentication source. 
