@@ -10,8 +10,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:sec="http://www.springframework.org/schema/security"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd
+                        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
     <bean id="accessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
         <property name="decisionVoters">
@@ -44,6 +46,19 @@
 
     <bean id="basicProcessingFilterEntryPoint" class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
         <property name="realmName"><value>My Realm</value></property>
+    </bean>
+    
+	<bean id="bankServiceSecurityInterceptor"
+	    class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+	  <property name="authenticationManager" ref="authenticationManager"/>
+	  <property name="accessDecisionManager" ref="accessDecisionManager"/>
+	  <!-- property name="afterInvocationManager" ref="afterInvocationManager"/ -->
+	  <property name="objectDefinitionSource">
+	    <value>
+	        bigbank.BankService.post*=ROLE_SUPERVISOR
+	        bigbank.BankService.find*=ROLE_SUPERVISOR
+	    </value>
+	  </property>
     </bean>
 
 </beans>

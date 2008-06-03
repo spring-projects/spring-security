@@ -128,8 +128,8 @@ org.springframework.security.AccessDeniedException: Access is denied
     	</faq>
     	<faq>
     		<question>
-    			I've configured the "requires-channel" attribute to use HTTPS for my login page and switch back to HTTP afterwards but I just end up back at
-    			the login page after authenticating. I'm using Tomcat. Why doesn't it work?
+    			I'm using Tomcat and have enabled HTTPS for my login page, switching back to HTTP afterwards. It doesn't work - I just 
+    			end up back at the login page after authenticating.
     		</question>
     		<answer>
     			<p>
@@ -140,7 +140,7 @@ org.springframework.security.AccessDeniedException: Access is denied
     	</faq>
     	<faq>
     		<question>
-    			I'm forwarding a request to another URL using the RequestDispatcher, but my security constraints aren't being applied. Why not?
+    			I'm forwarding a request to another URL using the RequestDispatcher, but my security constraints aren't being applied.
     		</question>
     		<answer>
     			Filters are not applied by default to forwards or includes. If you really want the security filters to be applied to forwards and/or includes, 
@@ -156,9 +156,9 @@ org.springframework.security.AccessDeniedException: Access is denied
 	  			<p>This question comes up repeatedly in the Spring Security forum so you will find more information there.</p>
 	  			<p>
 	  			The submitted login information is processed by an instance of <i>AuthenticationProcessingFilter</i>. You will need to customize this class to handle
-	  				the extra data field(s). One option is to use your own customized authentication token class (rather than the standard <i>UsernamePasswordAuthenticatioToken</i>),
+	  				the extra data field(s). One option is to use your own customized authentication token class (rather than the standard <i>UsernamePasswordAuthenticationToken</i>),
 	  				another is simply to concatenate the extra fields with the username (for example, using a ":" as the separator) and pass them in the username property of
-	  				<i>UsernamePasswordAuthenticatioToken</i>.
+	  				<i>UsernamePasswordAuthenticationToken</i>.
 	  			</p>
 	  			<p>
 	  				You will also need to customize the actual authentication process. If you are using a custom authentication token class, for example, you will have to write an 

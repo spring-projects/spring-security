@@ -389,9 +389,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             }
             
             BeanDefinition openIDProvider = openIDProviderBuilder.getBeanDefinition();
-            ConfigUtils.getRegisteredProviders(pc).add(openIDProvider);
-            
             pc.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_PROVIDER, openIDProvider);
+            ConfigUtils.getRegisteredProviders(pc).add(new RuntimeBeanReference(BeanIds.OPEN_ID_PROVIDER));
         }
         
         boolean needLoginPage = false;

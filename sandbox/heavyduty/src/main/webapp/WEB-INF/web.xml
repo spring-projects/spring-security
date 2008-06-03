@@ -64,14 +64,14 @@
 	- Provides core MVC application controller.
     -->
 	<servlet>
-		<servlet-name>bank</servlet-name>
+		<servlet-name>heavyduty</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
 	<servlet-mapping>
-    	<servlet-name>bank</servlet-name>
-    	<url-pattern>*.html</url-pattern>
+    	<servlet-name>heavyduty</servlet-name>
+    	<url-pattern>*.htm</url-pattern>
  	</servlet-mapping>
 
      <welcome-file-list>
