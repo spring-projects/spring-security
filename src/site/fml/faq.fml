@@ -128,8 +128,8 @@ org.springframework.security.AccessDeniedException: Access is denied
     	</faq>
     	<faq>
     		<question>
-    			I've configured the "requires-channel" attribute to use HTTPS for my login page and switch back to HTTP afterwards but I just end up back at
-    			the login page after authenticating. I'm using Tomcat. Why doesn't it work?
+    			I'm using Tomcat and have enabled HTTPS for my login page, switching back to HTTP afterwards. It doesn't work - I just 
+    			end up back at the login page after authenticating.
     		</question>
     		<answer>
     			<p>
@@ -140,7 +140,7 @@ org.springframework.security.AccessDeniedException: Access is denied
     	</faq>
     	<faq>
     		<question>
-    			I'm forwarding a request to another URL using the RequestDispatcher, but my security constraints aren't being applied. Why not?
+    			I'm forwarding a request to another URL using the RequestDispatcher, but my security constraints aren't being applied.
     		</question>
     		<answer>
     			Filters are not applied by default to forwards or includes. If you really want the security filters to be applied to forwards and/or includes, 
