@@ -14,7 +14,6 @@
     <module>webwork</module>
     <module>other</module>
     <module>captcha</module>
-    <module>heavyduty</module>
   </modules>
 
   <dependencies>

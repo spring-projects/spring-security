@@ -18,7 +18,6 @@
         <module>cas</module>
         <module>acl</module>
         <module>taglibs</module>
-        <module>sandbox</module>
   </modules>
 
     <description>Spring Security</description>
