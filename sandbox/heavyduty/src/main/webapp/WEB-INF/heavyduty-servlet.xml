@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean name="testMultiController" class="heavyduty.web.TestMultiActionController">
+	   <property name="methodNameResolver">
+	       <bean class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver"/>
+	   </property>
+	</bean>
+<!-- 	
+	<bean name="/post.html" class="bigbank.web.PostAccounts">
+		<constructor-arg ref="bankService"/>
+	</bean>
+ -->
+	<bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+	  <property name="templateLoaderPath" value="/WEB-INF/freemarker/"/>
+	</bean>
+	
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="prefix" value=""/>
+		<property name="suffix" value=".ftl"/>
+	</bean>
+
+    <bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+        <property name="mappings">
+            <value>
+                **/testMulti.htm=testMultiController
+            </value>
+        </property>
+    </bean>
+
+</beans>

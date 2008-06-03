@@ -10,45 +10,70 @@
     xmlns:b="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.1.xsd">
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.2.xsd">
 
     <b:import resource="appContext-misc.xml"/>
     
-	<global-method-security secured-annotations="enabled"/>		
-
-    <http entry-point-ref='customEntryPoint'>
+	<!-- global-method-security secured-annotations="enabled" access-decision-manager-ref="methodAccessMgr"/ -->
+	
+	<b:bean id="methodAccessmanager" class="org.springframework.security.vote.AffirmativeBased">
+	   <b:property name="decisionVoters">
+	       <b:list>
+	           <b:bean class="sample.TestVoter"/>
+	       </b:list>
+	   </b:property>
+	</b:bean>
+    
+    <!-- http entry-point-ref='customEntryPoint'-->
+    <http>
         <intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
         <intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
+        <intercept-url pattern="/testMulti.htm*" access="IS_AUTHENTICATED_FULLY" />        
 		<!-- Disable web URI authorization, as we're using <global-method-security> and have @Secured the services layer instead
         <intercept-url pattern="/listAccounts.html" access="IS_AUTHENTICATED_REMEMBERED" />
         <intercept-url pattern="/post.html" access="ROLE_TELLER" />
         -->
         <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 <!--
-    Uncomment to enable X509 client authentication support -->
-        <x509 user-service-ref="daoUserService"/> 
-
-
-        <!-- All of this is unnecessary if auto-config="true" -->
-        <form-login default-target-url="/secure/index.jsp" always-use-default-target="true"/>
+    Uncomment to enable X509 client authentication support
+        <x509 user-service-ref="daoUserService"/>
+-->
+        <!-- form-login default-target-url="/secure/index.jsp" login-page="/login.jsp" authentication-failure-url="/login.jsp?login-error=1" always-use-default-target="false"/-->
         <anonymous />
-        <!-- http-basic / -->
+        <http-basic />
         <logout />
+        <remember-me key='doesntmatter' token-repository-ref='tokenRepo' user-service-ref='daoUserService'/>
 <!--          <remember-me user-service-ref="daoUserService"/> -->
 
         <!-- Uncomment to limit the number of sessions a user can have -->
-        <concurrent-session-control max-sessions="1" exception-if-maximum-exceeded="true"/>
+        <concurrent-session-control max-sessions="1" exception-if-maximum-exceeded="true" session-registry-ref='sessionRegistry'/>
+        
     </http>
+
+    <authentication-manager alias="authenticationManager" />
     
-    <authentication-manager alias="authenticationManager"/> 
+    <b:bean id='tokenRepo' class='org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl'/>    
     
+    <!-- Traditional Session Control Beans -->
+<!--     
+    <b:bean id='sessionControlFilter' class="org.springframework.security.concurrent.ConcurrentSessionFilter">
+        <custom-filter position="CONCURRENT_SESSION_FILTER"/>
+        <b:property name="sessionRegistry" ref='sessionRegistry'/>
+    </b:bean>
+    
+    <b:bean id='sessionController' class="org.springframework.security.concurrent.ConcurrentSessionControllerImpl">
+        <b:property name='sessionRegistry' ref='sessionRegistry'/>
+    </b:bean>
+ -->    
+    <b:bean id='sessionRegistry' class="org.springframework.security.concurrent.SessionRegistryImpl"/>
+<!-- 
     <b:bean id="customAuthFilter" class="heavyduty.security.ui.HeavyDutyAuthenticationProcessingFilter">
-        <custom-filter after="AUTHENTICATION_PROCESSING_FILTER"/>
+        <custom-filter position="AUTHENTICATION_PROCESSING_FILTER"/>
         <b:property name="defaultTargetUrl" value="/"/>
         <b:property name="authenticationManager" ref="authenticationManager"/>
     </b:bean>
-    
-    <b:bean id="customEntryPoint" class="heavyduty.security.ui.HeavyDutyEntryPoint">
+ -->    
+    <b:bean id="customEntryPoint" class="heavyduty.security.ui.HeavyDutyEntryPoint"> 
         <b:property name="loginFormUrl" value="/login.jsp"/>
     </b:bean>
 <!--     
