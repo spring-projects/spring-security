@@ -36,7 +36,6 @@
 	<bean name="/ContactManager-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
 		<property name="service" ref="contactManager"/>
 		<property name="serviceInterface" value="sample.contact.ContactManager"/>
-		</property>
 	</bean>
 
 	<!-- Burlap exporter for the ContactManager -->
