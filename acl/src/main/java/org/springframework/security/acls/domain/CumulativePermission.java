@@ -19,20 +19,21 @@ import org.springframework.security.acls.Permission;
 
 
 /**
- * Represents a <code>Permission</code> that is constructed at runtime from other permissions.<p>Methods return
- * <code>this</code>, in order to facilitate method chaining.</p>
+ * Represents a <code>Permission</code> that is constructed at runtime from other permissions.
+ * 
+ * <p>Methods return <code>this</code>, in order to facilitate method chaining.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class CumulativePermission implements Permission {
-    //~ Instance fields ================================================================================================
+public class CumulativePermission extends AbstractPermission {
 
     private String pattern = THIRTY_TWO_RESERVED_OFF;
-    private int mask = 0;
 
-    //~ Methods ========================================================================================================
-
+    public CumulativePermission() {
+    	super(0, ' ');
+    }
+    
     public CumulativePermission clear(Permission permission) {
         this.mask &= ~permission.getMask();
         this.pattern = AclFormattingUtils.demergePatterns(this.pattern, permission.getPattern());
@@ -46,43 +47,16 @@ public class CumulativePermission implements Permission {
 
         return this;
     }
-
     
-    public boolean equals(Object arg0) {
-        if (arg0 == null)
-        {
-            return false;
-        }
-        
-        if (!(arg0 instanceof Permission)) {
-            return false;
-        }
-
-        Permission rhs = (Permission) arg0;
-
-        return (this.mask == rhs.getMask());
-    }
-
-	public int hashCode() {
-		return this.mask;
-	}
-
-	public int getMask() {
-        return this.mask;
-    }
-
-    public String getPattern() {
-        return this.pattern;
-    }
-
     public CumulativePermission set(Permission permission) {
         this.mask |= permission.getMask();
         this.pattern = AclFormattingUtils.mergePatterns(this.pattern, permission.getPattern());
 
         return this;
     }
-
-    public String toString() {
-        return "CumulativePermission[" + pattern + "=" + this.mask + "]";
+    
+    public String getPattern() {
+        return this.pattern;
     }
+
 }

@@ -18,32 +18,23 @@ import org.springframework.security.acls.Permission;
 
 
 /**
- * A set of standard permissions.
- * 
- * <p>
- * You may subclass this class to add additional permissions, or use this class as a guide
- * for creating your own permission classes.
- * </p>
+ * A test permission.
  * 
  * @author Ben Alex
  * @version $Id$
  */
-public class BasePermission extends AbstractRegisteredPermission {
-    public static final Permission READ = new BasePermission(1 << 0, 'R'); // 1
-    public static final Permission WRITE = new BasePermission(1 << 1, 'W'); // 2
-    public static final Permission CREATE = new BasePermission(1 << 2, 'C'); // 4
-    public static final Permission DELETE = new BasePermission(1 << 3, 'D'); // 8
-    public static final Permission ADMINISTRATION = new BasePermission(1 << 4, 'A'); // 16
+public class SpecialPermission extends BasePermission {
+    public static final Permission ENTER = new SpecialPermission(1 << 5, 'E'); // 32
     
     /**
      * Registers the public static permissions defined on this class. This is mandatory so
      * that the static methods will operate correctly.
      */
     static {
-    	registerPermissionsFor(BasePermission.class);
+    	registerPermissionsFor(SpecialPermission.class);
     }
 
-    protected BasePermission(int mask, char code) {
+    protected SpecialPermission(int mask, char code) {
     	super(mask, code);
     }
 }

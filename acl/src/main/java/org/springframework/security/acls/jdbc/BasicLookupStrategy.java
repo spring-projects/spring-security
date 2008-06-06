@@ -240,7 +240,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
                 recipient = new GrantedAuthoritySid(rs.getString("ace_sid"));
             }
 
-            Permission permission = BasePermission.buildFromMask(rs.getInt("mask"));
+            int mask = rs.getInt("mask");
+			Permission permission = convertMaskIntoPermission(mask);
             boolean granting = rs.getBoolean("granting");
             boolean auditSuccess = rs.getBoolean("audit_success");
             boolean auditFailure = rs.getBoolean("audit_failure");
@@ -264,6 +265,10 @@ public final class BasicLookupStrategy implements LookupStrategy {
             }
         }
     }
+
+	protected Permission convertMaskIntoPermission(int mask) {
+		return BasePermission.buildFromMask(mask);
+	}
 
     /**
      * Looks up a batch of <code>ObjectIdentity</code>s directly from the database.<p>The caller is responsible

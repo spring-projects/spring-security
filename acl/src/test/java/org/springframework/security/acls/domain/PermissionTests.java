@@ -22,7 +22,7 @@ import org.springframework.security.acls.Permission;
 
 
 /**
- * Tests BasePermission and CumulativePermission.
+ * Tests classes associated with Permission.
  *
  * @author Ben Alex
  * @version $Id${date}
@@ -63,9 +63,9 @@ public class PermissionTests {
         assertEquals("CumulativePermission[...............................R=1]",
                 new CumulativePermission().set(BasePermission.READ).toString());
 
-        System.out.println("A =  " + new CumulativePermission().set(BasePermission.ADMINISTRATION).toString());
-        assertEquals("CumulativePermission[...........................A....=16]",
-                new CumulativePermission().set(BasePermission.ADMINISTRATION).toString());
+        System.out.println("A =  " + new CumulativePermission().set(SpecialPermission.ENTER).set(BasePermission.ADMINISTRATION).toString());
+        assertEquals("CumulativePermission[..........................EA....=48]",
+                new CumulativePermission().set(SpecialPermission.ENTER).set(BasePermission.ADMINISTRATION).toString());
 
         System.out.println("RA = "
                 + new CumulativePermission().set(BasePermission.ADMINISTRATION).set(BasePermission.READ).toString());
