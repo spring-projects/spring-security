@@ -15,6 +15,7 @@
 package org.springframework.security.acls.objectidentity;
 
 import org.springframework.security.acls.IdentityUnavailableException;
+import org.springframework.security.acls.jdbc.LookupStrategy;
 
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -97,6 +98,12 @@ public class ObjectIdentityImpl implements ObjectIdentity {
     /**
      * Important so caching operates properly.<P>Considers an object of the same class equal if it has the same
      * <code>classname</code> and <code>id</code> properties.</p>
+     * 
+     * <p>
+     * Note that this class uses string equality for the identifier field, which ensures it better supports
+     * differences between {@link LookupStrategy} requirements and the domain object represented by this
+     * <code>ObjectIdentityImpl</code>.
+     * </p>
      *
      * @param arg0 object to compare
      *
@@ -113,7 +120,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 
         ObjectIdentityImpl other = (ObjectIdentityImpl) arg0;
 
-        if (this.getIdentifier().equals(other.getIdentifier()) && this.getJavaType().equals(other.getJavaType())) {
+        if (this.getIdentifier().toString().equals(other.getIdentifier().toString()) && this.getJavaType().equals(other.getJavaType())) {
             return true;
         }
 

@@ -49,6 +49,7 @@ import org.springframework.security.acls.sid.PrincipalSid;
 import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 
 /**
@@ -293,10 +294,10 @@ public final class BasicLookupStrategy implements LookupStrategy {
                     for (int i = 0; i < objectIdentities.length; i++) {
                         // Determine prepared statement values for this iteration
                         String javaType = objectIdentities[i].getJavaType().getName();
-                        Assert.isInstanceOf(Long.class, objectIdentities[i].getIdentifier(),
-                            "This class requires ObjectIdentity.getIdentifier() to be a Long");
 
-                        long id = ((Long) objectIdentities[i].getIdentifier()).longValue();
+                        // No need to check for nulls, as guaranteed non-null by ObjectIdentity.getIdentifier() interface contract
+                        String identifier = objectIdentities[i].getIdentifier().toString();
+                        long id = (Long.valueOf(identifier)).longValue();
 
                         // Inject values
                         ps.setLong((2 * i) + 1, id);

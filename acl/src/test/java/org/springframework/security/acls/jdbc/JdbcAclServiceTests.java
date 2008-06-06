@@ -97,7 +97,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
 
         ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
         ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
-        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
+        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(102));
 
         MutableAcl topParent = jdbcMutableAclService.createAcl(topParentOid);
         MutableAcl middleParent = jdbcMutableAclService.createAcl(middleParentOid);
@@ -337,7 +337,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
 
         ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
         ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
-        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
+        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(102));
         
         // Remove the child and check all related database rows were removed accordingly
         jdbcMutableAclService.deleteAcl(childOid, false);
