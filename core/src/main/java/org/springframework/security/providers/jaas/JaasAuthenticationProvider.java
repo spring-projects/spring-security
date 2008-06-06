@@ -158,7 +158,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
         Assert.hasLength(loginContextName, "loginContextName must be set on " + getClass());
 
         configureJaas(loginConfig);
-
+        
         Assert.notNull(Configuration.getConfiguration(),
               "As per http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/Configuration.html "
             + "\"If a Configuration object was set via the Configuration.setConfiguration method, then that object is "
@@ -246,6 +246,9 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      */
     protected void configureJaas(Resource loginConfig) throws IOException {
         configureJaasUsingLoop();
+
+        // Overcome issue in SEC-760
+        Configuration.getConfiguration().refresh();
     }
 
     /**
@@ -375,7 +378,9 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      * @param token The {@link UsernamePasswordAuthenticationToken} being processed
      */
     protected void publishSuccessEvent(UsernamePasswordAuthenticationToken token) {
-        applicationEventPublisher.publishEvent(new JaasAuthenticationSuccessEvent(token));
+        if (applicationEventPublisher != null) {
+        	applicationEventPublisher.publishEvent(new JaasAuthenticationSuccessEvent(token));
+        }
     }
 
     /**
