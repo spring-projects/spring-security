@@ -64,7 +64,8 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     private AclCache aclCache;
     private String deleteEntryByObjectIdentityForeignKey = "delete from acl_entry where acl_object_identity=?";
     private String deleteObjectIdentityByPrimaryKey = "delete from acl_object_identity where id=?";
-    private String identityQuery = "call identity()";
+    private String classIdentityQuery = "call identity()"; // should be overridden for postgres : select currval('acl_class_seq')
+    private String sidIdentityQuery = "call identity()"; // should be overridden for postgres : select currval('acl_siq_seq')
     private String insertClass = "insert into acl_class (class) values (?)";
     private String insertEntry = "insert into acl_entry "
         + "(acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure)"
@@ -176,7 +177,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
                 jdbcTemplate.update(insertClass, new Object[] {clazz.getName()});
                 Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
                         "Transaction must be running");
-                classId = new Long(jdbcTemplate.queryForLong(identityQuery));
+                classId = new Long(jdbcTemplate.queryForLong(classIdentityQuery));
             }
         } else {
             classId = (Long) classIds.iterator().next();
@@ -221,7 +222,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
                 jdbcTemplate.update(insertSid, new Object[] {new Boolean(principal), sidName});
                 Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
                         "Transaction must be running");
-                sidId = new Long(jdbcTemplate.queryForLong(identityQuery));
+                sidId = new Long(jdbcTemplate.queryForLong(sidIdentityQuery));
             }
         } else {
             sidId = (Long) sidIds.iterator().next();
@@ -380,11 +381,15 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         }
     }
 
-	public void setIdentityQuery(String identityQuery) {
+	public void setClassIdentityQuery(String identityQuery) {
 		Assert.hasText(identityQuery, "New identity query is required");
-		this.identityQuery = identityQuery;
+		this.classIdentityQuery = identityQuery;
 	}
 
+	public void setSidIdentityQuery(String identityQuery) {
+		Assert.hasText(identityQuery, "New identity query is required");
+		this.sidIdentityQuery = identityQuery;
+	}
 	/**
 	 * @param foreignKeysInDatabase if false this class will perform additional FK constrain checking, which may
 	 * cause deadlocks (the default is true, so deadlocks are avoided but the database is expected to enforce FKs)
