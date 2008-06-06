@@ -34,20 +34,20 @@ import org.springframework.util.Assert;
 
 
 /**
- * DOCUMENT ME!
+ * Abstract {@link AfterInvocationProvider} which provides commonly-used ACL-related services.
  *
- * @author $author$
- * @version $Revision$
+ * @author Ben Alex
+ * @version $Id$
   */
 public abstract class AbstractAclProvider implements AfterInvocationProvider {
     //~ Instance fields ================================================================================================
 
-    private AclService aclService;
-    private Class processDomainObjectClass = Object.class;
-    private ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
-    private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
-    private String processConfigAttribute;
-    private Permission[] requirePermission = {BasePermission.READ};
+    protected AclService aclService;
+    protected Class processDomainObjectClass = Object.class;
+    protected ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
+    protected SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
+    protected String processConfigAttribute;
+    protected Permission[] requirePermission = {BasePermission.READ};
 
     //~ Constructors ===================================================================================================
 
