@@ -146,6 +146,39 @@
           detected then they could potentially choose any userame they wished.
         </para> 
       </tip>
+      <section>
+        <title>Siteminder Example Configuration</title>
+        <para>
+          A typical configuration using this filter would look like this:
+<programlisting><![CDATA[
+	<bean id="siteminderFilter"
+      class="org.springframework.security.ui.preauth.header.RequestHeaderPreAuthenticatedProcessingFilter">
+    <security:custom-filter position="PRE_AUTH_FILTER" />
+    <property name="principalRequestHeader" value="SM_USER"/>
+    <property name="authenticationManager" ref="authenticationManager" />
+  </bean>
+
+  <bean id="preauthAuthProvider"
+      class="org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationProvider">
+    <security:custom-authentication-provider />      
+    <property name="preAuthenticatedUserDetailsService">
+      <bean id="userDetailsServiceWrapper" 
+            class="org.springframework.security.userdetails.UserDetailsByNameServiceWrapper">
+        <property name="userDetailsService" ref="userDetailsService"/>
+      </bean>    
+    </property>
+	</bean>
+	
+	<security:authentication-manager alias="authenticationManager" />
+]]>  
+</programlisting>          
+         We've assumed here that the security namespace is being used for configuration (hence the user of the <literal>custom-filter</literal>,
+          <literal>authentication-manager</literal> and <literal>custom-authentication-provider</literal> elements (you can read more about them
+          in the <link xlink:href="ns-config">namespace chapter</link>). You would leave these out of a traditional bean configuration.
+          It's also assumed that you have added a <interfacename>UserDetailsService</interfacename> (called <quote>userDetailsService</quote>) 
+          to your configuration to load the user's roles.
+        </para>
+      </section>
     </section>
     
     <section>
