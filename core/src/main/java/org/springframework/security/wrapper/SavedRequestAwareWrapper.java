@@ -31,10 +31,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.Map.Entry;
 
@@ -274,58 +276,62 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     }
 
     public Map getParameterMap() {
-    	Map parameters = super.getParameterMap();
-        
     	if (savedRequest == null) {
-            return parameters;
+            return super.getParameterMap();
         }
     	
-    	// We have a saved request so merge the values, with the wrapped request taking precedence (see getParameter())
-    	Map newParameters = new HashMap(savedRequest.getParameterMap().size() + parameters.size());
-    	newParameters.putAll(parameters);
+    	Set names = getCombinedParameterNames();
+    	Iterator nameIter = names.iterator();
+    	Map parameterMap = new HashMap(names.size());
     	
-    	Iterator savedParams = savedRequest.getParameterMap().entrySet().iterator();
-    	
-    	while (savedParams.hasNext()) {
-    		Map.Entry entry = (Entry) savedParams.next();
-    		String name = (String) entry.getKey();
-    		String[] savedParamValues = (String[]) entry.getValue();
-    		
-    		if (newParameters.containsKey(name)) {
-    			// merge values
-    			String[] existingValues = (String[]) newParameters.get(name);
-    			String[] mergedValues = new String[savedParamValues.length + existingValues.length];
-    			System.arraycopy(existingValues, 0, mergedValues, 0, existingValues.length);
-    			System.arraycopy(savedParamValues, 0, mergedValues, existingValues.length, savedParamValues.length);
-    			newParameters.put(name, mergedValues);
-    		} else {
-    			newParameters.put(name, savedParamValues);
-    		}
+    	while (nameIter.hasNext()) {
+    		String name = (String) nameIter.next();
+    		parameterMap.put(name, getParameterValues(name));
     	}
-
-    	return newParameters;
+    	
+    	return parameterMap;
+    }
+    
+    private Set getCombinedParameterNames() {
+    	Set names = new HashSet();
+    	names.addAll(super.getParameterMap().keySet());
+    	
+    	if (savedRequest != null) {
+    		names.addAll(savedRequest.getParameterMap().keySet());
+    	}
+    	
+    	return names;
     }
 
     public Enumeration getParameterNames() {
-    	return new Enumerator(getParameterMap().keySet());
+    	return new Enumerator(getCombinedParameterNames());
     }
 
     public String[] getParameterValues(String name) {
-    	String[] savedRequestParams = savedRequest == null ? null : savedRequest.getParameterValues(name);
+    	if (savedRequest == null) {
+    		return super.getParameterValues(name);
+    	}
+    	
+    	String[] savedRequestParams = savedRequest.getParameterValues(name);
     	String[] wrappedRequestParams = super.getParameterValues(name);
 
-    	if (savedRequestParams == null && wrappedRequestParams == null) {
-    		return null;
+    	if (savedRequestParams == null) {
+    		return wrappedRequestParams;
+    	}
+    	
+    	if (wrappedRequestParams == null) {
+    		return savedRequestParams;
     	}
 
-    	List combinedParams = new ArrayList();
+    	// We have params in both saved and wrapped requests so have to merge them
+    	List wrappedParamsList = Arrays.asList(wrappedRequestParams);
+    	List combinedParams = new ArrayList(wrappedParamsList);
 
-    	if (wrappedRequestParams != null) {
-    		combinedParams.addAll(Arrays.asList(wrappedRequestParams));
-    	}
-
-    	if (savedRequestParams != null) {
-    		combinedParams.addAll(Arrays.asList(savedRequestParams));
+    	// We want to add all parameters of the saved request *apart from* duplicates of those already added
+    	for (int i = 0; i < savedRequestParams.length; i++) {
+    		if (!wrappedParamsList.contains(savedRequestParams[i])) {
+    			combinedParams.add(savedRequestParams[i]);
+    		}
     	}
 
     	return (String[]) combinedParams.toArray(new String[combinedParams.size()]);
