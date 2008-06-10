@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  - Sample namespace-based configuration
+  -
+  - $Id: applicationContext-security-ns.xml 2371 2007-12-14 02:26:27Z benalex $
+  -->
+
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.2.xsd">
+
+    <ldap-server ldif="classpath*:test-server.ldif"/>
+    
+    <ldap-authentication-provider user-search-filter="(uid={0})" group-search-filter='member={0}' group-role-attribute="ou"/>
+    
+    <ldap-user-service user-search-filter="(uid={0})" group-search-filter='member={0}' group-role-attribute="ou"/>
+
+</beans:beans>
