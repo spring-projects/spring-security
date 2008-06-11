@@ -16,11 +16,10 @@
         </href>
     </bannerLeft>
   <body>
-<!--   
     <links>
-        <item name="Spring Security on Sourceforge" href="http://sourceforge.net/projects/acegisecurity" />
+        <item name="Spring Framework" href="http://www.springframework.org/"/>
+        <item name="OWASP" href="http://www.owasp.org/"/>
     </links>
- -->
     <menu name="Overview">
       <item name="Home" href="index.html"/>
       <item name="Building from Source" href="building.html"/>
