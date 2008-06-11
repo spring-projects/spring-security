@@ -49,7 +49,8 @@
     hopefully be configured to minimize the permissions granted to different
     Java types, and then your application will add its own problem
     domain-specific security configuration. Spring Security makes this latter
-    area - application security - much easier.</para>
+    area - application security - much easier. 
+    </para>
 
     <para>Of course, you will need to properly address all security layers
     mentioned above, together with managerial factors that encompass every
@@ -65,7 +66,8 @@
     banking application has different needs from an ecommerce application. An
     ecommerce application has different needs from a corporate sales force
     automation tool. These custom requirements make application security
-    interesting, challenging and rewarding.</para>
+    interesting, challenging and rewarding.
+    </para>
 
     <para>Please read <xref linkend="getting-started"/>, in
     its entirety to begin with. This will introduce you to the framework and the namespace-based
@@ -73,10 +75,19 @@
     of an in-depth understaning of how Spring Security works, and some of the classes you might
     need to use, you should then read <xref linkend="overall-architecture"/>.
     The remaining parts of this guide are structured in a more traditional reference style, 
-    designed to be read on an as-required basis.</para>
+    designed to be read on an as-required basis. We'd also recommend that you read up as much as 
+    possible on application security issues in general. Spring Security is not a panacea which will
+    solve all security issues. It is important that the application is designed with security in 
+    mind from the start. Attempting to retrofit it is not a good idea. 
+    In particular, if you are building a web application, you should be aware of the many potential
+    vulnerabilities such as cross-site scripting, request-forgery and session-hijacking which you should
+    be taking into account from the start. The OWASP web site (http://www.owasp.org/) maintains a
+    top ten list of web application vulnerabilities as well as a lot of useful reference information.
+    </para>
 
     <para>We hope that you find this reference guide useful, and we welcome
-      your feedback and <link xlink:href="#jira">suggestions</link>.</para>
+      your feedback and <link xlink:href="#jira">suggestions</link>.
+    </para>
 
     <para>Finally, welcome to the Spring Security <link xlink:href="#community" >community</link>.
     </para>
