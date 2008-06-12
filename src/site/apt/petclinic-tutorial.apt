@@ -19,15 +19,15 @@ Tutorial: Adding Security to Spring Petclinic
 
     You will also need to download:
 
-    * {{{http://www.springframework.org/download}Spring 2.5.2 with dependencies ZIP file}}
+    * {{{http://www.springframework.org/download}Spring 2.5.4 with dependencies ZIP file}}
 
-    * {{{http://www.springframework.org/download}Spring Security 2.0}}
+    * {{{http://www.springframework.org/download}Spring Security 2.0.2}}
 
 
     Unzip both files. After unzipping Spring Security, you'll need to unzip the
-    spring-security-sample-tutorial-2.0.war file, because we need some files that are
+    spring-security-sample-tutorial-2.0.2.war file, because we need some files that are
     included within it. After unzipping the war file, you will see a folder called 
-    spring-security-samples-tutorial-2.0.0.
+    spring-security-samples-tutorial-2.0.2.
 
     In the code below, we'll refer to the respective unzipped
     locations as %spring% and %spring-sec-tutorial% (with the later variable 
@@ -82,10 +82,10 @@ copy dist\petclinic.war %TOMCAT_HOME%\webapps
 
 +------------------------------------------------------
 copy %spring-sec-tutorial%\WEB-INF\applicationContext-security-ns.xml %spring%\samples\petclinic\war\WEB-INF
-copy %spring-sec-tutorial%\WEB-INF\lib\spring-security-core-2.0.0-RC1.jar %spring%\samples\petclinic\war\WEB-INF\lib
-copy %spring-sec-tutorial%\WEB-INF\lib\spring-security-core-tiger-2.0.0-RC1.jar %spring%\samples\petclinic\war\WEB-INF\lib
-copy %spring-sec-tutorial%\WEB-INF\lib\spring-security-acl-2.0.0-RC1.jar %spring%\samples\petclinic\war\WEB-INF\lib
-copy %spring-sec-tutorial%\WEB-INF\lib\spring-security-taglibs-2.0.0-RC1.jar %spring%\samples\petclinic\war\WEB-INF\lib
+copy %spring-sec-tutorial%\WEB-INF\lib\spring-security-core-2.0.2.jar %spring%\samples\petclinic\war\WEB-INF\lib
+copy %spring-sec-tutorial%\WEB-INF\lib\spring-security-core-tiger-2.0.2.jar %spring%\samples\petclinic\war\WEB-INF\lib
+copy %spring-sec-tutorial%\WEB-INF\lib\spring-security-acl-2.0.2.jar %spring%\samples\petclinic\war\WEB-INF\lib
+copy %spring-sec-tutorial%\WEB-INF\lib\spring-security-taglibs-2.0.2.jar %spring%\samples\petclinic\war\WEB-INF\lib
 copy %spring-sec-tutorial%\WEB-INF\lib\commons-codec-1.3.jar %spring%\samples\petclinic\war\WEB-INF\lib
 +------------------------------------------------------
 
@@ -95,7 +95,7 @@ copy %spring-sec-tutorial%\WEB-INF\lib\commons-codec-1.3.jar %spring%\samples\pe
     Edit %spring%\samples\petclinic\war\WEB-INF\web.xml. The "contextConfigLocation" specifies Spring configuration files that should be used
     by the petclinic application. Locate the "contextConfigLocation" parameter and add a new line into 
     the existing param-value. Now that we are using Spring Security, It should also declare 
-    applicationContext-security-ns.xml (Spring config file for Spring Security).
+    applicationContext-security.xml (Spring config file for Spring Security).
     The resulting block will look like this:
 
 +------------------------------------------------------
@@ -104,7 +104,7 @@ copy %spring-sec-tutorial%\WEB-INF\lib\commons-codec-1.3.jar %spring%\samples\pe
   <param-name>contextConfigLocation</param-name>
   <param-value>
       /WEB-INF/applicationContext-jdbc.xml
-      /WEB-INF/applicationContext-security-ns.xml
+      /WEB-INF/applicationContext-security.xml
   </param-value>
 </context-param>
 
