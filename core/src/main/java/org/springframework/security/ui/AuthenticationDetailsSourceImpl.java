@@ -58,7 +58,7 @@ public class AuthenticationDetailsSourceImpl implements AuthenticationDetailsSou
 		Constructor constructor = null;
 		for (int i = 0; i < constructors.length; i++) {
 			Class[] parameterTypes = constructors[i].getParameterTypes();
-			if (parameterTypes.length == 1 && (object == null || parameterTypes[i].isInstance(object))) {
+			if (parameterTypes.length == 1 && (object == null || parameterTypes[0].isInstance(object))) {
 				constructor = constructors[i];
 				break;
 			}
