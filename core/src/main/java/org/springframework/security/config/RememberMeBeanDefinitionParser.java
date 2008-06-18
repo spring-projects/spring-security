@@ -84,7 +84,7 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
                 tokenRepo = new RuntimeBeanReference(tokenRepository);
             } else {
                 tokenRepo = new RootBeanDefinition(JdbcTokenRepositoryImpl.class);
-                ((BeanDefinition)tokenRepo).getPropertyValues().addPropertyValue(ATT_DATA_SOURCE,
+                ((BeanDefinition)tokenRepo).getPropertyValues().addPropertyValue("dataSource",
                         new RuntimeBeanReference(dataSource));
             }
             services.getPropertyValues().addPropertyValue("tokenRepository", tokenRepo);

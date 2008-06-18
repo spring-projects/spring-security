@@ -350,6 +350,21 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
+    public void rememberMeServiceWorksWithDataSourceRef() {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <remember-me data-source-ref='ds'/>" +
+                "</http>" +
+                "<b:bean id='ds' class='org.springframework.security.TestDataSource'> " +
+                "    <b:constructor-arg value='tokendb'/>" +
+                "</b:bean>" + AUTH_PROVIDER_XML);
+        Object rememberMeServices = appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
+        
+        assertTrue(rememberMeServices instanceof PersistentTokenBasedRememberMeServices);
+    }    
+    
+    
+    @Test
     public void rememberMeServiceWorksWithExternalServicesImpl() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
