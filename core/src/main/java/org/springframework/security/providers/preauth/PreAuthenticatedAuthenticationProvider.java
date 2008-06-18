@@ -88,7 +88,6 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
         result.setDetails(authentication.getDetails());
 
         return result;
-
     }
 
     /**
@@ -123,4 +122,14 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     public void setThrowExceptionWhenTokenRejected(boolean throwExceptionWhenTokenRejected) {
         this.throwExceptionWhenTokenRejected = throwExceptionWhenTokenRejected;
     }
+
+    /**
+     * Sets the strategy which will be used to validate the loaded <tt>UserDetails</tt> object
+     * for the user. Defaults to an {@link AccountStatusUserDetailsChecker}. 
+     * @param userDetailsChecker
+     */
+	public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
+		Assert.notNull(userDetailsChecker, "userDetailsChacker cannot be null");
+		this.userDetailsChecker = userDetailsChecker;
+	}
 }
