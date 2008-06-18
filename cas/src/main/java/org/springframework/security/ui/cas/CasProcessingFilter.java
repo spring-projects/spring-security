@@ -15,6 +15,11 @@
 
 package org.springframework.security.ui.cas;
 
+import java.io.IOException;
+
+import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
+import org.jasig.cas.client.util.CommonUtils;
+import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 
@@ -24,6 +29,7 @@ import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.FilterChainOrder;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -38,7 +44,11 @@ import javax.servlet.http.HttpServletRequest;
  *  <p>The configured <code>AuthenticationManager</code> is expected to provide a provider that can recognise
  * <code>UsernamePasswordAuthenticationToken</code>s containing this special <code>principal</code> name, and process
  * them accordingly by validation with the CAS server.</p>
- *  <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
+ * <p>By configuring a shared {@link ProxyGrantingTicketStorage} between the {@link TicketValidator} and the CasProcessingFilter
+ * one can have the CasProcessingFilter handle the proxying requirements for CAS.  In addition, the URI endpoint for the proxying
+ * would also need to be configured (i.e. the part after protocol, hostname, and port).
+ * 
+ * <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
  * org.springframework.security.util.FilterToBeanProxy}.</p>
  *
  * @author Ben Alex
@@ -57,8 +67,17 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
      */
     public static final String CAS_STATELESS_IDENTIFIER = "_cas_stateless_";
 
-    //~ Methods ========================================================================================================
+    /**
+     * The last portion of the receptor url, i.e. /proxy/receptor
+     */
+    private String proxyReceptorUrl;
+    
+    /**
+     * The backing storage to store ProxyGrantingTicket requests.
+     */
+    private ProxyGrantingTicketStorage proxyGrantingTicketStorage;
 
+    //~ Methods ========================================================================================================  
     public Authentication attemptAuthentication(final HttpServletRequest request)
         throws AuthenticationException {
         final String username = CAS_STATEFUL_IDENTIFIER;
@@ -87,4 +106,35 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
     public int getOrder() {
         return FilterChainOrder.CAS_PROCESSING_FILTER;
     }
+    
+
+    /**
+     * Overridden to provide proxying capabilities.
+     */
+	protected boolean requiresAuthentication(final HttpServletRequest request,
+			final HttpServletResponse response) {
+		final String requestUri = request.getRequestURI();
+
+        if (CommonUtils.isEmpty(this.proxyReceptorUrl) || !requestUri.endsWith(this.proxyReceptorUrl) || this.proxyGrantingTicketStorage == null) {
+        	return super.requiresAuthentication(request, response);
+        }
+
+        try {
+        	CommonUtils.readAndRespondToProxyReceptorRequest(request, response, this.proxyGrantingTicketStorage);
+        	return false;
+        } catch (final IOException e) {
+        	return super.requiresAuthentication(request, response);
+        }
+	}
+
+	public final void setProxyReceptorUrl(final String proxyReceptorUrl) {
+		this.proxyReceptorUrl = proxyReceptorUrl;
+	}
+
+	public final void setProxyGrantingTicketStorage(
+			final ProxyGrantingTicketStorage proxyGrantingTicketStorage) {
+		this.proxyGrantingTicketStorage = proxyGrantingTicketStorage;
+	}
+	
+	
 }

@@ -11,7 +11,6 @@
         <sec:logout />
     </sec:http>
 
-
     <sec:authentication-manager alias="authenticationManager"/>
 
     <bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter">
@@ -19,6 +18,8 @@
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="authenticationFailureUrl" value="/casfailed.jsp"/>
         <property name="defaultTargetUrl" value="/"/>
+        <property name="proxyGrantingTicketStorage" ref="proxyGrantingTicketStorage" />
+        <property name="proxyReceptorUrl" value="/secure/receptor" />
     </bean>
 
     <bean id="casProcessingFilterEntryPoint" class="org.springframework.security.ui.cas.CasProcessingFilterEntryPoint">
@@ -33,10 +34,14 @@
         <property name="ticketValidator">
         	<bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
         		<constructor-arg index="0" value="https://localhost:9443/cas" />
+        		<property name="proxyGrantingTicketStorage" ref="proxyGrantingTicketStorage" />
+        		<property name="proxyCallbackUrl" value="https://localhost:8443/cas-sample/secure/receptor" />
             </bean>
         </property>
         <property name="key" value="an_id_for_this_auth_provider_only"/>
     </bean>
+    
+    <bean id="proxyGrantingTicketStorage" class="org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl" />
 
     <bean id="serviceProperties" class="org.springframework.security.ui.cas.ServiceProperties">
         <property name="service" value="https://localhost:8443/cas-sample/j_spring_cas_security_check"/>
@@ -48,5 +53,4 @@
         <sec:user name="dianne" password="dianne" authorities="ROLE_USER" />
         <sec:user name="scott" password="scott" authorities="ROLE_USER" />
     </sec:user-service>
-
 </beans>
