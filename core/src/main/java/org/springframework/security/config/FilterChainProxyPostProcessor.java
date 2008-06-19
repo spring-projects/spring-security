@@ -66,7 +66,7 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
                             unwrapFilter(previous) + "' have the same 'order' value. When using custom filters, " +
                             		"please make sure the positions do not conflict with default filters. " +
                             		"Alternatively you can disable the default filters by removing the corresponding " +
-                            		"child elements from <http> and not avoiding the use of <http auto-config='true'>.");
+                            		"child elements from <http> and avoiding the use of <http auto-config='true'>.");
                 }
             }
         }
