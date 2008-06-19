@@ -601,6 +601,22 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "    </http>" + AUTH_PROVIDER_XML);
     }
 
+    @Test
+    public void settingCreateSessionToAlwaysSetsFilterPropertiesCorrectly() throws Exception {
+        // Protected, no anonymous filter configured.
+        setContext("<http auto-config='true' create-session='always'/>" + AUTH_PROVIDER_XML);
+        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "forceEagerSessionCreation"));
+        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "allowSessionCreation"));        
+    }    
+
+    @Test
+    public void settingCreateSessionToNeverSetsFilterPropertiesCorrectly() throws Exception {
+        // Protected, no anonymous filter configured.
+        setContext("<http auto-config='true' create-session='never'/>" + AUTH_PROVIDER_XML);
+        assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "forceEagerSessionCreation"));
+        assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "allowSessionCreation"));        
+    }    
+    
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
     }

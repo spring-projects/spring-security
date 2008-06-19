@@ -116,7 +116,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         parseInterceptUrlsForChannelSecurityAndFilterChain(interceptUrlElts, filterChainMap, channelRequestMap, 
                 convertPathsToLowerCase, parserContext);
 
-        registerHttpSessionIntegrationFilter(element, parserContext);
+        boolean allowSessionCreation = registerHttpSessionIntegrationFilter(element, parserContext);
         
         registerServletApiFilter(element, parserContext);
                 
@@ -133,7 +133,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 DomUtils.getChildElementByTagName(element, Elements.PORT_MAPPINGS), parserContext);
         registry.registerBeanDefinition(BeanIds.PORT_MAPPER, portMapper);
 
-        registerExceptionTranslationFilter(element, parserContext);
+        registerExceptionTranslationFilter(element, parserContext, allowSessionCreation);
 
 
         if (channelRequestMap.size() > 0) {
@@ -174,7 +174,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             new LogoutBeanDefinitionParser().parse(logoutElt, parserContext);
         }
         
-        parseBasicFormLoginAndOpenID(element, parserContext, autoConfig);
+        parseBasicFormLoginAndOpenID(element, parserContext, autoConfig, allowSessionCreation);
 
         Element x509Elt = DomUtils.getChildElementByTagName(element, Elements.X509);
         if (x509Elt != null) {
@@ -205,8 +205,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);        
     }
 
-    private void registerHttpSessionIntegrationFilter(Element element, ParserContext pc) {
+    private boolean registerHttpSessionIntegrationFilter(Element element, ParserContext pc) {
         RootBeanDefinition httpScif = new RootBeanDefinition(HttpSessionContextIntegrationFilter.class);
+        boolean sessionCreationAllowed = true;
         
         String createSession = element.getAttribute(ATT_CREATE_SESSION);
         if (OPT_CREATE_SESSION_ALWAYS.equals(createSession)) {
@@ -215,6 +216,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         } else if (OPT_CREATE_SESSION_NEVER.equals(createSession)) {
             httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.FALSE);
             httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
+            sessionCreationAllowed = false;
         } else {
             createSession = DEF_CREATE_SESSION_IF_REQUIRED;
             httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.TRUE);
@@ -223,6 +225,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         pc.getRegistry().registerBeanDefinition(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER, httpScif);
         ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER));
+        
+        return sessionCreationAllowed;
     }
 
     // Adds the servlet-api integration filter if required    
@@ -252,12 +256,13 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return true;
     }
     
-    private void registerExceptionTranslationFilter(Element element, ParserContext pc) {
+    private void registerExceptionTranslationFilter(Element element, ParserContext pc, boolean allowSessionCreation) {
     	String accessDeniedPage = element.getAttribute(ATT_ACCESS_DENIED_PAGE);
     	ConfigUtils.validateHttpRedirect(accessDeniedPage, pc, pc.extractSource(element));
         BeanDefinitionBuilder exceptionTranslationFilterBuilder
             = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
- 
+        exceptionTranslationFilterBuilder.addPropertyValue("createSessionAllowed", new Boolean(allowSessionCreation));
+        
         if (StringUtils.hasText(accessDeniedPage)) {
             AccessDeniedHandlerImpl accessDeniedHandler = new AccessDeniedHandlerImpl();
             accessDeniedHandler.setErrorPage(accessDeniedPage);
@@ -338,7 +343,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
     }
     
-    private void parseBasicFormLoginAndOpenID(Element element, ParserContext pc, boolean autoConfig) {
+    private void parseBasicFormLoginAndOpenID(Element element, ParserContext pc, boolean autoConfig, boolean allowSessionCreation) {
         RootBeanDefinition formLoginFilter = null;
         RootBeanDefinition formLoginEntryPoint = null;
         String formLoginPage = null;        
@@ -397,6 +402,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         
         if (formLoginFilter != null) {
         	needLoginPage = true;
+        	formLoginFilter.getPropertyValues().addPropertyValue("allowSessionCreation", new Boolean(allowSessionCreation));
 	        pc.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_FILTER, formLoginFilter);
 	        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.FORM_LOGIN_FILTER));
 	        pc.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_ENTRY_POINT, formLoginEntryPoint);
@@ -404,6 +410,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         if (openIDFilter != null) {
         	needLoginPage = true;
+        	openIDFilter.getPropertyValues().addPropertyValue("allowSessionCreation", new Boolean(allowSessionCreation));
 	        pc.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_FILTER, openIDFilter);
 	        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.OPEN_ID_FILTER));
 	        pc.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_ENTRY_POINT, openIDEntryPoint);
