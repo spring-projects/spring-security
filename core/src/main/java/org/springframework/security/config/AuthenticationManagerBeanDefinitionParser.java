@@ -1,5 +1,6 @@
 package org.springframework.security.config;
 
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -36,10 +37,15 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
             		BeanIds.CONCURRENT_SESSION_CONTROLLER, element);
         	authManager.getPropertyValues().addPropertyValue("sessionController", 
         			new RuntimeBeanReference(sessionControllerRef));
+            RootBeanDefinition sessionRegistryInjector = new RootBeanDefinition(SessionRegistryInjectionBeanPostProcessor.class);
+            sessionRegistryInjector.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            sessionRegistryInjector.getConstructorArgumentValues().addGenericArgumentValue(sessionControllerRef);
+        	
+        	parserContext.getRegistry().registerBeanDefinition(BeanIds.SESSION_REGISTRY_INJECTION_POST_PROCESSOR, sessionRegistryInjector);
         }
 
         parserContext.getRegistry().registerAlias(BeanIds.AUTHENTICATION_MANAGER, alias);
 
         return null;
-    }
+    }    
 }

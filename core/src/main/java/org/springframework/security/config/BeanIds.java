@@ -18,6 +18,7 @@ public abstract class BeanIds {
     static final String CONTEXT_SOURCE_SETTING_POST_PROCESSOR = "_contextSettingPostProcessor";
     static final String ENTRY_POINT_INJECTION_POST_PROCESSOR = "_entryPointInjectionBeanPostProcessor";
     static final String USER_DETAILS_SERVICE_INJECTION_POST_PROCESSOR = "_userServiceInjectionPostProcessor";
+    static final String SESSION_REGISTRY_INJECTION_POST_PROCESSOR = "_sessionRegistryInjectionPostProcessor";    
     static final String FILTER_CHAIN_POST_PROCESSOR = "_filterChainProxyPostProcessor";
     static final String FILTER_LIST = "_filterChainList";
 
