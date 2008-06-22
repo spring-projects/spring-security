@@ -1,14 +1,12 @@
-dn: ou=groups,dc=springframework,dc=org
-objectclass: top
-objectclass: organizationalUnit
-ou: groups
 
-dn: ou=subgroups,ou=groups,dc=springframework,dc=org
-objectclass: top
-objectclass: organizationalUnit
-ou: subgroups
+# Users
 
 dn: ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: people
+
+dn: ou=musicians,dc=springframework,dc=org
 objectclass: top
 objectclass: organizationalUnit
 ou: people
@@ -33,24 +31,76 @@ sn: Hamilton
 uid: bob
 userPassword: bobspassword
 
+dn: uid=miles,ou=musicians,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Miles Davis
+sn: Davis
+uid: miles
+userPassword: milespassword
+
+dn: uid=johnc,ou=musicians,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: John Coltrane
+sn: Coltrane
+uid: johnc
+userPassword: johncspassword
+
+dn: uid=jimi,ou=musicians,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Jimi Hendrix
+sn: Hendrix
+uid: jimi
+userPassword: {SSHA}S6jnyvykw4K5eF35OXvAkQsf3y2fPrRQ
+
+
+# Groups
+
+dn: ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: groups
+
 dn: cn=developers,ou=groups,dc=springframework,dc=org
 objectclass: top
-objectclass: groupOfNames
+objectclass: groupOfUniqueNames
 cn: developers
 ou: developer
-member: uid=ben,ou=people,dc=springframework,dc=org
-member: uid=bob,ou=people,dc=springframework,dc=org
+uniqueMember: uid=ben,ou=people,dc=springframework,dc=org
+uniqueMember: uid=bob,ou=people,dc=springframework,dc=org
 
 dn: cn=managers,ou=groups,dc=springframework,dc=org
 objectclass: top
-objectclass: groupOfNames
+objectclass: groupOfUniqueNames
 cn: managers
 ou: manager
-member: uid=ben,ou=people,dc=springframework,dc=org
+uniqueMember: uid=ben,ou=people,dc=springframework,dc=org
 
-dn: cn=submanagers,ou=subgroups,ou=groups,dc=springframework,dc=org
+dn: ou=genres,ou=groups,dc=springframework,dc=org
 objectclass: top
-objectclass: groupOfNames
-cn: submanagers
-ou: submanager
-member: uid=ben,ou=people,dc=springframework,dc=org
+objectclass: organizationalUnit
+ou: genres
+
+dn: cn=rock,ou=genres,ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfUniqueNames
+cn: rock
+ou: rock
+uniqueMember: uid=jimi,ou=musicians,dc=springframework,dc=org
+
+dn: cn=jazz,ou=genres,ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfUniqueNames
+cn: jazz
+ou: jazz
+uniqueMember: uid=miles,ou=musicians,dc=springframework,dc=org
+
+

@@ -3,6 +3,7 @@ package org.springframework.security.integration;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.util.StringUtils;
 
 import net.sourceforge.jwebunit.WebTester;
 
@@ -13,6 +14,8 @@ import javax.servlet.ServletContext;
 
 import org.testng.annotations.*;
 
+import com.meterware.httpunit.WebConversation;
+
 /**
  * @author Luke Taylor
  * @version $Id$
@@ -20,9 +23,12 @@ import org.testng.annotations.*;
 public abstract class AbstractWebServerIntegrationTests {
     private Server server;
     private final Object SERVER_LOCK = new Object();
-    protected final WebTester tester = new WebTester();;
+    protected final WebTester tester = new WebTester();
 
-    /** Override to set the application context files that should be loaded */
+    /** 
+	 * Override to set the application context files that should be loaded or return null
+	 * to use web.xml.
+	 */
     protected abstract String getContextConfigLocations();
 
     protected String getContextPath() {
@@ -33,18 +39,26 @@ public abstract class AbstractWebServerIntegrationTests {
     public void startServer() throws Exception {
     	synchronized(SERVER_LOCK) {
 		    if (server == null) {
+				//System.setProperty("DEBUG", "true");
+				//System.setProperty("VERBOSE", "true");
+				//System.setProperty("IGNORED", "true");
 		        server = new Server(0);
-		        WebAppContext webCtx = new WebAppContext("src/main/webapp", getContextPath());
-	
-		        webCtx.addEventListener(new ContextLoaderListener());
-		        webCtx.getInitParams().put("contextConfigLocation", getContextConfigLocations());
-	
-		        server.addHandler(webCtx);
+		        server.addHandler(createWebContext());
 		        server.start();
-	
 		        tester.getTestContext().setBaseUrl(getBaseUrl());
 	    	}
     	}
+    }
+    
+    protected WebAppContext createWebContext() {
+        WebAppContext webCtx = new WebAppContext("src/main/webapp", getContextPath());
+    	
+		if (StringUtils.hasText(getContextConfigLocations())) {
+			webCtx.addEventListener(new ContextLoaderListener());
+			webCtx.getInitParams().put("contextConfigLocation", getContextConfigLocations());
+		}
+		
+		return webCtx;
     }
 
     @AfterClass
@@ -56,8 +70,13 @@ public abstract class AbstractWebServerIntegrationTests {
 	        server = null;
     	}
     }
-
-    protected final String getBaseUrl() {
+        
+    @AfterMethod
+    public void resetWebConversation() {
+    	tester.getTestContext().setWebClient(new WebConversation());
+    }
+    
+    private final String getBaseUrl() {
         int port = server.getConnectors()[0].getLocalPort();
         return "http://localhost:" + port + getContextPath() + "/";
     }
@@ -72,6 +91,10 @@ public abstract class AbstractWebServerIntegrationTests {
                 WebApplicationContextUtils.getRequiredWebApplicationContext(servletCtx);
         return appCtx;
     }
+
+//    protected final HttpUnitDialog getDialog() {
+//    	return tester.getDialog();
+//    }
 
     protected final void submit() {
         tester.submit();
@@ -92,4 +115,15 @@ public abstract class AbstractWebServerIntegrationTests {
     protected final void assertTextPresent(String text) {
         tester.assertTextPresent(text);
     }
+
+    
+    
+    // Security-specific utility methods 
+    
+	protected void login(String username, String password) {
+	    assertFormPresent();
+	    setFormElement("j_username", username);
+	    setFormElement("j_password", password);
+	    submit();    	
+	}
 }

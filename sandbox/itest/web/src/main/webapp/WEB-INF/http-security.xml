@@ -12,14 +12,15 @@
     -->
 
     <http>
+        <intercept-url pattern="/login.jsp*" filters="none" />        
         <intercept-url pattern="/secure/**" access="ROLE_DEVELOPER,ROLE_USER" />
         <intercept-url pattern="/**" access="ROLE_DEVELOPER,ROLE_USER" />
 
-        <form-login />
+        <form-login login-page="/login.jsp" authentication-failure-url="/login.jsp?login_error=true"/>
         <http-basic/>
 
         <!-- Default logout configuration -->
-        <logout />
+        <logout logout-url="/logout"/>
 
         <concurrent-session-control max-sessions="1" />
 
