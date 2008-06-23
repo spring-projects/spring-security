@@ -18,7 +18,7 @@
     <!-- Simple namespace-based configuration -->
 
     <s:ldap-server ldif="classpath:users.ldif" port="33389"/>
- 
+
     <s:ldap-authentication-provider 
         group-search-filter="member={0}" 
         group-search-base="ou=groups"
@@ -51,8 +51,7 @@
 			<bean class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
 				<constructor-arg ref="contextSource" />
 				<constructor-arg value="ou=groups" />
-				<property name="groupSearchFilter" value="member={0}"/>
-				<property name="groupRoleAttribute" value="ou" />
+				<property name="groupSearchFilter" value="(member={0})"/>
 				<property name="rolePrefix" value="ROLE_"/>
 				<property name="searchSubtree" value="true"/>
 				<property name="convertToUpperCase" value="true"/>
