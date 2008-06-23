@@ -732,7 +732,7 @@
         </dependencies>
     </dependencyManagement>
     <properties>
-        <pom.version.osgi>2.0.2.SNAPSHOT</pom.version.osgi>
+        <pom.version.osgi>2.0.3.RELEASE</pom.version.osgi>
         <spring.version>2.0.8</spring.version>
         <spring.version.osgi>[2.0.8, 3.0.0)</spring.version.osgi>
         <jstl.version>1.1.2</jstl.version>
