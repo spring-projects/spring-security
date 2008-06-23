@@ -18,15 +18,15 @@ BUILDING
 -------------------------------------------------------------------------------
 
 Spring Security is built using Maven. Please read the "Building from Source" page
-at http://static.springframework.org/spring-security/site/. 
-This page is also included in the /docs directory of official release ZIPs.
+at http://static.springframework.org/spring-security/site/.
 
 -------------------------------------------------------------------------------
 DOCUMENTATION
 -------------------------------------------------------------------------------
 
-Be sure to read the Reference Guide, which is available from the web site. 
-Every class also has thorough JavaDocs, which are also available on the web site.
+Be sure to read the Reference Guide  (docs/reference/html/springsecurity.html).
+Extensive JavaDoc for the Spring Security code is also available (in docs/apidocs).
+Both can also be found on the website.
 
 -------------------------------------------------------------------------------
 QUICK START
