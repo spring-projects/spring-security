@@ -1,6 +1,7 @@
 package heavyduty.web;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,10 +24,15 @@ public class TestMultiActionController extends MultiActionController {
 	}
 		
 	public void step1(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		request.getRequestDispatcher("/testMulti.htm?action=step1xtra").forward(request, response);
+		String[] x = request.getParameterValues("x");
+		logger.info("x= " + (x == null ? "null" : Arrays.asList(x)));
+		String[] y = request.getParameterValues("y");
+		logger.info("y = " + (y == null ? "null" : Arrays.asList(y)));		
+		request.getRequestDispatcher("/testMulti.htm?action=step1xtra&x=5&x=5").forward(request, response);
 	}
 
 	public ModelAndView step1xtra(HttpServletRequest request, HttpServletResponse response) throws ServletRequestBindingException {
+		logger.info("x = " + Arrays.asList(request.getParameterValues("x")));
 		return createView("step2");
 	}	
 	
