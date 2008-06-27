@@ -1,8 +1,12 @@
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="technical-overview">
-  <info><title>Technical Overview</title></info>
+  <info>
+    <title>Technical Overview</title>
+  </info>
   
   <section xml:id="runtime-environment">
-    <info><title>Runtime Environment</title></info>
+    <info>
+      <title>Runtime Environment</title>
+    </info>
 
     <para>Spring Security is written to execute within a standard Java 1.4
     Runtime Environment. It also supports Java 5.0, although the Java
@@ -18,13 +22,15 @@
     Container there is no need to put any special configuration files
     anywhere, nor include Spring Security in a server classloader.</para>
 
-    <para>This above design offers maximum deployment time flexibility, as
+    <para>This design offers maximum deployment time flexibility, as
     you can simply copy your target artifact (be it a JAR, WAR or EAR)
     from one system to another and it will immediately work.</para>
   </section>
 
   <section xml:id="shared-components">
-    <info><title>Shared Components</title></info>
+    <info>
+      <title>Shared Components</title>
+    </info>
 
     <para>Let's explore some of the most important shared components in
     Spring Security. Components are considered "shared" if they are
@@ -35,7 +41,9 @@
 
 
     <section>
-      <title>SecurityContextHolder, SecurityContext and Authentication Objects</title>
+      <title>
+        SecurityContextHolder, SecurityContext and Authentication Objects
+      </title>
     <para>The most fundamental object is
     <literal>SecurityContextHolder</literal>. This is where we store
     details of the present security context of the application, which
@@ -74,7 +82,7 @@
     an <literal>Authentication</literal> object yourself, it is fairly
     common for users to query the <literal>Authentication</literal>
     object. You can use the following code block - from anywhere in your
-    application - to do this:</para>
+    application - to obtain the name of the authenticated user, for example:</para>
 
     <programlisting>
 Object obj = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -360,7 +368,8 @@ if (obj instanceof UserDetails) {
     <interfacename>AuthenticationProvider</interfacename>.</para>
     </section>
 
-    <section><title>AuthenticationProvider</title>
+    <section>
+      <title>AuthenticationProvider</title>
     <para>The last player in the Spring Security authentication process is
     an <literal>AuthenticationProvider</literal>. Quite simply, it is
     responsible for taking an <literal>Authentication</literal> request
@@ -422,15 +431,21 @@ if (obj instanceof UserDetails) {
   <section xml:id="secure-objects">
     <info><title>Secure Objects</title></info>
     
+    <para>Spring Security uses the term "secure object" to refer to any
+    object that can have security (such as an authorization decision) applied to it. 
+    The most common examples are method invocations and web requests. 
+    </para>
 
+    <section>
+      <title>Security and AOP Advice</title>
     <para>If you're familiar with AOP, you'd be aware there are different
     types of advice available: before, after, throws and around. An around
     advice is very useful, because an advisor can elect whether or not to
     proceed with a method invocation, whether or not to modify the
     response, and whether or not to throw an exception. Spring Security
     provides an around advice for method invocations as well as web
-    requests. We achieve an around advice for method invocations using AOP
-    Alliance, and we achieve an around advice for web requests using a
+    requests. We achieve an around advice for method invocations using Spring's 
+    standard AOP support and we achieve an around advice for web requests using a
     standard Filter.</para>
 
     <para>For those not familiar with AOP, the key point to understand is
@@ -441,43 +456,62 @@ if (obj instanceof UserDetails) {
     applications (for clarification, the author disapproves of this design
     and instead advocates properly encapsulated domain objects together
     with the DTO, assembly, facade and transparent persistence patterns,
-    but as anemic domain objects is the present mainstream approach, we'll
+    but as use of anemic domain objects is the present mainstream approach, we'll
     talk about it here). If you just need to secure method invocations to
-    the services layer, using the Spring's standard AOP platform
-    (otherwise known as AOP Alliance) will be adequate. If you need to
-    secure domain objects directly, you will likely find that AspectJ is
-    worth considering.</para>
+    the services layer, Spring's standard AOP (otherwise known as AOP Alliance) 
+    will be adequate. If you need to secure domain objects directly, you 
+    will likely find that AspectJ is worth considering.</para>
 
     <para>You can elect to perform method authorization using AspectJ or
-    AOP Alliance, or you can elect to perform web request authorization
+    Spring AOP, or you can elect to perform web request authorization
     using filters. You can use zero, one, two or three of these approaches
     together. The mainstream usage is to perform some web request
-    authorization, coupled with some AOP Alliance method invocation
+    authorization, coupled with some Spring AOP method invocation
     authorization on the services layer.</para>
+    </section>
 
-    <para>Spring Security uses the term "secure object" to refer to any
-    object that can have security applied to it. Each secure object
-    supported by Spring Security has its own class, which is a subclass of
-    <literal>AbstractSecurityInterceptor</literal>. Importantly, by the
-    time the <literal>AbstractSecurityInterceptor</literal> is run, the
+    <section>
+      <title>AbstractSecurityInterceptor</title>
+
+    <para>Each secure object type supported by Spring Security has its own class, 
+      which is a subclass of <literal>AbstractSecurityInterceptor</literal>.
+      Importantly, by the time the <literal>AbstractSecurityInterceptor</literal> is called, the
     <literal>SecurityContextHolder</literal> will contain a valid
     <literal>Authentication</literal> if the principal has been
     authenticated.</para>
 
-    <para>The <literal>AbstractSecurityInterceptor</literal> provides a
-    consistent workflow for handling secure object requests. This workflow
-    includes looking up the "configuration attributes" associated with the
-    present request. A "configuration attribute" can be thought of as a
-    String that has special meaning to the classes used by
-    <literal>AbstractSecurityInterceptor</literal>. They're normally
-    configured against your <literal>AbstractSecurityInterceptor</literal>
-    using XML. Anyway, the <literal>AbstractSecurityInterceptor</literal>
-    will ask an <literal>AccessDecisionManager</literal> "here's the
-    configuration attributes, here's the current
-    <literal>Authentication</literal> object, and here's details of the
-    current request - is this particular principal allowed to perform this
-    particular operation?".</para>
-
+    <para><literal>AbstractSecurityInterceptor</literal> provides a
+    consistent workflow for handling secure object requests, typically:
+    
+    <orderedlist>
+      <listitem><para>Look up the "configuration attributes" associated with the
+      present request</para></listitem>
+      <listitem><para>Submitting the secure object, current <literal>Authentication</literal>
+        and configuration attributes to the <literal>AccessDecisionManager</literal> for
+        an authorization decision</para></listitem>
+      <listitem><para>Optionally change the <literal>Authentication</literal> under which the invocation
+      takes place</para></listitem>
+      <listitem><para>Allow the secure object to proceed (assuming access was granted)</para></listitem>
+      <listitem><para>Call the <literal>AfterInvocationManager</literal> if configured, once the invocation
+      has returned.</para></listitem>
+    </orderedlist>
+    </para>
+    
+    <section>
+      <title>What are Configuration Attributes?</title>
+      <para>
+        A "configuration attribute" can be thought of as a String that has special meaning to the classes used by
+        <literal>AbstractSecurityInterceptor</literal>. They may be simple role names or have more complex meaning, depending on the
+        how sophisticated the <literal>AccessDecisionManager</literal> implementation is. 
+        The <literal>AbstractSecurityInterceptor</literal> is configured with an <literal>ObjectDefinitionSource</literal> which 
+        it uses to look up the attributes for a secure object. Usually this configuration will be hidden from the user. Configuration
+        attributes will be entered as annotations on secured methods, or as access attributes on secured URLs (using the 
+        namespace <literal>&lt;intercept-url&gt;</literal> syntax).
+      </para>
+    </section>
+    
+    <section>
+      <title>RunAsManager</title>
     <para>Assuming <literal>AccessDecisionManager</literal> decides to
     allow the request, the <literal>AbstractSecurityInterceptor</literal>
     will normally just proceed with the request. Having said that, on rare
@@ -492,7 +526,10 @@ if (obj instanceof UserDetails) {
     Security automatically propagates security identity from one server to
     another (assuming you're using a properly-configured RMI or
     HttpInvoker remoting protocol client), this may be useful.</para>
+    </section>
 
+    <section>
+      <title>AfterInvocationManager</title>
     <para>Following the secure object proceeding and then returning -
     which may mean a method invocation completing or a filter chain
     proceeding - the <literal>AbstractSecurityInterceptor</literal> gets
@@ -503,14 +540,13 @@ if (obj instanceof UserDetails) {
     a secure object invocation. Being highly pluggable,
     <literal>AbstractSecurityInterceptor</literal> will pass control to an
     <literal>AfterInvocationManager</literal> to actually modify the
-    object if needed. This class even can entirely replace the object, or
+      object if needed. This class can even entirely replace the object, or
     throw an exception, or not change it in any way.</para>
 
-    <para>Because <literal>AbstractSecurityInterceptor</literal> is the
-    central template class, it seems fitting that the first figure should
-    be devoted to it.
+    <para><literal>AbstractSecurityInterceptor</literal> and its related objects
+      are shown in <xref linkend="abstract-security-interceptor"/>.
       
-    <figure>
+    <figure xml:id="abstract-security-interceptor">
       <title>The key "secure object" model</title>
       <mediaobject>
         <imageobject role="html">
@@ -522,7 +558,10 @@ if (obj instanceof UserDetails) {
       </mediaobject>
     </figure>
     </para>
+    </section>
 
+    <section>
+      <title>Extending the Secure Object Model</title>
     <para>Only developers contemplating an entirely new way of
     intercepting and authorizing requests would need to use secure objects
     directly. For example, it would be possible to build a new secure
@@ -533,18 +572,9 @@ if (obj instanceof UserDetails) {
     three currently supported secure object types (AOP Alliance
     <literal>MethodInvocation</literal>, AspectJ
     <literal>JoinPoint</literal> and web request
-    <literal>FilterInterceptor</literal>) with complete
+    <literal>FilterInvocation</literal>) with complete
     transparency.</para>
+    </section>
   </section>
-
-  <section xml:id="common-conclusion">
-    <info><title>Conclusion</title></info>
-
-    <para>Congratulations! You have enough of a high-level picture of
-    Spring Security to embark on your project. We've explored the shared
-    components, how authentication works, and reviewed the common
-    authorization concept of a "secure object". Everything that follows in
-    this reference guide may or may not apply to your particular needs,
-    and can be read in any order.</para>
   </section>
 </chapter>
