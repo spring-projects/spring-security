@@ -33,7 +33,7 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 /**
  * An {@link javax.servlet.jsp.tagext.Tag} implementation that allows convenient access to the current
- * <code>Authentication</code> object. The <tt>operation</tt> attribute
+ * <code>Authentication</code> object.
  * <p>
  * Whilst JSPs can access the <code>SecurityContext</code> directly, this tag avoids handling <code>null</code> conditions.
  *
@@ -93,13 +93,13 @@ public class AuthenticationTag extends TagSupport {
 
             if (auth.getPrincipal() == null) {
                 return Tag.EVAL_PAGE;
-            } else {
-                try {
-                    BeanWrapperImpl wrapper = new BeanWrapperImpl(auth);
-                    result = wrapper.getPropertyValue(property);
-                } catch (BeansException e) {
-                    throw new JspException(e);
-                }
+            }
+            
+            try {
+                BeanWrapperImpl wrapper = new BeanWrapperImpl(auth);
+                result = wrapper.getPropertyValue(property);
+            } catch (BeansException e) {
+                throw new JspException(e);
             }
         }
 
@@ -120,7 +120,7 @@ public class AuthenticationTag extends TagSupport {
                 }
             }
         } else {
-            writeMessage(result.toString());
+            writeMessage(String.valueOf(result));
         }
         return EVAL_PAGE;
     }
