@@ -92,9 +92,9 @@
 		</faq>
 
     </part>
-    <part>
+    <part id="common-problems">
      	<title>Common Problems</title>
- 	    <faq>
+ 	    <faq id="login-loop">
  	    	<question>My application goes into an "endless loop" when I try to login, what's going on?</question>
  	    	<answer><p>A common user problem with infinite loop and redirecting to the login page is caused 
  	    		by accidently configuring the login page as a "secured" resource. Make sure your configuration
@@ -110,7 +110,7 @@
  	    		</p>
  	    	</answer>
  	    </faq>
-    	<faq>
+    	<faq id="anon-access-denied">
     		<question>I get an exception with the message "Access is denied (user is anonymous);". What's wrong?</question>
     		<answer>
     			<p>
@@ -126,7 +126,7 @@ org.springframework.security.AccessDeniedException: Access is denied
     			</p>
     		</answer>
     	</faq>
-    	<faq>
+    	<faq id="tomcat-https-session">
     		<question>
     			I'm using Tomcat and have enabled HTTPS for my login page, switching back to HTTP afterwards. It doesn't work - I just 
     			end up back at the login page after authenticating.
@@ -138,7 +138,7 @@ org.springframework.security.AccessDeniedException: Access is denied
     			</p>
     		</answer>
     	</faq>
-    	<faq>
+    	<faq id="no-security-on-forward">
     		<question>
     			I'm forwarding a request to another URL using the RequestDispatcher, but my security constraints aren't being applied.
     		</question>
@@ -148,9 +148,9 @@ org.springframework.security.AccessDeniedException: Access is denied
     		</answer>
     	</faq>
     </part>
-	  <part>
+	  <part id="how-tos">
 	  	<title>Common "How To" Requests</title>
-	  	<faq>
+	  	<faq id="extra-login-fields">
 	  		<question>I need to login in with more information than just the username. How do I add support for extra login fields (e.g. a company name)?</question>
 	  		<answer>
 	  			<p>This question comes up repeatedly in the Spring Security forum so you will find more information there.</p>
@@ -169,4 +169,4 @@ org.springframework.security.AccessDeniedException: Access is denied
 	  		</answer>
 	  	</faq>
 	  </part>
-</faqs>  
+</faqs>
