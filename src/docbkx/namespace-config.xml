@@ -427,35 +427,104 @@
       <title>Adding in Your Own Filters</title>
       <para>If you've used Spring Security before, you'll know that the framework maintains a chain
       of filters in order to apply its services. You may want to add your own filters to the stack at
-      particular locations, or use a customized version of an existing filter. How can you do this with
-      namespace configuration, since the filter chain is not directly exposed?
+      particular locations or use a Spring Security filter for which there isn't currently a namespace
+      configuration option (CAS, for example). Or you might want to use a customized version of a 
+      standard namespace filter, such as the <literal>AuthenticationProcessingFilter</literal> which is created by the
+      <literal>&lt;form-login&gt;</literal> element, taking advantage of some of the extra configuration options which are
+      available by using defining the bean directly. How can you do this with namespace configuration, 
+      since the filter chain is not directly exposed?
       </para>
       <para>The order of the filters is always strictly enforced when using the namespace. Each Spring Security
-      filter implements the Spring <interfacename>Ordered</interfacename> interface and the filters are sorted
-      during initialization. The standard filters each have an alias in the namespace:
-      <table>
+      filter implements the Spring <interfacename>Ordered</interfacename> interface and the filters created by the namespace
+      are sorted during initialization. The standard Spring Security filters each have an alias in the namespace. The filters, aliases
+      and namespace elements/attributes which create the filters are shown in <xref linkend="filter-stack"/>.
+      <table xml:id="filter-stack">
         <title>Standard Filter Aliases and Ordering</title>
-        <tgroup cols="2" align="left">
+        <tgroup cols="3" align="left">
           <thead><row>
-            <entry align="center">Alias</entry><entry align="center">Filter Class</entry>
+            <entry align="center">Alias</entry><entry align="center">Filter Class</entry><entry align="center">Namespace Element or Attribute</entry>
           </row></thead>
           <tbody>
-            <row><entry> CHANNEL_FILTER</entry><entry>ChannelProcessingFilter</entry></row>
-            <row><entry> CONCURRENT_SESSION_FILTER</entry><entry>ConcurrentSessionFilter</entry></row>
-            <row><entry> SESSION_CONTEXT_INTEGRATION_FILTER</entry><entry>HttpSessionContextIntegrationFilter</entry></row>
-            <row><entry> LOGOUT_FILTER </entry><entry>LogoutFilter</entry></row>
-            <row><entry> X509_FILTER </entry><entry>X509PreAuthenticatedProcessigFilter</entry></row>
-            <row><entry> PRE_AUTH_FILTER </entry><entry>Subclass of AstractPreAuthenticatedProcessingFilter</entry></row>
-            <row><entry> CAS_PROCESSING_FILTER </entry><entry>CasProcessingFilter</entry></row>
-            <row><entry> AUTHENTICATION_PROCESSING_FILTER </entry><entry>AuthenticationProcessingFilter</entry></row>
-            <row><entry> BASIC_PROCESSING_FILTER </entry><entry>BasicProcessingFilter</entry></row>
-            <row><entry> SERVLET_API_SUPPORT_FILTER</entry><entry>classname</entry></row>
-            <row><entry> REMEMBER_ME_FILTER </entry><entry>RememberMeProcessingFilter</entry></row>
-            <row><entry> ANONYMOUS_FILTER </entry><entry>AnonymousProcessingFilter</entry></row>
-            <row><entry> EXCEPTION_TRANSLATION_FILTER </entry><entry>ExceptionTranslationFilter</entry></row>
-            <row><entry> NTLM_FILTER </entry><entry>NtlmProcessingFilter</entry></row>
-            <row><entry> FILTER_SECURITY_INTERCEPTOR </entry><entry>FilterSecurityInterceptor</entry></row>
-            <row><entry> SWITCH_USER_FILTER </entry><entry>SwitchUserProcessingFilter</entry></row>             
+            <row>
+              <entry> CHANNEL_FILTER</entry>
+              <entry><literal>ChannelProcessingFilter</literal></entry>
+              <entry><literal>http/intercept-url</literal></entry>
+            </row>
+            <row>
+              <entry> CONCURRENT_SESSION_FILTER</entry>
+              <entry><literal>ConcurrentSessionFilter</literal>
+              </entry><entry><literal>http/concurrent-session-control</literal></entry>
+            </row>
+            <row>
+              <entry> SESSION_CONTEXT_INTEGRATION_FILTER</entry>
+              <entry><literal>HttpSessionContextIntegrationFilter</literal></entry>
+              <entry><literal>http</literal></entry>
+            </row>
+            <row>
+              <entry> LOGOUT_FILTER </entry>
+              <entry><literal>LogoutFilter</literal></entry>
+              <entry><literal>http/logout</literal></entry>
+            </row>
+            <row>
+              <entry> X509_FILTER </entry>
+              <entry><literal>X509PreAuthenticatedProcessigFilter</literal></entry>
+              <entry><literal>http/x509</literal></entry>
+            </row>
+            <row>
+              <entry> PRE_AUTH_FILTER </entry>
+              <entry><literal>AstractPreAuthenticatedProcessingFilter</literal> Subclasses</entry>
+              <entry>N/A</entry>
+            </row>
+            <row>
+              <entry> CAS_PROCESSING_FILTER </entry>
+              <entry><literal>CasProcessingFilter</literal></entry>
+              <entry>N/A</entry>
+            </row>
+            <row>
+              <entry> AUTHENTICATION_PROCESSING_FILTER </entry>
+              <entry><literal>AuthenticationProcessingFilter</literal></entry>
+              <entry><literal>http/form-login</literal></entry>
+            </row>
+            <row>
+              <entry> BASIC_PROCESSING_FILTER </entry>
+              <entry><literal>BasicProcessingFilter</literal></entry>
+              <entry><literal>http/http-basic</literal></entry>
+            </row>
+            <row>
+              <entry> SERVLET_API_SUPPORT_FILTER</entry>
+              <entry><literal>SecurityContextHolderAwareRequestFilter</literal></entry>
+              <entry><literal>http/@servlet-api-provision</literal></entry>
+            </row>
+            <row>
+              <entry> REMEMBER_ME_FILTER </entry>
+              <entry><literal>RememberMeProcessingFilter</literal></entry>
+              <entry><literal>http/remember-me</literal></entry>
+            </row>
+            <row>
+              <entry> ANONYMOUS_FILTER </entry>
+              <entry><literal>AnonymousProcessingFilter</literal></entry>
+              <entry><literal>http/anonymous</literal></entry>
+            </row>
+            <row>
+              <entry> EXCEPTION_TRANSLATION_FILTER </entry>
+              <entry><literal>ExceptionTranslationFilter</literal></entry>
+              <entry><literal>http</literal></entry>
+            </row>
+            <row>
+              <entry> NTLM_FILTER </entry>
+              <entry><literal>NtlmProcessingFilter</literal></entry>
+              <entry>N/A</entry>
+            </row>
+            <row>
+              <entry> FILTER_SECURITY_INTERCEPTOR </entry>
+              <entry><literal>FilterSecurityInterceptor</literal></entry>
+              <entry><literal>http</literal></entry>
+            </row>
+            <row>
+              <entry> SWITCH_USER_FILTER </entry>
+              <entry><literal>SwitchUserProcessingFilter</literal></entry>
+              <entry>N/A</entry>
+            </row>             
           </tbody>
         </tgroup>
       </table>
@@ -470,8 +539,39 @@
         to be inserted before or after another filter in the stack. The names "FIRST" and "LAST" can be used to indicate
         that you want your filter to appear before or after the entire stack, respectively.
       </para>
+      <tip>
+        <title>Avoiding filter position conflicts</title>
+        <para>
+          If you are inserting a custom filter which may occupy the same position as one of the standard filters created by the namespace
+          then it's important that you don't include the namespace versions by mistake. Avoid using the 
+          <literal>auto-config</literal> attribute and remove any elements which create filters whose functionality you want to replace.
+        </para>
+        <para>
+          Note that you can't replace filters which are created by the use of the <literal>&lt;http&gt;</literal> 
+          element itself - <literal>HttpSessionContextIntegrationFilter</literal>, <literal>ExceptionTranslationFilter</literal> or
+          <literal>FilterSecurityInterceptor</literal>.
+        </para>
+      </tip>
+      <para>
+        If you're replacing a namespace filter which requires an authentication entry point (i.e. where the authentication process is triggered by
+        an attempt by an unauthenticated user to access to a secured resource), you will need to add a custom entry point bean too.
+      </para>
+      <section xml:id="ns-entry-point-ref">
+        <title>Setting a Custom <literal>AuthenticationEntryPoint</literal></title>
+        <para>
+          If you aren't using form login, OpenID or basic authentication through the namespace, you may
+          want to define an authentication filter and entry point using a traditional bean syntax and link them
+          into the namespace, as we've just seen. The corresponding <literal>AuthenticationEntryPoint</literal> can be set using the 
+          <literal>entry-point-ref</literal> attribute on the <literal>&lt;http&gt;</literal> element.
+        </para>
+        <para>
+          The CAS sample application is a good example of the use of custom beans with the namespace, including this syntax. If you aren't
+          familiar with authentication entry points, they are discussed in the <link xlink:href="#tech-auth-entry-point">technical
+            overview</link> chapter.
+        </para>
+      </section>
     </section>
-    
+
     <section xml:id="ns-session-fixation">
       <title>Session Fixation Attack Protection</title>
       <para>
@@ -491,22 +591,6 @@
         </itemizedlist>
       </para>
     </section>
-    
-    <section xml:id="ns-entry-point-ref">
-      <title>Setting a Custom <literal>AuthenticationEntryPoint</literal></title>
-      <para>
-        If you aren't using form login, OpenID or basic authentication through the namespace, you may
-        want to define an authentication filter and entry point using a traditional bean syntax and link them
-        into the namespace. You can add the filter as explained in <xref linkend="ns-custom-filters"/>. The 
-        corresponding <literal>AuthenticationEntryPoint</literal> can be set using the <literal>entry-point-ref</literal>
-        attribute on the <literal>&lt;http&gt;</literal> element.
-      </para>
-      <para>
-        The CAS sample is a good example of the use of custom beans with the namespace, including this syntax. If you aren't
-        familiar with authentication entry points, they are discussed in the <link xlink:href="#tech-auth-entry-point">technical
-          overview</link> chapter.
-      </para>
-    </section>  
     
   </section>
   
@@ -641,9 +725,9 @@
         use this name elsewhere in your application context.
 <programlisting><![CDATA[        
   <security:authentication-manager alias="authenticationManager"/>
-        
-  <bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter">
-     <security:custom-filter position="CAS_PROCESSING_FILTER"/>
+
+  <bean id="customizedFormLoginFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
+     <security:custom-filter position="AUTHENTICATION_PROCESSING_FILTER "/>
      <property name="authenticationManager" ref="authenticationManager"/>
      ...
   </bean>
