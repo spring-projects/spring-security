@@ -4,6 +4,21 @@
 
     <part id="general">
     <title>General</title>
+    	
+    <faq id="other-concerns">
+    	<question>Will Spring Security take care of all my application security requirements?</question>
+    	<answer>
+    		<p>Spring Security provides you with a very flexible framework for
+    			your authentication and authorization requirements, but there are many other considerations
+    			for building a secure application that are outside its scope. Web applications are
+    			vulnerable to all kinds of attacks which you should be familiar with, preferably before you 
+    			start development so you can design and code with them in mind from the beginning. 
+    			Check out the <a href="http://www.owasp.org/">OWASP web site</a>
+    			for information on the major issues facing web application developers and the countermeasures
+    			you can use against them.
+    		</p>
+    	</answer>
+    </faq>
     <faq id="web-xml">
 	    <question>Why not just use web.xml security?</question>
 	    <answer>
