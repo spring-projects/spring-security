@@ -12,7 +12,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.2.xsd">
 
-    <b:import resource="appContext-misc.xml"/>
+    <!--b:import resource="appContext-misc.xml"/-->
     
 	<!-- global-method-security secured-annotations="enabled" access-decision-manager-ref="methodAccessMgr"/ -->
 	
@@ -24,7 +24,6 @@
 	   </b:property>
 	</b:bean>
     
-    <!-- http entry-point-ref='customEntryPoint'-->
     <http>
         <intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
         <intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
@@ -38,11 +37,12 @@
     Uncomment to enable X509 client authentication support
         <x509 user-service-ref="daoUserService"/>
 -->
-        <!-- form-login default-target-url="/secure/index.jsp" login-page="/login.jsp" authentication-failure-url="/login.jsp?login-error=1" always-use-default-target="false"/-->
+        <form-login default-target-url="/secure/index.jsp" login-page="/login.jsp" authentication-failure-url="/login.jsp?login-error=1" always-use-default-target="false"/>
         <anonymous />
-        <http-basic />
+        <!-- http-basic / -->
         <logout />
         <remember-me key='doesntmatter' token-repository-ref='tokenRepo' user-service-ref='daoUserService'/>
+
 <!--          <remember-me user-service-ref="daoUserService"/> -->
 
         <!-- Uncomment to limit the number of sessions a user can have -->
@@ -66,29 +66,23 @@
     </b:bean>
  -->    
     <b:bean id='sessionRegistry' class="org.springframework.security.concurrent.SessionRegistryImpl"/>
-<!-- 
+<!--
     <b:bean id="customAuthFilter" class="heavyduty.security.ui.HeavyDutyAuthenticationProcessingFilter">
         <custom-filter position="AUTHENTICATION_PROCESSING_FILTER"/>
         <b:property name="defaultTargetUrl" value="/"/>
         <b:property name="authenticationManager" ref="authenticationManager"/>
     </b:bean>
- -->    
-    <b:bean id="customEntryPoint" class="heavyduty.security.ui.HeavyDutyEntryPoint"> 
+
+    <b:bean id="customEntryPoint" class="heavyduty.security.ui.HeavyDutyEntryPoint">
         <b:property name="loginFormUrl" value="/login.jsp"/>
     </b:bean>
+-->    
 <!--     
     <b:bean id="loginPageGenerator" class="org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter">
         <custom-filter after="AUTHENTICATION_PROCESSING_FILTER"/>
         <b:constructor-arg ref="customAuthFilter"/>
     </b:bean>
  -->
-    <!--
-    Usernames/Passwords are
-        rod/koala
-        dianne/emu
-        scott/wombat
-        peter/opal
-    -->
     
 	<authentication-provider user-service-ref="daoUserService">
 	    <password-encoder hash="md5" />
@@ -103,5 +97,24 @@
             <user name="peter" password="22b5c9accc6e1ba628cedc63a72d57f8" authorities="ROLE_USER" />
 	    </user-service>
 	</authentication-provider>
+	
+	<ldap-server id="ldapServer"/>
+
+    <!-- b:bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"/ -->
+
+	<b:bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+	    <b:property name="beans">
+	      <b:map>
+	        <b:entry key="bean:name=ldapContextSource" value-ref="ldapServer"/>
+	      </b:map>
+	    </b:property>
+	    <b:property name="assembler">
+	      <b:bean class="org.springframework.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
+	        <b:property name="managedMethods" value="setPassword,setUserDn,getUrls,setUrl,setUrls,setPooled,isPooled,setBase,getBaseLdapPathAsString"/>
+	      </b:bean>
+	    </b:property>	    
+	    <!-- b:property name="server" ref="mbeanServer"/-->
+	</b:bean>
+	
 
 </b:beans>

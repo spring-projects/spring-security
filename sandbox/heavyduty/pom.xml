@@ -4,7 +4,7 @@
     <artifactId>spring-security-heavyduty</artifactId>
     <name>Spring Security - Heavy Duty Sample</name>
     <packaging>war</packaging>
-    <version>2.0.3-SNAPSHOT</version>
+    <version>2.0.4-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -30,7 +30,7 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
@@ -112,6 +112,29 @@
             <version>1.1.2</version>            
         </dependency>
         <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-core</artifactId>
+            <version>1.0.2</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-server-jndi</artifactId>
+            <version>1.0.2</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.4.3</version>
+            <scope>runtime</scope>
+        </dependency>       
+        <dependency>
+            <groupId>org.springframework.ldap</groupId>
+            <artifactId>spring-ldap</artifactId>
+            <version>1.2.1</version>
+        </dependency>        
+        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <scope>runtime</scope>
@@ -144,6 +167,7 @@
                 <version>6.1.7</version>
                 <configuration>
                     <contextPath>/heavyduty</contextPath>
+                    <!--jettyConfig>jetty-jmx.xml</jettyConfig-->
                     <connectors>
                         <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
                             <port>8080</port>
@@ -165,8 +189,8 @@
         </plugins>
     </build>
     <properties>        
-        <spring.version>2.5.4</spring.version>
-        <spring.security.version>2.0.3-SNAPSHOT</spring.security.version>
+        <spring.version>2.5.5</spring.version>
+        <spring.security.version>2.0.4-SNAPSHOT</spring.security.version>
     </properties>
 
 </project>

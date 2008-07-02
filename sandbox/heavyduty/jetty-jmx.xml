@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
+
+
+<!-- =============================================================== -->
+<!-- Configure the JVM JMX Server                                    -->
+<!-- this configuration file should be used in combination with      -->
+<!-- other configuration files.  e.g.                                -->
+<!--    java -jar start.jar etc/jetty-jmx.xml etc/jetty.xml          -->
+<!-- See jetty-jmx-mx4j.xml for a non JVM server solution            -->
+<!-- =============================================================== -->
+<Configure id="Server" class="org.mortbay.jetty.Server">
+
+    <!-- =========================================================== -->
+    <!-- Initialize platform mbean server                            -->
+    <!-- =========================================================== -->
+    <!-- Create an MBeanServer or use the jdk 1.5 platformMBeanServer -->
+    <Call id="MBeanServer" class="java.lang.management.ManagementFactory" name="getPlatformMBeanServer"/>
+    
+    <!-- =========================================================== -->
+    <!-- Initialize mx4j mbean server                                -->
+    <!-- =========================================================== -->
+    <!-- replace platform config with
+    <Call id="MBeanServer" class="javax.management.MBeanServerFactory" name="createMBeanServer"/>
+    -->
+    
+    <!-- initialize the Jetty MBean container -->
+    <Get id="Container" name="container">
+      <Call name="addEventListener">
+        <Arg>
+          <New class="org.mortbay.management.MBeanContainer">
+            <Arg><Ref id="MBeanServer"/></Arg>
+            <!-- Set name="managementPort">8082</Set -->
+            <Call name="start" />
+          </New>
+        </Arg>
+      </Call>
+    </Get>
+    
+    <!-- optionally add a remote JMX connector 
+    <Call id="jmxConnector" class="javax.management.remote.JMXConnectorServerFactory" name="newJMXConnectorServer">
+      <Arg>
+        <New  class="javax.management.remote.JMXServiceURL">
+          <Arg>service:jmx:rmi:///jndi/rmi:///jettymbeanserver</Arg>
+        </New>
+      </Arg>
+      <Arg/>
+      <Arg><Ref id="MBeanServer"/></Arg>
+      <Call name="start"/>
+    </Call>
+    -->
+    
+</Configure>
+
