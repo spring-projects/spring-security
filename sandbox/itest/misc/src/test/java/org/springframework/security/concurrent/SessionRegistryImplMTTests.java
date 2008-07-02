@@ -28,7 +28,7 @@ import java.util.Random;
  * @author Luke Taylor
  * @version $Id$
  */
-public class SessionRegistryImplMultithreadedTests extends TestCase {
+public class SessionRegistryImplMTTests extends TestCase {
     private static final Random rnd = new Random();
     private static boolean errorOccurred;
 
