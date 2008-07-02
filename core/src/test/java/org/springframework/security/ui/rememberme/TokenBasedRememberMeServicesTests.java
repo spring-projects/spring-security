@@ -343,7 +343,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
     public void testLoginSuccessNormalWithNonUserDetailsBasedPrincipal() {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         // SEC-822
-        services.setTokenValiditySeconds(5000000);
+        services.setTokenValiditySeconds(500000000);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("d");
         request.addParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER, "true");
@@ -354,6 +354,10 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")}));
 
         Cookie cookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+        String expiryTime = services.decodeCookie(cookie.getValue())[1];
+        long expectedExpiryTime = 1000L * 500000000;
+        expectedExpiryTime += System.currentTimeMillis();
+        assertTrue(Long.parseLong(expiryTime) > expectedExpiryTime - 10000);
         assertNotNull(cookie);
         assertEquals(services.getTokenValiditySeconds(), cookie.getMaxAge());
         assertTrue(Base64.isArrayByteBase64(cookie.getValue().getBytes()));
