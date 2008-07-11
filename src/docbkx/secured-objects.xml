@@ -3,7 +3,8 @@
 
   <section xml:id="aop-alliance">
     <info>
-      <title>AOP Alliance (MethodInvocation) Security Interceptor</title></info>
+      <title>AOP Alliance (MethodInvocation) Security Interceptor</title>
+    </info>
     
     <para>
       Prior to Spring Security 2.0, securing <literal>MethodInvocation</literal>s needed quite a 
@@ -49,7 +50,9 @@
   </section>
 
   <section xml:id="aspectj">
-    <info><title>AspectJ (JoinPoint) Security Interceptor</title></info>
+    <info>
+      <title>AspectJ (JoinPoint) Security Interceptor</title>
+    </info>
 
     <para>The AspectJ security interceptor is very similar to the AOP
     Alliance security interceptor discussed in the previous section.
@@ -100,44 +103,46 @@
     <para>Next you'll need to define an AspectJ <literal>aspect</literal>.
     For example:</para>
 
-    <programlisting>package org.springframework.security.samples.aspectj;
+    <programlisting>
+package org.springframework.security.samples.aspectj;
 
-        import org.springframework.security.intercept.method.aspectj.AspectJSecurityInterceptor;
-        import org.springframework.security.intercept.method.aspectj.AspectJCallback;
-        import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.intercept.method.aspectj.AspectJSecurityInterceptor;
+import org.springframework.security.intercept.method.aspectj.AspectJCallback;
+import org.springframework.beans.factory.InitializingBean;
 
 public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
 private AspectJSecurityInterceptor securityInterceptor;
 
 pointcut domainObjectInstanceExecution(): target(PersistableEntity)
-         &amp;&amp; execution(public * *(..)) &amp;&amp; !within(DomainObjectInstanceSecurityAspect);
+      &amp;&amp; execution(public * *(..)) &amp;&amp; !within(DomainObjectInstanceSecurityAspect);
 
 Object around(): domainObjectInstanceExecution() {
-if (this.securityInterceptor != null) {
-  AspectJCallback callback = new AspectJCallback() {
-    public Object proceedWithObject() {
-    return proceed();
+  if (this.securityInterceptor == null) {
+    return proceed();  
   }
-};
-return this.securityInterceptor.invoke(thisJoinPoint, callback);
-} else {
-  return proceed();
-}
+    
+  AspectJCallback callback = new AspectJCallback() {
+      public Object proceedWithObject() {
+        return proceed();
+      }
+  };
+    
+  return this.securityInterceptor.invoke(thisJoinPoint, callback);
 }
 
 public AspectJSecurityInterceptor getSecurityInterceptor() {
-return securityInterceptor;
+  return securityInterceptor;
 }
 
 public void setSecurityInterceptor(AspectJSecurityInterceptor securityInterceptor) {
-this.securityInterceptor = securityInterceptor;
+  this.securityInterceptor = securityInterceptor;
 }
 
 public void afterPropertiesSet() throws Exception {
-if (this.securityInterceptor == null)
-  throw new IllegalArgumentException("securityInterceptor required");
-}
+  if (this.securityInterceptor == null)
+    throw new IllegalArgumentException("securityInterceptor required");
+  }
 }</programlisting>
 
     <para>In the above example, the security interceptor will be applied
@@ -155,13 +160,12 @@ if (this.securityInterceptor == null)
     with the <literal>AspectJSecurityInterceptor</literal>. A bean
     declaration which achieves this is shown below:</para>
 
-    <programlisting>
-&lt;bean id="domainObjectInstanceSecurityAspect"
-        class="org.springframework.security.samples.aspectj.DomainObjectInstanceSecurityAspect"
-        factory-method="aspectOf"&gt;
-&lt;property name="securityInterceptor"&gt;&lt;ref bean="aspectJSecurityInterceptor"/&gt;&lt;/property&gt;
-&lt;/bean&gt;
-
+    <programlisting><![CDATA[
+<bean id="domainObjectInstanceSecurityAspect"
+     class="org.springframework.security.samples.aspectj.DomainObjectInstanceSecurityAspect"
+     factory-method="aspectOf">
+  <property name="securityInterceptor" ref="aspectJSecurityInterceptor"/>
+</bean>]]>
     </programlisting>
 
     <para>That's it! Now you can create your beans from anywhere within
@@ -172,7 +176,6 @@ if (this.securityInterceptor == null)
 
   <section xml:id="filter-invocation-authorization">
     <info><title>FilterInvocation Security Interceptor</title></info>
-    
 
       <para>To secure <classname>FilterInvocation</classname>s, developers need
     to add a <literal>FilterSecurityInterceptor</literal> to their filter chain. 
