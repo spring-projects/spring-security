@@ -65,7 +65,7 @@
             <description>
                 Property of the Authentication object which should be output. Supports nested
                 properties. For example if the principal object is an instance of UserDetails,
-                te property "principal.username" will return the username. Alternatively, using
+                the property "principal.username" will return the username. Alternatively, using
                 "name" will call getName method on the Authentication object directly.
             </description>
         </attribute>
@@ -75,8 +75,7 @@
             <rtexprvalue>false</rtexprvalue>
             <description>
                 Name of the exported scoped variable for the
-                exception thrown from a nested action. The type of the
-                scoped variable is the type of the exception thrown.
+                evaluated property of the Authentication object.
             </description>
         </attribute>
         <attribute>
