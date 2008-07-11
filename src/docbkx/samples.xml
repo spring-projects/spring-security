@@ -6,7 +6,7 @@
     <para>
         There are several sample web applications that are available with the
         project. To avoid an overly large download, only the "tutorial"
-        and "contacts" samples are included in the distribution file. You can 
+        and "contacts" samples are included in the distribution zip file. You can 
         either build the others yourself, or you can obtain the war files 
         individually from the central Maven repository. We'd recommend the former.
         You can get the source as described in <link xlink:href="get-source">the introduction</link>
@@ -15,19 +15,20 @@
         <link xlink:href="http://www.springframework.org/spring-security/">
             http://www.springframework.org/spring-security/
         </link>if you need it.
+        All paths referred to in this chapter are relative to the source directory, once
+        you have checked it out from subversion.
     </para>
     <section xml:id="tutorial-sample">
     <title>Tutorial Sample</title>
     
     <para> The tutorial sample is a nice basic example to get you started. It uses
-        simple namespace configuration throughout.
-    </para>
-    <para>The compiled tutorial is included in the distribution ZIP file,
-        ready to be deployed into your web container. 
+        simple namespace configuration throughout. The compiled application is included in the 
+        distribution zip file, ready to be deployed into your web container 
+        (<filename>spring-security-samples-tutorial-2.0.x.war</filename>). 
         The <link xlink:href="#form">form-based</link> 
-        authentication mechanism is used, with the commonly-used 
+        authentication mechanism is used in combination with the commonly-used 
         <link xlink:href="#remember-me">remember-me</link>
-        authentication provider used to automatically remember the login using
+        authentication provider to automatically remember the login using
         cookies.</para>
     
     <para>We recommend you start with the tutorial sample, as the XML is
@@ -140,7 +141,7 @@
             framework to make use of login information from a J2EE container. The user name and roles are those setup by the container.
         </para>
         <para>
-            The code is in <filename>samples/preauth</filename>.
+            The code is in <filename>samples/preauth</filename> .
         </para>
     </section>
     
