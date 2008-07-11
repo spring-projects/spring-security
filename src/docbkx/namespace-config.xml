@@ -301,7 +301,18 @@
         Where "securityDataSource" is the name of a <classname>DataSource</classname> bean in the application context,
         pointing at a database containing the standard Spring Security user data tables. Alternatively, you could configure
         a Spring Security <classname>JdbcDaoImpl</classname> bean and point at that using the <literal>user-service-ref</literal>
-        attribute.
+        attribute:
+        <programlisting><![CDATA[
+  <authentication-provider user-service-ref='myUserDetailsService'/>
+  
+  <beans:bean id="userDetailsService" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
+    <beans:property name="dataSource" ref="dataSource"/>
+  </beans:bean>
+  ]]>
+        </programlisting>
+        You can also use standard <interfacename>AuthenticationProvider</interfacename> beans by adding the 
+        <literal>&lt;custom-authentication-provider&gt;</literal> element within the bean definition. See 
+        <xref linkend="ns-auth-manager"/> for more on this.
       </para>
       <section><title>Adding a Password Encoder</title>
         <para>
@@ -683,7 +694,7 @@
       </para>
       <para>
         For method security, you  do this by setting the <literal>access-decision-manager-ref</literal> attribute 
-        on <literal>global-security</literal>to the Id of the appropriate 
+        on <literal>global-method-security</literal>to the Id of the appropriate 
         <interfacename>AccessDecisionManager</interfacename> bean in the application context:
         <programlisting><![CDATA[
   <global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
@@ -699,31 +710,33 @@
   </http>
   ]]></programlisting>
       </para>
-    </section>
-    
-    <section xml:id="ns-auth-manager">
-      <title>The Authentication Manager</title>
-      <para>
-        We've touched on the idea that the namespace configuration automatically registers an authentication manager bean for
-        you. This is an instance of Spring Security's <classname>ProviderManager</classname> class, which you may already 
-        be familiar with if you've used the framework before. 
-      </para>
-      <para>
-        You may want to register additional <classname>AuthenticationProvider</classname> beans with the <classname>ProviderManager</classname>
-        and you can do this using the <literal>&lt;custom-authentication-provider&gt;</literal> element within the bean. For example:
-<programlisting><![CDATA[
+    </section>    
+  </section>
+  <section xml:id="ns-auth-manager">
+    <title>The Default Authentication Manager</title>
+    <para>
+      We've touched on the idea that the namespace configuration automatically registers an authentication manager bean for
+      you. This is an instance of Spring Security's <classname>ProviderManager</classname> class, which you may already 
+      be familiar with if you've used the framework before. You can't use a custom <literal>AuthenticationProvider</literal> if you are
+      using either HTTP or method security through the namespace, but this should not be a problem as you have full control over 
+      the <literal>AuthenticationProvider</literal>s that are used.
+    </para>
+    <para>
+      You may want to register additional <classname>AuthenticationProvider</classname> beans with the <classname>ProviderManager</classname>
+      and you can do this using the <literal>&lt;custom-authentication-provider&gt;</literal> element within the bean. For example:
+      <programlisting><![CDATA[
   <bean id="casAuthenticationProvider" 
       class="org.springframework.security.providers.cas.CasAuthenticationProvider">
     <security:custom-authentication-provider />
     ...
   </bean>
   ]]></programlisting>
-      </para>
-      <para>
-        Another common requirement is that another bean in the context may require a reference to the <interfacename>AuthenticationManager</interfacename>.
-        There is a special element which lets you register an alias for the <interfacename>AuthenticationManager</interfacename> and you can then
-        use this name elsewhere in your application context.
-<programlisting><![CDATA[        
+    </para>
+    <para>
+      Another common requirement is that another bean in the context may require a reference to the <interfacename>AuthenticationManager</interfacename>.
+      There is a special element which lets you register an alias for the <interfacename>AuthenticationManager</interfacename> and you can then
+      use this name elsewhere in your application context.
+      <programlisting><![CDATA[        
   <security:authentication-manager alias="authenticationManager"/>
 
   <bean id="customizedFormLoginFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
@@ -732,8 +745,7 @@
      ...
   </bean>
   ]]></programlisting>          
-      </para>
-    </section>
-    
+    </para>
   </section>
+  
 </chapter>
