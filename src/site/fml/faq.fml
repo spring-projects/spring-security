@@ -104,7 +104,14 @@
 		</p>            
 		</answer>
 		
-		</faq>
+    </faq>
+    <faq id="requirements">
+    	<question>What Java and Spring Framework versions are required</question>
+    	<answer>
+    		Spring Security 2.0.x requires a minimum JDK version of 1.4 and is built against Spring 2.0.x. It should
+    		also be compatible with applications using Spring 2.5.x.
+    	</answer>
+    </faq>
 
     </part>
     <part id="common-problems">
