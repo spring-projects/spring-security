@@ -74,7 +74,7 @@
             <required>false</required>
             <rtexprvalue>false</rtexprvalue>
             <description>
-                Name of the exported scoped variable for the
+                Name of the exported scoped variable which will contain the
                 evaluated property of the Authentication object.
             </description>
         </attribute>
