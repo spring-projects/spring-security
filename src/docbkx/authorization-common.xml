@@ -1,4 +1,4 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="authorization-common">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="authorization-common" xmlns:xlink="http://www.w3.org/1999/xlink">
   <info><title>Common Authorization Concepts</title></info>
 
   <section xml:id="authorities">
@@ -52,16 +52,25 @@
   </section>
 
   <section xml:id="pre-invocation">
-    <info><title>Pre-Invocation Handling</title></info>
+    <info>
+      <title>Pre-Invocation Handling</title>
+    </info>
+    <para>
+      As we'll see in the <link xlink:href="#secure-objects" >Technical Overview</link> chapter, Spring
+      Security provides interceptors which control access to secure objects such as method invocations
+      or web requests. A pre-invocation decision on whether the invocation is allowed to proceed is made by
+      the <interfacename>AccessDecisionManager</interfacename>.
+    </para>
     
-
+    <section>
+      <title>The AccessDecisionManager</title>
     <para>The <literal>AccessDecisionManager</literal> is called by the
     <literal>AbstractSecurityInterceptor</literal> and is responsible for
     making final access control decisions. The
     <literal>AccessDecisionManager</literal> interface contains three
     methods:
       <programlisting>
- void decide(Authentication authentication, Object object, ConfigAttributeDefinition config) throws AccessDeniedException;
+ void decide(Authentication authentication, Object secureObject, ConfigAttributeDefinition config) throws AccessDeniedException;
  boolean supports(ConfigAttribute attribute);
  boolean supports(Class clazz);
       </programlisting>
@@ -89,10 +98,10 @@
     <literal>AccessDecisionManager</literal> supports the type of secure
     object that the security interceptor will present.</para>
 
-    <para>Whilst users can implement their own
-    <literal>AccessDecisionManager</literal> to control all aspects of
-    authorization, Spring Security includes several
-    <literal>AccessDecisionManager</literal> implementations that are
+    <section>
+      <title>Voting-Based AccessDecisionManager Implementations</title>
+    <para>Whilst users can implement their own <literal>AccessDecisionManager</literal> to control all aspects of
+    authorization, Spring Security includes several <literal>AccessDecisionManager</literal> implementations that are
     based on voting. <xref linkend="authz-access-voting"/> illustrates the relevant classes.</para>
       <figure xml:id="authz-access-voting">
         <title>Voting Decision Manager</title>
@@ -137,7 +146,7 @@ boolean supports(Class clazz);
     event of an equality of votes or if all votes are abstain. The
     <literal>AffirmativeBased</literal> implementation will grant access
     if one or more <literal>ACCESS_GRANTED</literal> votes were received
-    (ie a deny vote will be ignored, provided there was at least one grant
+    (i.e. a deny vote will be ignored, provided there was at least one grant
     vote). Like the <literal>ConsensusBased</literal> implementation,
     there is a parameter that controls the behavior if all voters abstain.
     The <literal>UnanimousBased</literal> provider expects unanimous
@@ -154,21 +163,28 @@ boolean supports(Class clazz);
     weighting, whilst a deny vote from a particular voter may have a veto
     effect.</para>
 
-    <para>There are two concrete <literal>AccessDecisionVoter</literal>
-    implementations provided with Spring Security. The
-    <literal>RoleVoter</literal> class will vote if any ConfigAttribute
-    begins with <literal>ROLE_</literal>. It will vote to grant access if
-    there is a <literal>GrantedAuthority</literal> which returns a
-    <literal>String</literal> representation (via the
-    <literal>getAuthority()</literal> method) exactly equal to one or more
-    <literal>ConfigAttributes</literal> starting with
-    <literal>ROLE_</literal>. If there is no exact match of any
-    <literal>ConfigAttribute</literal> starting with
-    <literal>ROLE_</literal>, the <literal>RoleVoter</literal> will vote
-    to deny access. If no <literal>ConfigAttribute</literal> begins with
-    <literal>ROLE_</literal>, the voter will abstain.
-    <literal>RoleVoter</literal> is case sensitive on comparisons as well
-    as the <literal>ROLE_</literal> prefix.</para>
+    <section>
+      <title><classname>RoleVoter</classname></title>
+      <para>
+        The most commonly used <literal>AccessDecisionVoter</literal>
+      provided with Spring Security is the simple <classname>RoleVoter</classname>, which treats
+      configuration attributes as simple role names and votes to grant access if the user has been assigned 
+      that role.</para>
+      <para>It will vote if any ConfigAttribute begins with the prefix <literal>ROLE_</literal>. 
+        It will vote to grant access if there is a <literal>GrantedAuthority</literal> which returns a
+      <literal>String</literal> representation (via the
+      <literal>getAuthority()</literal> method) exactly equal to one or more
+      <literal>ConfigAttributes</literal> starting with
+      <literal>ROLE_</literal>. If there is no exact match of any
+      <literal>ConfigAttribute</literal> starting with
+      <literal>ROLE_</literal>, the <literal>RoleVoter</literal> will vote
+      to deny access. If no <literal>ConfigAttribute</literal> begins with
+      <literal>ROLE_</literal>, the voter will abstain.
+      <literal>RoleVoter</literal> is case sensitive on comparisons as well
+      as the <literal>ROLE_</literal> prefix.</para>
+    </section>
+      
+<!--      
 
     <para><literal>BasicAclEntryVoter</literal> is the other concrete
     voter included with Spring Security. It integrates with Spring
@@ -226,7 +242,15 @@ boolean supports(Class clazz);
     and how best to apply them, please see the ACL and "After Invocation"
     sections of this reference guide, and the Contacts sample
     application.</para>
-
+-->
+      <!--
+        <para>TODO: Remove references to the old ACL package when it's
+        deprecated, and have all references to the replacement package limited
+        to the chapter describing the new ACL implementation.</para>
+      -->
+      
+      <section>
+        <title>Custom Voters</title>
     <para>It is also possible to implement a custom
     <literal>AccessDecisionVoter</literal>. Several examples are provided
     in Spring Security unit tests, including
@@ -245,10 +269,9 @@ boolean supports(Class clazz);
     <literal>Authentication</literal> object presented. All of this is
     achieved with relatively few lines of code and demonstrates the
     flexibility of the authorization model.</para>
-
-    <para>TODO: Remove references to the old ACL package when it's
-    deprecated, and have all references to the replacement package limited
-    to the chapter describing the new ACL implementation.</para>
+        </section>
+    </section>
+      </section>
   </section>
 
   <section xml:id="after-invocation">
@@ -394,8 +417,8 @@ boolean supports(Class clazz);
       <literal>AfterInvocationProvider</literal>s.</para>
     </section>
 
-    <section xml:id="after-invocation-acl-aware-old"><info><title>ACL-Aware AfterInvocationProviders (old ACL module)</title></info>
-      
+    <section xml:id="after-invocation-acl-aware-old">
+      <info><title>ACL-Aware AfterInvocationProviders (old ACL module)</title></info>
 
       <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
       ACL module. The new ACL module is a significant rewrite of the
