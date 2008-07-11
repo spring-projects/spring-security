@@ -14,7 +14,7 @@
         on the project web site at 
         <link xlink:href="http://www.springframework.org/spring-security/">
             http://www.springframework.org/spring-security/
-        </link>if you need it.
+        </link> if you need it.
         All paths referred to in this chapter are relative to the source directory, once
         you have checked it out from subversion.
     </para>
