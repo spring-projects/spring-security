@@ -227,7 +227,8 @@
     guide.</para>
   </section>
 
-  <section xml:id="userdetails-and-associated-types"><info><title>UserDetails and Associated Types</title></info>
+  <section xml:id="userdetails-and-associated-types">
+    <info><title>UserDetails and Associated Types</title></info>
     
 
     <para>As mentioned in the first part of the reference guide, most
@@ -311,14 +312,16 @@
     </section>
 
     <section xml:id="jdbc-service">
-      <info><title>JDBC Authentication</title></info>
+      <info>
+        <title>JDBC Authentication</title>
+      </info>
       <para>Spring Security also includes a
       <literal>UserDetailsService</literal> that can obtain authentication
       information from a JDBC data source. Internally Spring JDBC is used,
       so it avoids the complexity of a fully-featured object relational
       mapper (ORM) just to store user details. If your application does
       use an ORM tool, you might prefer to write a custom
-      <literal>UserDetailsService</literal> to reuse the mapping files
+        <interfacename>UserDetailsService</interfacename> to reuse the mapping files
       you've probably already created. Returning to
       <literal>JdbcDaoImpl</literal>, an example configuration is shown
       below:</para>
@@ -332,30 +335,49 @@
   <property name="password" value=""/>
 </bean>
 
-<bean id="jdbcDaoImpl" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
+<bean id="userDetailsService" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
   <property name="dataSource" ref="dataSource"/>
 </bean> ]]>       </programlisting></para>
 
       <para>You can use different relational database management systems
       by modifying the <literal>DriverManagerDataSource</literal> shown
       above. You can also use a global data source obtained from JNDI, as
-      per normal Spring options. Irrespective of the database used and how
+      per normal Spring options.
+      </para>
+      
+      <section xml:id="jdbc-default-schema">
+        <title>Default User Database Schema</title>
+      <para>
+      Irrespective of the database you are using and how
       a <literal>DataSource</literal> is obtained, a standard schema must
-      be used as indicated in <literal>dbinit.txt</literal>. You can
-      download this file from the Spring Security web site.</para>
+      be in place. The DDL for an HSQL database instance would be:
+<programlisting>
+  CREATE TABLE users (
+  username VARCHAR(50) NOT NULL PRIMARY KEY,
+  password VARCHAR(50) NOT NULL,
+  enabled BIT NOT NULL
+  );
+  
+  CREATE TABLE authorities (
+  username VARCHAR(50) NOT NULL,
+  authority VARCHAR(50) NOT NULL
+  );
+  
+  ALTER TABLE authorities ADD CONSTRAINT fk_authorities_users foreign key (username) REFERENCES users(username);
+</programlisting>      
+      </para>
 
-      <para>If your default schema is unsuitable for your needs,
-      <literal>JdbcDaoImpl</literal> provides two properties that allow
-      customisation of the SQL statements. You may also subclass the
-      <literal>JdbcDaoImpl</literal> if further customisation is
-      necessary. Please refer to the JavaDocs for details, although please
-      note that the class is not intended for complex custom subclasses.
-      If you have complex needs (such as a special schema or would like a
-      certain <literal>UserDetails</literal> implementation returned),
+      <para>If the default schema is unsuitable for your needs,
+      <literal>JdbcDaoImpl</literal> provides properties that allow
+      customisation of the SQL statements. Please refer to the JavaDocs for 
+      details, but note that the class is not intended for complex custom subclasses.
+      If you have a complex schema or would like a
+      custom <literal>UserDetails</literal> implementation returned,
       you'd be better off writing your own
       <literal>UserDetailsService</literal>. The base implementation
       provided with Spring Security is intended for typical situations,
-      and does not offer infinite configuration flexibility.</para>
+      rather than catering for all possible requirements.</para>
+      </section>
     </section>
   </section>
 
@@ -371,11 +393,13 @@
     sessions.</para>
 
     <para>To use concurrent session support, you'll need to add the
-    following to <literal>web.xml</literal>:</para>
-
-    <para><programlisting>&lt;listener&gt;
-&lt;listener-class&gt;org.springframework.security.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
-&lt;/listener&gt;        </programlisting></para>
+    following to <literal>web.xml</literal>:
+      <programlisting>
+&lt;listener&gt;
+    &lt;listener-class&gt;org.springframework.security.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
+&lt;/listener&gt;        
+      </programlisting>
+    </para>
 
     <para>In addition, you will need to add the
     <literal>org.springframework.security.concurrent.ConcurrentSessionFilter</literal>
@@ -391,11 +415,11 @@
     <literal>ApplicationEvent</literal> to be published to the Spring
     <literal>ApplicationContext</literal> every time a
     <literal>HttpSession</literal> commences or terminates. This is
-    critical, as it allows the <literal>SessionRegistryImpl</literal> to
+    critical, as it allows the <classname>SessionRegistryImpl</classname> to
     be notified when a session ends.</para>
 
     <para>You will also need to wire up the
-    <literal>ConcurrentSessionControllerImpl</literal> and refer to it
+      <classname>ConcurrentSessionControllerImpl</classname> and refer to it
     from your <literal>ProviderManager</literal> bean:</para>
 
     <para>
