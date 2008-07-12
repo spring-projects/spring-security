@@ -35,6 +35,7 @@ import org.springframework.security.ui.WebAuthenticationDetailsSource;
 import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.ui.rememberme.NullRememberMeServices;
 import org.springframework.security.ui.rememberme.RememberMeServices;
 import org.springframework.util.Assert;
 
@@ -91,7 +92,7 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
     private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationManager authenticationManager;
-    private RememberMeServices rememberMeServices;
+    private RememberMeServices rememberMeServices = new NullRememberMeServices();
     private boolean ignoreFailure = false;
     private String credentialsCharset = "UTF-8";
 
@@ -105,10 +106,10 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
         }
     }
 
-    public void doFilterHttp(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain)
+    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        String header = httpRequest.getHeader("Authorization");
+        String header = request.getHeader("Authorization");
 
         if (logger.isDebugEnabled()) {
             logger.debug("Authorization header: " + header);
@@ -116,7 +117,7 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
 
         if ((header != null) && header.startsWith("Basic ")) {
             byte[] base64Token = header.substring(6).getBytes("UTF-8");
-            String token = new String(Base64.decodeBase64(base64Token), getCredentialsCharset(httpRequest));
+            String token = new String(Base64.decodeBase64(base64Token), getCredentialsCharset(request));
 
             String username = "";
             String password = "";
@@ -130,7 +131,7 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
             if (authenticationIsRequired(username)) {
                 UsernamePasswordAuthenticationToken authRequest =
                         new UsernamePasswordAuthenticationToken(username, password);
-                authRequest.setDetails(authenticationDetailsSource.buildDetails(httpRequest));
+                authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
 
                 Authentication authResult;
 
@@ -144,14 +145,14 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
 
                     SecurityContextHolder.getContext().setAuthentication(null);
 
-                    if (rememberMeServices != null) {
-                        rememberMeServices.loginFail(httpRequest, httpResponse);
-                    }
+                    rememberMeServices.loginFail(request, response);
 
+                    onUnsuccessfulAuthentication(request, response, failed);                    
+                    
                     if (ignoreFailure) {
-                        chain.doFilter(httpRequest, httpResponse);
+                        chain.doFilter(request, response);
                     } else {
-                        authenticationEntryPoint.commence(httpRequest, httpResponse, failed);
+                        authenticationEntryPoint.commence(request, response, failed);
                     }
 
                     return;
@@ -164,13 +165,13 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
 
                 SecurityContextHolder.getContext().setAuthentication(authResult);
 
-                if (rememberMeServices != null) {
-                    rememberMeServices.loginSuccess(httpRequest, httpResponse, authResult);
-                }
+                rememberMeServices.loginSuccess(request, response, authResult);
+                
+                onSuccessfulAuthentication(request, response, authResult);                
             }
         }
 
-        chain.doFilter(httpRequest, httpResponse);
+        chain.doFilter(request, response);
     }
 
 	private boolean authenticationIsRequired(String username) {
@@ -201,6 +202,14 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
         }
 
         return false;
+    }
+	
+    protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+            Authentication authResult) throws IOException {
+    }
+
+    protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException failed) throws IOException {
     }
 
     protected AuthenticationEntryPoint getAuthenticationEntryPoint() {
@@ -233,6 +242,7 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
     }
 
     public void setRememberMeServices(RememberMeServices rememberMeServices) {
+    	Assert.notNull(rememberMeServices, "rememberMeServices cannot be null");
         this.rememberMeServices = rememberMeServices;
     }
 
