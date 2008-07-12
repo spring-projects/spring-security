@@ -142,11 +142,13 @@
   <url-pattern>/*</url-pattern>
 </filter-mapping>]]>   
       </programlisting>
-      This provides a hook into the Spring Security web infrastructure. <!-- You can find more details
-      of how this works in
-      <link xlink:href="#todo">TODO</link>-->. You're then ready to start editing your application
-      context file. Web security services are configured using the <literal>&lt;http&gt;</literal>
-      element. 
+        This provides a hook into the Spring Security web infrastructure. <classname>DelegatingFilterProxy</classname>
+        is a Spring Framework class which delegates to a filter implementation which is defined as a Spring bean in your
+        application context. In this case, the bean is named "springSecurityFilterChain", which is an internal infrastructure 
+        bean created by the namespace to handle web security. Note that you should not use this bean name yourself. 
+        Once you've added this to your <filename>web.xml</filename>, you're ready to start editing your application
+        context file. Web security services are configured using the <literal>&lt;http&gt;</literal>
+        element. 
       </para>
     </section>
     
