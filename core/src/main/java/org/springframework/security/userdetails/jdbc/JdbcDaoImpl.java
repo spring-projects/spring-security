@@ -47,23 +47,53 @@ import javax.sql.DataSource;
 
 
 /**
- * Retrieves user details (username, password, enabled flag, and authorities) from a JDBC location.
+ * <tt>UserDetailsServiceRetrieves</tt> implementation which retrieves the user details 
+ * (username, password, enabled flag, and authorities) from a database using JDBC queries.
+ * 
+ * <h3>Default Schema</h3> 
+ * A default database schema is assumed, with two tables "users" and "authorities".
+ *  
+ * <h4>The Users table</h4>
+ * 
+ * This table contains the login name, password and enabled status of the user.
+ * 
+ * <table>
+ * <tr><th>Column</th></tr>
+ * <tr><td>username</td></tr>
+ * <tr><td>password</td></tr>
+ * <tr><td>enabled</td></tr>
+ * </table>
+ * 
+ * <h4>The Authorities Table</h4>
+ *
+ * <table>
+ * <tr><th>Column</th></tr>
+ * <tr><td>username</td></tr>
+ * <tr><td>authority</td></tr>
+ * </table>
+ *
+ * If you are using an existing schema you will have to set the queries <tt>usersByUsernameQuery</tt> and
+ * <tt>authoritiesByUsernameQuery</tt> to match your database setup 
+ * (see {@link #DEF_USERS_BY_USERNAME_QUERY} and {@link #DEF_AUTHORITIES_BY_USERNAME_QUERY}).
+ *
  * <p>
- * A default database structure is assumed, (see {@link #DEF_USERS_BY_USERNAME_QUERY} and {@link
- * #DEF_AUTHORITIES_BY_USERNAME_QUERY}, which most users of this class will need to override, if using an existing
- * scheme. This may be done by setting the default query strings used.
- * <p>
- * In order to minimise backward compatibility issues, this DAO does not recognise the expiration of user
+ * In order to minimise backward compatibility issues, this implementation doesn't recognise the expiration of user
  * accounts or the expiration of user credentials. However, it does recognise and honour the user enabled/disabled
- * column.
- * <p>
+ * column. This should map to a <tt>boolean</tt> type in the result set (the SQL type will depend on the
+ * database you are using). All the other columns map to <tt>String</tt>s.
+ * 
+ * <h3>Group Support</h3>
  * Support for group-based authorities can be enabled by setting the <tt>enableGroups</tt> property to <tt>true</tt>
  * (you may also then wish to set <tt>enableAuthorities</tt> to <tt>false</tt> to disable loading of authorities
  * directly). With this approach, authorities are allocated to groups and a user's authorities are determined based
  * on the groups they are a member of. The net result is the same (a UserDetails containing a set of
  * <tt>GrantedAuthority</tt>s is loaded), but the different persistence strategy may be more suitable for the
  * administration of some applications.
- *
+ * <p>
+ * When groups are being used, the tables "groups", "group_members" and "group_authorities" are used. See
+ * {@link #DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY} for the default query which is used to load the group authorities.
+ * Again you can customize this by setting the <tt>groupAuthoritiesByUsernameQuery</tt> property, but the format of
+ * the rows returned should match the default.
  *
  * @author Ben Alex
  * @author colin sampaleanu
