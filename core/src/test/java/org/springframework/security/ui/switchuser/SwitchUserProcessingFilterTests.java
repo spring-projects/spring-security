@@ -15,8 +15,18 @@
 
 package org.springframework.security.ui.switchuser;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.AccountExpiredException;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
@@ -24,48 +34,34 @@ import org.springframework.security.CredentialsExpiredException;
 import org.springframework.security.DisabledException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-
 import org.springframework.security.context.SecurityContextHolder;
-
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-
+import org.springframework.security.util.FieldUtils;
 import org.springframework.security.util.MockFilterChain;
-
-import org.springframework.dao.DataAccessException;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
-import java.util.List;
-import java.util.ArrayList;
 
 
 /**
  * Tests {@link org.springframework.security.ui.switchuser.SwitchUserProcessingFilter}.
  *
  * @author Mark St.Godard
+ * @author Luke Taylor
  * @version $Id$
  */
-public class SwitchUserProcessingFilterTests extends TestCase {
-    //~ Constructors ===================================================================================================
+public class SwitchUserProcessingFilterTests {
 
-    public SwitchUserProcessingFilterTests() {
+    @Before
+    public void authenticateCurrentUser() {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
+        SecurityContextHolder.getContext().setAuthentication(auth);    	
     }
-
-    public SwitchUserProcessingFilterTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
-
-    protected void tearDown() throws Exception {
-        SecurityContextHolder.clearContext();
+    
+    @After
+    public void clearContext() {
+    	SecurityContextHolder.clearContext();
     }
 
     private MockHttpServletRequest createMockSwitchRequest() {
@@ -76,181 +72,122 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         return request;
     }
+    
+    private Authentication switchToUser(String name) {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, name);
 
-    public void testAttemptSwitchToUnknownUser() throws Exception {
-        // set current user
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        filter.setUserDetailsService(new MockUserDetailsService());
+
+        return filter.attemptSwitchUser(request);
+    	
+    }
+    
+    @Test
+    public void requiresExitUserMatchesCorrectly() {
+        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        filter.setExitUserUrl("/j_spring_security_my_exit_user");
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/j_spring_security_my_exit_user");
+
+        assertTrue(filter.requiresExitUser(request));
+    }
+
+    @Test
+    public void requiresSwitchMatchesCorrectly() {
+        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        filter.setSwitchUserUrl("/j_spring_security_my_switch_user");
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/j_spring_security_my_switch_user");        
+        
+        assertTrue(filter.requiresSwitchUser(request));
+    }    
+    
+    @Test(expected=UsernameNotFoundException.class)
+    public void attemptSwitchToUnknownUserFails() throws Exception {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "user-that-doesnt-exist");
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
-
-        try {
-            Authentication result = filter.attemptSwitchUser(request);
-
-            fail("Should not be able to switch to unknown user");
-        } catch (UsernameNotFoundException expected) {}
+        filter.setUserDetailsService(new MockUserDetailsService());
+        filter.attemptSwitchUser(request);
     }
 
-    public void testAttemptSwitchToUserThatIsDisabled() throws Exception {
-        // set current user
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
-        SecurityContextHolder.getContext().setAuthentication(auth);
+    @Test(expected=DisabledException.class)
+    public void attemptSwitchToUserThatIsDisabledFails() throws Exception {
+    	switchToUser("mcgarrett");
+    }
 
+    @Test(expected=AccountExpiredException.class)
+    public void attemptSwitchToUserWithAccountExpiredFails() throws Exception {
+    	switchToUser("wofat");
+    }
+
+    @Test(expected=CredentialsExpiredException.class)
+    public void attemptSwitchToUserWithExpiredCredentialsFails() throws Exception {
+    	switchToUser("steve");
+    }
+
+    @Test(expected=UsernameNotFoundException.class)
+    public void switchUserWithNullUsernameThrowsException() throws Exception {
+    	switchToUser(null);
+    }    
+    
+    @Test
+    public void attemptSwitchUserIsSuccessfulWithValidUser() throws Exception {
+    	assertNotNull(switchToUser("jacklord"));
+    }
+
+    @Test
+    public void switchToLockedAccountCausesRedirectToSwitchFailureUrl() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-
-        // this user is disabled
-        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "mcgarrett");
-
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
-
-        try {
-            Authentication result = filter.attemptSwitchUser(request);
-
-            fail("Should not be able to switch to disabled user");
-        } catch (DisabledException expected) {
-            // user should be disabled
-        }
-    }
-
-    public void testAttemptSwitchToUserWithAccountExpired() throws Exception {
-        // set current user
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-
-        // this user is disabled
-        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "wofat");
-
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
-
-        try {
-            Authentication result = filter.attemptSwitchUser(request);
-
-            fail("Should not be able to switch to user with expired account");
-        } catch (AccountExpiredException expected) {
-            // expected user account expired
-        }
-    }
-
-    public void testAttemptSwitchToUserWithExpiredCredentials() throws Exception {
-        // set current user
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-
-        // this user is disabled
-        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "steve");
-
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
-
-        try {
-            Authentication result = filter.attemptSwitchUser(request);
-
-            fail("Should not be able to switch to user with expired account");
-        } catch (CredentialsExpiredException expected) {
-            // user credentials expired
-        }
-    }
-
-    public void testAttemptSwitchUser() throws Exception {
-        // set current user
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
-
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
-
-        Authentication result = filter.attemptSwitchUser(request);
-        assertTrue(result != null);
-    }
-
-    public void testSwitchToLockedAccountCausesRedirectToSwitchFailureUrl() throws Exception {
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        MockHttpServletRequest request = createMockSwitchRequest();
+        request.setRequestURI("/j_spring_security_switch_user");
         request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "mcgarrett");
         MockHttpServletResponse response = new MockHttpServletResponse();
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockUserDetailsService());
 
-        // Check it with no url set
+        // Check it with no url set (should get a text response)
         filter.doFilterHttp(request, response, new MockFilterChain(false));
 
         assertEquals("Switch user failed: User is disabled", response.getContentAsString());
 
         // Now check for the redirect
+        request.setContextPath("/mywebapp");
+        request.setRequestURI("/mywebapp/j_spring_security_switch_user");
         filter.setSwitchFailureUrl("/switchfailed");
         response = new MockHttpServletResponse();
 
-        filter.doFilterHttp(request, response, new MockFilterChain(false));
+        filter.doFilterHttp(request, response, new MockFilterChain(true));
 
-        assertEquals("/switchfailed", response.getRedirectedUrl());
-
+        assertEquals("/mywebapp/switchfailed", response.getRedirectedUrl());
+        assertEquals("/switchfailed", FieldUtils.getFieldValue(filter, "switchFailureUrl"));
     }
 
-    public void testIfSwitchUserWithNullUsernameThrowsException() throws Exception {
-        // set current user
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        String username = null;
-        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, username);
-
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
-        Authentication result = null ;
-        try {
-        	 result = filter.attemptSwitchUser(request);
-        	 fail("UsernameNotFoundException should have been thrown");
-        } catch (UsernameNotFoundException e) {
-
-        }
-        assertFalse(result != null);
-    }
-
-    public void testBadConfigMissingAuthenticationDao() {
+    @Test(expected=IllegalArgumentException.class)
+    public void configMissingUserDetailsServiceFails() throws Exception {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
         filter.setExitUserUrl("/j_spring_security_exit_user");
         filter.setTargetUrl("/main.jsp");
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Expect to fail due to missing 'authenticationDao'");
-        } catch (Exception expected) {
-            // expected exception
-        }
+        filter.afterPropertiesSet();
     }
 
-    public void testBadConfigMissingTargetUrl() {
+    @Test(expected=IllegalArgumentException.class)    
+    public void testBadConfigMissingTargetUrl() throws Exception {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockUserDetailsService());
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
         filter.setExitUserUrl("/j_spring_security_exit_user");
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Expect to fail due to missing 'targetUrl'");
-        } catch (Exception expected) {
-            // expected exception
-        }
+        filter.afterPropertiesSet();
     }
 
-    public void testDefaultProcessesFilterUrlWithPathParameter() {
+    @Test
+    public void defaultProcessesFilterUrlMatchesUrlWithPathParameter() {
         MockHttpServletRequest request = createMockSwitchRequest();
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
@@ -259,7 +196,8 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         assertTrue(filter.requiresSwitchUser(request));
     }
 
-    public void testExitRequestUserJackLordToDano() throws Exception {
+    @Test
+    public void exitUserJackLordToDanoSucceeds() throws Exception {
         // original user
         GrantedAuthority[] auths = {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")};
         UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("dano", "hawaii50", auths);
@@ -274,23 +212,17 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         SecurityContextHolder.getContext().setAuthentication(admin);
 
-        // http request
         MockHttpServletRequest request = createMockSwitchRequest();
         request.setRequestURI("/j_spring_security_exit_user");
 
-        // http response
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
         // setup filter
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockUserDetailsService());
         filter.setExitUserUrl("/j_spring_security_exit_user");
         filter.setTargetUrl("/webapp/someOtherUrl");
 
-        MockFilterChain chain = new MockFilterChain(true);
-
         // run 'exit'
-        filter.doFilter(request, response, chain);
+        filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain(false));
 
         // check current user, should be back to original user (dano)
         Authentication targetAuth = SecurityContextHolder.getContext().getAuthentication();
@@ -298,56 +230,44 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         assertEquals("dano", targetAuth.getPrincipal());
     }
 
-    public void testExitUserWithNoCurrentUser() throws Exception {
+    @Test(expected=AuthenticationException.class)
+    public void exitUserWithNoCurrentUserFails() throws Exception {
         // no current user in secure context
-        SecurityContextHolder.getContext().setAuthentication(null);
+        SecurityContextHolder.clearContext();
 
-        // http request
         MockHttpServletRequest request = createMockSwitchRequest();
         request.setRequestURI("/j_spring_security_exit_user");
 
-        // http response
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
         // setup filter
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockUserDetailsService());
         filter.setExitUserUrl("/j_spring_security_exit_user");
 
-        MockFilterChain chain = new MockFilterChain(true);
-
         // run 'exit', expect fail due to no current user
-        try {
-            filter.doFilter(request, response, chain);
-
-            fail("Cannot exit from a user with no current user set!");
-        } catch (AuthenticationException expected) {}
+        filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain(false));
     }
 
-    public void testRedirectToTargetUrl() throws Exception {
-        // set current user
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
+    @Test
+    public void redirectToTargetUrlIsCorrect() throws Exception {
         MockHttpServletRequest request = createMockSwitchRequest();
         request.setContextPath("/webapp");
         request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
         request.setRequestURI("/webapp/j_spring_security_switch_user");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain chain = new MockFilterChain(true);
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
         filter.setTargetUrl("/someOtherUrl");
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockUserDetailsService());
 
-        filter.doFilter(request, response, chain);
+        filter.doFilter(request, response, new MockFilterChain(false));
 
         assertEquals("/webapp/someOtherUrl", response.getRedirectedUrl());
     }
 
-    public void testRedirectOmitsContextPathIfUseRelativeContextSet() throws Exception {
+    @Test
+    public void redirectOmitsContextPathIfUseRelativeContextSet() throws Exception {
         // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -358,42 +278,19 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         request.setRequestURI("/webapp/j_spring_security_switch_user");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain chain = new MockFilterChain(true);
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
         filter.setTargetUrl("/someOtherUrl");
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockUserDetailsService());
         filter.setUseRelativeContext(true);
 
-        filter.doFilter(request, response, chain);
+        filter.doFilter(request, response, new MockFilterChain(false));
 
         assertEquals("/someOtherUrl", response.getRedirectedUrl());
     }
 
-    public void testRequiresExitUser() {
-        // filter
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setExitUserUrl("/j_spring_security_exit_user");
-
-        // request
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("/j_spring_security_exit_user");
-
-        assertTrue(filter.requiresExitUser(request));
-    }
-
-    public void testRequiresSwitch() {
-        // filter
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setSwitchUserUrl("/j_spring_security_switch_user");
-
-        // request
-        MockHttpServletRequest request = createMockSwitchRequest();
-
-        assertTrue(filter.requiresSwitchUser(request));
-    }
-
+    @Test
     public void testSwitchRequestFromDanoToJackLord() throws Exception {
         // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
@@ -409,7 +306,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         // setup filter
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockUserDetailsService());
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
         filter.setTargetUrl("/webapp/someOtherUrl");
 
@@ -425,7 +322,8 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         assertEquals("jacklord", ((User) targetAuth.getPrincipal()).getUsername());
     }
 
-    public void testModificationOfAuthoritiesWorks() {
+    @Test
+    public void modificationOfAuthoritiesWorks() {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -433,7 +331,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockUserDetailsService());
         filter.setSwitchUserAuthorityChanger(new SwitchUserAuthorityChanger() {
             public List modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, List authoritiesToBeGranted) {
                 List auths = new ArrayList();
@@ -451,11 +349,10 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
     //~ Inner Classes ==================================================================================================
 
-    private class MockAuthenticationDaoUserJackLord implements UserDetailsService {
+    private class MockUserDetailsService implements UserDetailsService {
         private String password = "hawaii50";
 
-        public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+        public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
             // jacklord, dano  (active)
             // mcgarrett (disabled)
             // wofat (account expired)

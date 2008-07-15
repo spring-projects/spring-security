@@ -304,8 +304,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         logger.debug("Switch User failed", failed);
 
         if (switchFailureUrl != null) {
-            switchFailureUrl = request.getContextPath() + switchFailureUrl;
-            response.sendRedirect(response.encodeRedirectURL(switchFailureUrl));
+        	sendRedirect(request, response, switchFailureUrl);
         } else {
             response.getWriter().print("Switch user failed: " + failed.getMessage());
             response.flushBuffer();
