@@ -50,7 +50,7 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
         
         if (StringUtils.hasText(groupAuthoritiesQuery)) {
             builder.addPropertyValue("enableGroups", Boolean.TRUE);
-            builder.addPropertyValue("authoritiesByUsernameQuery", groupAuthoritiesQuery);
+            builder.addPropertyValue("groupAuthoritiesByUsernameQuery", groupAuthoritiesQuery);
         }
     }
 }
