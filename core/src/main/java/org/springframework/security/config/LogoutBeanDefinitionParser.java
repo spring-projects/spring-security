@@ -25,6 +25,12 @@ public class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
 	static final String ATT_LOGOUT_URL = "logout-url";
 	static final String DEF_LOGOUT_URL = "/j_spring_security_logout";
+	
+	String rememberMeServices;
+
+	public LogoutBeanDefinitionParser(String rememberMeServices) {
+		this.rememberMeServices = rememberMeServices;
+	}
 
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		String logoutUrl = null;
@@ -66,8 +72,8 @@ public class LogoutBeanDefinitionParser implements BeanDefinitionParser {
         }
         handlers.add(sclh);
 
-        if (parserContext.getRegistry().containsBeanDefinition(BeanIds.REMEMBER_ME_SERVICES)) {
-            handlers.add(new RuntimeBeanReference(BeanIds.REMEMBER_ME_SERVICES));
+        if (rememberMeServices != null) {
+            handlers.add(new RuntimeBeanReference(rememberMeServices));
         }
 
         builder.addConstructorArg(handlers);

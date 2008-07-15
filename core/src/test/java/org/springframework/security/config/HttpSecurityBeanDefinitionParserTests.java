@@ -34,6 +34,7 @@ import org.springframework.security.ui.SessionFixationProtectionFilter;
 import org.springframework.security.ui.WebAuthenticationDetails;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
+import org.springframework.security.ui.logout.LogoutHandler;
 import org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter;
 import org.springframework.security.ui.rememberme.NullRememberMeServices;
 import org.springframework.security.ui.rememberme.PersistentTokenBasedRememberMeServices;
@@ -378,7 +379,11 @@ public class HttpSecurityBeanDefinitionParserTests {
                 AUTH_PROVIDER_XML);
         
         assertEquals(5000, FieldUtils.getFieldValue(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES), 
-        		"tokenValiditySeconds"));        
+        		"tokenValiditySeconds"));
+        // SEC-909
+        LogoutHandler[] logoutHandlers = (LogoutHandler[]) FieldUtils.getFieldValue(appContext.getBean(BeanIds.LOGOUT_FILTER), "handlers"); 
+        assertEquals(2, logoutHandlers.length);
+        assertEquals(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES), logoutHandlers[1]);
     }
 
     @Test

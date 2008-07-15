@@ -159,20 +159,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             new AnonymousBeanDefinitionParser().parse(anonymousElt, parserContext);
         }
 
-        // Parse remember me before logout as RememberMeServices is also a LogoutHandler implementation.
-        Element rememberMeElt = DomUtils.getChildElementByTagName(element, Elements.REMEMBER_ME);
-        if (rememberMeElt != null || autoConfig) {
-            new RememberMeBeanDefinitionParser().parse(rememberMeElt, parserContext);
-            // Post processor to inject RememberMeServices into filters which need it
-            RootBeanDefinition rememberMeInjectionPostProcessor = new RootBeanDefinition(RememberMeServicesInjectionBeanPostProcessor.class);
-            rememberMeInjectionPostProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            registry.registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES_INJECTION_POST_PROCESSOR, rememberMeInjectionPostProcessor);            
-        }
-        
-        Element logoutElt = DomUtils.getChildElementByTagName(element, Elements.LOGOUT);
-        if (logoutElt != null || autoConfig) {
-            new LogoutBeanDefinitionParser().parse(logoutElt, parserContext);
-        }
+        parseRememberMeAndLogout(element, autoConfig, parserContext);
         
         parseBasicFormLoginAndOpenID(element, parserContext, autoConfig, allowSessionCreation);
 
@@ -190,6 +177,27 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         registry.registerBeanDefinition(BeanIds.USER_DETAILS_SERVICE_INJECTION_POST_PROCESSOR, postProcessor2);
         
         return null;
+    }
+    
+    private void parseRememberMeAndLogout(Element elt, boolean autoConfig, ParserContext pc) {
+        // Parse remember me before logout as RememberMeServices is also a LogoutHandler implementation.
+        Element rememberMeElt = DomUtils.getChildElementByTagName(elt, Elements.REMEMBER_ME);
+        String rememberMeServices = null;
+        
+        if (rememberMeElt != null || autoConfig) {
+        	RememberMeBeanDefinitionParser rmbdp = new RememberMeBeanDefinitionParser();
+        	rmbdp.parse(rememberMeElt, pc);
+        	rememberMeServices = rmbdp.getServicesName();
+            // Post processor to inject RememberMeServices into filters which need it
+            RootBeanDefinition rememberMeInjectionPostProcessor = new RootBeanDefinition(RememberMeServicesInjectionBeanPostProcessor.class);
+            rememberMeInjectionPostProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            pc.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES_INJECTION_POST_PROCESSOR, rememberMeInjectionPostProcessor);            
+        }
+        
+        Element logoutElt = DomUtils.getChildElementByTagName(elt, Elements.LOGOUT);
+        if (logoutElt != null || autoConfig) {
+            new LogoutBeanDefinitionParser(rememberMeServices).parse(logoutElt, pc);
+        }    	
     }
     
     private void registerFilterChainProxy(ParserContext pc, Map filterChainMap, UrlMatcher matcher, Object source) {

@@ -51,7 +51,8 @@ public class RememberMeServicesInjectionBeanPostProcessor implements BeanPostPro
         Map beans = beanFactory.getBeansOfType(RememberMeServices.class);
         
         Assert.isTrue(beans.size() > 0, "No RememberMeServices configured"); 
-        Assert.isTrue(beans.size() == 1, "More than one RememberMeServices bean found.");
+        Assert.isTrue(beans.size() == 1, "Use of '<remember-me />' requires a single instance of RememberMeServices " +
+        		"in the application context, but more than one was found.");
 
         return (RememberMeServices) beans.values().toArray()[0];
     }

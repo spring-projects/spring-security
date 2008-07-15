@@ -32,6 +32,7 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 	static final String ATT_TOKEN_VALIDITY = "token-validity-seconds";
 
 	protected final Log logger = LogFactory.getLog(getClass());
+	private String servicesName;
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         String tokenRepository = null;
@@ -102,8 +103,10 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 	        }
 	        services.setSource(source);
 	        services.getPropertyValues().addPropertyValue(ATT_KEY, key);
-	        parserContext.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES, services);	        
+	        parserContext.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES, services);
+	        servicesName = BeanIds.REMEMBER_ME_SERVICES;
         } else {
+        	servicesName = rememberMeServicesRef;
         	parserContext.getRegistry().registerAlias(rememberMeServicesRef, BeanIds.REMEMBER_ME_SERVICES);
         }
         
@@ -114,7 +117,11 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         return null;
     }
     
-    private void registerProvider(ParserContext pc, Object source, String key) {
+    String getServicesName() {
+		return servicesName;
+	}
+
+	private void registerProvider(ParserContext pc, Object source, String key) {
         BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(pc);
         RootBeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
         provider.setSource(source);
