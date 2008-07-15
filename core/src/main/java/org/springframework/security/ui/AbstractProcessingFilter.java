@@ -147,7 +147,11 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     private Properties exceptionMappings = new Properties();
 
-    private RememberMeServices rememberMeServices = new NullRememberMeServices();
+    /** 
+     * Delay use of NullRememberMeServices until initialization so that namespace has a chance to inject
+     * the RememberMeServices implementation into custom implementations.
+     */ 
+    private RememberMeServices rememberMeServices = null;
 
     private TargetUrlResolver targetUrlResolver = new TargetUrlResolverImpl();
     
@@ -218,11 +222,13 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");        
         Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
         Assert.isTrue(UrlUtils.isValidRedirectUrl(defaultTargetUrl), defaultTargetUrl + " isn't a valid redirect URL");        
-//        Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
         Assert.isTrue(UrlUtils.isValidRedirectUrl(authenticationFailureUrl), authenticationFailureUrl + " isn't a valid redirect URL");
         Assert.notNull(authenticationManager, "authenticationManager must be specified");
-        Assert.notNull(rememberMeServices, "rememberMeServices cannot be null");
         Assert.notNull(targetUrlResolver, "targetUrlResolver cannot be null");
+        
+        if (rememberMeServices == null) {
+        	rememberMeServices = new NullRememberMeServices();
+        }
     }
 
     /**
