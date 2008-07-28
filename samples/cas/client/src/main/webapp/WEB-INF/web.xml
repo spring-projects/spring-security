@@ -27,10 +27,20 @@
         <param-value>/WEB-INF/classes/log4j.properties</param-value>
     </context-param>
 
+	<filter>
+	   <filter-name>CAS Single Sign Out Filter</filter-name>
+	   <filter-class>org.jasig.cas.client.session.SingleSignOutFilter</filter-class>
+	</filter>
+
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
+
+	<filter-mapping>
+	   <filter-name>CAS Single Sign Out Filter</filter-name>
+	   <url-pattern>/*</url-pattern>
+	</filter-mapping>
 
     <filter-mapping>
       <filter-name>springSecurityFilterChain</filter-name>
@@ -42,6 +52,10 @@
 	  - The application context is then available via
 	  - WebApplicationContextUtils.getWebApplicationContext(servletContext).
     -->
+	<listener>
+		<listener-class>org.jasig.cas.client.session.SingleSignOutHttpSessionListener</listener-class>
+	</listener>
+
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>

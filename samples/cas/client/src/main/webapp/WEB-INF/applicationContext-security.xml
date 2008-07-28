@@ -8,7 +8,7 @@
     <sec:http entry-point-ref="casProcessingFilterEntryPoint">
         <sec:intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR" requires-channel="https"/>
         <sec:intercept-url pattern="/secure/**" access="ROLE_USER" />
-        <sec:logout />
+        <sec:logout logout-success-url="/cas-logout.jsp"/>
     </sec:http>
 
     <sec:authentication-manager alias="authenticationManager"/>
