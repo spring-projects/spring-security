@@ -17,7 +17,7 @@ import org.w3c.dom.Node;
  */
 public class CustomAuthenticationProviderBeanDefinitionDecorator implements BeanDefinitionDecorator {
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder, ParserContext parserContext) {
-        ConfigUtils.getRegisteredProviders(parserContext).add(new RuntimeBeanReference(holder.getBeanName()));
+        ConfigUtils.addAuthenticationProvider(parserContext, holder.getBeanName());
 
         return holder;
     }

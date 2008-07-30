@@ -42,6 +42,7 @@ public abstract class BeanIds {
 	public static final String MAIN_ENTRY_POINT = "_mainEntryPoint";	
 	public static final String FILTER_CHAIN_PROXY = "_filterChainProxy";
 	public static final String HTTP_SESSION_CONTEXT_INTEGRATION_FILTER = "_httpSessionContextIntegrationFilter";
+	public static final String LDAP_AUTHENTICATION_PROVIDER = "_ldapAuthenticationProvider";	
 	public static final String LOGOUT_FILTER = "_logoutFilter";
 	public static final String EXCEPTION_TRANSLATION_FILTER = "_exceptionTranslationFilter";
 	public static final String FILTER_SECURITY_INTERCEPTOR = "_filterSecurityInterceptor";
@@ -49,6 +50,7 @@ public abstract class BeanIds {
 	public static final String CHANNEL_DECISION_MANAGER = "_channelDecisionManager";
 	public static final String REMEMBER_ME_FILTER = "_rememberMeFilter";
 	public static final String REMEMBER_ME_SERVICES = "_rememberMeServices";
+	public static final String REMEMBER_ME_AUTHENTICATION_PROVIDER = "_rememberMeAuthenticationProvider";
 	public static final String DEFAULT_LOGIN_PAGE_GENERATING_FILTER = "_defaultLoginPageFilter";
 	public static final String SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER = "_securityContextHolderAwareRequestFilter";
 	public static final String SESSION_FIXATION_PROTECTION_FILTER = "_sessionFixationProtectionFilter";	
@@ -66,5 +68,4 @@ public abstract class BeanIds {
     public static final String X509_AUTH_PROVIDER = "_x509AuthenticationProvider";
     public static final String PRE_AUTH_ENTRY_POINT = "_preAuthenticatedProcessingFilterEntryPoint";
     public static final String REMEMBER_ME_SERVICES_INJECTION_POST_PROCESSOR = "_rememberMeServicesInjectionBeanPostProcessor";
-
 }

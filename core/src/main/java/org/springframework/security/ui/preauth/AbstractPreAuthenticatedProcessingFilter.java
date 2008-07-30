@@ -38,6 +38,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
     private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     private AuthenticationManager authenticationManager = null;
+    
+    private boolean continueFilterChainOnUnsuccessfulAuthentication = true;
 
     /**
      * Check whether all required properties have been set.
@@ -88,6 +90,10 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
             successfulAuthentication(request, response, authResult);
         } catch (AuthenticationException failed) {
             unsuccessfulAuthentication(request, response, failed);
+            
+            if (!continueFilterChainOnUnsuccessfulAuthentication) {
+            	throw failed;
+            }
         }
     }
 
@@ -143,8 +149,19 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
+    
+    public void setContinueFilterChainOnUnsuccessfulAuthentication(boolean shouldContinue) {
+    	continueFilterChainOnUnsuccessfulAuthentication = shouldContinue;
+    }
 
+    /**
+     * Override to extract the principal information from the current request 
+     */
     protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest request);
 
+    /**
+     * Override to extract the credentials (if applicable) from the current request. Some implementations
+     * may return a dummy value.
+     */    
     protected abstract Object getPreAuthenticatedCredentials(HttpServletRequest request);
 }

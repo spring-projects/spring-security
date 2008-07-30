@@ -144,15 +144,8 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        checkIfValidList(this.providers);
         Assert.notNull(this.messages, "A message source must be set");
         exceptionMappings.putAll(additionalExceptionMappings);
-    }
-
-    private void checkIfValidList(List listToCheck) {
-        if ((listToCheck == null) || (listToCheck.size() == 0)) {
-            throw new IllegalArgumentException("A list of AuthenticationProviders is required");
-        }
     }
 
     /**
@@ -174,7 +167,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
      * @throws AuthenticationException if authentication fails.
      */
     public Authentication doAuthentication(Authentication authentication) throws AuthenticationException {
-        Iterator iter = providers.iterator();
+        Iterator iter = getProviders().iterator();
 
         Class toTest = authentication.getClass();
 
@@ -273,7 +266,11 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     }
 
     public List getProviders() {
-        return this.providers;
+        if (providers == null || providers.size() == 0) {
+            throw new IllegalArgumentException("A list of AuthenticationProviders is required");
+        }
+
+        return providers;
     }
 
     /**
@@ -303,8 +300,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
      * AuthenticationProvider instance.
      */
     public void setProviders(List providers) {
-        checkIfValidList(providers);
-
+    	Assert.notEmpty(providers, "A list of AuthenticationProviders is required");
         Iterator iter = providers.iterator();
 
         while (iter.hasNext()) {

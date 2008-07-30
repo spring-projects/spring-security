@@ -1,7 +1,7 @@
 package org.springframework.security.config;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,15 +9,12 @@ import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.afterinvocation.AfterInvocationProviderManager;
-import org.springframework.security.providers.ProviderManager;
-import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.util.UrlUtils;
 import org.springframework.security.vote.AffirmativeBased;
 import org.springframework.security.vote.AuthenticatedVoter;
@@ -80,21 +77,20 @@ public abstract class ConfigUtils {
      * using the &lt;security:provider /> tag or by other beans which have a dependency on the
      * authentication manager.
      */
-    static BeanDefinition registerProviderManagerIfNecessary(ParserContext parserContext) {
+    static void registerProviderManagerIfNecessary(ParserContext parserContext) {
         if(parserContext.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER)) {
-            return parserContext.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
+            return;
         }
 
-        BeanDefinition authManager = new RootBeanDefinition(ProviderManager.class);
-        authManager.getPropertyValues().addPropertyValue("providers", new ManagedList());
+        BeanDefinition authManager = new RootBeanDefinition(NamespaceAuthenticationManager.class);
+        authManager.getPropertyValues().addPropertyValue("providerBeanNames", new ArrayList());
         parserContext.getRegistry().registerBeanDefinition(BeanIds.AUTHENTICATION_MANAGER, authManager);
-
-        return authManager;
     }
 
-    static ManagedList getRegisteredProviders(ParserContext parserContext) {
-        BeanDefinition authManager = registerProviderManagerIfNecessary(parserContext);
-        return (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
+    static void addAuthenticationProvider(ParserContext parserContext, String beanName) {
+        registerProviderManagerIfNecessary(parserContext);
+        BeanDefinition authManager = parserContext.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
+        ((ArrayList) authManager.getPropertyValues().getPropertyValue("providerBeanNames").getValue()).add(beanName);
     }
     
 	static ManagedList getRegisteredAfterInvocationProviders(ParserContext parserContext) {
@@ -172,7 +168,8 @@ public abstract class ConfigUtils {
     }
     
     static void setSessionControllerOnAuthenticationManager(ParserContext pc, String beanName, Element sourceElt) {
-    	BeanDefinition authManager = registerProviderManagerIfNecessary(pc);
+    	registerProviderManagerIfNecessary(pc);
+    	BeanDefinition authManager = pc.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
         PropertyValue pv = authManager.getPropertyValues().getPropertyValue("sessionController");
         
         if (pv != null && pv.getValue() != null) {

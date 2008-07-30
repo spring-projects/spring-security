@@ -77,7 +77,7 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor imple
      * <p>
      * This is essentially the approach taken by subclasses of {@link AbstractBeanFactoryPointcutAdvisor}, which this
      * class should extend in future. The original hierarchy and constructor have been retained for backwards 
-     * compatibilty. 
+     * compatibility. 
      * 
      * @param adviceBeanName name of the MethodSecurityInterceptor bean
      * @param attributeSource the attribute source (should be the same as the one used on the interceptor)
@@ -103,7 +103,7 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor imple
 				Assert.state(beanFactory != null, "BeanFactory must be set to resolve 'adviceBeanName'");
 				interceptor = (MethodSecurityInterceptor) 
 						beanFactory.getBean(this.adviceBeanName, MethodSecurityInterceptor.class);
-				attributeSource = interceptor.getObjectDefinitionSource();
+//				attributeSource = interceptor.getObjectDefinitionSource();
 			}
 			return interceptor;
 		}

@@ -119,10 +119,11 @@ public class ProviderManagerTests {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void startupFailsIfProviderListNotSet() throws Exception {
+    public void getProvidersFailsIfProviderListNotSet() throws Exception {
         ProviderManager mgr = new ProviderManager();
 
         mgr.afterPropertiesSet();
+        mgr.getProviders();
     }
 
     @Test(expected=IllegalArgumentException.class)

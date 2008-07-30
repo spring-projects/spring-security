@@ -122,12 +122,12 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void registerProvider(ParserContext pc, Object source, String key) {
-        BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(pc);
+        //BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(pc);
         RootBeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
         provider.setSource(source);
         provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
-        ManagedList providers = (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
-        providers.add(provider);    	
+        pc.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_AUTHENTICATION_PROVIDER, provider);
+        ConfigUtils.addAuthenticationProvider(pc, BeanIds.REMEMBER_ME_AUTHENTICATION_PROVIDER);
     }
     
     private void registerFilter(ParserContext pc, Object source) {

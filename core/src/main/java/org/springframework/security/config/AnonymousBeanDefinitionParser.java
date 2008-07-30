@@ -61,14 +61,13 @@ public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
         filter.getPropertyValues().addPropertyValue("userAttribute", username + "," + grantedAuthority);
         filter.getPropertyValues().addPropertyValue(ATT_KEY, key);
 
-        BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         RootBeanDefinition provider = new RootBeanDefinition(AnonymousAuthenticationProvider.class);
         provider.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         provider.setSource(source);
         provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
-
-        ManagedList authMgrProviderList = (ManagedList) authManager.getPropertyValues().getPropertyValue("providers").getValue();
-        authMgrProviderList.add(provider);
+        
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.ANONYMOUS_AUTHENTICATION_PROVIDER, provider);
+        ConfigUtils.addAuthenticationProvider(parserContext, BeanIds.ANONYMOUS_AUTHENTICATION_PROVIDER);
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.ANONYMOUS_PROCESSING_FILTER, filter);
         ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.ANONYMOUS_PROCESSING_FILTER));

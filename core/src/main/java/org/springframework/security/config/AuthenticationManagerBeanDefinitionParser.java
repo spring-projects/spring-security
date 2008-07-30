@@ -22,7 +22,7 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 	private static final String ATT_ALIAS = "alias";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-    	BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(parserContext);
+    	ConfigUtils.registerProviderManagerIfNecessary(parserContext);
     	
         String alias = element.getAttribute(ATT_ALIAS);
 
@@ -33,6 +33,7 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
         String sessionControllerRef = element.getAttribute(ATT_SESSION_CONTROLLER_REF);
         
         if (StringUtils.hasText(sessionControllerRef)) {
+        	BeanDefinition authManager = parserContext.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
             ConfigUtils.setSessionControllerOnAuthenticationManager(parserContext, 
             		BeanIds.CONCURRENT_SESSION_CONTROLLER, element);
         	authManager.getPropertyValues().addPropertyValue("sessionController", 
