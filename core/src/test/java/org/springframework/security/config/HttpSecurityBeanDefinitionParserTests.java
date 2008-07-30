@@ -608,7 +608,6 @@ public class HttpSecurityBeanDefinitionParserTests {
 
     @Test
     public void settingCreateSessionToAlwaysSetsFilterPropertiesCorrectly() throws Exception {
-        // Protected, no anonymous filter configured.
         setContext("<http auto-config='true' create-session='always'/>" + AUTH_PROVIDER_XML);
         assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "forceEagerSessionCreation"));
         assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "allowSessionCreation"));        
@@ -616,11 +615,26 @@ public class HttpSecurityBeanDefinitionParserTests {
 
     @Test
     public void settingCreateSessionToNeverSetsFilterPropertiesCorrectly() throws Exception {
-        // Protected, no anonymous filter configured.
         setContext("<http auto-config='true' create-session='never'/>" + AUTH_PROVIDER_XML);
         assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "forceEagerSessionCreation"));
         assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "allowSessionCreation"));        
     }    
+    
+    /* SEC-934 */
+    @Test
+    public void supportsTwoIdenticalInterceptUrls() {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <intercept-url pattern='/someurl' access='ROLE_A'/>" +
+                "    <intercept-url pattern='/someurl' access='ROLE_B'/>" +
+                "</http>" + AUTH_PROVIDER_XML);
+        FilterSecurityInterceptor fis = (FilterSecurityInterceptor) appContext.getBean(BeanIds.FILTER_SECURITY_INTERCEPTOR);
+
+        FilterInvocationDefinitionSource fids = fis.getObjectDefinitionSource();
+        ConfigAttributeDefinition attrDef = fids.getAttributes(createFilterinvocation("/someurl", null));
+        assertEquals(1, attrDef.getConfigAttributes().size());
+        assertTrue(attrDef.contains(new SecurityConfig("ROLE_B")));
+    }
     
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);

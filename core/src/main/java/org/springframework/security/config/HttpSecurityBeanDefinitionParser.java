@@ -50,7 +50,7 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
-	protected final Log logger = LogFactory.getLog(getClass());
+	static final Log logger = LogFactory.getLog(HttpSecurityBeanDefinitionParser.class);
 
     static final String ATT_REALM = "realm";
     static final String DEF_REALM = "Spring Security Application";
@@ -605,7 +605,13 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             // Convert the comma-separated list of access attributes to a ConfigAttributeDefinition
             if (StringUtils.hasText(access)) {
                 editor.setAsText(access);
-                filterInvocationDefinitionMap.put(new RequestKey(path, method), editor.getValue());
+                Object key = new RequestKey(path, method);
+                
+                if (filterInvocationDefinitionMap.containsKey(key)) {
+                	logger.warn("Duplicate URL defined: " + key + ". The original attribute values will be overwritten");
+                }
+                
+                filterInvocationDefinitionMap.put(key, editor.getValue());
             }
         }
         
