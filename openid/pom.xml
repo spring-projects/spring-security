@@ -18,6 +18,13 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
           <groupId>org.springframework</groupId>
           <artifactId>spring-core</artifactId>
           <optional>true</optional>
@@ -43,7 +50,7 @@
         <spring.osgi.export>
             org.springframework.security.*;version=${pom.version.osgi}
         </spring.osgi.export>
-            
+
         <spring.osgi.import>
             javax.servlet.*;version="[2.4.0, 3.0.0)",
             org.apache.commons.logging.*;version="[1.1.1, 2.0.0)",
@@ -57,7 +64,7 @@
             !org.springframework.security.*
         </spring.osgi.private.pkg>
 
-        <spring.osgi.symbolic.name>org.springframework.security.openid</spring.osgi.symbolic.name>        
-    </properties>    
+        <spring.osgi.symbolic.name>org.springframework.security.openid</spring.osgi.symbolic.name>
+    </properties>
 
 </project>
