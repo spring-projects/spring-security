@@ -15,7 +15,9 @@
 
 package org.springframework.security;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 
 /**
@@ -24,28 +26,10 @@ import junit.framework.TestCase;
  * @author Ben Alex
  * @version $Id$
  */
-public class GrantedAuthorityImplTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public GrantedAuthorityImplTests() {
-        super();
-    }
-
-    public GrantedAuthorityImplTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(GrantedAuthorityImplTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void testObjectEquals() throws Exception {
+public class GrantedAuthorityImplTests {
+	
+	@Test
+    public void equalsBehavesAsExpected() throws Exception {
         GrantedAuthorityImpl auth1 = new GrantedAuthorityImpl("TEST");
         GrantedAuthorityImpl auth2 = new GrantedAuthorityImpl("TEST");
         assertEquals(auth1, auth2);
@@ -59,32 +43,52 @@ public class GrantedAuthorityImplTests extends TestCase {
         GrantedAuthorityImpl auth3 = new GrantedAuthorityImpl("NOT_EQUAL");
         assertTrue(!auth1.equals(auth3));
 
-        MockGrantedAuthorityImpl mock1 = new MockGrantedAuthorityImpl("TEST");
+        MockGrantedAuthority mock1 = new MockGrantedAuthority("TEST");
         assertEquals(auth1, mock1);
 
-        MockGrantedAuthorityImpl mock2 = new MockGrantedAuthorityImpl("NOT_EQUAL");
+        MockGrantedAuthority mock2 = new MockGrantedAuthority("NOT_EQUAL");
         assertTrue(!auth1.equals(mock2));
 
         Integer int1 = new Integer(222);
         assertTrue(!auth1.equals(int1));
     }
 
-    public void testToString() {
+	@Test
+    public void toStringReturnsAuthorityValue() {
         GrantedAuthorityImpl auth = new GrantedAuthorityImpl("TEST");
         assertEquals("TEST", auth.toString());
     }
 
+	@Test
+	public void compareToGrantedAuthorityWithSameValueReturns0() {
+		assertEquals(0, new GrantedAuthorityImpl("TEST").compareTo(new MockGrantedAuthority("TEST")));
+	}		
+
+	@Test
+	public void compareToNullReturnsNegativeOne() {
+		assertEquals(-1, new GrantedAuthorityImpl("TEST").compareTo(null));
+	}	
+	
+	/* SEC-899 */
+	@Test
+	public void compareToHandlesCustomAuthorityWhichReturnsNullFromGetAuthority() {
+		assertEquals(-1, new GrantedAuthorityImpl("TEST").compareTo(new MockGrantedAuthority()));
+	}	
+	
     //~ Inner Classes ==================================================================================================
 
-    private class MockGrantedAuthorityImpl implements GrantedAuthority, Comparable {
+    private class MockGrantedAuthority implements GrantedAuthority {
         private String role;
 
-        public MockGrantedAuthorityImpl(String role) {
+        public MockGrantedAuthority() {
+        }        
+        
+        public MockGrantedAuthority(String role) {
             this.role = role;
         }
 
         public int compareTo(Object o) {
-			return this.role.compareTo(((GrantedAuthority)o).getAuthority());
+			throw new UnsupportedOperationException();
 		}
 
         public String getAuthority() {
