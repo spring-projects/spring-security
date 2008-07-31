@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
  * Advisor driven by a {@link MethodDefinitionSource}, used to exclude a {@link MethodSecurityInterceptor} from
  * public (ie non-secure) methods.
  * <p>
- * Because the AOP framework caches advice calculations, this is normally faster than just letting the 
+ * Because the AOP framework caches advice calculations, this is normally faster than just letting the
  * <code>MethodSecurityInterceptor</code> run and find out itself that it has no work to do.
  * <p>
  * This class also allows the use of Spring's
@@ -63,64 +63,63 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor imple
      * @deprecated use the decoupled approach instead
      */
     public MethodDefinitionSourceAdvisor(MethodSecurityInterceptor advice) {
-    	Assert.notNull(advice.getObjectDefinitionSource(), "Cannot construct a MethodDefinitionSourceAdvisor using a " +
-    			"MethodSecurityInterceptor that has no ObjectDefinitionSource configured");
+        Assert.notNull(advice.getObjectDefinitionSource(), "Cannot construct a MethodDefinitionSourceAdvisor using a " +
+                "MethodSecurityInterceptor that has no ObjectDefinitionSource configured");
 
-    	this.interceptor = advice;
+        this.interceptor = advice;
         this.attributeSource = advice.getObjectDefinitionSource();
     }
-    
+
     /**
      * Alternative constructor for situations where we want the advisor decoupled from the advice. Instead the advice
-     * bean name should be set. This prevents eager instantiation of the interceptor 
+     * bean name should be set. This prevents eager instantiation of the interceptor
      * (and hence the AuthenticationManager). See SEC-773, for example.
      * <p>
      * This is essentially the approach taken by subclasses of {@link AbstractBeanFactoryPointcutAdvisor}, which this
-     * class should extend in future. The original hierarchy and constructor have been retained for backwards 
-     * compatibility. 
-     * 
+     * class should extend in future. The original hierarchy and constructor have been retained for backwards
+     * compatibility.
+     *
      * @param adviceBeanName name of the MethodSecurityInterceptor bean
      * @param attributeSource the attribute source (should be the same as the one used on the interceptor)
      */
     public MethodDefinitionSourceAdvisor(String adviceBeanName, MethodDefinitionSource attributeSource) {
-    	Assert.notNull(adviceBeanName, "The adviceBeanName cannot be null");
-    	Assert.notNull(attributeSource, "The attributeSource cannot be null");
-    	
-		this.adviceBeanName = adviceBeanName;
-		this.attributeSource = attributeSource;
+        Assert.notNull(adviceBeanName, "The adviceBeanName cannot be null");
+        Assert.notNull(attributeSource, "The attributeSource cannot be null");
+
+        this.adviceBeanName = adviceBeanName;
+        this.attributeSource = attributeSource;
     }
 
     //~ Methods ========================================================================================================
 
-	public Pointcut getPointcut() {
-		return pointcut;
-	}
+    public Pointcut getPointcut() {
+        return pointcut;
+    }
 
-	public Advice getAdvice() {
-		synchronized (this.adviceMonitor) {
-			if (interceptor == null) {
-				Assert.notNull(adviceBeanName, "'adviceBeanName' must be set for use with bean factory lookup.");
-				Assert.state(beanFactory != null, "BeanFactory must be set to resolve 'adviceBeanName'");
-				interceptor = (MethodSecurityInterceptor) 
-						beanFactory.getBean(this.adviceBeanName, MethodSecurityInterceptor.class);
-//				attributeSource = interceptor.getObjectDefinitionSource();
-			}
-			return interceptor;
-		}
-	}
-	
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		this.beanFactory = beanFactory;
-	}
+    public Advice getAdvice() {
+        synchronized (this.adviceMonitor) {
+            if (interceptor == null) {
+                Assert.notNull(adviceBeanName, "'adviceBeanName' must be set for use with bean factory lookup.");
+                Assert.state(beanFactory != null, "BeanFactory must be set to resolve 'adviceBeanName'");
+                interceptor = (MethodSecurityInterceptor)
+                        beanFactory.getBean(this.adviceBeanName, MethodSecurityInterceptor.class);
+            }
+            return interceptor;
+        }
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
 
     //~ Inner Classes ==================================================================================================
-    
+
     class MethodDefinitionSourcePointcut extends StaticMethodMatcherPointcut {
         public boolean matches(Method m, Class targetClass) {
             return attributeSource.getAttributes(m, targetClass) != null;
         }
     }
-    
+
     /**
      * Represents a <code>MethodInvocation</code>.
      * <p>
@@ -153,7 +152,7 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor imple
         }
 
         public Object getThis() {
-        	return this.targetClass;
+            return this.targetClass;
         }
 
         public Object proceed() throws Throwable {
