@@ -158,7 +158,7 @@ public final class LdapUtils {
 
         if (url.startsWith("ldap:") || url.startsWith("ldaps:")) {
             URI uri = parseLdapUrl(url);
-            urlRootDn = uri.getPath();
+            urlRootDn = uri.getRawPath();
         } else {
             // Assume it's an embedded server
             urlRootDn = url;
