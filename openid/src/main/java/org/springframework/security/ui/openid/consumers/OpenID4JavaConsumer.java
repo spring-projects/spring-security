@@ -61,8 +61,12 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 
     //~ Methods ========================================================================================================
 
-    public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl)
-        throws OpenIDConsumerException {
+    public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl) throws OpenIDConsumerException {
+        return beginConsumption(req, identityUrl,  returnToUrl, returnToUrl);
+    }
+
+    public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl, String realm)
+            throws OpenIDConsumerException {
         List discoveries;
 
         try {
@@ -78,7 +82,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
         AuthRequest authReq;
 
         try {
-            authReq = consumerManager.authenticate(information, returnToUrl);
+            authReq = consumerManager.authenticate(information, returnToUrl, realm);
         } catch (MessageException e) {
             throw new OpenIDConsumerException("Error processing ConumerManager authentication", e);
         } catch (ConsumerException e) {

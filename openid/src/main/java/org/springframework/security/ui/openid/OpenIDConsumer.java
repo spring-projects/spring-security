@@ -27,7 +27,24 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface OpenIDConsumer {
 
+    /**
+     * @deprecated Use {@link #beginConsumption(javax.servlet.http.HttpServletRequest, String, String, String)}
+     */
     public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl)
+            throws OpenIDConsumerException;
+
+    /**
+     * Given the request, the claimedIdentity, the return to url, and a realm, lookup the openId authentication
+     * page the user should be redirected to.
+     *
+     * @param req HttpServletRequest
+     * @param claimedIdentity String URI the user presented during authentication
+     * @param returnToUrl String URI of the URL we want the user sent back to by the OP
+     * @param realm URI pattern matching the realm we want the user to see
+     * @return String URI to redirect user to for authentication
+     * @throws OpenIDConsumerException if anything bad happens
+     */
+    public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl, String realm)
             throws OpenIDConsumerException;
 
     public OpenIDAuthenticationToken endConsumption(HttpServletRequest req)

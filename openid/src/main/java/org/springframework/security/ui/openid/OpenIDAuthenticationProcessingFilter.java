@@ -15,6 +15,8 @@
 
 package org.springframework.security.ui.openid;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
@@ -24,14 +26,16 @@ import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.openid.consumers.OpenID4JavaConsumer;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -50,6 +54,7 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
 
     private OpenIDConsumer consumer;
     private String claimedIdentityFieldName = DEFAULT_CLAIMED_IDENTITY_FIELD;
+    private Map realmMapping = new HashMap();
 
     //~ Methods ========================================================================================================
 
@@ -79,7 +84,7 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
         }
 
         token.setDetails(authenticationDetailsSource.buildDetails(req));
-        
+
         // delegate to the auth provider
         Authentication authentication = this.getAuthenticationManager().authenticate(token);
 
@@ -106,7 +111,8 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
             if (StringUtils.hasText(claimedIdentity)) {
                 try {
                     String returnToUrl = buildReturnToUrl(request);
-                    return consumer.beginConsumption(request, claimedIdentity, returnToUrl);
+                    String realm = lookupRealm(returnToUrl);
+                    return consumer.beginConsumption(request, claimedIdentity, returnToUrl, realm);
                 } catch (OpenIDConsumerException e) {
                     log.error("Unable to consume claimedIdentity [" + claimedIdentity + "]", e);
                 }
@@ -114,6 +120,30 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
         }
 
         return super.determineFailureUrl(request, failed);
+    }
+
+    protected String lookupRealm(String returnToUrl) {
+
+        String mapping = (String) realmMapping.get(returnToUrl);
+
+        if (mapping == null) {
+            try {
+
+                URL url = new URL(returnToUrl);
+                int port = (url.getPort() == -1) ? 80 : url.getPort();
+                StringBuffer realmBuffer = new StringBuffer(returnToUrl.length())
+                        .append(url.getProtocol())
+                        .append("://")
+                        .append(url.getHost())
+                        .append(":").append(port)
+                        .append("/");
+                mapping = realmBuffer.toString();
+            } catch (MalformedURLException e) {
+                log.warn("returnToUrl was not a valid URL: [" + returnToUrl + "]", e);
+            }
+        }
+
+        return mapping;
     }
 
     protected String buildReturnToUrl(HttpServletRequest request) {
@@ -199,6 +229,34 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
     }
 
     public int getOrder() {
-    	return FilterChainOrder.OPENID_PROCESSING_FILTER;
+        return FilterChainOrder.OPENID_PROCESSING_FILTER;
+    }
+
+    /**
+     * Maps the return_to url to a realm.<br/>
+     * For example http://www.example.com/j_spring_openid_security_check -> http://www.example.com/realm<br/>
+     * If no mapping is provided then the returnToUrl will be parsed to extract the protocol, hostname and port followed
+     * by a trailing slash.<br/>
+     * This means that http://www.example.com/j_spring_openid_security_check will automatically
+     * become http://www.example.com:80/
+     *
+     * @return Map containing returnToUrl -> realm mappings
+     */
+    public Map getRealmMapping() {
+        return realmMapping;
+    }
+
+    /**
+     * Maps the return_to url to a realm.<br/>
+     * For example http://www.example.com/j_spring_openid_security_check -> http://www.example.com/realm<br/>
+     * If no mapping is provided then the returnToUrl will be parsed to extract the protocol, hostname and port followed
+     * by a trailing slash.<br/>
+     * This means that http://www.example.com/j_spring_openid_security_check will automatically
+     * become http://www.example.com:80/
+     *
+     * @param realmMapping containing returnToUrl -> realm mappings
+     */
+    public void setRealmMapping(Map realmMapping) {
+        this.realmMapping = realmMapping;
     }
 }

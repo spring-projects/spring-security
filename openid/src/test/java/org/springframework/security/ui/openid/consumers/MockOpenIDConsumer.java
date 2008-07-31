@@ -15,7 +15,6 @@
 package org.springframework.security.ui.openid.consumers;
 
 import org.springframework.security.providers.openid.OpenIDAuthenticationToken;
-
 import org.springframework.security.ui.openid.OpenIDConsumer;
 import org.springframework.security.ui.openid.OpenIDConsumerException;
 
@@ -33,21 +32,41 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
     private OpenIDAuthenticationToken token;
     private String redirectUrl;
 
+    public MockOpenIDConsumer() {
+    }
+
+    public MockOpenIDConsumer(String redirectUrl, OpenIDAuthenticationToken token) {
+        this.redirectUrl = redirectUrl;
+        this.token = token;
+    }
+
+    public MockOpenIDConsumer(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
+    }
+
+    public MockOpenIDConsumer(OpenIDAuthenticationToken token) {
+        this.token = token;
+    }
+
     //~ Methods ========================================================================================================
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.ui.openid.OpenIDConsumer#beginConsumption(javax.servlet.http.HttpServletRequest, java.lang.String)
-     */
-    public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl)
-        throws OpenIDConsumerException {
+    public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl, String realm) throws OpenIDConsumerException {
         return redirectUrl;
+    }
+
+    /* (non-Javadoc)
+    * @see org.springframework.security.ui.openid.OpenIDConsumer#beginConsumption(javax.servlet.http.HttpServletRequest, java.lang.String)
+    */
+    public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl)
+            throws OpenIDConsumerException {
+        throw new UnsupportedOperationException("This method is deprecated, stop using it");
     }
 
     /* (non-Javadoc)
      * @see org.springframework.security.ui.openid.OpenIDConsumer#endConsumption(javax.servlet.http.HttpServletRequest)
      */
     public OpenIDAuthenticationToken endConsumption(HttpServletRequest req)
-        throws OpenIDConsumerException {
+            throws OpenIDConsumerException {
         return token;
     }
 
