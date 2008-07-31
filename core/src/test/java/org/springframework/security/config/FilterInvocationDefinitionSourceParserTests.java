@@ -15,36 +15,36 @@ import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
- * 
+ *
  * @author Luke Taylor
  * @version $Id$
  */
 public class FilterInvocationDefinitionSourceParserTests {
     private AbstractXmlApplicationContext appContext;
-    
+
     @After
     public void closeAppContext() {
         if (appContext != null) {
             appContext.close();
             appContext = null;
         }
-    }    
-    
+    }
+
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
-    }    
-    
+    }
+
     @Test
     public void parsingMinimalConfigurationIsSuccessful() {
         setContext(
                 "<filter-invocation-definition-source id='fids'>" +
-                "   <intercept-url pattern='/**' access='ROLE_A'/>" +                
-        		"</filter-invocation-definition-source>");
+                "   <intercept-url pattern='/**' access='ROLE_A'/>" +
+                "</filter-invocation-definition-source>");
         DefaultFilterInvocationDefinitionSource fids = (DefaultFilterInvocationDefinitionSource) appContext.getBean("fids");
         ConfigAttributeDefinition cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
         assertTrue(cad.contains(new SecurityConfig("ROLE_A")));
     }
-    
+
     @Test
     public void parsingWithinFilterSecurityInterceptorIsSuccessful() {
         setContext(
@@ -57,12 +57,12 @@ public class FilterInvocationDefinitionSourceParserTests {
                 "           <intercept-url pattern='/**' access='ROLE_USER'/>" +
                 "       </filter-invocation-definition-source>" +
                 "   </b:property>" +
-                "</b:bean>" + HttpSecurityBeanDefinitionParserTests.AUTH_PROVIDER_XML);
-        
-        
+                "</b:bean>" + ConfigTestUtils.AUTH_PROVIDER_XML);
+
+
     }
-    
-    
+
+
     private FilterInvocation createFilterInvocation(String path, String method) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI(null);

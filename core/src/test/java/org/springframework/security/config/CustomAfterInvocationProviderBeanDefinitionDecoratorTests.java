@@ -11,7 +11,7 @@ import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 public class CustomAfterInvocationProviderBeanDefinitionDecoratorTests {
     private AbstractXmlApplicationContext appContext;
-	
+
     @After
     public void closeAppContext() {
         if (appContext != null) {
@@ -19,7 +19,7 @@ public class CustomAfterInvocationProviderBeanDefinitionDecoratorTests {
             appContext = null;
         }
     }
-    
+
     @Test
     public void customAfterInvocationProviderIsAddedToInterceptor() {
         setContext(
@@ -27,11 +27,11 @@ public class CustomAfterInvocationProviderBeanDefinitionDecoratorTests {
                 "<b:bean id='aip' class='org.springframework.security.config.MockAfterInvocationProvider'>" +
                 "    <custom-after-invocation-provider />" +
                 "</b:bean>" +
-                HttpSecurityBeanDefinitionParserTests.AUTH_PROVIDER_XML
+                ConfigTestUtils.AUTH_PROVIDER_XML
         );
-        
+
         MethodSecurityInterceptor msi = (MethodSecurityInterceptor) appContext.getBean(BeanIds.METHOD_SECURITY_INTERCEPTOR);
-        AfterInvocationProviderManager apm = (AfterInvocationProviderManager) msi.getAfterInvocationManager(); 
+        AfterInvocationProviderManager apm = (AfterInvocationProviderManager) msi.getAfterInvocationManager();
         assertNotNull(apm);
         assertEquals(1, apm.getProviders().size());
         assertTrue(apm.getProviders().get(0) instanceof MockAfterInvocationProvider);

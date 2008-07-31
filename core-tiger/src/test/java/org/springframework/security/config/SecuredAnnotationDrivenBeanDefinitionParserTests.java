@@ -3,7 +3,6 @@ package org.springframework.security.config;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.GrantedAuthority;
@@ -11,19 +10,23 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.annotation.BusinessService;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
  * @author Ben Alex
  * @version $Id$
  */
 public class SecuredAnnotationDrivenBeanDefinitionParserTests {
-    private ClassPathXmlApplicationContext appContext;
+    private InMemoryXmlApplicationContext appContext;
 
     private BusinessService target;
 
     @Before
     public void loadContext() {
-        appContext = new ClassPathXmlApplicationContext("org/springframework/security/config/secured-annotated-method-security.xml");
+        appContext = new InMemoryXmlApplicationContext(
+                "<b:bean id='target' class='org.springframework.security.annotation.Jsr250BusinessServiceImpl'/>" +
+                "<global-method-security secured-annotations='enabled'/>" + ConfigTestUtils.AUTH_PROVIDER_XML
+                );
         target = (BusinessService) appContext.getBean("target");
     }
 

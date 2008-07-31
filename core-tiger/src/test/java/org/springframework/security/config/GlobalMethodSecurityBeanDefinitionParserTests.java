@@ -1,12 +1,11 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.GrantedAuthority;
@@ -19,6 +18,7 @@ import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
  * @author Ben Alex
+ * @author Luke Taylor
  * @version $Id$
  */
 public class GlobalMethodSecurityBeanDefinitionParserTests {
@@ -27,9 +27,15 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     private BusinessService target;
 
     public void loadContext() {
-        appContext = new ClassPathXmlApplicationContext("org/springframework/security/config/global-method-security.xml");
+        setContext(
+                "<b:bean id='target' class='org.springframework.security.annotation.BusinessServiceImpl'/>" +
+                "<global-method-security>" +
+                "	<protect-pointcut expression='execution(* *.someUser*(..))' access='ROLE_USER'/>" +
+                "	<protect-pointcut expression='execution(* *.someAdmin*(..))' access='ROLE_ADMIN'/>" +
+                "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML
+                    );
         target = (BusinessService) appContext.getBean("target");
-    }
+   }
 
     @After
     public void closeAppContext() {
@@ -41,13 +47,13 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
     @Test(expected=AuthenticationCredentialsNotFoundException.class)
     public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
-    	loadContext();
+        loadContext();
         target.someUserMethod1();
     }
 
     @Test
     public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
-    	loadContext();
+        loadContext();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_USER")});
         SecurityContextHolder.getContext().setAuthentication(token);
@@ -57,20 +63,19 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
     @Test(expected=AccessDeniedException.class)
     public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
-    	loadContext();
+        loadContext();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SOMEOTHERROLE")});
         SecurityContextHolder.getContext().setAuthentication(token);
 
         target.someAdminMethod();
     }
-    
+
     @Test
     public void doesntInterfereWithBeanPostProcessing() {
         setContext(
                 "<b:bean id='myUserService' class='org.springframework.security.config.PostProcessedMockUserDetailsService'/>" +
                 "<global-method-security />" +
-              //  "<http auto-config='true'/>" +
                 "<authentication-provider user-service-ref='myUserService'/>" +
                 "<b:bean id='beanPostProcessor' class='org.springframework.security.config.MockUserServiceBeanPostProcessor'/>"
         );
@@ -82,25 +87,24 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
     @Test(expected=AccessDeniedException.class)
     public void worksWithAspectJAutoproxy() {
-        setContext(        		
+        setContext(
                 "<global-method-security>" +
                 "  <protect-pointcut expression='execution(* org.springframework.security.config.*Service.*(..))'" +
-			    "       access='ROLE_SOMETHING' />" +			    
+                "       access='ROLE_SOMETHING' />" +
                 "</global-method-security>" +
                 "<b:bean id='myUserService' class='org.springframework.security.config.PostProcessedMockUserDetailsService'/>" +
-                "<aop:aspectj-autoproxy />" +             
+                "<aop:aspectj-autoproxy />" +
                 "<authentication-provider user-service-ref='myUserService'/>"
-        );    
+        );
 
         UserDetailsService service = (UserDetailsService) appContext.getBean("myUserService");
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SOMEOTHERROLE")});
         SecurityContextHolder.getContext().setAuthentication(token);
-        
+
         service.loadUserByUsername("notused");
     }
-        
-        
+
     @Test(expected=BeanDefinitionParsingException.class)
     public void duplicateElementCausesError() {
         setContext(
@@ -108,7 +112,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
                 "<global-method-security />"
         );
     }
-    
+
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
     }

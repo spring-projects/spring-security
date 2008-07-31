@@ -1,6 +1,7 @@
 package org.springframework.security.config;
 
 import static org.junit.Assert.*;
+import static org.springframework.security.config.ConfigTestUtils.*;
 
 import java.lang.reflect.Method;
 import java.util.Iterator;
@@ -56,13 +57,7 @@ import org.springframework.util.ReflectionUtils;
  */
 public class HttpSecurityBeanDefinitionParserTests {
     private AbstractXmlApplicationContext appContext;
-    static final String AUTH_PROVIDER_XML =
-            "    <authentication-provider>" +
-            "        <user-service id='us'>" +
-            "            <user name='bob' password='bobspassword' authorities='ROLE_A,ROLE_B' />" +
-            "            <user name='bill' password='billspassword' authorities='ROLE_A,ROLE_B,AUTH_OTHER' />" +
-            "        </user-service>" +
-            "    </authentication-provider>";
+
 
     @After
     public void closeAppContext() {
@@ -76,7 +71,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void minimalConfigurationParses() {
         setContext("<http><http-basic /></http>" + AUTH_PROVIDER_XML);
     }
-    
+
     @Test
     public void httpAutoConfigSetsUpCorrectFilterList() throws Exception {
         setContext("<http auto-config='true' />" + AUTH_PROVIDER_XML);
@@ -90,18 +85,18 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test(expected=BeanDefinitionParsingException.class)
     public void duplicateElementCausesError() throws Exception {
         setContext("<http auto-config='true' /><http auto-config='true' />" + AUTH_PROVIDER_XML);
-    }    
-        
+    }
+
     private void checkAutoConfigFilters(List filterList) throws Exception {
         assertEquals("Expected 11 filters in chain", 11, filterList.size());
 
         Iterator filters = filterList.iterator();
 
-        assertTrue(filters.next() instanceof HttpSessionContextIntegrationFilter);     
+        assertTrue(filters.next() instanceof HttpSessionContextIntegrationFilter);
         assertTrue(filters.next() instanceof LogoutFilter);
         Object authProcFilter = filters.next();
         assertTrue(authProcFilter instanceof AuthenticationProcessingFilter);
-        // Check RememberMeServices has been set on AuthenticationProcessingFilter        
+        // Check RememberMeServices has been set on AuthenticationProcessingFilter
         Object rms = FieldUtils.getFieldValue(authProcFilter, "rememberMeServices");
         assertNotNull(rms);
         assertTrue(rms instanceof RememberMeServices);
@@ -112,7 +107,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof RememberMeProcessingFilter);
         assertTrue(filters.next() instanceof AnonymousProcessingFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
-        assertTrue(filters.next() instanceof SessionFixationProtectionFilter);           
+        assertTrue(filters.next() instanceof SessionFixationProtectionFilter);
         Object fsiObj = filters.next();
         assertTrue(fsiObj instanceof FilterSecurityInterceptor);
         FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) fsiObj;
@@ -185,34 +180,34 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http>" +
                 "   <form-login login-page='noLeadingSlash'/>" +
                 "</http>" + AUTH_PROVIDER_XML);
-    }    
-    
+    }
+
     @Test(expected=BeanCreationException.class)
     public void invalidDefaultTargetUrlIsDetected() throws Exception {
         setContext(
                 "<http>" +
                 "   <form-login default-target-url='noLeadingSlash'/>" +
                 "</http>" + AUTH_PROVIDER_XML);
-    }    
+    }
 
     @Test(expected=BeanCreationException.class)
     public void invalidLogoutUrlIsDetected() throws Exception {
         setContext(
                 "<http>" +
-                "   <logout logout-url='noLeadingSlash'/>" +                
+                "   <logout logout-url='noLeadingSlash'/>" +
                 "   <form-login />" +
                 "</http>" + AUTH_PROVIDER_XML);
-    }    
-    
+    }
+
     @Test(expected=BeanCreationException.class)
     public void invalidLogoutSuccessUrlIsDetected() throws Exception {
         setContext(
                 "<http>" +
-                "   <logout logout-success-url='noLeadingSlash'/>" +                
+                "   <logout logout-success-url='noLeadingSlash'/>" +
                 "   <form-login />" +
                 "</http>" + AUTH_PROVIDER_XML);
-    }    
-    
+    }
+
     @Test
     public void lowerCaseComparisonIsRespectedBySecurityFilterInvocationDefinitionSource() throws Exception {
         setContext(
@@ -254,27 +249,27 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void oncePerRequestAttributeIsSupported() throws Exception {
         setContext("<http once-per-request='false'><http-basic /></http>" + AUTH_PROVIDER_XML);
         List filters = getFilters("/someurl");
-        
+
         FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) filters.get(filters.size() - 1);
-        
+
         assertFalse(fsi.isObserveOncePerRequest());
     }
-    
+
     @Test
     public void accessDeniedPageAttributeIsSupported() throws Exception {
         setContext("<http access-denied-page='/access-denied'><http-basic /></http>" + AUTH_PROVIDER_XML);
         List filters = getFilters("/someurl");
-        
+
         ExceptionTranslationFilter etf = (ExceptionTranslationFilter) filters.get(filters.size() - 3);
-        
+
         assertEquals("/access-denied", FieldUtils.getFieldValue(etf, "accessDeniedHandler.errorPage"));
     }
-    
+
     @Test(expected=BeanDefinitionStoreException.class)
     public void invalidAccessDeniedUrlIsDetected() throws Exception {
         setContext("<http auto-config='true' access-denied-page='noLeadingSlash'/>" + AUTH_PROVIDER_XML);
-    }    
-    
+    }
+
     @Test
     public void interceptUrlWithRequiresChannelAddsChannelFilterToStack() throws Exception {
         setContext(
@@ -313,21 +308,21 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</b:bean>" +
                 "<b:bean id='userFilter1' class='org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter'>" +
                 "    <custom-filter before='SESSION_CONTEXT_INTEGRATION_FILTER'/>" +
-                "</b:bean>" +                
+                "</b:bean>" +
                 "<b:bean id='userFilter2' class='org.springframework.security.util.MockFilter'>" +
                 "    <custom-filter position='FIRST'/>" +
-                "</b:bean>" +                
+                "</b:bean>" +
                 "<b:bean id='userFilter3' class='org.springframework.security.util.MockFilter'/>" +
                 "<b:bean id='userFilter4' class='org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter'/>"
                 );
         List filters = getFilters("/someurl");
 
         assertEquals(14, filters.size());
-        assertTrue(filters.get(0) instanceof MockFilter);        
+        assertTrue(filters.get(0) instanceof MockFilter);
         assertTrue(filters.get(1) instanceof SecurityContextHolderAwareRequestFilter);
         assertTrue(filters.get(4) instanceof SecurityContextHolderAwareRequestFilter);
     }
-    
+
     @Test(expected=BeanCreationException.class)
     public void twoFiltersWithSameOrderAreRejected() {
         setContext(
@@ -346,7 +341,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='tokenRepo' " +
                         "class='org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl'/> " + AUTH_PROVIDER_XML);
         Object rememberMeServices = appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
-        
+
         assertTrue(rememberMeServices instanceof PersistentTokenBasedRememberMeServices);
     }
 
@@ -360,11 +355,11 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "    <b:constructor-arg value='tokendb'/>" +
                 "</b:bean>" + AUTH_PROVIDER_XML);
         Object rememberMeServices = appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
-        
+
         assertTrue(rememberMeServices instanceof PersistentTokenBasedRememberMeServices);
-    }    
-    
-    
+    }
+
+
     @Test
     public void rememberMeServiceWorksWithExternalServicesImpl() throws Exception {
         setContext(
@@ -377,11 +372,11 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "    <b:property name='tokenValiditySeconds' value='5000'/>" +
                 "</b:bean>" +
                 AUTH_PROVIDER_XML);
-        
-        assertEquals(5000, FieldUtils.getFieldValue(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES), 
-        		"tokenValiditySeconds"));
+
+        assertEquals(5000, FieldUtils.getFieldValue(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES),
+                "tokenValiditySeconds"));
         // SEC-909
-        LogoutHandler[] logoutHandlers = (LogoutHandler[]) FieldUtils.getFieldValue(appContext.getBean(BeanIds.LOGOUT_FILTER), "handlers"); 
+        LogoutHandler[] logoutHandlers = (LogoutHandler[]) FieldUtils.getFieldValue(appContext.getBean(BeanIds.LOGOUT_FILTER), "handlers");
         assertEquals(2, logoutHandlers.length);
         assertEquals(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES), logoutHandlers[1]);
     }
@@ -392,10 +387,10 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true'>" +
                 "    <remember-me key='ourkey' token-validity-seconds='10000' />" +
                 "</http>" + AUTH_PROVIDER_XML);
-        assertEquals(10000, FieldUtils.getFieldValue(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES), 
-				"tokenValiditySeconds"));
-    }    
-    
+        assertEquals(10000, FieldUtils.getFieldValue(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES),
+                "tokenValiditySeconds"));
+    }
+
     @Test
     public void rememberMeServiceConfigurationParsesWithCustomUserService() {
         setContext(
@@ -405,8 +400,8 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='userService' class='org.springframework.security.userdetails.MockUserDetailsService'/> " +
                 AUTH_PROVIDER_XML);
 //        AbstractRememberMeServices rememberMeServices = (AbstractRememberMeServices) appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
-    }    
-    
+    }
+
     @Test
     public void x509SupportAddsFilterAtExpectedPosition() throws Exception {
         setContext(
@@ -425,11 +420,11 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "    <concurrent-session-control session-registry-alias='seshRegistry' expired-url='/expired'/>" +
                 "</http>" + AUTH_PROVIDER_XML);
         List filters = getFilters("/someurl");
-        
-        assertTrue(filters.get(0) instanceof ConcurrentSessionFilter);        
+
+        assertTrue(filters.get(0) instanceof ConcurrentSessionFilter);
         assertNotNull(appContext.getBean("seshRegistry"));
         assertNotNull(appContext.getBean(BeanIds.CONCURRENT_SESSION_CONTROLLER));
-    }    
+    }
 
     @Test
     public void externalSessionRegistryBeanIsConfiguredCorrectly() throws Exception {
@@ -441,12 +436,12 @@ public class HttpSecurityBeanDefinitionParserTests {
                 AUTH_PROVIDER_XML);
         Object sessionRegistry = appContext.getBean("seshRegistry");
         Object sessionRegistryFromFilter = FieldUtils.getFieldValue(
-        		appContext.getBean(BeanIds.CONCURRENT_SESSION_FILTER),"sessionRegistry");
+                appContext.getBean(BeanIds.CONCURRENT_SESSION_FILTER),"sessionRegistry");
         Object sessionRegistryFromController = FieldUtils.getFieldValue(
-        		appContext.getBean(BeanIds.CONCURRENT_SESSION_CONTROLLER),"sessionRegistry");
+                appContext.getBean(BeanIds.CONCURRENT_SESSION_CONTROLLER),"sessionRegistry");
         Object sessionRegistryFromFixationFilter = FieldUtils.getFieldValue(
-        		appContext.getBean(BeanIds.SESSION_FIXATION_PROTECTION_FILTER),"sessionRegistry");
-        
+                appContext.getBean(BeanIds.SESSION_FIXATION_PROTECTION_FILTER),"sessionRegistry");
+
         assertSame(sessionRegistry, sessionRegistryFromFilter);
         assertSame(sessionRegistry, sessionRegistryFromController);
         assertSame(sessionRegistry, sessionRegistryFromFixationFilter);
@@ -478,8 +473,8 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "  </b:property>" +
                 "</b:bean>" +
                 "<authentication-manager alias='authManager' session-controller-ref='sc'/>" + AUTH_PROVIDER_XML);
-    }    
-    
+    }
+
     @Test(expected=ConcurrentLoginException.class)
     public void concurrentSessionMaxSessionsIsCorrectlyConfigured() throws Exception {
         setContext(
@@ -493,16 +488,16 @@ public class HttpSecurityBeanDefinitionParserTests {
         req.setSession(new MockHttpSession());
         auth.setDetails(new WebAuthenticationDetails(req));
         try {
-        	seshController.checkAuthenticationAllowed(auth);
+            seshController.checkAuthenticationAllowed(auth);
         } catch (ConcurrentLoginException e) {
-        	fail("First login should be allowed");
-        }        
+            fail("First login should be allowed");
+        }
         seshController.registerSuccessfulAuthentication(auth);
         req.setSession(new MockHttpSession());
         try {
-        	seshController.checkAuthenticationAllowed(auth);
+            seshController.checkAuthenticationAllowed(auth);
         } catch (ConcurrentLoginException e) {
-        	fail("Second login should be allowed");
+            fail("Second login should be allowed");
         }
         auth.setDetails(new WebAuthenticationDetails(req));
         seshController.registerSuccessfulAuthentication(auth);
@@ -519,10 +514,10 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "    <b:constructor-arg value='/customlogin'/>" +
                 "</b:bean>" + AUTH_PROVIDER_XML);
         ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilters("/someurl").get(8);
-        assertTrue("ExceptionTranslationFilter should be configured with custom entry point", 
+        assertTrue("ExceptionTranslationFilter should be configured with custom entry point",
                 etf.getAuthenticationEntryPoint() instanceof MockAuthenticationEntryPoint);
     }
-    
+
     @Test
     /** SEC-742 */
     public void rememberMeServicesWorksWithoutBasicProcessingFilter() {
@@ -543,7 +538,7 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         assertFalse(filters.get(1) instanceof SessionFixationProtectionFilter);
     }
-    
+
     /**
      * See SEC-750. If the http security post processor causes beans to be instantiated too eagerly, they way miss
      * additional processing. In this method we have a UserDetailsService which is referenced from the namespace
@@ -562,18 +557,18 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         assertEquals("Hello from the post processor!", service.getPostProcessorWasHere());
     }
-    
+
     /**
      * SEC-795. Two methods that exercise the scenarios that will or won't result in a protected login page warning.
      * Check the log.
      */
     @Test
     public void unprotectedLoginPageDoesntResultInWarning() {
-        // Anonymous access configured        
+        // Anonymous access configured
         setContext(
                 "    <http>" +
                 "        <intercept-url pattern='/login.jsp*' access='IS_AUTHENTICATED_ANONYMOUSLY'/>" +
-                "        <intercept-url pattern='/**' access='ROLE_A'/>" +                
+                "        <intercept-url pattern='/**' access='ROLE_A'/>" +
                 "        <anonymous />" +
                 "        <form-login login-page='/login.jsp' default-target-url='/messageList.html'/>" +
                 "    </http>" + AUTH_PROVIDER_XML);
@@ -585,9 +580,9 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "        <intercept-url pattern='/**' access='ROLE_A'/>" +
                 "        <anonymous />" +
                 "        <form-login login-page='/login.jsp' default-target-url='/messageList.html'/>" +
-                "    </http>" + AUTH_PROVIDER_XML);        
+                "    </http>" + AUTH_PROVIDER_XML);
     }
-    
+
     @Test
     public void protectedLoginPageResultsInWarning() {
         // Protected, no anonymous filter configured.
@@ -610,16 +605,16 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void settingCreateSessionToAlwaysSetsFilterPropertiesCorrectly() throws Exception {
         setContext("<http auto-config='true' create-session='always'/>" + AUTH_PROVIDER_XML);
         assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "forceEagerSessionCreation"));
-        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "allowSessionCreation"));        
-    }    
+        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "allowSessionCreation"));
+    }
 
     @Test
     public void settingCreateSessionToNeverSetsFilterPropertiesCorrectly() throws Exception {
         setContext("<http auto-config='true' create-session='never'/>" + AUTH_PROVIDER_XML);
         assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "forceEagerSessionCreation"));
-        assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "allowSessionCreation"));        
-    }    
-    
+        assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "allowSessionCreation"));
+    }
+
     /* SEC-934 */
     @Test
     public void supportsTwoIdenticalInterceptUrls() {
@@ -635,7 +630,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals(1, attrDef.getConfigAttributes().size());
         assertTrue(attrDef.contains(new SecurityConfig("ROLE_B")));
     }
-    
+
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
     }
