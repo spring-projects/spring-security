@@ -1,9 +1,8 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
@@ -15,6 +14,7 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.annotation.BusinessService;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
@@ -79,7 +79,28 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
         assertEquals("Hello from the post processor!", service.getPostProcessorWasHere());
     }
-    
+
+    @Test(expected=AccessDeniedException.class)
+    public void worksWithAspectJAutoproxy() {
+        setContext(        		
+                "<global-method-security>" +
+                "  <protect-pointcut expression='execution(* org.springframework.security.config.*Service.*(..))'" +
+			    "       access='ROLE_SOMETHING' />" +			    
+                "</global-method-security>" +
+                "<b:bean id='myUserService' class='org.springframework.security.config.PostProcessedMockUserDetailsService'/>" +
+                "<aop:aspectj-autoproxy />" +             
+                "<authentication-provider user-service-ref='myUserService'/>"
+        );    
+
+        UserDetailsService service = (UserDetailsService) appContext.getBean("myUserService");
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SOMEOTHERROLE")});
+        SecurityContextHolder.getContext().setAuthentication(token);
+        
+        service.loadUserByUsername("notused");
+    }
+        
+        
     @Test(expected=BeanDefinitionParsingException.class)
     public void duplicateElementCausesError() {
         setContext(
@@ -92,3 +113,5 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         appContext = new InMemoryXmlApplicationContext(context);
     }
 }
+
+
