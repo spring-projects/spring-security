@@ -46,6 +46,7 @@ password-encoder.attlist &=
     ref | (hash? & base64?)
     
 salt-source =
+    ## Password salting strategy. A system-wide constant or a property from the UserDetails object can be used.
     element salt-source {user-property | system-wide}
 user-property =
     ## A property of the UserDetails object which will be used as salt by a password encoder. Typically something like "username" might be used. 
@@ -69,8 +70,8 @@ ldap-server.attlist &= (url | port)?
 ldap-server.attlist &=
     ## Username (DN) of the "manager" user identity which will be used to authenticate to a (non-embedded) LDAP server. If omitted, anonymous access will be used. 
     attribute manager-dn {xsd:string}?
-    ## The password for the manager DN.
 ldap-server.attlist &=
+    ## The password for the manager DN.
     attribute manager-password {xsd:string}?     
 ldap-server.attlist &=
     ## Explicitly specifies an ldif file resource to load into an embedded LDAP server
@@ -91,9 +92,10 @@ group-search-base-attribute =
     ## Search base for group membership searches. Defaults to "ou=groups".
     attribute group-search-base {xsd:string}
 user-search-filter-attribute =
+    ## The LDAP filter used to search for users (optional). For example "(uid={0})". The substituted parameter is the user's login name.
     attribute user-search-filter {xsd:string}
 user-search-base-attribute =
-    ## Search base for user searches. Defaults to "".
+    ## Search base for user searches. Defaults to "". Only used with a 'user-search-filter'.
     attribute user-search-base {xsd:string}
 group-role-attribute-attribute =
     ## The LDAP attribute name which contains the role name which will be used within Spring Security. Defaults to "cn".
@@ -191,6 +193,7 @@ global-method-security.attlist &=
     attribute access-decision-manager-ref {xsd:string}?
 
 custom-after-invocation-provider =
+    ## Used to decorate an AfterInvocationProvider to specify that it should be used with method security.
     element custom-after-invocation-provider {empty}
 
 protect-pointcut =
@@ -371,7 +374,7 @@ remember-me-services-ref =
     ## Allows a custom implementation of RememberMeServices to be used. Note that this implementation should return RememberMeAuthenticationToken instances with the same "key" value as specified in the remember-me element. Alternatively it should register its own AuthenticationProvider. 
     attribute services-ref {xsd:string}?
 remember-me-data-source-ref =
-    ## DataSource bean for the database that contains the token  
+    ## DataSource bean for the database that contains the token repository schema. 
     data-source-ref
 
 anonymous =
@@ -430,6 +433,7 @@ ap.attlist &=
     user-service-ref?
 
 custom-authentication-provider =
+    ## Element used to decorate an AuthenticationProvider bean to add it to the internal AuthenticationManager maintained by the namespace.
     element custom-authentication-provider {cap.attlist}
 cap.attlist &= empty
 
@@ -496,6 +500,6 @@ position =
 
 
 
-named-security-filter = "FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "SESSION_CONTEXT_INTEGRATION_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_PROCESSING_FILTER" | "AUTHENTICATION_PROCESSING_FILTER" | "BASIC_PROCESSING_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "NTLM_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
+named-security-filter = "FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "SESSION_CONTEXT_INTEGRATION_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_PROCESSING_FILTER" | "AUTHENTICATION_PROCESSING_FILTER" | "OPENID_PROCESSING_FILTER" |"BASIC_PROCESSING_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "NTLM_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
     
     
