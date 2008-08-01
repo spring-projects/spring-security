@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<appendix version="5.0" xml:id="appendix-namespace" xmlns="http://docbook.org/ns/docbook"
+  xmlns:xlink="http://www.w3.org/1999/xlink" 
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <info>
+    <title>The Security Namespace</title>
+  </info>
+  
+  <para>
+    This provides a reference to the elements available in the security namespace and infromation on 
+    the underlying beans they create. If you haven't used the namespace before, please read the 
+    <link xlink:href="#ns-config">introductory chapter</link>.
+  </para>
+  
+  <section>
+    <title>The <literal>&lt;http&gt;</literal> Element</title>
+    <para>
+      This element encapsulates the security configuration for the web layer of your application.
+    </para>
+  </section>
+  
+</appendix>

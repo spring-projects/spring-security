@@ -195,6 +195,8 @@
     <xi:include href="runas-auth-provider.xml" />
 
     <xi:include href="container-adapters.xml"/>
+    
+    <xi:include href="appendix-db-schema.xml"/>    
 
   </part>
 
