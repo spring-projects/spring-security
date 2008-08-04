@@ -175,7 +175,7 @@ org.springframework.security.AccessDeniedException: Access is denied
 	  	<faq id="extra-login-fields">
 	  		<question>I need to login in with more information than just the username. How do I add support for extra login fields (e.g. a company name)?</question>
 	  		<answer>
-	  			<p>This question comes up repeatedly in the Spring Security forum so you will find more information there.</p>
+	  			<p>This question comes up repeatedly in the Spring Security forum so you will find more information there by searching the archives (or through google).</p>
 	  			<p>
 	  			The submitted login information is processed by an instance of <i>AuthenticationProcessingFilter</i>. You will need to customize this class to handle
 	  				the extra data field(s). One option is to use your own customized authentication token class (rather than the standard <i>UsernamePasswordAuthenticationToken</i>),
