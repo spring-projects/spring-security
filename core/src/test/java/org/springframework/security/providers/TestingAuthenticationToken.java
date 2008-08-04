@@ -16,6 +16,7 @@
 package org.springframework.security.providers;
 
 import org.springframework.security.GrantedAuthority;
+import org.springframework.security.util.AuthorityUtils;
 
 
 /**
@@ -33,6 +34,17 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
     private Object principal;
 
     //~ Constructors ===================================================================================================
+
+    public TestingAuthenticationToken(Object principal, Object credentials) {
+    	super(null);
+        this.principal = principal;
+        this.credentials = credentials;    	
+    }    
+
+    
+    public TestingAuthenticationToken(Object principal, Object credentials, String... authorities) {
+    	this(principal, credentials, AuthorityUtils.stringArrayToAuthorityArray(authorities));
+    }    
 
     public TestingAuthenticationToken(Object principal, Object credentials, GrantedAuthority[] authorities) {
         super(authorities);

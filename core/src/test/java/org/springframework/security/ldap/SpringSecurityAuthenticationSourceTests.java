@@ -44,8 +44,7 @@ public class SpringSecurityAuthenticationSourceTests {
     @Test(expected=IllegalArgumentException.class)
     public void getPrincipalRejectsNonLdapUserDetailsObject() {
         AuthenticationSource source = new SpringSecurityAuthenticationSource();
-        SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken(new Object(), "password", null));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(new Object(), "password"));
 
         source.getPrincipal();
     }
@@ -53,8 +52,7 @@ public class SpringSecurityAuthenticationSourceTests {
     @Test
     public void expectedCredentialsAreReturned() {
         AuthenticationSource source = new SpringSecurityAuthenticationSource();
-        SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken(new Object(), "password", null));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(new Object(), "password"));
 
         assertEquals("password", source.getCredentials());
     }
@@ -66,7 +64,7 @@ public class SpringSecurityAuthenticationSourceTests {
         user.setDn(new DistinguishedName("uid=joe,ou=users"));
         AuthenticationSource source = new SpringSecurityAuthenticationSource();
         SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken(user.createUserDetails(), null, null));
+        		new TestingAuthenticationToken(user.createUserDetails(), null));
 
         assertEquals("uid=joe, ou=users", source.getPrincipal());
     }

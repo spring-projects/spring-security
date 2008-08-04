@@ -23,6 +23,7 @@ import org.springframework.security.userdetails.UserDetails;
  * delegated to the <tt>UserDetails</tt> implementation.
  *
  * @author Michael Mayr
+ * @deprecated use a {@link RoleHierarchyVoter} instead.
  */
 public class UserDetailsWrapper implements UserDetails {
 

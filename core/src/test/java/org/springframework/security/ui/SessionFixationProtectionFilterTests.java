@@ -74,6 +74,6 @@ public class SessionFixationProtectionFilterTests {
     }    
 
     private void authenticateUser() {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", null));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass"));
     }
 }

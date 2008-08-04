@@ -160,7 +160,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
     public void testOnunsuccessfulLoginIsCalledWhenProviderRejectsAuth() throws Exception {
         Authentication remembered = new TestingAuthenticationToken("remembered", "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_REMEMBERED")});
-        final Authentication failedAuth = new TestingAuthenticationToken("failed", "", null);
+        final Authentication failedAuth = new TestingAuthenticationToken("failed", "");
 
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter() {
             protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
