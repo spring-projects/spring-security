@@ -59,7 +59,7 @@ public class PortletTestUtils {
 
     public static void applyPortletRequestSecurity(MockPortletRequest request) {
 		request.setRemoteUser(TESTUSER);
-		request.setUserPrincipal(new TestingAuthenticationToken(TESTUSER, TESTCRED, null));
+		request.setUserPrincipal(new TestingAuthenticationToken(TESTUSER, TESTCRED));
 		request.addUserRole(PORTALROLE1);
 		request.addUserRole(PORTALROLE2);
 //		request.setAuthType(PortletRequest.FORM_AUTH);

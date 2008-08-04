@@ -166,8 +166,8 @@ public class PortletProcessingInterceptorTests extends TestCase {
 		interceptor.setAuthenticationManager(new MockPortletAuthenticationManager());
 		interceptor.afterPropertiesSet();
 
-		UsernamePasswordAuthenticationToken testingToken = new UsernamePasswordAuthenticationToken("dummy", "dummy", null);
-		UsernamePasswordAuthenticationToken baselineToken = new UsernamePasswordAuthenticationToken("dummy", "dummy", null);
+		UsernamePasswordAuthenticationToken testingToken = new UsernamePasswordAuthenticationToken("dummy", "dummy");
+		UsernamePasswordAuthenticationToken baselineToken = new UsernamePasswordAuthenticationToken("dummy", "dummy");
 		SecurityContextHolder.getContext().setAuthentication(testingToken);
 
 		// Execute preHandlerAction phase and verify results
@@ -205,7 +205,7 @@ public class PortletProcessingInterceptorTests extends TestCase {
 		// Build mock request and response
 		MockActionRequest request = new MockActionRequest();
 		MockActionResponse response = new MockActionResponse();
-		request.setUserPrincipal(new TestingAuthenticationToken(PortletTestUtils.TESTUSER, PortletTestUtils.TESTCRED, null));
+		request.setUserPrincipal(new TestingAuthenticationToken(PortletTestUtils.TESTUSER, PortletTestUtils.TESTCRED));
 		request.setAuthType(PortletRequest.FORM_AUTH);
 
 		// Prepare and execute interceptor

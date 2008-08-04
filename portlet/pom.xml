@@ -8,14 +8,20 @@
     <artifactId>spring-security-portlet</artifactId>
     <name>Spring Security - Portlet support</name>
     <description>Spring Security - Support for JSR 168 Portlets</description>
-    <version>2.0.4-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
-            <version>2.0.4-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>                
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
