@@ -9,7 +9,6 @@
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-acl</artifactId>
     <name>Spring Security - ACL module</name>
-    <version>2.0.4-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -17,6 +16,13 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>

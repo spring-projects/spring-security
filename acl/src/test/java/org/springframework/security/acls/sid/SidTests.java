@@ -53,7 +53,7 @@ public class SidTests extends TestCase {
         }
 
         try {
-            Authentication authentication = new TestingAuthenticationToken(null, "password", null);
+            Authentication authentication = new TestingAuthenticationToken(null, "password");
             Sid principalSid = new PrincipalSid(authentication);
             Assert.fail("It should have thrown IllegalArgumentException");
         }
@@ -62,7 +62,7 @@ public class SidTests extends TestCase {
         }
 
         try {
-            Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
+            Authentication authentication = new TestingAuthenticationToken("johndoe", "password");
             Sid principalSid = new PrincipalSid(authentication);
             Assert.assertTrue(true);
         }
@@ -128,15 +128,15 @@ public class SidTests extends TestCase {
     }
 
     public void testPrincipalSidEquals() throws Exception {
-        Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
+        Authentication authentication = new TestingAuthenticationToken("johndoe", "password");
         Sid principalSid = new PrincipalSid(authentication);
 
         Assert.assertFalse(principalSid.equals(null));
         Assert.assertFalse(principalSid.equals("DIFFERENT_TYPE_OBJECT"));
         Assert.assertTrue(principalSid.equals(principalSid));
         Assert.assertTrue(principalSid.equals(new PrincipalSid(authentication)));
-        Assert.assertTrue(principalSid.equals(new PrincipalSid(new TestingAuthenticationToken("johndoe", null, null))));
-        Assert.assertFalse(principalSid.equals(new PrincipalSid(new TestingAuthenticationToken("scott", null, null))));
+        Assert.assertTrue(principalSid.equals(new PrincipalSid(new TestingAuthenticationToken("johndoe", null))));
+        Assert.assertFalse(principalSid.equals(new PrincipalSid(new TestingAuthenticationToken("scott", null))));
         Assert.assertTrue(principalSid.equals(new PrincipalSid("johndoe")));
         Assert.assertFalse(principalSid.equals(new PrincipalSid("scott")));
     }
@@ -156,14 +156,13 @@ public class SidTests extends TestCase {
     }
 
     public void testPrincipalSidHashCode() throws Exception {
-        Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
+        Authentication authentication = new TestingAuthenticationToken("johndoe", "password");
         Sid principalSid = new PrincipalSid(authentication);
 
         Assert.assertTrue(principalSid.hashCode() == new String("johndoe").hashCode());
         Assert.assertTrue(principalSid.hashCode() == new PrincipalSid("johndoe").hashCode());
         Assert.assertTrue(principalSid.hashCode() != new PrincipalSid("scott").hashCode());
-        Assert.assertTrue(principalSid.hashCode() != new PrincipalSid(new TestingAuthenticationToken("scott", "password",
-                null)).hashCode());
+        Assert.assertTrue(principalSid.hashCode() != new PrincipalSid(new TestingAuthenticationToken("scott", "password")).hashCode());
     }
 
     public void testGrantedAuthoritySidHashCode() throws Exception {
@@ -177,7 +176,7 @@ public class SidTests extends TestCase {
     }
 
     public void testGetters() throws Exception {
-        Authentication authentication = new TestingAuthenticationToken("johndoe", "password", null);
+        Authentication authentication = new TestingAuthenticationToken("johndoe", "password");
         PrincipalSid principalSid = new PrincipalSid(authentication);
         GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
         GrantedAuthoritySid gaSid = new GrantedAuthoritySid(ga);
