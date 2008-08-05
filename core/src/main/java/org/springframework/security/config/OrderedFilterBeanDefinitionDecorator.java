@@ -22,7 +22,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * Adds the decorated "Filter" bean into the standard filter chain maintained by the FilterChainProxy.  
+ * Adds the decorated "Filter" bean into the standard filter chain maintained by the FilterChainProxy.
  * This allows user to add their own custom filters to the security chain. If the user's filter
  * already implements Ordered, and no "order" attribute is specified, the filter's default order will be used.
  *
@@ -33,7 +33,7 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
 
     public static final String ATT_AFTER = "after";
     public static final String ATT_BEFORE = "before";
-    public static final String ATT_POSITION = "position";    
+    public static final String ATT_POSITION = "position";
 
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder, ParserContext parserContext) {
         Element elt = (Element)node;
@@ -48,7 +48,7 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
         }
 
         ConfigUtils.addHttpFilter(parserContext, wrapper.getBeanDefinition());
-        
+
         return holder;
     }
 
@@ -59,22 +59,26 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
         String after = elt.getAttribute(ATT_AFTER);
         String before = elt.getAttribute(ATT_BEFORE);
         String position = elt.getAttribute(ATT_POSITION);
-        
+
         if(ConfigUtils.countNonEmpty(new String[] {after, before, position}) != 1) {
-        	pc.getReaderContext().error("A single '" + ATT_AFTER + "', '" + ATT_BEFORE + "', or '" +
-        			ATT_POSITION + "' attribute must be supplied", pc.extractSource(elt));
+            pc.getReaderContext().error("A single '" + ATT_AFTER + "', '" + ATT_BEFORE + "', or '" +
+                    ATT_POSITION + "' attribute must be supplied", pc.extractSource(elt));
         }
-        
+
         if (StringUtils.hasText(position)) {
-        	return Integer.toString(FilterChainOrder.getOrder(position));
+            return Integer.toString(FilterChainOrder.getOrder(position));
         }
-        
+
         if (StringUtils.hasText(after)) {
-            return Integer.toString(FilterChainOrder.getOrder(after) + 1);
+            int order = FilterChainOrder.getOrder(after);
+
+            return Integer.toString(order == Integer.MAX_VALUE ? order : order + 1);
         }
 
         if (StringUtils.hasText(before)) {
-            return Integer.toString(FilterChainOrder.getOrder(before) - 1);
+            int order = FilterChainOrder.getOrder(before);
+
+            return Integer.toString(order == Integer.MIN_VALUE ? order : order - 1);
         }
 
         return null;
@@ -121,12 +125,12 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
             return beanName;
         }
 
-		public String toString() {
-			return "OrderedFilterDecorator[ delegate=" + delegate + "; order=" + getOrder() + "]";
-		}
-		
-		Filter getDelegate() {
-			return delegate;
-		}
+        public String toString() {
+            return "OrderedFilterDecorator[ delegate=" + delegate + "; order=" + getOrder() + "]";
+        }
+
+        Filter getDelegate() {
+            return delegate;
+        }
     }
 }
