@@ -552,8 +552,8 @@
   </beans:bean>
   ]]></programlisting>
         You can also use the <literal>after</literal> or <literal>before</literal> attribtues if you want your filter
-        to be inserted before or after another filter in the stack. The names "FIRST" and "LAST" can be used to indicate
-        that you want your filter to appear before or after the entire stack, respectively.
+        to be inserted before or after another filter in the stack. The names "FIRST" and "LAST" can be used with the 
+        <literal>position</literal> attribute to indicate that you want your filter to appear before or after the entire stack, respectively.
       </para>
       <tip>
         <title>Avoiding filter position conflicts</title>
