@@ -8,16 +8,134 @@
   </info>
   
   <para>
-    This provides a reference to the elements available in the security namespace and infromation on 
-    the underlying beans they create. If you haven't used the namespace before, please read the 
-    <link xlink:href="#ns-config">introductory chapter</link>.
+    This provides a reference to the elements available in the security namespace and information on 
+    the underlying beans they create (a knowledge of the individual classes and how they work together is assumed - 
+    you can find more information in the project Javadoc and elsewhere in this document). 
+    If you haven't used the namespace before, please read the 
+    <link xlink:href="#ns-config">introductory chapter</link>. Using a good quality XML editor while
+    editing a configuration based on the schema is recommended as this will provide contextual information on
+    which elements and attributes are available and comments explaining their purpose.
   </para>
   
-  <section>
+  <section xml:id="nsa-http">
     <title>The <literal>&lt;http&gt;</literal> Element</title>
     <para>
-      This element encapsulates the security configuration for the web layer of your application.
+      This element encapsulates the security configuration for the web layer of your application. It creates a
+      <classname>FilterChainProxy</classname> bean named "springSecurityFilterChain" which maintains the stack of
+      security filters which make up the web security configuration <footnote><para>See the 
+      <link xlink:href="#ns-web-xml"> introductory chapter</link> for how to set up the mapping from 
+        your <literal>web.xml</literal></para></footnote>. Some core filters are always created and others will
+       be added to the stack depending on the attributes child elements which are present. The positions of the standard
+      filters are fixed (see <link xlink:href="#filter-stack">the filter order table</link> in the namespace introduction),
+      removing a common source of errors with previous versions of the framework when users had to configure the
+      filter chain explicitly in the<classname>FilterChainProxy</classname> bean. You can, of course, still do this
+      if you need full control of the configuration.
     </para>
+    <para>
+        The <literal>&lt;http&gt;</literal> namespace block always creates an <classname>HttpSessionContextIntegrationFilter</classname>,
+        an <classname>ExceptionTranslationFilter</classname> and a <classname>FilterSecurityInterceptor</classname>. These are fixed
+        and cannot be replaced with alternatives.
+    </para>
+    
+    <section xml:id="nsa-http-attributes">
+      <title><literal>&lt;http&gt;</literal> Attributes</title>
+      <para>
+        The attributes on the <literal>&lt;http&gt;</literal> element control some of the properties on the
+        core filters.
+      </para>
+      <section xml:id="nsa-servlet-api-provision">
+        <title><literal>servlet-api-provision</literal></title>
+        <para>
+          Provides versions of <literal>HttpServletRequest</literal> security methods such as 
+          <literal>isUserInRole()</literal> and <literal>getPrincipal()</literal> which are implemented by
+          adding a <classname>SecurityContextHolderAwareRequestFilter</classname> bean to the stack. Defaults to "true". 
+        </para>
+      </section>
+
+      <section xml:id="nsa-path-type">
+        <title><literal>path-type</literal></title>
+        <para>
+          Controls whether URL patterns are interpreted as ant paths (the default) or regular expressions. In practice
+          this sets a particular <interfacename>UrlMatcher</interfacename> instance on the <classname>FilterChainProxy</classname>.
+        </para>
+      </section>
+
+      <section xml:id="nsa-lowercase-comparisons">
+        <title><literal>lowercase-comparisons</literal></title>
+        <para>
+          Whether test URLs should be converted to lower case prior to comparing with defined path patterns. If unspecified, 
+          defaults to "true"
+        </para>
+      </section>
+      
+      <section xml:id="session-fixation-protection">
+        <title><literal>session-fixation-protection</literal></title>
+        <para>
+          Indicates whether an existing session should be invalidated when a user authenticates and a new session started. 
+          If set to "none" no change will be made. "newSession" will create a new empty session. 
+          "migrateSession" will create a new session and copy the session attributes to the new session. Defaults to "migrateSession".
+        </para>
+        <para>
+          If enabled this will add a <classname>SessionFixationProtectionFilter</classname> to the stack. The session fixation protection
+          options on namespace-created instances of <classname>AbstractProcessingFilter</classname> will also be set appropriately.
+        </para>
+      </section>
+      
+      <section xml:id="nsa-realm">
+        <title><literal>realm</literal></title>
+        <para>
+          Sets the realm name used for basic authentication (if enabled). Corresponds to the <literal>realmName</literal> proerty on
+          <classname>BasicProcessingFilterEntryPoint</classname>.
+        </para>
+      </section>
+
+      <section xml:id="nsa-entry-point-ref">
+        <title><literal>entry-point-ref</literal></title>
+        <para>
+          Normally the <interfacename>AuthenticationEntryPoint</interfacename> used will be set depending on which 
+          authentication mechanisms have been configured. This attribute allows this behaviour to be overridden 
+          by defining a customized <interfacename>AuthenticationEntryPoint</interfacename> bean which will start the authentication
+          process.
+        </para>
+      </section>
+      
+      <section xml:id="nsa-access-decision-manager-ref">
+        <title><literal>access-decision-manager-ref</literal></title>
+        <para>
+          Optional attribute specifying the ID of the <interfacename>AccessDecisionManager</interfacename> implementation which should be 
+          used for authorizing HTTP requests. By default an <classname>AffirmativeBased</classname> implementation is used for with
+          a <classname>RoleVoter</classname> and an <classname>AuthenticatedVoter</classname>.
+        </para>
+      </section>
+      
+      <section xml:id="nsa-access-denied-page">
+        <title><literal>access-denied-page</literal></title>
+        <para>
+          Allows the access denied page to be set (the user will be redirected here if an AccessDeniedException is raised).
+        </para>
+      </section>
+
+      <section xml:id="nsa-once-per-request">
+        <title><literal>once-per-request</literal></title>
+        <para>
+          Corresponds to the <literal>observeOncePerRequest</literal> property of 
+          <classname>FilterSecurityInterceptor</classname>. Defaults to "true".
+        </para>
+      </section>
+
+    </section>
+    
+    
+    
+    
+    
+    <section>
+      <title>The <literal>&lt;intercept-url&gt;</literal> Element</title>
+      <para></para>
+      
+    </section>
+    
+    
   </section>
   
 </appendix>
