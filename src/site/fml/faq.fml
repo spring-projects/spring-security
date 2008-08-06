@@ -169,6 +169,20 @@ org.springframework.security.AccessDeniedException: Access is denied
     			then you have to configure these explicitly in your web.xml using the &lt;dispatcher&gt; element, a child element of &lt;filter-mapping&gt;.
     		</answer>
     	</faq>
+    	<faq id="session-listener-missing">
+    		<question>
+    			I'm trying to use the concurrent session-control support but it won't let me log back in, even if I'm sure I've logged out and haven't exceeded the allowed sessions.
+    		</question>
+    		<answer>
+    			Make sure you have added the listener to your web.xml file. It is essential to make sure that the Spring Security session registry is
+    			notified when a session is destroyed. Without it, the session information will not be removed from the registry.
+    			<pre>
+  &lt;listener&gt;
+    &lt;listener-classorg.springframework.security.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
+  &lt;/listener&gt;    				
+    			</pre>
+    		</answer>
+    	</faq>
     </part>
 	  <part id="how-tos">
 	  	<title>Common "How To" Requests</title>
