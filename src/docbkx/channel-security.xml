@@ -40,35 +40,33 @@
         by means of the <literal>requires-channel</literal> attribute on the <literal>&lt;intercept-url&gt;</literal>
         element and this is the simplest (and recommended approach)</para>
     <para>To confiure channel security explicitly, you would define the following the filter in your application
-        context:</para>
+        context:
+<programlisting><![CDATA[
+<bean id="channelProcessingFilter" class="org.springframework.security.securechannel.ChannelProcessingFilter">
+  <property name="channelDecisionManager" ref="channelDecisionManager"/>
+  <property name="filterInvocationDefinitionSource">
+    <security:filter-invocation-definition-source path-type="regex">
+      <security:intercept-url pattern="\A/secure/.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
+      <security:intercept-url pattern="\A/acegilogin.jsp.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
+      <security:intercept-url pattern="\A/j_spring_security_check.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
+      <security:intercept-url pattern="\A/.*\Z" access="ANY_CHANNEL"/>
+    </security:filter-invocation-definition-source>                
+  </property>
+</bean>
     
-    <para><programlisting> 
-&lt;bean id="channelProcessingFilter" class="org.springframework.security.securechannel.ChannelProcessingFilter"&gt;
-  &lt;property name="channelDecisionManager" ref="channelDecisionManager"/&gt;
-  &lt;property name="filterInvocationDefinitionSource"&gt;
-    &lt;security:filter-invocation-definition-source path-type="regex"&gt;
-      &lt;security:intercept-url pattern="\A/secure/.*\Z" access="REQUIRES_SECURE_CHANNEL"/&gt;
-      &lt;security:intercept-url pattern="\A/acegilogin.jsp.*\" access="REQUIRES_SECURE_CHANNEL"/&gt;
-      &lt;security:intercept-url pattern="\A/j_spring_security_check.*\Z" access="REQUIRES_SECURE_CHANNEL"/&gt;
-      &lt;security:intercept-url pattern="\A/.*\Z" access="REQUIRES_INSECURE_CHANNEL"/&gt;
-    &lt;/security:filter-invocation-definition-source&gt;                
-  &lt;/property&gt;
-&lt;/bean&gt;
+<bean id="channelDecisionManager" class="org.springframework.security.securechannel.ChannelDecisionManagerImpl">
+  <property name="channelProcessors">
+    <list>
+    <ref bean="secureChannelProcessor"/>
+    <ref bean="insecureChannelProcessor"/>
+    </list>
+  </property>
+</bean>
     
-&lt;bean id="channelDecisionManager" class="org.springframework.security.securechannel.ChannelDecisionManagerImpl"&gt;
-  &lt;property name="channelProcessors"&gt;
-    &lt;list&gt;
-    &lt;ref bean="secureChannelProcessor"/&gt;
-    &lt;ref bean="insecureChannelProcessor"/&gt;
-    &lt;/list&gt;
-  &lt;/property&gt;
-&lt;/bean&gt;
-    
-&lt;bean id="secureChannelProcessor" class="org.springframework.security.securechannel.SecureChannelProcessor"/&gt;
-&lt;bean id="insecureChannelProcessor" class="org.springframework.security.securechannel.InsecureChannelProcessor"/&gt;         
-    </programlisting></para>
-    
-    <para>Like <literal>FilterSecurityInterceptor</literal>, Apache Ant
+<bean id="secureChannelProcessor" class="org.springframework.security.securechannel.SecureChannelProcessor"/>
+<bean id="insecureChannelProcessor" class="org.springframework.security.securechannel.InsecureChannelProcessor"/>]]>      
+</programlisting>
+        Like <literal>FilterSecurityInterceptor</literal>, Apache Ant
         style paths are also supported by the
         <literal>ChannelProcessingFilter</literal>.</para>
     
@@ -77,10 +75,11 @@
         attributes that apply. It then delegates to the
         <literal>ChannelDecisionManager</literal>. The default implementation,
         <literal>ChannelDecisionManagerImpl</literal>, should suffice in most
-        cases. It simply delegates through the list of configured
-        <literal>ChannelProcessor</literal> instances. A
+        cases. It simply delegates to the list of configured
+        <literal>ChannelProcessor</literal> instances. The attribute <literal>ANY_CHANNEL</literal>
+        can be used to override this behaviour and skip a particular URL. Otherwise, a
         <literal>ChannelProcessor</literal> will review the request, and if it
-        is unhappy with the request (eg it was received across the incorrect
+        is unhappy with the request (e.g. if it was received across the incorrect
         transport protocol), it will perform a redirect, throw an exception or
         take whatever other action is appropriate.</para>
     
@@ -99,7 +98,7 @@
         request to HTTP and HTTPS as appropriate. Appropriate defaults are
         assigned to the <literal>ChannelProcessor</literal> implementations
         for the configuration attribute keywords they respond to and the
-        <literal>ChannelEntryPoint</literal> they delegate to, although you
+        <interfacename>ChannelEntryPoint</interfacename> they delegate to, although you
         have the ability to override these using the application
         context.</para>
     
@@ -109,15 +108,15 @@
         that Internet Explorer 6 Service Pack 1 has a bug whereby it does not
         respond correctly to a redirection instruction which also changes the
         port to use. Accordingly, absolute URLs are used in conjunction with
-        bug detection logic in the <literal>PortResolverImpl</literal> that is
+        bug detection logic in the <classname>PortResolverImpl</classname> that is
         wired up by default to many Spring Security beans. Please refer to the
-        JavaDocs for <literal>PortResolverImpl</literal> for further
+        JavaDocs for <classname>PortResolverImpl</classname> for further
         details.</para>
     
     <para>You should note that using a secure channel is recommended if
         usernames and passwords are to be kept secure during the login
         process. If you do decide to use
-        <literal>ChannelProcessingFilter</literal> with form-based login,
+        <classname>ChannelProcessingFilter</classname> with form-based login,
         please ensure that your login page is set to
         <literal>REQUIRES_SECURE_CHANNEL</literal>, and that the
         <literal>AuthenticationProcessingFilterEntryPoint.forceHttps</literal>
