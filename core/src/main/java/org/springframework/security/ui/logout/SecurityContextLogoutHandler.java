@@ -34,9 +34,9 @@ import javax.servlet.http.HttpSession;
  * @version $Id$
  */
 public class SecurityContextLogoutHandler implements LogoutHandler {
-    //~ Methods ========================================================================================================
-
     private boolean invalidateHttpSession = true;
+
+    //~ Methods ========================================================================================================
 
     /**
      * Requires the request to be passed in.
@@ -69,6 +69,6 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
      */
     public void setInvalidateHttpSession(boolean invalidateHttpSession) {
         this.invalidateHttpSession = invalidateHttpSession;
-	}
+    }
 
 }
