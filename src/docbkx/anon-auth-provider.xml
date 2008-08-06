@@ -1,9 +1,11 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="anonymous"><info><title>Anonymous Authentication</title></info>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="anonymous">
+
+<info><title>Anonymous Authentication</title></info>
 
 
-<section xml:id="anonymous-overview"><info><title>Overview</title></info>
-    
-    
+<section xml:id="anonymous-overview">
+    <info><title>Overview</title></info>
+
     <para>Particularly in the case of web request URI security, sometimes
         it is more convenient to assign configuration attributes against every
         possible secure object invocation. Put differently, sometimes it is
@@ -20,9 +22,9 @@
         <literal>null</literal>.</para>
 </section>
 
-<section xml:id="anonymous-config"><info><title>Configuration</title></info>
-    
-    
+<section xml:id="anonymous-config">
+    <info><title>Configuration</title></info>
+
     <para>Spring Security provides three classes that together provide an
         anonymous authentication feature.
         <literal>AnonymousAuthenticationToken</literal> is an implementation
@@ -38,7 +40,7 @@
         <literal>SecurityContextHolder</literal> if there is no existing
         <literal>Authentication</literal> held there. The definition of the
         filter and authentication provider appears as follows:</para>
-    
+
     <para><programlisting>
 <![CDATA[
 <bean id="anonymousProcessingFilter"
@@ -52,7 +54,7 @@
   <property name="key" value="foobar"/>
 </bean>]]>
     </programlisting></para>
-    
+
     <para>The <literal>key</literal> is shared between the filter and
         authentication provider, so that tokens created by the former are
         accepted by the latter. The <literal>userAttribute</literal> is
@@ -61,13 +63,13 @@
         This is the same syntax as used after the equals sign for
         <literal>InMemoryDaoImpl</literal>'s <literal>userMap</literal>
         property.</para>
-    
+
     <para>As explained earlier, the benefit of anonymous authentication is
         that all URI patterns can have security applied to them. For
         example:</para>
-    
+
     <para><programlisting>
-<![CDATA[        
+<![CDATA[
 <bean id="filterInvocationInterceptor"
     class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
