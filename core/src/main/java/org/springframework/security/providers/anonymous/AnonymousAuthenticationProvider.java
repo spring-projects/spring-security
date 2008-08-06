@@ -15,30 +15,28 @@
 
 package org.springframework.security.providers.anonymous;
 
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.providers.AuthenticationProvider;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.util.Assert;
 
 
 /**
- * An {@link AuthenticationProvider} implementation that validates {@link
- * org.springframework.security.providers.anonymous.AnonymousAuthenticationToken}s.<p>To be successfully validated, the
- * {@link org.springframework.security.providers.anonymous.AnonymousAuthenticationToken#getKeyHash()} must match this class'
- * {@link #getKey()}.</p>
+ * An {@link AuthenticationProvider} implementation that validates {@link AnonymousAuthenticationToken}s.
+ * <p>
+ * To be successfully validated, the {@link AnonymousAuthenticationToken#getKeyHash()} must match this class'
+ * {@link #getKey()}.
+ *
+ * @author Ben Alex
+ * @version $Id$
  */
 public class AnonymousAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final Log logger = LogFactory.getLog(AnonymousAuthenticationProvider.class);
 
     //~ Instance fields ================================================================================================
 
@@ -47,7 +45,7 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider, 
 
     //~ Methods ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key, "A Key is required");
         Assert.notNull(this.messages, "A message source must be set");
     }
