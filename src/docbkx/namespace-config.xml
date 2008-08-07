@@ -29,7 +29,7 @@
         <para>You can find out more about the use of the
           <literal>ldap-server</literal>
           element in the chapter on
-          <link xlink:href="ldap">LDAP</link>.</para>
+          <link xlink:href="#ldap">LDAP</link>.</para>
       </footnote>. Use of a good XML editor while editing the application context file should
       provide information on the attributes and elements that are available. We would recommend that
       you try out the
@@ -89,7 +89,8 @@
           <listitem>
             <para>
               <emphasis>AuthenticationManager</emphasis>
-              - handles authentication requests from other parts of the framework.</para>
+              - handles authentication requests from other parts of the framework. A default 
+            instance will be registered internally by the namespace.</para>
           </listitem>
           <listitem>
             <para>
@@ -123,7 +124,7 @@
       In this section, we'll look at how you can build up a namespace configuration to use some of the main
       features of the framework. Let's assume you initially want to get up and running as quickly as possible 
       and add authentication support and access control to an existing web application, with a few 
-      test logins. The we'll look at how to change over to authenticating against a database or other
+      test logins. Then we'll look at how to change over to authenticating against a database or other
       security information repository. In later sections we'll introduce more advanced namespace configuration
       options.
     </para>
@@ -749,7 +750,7 @@
      <property name="authenticationManager" ref="authenticationManager"/>
      ...
   </bean>
-  ]]></programlisting>          
+  ]]></programlisting>
     </para>
   </section>
   

@@ -131,6 +131,19 @@
           <classname>FilterSecurityInterceptor</classname>. Defaults to "true".
         </para>
       </section>
+      
+      <section xml:id="create-session">
+        <title><literal>create-session</literal></title>
+        <para>
+          Controls the eagerness with which an HTTP session is created. If not set, defaults to "ifRequired". Other options are "always" and "never".
+          The setting of this attribute affect the <literal>allowSessionCreation</literal> and <literal>forceEagerSessionCreation</literal>
+          properties of <classname>HttpSessionContextIntegrationFilter</classname>. <literal>allowSessionCreation</literal> will always be true unless
+          this attribute is set to "never". <literal>forceEagerSessionCreation</literal> is "false" unless it is set to "always".
+          So the default configuration allows session creation but does not force it. The exception is if concurrent session control is enabled,
+          when <literal>forceEagerSessionCreation</literal> will be set to true, regardless of what the setting is here. Using "never" would
+          then cause an exception during the initialization of <classname>HttpSessionContextIntegrationFilter</classname>.
+        </para>
+      </section>
     </section>
 
     <section>
@@ -170,7 +183,7 @@
           Can be "http" or "https" depending on whether a particular URL pattern should be accessed over HTTP or HTTPS respectively. Alternatively
           the value "any" can be used when there is no preference. If this attribute is present on any <literal>&lt;intercept-url&gt;</literal>
           element, then a <classname>ChannelProcessingFilter</classname> will be added to the filter stack and its additional dependencies added
-          to the application context. See the <link xlink:href="channel-security-config">chapter on channel security</link> for an
+          to the application context. See the chapter on <link xlink:href="#channel-security-config">channel security</link> for an
           example configuration using traditional beans.
         </para>
         <para>
@@ -324,33 +337,128 @@
     <section xml:id="nsa-concurrent-session-control">
       <title>The <literal>&lt;concurrent-session-control&gt;</literal> Element</title>
       <para>
+        Adds support for concurrent session control, allowing limits to be placed on the number of active sessions a user can have.
+        A <classname>ConcurrentSessionFilter</classname> will be created, along with a <classname>ConcurrentSessionControllerImpl</classname>
+        and an instance of <interfacename>SessionRegistry</interfacename> (a <classname>SessionRegistryImpl</classname> instance unless the user
+        wishes to use a custom bean). The controller is registered with the namespace's <interfacename>AuthenticationManager</interfacename> 
+        (<classname>ProviderManager</classname>). Other namespace-created beans which require a reference to the <interfacename>SessionRegistry</interfacename>
+        will automatically have it injected. 
       </para>
+      <para>
+        Note that the <literal>forceEagerSessionCreation</literal> of <classname>HttpSessionContextIntegrationFilter</classname> will
+        be set to <literal>true</literal> if concurrent session control is in use.
+      </para>
+      
+      <section>
+        <title>The <literal>max-sessions</literal> attribute</title>
+        <para>Maps to the <literal>maximumSessions</literal> property of <classname>ConcurrentSessionControllerImpl</classname>.</para>
+      </section>
+
+      <section>
+        <title>The <literal>expired-url</literal> attribute</title>
+        <para>
+          The URL a user will be redirected to if they attempt to use a session which has been "expired" by 
+          the concurrent session controller because the user has exceeded the number of allowed sessions and has logged 
+          in again elsewhere. Should be set unless <literal>exception-if-maximum-exceeded</literal> is set.
+          If no value is supplied, an expiry message will just be written directly back to the response.
+        </para>
+      </section>
+      
+      <section>
+        <title>The <literal>exception-if-maximum-exceeded</literal> attribute</title>
+        <para>If set to "true" a <exceptionname>ConcurrentLoginException</exceptionname> should be raised when a user 
+          attempts to exceed the maximum allowed number of sessions. The default behaviour is to expire the original session.
+        </para>
+      </section>
+      
+      <section>
+        <title>The <literal>session-registry-alias</literal> and <literal>session-registry-ref</literal> attributes</title>
+        <para>
+          The user can supply their own <interfacename>SessionRegistry</interfacename> implementation using the
+          <literal>session-registry-ref</literal> attribute. The other concurrent session control beans will be wired
+          up to use it. 
+        </para>
+        <para>
+          It can also be useful to have a reference to the internal session registry for use in your own
+          beans or an admin interface. You can expose the interal bean using the <literal>session-registry-alias</literal>
+          attribute, giving it a name that you can use elsewhere in your configuration.
+        </para>
+      </section>
+
     </section>
     
     <section xml:id="nsa-anonymous">
       <title>The <literal>&lt;anonymous&gt;</literal> Element</title>
       <para>
+        Adds an <classname>AnonymousProcessingFilter</classname> to the stack and an <classname>AnonymousAuthenticationProvider</classname>. 
+        Required if you are using the <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> attribute.
       </para>
     </section>
     
     <section xml:id="nsa-x509">
       <title>The <literal>&lt;x509&gt;</literal> Element</title>
       <para>
+        Adds support for X.509 authentication. An <classname>X509PreAuthenticatedProcessingFilter</classname> will be 
+        added to the stack and a <classname>PreAuthenticatedProcessingFilterEntryPoint</classname> bean will be created. The
+        latter will only be used if no other authentication mechanisms are in use (it's only functionality is to return an HTTP
+        403 error code). A <classname>PreAuthenticatedAuthenticationProvider</classname> will also be created which delegates the
+        loading of user authorities to a <interfacename>UserDetailsService</interfacename>.
       </para>
+      <section>
+        <title>The <literal>subject-principal-regex</literal> attribute</title>
+        <para>
+          Defines a regular expression which will be used to extract the username from the certificate (for use with the
+          <interfacename>UserDetailsService</interfacename>). 
+        </para>
+      </section>
+      <section>
+        <title>The <literal>user-service-ref</literal> attribute</title>
+        <para>
+          Allows a specific <interfacename>UserDetailsService</interfacename> to be used with X.509 in the case where
+          multiple instances are configured. If not set, an attempt will be made to locate a suitable instance automatically and
+          use that.
+        </para>
+      </section>
     </section>
 
     <section xml:id="nsa-openid-login">
       <title>The <literal>&lt;openid-login&gt;</literal> Element</title>
       <para>
+        Similar to <literal>&lt;form-login&gt;</literal> and has the same attributes. The default value for <literal>login-processing-url</literal> 
+        is "/j_spring_openid_security_check". An <classname>OpenIDAuthenticationProcessingFilter</classname> and <classname>OpenIDAuthenticationProvider</classname>
+        will be registered. The latter requires a reference to a <interfacename>UserDetailsService</interfacename>. Again, this can be
+        specified by Id, using the <literal>user-service-ref</literal> attribute, or will be located automatically in the application context.
       </para>
     </section>
 
     <section xml:id="nsa-logout">
       <title>The <literal>&lt;logout&gt;</literal> Element</title>
       <para>
+        Adds a <classname>LogoutFilter</classname> to the filter stack. This is configured 
+        with a <classname>SecurityContextLogoutHandler</classname>.
       </para>
+      <section>
+        <title>The <literal>logout-url</literal> attribute</title>
+        <para>
+          The URL which will cause a logout (i.e. which will be processed by the filter). Defaults to "/j_spring_security_logout".
+        </para>
+      </section>
+      <section>
+        <title>The <literal>logout-success-url</literal> attribute</title>
+        <para>
+          The destination URL which the user will be taken to after logging out. Defaults to "/".
+        </para>
+      </section>
+      <section>
+        <title>The <literal>invalidate-session</literal> attribute</title>
+        <para>
+          Maps to the <literal>invalidateHttpSession</literal> of the <classname>SecurityContextLogoutHandler</classname>.
+          Defaults to "true", so the session will be invalidated on logout.
+        </para>
+      </section>
     </section>
-
   </section>
+  
+  <section 
 
 </appendix>
