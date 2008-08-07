@@ -261,7 +261,7 @@ intercept-url.attlist &=
     ## The filter list for the path. Currently can be set to "none" to remove a path from having any filters applied. The full filter stack (consisting of all filters created by the namespace configuration, and any added using 'custom-filter'), will be applied to any other paths.
     attribute filters {"none"}?
 intercept-url.attlist &=
-    ## Used to specify that a URL must be accessed over http or https
+    ## Used to specify that a URL must be accessed over http or https, or that there is no preference.
     attribute requires-channel {"http" | "https" | "any"}?
 
 logout =
@@ -336,12 +336,13 @@ concurrent-session-control =
     ## Adds support for concurrent session control, allowing limits to be placed on the number of sessions a user can have.
     element concurrent-session-control {concurrent-sessions.attlist, empty}
 concurrent-sessions.attlist &=
+    ## The maximum number of sessions a single user can have open at the same time. Defaults to "1".
     attribute max-sessions {xsd:positiveInteger}?
 concurrent-sessions.attlist &=
-    ## The URL a user will be redirected to if they attempt to use a session which has been "expired" by the concurrent session controller.
+    ## The URL a user will be redirected to if they attempt to use a session which has been "expired" by the concurrent session controller because they have logged in again.
     attribute expired-url {xsd:string}?
 concurrent-sessions.attlist &=
-    ## Specifies that an exception should be raised when a user attempts to login twice. The default behaviour is to expire the original session.
+    ## Specifies that an exception should be raised when a user attempts to login when they already have the maximum configured sessions open. The default behaviour is to expire the original session.
     attribute exception-if-maximum-exceeded {boolean}?
 concurrent-sessions.attlist &=
     ## Allows you to define an alias for the SessionRegistry bean in order to access it in your own configuration
