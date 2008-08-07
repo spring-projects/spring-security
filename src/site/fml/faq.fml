@@ -204,5 +204,20 @@ org.springframework.security.AccessDeniedException: Access is denied
 	  			</p>
 	  		</answer>
 	  	</faq>
+	  	<faq>
+	  		<title>How do I know what dependencies to add to my application to work with Spring Security?</title>
+	  		<para>
+	  			<p>
+	  				There is no definite answer here, (it will depend on what features you are using), but a good starting point is to copy those from one of the 
+	  				pre-built sample applications WEB-INF/lib directories. For a basic application, you can start with the tutorial sample. If you want to 
+	  				use LDAP, with an embedded test server, then use the LDAP sample as a starting point.
+	  			</p>
+	  			<p>
+	  				If you are building your project with maven, then adding the appropriate Spring Security modules to your pom.xml will automatically pull in
+	  				the core jars that the framework requires. Any which are marked as "optional" in the Spring Security POM files will have to be added 
+	  				to your own pom.xml file if you need them.
+	  			</p>
+	  		</para>
+	  	</faq>
 	  </part>
 </faqs>
