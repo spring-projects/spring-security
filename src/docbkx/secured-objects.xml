@@ -9,7 +9,7 @@
     <para>
       Prior to Spring Security 2.0, securing <literal>MethodInvocation</literal>s needed quite a 
       lot of boiler plate configuration. Now the recommended approach for method security 
-      is to use <link xlink:href="ns-method-security">namespace configuration</link>.
+      is to use <link xlink:href="#ns-method-security">namespace configuration</link>.
       This way the method security infrastructure beans are configured automatically for you so you don't really need to  
       know about the implementation classes. We'll just provide a quick overview of the classes that are involved here.
     </para>
