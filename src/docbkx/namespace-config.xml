@@ -196,7 +196,9 @@
           <classname>InMemoryDaoImpl</classname>. A <literal>ProviderManager</literal>
           bean is always created by the namespace processing system and the
           <classname>DaoAuthenticationProvider</classname>
-          is automatically registered with it.</para>
+          is automatically registered with it. You can find more detailed 
+          information on the beans that are created in the <link xlink:href="#appendix-namespace">namespace appendix</link>. 
+        </para>
       </sidebar>
       <para>
         The configuration above defines two users, their passwords and their roles within the application (which will
@@ -303,6 +305,7 @@
           </para>
         
         </section>
+      </section>
     </section>
     <section xml:id="ns-auth-providers">
       <title>Using other Authentication Providers</title>
