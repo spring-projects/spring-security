@@ -639,7 +639,7 @@
     <para>
       Spring Security 2.0 has improved support substantially for adding security to your service layer methods. If you are
       using Java 5 or greater, then support for JSR-250 security annotations is provided, as well as the framework's native
-      <literal>@secured</literal> annotation. You can apply security to a single bean, using the <literal>intercept-methods</literal>
+      <literal>@Secured</literal> annotation. You can apply security to a single bean, using the <literal>intercept-methods</literal>
       element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the
       AspectJ style pointcuts.
     </para>
@@ -647,14 +647,32 @@
     <section xml:id="ns-global-method">
       <title>The <literal>&lt;global-method-security&gt;</literal> Element</title>
       <para>
-        This element is used to enable annotation based security in your application (by setting the appropriate
+        This element is used to enable annotation-based security in your application (by setting the appropriate
         attributes on the element), and also to group together security pointcut declarations which will be applied across your 
         entire application context. You should only declare one <literal>&lt;global-method-security&gt;</literal> element.
-        The following declaration would enable support for both types of annotations:
+        The following declaration would enable support for both Spring Security's <literal>@Secured</literal>, and JSR-250 annotations:
 <programlisting><![CDATA[
   <global-method-security secured-annotations="enabled" jsr250-annotations="enabled"/>
   ]]>
-</programlisting>        
+</programlisting>
+        Adding an annotation to a method (on an class or interface) would then limit the access to that method
+        accordingly. Spring Security's native annotation support defines a set of attributes for the method. These
+        will be passed to the <interfacename>AccessDecisionManager</interfacename> for it to make the actual decision.
+        This example is taken from the <link xlink:href="#tutorial-sample">tutorial sample</link>, which is a good
+        starting point if you want to use method security in your application:
+<programlisting>
+  public interface BankService {
+  
+    @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+    public Account readAccount(Long id);
+  
+    @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+    public Account[] findAccounts();
+  
+    @Secured("ROLE_TELLER")
+    public Account post(Account account, double amount);
+  }
+</programlisting>
       </para>
       <section xml:id="ns-protect-pointcut">
         <title>Adding Security Pointcuts using <literal>protect-pointcut</literal></title>
