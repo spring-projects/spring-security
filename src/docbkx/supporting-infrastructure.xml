@@ -165,25 +165,11 @@
     <literal>FilterSecurityInterceptor</literal> is declared. Both regular
     expressions and Ant Paths are supported, and the most specific URIs
     appear first. At runtime the <literal>FilterChainProxy</literal> will
-    locate the first URI pattern that matches the current web request.
-    Each of the corresponding configuration attributes represent the name
-    of a bean defined in the application context. The filters will then be
-    invoked in the order they are specified, with standard
-    <literal>FilterChain</literal> behaviour being respected (a
-    <literal>Filter</literal> can elect not to proceed with the chain if
-    it wishes to end processing).</para>
-
-    <para>As you can see, <literal>FilterChainProxy</literal> requires the
-    duplication of filter names for different request patterns (in the
-    above example, <literal>exceptionTranslationFilter</literal> and
-    <literal>filterSecurityInterceptor</literal> are duplicated). This
-    design decision was made to enable <literal>FilterChainProxy</literal>
-    to specify different <literal>Filter</literal> invocation orders for
-    different URI patterns, and also to improve both the expressiveness
-    (in terms of regular expressions, Ant Paths, and any custom
-    <literal>FilterInvocationDefinitionSource</literal> implementations)
-    and clarity of which <literal>Filter</literal>s should be
-    invoked.</para>
+    locate the first URI pattern that matches the current web request and the list
+    of filter beans specified by the <literal>filters</literal> attribute
+    will be applied to that request. The filters will be invoked in the order
+    they are defined, so you have complete control over the filter chain
+    which is applied to a particular URL.</para>
 
     <para>You may have noticed we have declared two
     <literal>HttpSessionContextIntegrationFilter</literal>s in the filter
@@ -215,17 +201,11 @@
     any servlet container lifecycle invocations are not delegated through
     to <literal>DelegatingFilterProxy</literal>.</para>
 
-    <para>In the same way that you can use the attribute <literal>filters = "none"</literal>
-      when using <link xlink:href="#namespace-auto-config">namespace configuration</link>,
-      you can omit a URI pattern from the filter chain by using
-    the token <literal>#NONE#</literal> on the right-hand side of the
-    <literal>&lt;URI Pattern&gt; = &lt;Filter Chain&gt;</literal>
-    expression. For example, using the example above, if you wanted to
-    exclude the <filename>/webservices</filename> location completely, you
-    would modify the corresponding line in the bean declaration to be
-    <programlisting>
-/webServices/**=#NONE#
-    </programlisting> Note that anything matching this path will then have
+    <para>You can use the attribute <literal>filters = "none"</literal>
+      in the same way that you do when using <link xlink:href="#namespace-auto-config">namespace configuration</link>
+      to build the <classname>FilterChainProxy</classname>. This will omit the
+      request pattern from the security filter chain entirely.
+       Note that anything matching this path will then have
     no authentication or authorization services applied and will be freely
     accessible.</para>
 
