@@ -256,7 +256,7 @@
         to log in, since we made no mention of any HTML files or JSPs. In fact, since we didn't explicitly 
         set a URL for the login page, Spring Security generates one automatically, based on the features
         that are enabled and using standard values for the URL which processes the submitted login,
-        the default target URL the user will be sent to ad so on. However, the namespace offers plenty of 
+        the default target URL the user will be sent to and so on. However, the namespace offers plenty of 
         suppport to allow you to customize these options.
         For example, if you want to supply your own login page, you could use:
         <programlisting><![CDATA[
@@ -283,6 +283,25 @@
         a protected resource. Form login is still available in this configuration if you wish to use it, for example
         through a login form embedded in another web page.
       </para>
+        <section xml:id="ns-form-target">
+          <title>Setting a Default Post-Login Destination</title>
+          <para>
+            If a form login isn't prompted by an attempt to access a protected resource, the <literal>default-target-url</literal>
+            option comes into play. This is the URL the user will be taken to after logging in, and defaults to "/". You can
+            also configure things so that they user <emphasis>always</emphasis> ends up at this page (regardless of whether 
+            the login was "on-demand" or they explicitly chose to log in) by setting the 
+            <literal>always-use-default-target</literal> attribute to "true". This is useful if your application always
+            requires that the user starts at a "home" page, for example:
+            <programlisting><![CDATA[
+  <http>
+    <intercept-url pattern='/login.htm*' filters='none'/>  
+    <intercept-url pattern='/**' access='ROLE_USER' />
+    <form-login login-page='/login.htm' default-target-url='/home.htm' always-use-default-target='true' />
+  </http>
+  ]]>
+            </programlisting>
+          </para>
+        
         </section>
     </section>
     <section xml:id="ns-auth-providers">
@@ -311,7 +330,7 @@
         <programlisting><![CDATA[
   <authentication-provider user-service-ref='myUserDetailsService'/>
   
-  <beans:bean id="userDetailsService" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
+  <beans:bean id="myUserDetailsService" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
     <beans:property name="dataSource" ref="dataSource"/>
   </beans:bean>
   ]]>
@@ -424,10 +443,10 @@
     
     <section xml:id="ns-openid">
       <title>OpenID Login</title>
-      <para>The namespace supports <link xlink:href="http://openid.net/">OpenID</link> login eiter instead of, or in addition to
+      <para>The namespace supports <link xlink:href="http://openid.net/">OpenID</link> login either instead of, or in addition to
       normal form-based login, with a simple change:
         <programlisting><![CDATA[
-  <http auto-config='true'>
+  <http>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <openid-login />
   </http>
