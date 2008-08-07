@@ -19,10 +19,10 @@
   </para>
 
   <section xml:id="nsa-http">
-    <title>The <literal>&lt;http&gt;</literal> Element</title>
+    <title>Web Application Security - the <literal>&lt;http&gt;</literal> Element</title>
     <para>
-      This element encapsulates the security configuration for the web layer of your application. It creates a
-      <classname>FilterChainProxy</classname> bean named "springSecurityFilterChain" which maintains the stack of
+      The <literal>&lt;http&gt;</literal> element encapsulates the security configuration for the web layer of your application. 
+      It creates a <classname>FilterChainProxy</classname> bean named "springSecurityFilterChain" which maintains the stack of
       security filters which make up the web security configuration <footnote><para>See the
       <link xlink:href="#ns-web-xml"> introductory chapter</link> for how to set up the mapping from
         your <literal>web.xml</literal></para></footnote>. Some core filters are always created and others will
@@ -459,6 +459,137 @@
     </section>
   </section>
   
-  <section 
+  <section>
+    <title>Authentication Services</title>
+    <para>
+      If you are using the namespace, an <interfacename>AuthenticationManager</interfacename> is
+      automatically registered and will be used by all the namespace-created beans which need to reference it.
+      The bean is an instance of Spring Security's <classname>ProviderManager</classname> class, which needs to be
+      configured with a list of one or more<interfacename>AuthenticationProvider</interfacename> instances.
+      These can either be created using syntax elements provided by the namespace, or they can be
+      standard bean definitions, marked for addition to the list using the 
+      <literal>custom-authentication-provider</literal> element.
+    </para>
+    
+    <section>
+      <title>The &lt;authentication-provider&lt; Element</title>
+      <para>
+        This element is basically a shorthand syntax for configuring a <link xlink:href="#dao-provider"><classname>DaoAuthenticationProvider</classname></link>.
+        <classname>DaoAuthenticationProvider</classname> loads user information from a <interfacename>UserDetailsService</interfacename> and 
+        compares the username/password combination with the values supplied at login. The <interfacename>UserDetailsService</interfacename> instance
+        can be defined either by using an available namespace element (<literal>jdbc-user-service</literal> or by using the <literal>user-service-ref</literal> 
+        attribute to point to a bean defined elsewhere in the application context). You can find examples of these variations in the
+        <link xlink:href="#ns-auth-providers">namespace introduction</link>.
+      </para>
+    </section>
+    <section>
+      <title>Using <literal>&lt;custom-authentication-provider&gt;</literal> to register an AuthenticationProvider</title>
+      <para>
+        If you have written your own <interfacename>AuthenticationProvider</interfacename> implementation (or want
+        to configure one of Spring Security's own implementations as a traditional bean for some reason, then
+        you can use the following syntax to add it to the internal <classname>ProviderManager</classname>'s list:
+        <programlisting><![CDATA[
+  <bean id="myAuthenticationProvider" class="com.something.MyAuthenticationProvider">
+    <security:custom-authentication-provider />
+  </bean>
+  ]]></programlisting>
+      </para>
+    </section>
+    
+    <section>
+      <title>The <literal>&lt;authentication-manager&gt;</literal> Element</title>
+      <para>
+        Since the <interfacename>AuthenticationManager</interfacename> will be automatically registered in the application
+        context, this element is entirely optional. It allows you to define an alias name for the internal instance for use
+        in your own configuration and also to supply a link to a <interfacename>ConcurrentSessionController</interfacename>
+        if you are configuring concurrent session control yourself rather than through the namespace (a rare requirement).
+        Its use is described in the <link xlink:href="#ns-auth-manager">namespace introduction</link>.
+      </para>
+    </section>
+    
+  </section>
+  
+  <section>
+    <title>Method Security</title>
+    
+    <section>
+      <title>The <literal>&lt;global-method-security&gt;</literal> Element</title>
+      <para>
+        This element is the primary means of adding support for securing methods on Spring Security beans. Methods can
+        be secured by the use of annotations (defined at the interface or class level) or by defining a set of 
+        pointcuts as child elements, using AspectJ syntax.
+      </para>
+      <para>
+        Method security uses the same <interfacename>AccessDecisionManager</interfacename> configuration as web security,
+        but this can be overridden as explained above <xref xlink:href="#nsa-access-decision-manager-ref"/>, using the same
+        attribute.
+      </para>
+      <section>
+        <title>The <literal>&lt;secured-annotations&gt;</literal> and <literal>&lt;jsr250-annotations&gt;</literal> Attributes</title>
+        <para>
+          Setting these to "true" will enable support for Spring Security's own <literal>@Secured</literal> annotations and
+          JSR-250 annotations, respectively. They are both disabled by default. Use of JSR-250 annotations also adds a
+          <classname>Jsr250Voter</classname> to the <interfacename>AccessDecisionManager</interfacename>, so you need to 
+          make sure you do this if you are using a custom implementation and want to use these annotations.
+        </para>
+      </section>
+      <section>
+        <title>Securing Methods using <literal>&lt;protect-pointcut&gt;</literal></title>
+        <para>
+          Rather than defining security attributes on an individual method or class basis using the 
+          <literal>@Secured</literal> annotation, you can define cross-cutting security constraints across whole 
+          sets of methods and interfaces in your service layer using the <literal>&lt;protect-pointcut&gt;</literal> 
+          element. This has two attributes:
+          <itemizedlist>
+            <listitem><para><literal>expression</literal> - the pointcut expression</para></listitem>
+            <listitem><para><literal>access</literal> - the security attributes which apply</para></listitem>
+          </itemizedlist>
+          You can find an example in the <link xlink:href="#ns-protect-pointcut">namespace introduction</link>.
+        </para>
+      </section>
+    </section>
+
+    <section>
+      <title>LDAP Namespace Options</title>
+      <para>
+        LDAP is covered in some details in <link xlink:href="#ldap">its own chapter</link>. We will expand on that
+        here with some explanation of how the namespace options map to Spring beans. The LDAP implementation uses
+        Spring LDAP extensively, so some familiarity with that project's API may be useful. 
+      </para>
+      <section>
+        <title>Defining the LDAP Server using the <literal>&lt;ldap-server&gt;</literal> Element</title>
+        <para>
+          This element sets up a Spring LDAP <interfacename>ContextSource</interfacename> for use by the 
+          other LDAP beans, defining the location of the LDAP server and other information (such as a username
+          and password, if it doesn't allow anonymous access) for connecting to it. It can also be used to 
+          create an embedded server for testing. 
+          Details of the syntax for both options are covered in the <link xlink:href="#ldap-server">LDAP chapter</link>.
+          The actual <interfacename>ContextSource</interfacename> implementation is 
+          <classname>DefaultSpringSecurityContextSource</classname> which extends Spring LDAP's 
+          <classname>LdapContextSource</classname> class. The <literal>manager-dn</literal> and <literal>manager-password</literal>
+          attributes map to the latter's <literal>userDn</literal> and <literal>password</literal> properties respectively.
+        </para>
+        <para>
+          If you only have one server defined in your application context, the other LDAP namespace-defined beans
+          will use it automatically. Otherwise, you can give the element an "id" attribute and refer to it from other
+          namespace beans using the <literal>server-ref</literal> attribute. This is actually the bean Id of the 
+          <literal>ContextSource</literal> instance, if you want to use it in other traditional Spring beans.
+        </para>
+      </section>
+      <section>
+        <title>The <literal>&lt;ldap-provider&gt; Element</literal></title>
+        <para>
+          This element is shorthand for the creation of an <classname>LdapAuthenticationProvider</classname> instance.
+          
+        </para>
+      </section>
+      
+      
+    </section>
+    
+ 
+
+  </section>
+  
 
 </appendix>
