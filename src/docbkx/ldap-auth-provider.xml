@@ -56,7 +56,7 @@
             which should be available in your XML editor).
         </para>
     </section>
-    <section>
+    <section xml:id="ldap-server">
         <info>
             <title>Configuring an LDAP Server</title>
         </info>
@@ -391,7 +391,7 @@
   <constructor-arg index="2" ref="contextSource" />
 </bean> ]]>                    
                 </programlisting>
-                and use it by setting the authenticator's
+                and use it by setting the <classname>BindAuthenticator</classname> bean's
                 <property>userSearch</property>
                 property. The authenticator would then call the search object to obtain the correct
                 user's DN before attempting to bind as this user.</para>
