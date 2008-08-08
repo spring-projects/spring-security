@@ -40,7 +40,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Edward Smith
  * @version $Id$
  */
-public class NtlmProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+public class NtlmProcessingFilterEntryPoint implements AuthenticationEntryPoint {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(NtlmProcessingFilterEntryPoint.class);
@@ -53,19 +53,12 @@ public class NtlmProcessingFilterEntryPoint implements AuthenticationEntryPoint,
 	//~ Methods ========================================================================================================
 
 	/**
-	 * Ensures an authentication failure URL has been provided in the bean
-	 * configuration file.
-	 */
-	public void afterPropertiesSet() throws Exception {
-		Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
-	}
-
-	/**
 	 * Sets the authentication failure URL.
 	 *
 	 * @param authenticationFailureUrl the authentication failure URL.
 	 */
 	public void setAuthenticationFailureUrl(String authenticationFailureUrl) {
+		Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
 		this.authenticationFailureUrl = authenticationFailureUrl;
 	}
 
@@ -102,6 +95,14 @@ public class NtlmProcessingFilterEntryPoint implements AuthenticationEntryPoint,
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			resp.setContentLength(0);
 			resp.flushBuffer();
+			
+			return;
+		}
+		
+		if (authenticationFailureUrl == null) {
+	        if (!response.isCommitted()) {
+	            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN, authException.getMessage());
+	        }
 		} else {
 			String url = authenticationFailureUrl;
 			if (!url.startsWith("http://") && !url.startsWith("https://")) {
