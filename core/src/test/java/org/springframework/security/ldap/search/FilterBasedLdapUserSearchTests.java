@@ -56,6 +56,17 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
         assertEquals(new DistinguishedName("uid=bob,ou=people"), bob.getDn());
     }
 
+    @Test
+    public void searchForNameWithCommaSucceeds() {
+        FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", dirCtxFactory);
+        locator.setSearchSubtree(false);
+
+        DirContextOperations jerry = locator.searchForUser("jerry");
+        assertEquals("jerry", jerry.getStringAttribute("uid"));
+
+        assertEquals(new DistinguishedName("cn=mouse\\, jerry,ou=people"), jerry.getDn());
+    }    
+    
     // Try some funny business with filters.
     @Test
     public void extraFilterPartToExcludeBob() throws Exception {
