@@ -577,19 +577,64 @@
         </para>
       </section>
       <section>
-        <title>The <literal>&lt;ldap-provider&gt; Element</literal></title>
+        <title>The <literal>&lt;ldap-provider&gt;</literal> Element</title>
         <para>
           This element is shorthand for the creation of an <classname>LdapAuthenticationProvider</classname> instance.
-          
+          By default this will be configured with a <classname>BindAuthenticator</classname> instance and a 
+          <classname>DefaultAuthoritiesPopulator</classname>. 
+        </para>
+        <section>
+          <title>The <literal>user-dn-pattern</literal> Attribute</title>
+          <para>
+            If your users are at a fixed location in the directory (i.e. you can work out the DN
+            directly from the username without doing a directory search), you can use this attribute
+            to map directly to the DN. It maps directly to the <literal>userDnPatterns</literal>
+            property of <classname>AbstractLdapAuthenticator</classname>.
+          </para>
+        </section>
+
+        <section>
+          <title>The <literal>user-search-base</literal> and <literal>user-search-filter</literal> Attributes</title>
+          <para>
+            If you need to perform a search to locate the user in the directory, then you
+            can set these attributes to control the search. The <classname>BindAuthenticator</classname> will be configured
+            with a <classname>FilterBasedLdapUserSearch</classname> and the attribute values map directly to the first two
+            arguments of that bean's constructor. If these attributes aren't set and no <literal>user-dn-pattern</literal>
+            has been supplied as an alternative, then the default search values of <literal>user-search-filter="(uid={0})"</literal>
+            and <literal>user-search-base=""</literal> will be used.
+          </para>
+        </section>
+        <section>
+          <title><literal>group-search-filter</literal>, <literal>group-search-base</literal>, <literal>group-role-attribute</literal> and <literal>role-prefix</literal> Attributes</title>
+          <para>
+            The value of <literal>group-search-base</literal> is mapped to the <literal>groupSearchBase</literal> constructor argument
+            of <classname>DefaultAuthoritiesPopulator</classname> and defaults to "ou=groups". The default filter value is
+            "(uniqueMember={0})", which assumes that the entry is of type "groupOfUniqueNames". <literal>group-role-attribute</literal>
+            maps to the <literal>groupRoleAttribute</literal> attribute and defaults to "cn". Similarly <literal>role-prefix</literal>
+            maps to <literal>rolePrefix</literal> and defaults to "ROLE_".
+          </para>
+        </section>
+        <section>
+          <title>The <literal>&lt;password-compare&gt;</literal> Element</title>
+          <para>
+            This is used as child element to <literal>&lt;ldap-provider&gt;</literal>  and switches
+            the authentication strategy from <classname>BindAuthenticator</classname> to
+            <classname>PasswordComparisonAuthenticator</classname>. This can optionally be supplied with a 
+            <literal>hash</literal> attribute or with a child <literal>&lt;password-encoder&gt;</literal>
+            element to hash the password before submitting it to the directory for comparison.
+          </para>
+        </section>
+      </section>
+      <section>
+        <title>The <literal>&lt;ldap-user-service&gt;</literal> Element</title>
+        <para>
+          This element configures an LDAP <interfacename>UserDetailsService</interfacename>. The class used
+          is <classname>LdapUserDetailsService</classname> which is a combination of a  <classname>FilterBasedLdapUserSearch</classname>
+          and a <classname>DefaultAuthoritiesPopulator</classname>. The attributes it supports have the same usage as in
+          <literal>&lt;ldap-provider&gt;</literal>.
         </para>
       </section>
-      
-      
     </section>
-    
- 
-
   </section>
-  
 
 </appendix>
