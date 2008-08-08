@@ -1,6 +1,7 @@
 package org.springframework.security.config;
 
 import static org.junit.Assert.assertEquals;
+import static org.springframework.security.config.ConfigTestUtils.*;
 
 import org.junit.After;
 import org.junit.Test;
@@ -113,6 +114,23 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         );
     }
 
+    @Test(expected=AccessDeniedException.class)
+    public void worksWithoutTargetOrClass() {
+    	setContext(
+    			"<global-method-security secured-annotations='enabled'/>" +
+    		    "<b:bean id='businessService' class='org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean'>" +
+    		    "    <b:property name='serviceUrl' value='http://localhost:8080/SomeService'/>" +
+    		    "    <b:property name='serviceInterface' value='org.springframework.security.annotation.BusinessService'/>" +
+    		    "</b:bean>" + AUTH_PROVIDER_XML
+    			);
+    	
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SOMEOTHERROLE")});
+        SecurityContextHolder.getContext().setAuthentication(token);
+        target = (BusinessService) appContext.getBean("businessService");
+        target.someUserMethod1();
+    }
+    
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
     }
