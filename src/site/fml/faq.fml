@@ -199,8 +199,8 @@ org.springframework.security.AccessDeniedException: Access is denied
 	  			<p>
 	  				You will also need to customize the actual authentication process. If you are using a custom authentication token class, for example, you will have to write an 
 	  				<i>AuthenticationProvider</i> to handle it (or extend the standard <i>DaoAuthenticationProvider</i>). 
-	  			  If you have concatenated the fields, you can implement your own <i>UserDetailsService</i> which splits them up and loads the appropriated user data to use
-	  				for authentication.
+	  			  If you have concatenated the fields, you can implement your own <i>UserDetailsService</i> which splits them up and loads the appropriate user data for
+	  				authentication.
 	  			</p>
 	  		</answer>
 	  	</faq>
