@@ -62,20 +62,16 @@ public class FilterChainProxyTests {
         }
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testDetectsFilterInvocationDefinitionSourceThatDoesNotReturnAllConfigAttributes() throws Exception {
         FilterChainProxy filterChainProxy = new FilterChainProxy();
         filterChainProxy.setApplicationContext(new StaticApplicationContext());
 
-        try {
-            filterChainProxy.setFilterInvocationDefinitionSource(new MockFilterInvocationDefinitionSource(false, false));
-            filterChainProxy.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
+        filterChainProxy.setFilterInvocationDefinitionSource(new MockFilterInvocationDefinitionSource(false, false));
+        filterChainProxy.afterPropertiesSet();
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testDetectsIfConfigAttributeDoesNotReturnValueForGetAttributeMethod() throws Exception {
         FilterChainProxy filterChainProxy = new FilterChainProxy();
         filterChainProxy.setApplicationContext(new StaticApplicationContext());
@@ -89,12 +85,8 @@ public class FilterChainProxyTests {
 
         filterChainProxy.setFilterInvocationDefinitionSource(fids);
 
-        try {
-            filterChainProxy.afterPropertiesSet();
-            filterChainProxy.init(new MockFilterConfig());
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
+        filterChainProxy.afterPropertiesSet();
+        filterChainProxy.init(new MockFilterConfig());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -131,18 +123,18 @@ public class FilterChainProxyTests {
         }
     }
 
-    @Test    
+    @Test
     public void normalOperation() throws Exception {
         FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain", FilterChainProxy.class);
         doNormalOperation(filterChainProxy);
     }
 
-    @Test    
+    @Test
     public void proxyPathWithoutLowerCaseConversionShouldntMatchDifferentCasePath() throws Exception {
         FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChainNonLowerCase", FilterChainProxy.class);
         assertNull(filterChainProxy.getFilters("/some/other/path/blah"));
     }
-    
+
     @Test
     public void normalOperationWithNewConfig() throws Exception {
         FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxy", FilterChainProxy.class);
@@ -162,6 +154,24 @@ public class FilterChainProxyTests {
         FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNonNamespace", FilterChainProxy.class);
         checkPathAndFilterOrder(filterChainProxy);
         doNormalOperation(filterChainProxy);
+    }
+
+    @Test
+    public void pathWithNoMatchHasNoFilters() throws Exception {
+        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
+        assertEquals(null, filterChainProxy.getFilters("/nomatch"));
+    }
+
+    @Test
+    public void urlStrippingPropertyIsRespected() throws Exception {
+        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
+
+        // Should only match if we are stripping the query string
+        String url = "/blah.bar?x=something";
+        assertNotNull(filterChainProxy.getFilters(url));
+        assertEquals(2, filterChainProxy.getFilters(url).size());
+        filterChainProxy.setStripQueryStringFromUrls(false);
+        assertNull(filterChainProxy.getFilters(url));
     }
 
     private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) throws Exception {

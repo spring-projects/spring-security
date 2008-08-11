@@ -24,9 +24,9 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-	<bean id="mockFilter" class="org.springframework.security.util.MockFilter"/>
+    <bean id="mockFilter" class="org.springframework.security.util.MockFilter"/>
 
-	<bean id="mockFilter2" class="org.springframework.security.util.MockFilter"/>
+    <bean id="mockFilter2" class="org.springframework.security.util.MockFilter"/>
 
     <!-- These are just here so we have filters of a specfic type to check the ordering is as expected -->
     <bean id="sif" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
@@ -41,11 +41,11 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <bean id="mockNotAFilter" class="org.springframework.security.util.MockNotAFilter"/>
 
-	<bean id="filterChain" class="org.springframework.security.util.FilterChainProxy">
+    <bean id="filterChain" class="org.springframework.security.util.FilterChainProxy">
       <property name="filterInvocationDefinitionSource">
          <value>
-		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-		    PATTERN_TYPE_APACHE_ANT
+            CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+            PATTERN_TYPE_APACHE_ANT
             /foo/**=mockFilter
             /some/other/path/**=mockFilter
             /do/not/filter=#NONE#
@@ -53,10 +53,10 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
       </property>
     </bean>
 
-	<bean id="filterChainNonLowerCase" class="org.springframework.security.util.FilterChainProxy">
+    <bean id="filterChainNonLowerCase" class="org.springframework.security.util.FilterChainProxy">
       <property name="filterInvocationDefinitionSource">
          <value>
-		    PATTERN_TYPE_APACHE_ANT
+            PATTERN_TYPE_APACHE_ANT
             /foo/**=mockFilter
             /SOME/other/path/**=sif,mockFilter,mockFilter2
             /do/not/filter=#NONE#
@@ -70,6 +70,13 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
             <sec:filter-chain pattern="/some/other/path/**" filters="sif,mockFilter,mockFilter2"/>
             <sec:filter-chain pattern="/do/not/filter" filters="none"/>
             <sec:filter-chain pattern="/**" filters="sif,apf,mockFilter"/>
+        </sec:filter-chain-map>
+    </bean>
+
+    <bean id="newFilterChainProxyNoDefaultPath" class="org.springframework.security.util.FilterChainProxy">
+        <sec:filter-chain-map path-type="ant">
+            <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
+            <sec:filter-chain pattern="/*.bar" filters="mockFilter,mockFilter2"/>
         </sec:filter-chain-map>
     </bean>
 
@@ -117,7 +124,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
                       <ref local="apf"/>
                       <ref local="mockFilter"/>
                     </list>
-                </entry>                
+                </entry>
             </map>
         </property>
     </bean>

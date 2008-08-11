@@ -107,6 +107,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
     /** Compiled pattern version of the filter chain map */
     private Map filterChainMap;
     private UrlMatcher matcher = new AntUrlPathMatcher();
+    private boolean stripQueryStringFromUrls = true;
     private DefaultFilterInvocationDefinitionSource fids;
 
     //~ Methods ========================================================================================================
@@ -116,8 +117,8 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
         if (fids != null) {
             Assert.isNull(uncompiledFilterChainMap, "Set the filterChainMap or FilterInvocationDefinitionSource but not both");
             FIDSToFilterChainMapConverter converter = new FIDSToFilterChainMapConverter(fids, applicationContext);
-            setMatcher(converter.getMatcher());            
-            setFilterChainMap(converter.getFilterChainMap());            
+            setMatcher(converter.getMatcher());
+            setFilterChainMap(converter.getFilterChainMap());
             fids = null;
         }
 
@@ -181,6 +182,16 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
      * @return an ordered array of Filters defining the filter chain
      */
     public List getFilters(String url)  {
+        if (stripQueryStringFromUrls) {
+            // String query string - see SEC-953
+            int firstQuestionMarkIndex = url.indexOf("?");
+
+            if (firstQuestionMarkIndex != -1) {
+                url = url.substring(0, firstQuestionMarkIndex);
+            }
+        }
+
+
         Iterator filterChains = filterChainMap.entrySet().iterator();
 
         while (filterChains.hasNext()) {
@@ -317,6 +328,14 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
 
     public UrlMatcher getMatcher() {
         return matcher;
+    }
+
+    /**
+     * If set to 'true', the query string will be stripped from the request URL before
+     * attempting to find a matching filter chain. This is the default value.
+     */
+    public void setStripQueryStringFromUrls(boolean stripQueryStringFromUrls) {
+        this.stripQueryStringFromUrls = stripQueryStringFromUrls;
     }
 
     public String toString() {
