@@ -32,14 +32,14 @@ import javax.servlet.http.HttpServletResponse;
  * @since 2.0
  */
 public abstract class AbstractRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
-	//~ Static fields/initializers =====================================================================================
+    //~ Static fields/initializers =====================================================================================
 
     public static final String SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
     public static final String DEFAULT_PARAMETER = "_spring_security_remember_me";
 
     private static final String DELIMITER = ":";
 
-	//~ Instance fields ================================================================================================
+    //~ Instance fields ================================================================================================
     protected final Log logger = LogFactory.getLog(getClass());
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
@@ -49,7 +49,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     private String cookieName = SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
-	private String parameter = DEFAULT_PARAMETER;
+    private String parameter = DEFAULT_PARAMETER;
     private boolean alwaysRemember;
     private String key;
     private int tokenValiditySeconds = 1209600; // 14 days
@@ -232,14 +232,14 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         }
 
         String paramValue = request.getParameter(parameter);
-        
+
         if (paramValue != null) {
-        	if (paramValue.equalsIgnoreCase("true") || paramValue.equalsIgnoreCase("on") ||
-					paramValue.equalsIgnoreCase("yes") || paramValue.equals("1")) {
-        		return true;
-        	}
-        }        
-        
+            if (paramValue.equalsIgnoreCase("true") || paramValue.equalsIgnoreCase("on") ||
+                    paramValue.equalsIgnoreCase("yes") || paramValue.equals("1")) {
+                return true;
+            }
+        }
+
         if (logger.isDebugEnabled()) {
             logger.debug("Did not send remember-me cookie (principal did not set parameter '" + parameter + "')");
         }
@@ -316,11 +316,11 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     /**
      * Sets the name of the parameter which should be checked for to see if a remember-me has been requested
      * during a login request. This should be the same name you assign to the checkbox in your login form.
-     * 
+     *
      * @param parameter the HTTP request parameter
      */
     public void setParameter(String parameter) {
-    	Assert.hasText(parameter, "Parameter name cannot be null");
+        Assert.hasText(parameter, "Parameter name cannot be null");
         this.parameter = parameter;
     }
 
@@ -333,7 +333,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     }
 
     public void setUserDetailsService(UserDetailsService userDetailsService) {
-    	Assert.notNull(userDetailsService, "UserDetailsService canot be null");
+        Assert.notNull(userDetailsService, "UserDetailsService canot be null");
         this.userDetailsService = userDetailsService;
     }
 
@@ -357,8 +357,8 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         return authenticationDetailsSource;
     }
 
-	public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
-		Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource cannot be null");
-		this.authenticationDetailsSource = authenticationDetailsSource;
-	}
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource cannot be null");
+        this.authenticationDetailsSource = authenticationDetailsSource;
+    }
 }
