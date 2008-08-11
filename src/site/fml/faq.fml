@@ -168,7 +168,7 @@ org.springframework.security.AccessDeniedException: Access is denied
     			Filters are not applied by default to forwards or includes. If you really want the security filters to be applied to forwards and/or includes, 
     			then you have to configure these explicitly in your web.xml using the &lt;dispatcher&gt; element, a child element of &lt;filter-mapping&gt;.
     		</answer>
-    	</faq>
+    	</faq>    	
     	<faq id="session-listener-missing">
     		<question>
     			I'm trying to use the concurrent session-control support but it won't let me log back in, even if I'm sure I've logged out and haven't exceeded the allowed sessions.
@@ -205,8 +205,8 @@ org.springframework.security.AccessDeniedException: Access is denied
 	  		</answer>
 	  	</faq>
 	  	<faq>
-	  		<title>How do I know what dependencies to add to my application to work with Spring Security?</title>
-	  		<para>
+	  		<question>How do I know what dependencies to add to my application to work with Spring Security?</question>
+	  		<answer>
 	  			<p>
 	  				There is no definite answer here, (it will depend on what features you are using), but a good starting point is to copy those from one of the 
 	  				pre-built sample applications WEB-INF/lib directories. For a basic application, you can start with the tutorial sample. If you want to 
@@ -217,7 +217,7 @@ org.springframework.security.AccessDeniedException: Access is denied
 	  				the core jars that the framework requires. Any which are marked as "optional" in the Spring Security POM files will have to be added 
 	  				to your own pom.xml file if you need them.
 	  			</p>
-	  		</para>
+	  		</answer>
 	  	</faq>
 	  </part>
 </faqs>
