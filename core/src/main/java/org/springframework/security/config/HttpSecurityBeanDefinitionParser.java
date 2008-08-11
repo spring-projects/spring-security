@@ -208,7 +208,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         RootBeanDefinition filterChainProxy = new RootBeanDefinition(FilterChainProxy.class);
         filterChainProxy.setSource(source);
         filterChainProxy.getPropertyValues().addPropertyValue("matcher", matcher);
-        filterChainProxy.getPropertyValues().addPropertyValue("stripQueryStringFromUrls", matcher instanceof AntUrlPathMatcher);
+        filterChainProxy.getPropertyValues().addPropertyValue("stripQueryStringFromUrls", Boolean.valueOf(matcher instanceof AntUrlPathMatcher));
         filterChainProxy.getPropertyValues().addPropertyValue("filterChainMap", filterChainMap);
         pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_CHAIN_PROXY, filterChainProxy);
         pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
