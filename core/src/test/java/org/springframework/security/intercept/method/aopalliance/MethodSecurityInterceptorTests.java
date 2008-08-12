@@ -36,7 +36,7 @@ import org.springframework.security.RunAsManager;
 
 import org.springframework.security.context.SecurityContextHolder;
 
-import org.springframework.security.intercept.method.AbstractMethodDefinitionSource;
+import org.springframework.security.intercept.method.MethodDefinitionSource;
 import org.springframework.security.intercept.method.MockMethodDefinitionSource;
 
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
@@ -446,25 +446,25 @@ public class MethodSecurityInterceptorTests extends TestCase {
         }
     }
 
-    private class MockObjectDefinitionSourceWhichOnlySupportsStrings extends AbstractMethodDefinitionSource {
+    private class MockObjectDefinitionSourceWhichOnlySupportsStrings implements MethodDefinitionSource {
         public Collection getConfigAttributeDefinitions() {
             return null;
         }
 
-        protected ConfigAttributeDefinition lookupAttributes(Method method) {
+        public ConfigAttributeDefinition getAttributes(Method method, Class targetClass) {
             throw new UnsupportedOperationException("mock method not implemented");
         }
 
-        public ConfigAttributeDefinition getAttributes(Method method, Class targetClass) {
-            throw new UnsupportedOperationException("mock method not implemented");
-		}
-
-		public boolean supports(Class clazz) {
+        public boolean supports(Class clazz) {
             if (String.class.isAssignableFrom(clazz)) {
                 return true;
             } else {
                 return false;
             }
+        }
+
+        public ConfigAttributeDefinition getAttributes(Object object) {
+            throw new UnsupportedOperationException("mock method not implemented");
         }
     }
 
