@@ -31,8 +31,8 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         setContext(
                 "<b:bean id='target' class='org.springframework.security.annotation.BusinessServiceImpl'/>" +
                 "<global-method-security>" +
-                "	<protect-pointcut expression='execution(* *.someUser*(..))' access='ROLE_USER'/>" +
-                "	<protect-pointcut expression='execution(* *.someAdmin*(..))' access='ROLE_ADMIN'/>" +
+                "    <protect-pointcut expression='execution(* *.someUser*(..))' access='ROLE_USER'/>" +
+                "    <protect-pointcut expression='execution(* *.someAdmin*(..))' access='ROLE_ADMIN'/>" +
                 "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML
                     );
         target = (BusinessService) appContext.getBean("target");
@@ -106,6 +106,21 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         service.loadUserByUsername("notused");
     }
 
+    @Test
+    public void supportsMethodArgumentsInPointcut() {
+        setContext(
+                "<b:bean id='target' class='org.springframework.security.annotation.BusinessServiceImpl'/>" +
+                "<global-method-security>" +
+                "   <protect-pointcut expression='execution(* *.someOther(String))' access='ROLE_ADMIN'/>" +
+                "   <protect-pointcut expression='execution(* *.BusinessService*(..))' access='ROLE_USER'/>" +
+                "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML
+        );
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("user", "password"));
+        target = (BusinessService) appContext.getBean("target");
+        // someOther(int) should not be matched by someOther(String)
+        target.someOther(0);
+    }
+
     @Test(expected=BeanDefinitionParsingException.class)
     public void duplicateElementCausesError() {
         setContext(
@@ -116,21 +131,21 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
     @Test(expected=AccessDeniedException.class)
     public void worksWithoutTargetOrClass() {
-    	setContext(
-    			"<global-method-security secured-annotations='enabled'/>" +
-    		    "<b:bean id='businessService' class='org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean'>" +
-    		    "    <b:property name='serviceUrl' value='http://localhost:8080/SomeService'/>" +
-    		    "    <b:property name='serviceInterface' value='org.springframework.security.annotation.BusinessService'/>" +
-    		    "</b:bean>" + AUTH_PROVIDER_XML
-    			);
-    	
+        setContext(
+                "<global-method-security secured-annotations='enabled'/>" +
+                "<b:bean id='businessService' class='org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean'>" +
+                "    <b:property name='serviceUrl' value='http://localhost:8080/SomeService'/>" +
+                "    <b:property name='serviceInterface' value='org.springframework.security.annotation.BusinessService'/>" +
+                "</b:bean>" + AUTH_PROVIDER_XML
+                );
+
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SOMEOTHERROLE")});
         SecurityContextHolder.getContext().setAuthentication(token);
         target = (BusinessService) appContext.getBean("businessService");
         target.someUserMethod1();
     }
-    
+
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
     }

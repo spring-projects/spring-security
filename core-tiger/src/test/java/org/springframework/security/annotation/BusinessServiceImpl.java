@@ -26,7 +26,11 @@ public class BusinessServiceImpl<E extends Entity> implements BusinessService {
         return entity;
     }
 
-	public int someOther(int input) {
-		return input;
-	}
+    public int someOther(String s) {
+        return 0;
+    }
+
+    public int someOther(int input) {
+        return input;
+    }
 }

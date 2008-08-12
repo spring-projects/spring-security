@@ -27,7 +27,11 @@ public class Jsr250BusinessServiceImpl implements BusinessService {
     public void someAdminMethod() {
     }
 
+    public int someOther(String input) {
+        return 0;
+    }
+
     public int someOther(int input) {
-		return input;
-	}
+        return input;
+    }
 }

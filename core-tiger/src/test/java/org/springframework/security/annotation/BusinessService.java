@@ -39,8 +39,10 @@ public interface BusinessService {
     public void someUserMethod1();
 
     @Secured({"ROLE_USER"})
-    @RolesAllowed({"ROLE_USER"})    
+    @RolesAllowed({"ROLE_USER"})
     public void someUserMethod2();
-    
+
+    public int someOther(String s);
+
     public int someOther(int input);
 }

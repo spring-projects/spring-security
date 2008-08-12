@@ -34,13 +34,13 @@ import org.springframework.util.ClassUtils;
 
 /**
  * Stores a {@link ConfigAttributeDefinition} for a method or class signature.
- * 
+ *
  * <p>
  * This class is the preferred implementation of {@link MethodDefinitionSource} for XML-based
  * definition of method security metadata. To assist in XML-based definition, wildcard support
  * is provided.
  * </p>
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  * @since 2.0
@@ -51,9 +51,9 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
     private static final Log logger = LogFactory.getLog(MapBasedMethodDefinitionSource.class);
 
     //~ Instance fields ================================================================================================
-	private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+    private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-	/** Map from RegisteredMethod to ConfigAttributeDefinition */
+    /** Map from RegisteredMethod to ConfigAttributeDefinition */
     protected Map methodMap = new HashMap();
 
     /** Map from RegisteredMethod to name pattern used for registration */
@@ -74,48 +74,33 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
         while (iterator.hasNext()) {
             Map.Entry entry = (Map.Entry) iterator.next();
             addSecureMethod((String)entry.getKey(), (ConfigAttributeDefinition)entry.getValue());
-        }        
+        }
     }
 
-	/**
-	 * Implementation does not support class-level attributes.
-	 */
-	protected ConfigAttributeDefinition findAttributes(Class clazz) {
-		return null;
-	}
-
-	/**
-	 * Will walk the method inheritance tree to find the most specific declaration applicable.
-	 */
-	protected ConfigAttributeDefinition findAttributes(Method method, Class targetClass) {
-		return findAttributesSpecifiedAgainst(method, targetClass);
-	}
-	
-	private ConfigAttributeDefinition findAttributesSpecifiedAgainst(Method method, Class clazz) {
-		RegisteredMethod registeredMethod = new RegisteredMethod(method, clazz);
-		if (methodMap.containsKey(registeredMethod)) {
-			return (ConfigAttributeDefinition) methodMap.get(registeredMethod);
-		}
-		// Search superclass
-		if (clazz.getSuperclass() != null) {
-			return findAttributesSpecifiedAgainst(method, clazz.getSuperclass());
-		}
-		return null;
-	}
+    /**
+     * Implementation does not support class-level attributes.
+     */
+    protected ConfigAttributeDefinition findAttributes(Class clazz) {
+        return null;
+    }
 
     /**
-     * Add configuration attributes for a secure method.
-     *
-     * @param method the method to be secured
-     * @param attr required authorities associated with the method
+     * Will walk the method inheritance tree to find the most specific declaration applicable.
      */
-    private void addSecureMethod(RegisteredMethod method, ConfigAttributeDefinition attr) {
-    	Assert.notNull(method, "RegisteredMethod required");
-    	Assert.notNull(attr, "Configuration attribute required");
-    	if (logger.isInfoEnabled()) {
-            logger.info("Adding secure method [" + method + "] with attributes [" + attr + "]");
-    	}
-        this.methodMap.put(method, attr);
+    protected ConfigAttributeDefinition findAttributes(Method method, Class targetClass) {
+        return findAttributesSpecifiedAgainst(method, targetClass);
+    }
+
+    private ConfigAttributeDefinition findAttributesSpecifiedAgainst(Method method, Class clazz) {
+        RegisteredMethod registeredMethod = new RegisteredMethod(method, clazz);
+        if (methodMap.containsKey(registeredMethod)) {
+            return (ConfigAttributeDefinition) methodMap.get(registeredMethod);
+        }
+        // Search superclass
+        if (clazz.getSuperclass() != null) {
+            return findAttributesSpecifiedAgainst(method, clazz.getSuperclass());
+        }
+        return null;
     }
 
     /**
@@ -126,7 +111,7 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
      * @param attr required authorities associated with the method
      */
     public void addSecureMethod(String name, ConfigAttributeDefinition attr) {
-    	int lastDotIndex = name.lastIndexOf(".");
+        int lastDotIndex = name.lastIndexOf(".");
 
         if (lastDotIndex == -1) {
             throw new IllegalArgumentException("'" + name + "' is not a valid method name: format is FQN.methodName");
@@ -134,17 +119,17 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
 
         String methodName = name.substring(lastDotIndex + 1);
         Assert.hasText(methodName, "Method not found for '" + name + "'");
-        
+
         String typeName = name.substring(0, lastDotIndex);
         Class type = ClassUtils.resolveClassName(typeName, this.beanClassLoader);
-        
+
         addSecureMethod(type, methodName, attr);
     }
 
     /**
      * Add configuration attributes for a secure method. Mapped method names can end or start with <code>&#42</code>
      * for matching multiple methods.
-     * 
+     *
      * @param javaType target interface or class the security configuration attribute applies to
      * @param mappedName mapped method name, which the javaType has declared or inherited
      * @param attr required authorities associated with the method
@@ -190,6 +175,38 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
                     + "] is not more specific than [" + regMethodName + "]");
             }
         }
+    }
+
+    /**
+     * Adds configuration attributes for a specific method, for example where the method has been
+     * matched using a pointcut expression. If a match already exists in the map for the method, then 
+     * the existing match will be retained, so that if this method is called for a more general pointcut 
+     * it will not override a more specific one which has already been added. This  
+     */
+    public void addSecureMethod(Class javaType, Method method, ConfigAttributeDefinition attr) {
+        RegisteredMethod key = new RegisteredMethod(method, javaType);
+
+        if (methodMap.containsKey(key)) {
+            logger.debug("Method [" + method + "] is already registered with attributes [" + methodMap.get(key) + "]");
+            return;
+        }
+
+        methodMap.put(key, attr);
+    }
+
+    /**
+     * Add configuration attributes for a secure method.
+     *
+     * @param method the method to be secured
+     * @param attr required authorities associated with the method
+     */
+    private void addSecureMethod(RegisteredMethod method, ConfigAttributeDefinition attr) {
+        Assert.notNull(method, "RegisteredMethod required");
+        Assert.notNull(attr, "Configuration attribute required");
+        if (logger.isInfoEnabled()) {
+            logger.info("Adding secure method [" + method + "] with attributes [" + attr + "]");
+        }
+        this.methodMap.put(method, attr);
     }
 
     /**
@@ -254,54 +271,54 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
         attributes.addAll(toMerge.getConfigAttributes());
     }
 
-	public void setBeanClassLoader(ClassLoader beanClassLoader) {
-		Assert.notNull(beanClassLoader, "Bean class loader required");
-		this.beanClassLoader = beanClassLoader;
-	}
+    public void setBeanClassLoader(ClassLoader beanClassLoader) {
+        Assert.notNull(beanClassLoader, "Bean class loader required");
+        this.beanClassLoader = beanClassLoader;
+    }
 
-	/**
-	 * @return map size (for unit tests and diagnostics)
-	 */
-	public int getMethodMapSize() {
-		return methodMap.size();
-	}
-	
-	/**
-	 * Stores both the Java Method as well as the Class we obtained the Method from. This is necessary because Method only
-	 * provides us access to the declaring class. It doesn't provide a way for us to introspect which Class the Method
-	 * was registered against. If a given Class inherits and redeclares a method (i.e. calls super();) the registered Class
-	 * and declaring Class are the same. If a given class merely inherits but does not redeclare a method, the registered
-	 * Class will be the Class we're invoking against and the Method will provide details of the declared class.
-	 */
-	private class RegisteredMethod {
-		private Method method;
-		private Class registeredJavaType;
+    /**
+     * @return map size (for unit tests and diagnostics)
+     */
+    public int getMethodMapSize() {
+        return methodMap.size();
+    }
 
-		public RegisteredMethod(Method method, Class registeredJavaType) {
-			Assert.notNull(method, "Method required");
-			Assert.notNull(registeredJavaType, "Registered Java Type required");
-			this.method = method;
-			this.registeredJavaType = registeredJavaType;
-		}
+    /**
+     * Stores both the Java Method as well as the Class we obtained the Method from. This is necessary because Method only
+     * provides us access to the declaring class. It doesn't provide a way for us to introspect which Class the Method
+     * was registered against. If a given Class inherits and redeclares a method (i.e. calls super();) the registered Class
+     * and declaring Class are the same. If a given class merely inherits but does not redeclare a method, the registered
+     * Class will be the Class we're invoking against and the Method will provide details of the declared class.
+     */
+    private class RegisteredMethod {
+        private Method method;
+        private Class registeredJavaType;
 
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj != null && obj instanceof RegisteredMethod) {
-				RegisteredMethod rhs = (RegisteredMethod) obj;
-				return method.equals(rhs.method) && registeredJavaType.equals(rhs.registeredJavaType);
-			}
-			return false;
-		}
+        public RegisteredMethod(Method method, Class registeredJavaType) {
+            Assert.notNull(method, "Method required");
+            Assert.notNull(registeredJavaType, "Registered Java Type required");
+            this.method = method;
+            this.registeredJavaType = registeredJavaType;
+        }
 
-		public int hashCode() {
-			return method.hashCode() * registeredJavaType.hashCode();
-		}
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj != null && obj instanceof RegisteredMethod) {
+                RegisteredMethod rhs = (RegisteredMethod) obj;
+                return method.equals(rhs.method) && registeredJavaType.equals(rhs.registeredJavaType);
+            }
+            return false;
+        }
 
-		public String toString() {
-			return "RegisteredMethod[" + registeredJavaType.getName() + "; " + method + "]";
-		}
-	}
-    
+        public int hashCode() {
+            return method.hashCode() * registeredJavaType.hashCode();
+        }
+
+        public String toString() {
+            return "RegisteredMethod[" + registeredJavaType.getName() + "; " + method + "]";
+        }
+    }
+
 }
