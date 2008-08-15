@@ -10,8 +10,51 @@
     <artifactId>spring-security-itest-web</artifactId>
     <name>Spring Security - Web Integration Tests</name>
     <packaging>war</packaging>
-<!--
+
     <dependencies>
+        <dependency>
+          <groupId>org.testng</groupId>
+          <artifactId>testng</artifactId>
+          <version>5.8</version>
+          <scope>test</scope>
+          <classifier>jdk15</classifier>
+        </dependency>
+        <dependency>
+            <groupId>jwebunit</groupId>
+            <artifactId>jwebunit</artifactId>
+            <version>1.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty</artifactId>
+            <version>${jetty.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-naming</artifactId>
+            <version>${jetty.version}</version>
+            <scope>test</scope>
+        </dependency>        
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-plus</artifactId>
+            <version>${jetty.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jsp-2.1</artifactId>
+            <version>${jetty.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jsp-api-2.1</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>        
+<!--                
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
@@ -24,8 +67,9 @@
             <scope>runtime</scope>
             <version>1.1.2</version>
         </dependency>
+-->        
     </dependencies>
--->
+
 <!-- 
     <build>
         <plugins>

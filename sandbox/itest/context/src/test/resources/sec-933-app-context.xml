@@ -1,0 +1,30 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.2.xsd">
+
+
+	<bean id="userRepository" class="org.springframework.security.integration.StubUserRepository"/>
+
+	<security:authentication-provider
+		user-service-ref="userDetailsService" />
+		
+	<bean id="userDetailsService" class="org.springframework.security.integration.UserDetailsServiceImpl">
+		<property name="userRepository" ref="userRepository"/>
+	</bean>
+
+	<security:global-method-security>
+		<security:protect-pointcut
+			expression="execution(* org.springframework.security.integration.*Repository+.*(..))"
+			access="ROLE_LOGGEDIN" />
+	</security:global-method-security>
+	
+	<aop:aspectj-autoproxy/>
+	
+</beans>
