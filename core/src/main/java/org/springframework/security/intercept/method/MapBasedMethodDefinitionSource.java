@@ -88,6 +88,10 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
      * Will walk the method inheritance tree to find the most specific declaration applicable.
      */
     protected ConfigAttributeDefinition findAttributes(Method method, Class targetClass) {
+        if (targetClass == null) {
+            return null;
+        }
+
         return findAttributesSpecifiedAgainst(method, targetClass);
     }
 
@@ -179,9 +183,9 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
 
     /**
      * Adds configuration attributes for a specific method, for example where the method has been
-     * matched using a pointcut expression. If a match already exists in the map for the method, then 
-     * the existing match will be retained, so that if this method is called for a more general pointcut 
-     * it will not override a more specific one which has already been added. This  
+     * matched using a pointcut expression. If a match already exists in the map for the method, then
+     * the existing match will be retained, so that if this method is called for a more general pointcut
+     * it will not override a more specific one which has already been added. This
      */
     public void addSecureMethod(Class javaType, Method method, ConfigAttributeDefinition attr) {
         RegisteredMethod key = new RegisteredMethod(method, javaType);
