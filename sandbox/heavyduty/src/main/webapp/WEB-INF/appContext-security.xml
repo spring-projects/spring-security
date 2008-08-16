@@ -9,14 +9,24 @@
 <b:beans xmlns="http://www.springframework.org/schema/security"
     xmlns:b="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:context="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+						http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.2.xsd">
 
     <!--b:import resource="appContext-misc.xml"/-->
+	<context:component-scan base-package='sample'/>
     
-	<!-- global-method-security secured-annotations="enabled" access-decision-manager-ref="methodAccessMgr"/ -->
+	<global-method-security secured-annotations="enabled" access-decision-manager-ref="methodAccessMgr">
+		<protect-pointcut expression="execution(* sample.service.UserService+.*(..))"
+					access="ROLE_LOGGEDIN" />
+	</global-method-security>
 	
-	<b:bean id="methodAccessmanager" class="org.springframework.security.vote.AffirmativeBased">
+	<aop:aspectj-autoproxy/>
+	
+	<b:bean id="methodAccessMgr" class="org.springframework.security.vote.AffirmativeBased">
 	   <b:property name="decisionVoters">
 	       <b:list>
 	           <b:bean class="sample.TestVoter"/>

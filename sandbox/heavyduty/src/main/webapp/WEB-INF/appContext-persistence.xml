@@ -22,9 +22,7 @@
 
   <bean id="userDAO" class="sample.dao.impl.UserDAOImpl"/>
   
-  <bean id="daoUserService" class="sample.service.impl.UserServiceImpl">
-    <property name="userDAO" ref="userDAO"/>
-  </bean>
+  <bean id="daoUserService" class="sample.service.impl.UserServiceImpl"/>
 
   <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor">
     <!--  property name="order" value="0"/ -->
