@@ -1,6 +1,6 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.springframework.security.config.ConfigTestUtils.*;
 
 import org.junit.After;
@@ -42,8 +42,10 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     public void closeAppContext() {
         if (appContext != null) {
             appContext.close();
+            appContext = null;
         }
         SecurityContextHolder.clearContext();
+        target = null;
     }
 
     @Test(expected=AuthenticationCredentialsNotFoundException.class)
@@ -55,8 +57,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     @Test
     public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
         loadContext();
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_USER")});
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
         SecurityContextHolder.getContext().setAuthentication(token);
 
         target.someUserMethod1();
@@ -111,13 +112,46 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         setContext(
                 "<b:bean id='target' class='org.springframework.security.annotation.BusinessServiceImpl'/>" +
                 "<global-method-security>" +
-                "   <protect-pointcut expression='execution(* *.someOther(String))' access='ROLE_ADMIN'/>" +
-                "   <protect-pointcut expression='execution(* *.BusinessService*(..))' access='ROLE_USER'/>" +
+                "   <protect-pointcut expression='execution(* org.springframework.security.annotation.BusinessService.someOther(String))' access='ROLE_ADMIN'/>" +
+                "   <protect-pointcut expression='execution(* org.springframework.security.annotation.BusinessService.*(..))' access='ROLE_USER'/>" +
                 "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML
         );
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("user", "password"));
         target = (BusinessService) appContext.getBean("target");
-        // someOther(int) should not be matched by someOther(String)
+        // someOther(int) should not be matched by someOther(String), but should require ROLE_USER
+        target.someOther(0);
+
+        try {
+            // String version should required admin role
+            target.someOther("somestring");
+            fail("Expected AccessDeniedException");
+        } catch (AccessDeniedException expected) {
+        }
+    }
+
+    @Test
+    public void supportsBooleanPointcutExpressions() {
+        setContext(
+                "<b:bean id='target' class='org.springframework.security.annotation.BusinessServiceImpl'/>" +
+                "<global-method-security>" +
+                "   <protect-pointcut expression=" +
+                "     'execution(* org.springframework.security.annotation.BusinessService.*(..)) " +
+                "       and not execution(* org.springframework.security.annotation.BusinessService.someOther(String)))' " +
+                "               access='ROLE_USER'/>" +
+                "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML
+        );
+        target = (BusinessService) appContext.getBean("target");
+        // String method should not be protected
+        target.someOther("somestring");
+
+        // All others should require ROLE_USER
+        try {
+            target.someOther(0);
+            fail("Expected AuthenticationCredentialsNotFoundException");
+        } catch (AuthenticationCredentialsNotFoundException expected) {
+        }
+
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("user", "password"));
         target.someOther(0);
     }
 

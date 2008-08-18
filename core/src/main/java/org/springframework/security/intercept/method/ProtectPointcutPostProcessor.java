@@ -17,6 +17,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.intercept.method.aopalliance.MethodDefinitionSourceAdvisor;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Parses AspectJ pointcut expressions, registering methods that match the pointcut with a
@@ -141,14 +142,25 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
         }
     }
 
-    public void addPointcut(String pointcutExpression, ConfigAttributeDefinition definition) {
+    private void addPointcut(String pointcutExpression, ConfigAttributeDefinition definition) {
         Assert.hasText(pointcutExpression, "An AspectJ pointcut expression is required");
         Assert.notNull(definition, "ConfigAttributeDefinition required");
+        pointcutExpression = replaceBooleanOperators(pointcutExpression);
         pointcutMap.put(pointcutExpression, definition);
 
         if (logger.isDebugEnabled()) {
             logger.debug("AspectJ pointcut expression '" + pointcutExpression + "' registered for security configuration attribute '" + definition + "'");
         }
+    }
+
+    /**
+     * @see org.springframework.aop.aspectj.AspectJExpressionPointcut#replaceBooleanOperators
+     */
+    private String replaceBooleanOperators(String pcExpr) {
+        pcExpr = StringUtils.replace(pcExpr," and "," && ");
+        pcExpr = StringUtils.replace(pcExpr, " or ", " || ");
+        pcExpr = StringUtils.replace(pcExpr, " not ", " ! ");
+        return pcExpr;
     }
 
 }
