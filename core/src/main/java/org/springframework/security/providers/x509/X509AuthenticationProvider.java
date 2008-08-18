@@ -45,7 +45,7 @@ import java.security.cert.X509Certificate;
  *
  * @author Luke Taylor
  * @deprecated superceded by the preauth provider. Use the X.509 authentication support in org.springframework.security.ui.preauth.x509 instead
- *             or namespace support via the &lt;x509 /&gt; element. 
+ *             or namespace support via the &lt;x509 /&gt; element.
  * @version $Id$
  */
 public class X509AuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
@@ -61,7 +61,7 @@ public class X509AuthenticationProvider implements AuthenticationProvider, Initi
 
     //~ Methods ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() throws Exception {
         Assert.notNull(userCache, "An x509UserCache must be set");
         Assert.notNull(x509AuthoritiesPopulator, "An X509AuthoritiesPopulator must be set");
         Assert.notNull(this.messages, "A message source must be set");
@@ -101,7 +101,9 @@ public class X509AuthenticationProvider implements AuthenticationProvider, Initi
         UserDetails user = userCache.getUserFromCache(clientCertificate);
 
         if (user == null) {
-            logger.debug("Authenticating with certificate " + clientCertificate);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Authenticating with certificate " + clientCertificate);
+            }
             user = x509AuthoritiesPopulator.getUserDetails(clientCertificate);
             userCache.putUserInCache(clientCertificate, user);
         }
