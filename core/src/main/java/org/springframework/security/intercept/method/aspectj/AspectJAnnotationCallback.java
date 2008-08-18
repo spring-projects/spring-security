@@ -12,5 +12,5 @@ package org.springframework.security.intercept.method.aspectj;
 public interface AspectJAnnotationCallback {
     //~ Methods ========================================================================================================
 
-    Object proceedWithObject();
+    Object proceedWithObject() throws Throwable;
 }
