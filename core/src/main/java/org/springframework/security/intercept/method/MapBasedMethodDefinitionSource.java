@@ -236,45 +236,6 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
         || (mappedName.startsWith("*") && methodName.endsWith(mappedName.substring(1, mappedName.length())));
     }
 
-    protected ConfigAttributeDefinition lookupAttributes(Method method) {
-        List attributesToReturn = new ArrayList();
-
-        // Add attributes explicitly defined for this method invocation
-        merge(attributesToReturn, (ConfigAttributeDefinition) this.methodMap.get(method));
-
-        // Add attributes explicitly defined for this method invocation's interfaces
-        Class[] interfaces = method.getDeclaringClass().getInterfaces();
-
-        for (int i = 0; i < interfaces.length; i++) {
-            Class clazz = interfaces[i];
-
-            try {
-                // Look for the method on the current interface
-                Method interfaceMethod = clazz.getDeclaredMethod(method.getName(), (Class[]) method.getParameterTypes());
-                ConfigAttributeDefinition interfaceAssigned =
-                        (ConfigAttributeDefinition) this.methodMap.get(interfaceMethod);
-                merge(attributesToReturn, interfaceAssigned);
-            } catch (Exception e) {
-                // skip this interface
-            }
-        }
-
-        // Return null if empty, as per abstract superclass contract
-        if (attributesToReturn.size() == 0) {
-            return null;
-        }
-
-        return new ConfigAttributeDefinition(attributesToReturn);
-    }
-
-    private void merge(List attributes, ConfigAttributeDefinition toMerge) {
-        if (toMerge == null) {
-            return;
-        }
-
-        attributes.addAll(toMerge.getConfigAttributes());
-    }
-
     public void setBeanClassLoader(ClassLoader beanClassLoader) {
         Assert.notNull(beanClassLoader, "Bean class loader required");
         this.beanClassLoader = beanClassLoader;
