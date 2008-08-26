@@ -15,6 +15,21 @@
 
 package org.springframework.security.ldap;
 
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.PartialResultException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextMapper;
@@ -23,33 +38,18 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapEncoder;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.util.Assert;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import java.text.MessageFormat;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Arrays;
 
 
 /**
- * LDAP equivalent of the Spring JdbcTemplate class.
- * <p>
- * This is mainly intended to simplify Ldap access within Spring Security's LDAP-related services.
- * </p>
+ * Extension of Spring LDAP's LdapTemplate class which adds extra functionality required by Spring Security.
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @since 2.0
  */
-public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.LdapTemplate {
+public class SpringSecurityLdapTemplate extends LdapTemplate {
     //~ Static fields/initializers =====================================================================================
     private static final Log logger = LogFactory.getLog(SpringSecurityLdapTemplate.class);
 
@@ -136,14 +136,14 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
      * @return the set of String values for the attribute as a union of the values found in all the matching entries.
      */
     public Set searchForSingleAttributeValues(final String base, final String filter, final Object[] params,
-    		final String attributeName) {
-    	// Escape the params acording to RFC2254
-    	Object[] encodedParams = new String[params.length];
-    	
-    	for (int i=0; i < params.length; i++) {
-    		encodedParams[i] = LdapEncoder.filterEncode(params[i].toString());  
-    	}
-    	
+            final String attributeName) {
+        // Escape the params acording to RFC2254
+        Object[] encodedParams = new String[params.length];
+
+        for (int i=0; i < params.length; i++) {
+            encodedParams[i] = LdapEncoder.filterEncode(params[i].toString());
+        }
+
         String formattedFilter = MessageFormat.format(filter, encodedParams);
         logger.debug("Using filter: " + formattedFilter);
 
@@ -175,12 +175,15 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
     /**
      * Performs a search, with the requirement that the search shall return a single directory entry, and uses
      * the supplied mapper to create the object from that entry.
+     * <p>
+     * Ignores <tt>PartialResultException</tt> if thrown, for compatibility with Active Directory
+     * (see {@link LdapTemplate#setIgnorePartialResultException(boolean)}).
      *
-     * @param base
-     * @param filter
-     * @param params
+     * @param base the search base, relative to the base context supplied by the context source.
+     * @param filter the LDAP search filter
+     * @param params parameters to be substituted in the search.
      *
-     * @return the object created by the mapper from the matching entry
+     * @return a DirContextOperations instance created from the matching entry.
      *
      * @throws IncorrectResultSizeDataAccessException if no results are found or the search returns more than one
      *         result.
@@ -188,32 +191,38 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
     public DirContextOperations searchForSingleEntry(final String base, final String filter, final Object[] params) {
 
         return (DirContextOperations) executeReadOnly(new ContextExecutor() {
-                public Object executeWithContext(DirContext ctx)
-                    throws NamingException {
+                public Object executeWithContext(DirContext ctx) throws NamingException {
+                    DistinguishedName ctxBaseDn = new DistinguishedName(ctx.getNameInNamespace());
+                    NamingEnumeration resultsEnum = ctx.search(base, filter, params, searchControls);
+                    Set results = new HashSet();
+                    try {
+                        while (resultsEnum.hasMore()) {
 
-                    NamingEnumeration results = ctx.search(base, filter, params, searchControls);
+                            SearchResult searchResult = (SearchResult) resultsEnum.next();
+                            // Work out the DN of the matched entry
+                            StringBuffer dn = new StringBuffer(searchResult.getName());
 
-                    if (!results.hasMore()) {
+                            if (base.length() > 0) {
+                                dn.append(",");
+                                dn.append(base);
+                            }
+
+                            results.add(new DirContextAdapter(searchResult.getAttributes(),
+                                    new DistinguishedName(dn.toString()), ctxBaseDn));
+                        }
+                    } catch (PartialResultException e) {
+                        logger.info("Ignoring PartialResultException");
+                    }
+
+                    if (results.size() == 0) {
                         throw new IncorrectResultSizeDataAccessException(1, 0);
                     }
 
-                    SearchResult searchResult = (SearchResult) results.next();
-
-                    if (results.hasMore()) {
-                        // We don't know how many results but set to 2 which is good enough
-                        throw new IncorrectResultSizeDataAccessException(1, 2);
+                    if (results.size() > 1) {
+                        throw new IncorrectResultSizeDataAccessException(1, results.size());
                     }
 
-                    // Work out the DN of the matched entry
-                    StringBuffer dn = new StringBuffer(searchResult.getName());
-
-                    if (base.length() > 0) {
-                        dn.append(",");
-                        dn.append(base);
-                    }
-
-                    return new DirContextAdapter(searchResult.getAttributes(),
-                            new DistinguishedName(dn.toString()), new DistinguishedName(ctx.getNameInNamespace()));
+                    return results.toArray()[0];
                 }
             });
     }
