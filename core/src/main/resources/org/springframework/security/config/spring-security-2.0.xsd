@@ -222,7 +222,7 @@
     <xs:attribute name="group-search-base" use="required" type="xs:string">
       <xs:annotation>
         <xs:documentation>Search base for group membership searches. Defaults to
-        "ou=groups".</xs:documentation>
+          "" (searching from the root).</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
