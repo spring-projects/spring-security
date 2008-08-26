@@ -301,6 +301,24 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
+    public void portMappingsWorkWithPlaceholders() throws Exception {
+        System.setProperty("http", "9080");
+        System.setProperty("https", "9443");
+        setContext(
+                "    <b:bean id='configurer' class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
+                "    <http auto-config='true'>" +
+                "        <port-mappings>" +
+                "            <port-mapping http='${http}' https='${https}'/>" +
+                "        </port-mappings>" +
+                "    </http>" + AUTH_PROVIDER_XML);
+
+        PortMapperImpl pm = (PortMapperImpl) appContext.getBean(BeanIds.PORT_MAPPER);
+        assertEquals(1, pm.getTranslatedPortMappings().size());
+        assertEquals(Integer.valueOf(9080), pm.lookupHttpPort(9443));
+        assertEquals(Integer.valueOf(9443), pm.lookupHttpsPort(9080));
+    }
+
+    @Test
     public void externalFiltersAreTreatedCorrectly() throws Exception {
         // Decorated user-filters should be added to stack. The others should be ignored.
         setContext(

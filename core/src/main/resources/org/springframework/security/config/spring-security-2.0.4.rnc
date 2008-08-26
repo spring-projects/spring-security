@@ -400,9 +400,9 @@ port-mappings.attlist &= empty
 port-mapping = 
     element port-mapping {http-port, https-port}
     
-http-port = attribute http {xsd:integer}
+http-port = attribute http {xsd:string}
 
-https-port = attribute https {xsd:integer}
+https-port = attribute https {xsd:string}
 
 
 x509 = 

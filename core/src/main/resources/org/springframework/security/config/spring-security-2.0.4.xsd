@@ -876,8 +876,8 @@
     </xs:attribute>
     <xs:attribute name="requires-channel">
       <xs:annotation>
-        <xs:documentation>Used to specify that a URL must be accessed over http or
-        https</xs:documentation>
+        <xs:documentation>Used to specify that a URL must be accessed over http or https, or that
+          there is no preference.</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -1042,17 +1042,24 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="concurrent-sessions.attlist">
-    <xs:attribute name="max-sessions" type="xs:positiveInteger"/>
+    <xs:attribute name="max-sessions" type="xs:positiveInteger">
+      <xs:annotation>
+        <xs:documentation>The maximum number of sessions a single user can have open at the same
+          time. Defaults to "1".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="expired-url" type="xs:string">
       <xs:annotation>
         <xs:documentation>The URL a user will be redirected to if they attempt to use a session
-          which has been "expired" by the concurrent session controller.</xs:documentation>
+          which has been "expired" by the concurrent session controller because they have logged in
+          again.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="exception-if-maximum-exceeded" type="security:boolean">
       <xs:annotation>
         <xs:documentation>Specifies that an exception should be raised when a user attempts to login
-          twice. The default behaviour is to expire the original session.</xs:documentation>
+          when they already have the maximum configured sessions open. The default behaviour is to
+          expire the original session.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="session-registry-alias" type="xs:string">
@@ -1152,10 +1159,10 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="http-port">
-    <xs:attribute name="http" use="required" type="xs:integer"/>
+    <xs:attribute name="http" use="required" type="xs:string"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="https-port">
-    <xs:attribute name="https" use="required" type="xs:integer"/>
+    <xs:attribute name="https" use="required" type="xs:string"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="x509.attlist">
     <xs:attribute name="subject-principal-regex" type="xs:string">
