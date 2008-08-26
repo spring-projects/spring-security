@@ -99,8 +99,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      */
     private GrantedAuthority defaultRole;
 
-    private ContextSource contextSource;
-
     private SpringSecurityLdapTemplate ldapTemplate;
 
     /**
@@ -143,8 +141,10 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      *                                 context factory.
      */
     public DefaultLdapAuthoritiesPopulator(ContextSource contextSource, String groupSearchBase) {
-        this.setContextSource(contextSource);
-        this.setGroupSearchBase(groupSearchBase);
+        Assert.notNull(contextSource, "contextSource must not be null");
+        ldapTemplate = new SpringSecurityLdapTemplate(contextSource);
+        ldapTemplate.setSearchControls(searchControls);
+        setGroupSearchBase(groupSearchBase);
     }
 
     //~ Methods ========================================================================================================
@@ -226,20 +226,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     }
 
     protected ContextSource getContextSource() {
-        return contextSource;
-    }
-
-    /**
-     * Set the {@link ContextSource}
-     *
-     * @param contextSource supplies the contexts used to search for user roles.
-     */
-    private void setContextSource(ContextSource contextSource) {
-        Assert.notNull(contextSource, "contextSource must not be null");
-        this.contextSource = contextSource;
-
-        ldapTemplate = new SpringSecurityLdapTemplate(contextSource);
-        ldapTemplate.setSearchControls(searchControls);
+        return ldapTemplate.getContextSource();
     }
 
     /**
