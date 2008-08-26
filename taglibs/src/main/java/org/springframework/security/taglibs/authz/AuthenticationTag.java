@@ -19,6 +19,7 @@ import org.springframework.security.Authentication;
 
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.util.TextUtils;
 
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
@@ -94,7 +95,7 @@ public class AuthenticationTag extends TagSupport {
             if (auth.getPrincipal() == null) {
                 return Tag.EVAL_PAGE;
             }
-            
+
             try {
                 BeanWrapperImpl wrapper = new BeanWrapperImpl(auth);
                 result = wrapper.getPropertyValue(property);
@@ -120,7 +121,7 @@ public class AuthenticationTag extends TagSupport {
                 }
             }
         } else {
-            writeMessage(String.valueOf(result));
+            writeMessage(TextUtils.escapeEntities(String.valueOf(result)));
         }
         return EVAL_PAGE;
     }
