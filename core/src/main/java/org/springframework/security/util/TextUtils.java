@@ -26,6 +26,8 @@ public abstract class TextUtils {
                 sb.append("&#034;");
             } else if (c == '\'') {
                 sb.append("&#039;");
+            } else if (c == '&') {
+                sb.append("&amp;");
             } else {
                 sb.append(c);
             }
