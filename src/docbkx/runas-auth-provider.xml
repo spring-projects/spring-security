@@ -4,27 +4,27 @@
     <section xml:id="runas-overview">
         <info><title>Overview</title></info>
         
-        <para>The <literal>AbstractSecurityInterceptor</literal> is able to
-            temporarily replace the <literal>Authentication</literal> object in
-            the <literal>SecurityContext</literal> and
-            <literal>SecurityContextHolder</literal> during the secure object
+        <para>The <classname>AbstractSecurityInterceptor</classname> is able to
+            temporarily replace the <interfacename>Authentication</interfacename> object in
+            the <interfacename>SecurityContext</interfacename> and
+            <classname>SecurityContextHolder</classname> during the secure object
             callback phase. This only occurs if the original
-            <literal>Authentication</literal> object was successfully processed by
-            the <literal>AuthenticationManager</literal> and
-            <literal>AccessDecisionManager</literal>. The
+            <interfacename>Authentication</interfacename> object was successfully processed by
+            the <interfacename>AuthenticationManager</interfacename> and
+            <interfacename>AccessDecisionManager</interfacename>. The
             <literal>RunAsManager</literal> will indicate the replacement
-            <literal>Authentication</literal> object, if any, that should be used
+            <interfacename>Authentication</interfacename> object, if any, that should be used
             during the <literal>SecurityInterceptorCallback</literal>.</para>
         
-        <para>By temporarily replacing the <literal>Authentication</literal>
+        <para>By temporarily replacing the <interfacename>Authentication</interfacename>
             object during the secure object callback phase, the secured invocation
             will be able to call other objects which require different
             authentication and authorization credentials. It will also be able to
             perform any internal security checks for specific
-            <literal>GrantedAuthority</literal> objects. Because Spring Security
+            <interfacename>GrantedAuthority</interfacename> objects. Because Spring Security
             provides a number of helper classes that automatically configure
             remoting protocols based on the contents of the
-            <literal>SecurityContextHolder</literal>, these run-as replacements
+            <classname>SecurityContextHolder</classname>, these run-as replacements
             are particularly useful when calling remote web services</para>
     </section>
     
@@ -38,12 +38,12 @@
             </programlisting>
         </para>
         
-        <para>The first method returns the <literal>Authentication</literal>
+        <para>The first method returns the <interfacename>Authentication</interfacename>
             object that should replace the existing
-            <literal>Authentication</literal> object for the duration of the
+            <interfacename>Authentication</interfacename> object for the duration of the
             method invocation. If the method returns <literal>null</literal>, it
             indicates no replacement should be made. The second method is used by
-            the <literal>AbstractSecurityInterceptor</literal> as part of its
+            the <classname>AbstractSecurityInterceptor</classname> as part of its
             startup validation of configuration attributes. The
             <literal>supports(Class)</literal> method is called by a security
             interceptor implementation to ensure the configured
@@ -59,7 +59,7 @@
             <literal>ConfigAttribute</literal> is found, the replacement
             <literal>RunAsUserToken</literal> will contain the same principal,
             credentials and granted authorities as the original
-            <literal>Authentication</literal> object, along with a new
+            <interfacename>Authentication</interfacename> object, along with a new
             <literal>GrantedAuthorityImpl</literal> for each
             <literal>RUN_AS_</literal> <literal>ConfigAttribute</literal>. Each
             new <literal>GrantedAuthorityImpl</literal> will be prefixed with
@@ -70,10 +70,10 @@
             <literal>ROLE_RUN_AS_SERVER</literal> granted authority.</para>
         
         <para>The replacement <literal>RunAsUserToken</literal> is just like
-            any other <literal>Authentication</literal> object. It needs to be
-            authenticated by the <literal>AuthenticationManager</literal>,
+            any other <interfacename>Authentication</interfacename> object. It needs to be
+            authenticated by the <interfacename>AuthenticationManager</interfacename>,
             probably via delegation to a suitable
-            <literal>AuthenticationProvider</literal>. The
+            <classname>AuthenticationProvider</classname>. The
             <literal>RunAsImplAuthenticationProvider</literal> performs such
             authentication. It simply accepts as valid any
             <literal>RunAsUserToken</literal> presented.</para>

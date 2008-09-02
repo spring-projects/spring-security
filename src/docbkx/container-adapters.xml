@@ -48,18 +48,18 @@
     
 
     <para>As is always the case, the container adapter generated
-    <literal>Authentication</literal> object still needs to be
-    authenticated by an <literal>AuthenticationManager</literal> when
+    <interfacename>Authentication</interfacename> object still needs to be
+    authenticated by an <interfacename>AuthenticationManager</interfacename> when
     requested to do so by the
-    <literal>AbstractSecurityInterceptor</literal>. The
-    <literal>AuthenticationManager</literal> needs to be certain the
-    adapter-provided <literal>Authentication</literal> object is valid and
+    <classname>AbstractSecurityInterceptor</classname>. The
+    <interfacename>AuthenticationManager</interfacename> needs to be certain the
+    adapter-provided <interfacename>Authentication</interfacename> object is valid and
     was actually authenticated by a trusted adapter.</para>
 
-    <para>Adapters create <literal>Authentication</literal> objects which
+    <para>Adapters create <interfacename>Authentication</interfacename> objects which
     are immutable and implement the <literal>AuthByAdapter</literal>
     interface. These objects store the hash of a key that is defined by
-    the adapter. This allows the <literal>Authentication</literal> object
+    the adapter. This allows the <interfacename>Authentication</interfacename> object
     to be validated by the <literal>AuthByAdapterProvider</literal>. This
     authentication provider is defined as follows:</para>
 
@@ -80,13 +80,13 @@
     <literal>AuthByAdapter</literal> instance that contains a hash code of
     the key. Later, when an application calls a security interceptor
     managed resource, the <literal>AuthByAdapter</literal> instance in the
-    <literal>SecurityContext</literal> in the
-    <literal>SecurityContextHolder</literal> will be tested by the
+    <interfacename>SecurityContext</interfacename> in the
+    <classname>SecurityContextHolder</classname> will be tested by the
     application's <literal>AuthByAdapterProvider</literal>. There is no
     requirement for additional authentication providers such as
     <literal>DaoAuthenticationProvider</literal> within the
     application-specific application context, as the only type of
-    <literal>Authentication</literal> instance that will be presented by
+    <interfacename>Authentication</interfacename> instance that will be presented by
     the application is from the container adapter.</para>
 
     <para>Classloader issues are frequent with containers and the use of
@@ -206,7 +206,7 @@
     <para>In this configuration <literal>acegisecurity.xml</literal>
     contains the spring context definition including all the
     authentication manager beans. You have to bear in mind though, that
-    <literal>SecurityContext</literal> is created and destroyed on each
+    <interfacename>SecurityContext</interfacename> is created and destroyed on each
     login request, so the login operation might become costly.
     Alternatively, the second approach is to use Spring singleton
     capabilities through
@@ -230,7 +230,7 @@
     <para>In the above code fragment,
     <literal>authenticationManager</literal> is a helper property that
     defines the expected name of the
-    <literal>AuthenticationManager</literal> in case you have several
+    <interfacename>AuthenticationManager</interfacename> in case you have several
     defined in the IoC container. The <literal>singletonId</literal>
     property references a bean defined in a
     <literal>beanRefFactory.xml</literal> file. This file needs to be

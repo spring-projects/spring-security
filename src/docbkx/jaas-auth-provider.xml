@@ -64,7 +64,7 @@ JAASTest {
                 mechanism). Thus, by the time the authentication request is
                 delegated through to JAAS, Spring Security's authentication
                 mechanism will already have fully-populated an
-                <literal>Authentication</literal> object containing all the
+                <interfacename>Authentication</interfacename> object containing all the
                 information required by the JAAS
                 <literal>LoginModule</literal>.</para>
             
@@ -97,9 +97,9 @@ JAASTest {
             
             <para>JAAS works with principals. Even "roles" are represented as
                 principals in JAAS. Spring Security, on the other hand, works with
-                <literal>Authentication</literal> objects. Each
-                <literal>Authentication</literal> object contains a single
-                principal, and multiple <literal>GrantedAuthority</literal>[]s. To
+                <interfacename>Authentication</interfacename> objects. Each
+                <interfacename>Authentication</interfacename> object contains a single
+                principal, and multiple <interfacename>GrantedAuthority</interfacename>[]s. To
                 facilitate mapping between these different concepts, Spring
                 Security's JAAS package includes an
                 <literal>AuthorityGranter</literal> interface.</para>
@@ -109,7 +109,7 @@ JAASTest {
                 <literal>String</literal>. The
                 <literal>JaasAuthenticationProvider</literal> then creates a
                 <literal>JaasGrantedAuthority</literal> (which implements Spring
-                Security’s <literal>GrantedAuthority</literal> interface) containing
+                Security’s <interfacename>GrantedAuthority</interfacename> interface) containing
                 both the <literal>AuthorityGranter</literal>-returned
                 <literal>String</literal> and the JAAS principal that the
                 <literal>AuthorityGranter</literal> was passed. The

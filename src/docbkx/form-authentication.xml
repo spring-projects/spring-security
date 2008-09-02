@@ -30,7 +30,7 @@
 </bean> ]]>        
             </programlisting></para>
         
-        <para>The configured <literal>AuthenticationManager</literal>
+        <para>The configured <interfacename>AuthenticationManager</interfacename>
             processes each authentication request. If authentication fails, the
             browser will be redirected to the
             <literal>authenticationFailureUrl</literal>. The
@@ -40,15 +40,15 @@
             enabling a reason to be provided to the user on the error page.</para>
         
         <para>If authentication is successful, the resulting
-            <literal>Authentication</literal> object will be placed into the
-            <literal>SecurityContextHolder</literal>.</para>
+            <interfacename>Authentication</interfacename> object will be placed into the
+            <classname>SecurityContextHolder</classname>.</para>
         
-        <para>Once the <literal>SecurityContextHolder</literal> has been
+        <para>Once the <classname>SecurityContextHolder</classname> has been
             updated, the browser will need to be redirected to the target URL which 
             is usually indicated by the <literal>HttpSession</literal> attribute stored under
             <literal>AbstractProcessingFilter.SPRING_SECURITY_TARGET_URL_KEY</literal>.
             This attribute is automatically set by the
-            <literal>ExceptionTranslationFilter</literal> when an
+            <classname>ExceptionTranslationFilter</classname> when an
             <literal>AuthenticationException</literal> occurs, so that after login
             is completed the user can return to what they were originally trying to access.
             If for some reason the <literal>HttpSession</literal> does not

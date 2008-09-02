@@ -7,7 +7,7 @@
     </info>
     
     <para>
-      Prior to Spring Security 2.0, securing <literal>MethodInvocation</literal>s needed quite a 
+      Prior to Spring Security 2.0, securing <classname>MethodInvocation</classname>s needed quite a 
       lot of boiler plate configuration. Now the recommended approach for method security 
       is to use <link xlink:href="#ns-method-security">namespace configuration</link>.
       This way the method security infrastructure beans are configured automatically for you so you don't really need to  
@@ -67,7 +67,7 @@
     security interceptors in the same application, with
     <literal>AspectJSecurityInterceptor</literal> being used for domain
     object instance security and the AOP Alliance
-    <literal>MethodSecurityInterceptor</literal> being used for services
+    <classname>MethodSecurityInterceptor</classname> being used for services
     layer security.</para>
 
     <para>Let's first consider how the
@@ -92,11 +92,11 @@
     <literal>AspectJSecurityInterceptor</literal> is exactly the same as
     the AOP Alliance security interceptor. Indeed the two interceptors can
     share the same <literal>objectDefinitionSource</literal>, as the
-    <literal>ObjectDefinitionSource</literal> works with
+    <interfacename>ObjectDefinitionSource</interfacename> works with
     <literal>java.lang.reflect.Method</literal>s rather than an AOP
     library-specific class. Of course, your access decisions have access
     to the relevant AOP library-specific invocation (ie
-    <literal>MethodInvocation</literal> or <literal>JoinPoint</literal>)
+    <classname>MethodInvocation</classname> or <literal>JoinPoint</literal>)
     and as such can consider a range of addition criteria when making
     access decisions (such as method arguments).</para>
 
@@ -178,7 +178,7 @@ public void afterPropertiesSet() throws Exception {
     <info><title>FilterInvocation Security Interceptor</title></info>
 
       <para>To secure <classname>FilterInvocation</classname>s, developers need
-    to add a <literal>FilterSecurityInterceptor</literal> to their filter chain. 
+    to add a <classname>FilterSecurityInterceptor</classname> to their filter chain. 
     A typical configuration example is provided below:</para>
 
     <para>In the application context you will need to configure three
@@ -217,43 +217,43 @@ public void afterPropertiesSet() throws Exception {
     the filter will call the AuthenticationEntryPoint to commence the
     authentication process (e.g. a user login).</para>
 
-    <para>The <literal>AuthenticationEntryPoint</literal> will be called
+    <para>The <interfacename>AuthenticationEntryPoint</interfacename> will be called
     if the user requests a secure HTTP resource but they are not
     authenticated. The class handles presenting the appropriate response
     to the user so that authentication can begin. Three concrete
     implementations are provided with Spring Security:
-    <literal>AuthenticationProcessingFilterEntryPoint</literal> for
+    <classname>AuthenticationProcessingFilterEntryPoint</classname> for
     commencing a form-based authentication,
     <literal>BasicProcessingFilterEntryPoint</literal> for commencing a
     HTTP Basic authentication process, and
     <literal>CasProcessingFilterEntryPoint</literal> for commencing a
     JA-SIG Central Authentication Service (CAS) login. The
-    <literal>AuthenticationProcessingFilterEntryPoint</literal> and
+    <classname>AuthenticationProcessingFilterEntryPoint</classname> and
     <literal>CasProcessingFilterEntryPoint</literal> have optional
     properties related to forcing the use of HTTPS, so please refer to the
     JavaDocs if you require this.</para>
 
-    <para><literal>FilterSecurityInterceptor</literal> is responsible for
+    <para><classname>FilterSecurityInterceptor</classname> is responsible for
     handling the security of HTTP resources. Like any other security
     interceptor, it requires a reference to an
-    <literal>AuthenticationManager</literal> and an
-    <literal>AccessDecisionManager</literal>, which are both discussed in
+    <interfacename>AuthenticationManager</interfacename> and an
+    <interfacename>AccessDecisionManager</interfacename>, which are both discussed in
     separate sections below. The
-    <literal>FilterSecurityInterceptor</literal> is also configured with
+    <classname>FilterSecurityInterceptor</classname> is also configured with
     configuration attributes that apply to different HTTP URL requests. A
     full discussion of configuration attributes is provided in the High
     Level Design section of this document.</para>
 
-    <para>The <literal>FilterSecurityInterceptor</literal> can be
+    <para>The <classname>FilterSecurityInterceptor</classname> can be
     configured with configuration attributes in two ways. The first, 
     which is shown above, is using the <literal>&lt;filter-invocation-definition-source&gt;</literal>
     namespace element. This is similar to the <literal>&lt;filter-chain-map&gt;</literal>
-    used to configure a <literal>FilterChainProxy</literal> but the <literal>&lt;intercept-url&gt;</literal>
+    used to configure a <classname>FilterChainProxy</classname> but the <literal>&lt;intercept-url&gt;</literal>
     child elements only use the <literal>pattern</literal> and <literal>access</literal> attributes.
     The second is by writing your own
-    <literal>ObjectDefinitionSource</literal>, although this is beyond the
+    <interfacename>ObjectDefinitionSource</interfacename>, although this is beyond the
     scope of this document. Irrespective of the approach used, the
-    <literal>ObjectDefinitionSource</literal> is responsible for returning
+    <interfacename>ObjectDefinitionSource</interfacename> is responsible for returning
     a <literal>ConfigAttributeDefinition</literal> object that contains
     all of the configuration attributes associated with a single secure
     HTTP URL.</para>
@@ -261,24 +261,24 @@ public void afterPropertiesSet() throws Exception {
     <para>It should be noted that the
     <literal>FilterSecurityInterceptor.setObjectDefinitionSource()</literal>
     method actually expects an instance of
-    <literal>FilterInvocationDefinitionSource</literal>. This is a marker
-    interface which subclasses <literal>ObjectDefinitionSource</literal>.
-    It simply denotes the <literal>ObjectDefinitionSource</literal>
-    understands <literal>FilterInvocation</literal>s. In the interests of
+    <interfacename>FilterInvocationDefinitionSource</interfacename>. This is a marker
+    interface which subclasses <interfacename>ObjectDefinitionSource</interfacename>.
+    It simply denotes the <interfacename>ObjectDefinitionSource</interfacename>
+    understands <classname>FilterInvocation</classname>s. In the interests of
     simplicity we'll continue to refer to the
-    <literal>FilterInvocationDefinitionSource</literal> as an
-    <literal>ObjectDefinitionSource</literal>, as the distinction is of
+    <interfacename>FilterInvocationDefinitionSource</interfacename> as an
+    <interfacename>ObjectDefinitionSource</interfacename>, as the distinction is of
     little relevance to most users of the
-    <literal>FilterSecurityInterceptor</literal>.</para>
+    <classname>FilterSecurityInterceptor</classname>.</para>
 
     <para>When using the namespace option to configure the interceptor, 
         commas are used to delimit the different configuration
     attributes that apply to each HTTP URL. Each configuration attribute
     is assigned into its own <literal>SecurityConfig</literal> object. The
     <literal>SecurityConfig</literal> object is discussed in the High
-    Level Design section. The <literal>ObjectDefinitionSource</literal>
+    Level Design section. The <interfacename>ObjectDefinitionSource</interfacename>
     created by the property editor,
-    <literal>FilterInvocationDefinitionSource</literal>, matches
+    <interfacename>FilterInvocationDefinitionSource</interfacename>, matches
     configuration attributes against <literal>FilterInvocations</literal>
     based on expression evaluation of the request URL. Two standard
     expression syntaxes are supported. The default is to treat all
@@ -317,10 +317,10 @@ public void afterPropertiesSet() throws Exception {
     <para>As with other security interceptors, the
     <literal>validateConfigAttributes</literal> property is observed. When
     set to <literal>true</literal> (the default), at startup time the
-    <literal>FilterSecurityInterceptor</literal> will evaluate if the
+    <classname>FilterSecurityInterceptor</classname> will evaluate if the
     provided configuration attributes are valid. It does this by checking
     each configuration attribute can be processed by either the
-    <literal>AccessDecisionManager</literal> or the
+    <interfacename>AccessDecisionManager</interfacename> or the
     <literal>RunAsManager</literal>. If neither of these can process a
     given configuration attribute, an exception is thrown.</para>
   </section>

@@ -107,7 +107,7 @@
             
         </programlisting></para>
         
-        <para>The configured <literal>UserDetailsService</literal> is needed
+        <para>The configured <interfacename>UserDetailsService</interfacename> is needed
             because <literal>DigestProcessingFilter</literal> must have direct
             access to the clear text password of a user. Digest Authentication
             will NOT work if you are using encoded passwords in your DAO. The DAO
@@ -121,14 +121,14 @@
             calculations.</para>
         
         <para>Like <literal>BasicAuthenticationFilter</literal>, if
-            authentication is successful an <literal>Authentication</literal>
+            authentication is successful an <interfacename>Authentication</interfacename>
             request token will be placed into the
-            <literal>SecurityContextHolder</literal>. If the authentication event
+            <classname>SecurityContextHolder</classname>. If the authentication event
             was successful, or authentication was not attempted because the HTTP
             header did not contain a Digest Authentication request, the filter
             chain will continue as normal. The only time the filter chain will be
             interrupted is if authentication fails and the
-            <literal>AuthenticationEntryPoint</literal> is called, as discussed in
+            <interfacename>AuthenticationEntryPoint</interfacename> is called, as discussed in
             the previous paragraph.</para>
         
         <para>Digest Authentication's RFC offers a range of additional

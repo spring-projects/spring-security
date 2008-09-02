@@ -14,11 +14,11 @@
         logout and home pages of an application. There are also other
         situations where anonymous authentication would be desired, such as
         when an auditing interceptor queries the
-        <literal>SecurityContextHolder</literal> to identify which principal
+        <classname>SecurityContextHolder</classname> to identify which principal
         was responsible for a given operation. Such classes can be authored
         with more robustness if they know the
-        <literal>SecurityContextHolder</literal> always contains an
-        <literal>Authentication</literal> object, and never
+        <classname>SecurityContextHolder</classname> always contains an
+        <interfacename>Authentication</interfacename> object, and never
         <literal>null</literal>.</para>
 </section>
 
@@ -28,8 +28,8 @@
     <para>Spring Security provides three classes that together provide an
         anonymous authentication feature.
         <literal>AnonymousAuthenticationToken</literal> is an implementation
-        of <literal>Authentication</literal>, and stores the
-        <literal>GrantedAuthority</literal>[]s which apply to the anonymous
+        of <interfacename>Authentication</interfacename>, and stores the
+        <interfacename>GrantedAuthority</interfacename>[]s which apply to the anonymous
         principal. There is a corresponding
         <literal>AnonymousAuthenticationProvider</literal>, which is chained
         into the <literal>ProviderManager</literal> so that
@@ -37,8 +37,8 @@
         Finally, there is an AnonymousProcessingFilter, which is chained after
         the normal authentication mechanisms and automatically add an
         <literal>AnonymousAuthenticationToken</literal> to the
-        <literal>SecurityContextHolder</literal> if there is no existing
-        <literal>Authentication</literal> held there. The definition of the
+        <classname>SecurityContextHolder</classname> if there is no existing
+        <interfacename>Authentication</interfacename> held there. The definition of the
         filter and authentication provider appears as follows:</para>
 
     <para><programlisting>
@@ -91,12 +91,12 @@
         <literal>isAnonymous(Authentication)</literal> method, which allows
         interested classes to take into account this special type of
         authentication status. The
-        <literal>ExceptionTranslationFilter</literal> uses this interface in
+        <classname>ExceptionTranslationFilter</classname> uses this interface in
         processing <literal>AccessDeniedException</literal>s. If an
         <literal>AccessDeniedException</literal> is thrown, and the
         authentication is of an anonymous type, instead of throwing a 403
         (forbidden) response, the filter will instead commence the
-        <literal>AuthenticationEntryPoint</literal> so the principal can
+        <interfacename>AuthenticationEntryPoint</interfacename> so the principal can
         authenticate properly. This is a necessary distinction, otherwise
         principals would always be deemed "authenticated" and never be given
         an opportunity to login via form, basic, digest or some other normal

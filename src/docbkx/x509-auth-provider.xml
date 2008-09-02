@@ -34,7 +34,7 @@
                 <listitem>
                     <para><literal>subject-principal-regex</literal>. The regular expression used to
                         extract a username from the certificate's subject name. The default value is
-                        shown above. This is the username which will be passed to the <literal>UserDetailsService</literal> to load the authorities for the
+                        shown above. This is the username which will be passed to the <interfacename>UserDetailsService</interfacename> to load the authorities for the
                     user.</para>
                 </listitem>
                 <listitem>

@@ -150,7 +150,7 @@
         in the <link xlink:href="#technical-overview">Technical Overview</link> chapter.
         In this part of the reference guide we will examine individual
       authentication mechanisms and their corresponding
-      <literal>AuthenticationProvider</literal>s. We'll also look at how to
+      <classname>AuthenticationProvider</classname>s. We'll also look at how to
       configure authentication more generally, including if you have several
       authentication approaches that need to be chained together.</para>
       <para>
@@ -213,7 +213,7 @@
       in a consistent and simple way.</para>
 
       <para>In this part we'll explore the different
-      <literal>AbstractSecurityInterceptor</literal> implementations, which
+      <classname>AbstractSecurityInterceptor</classname> implementations, which
       were introduced in Part I. We then move on to explore how to fine-tune
       authorization through use of domain access control lists.</para>
     </partintro>

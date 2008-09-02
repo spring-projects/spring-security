@@ -71,16 +71,16 @@
       <listitem>
         <para>The user eventually requests a page that is either secure or
         one of the beans it uses is secure. Spring Security's
-        <literal>ExceptionTranslationFilter</literal> will detect the
+        <classname>ExceptionTranslationFilter</classname> will detect the
         <literal>AuthenticationException</literal>.</para>
       </listitem>
 
       <listitem>
-        <para>Because the user's <literal>Authentication</literal> object
+        <para>Because the user's <interfacename>Authentication</interfacename> object
         (or lack thereof) caused an
         <literal>AuthenticationException</literal>, the
-        <literal>ExceptionTranslationFilter</literal> will call the
-        configured <literal>AuthenticationEntryPoint</literal>. If using
+        <classname>ExceptionTranslationFilter</classname> will call the
+        configured <interfacename>AuthenticationEntryPoint</interfacename>. If using
         CAS, this will be the
         <literal>CasProcessingFilterEntryPoint</literal> class.</para>
       </listitem>
@@ -126,11 +126,11 @@
         <literal>CasProcessingFilter.CAS_STATEFUL_IDENTIFIER</literal>,
         whilst the credentials will be the service ticket opaque value.
         This authentication request will then be handed to the configured
-        <literal>AuthenticationManager</literal>.</para>
+        <interfacename>AuthenticationManager</interfacename>.</para>
       </listitem>
 
       <listitem>
-        <para>The <literal>AuthenticationManager</literal> implementation
+        <para>The <interfacename>AuthenticationManager</interfacename> implementation
         will be the <literal>ProviderManager</literal>, which is in turn
         configured with the <literal>CasAuthenticationProvider</literal>.
         The <literal>CasAuthenticationProvider</literal> only responds to
@@ -205,18 +205,18 @@
       <listitem>
         <para><literal>CasAuthenticationProvider</literal> will next
         request a <literal>CasAuthoritiesPopulator</literal> to advise the
-        <literal>GrantedAuthority</literal> objects that apply to the user
+        <interfacename>GrantedAuthority</interfacename> objects that apply to the user
         contained in the <literal>TicketResponse</literal>. Spring
         Security includes a <literal>DaoCasAuthoritiesPopulator</literal>
-        which simply uses the <literal>UserDetailsService</literal>
-        infrastructure to find the <literal>UserDetails</literal> and
-        their associated <literal>GrantedAuthority</literal>s. Note that
+        which simply uses the <interfacename>UserDetailsService</interfacename>
+        infrastructure to find the <interfacename>UserDetails</interfacename> and
+        their associated <interfacename>GrantedAuthority</interfacename>s. Note that
         the password and enabled/disabled status of
-        <literal>UserDetails</literal> returned by the
-        <literal>UserDetailsService</literal> are ignored, as the CAS
+        <interfacename>UserDetails</interfacename> returned by the
+        <interfacename>UserDetailsService</interfacename> are ignored, as the CAS
         server is responsible for authentication decisions.
         <literal>DaoCasAuthoritiesPopulator</literal> is only concerned
-        with retrieving the <literal>GrantedAuthority</literal>s.</para>
+        with retrieving the <interfacename>GrantedAuthority</interfacename>s.</para>
       </listitem>
 
       <listitem>
@@ -224,7 +224,7 @@
         <literal>CasAuthenticationProvider</literal> constructs a
         <literal>CasAuthenticationToken</literal> including the details
         contained in the <literal>TicketResponse</literal> and the
-        <literal>GrantedAuthority</literal>s. The
+        <interfacename>GrantedAuthority</interfacename>s. The
         <literal>CasAuthenticationToken</literal> contains the hash of a
         key, so that the <literal>CasAuthenticationProvider</literal>
         knows it created it.</para>
@@ -244,12 +244,12 @@
       </listitem>
 
       <listitem>
-        <para>As the <literal>Authentication</literal> object is now in
+        <para>As the <interfacename>Authentication</interfacename> object is now in
         the well-known location, it is handled like any other
         authentication approach. Usually the
-        <literal>HttpSessionContextIntegrationFilter</literal> will be
-        used to associate the <literal>Authentication</literal> object
-        with the <literal>SecurityContextHolder</literal> for the duration
+        <classname>HttpSessionContextIntegrationFilter</classname> will be
+        used to associate the <interfacename>Authentication</interfacename> object
+        with the <classname>SecurityContextHolder</classname> for the duration
         of each request.</para>
       </listitem>
     </orderedlist>
@@ -323,7 +323,7 @@
       <literal>CasProcessingFilter</literal> needs a reference to it.</para>
 
     <para>For CAS to operate, the
-    <literal>ExceptionTranslationFilter</literal> must have its
+    <classname>ExceptionTranslationFilter</classname> must have its
     <literal>authenticationEntryPoint</literal> property set to the
     <literal>CasProcessingFilterEntryPoint</literal> bean.</para>
 

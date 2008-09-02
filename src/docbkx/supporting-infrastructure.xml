@@ -86,7 +86,7 @@
       are using your own customized versions of classes.</para>
     <para>In this case, you have a choice in how these filters are added to your web application, in that you can use either
         Spring's <literal>DelegatingFilterProxy</literal> or 
-    <literal>FilterChainProxy</literal>. We'll look at both below.</para>
+    <classname>FilterChainProxy</classname>. We'll look at both below.</para>
       
     <para>When using <literal>DelegatingFilterProxy</literal>, you will see
       something like this in the web.xml file:
@@ -135,14 +135,14 @@
     for more information</para>
 
       <para>Rather than using <literal>DelegatingFilterProxy</literal>, we
-    strongly recommend that you use <literal>FilterChainProxy</literal> instead.
+    strongly recommend that you use <classname>FilterChainProxy</classname> instead.
           Whilst <literal>DelegatingFilterProxy</literal> is a very useful class,
     the problem is that the number of lines of code required for
     <literal>&lt;filter&gt;</literal> and
     <literal>&lt;filter-mapping&gt;</literal> entries in
     <literal>web.xml</literal> explodes when using more than a few
     filters. To overcome this issue, Spring Security provides a
-    <literal>FilterChainProxy</literal> class. It is wired using a
+    <classname>FilterChainProxy</classname> class. It is wired using a
           <literal>DelegatingFilterProxy</literal> (just like in the example above),
     but the target class is
     <literal>org.springframework.security.util.FilterChainProxy</literal>.
@@ -162,9 +162,9 @@
     </programlisting></para>
 
     <para>You may notice similarities with the way
-    <literal>FilterSecurityInterceptor</literal> is declared. Both regular
+    <classname>FilterSecurityInterceptor</classname> is declared. Both regular
     expressions and Ant Paths are supported, and the most specific URIs
-    appear first. At runtime the <literal>FilterChainProxy</literal> will
+    appear first. At runtime the <classname>FilterChainProxy</classname> will
     locate the first URI pattern that matches the current web request and the list
     of filter beans specified by the <literal>filters</literal> attribute
     will be applied to that request. The filters will be invoked in the order
@@ -172,28 +172,28 @@
     which is applied to a particular URL.</para>
 
     <para>You may have noticed we have declared two
-    <literal>HttpSessionContextIntegrationFilter</literal>s in the filter
+    <classname>HttpSessionContextIntegrationFilter</classname>s in the filter
     chain (<literal>ASC</literal> is short for
     <literal>allowSessionCreation</literal>, a property of
-    <literal>HttpSessionContextIntegrationFilter</literal>). As web
+    <classname>HttpSessionContextIntegrationFilter</classname>). As web
     services will never present a <literal>jsessionid</literal> on future
     requests, creating <literal>HttpSession</literal>s for such user
     agents would be wasteful. If you had a high-volume application which
     required maximum scalability, we recommend you use the approach shown
     above. For smaller applications, using a single
-    <literal>HttpSessionContextIntegrationFilter</literal> (with its
+    <classname>HttpSessionContextIntegrationFilter</classname> (with its
     default <literal>allowSessionCreation</literal> as
     <literal>true</literal>) would likely be sufficient.</para>
 
     <para>In relation to lifecycle issues, the
-    <literal>FilterChainProxy</literal> will always delegate
+    <classname>FilterChainProxy</classname> will always delegate
     <literal>init(FilterConfig)</literal> and <literal>destroy()</literal>
     methods through to the underlaying <literal>Filter</literal>s if such
-    methods are called against <literal>FilterChainProxy</literal> itself.
-    In this case, <literal>FilterChainProxy</literal> guarantees to only
+    methods are called against <classname>FilterChainProxy</classname> itself.
+    In this case, <classname>FilterChainProxy</classname> guarantees to only
     initialize and destroy each <literal>Filter</literal> once,
     irrespective of how many times it is declared by the
-    <literal>FilterInvocationDefinitionSource</literal>. You control the
+    <interfacename>FilterInvocationDefinitionSource</interfacename>. You control the
     overall choice as to whether these methods are called or not via the
         <literal>targetFilterLifecycle</literal> initialization parameter of the
         <literal>DelegatingFilterProxy</literal> that proxies
@@ -222,17 +222,17 @@
 
       <listitem>
         <para><literal>ConcurrentSessionFilter</literal>, because it
-        doesn't use any <literal>SecurityContextHolder</literal>
+        doesn't use any <classname>SecurityContextHolder</classname>
         functionality but needs to update the
-        <literal>SessionRegistry</literal> to reflect ongoing requests
+        <interfacename>SessionRegistry</interfacename> to reflect ongoing requests
         from the principal</para>
       </listitem>
 
       <listitem>
-        <para><literal>HttpSessionContextIntegrationFilter</literal>, so a
-        <literal>SecurityContext</literal> can be setup in the
-        <literal>SecurityContextHolder</literal> at the beginning of a web
-        request, and any changes to the <literal>SecurityContext</literal>
+        <para><classname>HttpSessionContextIntegrationFilter</classname>, so a
+        <interfacename>SecurityContext</interfacename> can be setup in the
+        <classname>SecurityContextHolder</classname> at the beginning of a web
+        request, and any changes to the <interfacename>SecurityContext</interfacename>
         can be copied to the <literal>HttpSession</literal> when the web
         request ends (ready for use with the next web request)</para>
       </listitem>
@@ -243,8 +243,8 @@
         <literal>CasProcessingFilter</literal>,
         <literal>BasicProcessingFilter, HttpRequestIntegrationFilter,
         JbossIntegrationFilter</literal> etc - so that the
-        <literal>SecurityContextHolder</literal> can be modified to
-        contain a valid <literal>Authentication</literal> request
+        <classname>SecurityContextHolder</classname> can be modified to
+        contain a valid <interfacename>Authentication</interfacename> request
         token</para>
       </listitem>
 
@@ -257,46 +257,46 @@
       </listitem>
 
       <listitem>
-        <para><literal>RememberMeProcessingFilter</literal>, so that if no
+        <para><classname>RememberMeProcessingFilter</classname>, so that if no
         earlier authentication processing mechanism updated the
-        <literal>SecurityContextHolder</literal>, and the request presents
+        <classname>SecurityContextHolder</classname>, and the request presents
         a cookie that enables remember-me services to take place, a
         suitable remembered
-        <literal>Authentication</literal> object will
+        <interfacename>Authentication</interfacename> object will
         be put there</para>
       </listitem>
 
       <listitem>
         <para><literal>AnonymousProcessingFilter</literal>, so that if no
         earlier authentication processing mechanism updated the
-        <literal>SecurityContextHolder</literal>, an anonymous
-        <literal>Authentication</literal> object will be put there</para>
+        <classname>SecurityContextHolder</classname>, an anonymous
+        <interfacename>Authentication</interfacename> object will be put there</para>
       </listitem>
 
       <listitem>
-        <para><literal>ExceptionTranslationFilter</literal>, to catch any
+        <para><classname>ExceptionTranslationFilter</classname>, to catch any
         Spring Security exceptions so that either an HTTP error response
         can be returned or an appropriate
-        <literal>AuthenticationEntryPoint</literal> can be launched</para>
+        <interfacename>AuthenticationEntryPoint</interfacename> can be launched</para>
       </listitem>
 
       <listitem>
-        <para><literal>FilterSecurityInterceptor</literal>, to protect web
+        <para><classname>FilterSecurityInterceptor</classname>, to protect web
         URIs</para>
       </listitem>
     </orderedlist>
 
     <para>All of the above filters use
     <literal>DelegatingFilterProxy</literal> or
-    <literal>FilterChainProxy</literal>. It is recommended that a single
+    <classname>FilterChainProxy</classname>. It is recommended that a single
         <literal>DelegatingFilterProxy</literal> proxy through to a single
-    <literal>FilterChainProxy</literal> for each application, with that
-    <literal>FilterChainProxy</literal> defining all of Spring Security
+    <classname>FilterChainProxy</classname> for each application, with that
+    <classname>FilterChainProxy</classname> defining all of Spring Security
     filters.</para>
 
     <para>If you're using SiteMesh, ensure Spring Security filters execute
     before the SiteMesh filters are called. This enables the
-    <literal>SecurityContextHolder</literal> to be populated in time for
+    <classname>SecurityContextHolder</classname> to be populated in time for
     use by SiteMesh decorators</para>
   </section>
   

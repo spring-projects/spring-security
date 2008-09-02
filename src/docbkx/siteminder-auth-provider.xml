@@ -49,7 +49,7 @@
         &lt;/bean&gt;</programlisting></para>
     
     <para>In our example above, the bean is being provided an
-        <literal>AuthenticationManager</literal>, as is normally needed by
+        <interfacename>AuthenticationManager</interfacename>, as is normally needed by
         authentication mechanisms. Several URLs are also specified, with the
         values being self-explanatory. It's important to also specify the HTTP
         header that Spring Security should inspect. If you additionally want
@@ -61,15 +61,15 @@
         <literal>SiteminderAuthenticationProvider</literal>
         configured against your <literal>ProviderManager</literal> in order to
         use the Siteminder authentication mechanism. Normally an
-        <literal>AuthenticationProvider</literal> expects the password
+        <classname>AuthenticationProvider</classname> expects the password
         property to match what it retrieves from the
         <literal>UserDetailsSource</literal>, but in this case, authentication
         has already been handled by Siteminder, so password property is not
         even relevant. This may sound like a security weakness, but remember
         that users have to authenticate with Siteminder before your
         application ever receives the requests, so the purpose of your custom
-        <literal>UserDetailsService</literal> should simply be to build the
-        complete <literal>Authentication</literal> object (ie with suitable
+        <interfacename>UserDetailsService</interfacename> should simply be to build the
+        complete <interfacename>Authentication</interfacename> object (ie with suitable
         <literal>GrantedAuthority[]</literal>s).</para>
     
     <para>Advanced tip and word to the wise: If you additionally want to

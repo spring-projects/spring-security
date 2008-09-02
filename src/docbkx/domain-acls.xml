@@ -15,8 +15,8 @@
             <literal>org.springframework.security.acls</literal> package.</para>
         <para>Complex applications often will find the need to define access permissions not simply
             at a web request or method invocation level. Instead, security decisions need to
-            comprise both who (<literal>Authentication</literal>), where
-            (<literal>MethodInvocation</literal>) and what (<literal>SomeDomainObject</literal>). In
+            comprise both who (<interfacename>Authentication</interfacename>), where
+            (<classname>MethodInvocation</classname>) and what (<literal>SomeDomainObject</literal>). In
             other words, authorization decisions also need to consider the actual domain object
             instance subject of a method invocation.</para>
         <para>Imagine you're designing an application for a pet clinic. There will be two main
@@ -32,21 +32,21 @@
                         collection within the <literal>Customer</literal> domain object instance to
                         determine which users have access. By using the
                             <literal>SecurityContextHolder.getContext().getAuthentication()</literal>,
-                        you'll be able to access the <literal>Authentication</literal>
+                        you'll be able to access the <interfacename>Authentication</interfacename>
                     object.</para>
                 </listitem>
                 <listitem>
-                    <para>Write an <literal>AccessDecisionVoter</literal> to enforce the security
+                    <para>Write an <interfacename>AccessDecisionVoter</interfacename> to enforce the security
                         from the <literal>GrantedAuthority[]</literal>s stored in the
-                            <literal>Authentication</literal> object. This would mean your
-                            <literal>AuthenticationManager</literal> would need to populate the
-                            <literal>Authentication</literal> with custom
-                        <literal>GrantedAuthority</literal>[]s representing each of the
+                            <interfacename>Authentication</interfacename> object. This would mean your
+                            <interfacename>AuthenticationManager</interfacename> would need to populate the
+                            <interfacename>Authentication</interfacename> with custom
+                        <interfacename>GrantedAuthority</interfacename>[]s representing each of the
                             <literal>Customer</literal> domain object instances the principal has
                         access to.</para>
                 </listitem>
                 <listitem>
-                    <para>Write an <literal>AccessDecisionVoter</literal> to enforce the security
+                    <para>Write an <interfacename>AccessDecisionVoter</interfacename> to enforce the security
                         and open the target <literal>Customer</literal> domain object directly. This
                         would mean your voter needs access to a DAO that allows it to retrieve the
                             <literal>Customer</literal> object. It would then access the
@@ -58,16 +58,16 @@
             authorization checking to your business code. The main problems with this include the
             enhanced difficulty of unit testing and the fact it would be more difficult to reuse the
                 <literal>Customer</literal> authorization logic elsewhere. Obtaining the
-                <literal>GrantedAuthority[]</literal>s from the <literal>Authentication</literal>
+                <literal>GrantedAuthority[]</literal>s from the <interfacename>Authentication</interfacename>
             object is also fine, but will not scale to large numbers of
             <literal>Customer</literal>s. If a user might be able to access 5,000
             <literal>Customer</literal>s (unlikely in this case, but imagine if it were a popular
             vet for a large Pony Club!) the amount of memory consumed and time required to construct
-            the <literal>Authentication</literal> object would be undesirable. The final method,
+            the <interfacename>Authentication</interfacename> object would be undesirable. The final method,
             opening the <literal>Customer</literal> directly from external code, is probably the
             best of the three. It achieves separation of concerns, and doesn't misuse memory or CPU
             cycles, but it is still inefficient in that both the
-            <literal>AccessDecisionVoter</literal> and the eventual business method itself will
+            <interfacename>AccessDecisionVoter</interfacename> and the eventual business method itself will
             perform a call to the DAO responsible for retrieving the <literal>Customer</literal>
             object. Two accesses per method invocation is clearly undesirable. In addition, with
             every approach listed you'll need to write your own access control list (ACL)
@@ -119,8 +119,8 @@
                         system ("SID" stands for "security identity"). The only columns are the ID,
                         a textual representation of the SID, and a flag to indicate whether the
                         textual representation refers to a prncipal name or a
-                            <literal>GrantedAuthority</literal>. Thus, there is a single row for
-                        each unique principal or <literal>GrantedAuthority</literal>. When used in
+                            <interfacename>GrantedAuthority</interfacename>. Thus, there is a single row for
+                        each unique principal or <interfacename>GrantedAuthority</interfacename>. When used in
                         the context of receiving a permission, a SID is generally called a
                         "recipient".</para>
                 </listitem>
@@ -193,7 +193,7 @@
                         <literal>GrantedAuthority[]</literal>s. A level of indirection is provided
                     by the <literal>Sid</literal> interface, which is an abbreviation of "security
                     identity". Common classes include <literal>PrincipalSid</literal> (to represent
-                    the principal inside an <literal>Authentication</literal> object) and
+                    the principal inside an <interfacename>Authentication</interfacename> object) and
                         <literal>GrantedAuthoritySid</literal>. The security identity information is
                     stored in the ACL_SID table.</para>
             </listitem>
@@ -289,7 +289,7 @@ aclService.updateAcl(acl);
         <para>Once you've used the above techniques to store some ACL information in the database,
             the next step is to actually use the ACL information as part of authorization decision
             logic. You have a number of choices here. You could write your own
-                <literal>AccessDecisionVoter</literal> or <literal>AfterInvocationProvider</literal>
+                <interfacename>AccessDecisionVoter</interfacename> or <literal>AfterInvocationProvider</literal>
             that respectively fires before or after a method invocation. Such classes would use
                 <literal>AclService</literal> to retrieve the relevant ACL and then call
                 <literal>Acl.isGranted(Permission[] permission, Sid[] sids, boolean

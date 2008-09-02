@@ -396,7 +396,7 @@
                 property. The authenticator would then call the search object to obtain the correct
                 user's DN before attempting to bind as this user.</para>
         </section>
-        <section>
+        <section xml:id="ldap-custom-user-details">
             <title>LDAP Attributes and Customized UserDetails</title>
             <para>
                 The net result of an authentication using <classname>LdapAuthenticationProvider</classname> is the

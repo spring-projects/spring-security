@@ -95,7 +95,7 @@
         <literal>AuthenticationProcessingFilter</literal>, and is implemented
         via hooks in the <literal>AbstractProcessingFilter</literal>
         superclass. The hooks will invoke a concrete
-        <literal>RememberMeServices</literal> at the appropriate times. The
+        <interfacename>RememberMeServices</interfacename> at the appropriate times. The
         interface looks like this:
     <programlisting>
   Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
@@ -107,9 +107,9 @@
         <literal>AbstractProcessingFilter</literal> only calls the
         <literal>loginFail()</literal> and <literal>loginSuccess()</literal>
         methods. The <literal>autoLogin()</literal> method is called by
-        <literal>RememberMeProcessingFilter</literal> whenever the
-        <literal>SecurityContextHolder</literal> does not contain an
-        <literal>Authentication</literal>. This interface therefore provides
+        <classname>RememberMeProcessingFilter</classname> whenever the
+        <classname>SecurityContextHolder</classname> does not contain an
+        <interfacename>Authentication</interfacename>. This interface therefore provides
         the underlying remember-me implementation with sufficient
         notification of authentication-related events, and delegates to the
         implementation whenever a candidate web request might contain a cookie
@@ -130,7 +130,7 @@
                 UserDetailsService from which it can retrieve the username and
                 password for signature comparison purposes, and generate the
                 <literal>RememberMeAuthenticationToken</literal> to contain the
-                correct <literal>GrantedAuthority</literal>[]s. Some sort of logout
+                correct <interfacename>GrantedAuthority</interfacename>[]s. Some sort of logout
                 command should be provided by the application that invalidates the cookie if
                 the user requests this. <classname>TokenBasedRememberMeServices</classname> also implements Spring Security's 
                 <interfacename>LogoutHandler</interfacename> interface so can be used with <classname>LogoutFilter</classname>
@@ -155,13 +155,13 @@
 </bean>
 ]]>        
             </programlisting>Don't forget to add your
-                <literal>RememberMeServices</literal> implementation to your
+                <interfacename>RememberMeServices</interfacename> implementation to your
                 <literal>AuthenticationProcessingFilter.setRememberMeServices()</literal>
                 property, include the
                 <literal>RememberMeAuthenticationProvider</literal> in your
                 <literal>AuthenticationManager.setProviders()</literal> list, and add
-                <literal>RememberMeProcessingFilter</literal> into your
-                <literal>FilterChainProxy</literal> (typically immediately after your
+                <classname>RememberMeProcessingFilter</classname> into your
+                <classname>FilterChainProxy</classname> (typically immediately after your
                 <literal>AuthenticationProcessingFilter</literal>).</para>           
         </section>
         <section>

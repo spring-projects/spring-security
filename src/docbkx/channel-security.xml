@@ -66,7 +66,7 @@
 <bean id="secureChannelProcessor" class="org.springframework.security.securechannel.SecureChannelProcessor"/>
 <bean id="insecureChannelProcessor" class="org.springframework.security.securechannel.InsecureChannelProcessor"/>]]>      
 </programlisting>
-        Like <literal>FilterSecurityInterceptor</literal>, Apache Ant
+        Like <classname>FilterSecurityInterceptor</classname>, Apache Ant
         style paths are also supported by the
         <literal>ChannelProcessingFilter</literal>.</para>
     
@@ -146,15 +146,15 @@
     
     <para>To decide whether a security check belongs in a
         <literal>ChannelProcessor</literal> or an
-        <literal>AccessDecisionVoter</literal>, remember that the former is
+        <interfacename>AccessDecisionVoter</interfacename>, remember that the former is
         designed to handle unauthenticated requests, whilst the latter is
         designed to handle authenticated requests. The latter therefore has
         access to the granted authorities of the authenticated principal. In
         addition, problems detected by a <literal>ChannelProcessor</literal>
         will generally cause an HTTP/HTTPS redirection so its requirements can
         be met, whilst problems detected by an
-        <literal>AccessDecisionVoter</literal> will ultimately result in an
+        <interfacename>AccessDecisionVoter</interfacename> will ultimately result in an
         <literal>AccessDeniedException</literal> (depending on the governing
-        <literal>AccessDecisionManager</literal>).</para>
+        <interfacename>AccessDecisionManager</interfacename>).</para>
 </section>
 </chapter>

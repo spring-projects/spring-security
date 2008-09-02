@@ -92,7 +92,7 @@
         currently logged on user are displayed, and only users with
         <literal>ROLE_SUPERVISOR</literal> are granted access to delete their
         contacts. Behind the scenes, the
-        <literal>MethodSecurityInterceptor</literal> is securing the business
+        <classname>MethodSecurityInterceptor</classname> is securing the business
         objects. </para>
          <para>The application allows you to modify the access control lists associated
         with different contacts. Be sure to give this a try and understand how
