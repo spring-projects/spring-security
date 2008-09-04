@@ -309,6 +309,10 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         this.cookieName = cookieName;
     }
 
+    protected String getCookieName() {
+        return cookieName;
+    }
+
     public void setAlwaysRemember(boolean alwaysRemember) {
         this.alwaysRemember = alwaysRemember;
     }
