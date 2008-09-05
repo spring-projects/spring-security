@@ -18,12 +18,14 @@ import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.sql.DataSource;
 
@@ -173,14 +175,33 @@ public final class BasicLookupStrategy implements LookupStrategy {
                 auditLogger, parent, null, inputAcl.isEntriesInheriting(), inputAcl.getOwner());
 
         // Copy the "aces" from the input to the destination
-        Field field = FieldUtils.getField(AclImpl.class, "aces");
-
+        Field fieldAces = FieldUtils.getField(AclImpl.class, "aces");
+        Field fieldAcl = FieldUtils.getField(AccessControlEntryImpl.class, "acl");
+        
         try {
-            field.setAccessible(true);
-            field.set(result, field.get(inputAcl));
+         	fieldAces.setAccessible(true);
+            fieldAcl.setAccessible(true);
+
+            // Obtain the "aces" from the input ACL
+            Iterator i = ((List) fieldAces.get(inputAcl)).iterator();
+
+            // Create a list in which to store the "aces" for the "result" AclImpl instance
+            List acesNew = new ArrayList();
+
+            // Iterate over the "aces" input and replace each nested AccessControlEntryImpl.getAcl() with the new "result" AclImpl instance
+            // This ensures StubAclParent instances are removed, as per SEC-951
+            while(i.hasNext()) {
+	            AccessControlEntryImpl ace = (AccessControlEntryImpl) i.next();
+	            fieldAcl.set(ace, result);
+	            acesNew.add(ace);
+            }
+            
+            // Finally, now that the "aces" have been converted to have the "result" AclImpl instance, modify the "result" AclImpl instance
+            fieldAces.set(result, acesNew);
         } catch (IllegalAccessException ex) {
-            throw new IllegalStateException("Could not obtain or set AclImpl.ace field");
+            throw new IllegalStateException("Could not obtain or set AclImpl or AccessControlEntryImpl fields");
         }
+        
 
         return result;
     }
