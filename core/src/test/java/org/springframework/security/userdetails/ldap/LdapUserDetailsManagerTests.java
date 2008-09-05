@@ -46,8 +46,8 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         DirContextAdapter ctx = new DirContextAdapter();
 
         ctx.setAttributeValue("objectclass", "organizationalUnit");
-        ctx.setAttributeValue("ou", "testpeople");
-        template.bind("ou=testpeople", ctx, null);
+        ctx.setAttributeValue("ou", "test people");
+        template.bind("ou=test people", ctx, null);
 
         ctx.setAttributeValue("ou", "testgroups");
         template.bind("ou=testgroups", ctx, null);
@@ -56,13 +56,13 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 
         group.setAttributeValue("objectclass", "groupOfNames");
         group.setAttributeValue("cn", "clowns");
-        group.setAttributeValue("member", "cn=nobody,ou=testpeople,dc=springframework,dc=org");
+        group.setAttributeValue("member", "cn=nobody,ou=test people,dc=springframework,dc=org");
         template.bind("cn=clowns,ou=testgroups", group, null);
 
         group.setAttributeValue("cn", "acrobats");
         template.bind("cn=acrobats,ou=testgroups", group, null);
 
-        mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=testpeople","uid"));
+        mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=test people","uid"));
         mgr.setGroupSearchBase("ou=testgroups");
         mgr.setGroupRoleAttributeName("cn");
         mgr.setGroupMemberAttributeName("member");
@@ -79,7 +79,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 //            template.unbind((String) people.next() + ",ou=testpeople");
 //        }
 
-        template.unbind("ou=testpeople",true);
+        template.unbind("ou=test people",true);
         template.unbind("ou=testgroups",true);
 
         SecurityContextHolder.clearContext();
@@ -116,7 +116,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
     @Test
     public void testCreateNewUserSucceeds() {
         InetOrgPerson.Essence p = new InetOrgPerson.Essence();
-        p.setCarLicense("XXX");        
+        p.setCarLicense("XXX");
         p.setCn(new String[] {"Joe Smeth"});
         p.setDepartmentNumber("5679");
         p.setDescription("Some description");
@@ -130,7 +130,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         p.setRoomNumber("500X");
         p.setSn("Smeth");
         p.setUid("joe");
-        
+
         p.setAuthorities(TEST_AUTHORITIES);
 
         mgr.createUser(p.createUserDetails());
@@ -182,7 +182,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 
         mgr.changePassword("yossarianspassword", "yossariansnewpassword");
 
-        assertTrue(template.compare("uid=johnyossarian,ou=testpeople",
+        assertTrue(template.compare("uid=johnyossarian,ou=test people",
                 "userPassword", "yossariansnewpassword"));
     }
 

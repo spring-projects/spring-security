@@ -184,7 +184,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
             public Object executeWithContext(DirContext dirCtx) throws NamingException {
                 LdapContext ctx = (LdapContext) dirCtx;
                 ctx.removeFromEnvironment("com.sun.jndi.ldap.connect.pool");
-                ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, LdapUtils.getFullDn(dn, ctx).toUrl());
+                ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, LdapUtils.getFullDn(dn, ctx).toString());
                 ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, oldPassword);
                 // TODO: reconnect doesn't appear to actually change the credentials
                 try {
