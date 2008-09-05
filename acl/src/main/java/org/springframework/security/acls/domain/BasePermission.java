@@ -28,14 +28,16 @@ import org.springframework.security.acls.Permission;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasePermission extends AbstractRegisteredPermission {
+public class BasePermission extends AbstractPermission {
     public static final Permission READ = new BasePermission(1 << 0, 'R'); // 1
     public static final Permission WRITE = new BasePermission(1 << 1, 'W'); // 2
     public static final Permission CREATE = new BasePermission(1 << 2, 'C'); // 4
     public static final Permission DELETE = new BasePermission(1 << 3, 'D'); // 8
     public static final Permission ADMINISTRATION = new BasePermission(1 << 4, 'A'); // 16
     
-    /**
+	protected static DefaultPermissionFactory defaultPermissionFactory = new DefaultPermissionFactory();
+
+	/**
      * Registers the public static permissions defined on this class. This is mandatory so
      * that the static methods will operate correctly.
      */
@@ -46,4 +48,25 @@ public class BasePermission extends AbstractRegisteredPermission {
     protected BasePermission(int mask, char code) {
     	super(mask, code);
     }
+
+    protected final static void registerPermissionsFor(Class subClass) {
+    	defaultPermissionFactory.registerPublicPermissions(subClass);
+    }
+    
+    public final static Permission buildFromMask(int mask) {
+        return defaultPermissionFactory.buildFromMask(mask);
+    }
+
+    public final static Permission[] buildFromMask(int[] masks) {
+        return defaultPermissionFactory.buildFromMask(masks);
+    }
+
+    public final static Permission buildFromName(String name) {
+    	return defaultPermissionFactory.buildFromName(name);
+    }
+
+    public final static Permission[] buildFromName(String[] names) {
+        return defaultPermissionFactory.buildFromName(names);
+    }
+
 }

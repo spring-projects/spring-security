@@ -33,6 +33,12 @@ public class PermissionTests {
     //~ Methods ========================================================================================================
 
     @Test
+    public void basePermissionTest() {
+    	Permission p = BasePermission.buildFromName("WRITE");
+    	assertNotNull(p);
+    }
+
+    @Test
     public void expectedIntegerValues() {
         assertEquals(1, BasePermission.READ.getMask());
         assertEquals(16, BasePermission.ADMINISTRATION.getMask());
