@@ -20,7 +20,6 @@ import org.springframework.security.intercept.method.MapBasedMethodDefinitionSou
 import org.springframework.security.intercept.method.ProtectPointcutPostProcessor;
 import org.springframework.security.intercept.method.aopalliance.MethodDefinitionSourceAdvisor;
 import org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
