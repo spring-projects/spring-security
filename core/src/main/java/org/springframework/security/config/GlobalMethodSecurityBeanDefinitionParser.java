@@ -91,7 +91,6 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         boolean useJsr250 = "enabled".equals(element.getAttribute(ATT_USE_JSR250));
         boolean useSecured = "enabled".equals(element.getAttribute(ATT_USE_SECURED));
 
-        // Check the required classes are present
         if (useSecured) {
             delegates.add(BeanDefinitionBuilder.rootBeanDefinition(SECURED_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
         }
