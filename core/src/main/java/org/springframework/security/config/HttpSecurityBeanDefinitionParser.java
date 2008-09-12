@@ -273,8 +273,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         exceptionTranslationFilterBuilder.addPropertyValue("createSessionAllowed", new Boolean(allowSessionCreation));
 
         if (StringUtils.hasText(accessDeniedPage)) {
-            AccessDeniedHandlerImpl accessDeniedHandler = new AccessDeniedHandlerImpl();
-            accessDeniedHandler.setErrorPage(accessDeniedPage);
+        	BeanDefinition accessDeniedHandler = new RootBeanDefinition(AccessDeniedHandlerImpl.class);
+        	accessDeniedHandler.getPropertyValues().addPropertyValue("errorPage", accessDeniedPage);
             exceptionTranslationFilterBuilder.addPropertyValue("accessDeniedHandler", accessDeniedHandler);
         }
 

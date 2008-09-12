@@ -267,7 +267,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals("/access-denied", FieldUtils.getFieldValue(etf, "accessDeniedHandler.errorPage"));
     }
 
-    @Test(expected=BeanDefinitionStoreException.class)
+    @Test(expected=BeanCreationException.class)
     public void invalidAccessDeniedUrlIsDetected() throws Exception {
         setContext("<http auto-config='true' access-denied-page='noLeadingSlash'/>" + AUTH_PROVIDER_XML);
     }
@@ -316,6 +316,16 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals(1, pm.getTranslatedPortMappings().size());
         assertEquals(Integer.valueOf(9080), pm.lookupHttpPort(9443));
         assertEquals(Integer.valueOf(9443), pm.lookupHttpsPort(9080));
+    }
+
+    @Test
+    public void accessDeniedPageWorkWithPlaceholders() throws Exception {
+        System.setProperty("accessDenied", "/go-away");
+        setContext(
+                "    <b:bean id='configurer' class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
+                "    <http auto-config='true' access-denied-page='${accessDenied}'/>" + AUTH_PROVIDER_XML);
+        ExceptionTranslationFilter filter = (ExceptionTranslationFilter) appContext.getBean(BeanIds.EXCEPTION_TRANSLATION_FILTER);
+        assertEquals("/go-away", FieldUtils.getFieldValue(filter, "accessDeniedHandler.errorPage"));
     }
 
     @Test
