@@ -122,7 +122,8 @@ import javax.servlet.http.HttpSession;
  * The behaviour is turned off by default. Additionally there is a property <tt>migrateInvalidatedSessionAttributes</tt>
  * which tells if on session invalidation we are to migrate all session attributes from the old session to a newly
  * created one. This is turned on by default, but not used unless <tt>invalidateSessionOnSuccessfulAuthentication</tt>
- * is true.
+ * is true. If you are using this feature in combination with concurrent session control, you should set the
+ * <tt>sessionRegistry</tt> property to make sure that the session information is updated consistently.
  *
  * @author Ben Alex
  * @version $Id$
@@ -147,14 +148,14 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     private Properties exceptionMappings = new Properties();
 
-    /** 
+    /**
      * Delay use of NullRememberMeServices until initialization so that namespace has a chance to inject
      * the RememberMeServices implementation into custom implementations.
-     */ 
+     */
     private RememberMeServices rememberMeServices = null;
 
     private TargetUrlResolver targetUrlResolver = new TargetUrlResolverImpl();
-    
+
     /** Where to redirect the browser to if authentication fails */
     private String authenticationFailureUrl;
 
@@ -210,22 +211,22 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     private boolean migrateInvalidatedSessionAttributes = true;
 
     private boolean allowSessionCreation = true;
-    
+
     private boolean serverSideRedirect = false;
-    
+
     private SessionRegistry sessionRegistry;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
-        Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");        
+        Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");
         Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
-        Assert.isTrue(UrlUtils.isValidRedirectUrl(defaultTargetUrl), defaultTargetUrl + " isn't a valid redirect URL");        
+        Assert.isTrue(UrlUtils.isValidRedirectUrl(defaultTargetUrl), defaultTargetUrl + " isn't a valid redirect URL");
         Assert.isTrue(UrlUtils.isValidRedirectUrl(authenticationFailureUrl), authenticationFailureUrl + " isn't a valid redirect URL");
         Assert.notNull(authenticationManager, "authenticationManager must be specified");
         Assert.notNull(targetUrlResolver, "targetUrlResolver cannot be null");
-        
+
         if (rememberMeServices == null) {
         	rememberMeServices = new NullRememberMeServices();
         }
@@ -279,7 +280,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     public static String obtainFullSavedRequestUrl(HttpServletRequest request) {
     	SavedRequest savedRequest = getSavedRequest(request);
-    	
+
         return savedRequest == null ? null : savedRequest.getFullRequestUrl();
     }
 
@@ -294,7 +295,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
 		return savedRequest;
  	}
-    
+
     protected void onPreAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException {
     }
@@ -387,7 +388,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     protected String determineTargetUrl(HttpServletRequest request) {
         // Don't attempt to obtain the url from the saved request if alwaysUsedefaultTargetUrl is set
-    	String targetUrl = alwaysUseDefaultTargetUrl ? null : 
+    	String targetUrl = alwaysUseDefaultTargetUrl ? null :
     		targetUrlResolver.determineTargetUrl(getSavedRequest(request), request, SecurityContextHolder.getContext().getAuthentication());
 
         if (targetUrl == null) {
@@ -424,11 +425,11 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         onUnsuccessfulAuthentication(request, response, failed);
 
         rememberMeServices.loginFail(request, response);
-        
+
         if (failureUrl == null) {
         	response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication Failed:" + failed.getMessage());
         } else if (serverSideRedirect){
-            request.getRequestDispatcher(failureUrl).forward(request, response);            
+            request.getRequestDispatcher(failureUrl).forward(request, response);
         } else {
         	sendRedirect(request, response, failureUrl);
         }
@@ -573,13 +574,13 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
      * Tells if we are to do a server side include of the error URL instead of a 302 redirect.
      *
      * @param serverSideRedirect
-     */	
+     */
 	public void setServerSideRedirect(boolean serverSideRedirect) {
 		this.serverSideRedirect = serverSideRedirect;
 	}
 
 	/**
-	 * The session registry needs to be set if session fixation attack protection is in use (and concurrent 
+	 * The session registry needs to be set if session fixation attack protection is in use (and concurrent
 	 * session control is enabled).
 	 */
     public void setSessionRegistry(SessionRegistry sessionRegistry) {
