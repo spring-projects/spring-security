@@ -76,7 +76,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
     //~ Methods ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.userDetailsService, "A userDetailsService must be set");
         Assert.notNull(this.ticketValidator, "A ticketValidator must be set");
         Assert.notNull(this.statelessTicketCache, "A statelessTicketCache must be set");
@@ -140,29 +140,38 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         return result;
     }
 
-    private CasAuthenticationToken authenticateNow(Authentication authentication) throws AuthenticationException {
-    	try {
-    		final Assertion assertion = this.ticketValidator.validate(authentication.getCredentials().toString(), serviceProperties.getService());
-            final UserDetails userDetails = userDetailsService.loadUserByUsername(assertion.getPrincipal().getName());
+    private final CasAuthenticationToken authenticateNow(final Authentication authentication) throws AuthenticationException {
+        try {
+            final Assertion assertion = this.ticketValidator.validate(authentication.getCredentials().toString(), serviceProperties.getService());
+            final UserDetails userDetails = loadUserByAssertion(assertion);
             userDetailsChecker.check(userDetails);        
-    		return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(),
-    	            userDetails.getAuthorities(), userDetails, assertion);
-    	} catch (final TicketValidationException e) {
-    		// TODO get error message
-    		throw new BadCredentialsException("", e);
-    	}
+            return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(), userDetails.getAuthorities(), userDetails, assertion);
+        } catch (final TicketValidationException e) {
+            throw new BadCredentialsException(e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Template method for retrieving the UserDetails based on the assertion.  Default is to call configured userDetailsService and pass the username.  Deployers
+     * can override this method and retrieve the user based on any criteria they desire.
+     * 
+     * @param assertion The CAS Assertion.
+     * @returns the UserDetails.
+     */
+    protected UserDetails loadUserByAssertion(final Assertion assertion) {
+        return this.userDetailsService.loadUserByUsername(assertion.getPrincipal().getName());
     }
 
     protected UserDetailsService getUserDetailsService() {
         return userDetailsService;
     }
 
-    public void setUserDetailsService(UserDetailsService userDetailsService) {
+    public void setUserDetailsService(final UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
     
     public void setServiceProperties(final ServiceProperties serviceProperties) {
-    	this.serviceProperties = serviceProperties;
+        this.serviceProperties = serviceProperties;
     }
 
     protected String getKey() {
@@ -181,15 +190,15 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         return ticketValidator;
     }
 
-    public void setMessageSource(MessageSource messageSource) {
+    public void setMessageSource(final MessageSource messageSource) {
         this.messages = new MessageSourceAccessor(messageSource);
     }
 
-    public void setStatelessTicketCache(StatelessTicketCache statelessTicketCache) {
+    public void setStatelessTicketCache(final StatelessTicketCache statelessTicketCache) {
         this.statelessTicketCache = statelessTicketCache;
     }
 
-    public void setTicketValidator(TicketValidator ticketValidator) {
+    public void setTicketValidator(final TicketValidator ticketValidator) {
         this.ticketValidator = ticketValidator;
     }
 
