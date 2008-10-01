@@ -228,7 +228,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         Assert.notNull(targetUrlResolver, "targetUrlResolver cannot be null");
 
         if (rememberMeServices == null) {
-        	rememberMeServices = new NullRememberMeServices();
+            rememberMeServices = new NullRememberMeServices();
         }
     }
 
@@ -279,7 +279,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     }
 
     public static String obtainFullSavedRequestUrl(HttpServletRequest request) {
-    	SavedRequest savedRequest = getSavedRequest(request);
+        SavedRequest savedRequest = getSavedRequest(request);
 
         return savedRequest == null ? null : savedRequest.getFullRequestUrl();
     }
@@ -293,8 +293,8 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
         SavedRequest savedRequest = (SavedRequest) session.getAttribute(SPRING_SECURITY_SAVED_REQUEST_KEY);
 
-		return savedRequest;
- 	}
+        return savedRequest;
+     }
 
     protected void onPreAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException {
@@ -388,8 +388,8 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     protected String determineTargetUrl(HttpServletRequest request) {
         // Don't attempt to obtain the url from the saved request if alwaysUsedefaultTargetUrl is set
-    	String targetUrl = alwaysUseDefaultTargetUrl ? null :
-    		targetUrlResolver.determineTargetUrl(getSavedRequest(request), request, SecurityContextHolder.getContext().getAuthentication());
+        String targetUrl = alwaysUseDefaultTargetUrl ? null :
+            targetUrlResolver.determineTargetUrl(getSavedRequest(request), request, SecurityContextHolder.getContext().getAuthentication());
 
         if (targetUrl == null) {
             targetUrl = getDefaultTargetUrl();
@@ -427,11 +427,11 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         rememberMeServices.loginFail(request, response);
 
         if (failureUrl == null) {
-        	response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication Failed:" + failed.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication Failed:" + failed.getMessage());
         } else if (serverSideRedirect){
             request.getRequestDispatcher(failureUrl).forward(request, response);
         } else {
-        	sendRedirect(request, response, failureUrl);
+            sendRedirect(request, response, failureUrl);
         }
     }
 
@@ -482,7 +482,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         this.defaultTargetUrl = defaultTargetUrl;
     }
 
-    Properties getExceptionMappings() {
+    protected Properties getExceptionMappings() {
         return new Properties(exceptionMappings);
     }
 
@@ -556,33 +556,33 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         this.allowSessionCreation = allowSessionCreation;
     }
 
-	/**
-	 * @return the targetUrlResolver
-	 */
-	protected TargetUrlResolver getTargetUrlResolver() {
-		return targetUrlResolver;
-	}
+    /**
+     * @return the targetUrlResolver
+     */
+    protected TargetUrlResolver getTargetUrlResolver() {
+        return targetUrlResolver;
+    }
 
-	/**
-	 * @param targetUrlResolver the targetUrlResolver to set
-	 */
-	public void setTargetUrlResolver(TargetUrlResolver targetUrlResolver) {
-		this.targetUrlResolver = targetUrlResolver;
-	}
+    /**
+     * @param targetUrlResolver the targetUrlResolver to set
+     */
+    public void setTargetUrlResolver(TargetUrlResolver targetUrlResolver) {
+        this.targetUrlResolver = targetUrlResolver;
+    }
 
     /**
      * Tells if we are to do a server side include of the error URL instead of a 302 redirect.
      *
      * @param serverSideRedirect
      */
-	public void setServerSideRedirect(boolean serverSideRedirect) {
-		this.serverSideRedirect = serverSideRedirect;
-	}
+    public void setServerSideRedirect(boolean serverSideRedirect) {
+        this.serverSideRedirect = serverSideRedirect;
+    }
 
-	/**
-	 * The session registry needs to be set if session fixation attack protection is in use (and concurrent
-	 * session control is enabled).
-	 */
+    /**
+     * The session registry needs to be set if session fixation attack protection is in use (and concurrent
+     * session control is enabled).
+     */
     public void setSessionRegistry(SessionRegistry sessionRegistry) {
         this.sessionRegistry = sessionRegistry;
     }
