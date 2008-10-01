@@ -78,11 +78,6 @@
 
     <repositories>
 		<repository>
-			<id>spring-release</id>
-			<name>Spring Portfolio Release Repository</name>
-			<url>http://s3.amazonaws.com/maven.springframework.org/release</url>
-		</repository>
-		<repository>
 			<id>spring-external</id>
 			<name>Spring Portfolio Release Repository</name>
 			<url>http://s3.amazonaws.com/maven.springframework.org/external</url>
