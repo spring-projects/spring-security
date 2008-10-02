@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security-2.0.2.xsd">
+
+	<!-- Configure Spring Security -->
+	<security:http auto-config="true">
+		<security:form-login login-page="/app/login" login-processing-url="/app/authenticate" authentication-failure-url="/app/login?login_error=1" />
+		<security:logout logout-url="/app/logout" />
+	</security:http>
+	
+	<!--
+		Define local authentication provider, a real app would use an external provider (JDBC, LDAP, CAS, etc)
+		
+		usernames/passwords are:
+			keith/melbourne
+			erwin/leuven
+			jeremy/atlanta
+			scott/rochester
+	-->
+	<security:authentication-provider>
+		<security:password-encoder hash="md5" />
+		<security:user-service>
+			<security:user name="keith" password="417c7382b16c395bc25b5da1398cf076" authorities="ROLE_USER, ROLE_SUPERVISOR" />
+			<security:user name="erwin" password="12430911a8af075c6f41c6976af22b09" authorities="ROLE_USER, ROLE_SUPERVISOR" />
+			<security:user name="jeremy" password="57c6cbff0d421449be820763f03139eb" authorities="ROLE_USER" />
+			<security:user name="scott" password="942f2339bf50796de535a384f0d1af3e" authorities="ROLE_USER" />
+		</security:user-service>
+	</security:authentication-provider>
+	
+</beans>

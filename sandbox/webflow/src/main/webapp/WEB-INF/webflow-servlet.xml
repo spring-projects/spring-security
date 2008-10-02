@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:webflow="http://www.springframework.org/schema/webflow-config"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://www.springframework.org/schema/webflow-config
+        http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.0.xsd">
+
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+		    <value>
+	            /secure=flowController
+		    </value>
+		</property>		    
+		<property name="defaultHandler">
+			<bean class="org.springframework.web.servlet.mvc.UrlFilenameViewController" />
+		</property>
+	</bean>
+
+	<bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+	  <property name="templateLoaderPath" value="/WEB-INF/freemarker/"/>
+	</bean>
+
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="prefix" value=""/>
+		<property name="suffix" value=".ftl"/>
+	</bean>
+	
+	<bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter" />
+
+    <bean id="flowController" class="org.springframework.webflow.mvc.servlet.FlowController">
+        <property name="flowExecutor" ref="flowExecutor"/>
+    </bean>
+
+	<!-- Executes flows: the entry point into the Spring Web Flow system -->
+	<webflow:flow-executor id="flowExecutor">
+		<webflow:flow-execution-listeners>
+			<webflow:listener ref="securityFlowExecutionListener" />
+		</webflow:flow-execution-listeners>
+	</webflow:flow-executor>
+	
+	<!-- The registry of executable flow definitions -->
+	<webflow:flow-registry id="flowRegistry" flow-builder-services="flowBuilderServices">
+		<webflow:flow-location id="secure" path="/WEB-INF/secure.xml" />
+	</webflow:flow-registry>
+		
+	<!-- Plugs in a custom creator for Web Flow views -->
+	<webflow:flow-builder-services id="flowBuilderServices" view-factory-creator="mvcViewFactoryCreator" />
+
+	<bean id="mvcViewFactoryCreator" class="org.springframework.webflow.mvc.builder.MvcViewFactoryCreator"> 
+		<property name="viewResolvers" ref="viewResolver"/> 
+	</bean>
+
+	<bean id="securityFlowExecutionListener" class="org.springframework.webflow.security.SecurityFlowExecutionListener" />
+
+</beans>
