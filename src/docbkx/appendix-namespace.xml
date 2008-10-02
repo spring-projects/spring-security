@@ -472,7 +472,7 @@
     </para>
     
     <section>
-      <title>The &lt;authentication-provider&lt; Element</title>
+      <title>The &lt;authentication-provider&gt; Element</title>
       <para>
         This element is basically a shorthand syntax for configuring a <link xlink:href="#dao-provider"><classname>DaoAuthenticationProvider</classname></link>.
         <classname>DaoAuthenticationProvider</classname> loads user information from a <interfacename>UserDetailsService</interfacename> and 
