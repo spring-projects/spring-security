@@ -465,7 +465,7 @@
       If you are using the namespace, an <interfacename>AuthenticationManager</interfacename> is
       automatically registered and will be used by all the namespace-created beans which need to reference it.
       The bean is an instance of Spring Security's <classname>ProviderManager</classname> class, which needs to be
-      configured with a list of one or more<interfacename>AuthenticationProvider</interfacename> instances.
+      configured with a list of one or more <interfacename>AuthenticationProvider</interfacename> instances.
       These can either be created using syntax elements provided by the namespace, or they can be
       standard bean definitions, marked for addition to the list using the 
       <literal>custom-authentication-provider</literal> element.
