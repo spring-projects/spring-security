@@ -15,16 +15,28 @@
 
 package org.springframework.security.annotation.test;
 
+import java.util.Collection;
+
+
 /**
- * DOCUMENT ME!
  *
- * @author $author$
- * @version $Revision: 1496 $
-  */
-public class OrganisationServiceImpl extends ServiceImpl<Organisation> implements OrganisationService {
+ */
+public class ServiceImpl<E extends Entity> implements Service<E> {
     //~ Methods ========================================================================================================
 
-    public void deactive(Organisation org) {
-        org.deactive();
+    public int countElements(Collection<E> ids) {
+        return 0;
+    }
+
+    public void makeLowerCase(E input) {
+        input.makeLowercase();
+    }
+
+    public void makeUpperCase(E input) {
+        input.makeUppercase();
+    }
+
+    public void publicMakeLowerCase(E input) {
+        input.makeUppercase();
     }
 }

@@ -13,38 +13,13 @@
  * limitations under the License.
  */
 
-package sample.annotations;
-
-import org.acegisecurity.annotation.Secured;
-
+package org.springframework.security.annotation.test;
 
 /**
- * <code>BankService</code> sample using Java 5 Annotations.
  *
- * @author Mark St.Godard
- * @version $Id$
- * 
- * @see org.acegisecurity.annotation.Secured
  */
-@Secured({"ROLE_TELLER"})
-public interface BankService {
+public interface PersonService extends Service<Person> {
     //~ Methods ========================================================================================================
 
-    /**
-     * Get the account balance.
-     *
-     * @param accountNumber The account number
-     *
-     * @return The balance
-     */
-    @Secured({"ROLE_PERMISSION_BALANCE"})
-    public float balance(String accountNumber);
-
-    /**
-     * List accounts
-     *
-     * @return The list of accounts
-     */
-    @Secured({"ROLE_PERMISSION_LIST"})
-    public String[] listAccounts();
+    public void deactive(Person person);
 }

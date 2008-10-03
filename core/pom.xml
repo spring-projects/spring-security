@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-parent</artifactId>
-        <version>2.0.5-SNAPSHOT</version>
+        <version>2.5.0-SNAPSHOT</version>
     </parent>
     <packaging>bundle</packaging>
     <artifactId>spring-security-core</artifactId>
@@ -47,27 +47,27 @@
             <artifactId>spring-mock</artifactId>
             <optional>true</optional>
         </dependency>
-	    <dependency>
-	        <groupId>org.aspectj</groupId>
-		<artifactId>aspectjrt</artifactId>
-		<optional>true</optional>
-	    </dependency>
-	    <dependency>
-	        <groupId>org.aspectj</groupId>
-		<artifactId>aspectjweaver</artifactId>
-		<optional>true</optional>
-	    </dependency>	    
+        <dependency>
+            <groupId>org.aspectj</groupId>
+        <artifactId>aspectjrt</artifactId>
+        <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+        <artifactId>aspectjweaver</artifactId>
+        <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>org.springframework.ldap</groupId>
             <artifactId>spring-ldap</artifactId>
             <optional>true</optional>
         </dependency>
-	    <dependency>
-	        <groupId>cglib</groupId>
-		    <artifactId>cglib-nodep</artifactId>
-		    <scope>test</scope>
-		    <optional>true</optional>
-	    </dependency>	    
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
@@ -95,7 +95,7 @@
             <artifactId>jaxen</artifactId>
             <version>1.1.1</version>
             <optional>true</optional>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -123,6 +123,12 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>annotations-api</artifactId>
+            <version>6.0.14</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.4.3</version>
@@ -141,14 +147,14 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
-    
-    <properties>
-      	<spring.osgi.export>
-      	    org.springframework.security.*;version=${pom.version}
-      	</spring.osgi.export>
 
-    	<spring.osgi.import>
-    	    !com.ibm.websphere.security,
+    <properties>
+          <spring.osgi.export>
+              org.springframework.security.*;version=${pom.version}
+          </spring.osgi.export>
+
+        <spring.osgi.import>
+            !com.ibm.websphere.security,
             javax.servlet.*;version="[2.4.0, 3.0.0)";resolution:=optional,
             net.sf.ehcache.*;version="[1.4.1, 2.0.0)";resolution:=optional,
             org.aopalliance.*;version="[1.0.0, 2.0.0)",
@@ -180,19 +186,19 @@
             javax.sql.*,
             javax.xml.parsers.*,
             org.w3c.dom.*,
-            org.xml.sax.*,            
-        	*;resolution:=optional    	    
-    	</spring.osgi.import>
+            org.xml.sax.*,
+            *;resolution:=optional
+        </spring.osgi.import>
 
-    	<spring.osgi.private.pkg>
-    	    !org.springframework.security.*
-    	</spring.osgi.private.pkg>
-<!--    	
-    	<spring.osgi.include.res>
-    	    src/main/resources
-    	</spring.osgi.include.res>
+        <spring.osgi.private.pkg>
+            !org.springframework.security.*
+        </spring.osgi.private.pkg>
+<!--
+        <spring.osgi.include.res>
+            src/main/resources
+        </spring.osgi.include.res>
 -->
-    	<spring.osgi.symbolic.name>org.springframework.security.core</spring.osgi.symbolic.name>        
+        <spring.osgi.symbolic.name>org.springframework.security.core</spring.osgi.symbolic.name>
     </properties>
 
 </project>

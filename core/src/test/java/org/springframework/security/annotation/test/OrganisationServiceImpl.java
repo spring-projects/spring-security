@@ -16,13 +16,12 @@
 package org.springframework.security.annotation.test;
 
 /**
- * DOCUMENT ME!
  *
- * @author $author$
- * @version $Revision: 1496 $
-  */
-public interface PersonService extends Service<Person> {
+ */
+public class OrganisationServiceImpl extends ServiceImpl<Organisation> implements OrganisationService {
     //~ Methods ========================================================================================================
 
-    public void deactive(Person person);
+    public void deactive(Organisation org) {
+        org.deactive();
+    }
 }
