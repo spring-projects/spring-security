@@ -204,7 +204,7 @@ org.springframework.security.AccessDeniedException: Access is denied
 	  			</p>
 	  		</answer>
 	  	</faq>
-	  	<faq>
+	  	<faq id="what-dependencies">
 	  		<question>How do I know what dependencies to add to my application to work with Spring Security?</question>
 	  		<answer>
 	  			<p>
