@@ -20,8 +20,9 @@ import org.springframework.security.util.AuthorityUtils;
 
 
 /**
- * An {@link org.springframework.security.Authentication} implementation that is designed for use whilst unit testing.<p>The
- * corresponding authentication provider is  {@link TestingAuthenticationProvider}.</p>
+ * An {@link org.springframework.security.Authentication} implementation that is designed for use whilst unit testing.
+ * <p>
+ * The corresponding authentication provider is  {@link TestingAuthenticationProvider}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -36,15 +37,15 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
     //~ Constructors ===================================================================================================
 
     public TestingAuthenticationToken(Object principal, Object credentials) {
-    	super(null);
+        super(null);
         this.principal = principal;
-        this.credentials = credentials;    	
-    }    
+        this.credentials = credentials;
+    }
 
-    
+
     public TestingAuthenticationToken(Object principal, Object credentials, String... authorities) {
-    	this(principal, credentials, AuthorityUtils.stringArrayToAuthorityArray(authorities));
-    }    
+        this(principal, credentials, AuthorityUtils.stringArrayToAuthorityArray(authorities));
+    }
 
     public TestingAuthenticationToken(Object principal, Object credentials, GrantedAuthority[] authorities) {
         super(authorities);

@@ -18,12 +18,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-core</artifactId>
-      <classifier>tests</classifier>
-      <version>${project.version}</version>
-    </dependency>    
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <optional>true</optional>

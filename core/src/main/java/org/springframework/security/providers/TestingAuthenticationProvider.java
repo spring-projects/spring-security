@@ -22,8 +22,9 @@ import org.springframework.security.AuthenticationException;
 /**
  * An {@link AuthenticationProvider} implementation for the  {@link TestingAuthenticationToken}.<p>It simply
  * accepts as valid whatever is contained within the <code>TestingAuthenticationToken</code>.</p>
- *  <p>The purpose of this implementation is to facilitate unit testing. This provider should <B>never be enabled
- * on a production system</b>.</p>
+ * <p>
+ * The purpose of this implementation is to facilitate unit testing. This provider should <b>never be enabled
+ * on a production system</b>.
  *
  * @author Ben Alex
  * @version $Id$
@@ -37,10 +38,6 @@ public class TestingAuthenticationProvider implements AuthenticationProvider {
     }
 
     public boolean supports(Class authentication) {
-        if (TestingAuthenticationToken.class.isAssignableFrom(authentication)) {
-            return true;
-        } else {
-            return false;
-        }
+        return TestingAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }
