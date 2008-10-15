@@ -8,8 +8,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>core</module>    
-        <module>adapters</module>
+        <module>core</module>
         <module>portlet</module>
         <module>ntlm</module>
         <module>openid</module>
@@ -587,14 +586,16 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-mock</artifactId>
+                <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
             </dependency>
+<!--            
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-remoting</artifactId>
                 <version>${spring.version}</version>
             </dependency>
+-->            
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
@@ -707,8 +708,8 @@
     </dependencyManagement>
     <properties>
         <pom.version.osgi>2.0.3.RELEASE</pom.version.osgi>
-        <spring.version>2.0.8</spring.version>
-        <spring.version.osgi>[2.0.8, 3.0.0)</spring.version.osgi>
+        <spring.version>2.5.5</spring.version>
+        <spring.version.osgi>[2.5.5, 3.1.0)</spring.version.osgi>
         <jstl.version>1.1.2</jstl.version>
 
         <docbook.source>${basedir}/src/docbkx</docbook.source>
