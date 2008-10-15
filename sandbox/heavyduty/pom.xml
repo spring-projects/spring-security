@@ -159,7 +159,7 @@
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>maven-jetty-plugin</artifactId>
-                <version>6.1.7</version>
+                <version>6.1.11</version>
                 <configuration>
                     <contextPath>/heavyduty</contextPath>
                     <!--jettyConfig>jetty-jmx.xml</jettyConfig-->
@@ -185,7 +185,7 @@
     </build>
     <properties>        
         <spring.version>2.5.5</spring.version>
-        <spring.security.version>2.0.4-SNAPSHOT</spring.security.version>
+        <spring.security.version>2.5.0-SNAPSHOT</spring.security.version>
     </properties>
 
 </project>

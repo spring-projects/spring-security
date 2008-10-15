@@ -16,6 +16,7 @@
         <module>cas</module>
         <module>acl</module>
         <module>taglibs</module>
+        <module>itest</module>
   </modules>
 
     <description>Spring Security</description>
@@ -608,12 +609,7 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-dao</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-support</artifactId>
+                <artifactId>spring-tx</artifactId>
                 <version>${spring.version}</version>
             </dependency>
             <dependency>
@@ -626,6 +622,11 @@
                 <artifactId>spring-context</artifactId>
                 <version>${spring.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>${spring.version}</version>
+            </dependency>            
             <dependency>
                 <groupId>org.springframework.ldap</groupId>
                 <artifactId>spring-ldap</artifactId>
@@ -711,6 +712,7 @@
         <spring.version>2.5.5</spring.version>
         <spring.version.osgi>[2.5.5, 3.1.0)</spring.version.osgi>
         <jstl.version>1.1.2</jstl.version>
+        <jetty.version>6.1.11</jetty.version>
 
         <docbook.source>${basedir}/src/docbkx</docbook.source>
         <docbook.target>${basedir}/target/site/guide</docbook.target>        

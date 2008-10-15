@@ -42,12 +42,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-remoting</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-mock</artifactId>
+            <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -92,7 +87,7 @@
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>maven-jetty-plugin</artifactId>
-                <version>6.1.7</version>
+                <version>${jetty.version}</version>
                 <configuration>
                     <contextPath>/contacts</contextPath>
                     <!--jettyConfig>${basedir}/src/test/resources/jetty.xml</jettyConfig-->

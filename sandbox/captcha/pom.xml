@@ -3,7 +3,7 @@
     <parent>
         <artifactId>spring-security-parent</artifactId>
         <groupId>org.springframework.security</groupId>
-        <version>2.0.4-SNAPSHOT</version>
+        <version>2.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.springframework.security</groupId>
@@ -29,7 +29,7 @@
         </dependency>        
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-mock</artifactId>
+            <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>        
     </dependencies>

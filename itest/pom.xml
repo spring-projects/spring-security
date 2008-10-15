@@ -1,6 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>   
-    <groupId>org.springframework.security</groupId>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-parent</artifactId>
+        <version>2.5.0-SNAPSHOT</version>
+    </parent>
     <artifactId>spring-security-itest</artifactId>
     <name>Spring Security - Integration Tests</name>
     <packaging>pom</packaging>
@@ -25,7 +29,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>2.5.5</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>
@@ -49,10 +52,6 @@
                 <exclusion>
                     <groupId>org.springframework</groupId>
                     <artifactId>spring-aop</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-support</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>commons-logging</groupId>

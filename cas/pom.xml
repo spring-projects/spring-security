@@ -23,16 +23,16 @@
             <scope>test</scope>
         </dependency>    
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-dao</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-mock</artifactId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
