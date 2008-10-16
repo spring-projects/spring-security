@@ -327,7 +327,8 @@
   ]]>
         </programlisting>
         Where "securityDataSource" is the name of a <classname>DataSource</classname> bean in the application context,
-        pointing at a database containing the standard Spring Security user data tables. Alternatively, you could configure
+        pointing at a database containing the standard Spring Security 
+        <link xlink:href="#db_schema_users_authorities">user data tables</link>. Alternatively, you could configure
         a Spring Security <classname>JdbcDaoImpl</classname> bean and point at that using the <literal>user-service-ref</literal>
         attribute:
         <programlisting><![CDATA[
