@@ -34,6 +34,7 @@ import java.lang.reflect.Method;
  * Abstract implementation of <code>MethodDefinitionSource</code>.
  *
  * @author Ben Alex
+ * @deprecated No longer used within the framework and will be removed
  * @version $Id$
  */
 public abstract class AbstractMethodDefinitionSource implements MethodDefinitionSource {
