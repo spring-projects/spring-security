@@ -17,9 +17,6 @@ package org.springframework.security.userdetails.ldap;
 
 import org.springframework.security.userdetails.UserDetails;
 
-import javax.naming.directory.Attributes;
-
-
 /**
  * Captures the information for a user's LDAP entry.
  *
@@ -28,15 +25,6 @@ import javax.naming.directory.Attributes;
  */
 public interface LdapUserDetails extends UserDetails {
     //~ Methods ========================================================================================================
-
-    /**
-     * The attributes for the user's entry in the directory (or a subset of them, depending on what was
-     * retrieved from the directory).
-     *
-     * @deprecated Map additional attributes to user properties in a custom object rather than accessing them here.
-     * @return the user's attributes, or an empty array if none were obtained, never null.
-     */
-    Attributes getAttributes();
 
     /**
      * The DN of the entry for this user's account.

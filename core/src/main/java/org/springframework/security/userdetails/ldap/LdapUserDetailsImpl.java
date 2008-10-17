@@ -47,7 +47,6 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
 
     //~ Instance fields ================================================================================================
 
-    private Attributes attributes = new BasicAttributes();
     private String dn;
     private String password;
     private String username;
@@ -62,10 +61,6 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
     protected LdapUserDetailsImpl() {}
 
     //~ Methods ========================================================================================================
-
-    public Attributes getAttributes() {
-        return attributes;
-    }
 
     public GrantedAuthority[] getAuthorities() {
         return authorities;
@@ -123,7 +118,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
             sb.append("Not granted any authorities");
         }
 
-        return sb.toString();        
+        return sb.toString();
     }
 
     //~ Inner Classes ==================================================================================================
@@ -143,7 +138,6 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
 
         public Essence(LdapUserDetails copyMe) {
             setDn(copyMe.getDn());
-            setAttributes(copyMe.getAttributes());
             setUsername(copyMe.getUsername());
             setPassword(copyMe.getPassword());
             setEnabled(copyMe.isEnabled());
@@ -200,10 +194,6 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
 
         public void setAccountNonLocked(boolean accountNonLocked) {
             instance.accountNonLocked = accountNonLocked;
-        }
-
-        public void setAttributes(Attributes attributes) {
-            instance.attributes = attributes;
         }
 
         public void setAuthorities(GrantedAuthority[] authorities) {
