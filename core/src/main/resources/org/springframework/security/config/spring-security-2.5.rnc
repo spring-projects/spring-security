@@ -1,0 +1,509 @@
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+
+default namespace = "http://www.springframework.org/schema/security"
+
+start = http | ldap-server | authentication-provider | ldap-authentication-provider | any-user-service | ldap-server | ldap-authentication-provider
+
+hash =
+    ## Defines the hashing algorithm used on user passwords. We recommend strongly against using MD4, as it is a very weak hashing algorithm.
+    attribute hash {"plaintext" | "sha" | "sha-256" | "md5" | "md4" | "{sha}" | "{ssha}"}
+base64 = 
+    ## Whether a string should be base64 encoded
+    attribute base64 {"true" | "false"}
+path-type =
+    ## Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.
+    attribute path-type {"ant" | "regex"}
+port =
+    ## Specifies an IP port number. Used to configure an embedded LDAP server, for example.
+    attribute port { xsd:integer }
+url =
+    ## Specifies a URL.
+    attribute url { xsd:string }
+id = 
+    ## A bean identifier, used for referring to the bean elsewhere in the context.
+    attribute id {xsd:ID}    
+ref =
+    ## Defines a reference to a Spring bean Id.
+    attribute ref {xsd:string}
+
+cache-ref =
+    ## Defines a reference to a cache for use with a UserDetailsService.
+    attribute cache-ref {xsd:string}
+
+user-service-ref =
+    ## A reference to a user-service (or UserDetailsService bean) Id
+    attribute user-service-ref {xsd:string}
+
+data-source-ref = 
+    ## A reference to a DataSource bean
+    attribute data-source-ref {xsd:string}    
+    
+password-encoder = 
+    ## element which defines a password encoding strategy. Used by an authentication provider to convert submitted passwords to hashed versions, for example.
+    element password-encoder {password-encoder.attlist, salt-source?}  
+password-encoder.attlist &=
+    ref | (hash? & base64?)
+    
+salt-source =
+    ## Password salting strategy. A system-wide constant or a property from the UserDetails object can be used.
+    element salt-source {user-property | system-wide}
+user-property =
+    ## A property of the UserDetails object which will be used as salt by a password encoder. Typically something like "username" might be used. 
+    attribute user-property {xsd:string}
+system-wide =
+    ## A single value that will be used as the salt for a password encoder. 
+    attribute system-wide {xsd:string}
+    
+boolean = "true" | "false"
+
+role-prefix =
+    ## A non-empty string prefix that will be added to role strings loaded from persistent storage (e.g. "ROLE_"). Use the value "none" for no prefix in cases where the default is non-empty.
+    attribute role-prefix {xsd:string}
+
+
+ldap-server =
+    ## Defines an LDAP server location or starts an embedded server. The url indicates the location of a remote server. If no url is given, an embedded server will be started, listening on the supplied port number. The port is optional and defaults to 33389. A Spring LDAP ContextSource bean will be registered for the server with the id supplied. 
+    element ldap-server {ldap-server.attlist}
+ldap-server.attlist &= id?
+ldap-server.attlist &= (url | port)?
+ldap-server.attlist &=
+    ## Username (DN) of the "manager" user identity which will be used to authenticate to a (non-embedded) LDAP server. If omitted, anonymous access will be used. 
+    attribute manager-dn {xsd:string}?
+ldap-server.attlist &=
+    ## The password for the manager DN.
+    attribute manager-password {xsd:string}?     
+ldap-server.attlist &=
+    ## Explicitly specifies an ldif file resource to load into an embedded LDAP server
+    attribute ldif { xsd:string }?
+ldap-server.attlist &=
+    ## Optional root suffix for the embedded LDAP server. Default is "dc=springframework,dc=org"
+    attribute root { xsd:string }?
+
+ldap-server-ref-attribute =
+    ## The optional server to use. If omitted, and a default LDAP server is registered (using <ldap-server> with no Id), that server will be used. 
+    attribute server-ref {xsd:string}
+
+
+group-search-filter-attribute = 
+    ## Group search filter. Defaults to (uniqueMember={0}). The substituted parameter is the DN of the user.
+    attribute group-search-filter {xsd:string}
+group-search-base-attribute = 
+    ## Search base for group membership searches. Defaults to "" (searching from the root).
+    attribute group-search-base {xsd:string}
+user-search-filter-attribute =
+    ## The LDAP filter used to search for users (optional). For example "(uid={0})". The substituted parameter is the user's login name.
+    attribute user-search-filter {xsd:string}
+user-search-base-attribute =
+    ## Search base for user searches. Defaults to "". Only used with a 'user-search-filter'.
+    attribute user-search-base {xsd:string}
+group-role-attribute-attribute =
+    ## The LDAP attribute name which contains the role name which will be used within Spring Security. Defaults to "cn".
+    attribute group-role-attribute {xsd:string}
+user-details-class-attribute = 
+    ## Allows the objectClass of the user entry to be specified. If set, the framework will attempt to load standard attributes for the defined class into the returned UserDetails object
+    attribute user-details-class {"person" | "inetOrgPerson"}
+
+
+ldap-user-service =
+    element ldap-user-service {ldap-us.attlist}
+ldap-us.attlist &= id? 
+ldap-us.attlist &=
+    ldap-server-ref-attribute?
+ldap-us.attlist &=
+    user-search-filter-attribute?
+ldap-us.attlist &=
+    user-search-base-attribute?
+ldap-us.attlist &=
+    group-search-filter-attribute?
+ldap-us.attlist &=
+    group-search-base-attribute?
+ldap-us.attlist &=
+    group-role-attribute-attribute?
+ldap-us.attlist &=
+    cache-ref?
+ldap-us.attlist &=
+    role-prefix?
+ldap-us.attlist &=
+    user-details-class-attribute?
+
+ldap-authentication-provider =
+    ## Sets up an ldap authentication provider
+    element ldap-authentication-provider {ldap-ap.attlist, password-compare-element?}
+ldap-ap.attlist &=
+    ldap-server-ref-attribute?
+ldap-ap.attlist &=
+    user-search-base-attribute?
+ldap-ap.attlist &=
+    user-search-filter-attribute?
+ldap-ap.attlist &=
+    group-search-base-attribute?
+ldap-ap.attlist &= 
+    group-search-filter-attribute?
+ldap-ap.attlist &=
+    group-role-attribute-attribute?
+ldap-ap.attlist &=
+    ## A specific pattern used to build the user's DN, for example "uid={0},ou=people". The key "{0}" must be present and will be substituted with the username.
+    attribute user-dn-pattern {xsd:string}?
+ldap-ap.attlist &=
+    role-prefix?
+ldap-ap.attlist &=
+    user-details-class-attribute?
+
+password-compare-element =
+    ## Specifies that an LDAP provider should use an LDAP compare operation of the user's password to authenticate the user
+    element password-compare {password-compare.attlist, password-encoder?}
+    
+password-compare.attlist &=
+    ## The attribute in the directory which contains the user password. Defaults to "userPassword".
+    attribute password-attribute {xsd:string}?
+password-compare.attlist &=
+    hash?
+
+intercept-methods =
+    ## Can be used inside a bean definition to add a security interceptor to the bean and set up access configuration attributes for the bean's methods
+    element intercept-methods {intercept-methods.attlist, protect+}
+intercept-methods.attlist &=
+    ## Optional AccessDecisionManager bean ID to be used by the created method security interceptor.
+    attribute access-decision-manager-ref {xsd:string}?
+
+
+protect =
+    ## Defines a protected method and the access control configuration attributes that apply to it. We strongly advise you NOT to mix "protect" declarations with any services provided "global-method-security".
+    element protect {protect.attlist, empty}
+protect.attlist &=
+    ## A method name
+    attribute method {xsd:string}
+protect.attlist &=
+    ## Access configuration attributes list that applies to the method, e.g. "ROLE_A,ROLE_B".
+    attribute access {xsd:string}
+
+
+global-method-security =
+    ## Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for matches with the ordered list of "protect-pointcut" sub-elements, Spring Security annotations and/or. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. If you use and enable all four sources of method security metadata (ie "protect-pointcut" declarations, expression annotations, @Secured and also JSR250 security annotations), the metadata sources will be queried in that order. In practical terms, this enables you to use XML to override method security metadata expressed in annotations. If using annotations, the order of precedence is EL-based (@PreAuthorize etc.), @Secured and finally JSR-250.
+	element global-method-security {global-method-security.attlist, protect-pointcut*}
+global-method-security.attlist &=
+    ## Specifies whether the use of Spring Security's expression-based annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this application context. Defaults to "disabled".
+    attribute spel-annotations {"disabled" | "enabled" }?
+global-method-security.attlist &=
+    ## Specifies whether the use of Spring Security's @Secured annotations should be enabled for this application context. Defaults to "disabled".
+    attribute secured-annotations {"disabled" | "enabled" }?
+global-method-security.attlist &=
+    ## Specifies whether JSR-250 style attributes are to be used (for example "RolesAllowed"). This will require the javax.annotation.security classes on the classpath. Defaults to "disabled".
+    attribute jsr250-annotations {"disabled" | "enabled" }?
+global-method-security.attlist &=
+    ## Optional AccessDecisionManager bean ID to override the default used for method security.
+    attribute access-decision-manager-ref {xsd:string}?
+
+custom-after-invocation-provider =
+    ## Used to decorate an AfterInvocationProvider to specify that it should be used with method security.
+    element custom-after-invocation-provider {empty}
+
+protect-pointcut =
+    ## Defines a protected pointcut and the access control configuration attributes that apply to it. Every bean registered in the Spring application context that provides a method that matches the pointcut will receive security authorization.
+    element protect-pointcut {protect-pointcut.attlist, empty}
+protect-pointcut.attlist &=
+    ## An AspectJ expression, including the 'execution' keyword. For example, 'execution(int com.foo.TargetObject.countLength(String))' (without the quotes).
+    attribute expression {xsd:string}
+protect-pointcut.attlist &=
+    ## Access configuration attributes list that applies to all methods matching the pointcut, e.g. "ROLE_A,ROLE_B"
+    attribute access {xsd:string}
+
+
+http =
+    ## Container element for HTTP security configuration
+   element http {http.attlist, (intercept-url+ & form-login? & openid-login & x509? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous? & port-mappings) }
+http.attlist &=
+    ## Automatically registers a login form, BASIC authentication, anonymous authentication, logout services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".
+    attribute auto-config {boolean}?
+http.attlist &=
+    ## Controls the eagerness with which an HTTP session is created. If not set, defaults to "ifRequired".
+    attribute create-session {"ifRequired" | "always" | "never" }?
+http.attlist &=
+    ## The path format used to define the paths in child elements.
+    path-type?
+http.attlist &=
+    ## Whether test URLs should be converted to lower case prior to comparing with defined path patterns. If unspecified, defaults to "true".
+    attribute lowercase-comparisons {boolean}?
+http.attlist &=
+    ## Provides versions of HttpServletRequest security methods such as isUserInRole() and getPrincipal() which are implemented by accessing the Spring SecurityContext. Defaults to "true".
+    attribute servlet-api-provision {boolean}?
+http.attlist &=
+    ## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.
+    attribute access-decision-manager-ref {xsd:string}?
+http.attlist &=
+    ## Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Spring Security Application".
+    attribute realm {xsd:string}?
+http.attlist &=
+    ## Indicates whether an existing session should be invalidated when a user authenticates and a new session started. If set to "none" no change will be made. "newSession" will create a new empty session. "migrateSession" will create a new session and copy the session attributes to the new session. Defaults to "migrateSession".
+    attribute session-fixation-protection {"none" | "newSession" | "migrateSession" }?
+http.attlist &=
+    ## Allows a customized AuthenticationEntryPoint to be used.
+    attribute entry-point-ref {xsd:string}?
+http.attlist &=
+    ## Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "true"
+    attribute once-per-request {boolean}?
+http.attlist &=
+    ## Allows the access denied page to be set (the user will be redirected here if an AccessDeniedException is raised).
+    attribute access-denied-page {xsd:string}?
+
+intercept-url =
+    ## Specifies the access attributes and/or filter list for a particular set of URLs.
+    element intercept-url {intercept-url.attlist, empty}
+intercept-url.attlist &=
+    ## The pattern which defines the URL path. The content will depend on the type set in the containing http element, so will default to ant path syntax.
+    attribute pattern {xsd:string}
+intercept-url.attlist &=
+    ## The access configuration attributes that apply for the configured path.
+    attribute access {xsd:string}?
+intercept-url.attlist &=
+    ## The HTTP Method for which the access configuration attributes should apply. If not specified, the attributes will apply to any method.
+    attribute method {"GET" | "DELETE" | "HEAD" | "OPTIONS" | "POST" | "PUT" | "TRACE"}?
+
+intercept-url.attlist &=
+    ## The filter list for the path. Currently can be set to "none" to remove a path from having any filters applied. The full filter stack (consisting of all filters created by the namespace configuration, and any added using 'custom-filter'), will be applied to any other paths.
+    attribute filters {"none"}?
+intercept-url.attlist &=
+    ## Used to specify that a URL must be accessed over http or https, or that there is no preference.
+    attribute requires-channel {"http" | "https" | "any"}?
+
+logout =
+	## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.
+    element logout {logout.attlist, empty}
+logout.attlist &=
+	## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /j_spring_security_logout if unspecified.
+    attribute logout-url {xsd:string}?
+logout.attlist &=
+	## Specifies the URL to display once the user has logged out. If not specified, defaults to /.
+    attribute logout-success-url {xsd:string}?
+logout.attlist &=
+	## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
+    attribute invalidate-session {boolean}?
+
+form-login =
+    ## Sets up a form login configuration for authentication with a username and password
+    element form-login {form-login.attlist, empty}
+form-login.attlist &=
+    ## The URL that the login form is posted to. If unspecified, it defaults to /j_spring_security_check.
+    attribute login-processing-url {xsd:string}?
+form-login.attlist &=
+    ## The URL that will be redirected to after successful authentication, if the user's previous action could not be resumed. This generally happens if the user visits a login page without having first requested a secured operation that triggers authentication. If unspecified, defaults to the root of the application.
+    attribute default-target-url {xsd:string}?
+form-login.attlist &=
+    ## Whether the user should always be redirected to the default-target-url after login. 
+    attribute always-use-default-target {boolean}?    
+form-login.attlist &=
+    ## The URL for the login page. If no login URL is specified, Spring Security will automatically create a login URL at /spring_security_login and a corresponding filter to render that login URL when requested.
+    attribute login-page {xsd:string}?
+form-login.attlist &=
+    ## The URL for the login failure page. If no login failure URL is specified, Spring Security will automatically create a failure login URL at /spring_security_login?login_error and a corresponding filter to render that login failure URL when requested.
+    attribute authentication-failure-url {xsd:string}?
+
+openid-login = 
+    ## Sets up form login for authentication with an Open ID identity
+    element openid-login {form-login.attlist, user-service-ref?, empty}
+
+
+filter-chain-map =
+    ## Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
+    element filter-chain-map {filter-chain-map.attlist, filter-chain+}
+filter-chain-map.attlist &=
+    path-type
+
+filter-chain =
+    ## Used within filter-chain-map to define a specific URL pattern and the list of filters which apply to the URLs matching that pattern. When multiple filter-chain elements are used within a filter-chain-map element, the most specific patterns must be placed at the top of the list, with  most general ones at the bottom.
+    element filter-chain {filter-chain.attlist, empty}
+filter-chain.attlist &=
+    attribute pattern {xsd:string}
+filter-chain.attlist &=
+    attribute filters {xsd:string}
+
+filter-invocation-definition-source =
+    ## Used to explicitly configure a FilterInvocationDefinitionSource bean for use with a FilterSecurityInterceptor. Usually only needed if you are configuring a FilterChainProxy explicitly, rather than using the <http> element. The intercept-url elements used should only contain pattern, method and access attributes. Any others will result in a configuration error. 
+    element filter-invocation-definition-source {fids.attlist, intercept-url+}
+fids.attlist &=
+    id?
+fids.attlist &=
+    ## as for http element
+    attribute lowercase-comparisons {boolean}?
+fids.attlist &=
+    ## as for http element
+    path-type?
+
+http-basic =
+    ## Adds support for basic authentication (this is an element to permit future expansion, such as supporting an "ignoreFailure" attribute)
+    element http-basic {empty}
+
+
+concurrent-session-control =
+    ## Adds support for concurrent session control, allowing limits to be placed on the number of sessions a user can have.
+    element concurrent-session-control {concurrent-sessions.attlist, empty}
+concurrent-sessions.attlist &=
+    ## The maximum number of sessions a single user can have open at the same time. Defaults to "1".
+    attribute max-sessions {xsd:positiveInteger}?
+concurrent-sessions.attlist &=
+    ## The URL a user will be redirected to if they attempt to use a session which has been "expired" by the concurrent session controller because they have logged in again.
+    attribute expired-url {xsd:string}?
+concurrent-sessions.attlist &=
+    ## Specifies that an exception should be raised when a user attempts to login when they already have the maximum configured sessions open. The default behaviour is to expire the original session.
+    attribute exception-if-maximum-exceeded {boolean}?
+concurrent-sessions.attlist &=
+    ## Allows you to define an alias for the SessionRegistry bean in order to access it in your own configuration
+    attribute session-registry-alias {xsd:string}?
+concurrent-sessions.attlist &=
+    ## A reference to an external SessionRegistry implementation which will be used in place of the standard one. 
+    attribute session-registry-ref {xsd:string}?
+
+remember-me =
+    ## Sets up remember-me authentication. If used with the "key" attribute (or no attributes) the cookie-only implementation will be used. Specifying "token-repository-ref" or "remember-me-data-source-ref" will use the more secure, persisten token approach.     
+    element remember-me {remember-me.attlist}
+remember-me.attlist &=
+    ## The "key" used to identify cookies from a specific token-based remember-me application. You should set this to a unique value for your application.
+    attribute key {xsd:string}?
+    
+remember-me.attlist &=
+    (token-repository-ref | remember-me-data-source-ref | remember-me-services-ref)
+
+remember-me.attlist &=
+    user-service-ref?
+    
+remember-me.attlist &=
+    ## The period (in seconds) for which the remember-me cookie should be valid. 
+    attribute token-validity-seconds {xsd:positiveInteger}?
+    
+token-repository-ref =
+    ## Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation. 
+    attribute token-repository-ref {xsd:string}
+remember-me-services-ref =     
+    ## Allows a custom implementation of RememberMeServices to be used. Note that this implementation should return RememberMeAuthenticationToken instances with the same "key" value as specified in the remember-me element. Alternatively it should register its own AuthenticationProvider. 
+    attribute services-ref {xsd:string}?
+remember-me-data-source-ref =
+    ## DataSource bean for the database that contains the token repository schema. 
+    data-source-ref
+
+anonymous =
+    ## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
+    element anonymous {anonymous.attlist}
+anonymous.attlist &=
+    ## The key shared between the provider and filter. This generally does not need to be set. If unset, it will default to "doesNotMatter".
+    attribute key {xsd:string}?
+anonymous.attlist &= 
+    ## The username that should be assigned to the anonymous request. This allows the principal to be identified, which may be important for logging and auditing. if unset, defaults to "anonymousUser".
+    attribute username {xsd:string}?
+anonymous.attlist &=
+    ## The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions. If unset, defaults to "ROLE_ANONYMOUS".
+    attribute granted-authority {xsd:string}?
+
+port-mappings = 
+    ## Defines the list of mappings between http and https ports for use in redirects
+    element port-mappings {port-mappings.attlist, port-mapping+}
+
+port-mappings.attlist &= empty
+
+port-mapping = 
+    element port-mapping {http-port, https-port}
+    
+http-port = attribute http {xsd:string}
+
+https-port = attribute https {xsd:string}
+
+
+x509 = 
+    ## Adds support for X.509 client authentication.
+    element x509 {x509.attlist}
+x509.attlist &= 
+    ## The regular expression used to obtain the username from the certificate's subject. Defaults to matching on the common name using the pattern "CN=(.*?),".
+    attribute subject-principal-regex {xsd:string}?
+x509.attlist &=
+    ## Explicitly specifies which user-service should be used to load user data for X.509 authenticated clients. If ommitted, the default user-service will be used.  
+    user-service-ref?
+
+authentication-manager =
+    ## If you are using namespace configuration with Spring Security, an AuthenticationManager will automatically be registered. This element allows you to define an alias to allow you to reference the authentication-manager in your own beans. 
+    element authentication-manager {authman.attlist}
+authman.attlist &=
+    ## The alias you wish to use for the AuthenticationManager bean
+    attribute alias {xsd:ID}
+authman.attlist &=
+    ## Allows the session controller to be set on the internal AuthenticationManager. This should not be used with the <concurrent-session-control /> element
+    attribute session-controller-ref {xsd:string}?
+
+
+authentication-provider =
+    ## Indicates that the contained user-service should be used as an authentication source. 
+    element authentication-provider {ap.attlist & any-user-service & password-encoder?}
+ap.attlist &=
+    ## Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.  
+    user-service-ref?
+
+custom-authentication-provider =
+    ## Element used to decorate an AuthenticationProvider bean to add it to the internal AuthenticationManager maintained by the namespace.
+    element custom-authentication-provider {cap.attlist}
+cap.attlist &= empty
+
+user-service =
+    ## Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.
+    element user-service {id? & (properties-file | (user*))}
+properties-file =
+    attribute properties {xsd:string}?
+    
+user =
+	  ## Represents a user in the application.
+    element user {user.attlist, empty}
+user.attlist &=
+	  ## The username assigned to the user.
+    attribute name {xsd:string}
+user.attlist &=
+	  ## The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element).
+    attribute password {xsd:string}
+user.attlist &=
+	  ## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"
+    attribute authorities {xsd:string}
+user.attlist &=
+	  ## Can be set to "true" to mark an account as locked and unusable.
+    attribute locked {boolean}?
+user.attlist &=
+	  ## Can be set to "true" to mark an account as disabled and unusable.
+    attribute disabled {boolean}?
+
+jdbc-user-service =
+	  ## Causes creation of a JDBC-based UserDetailsService.
+    element jdbc-user-service {id? & jdbc-user-service.attlist} 
+jdbc-user-service.attlist &=
+	  ## The bean ID of the DataSource which provides the required tables.
+    attribute data-source-ref {xsd:string}
+jdbc-user-service.attlist &=
+    cache-ref?
+jdbc-user-service.attlist &=
+    ## An SQL statement to query a username, password, and enabled status given a username
+    attribute users-by-username-query {xsd:string}?
+jdbc-user-service.attlist &=
+    ## An SQL statement to query for a user's granted authorities given a username.
+    attribute authorities-by-username-query {xsd:string}?
+jdbc-user-service.attlist &=
+    ## An SQL statement to query user's group authorities given a username.
+    attribute group-authorities-by-username-query {xsd:string}?
+jdbc-user-service.attlist &=
+    role-prefix?
+    
+
+any-user-service = user-service | jdbc-user-service | ldap-user-service
+    
+custom-filter =
+    ## Used to indicate that a filter bean declaration should be incorporated into the security filter chain. If neither the 'after' or 'before' options are supplied, then the filter must implement the Ordered interface directly. 
+    element custom-filter {after | before | position}?
+after =
+    ## The filter immediately after which the custom-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters. 
+    attribute after {named-security-filter}
+before =
+    ## The filter immediately before which the custom-filter should be placed in the chain
+    attribute before {named-security-filter}
+position =
+    ## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
+    attribute position {named-security-filter}
+
+
+
+named-security-filter = "FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "SESSION_CONTEXT_INTEGRATION_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_PROCESSING_FILTER" | "AUTHENTICATION_PROCESSING_FILTER" | "OPENID_PROCESSING_FILTER" |"BASIC_PROCESSING_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "NTLM_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
+    
+    
