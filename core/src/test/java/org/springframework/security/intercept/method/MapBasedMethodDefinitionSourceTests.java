@@ -3,10 +3,13 @@ package org.springframework.security.intercept.method;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.SecurityConfig;
 
 /**
  * Tests for {@link MapBasedMethodDefinitionSource}.
@@ -15,8 +18,8 @@ import org.springframework.security.ConfigAttributeDefinition;
  * @since 2.0.4
  */
 public class MapBasedMethodDefinitionSourceTests {
-    private final ConfigAttributeDefinition ROLE_A = new ConfigAttributeDefinition("ROLE_A");
-    private final ConfigAttributeDefinition ROLE_B = new ConfigAttributeDefinition("ROLE_B");
+    private final List<? extends ConfigAttribute> ROLE_A = Arrays.asList(new SecurityConfig("ROLE_A"));
+    private final List<? extends ConfigAttribute> ROLE_B = Arrays.asList(new SecurityConfig("ROLE_B"));
     private MapBasedMethodDefinitionSource mds;
     private Method someMethodString;
     private Method someMethodInteger;
@@ -32,7 +35,7 @@ public class MapBasedMethodDefinitionSourceTests {
     public void wildcardedMatchIsOverwrittenByMoreSpecificMatch() {
         mds.addSecureMethod(MockService.class, "some*", ROLE_A);
         mds.addSecureMethod(MockService.class, "someMethod*", ROLE_B);
-        assertEquals(ROLE_B, mds.getAttributes(someMethodInteger, MockService.class));
+        assertEquals(ROLE_B, mds.getAttributes(someMethodInteger, MockService.class).getConfigAttributes());
     }
 
     @Test
@@ -40,8 +43,8 @@ public class MapBasedMethodDefinitionSourceTests {
         mds.addSecureMethod(MockService.class, someMethodInteger, ROLE_A);
         mds.addSecureMethod(MockService.class, someMethodString, ROLE_B);
 
-        assertEquals(ROLE_A, mds.getAttributes(someMethodInteger, MockService.class));
-        assertEquals(ROLE_B, mds.getAttributes(someMethodString, MockService.class));
+        assertEquals(ROLE_A, mds.getAttributes(someMethodInteger, MockService.class).getConfigAttributes());
+        assertEquals(ROLE_B, mds.getAttributes(someMethodString, MockService.class).getConfigAttributes());
     }
 
     private class MockService {

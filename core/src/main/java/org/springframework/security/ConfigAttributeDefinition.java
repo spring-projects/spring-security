@@ -67,7 +67,7 @@ public class ConfigAttributeDefinition implements Serializable {
     public ConfigAttributeDefinition(ConfigAttribute attribute) {
         configAttributes = new ArrayList(1);
         configAttributes.add(attribute);
-        configAttributes = Collections.unmodifiableList(configAttributes);        
+        configAttributes = Collections.unmodifiableList(configAttributes);
     }
 
     /**
@@ -78,7 +78,7 @@ public class ConfigAttributeDefinition implements Serializable {
      */
     public ConfigAttributeDefinition(String[] attributeTokens) {
         configAttributes = new ArrayList(attributeTokens.length);
-        
+
         for (int i = 0; i < attributeTokens.length; i++) {
             configAttributes.add(new SecurityConfig(attributeTokens[i].trim()));
         }
@@ -97,33 +97,6 @@ public class ConfigAttributeDefinition implements Serializable {
         }
 
         this.configAttributes = Collections.unmodifiableList(new ArrayList(configAttributes));
-    }
-    
-    /**
-     * Creates a <tt>ConfigAttributeDefinition</tt> by including only those attributes which implement <tt>ConfigAttribute</tt>.
-     * 
-     * @param unfilteredInput a collection of various elements, zero or more which implement <tt>ConfigAttribute</tt> (can also be <tt>null</tt>)
-     * @return a ConfigAttributeDefinition if at least one <tt>ConfigAttribute</tt> was present, or <tt>null</tt> if none implemented it
-     */
-    public static ConfigAttributeDefinition createFiltered(Collection unfilteredInput) {
-    	if (unfilteredInput == null) {
-    		return null;
-    	}
-
-    	List configAttributes = new ArrayList();
-    	Iterator i = unfilteredInput.iterator();
-    	while (i.hasNext()) {
-    		Object element = i.next();
-    		if (element instanceof ConfigAttribute) {
-    			configAttributes.add(element);
-    		}
-    	}
-    	
-    	if (configAttributes.size() == 0) {
-    		return null;
-    	}
-    	
-    	return new ConfigAttributeDefinition(configAttributes);
     }
 
     //~ Methods ========================================================================================================
@@ -160,7 +133,7 @@ public class ConfigAttributeDefinition implements Serializable {
      *
      * @return the configuration attributes stored in this instance.
      */
-    public Collection getConfigAttributes() {
+    public Collection<ConfigAttribute> getConfigAttributes() {
         return this.configAttributes;
     }
 

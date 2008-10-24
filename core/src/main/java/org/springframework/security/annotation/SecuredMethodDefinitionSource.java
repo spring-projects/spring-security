@@ -17,38 +17,48 @@ package org.springframework.security.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.SecurityConfig;
 import org.springframework.security.intercept.method.AbstractFallbackMethodDefinitionSource;
 
 
 /**
- * Sources method security metadata from Spring Security's {@link Secured} annotation. 
+ * Sources method security metadata from Spring Security's {@link Secured} annotation.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class SecuredMethodDefinitionSource extends AbstractFallbackMethodDefinitionSource {
 
-	protected ConfigAttributeDefinition findAttributes(Class clazz) {
-		return processAnnotation(clazz.getAnnotation(Secured.class));
-	}
+    protected List<ConfigAttribute> findAttributes(Class clazz) {
+        return processAnnotation(clazz.getAnnotation(Secured.class));
+    }
 
-	protected ConfigAttributeDefinition findAttributes(Method method, Class targetClass) {
-		return processAnnotation(AnnotationUtils.findAnnotation(method, Secured.class));
-	}
-	
+    protected List<ConfigAttribute> findAttributes(Method method, Class targetClass) {
+        return processAnnotation(AnnotationUtils.findAnnotation(method, Secured.class));
+    }
+
     public Collection getConfigAttributeDefinitions() {
         return null;
     }
-    
-	private ConfigAttributeDefinition processAnnotation(Annotation a) {
-		if (a == null || !(a instanceof Secured)) {
-			return null;
-		}
-		Secured secured = (Secured) a;
-		return new ConfigAttributeDefinition(secured.value());
-	}
+
+    private List<ConfigAttribute> processAnnotation(Annotation a) {
+        if (a == null || !(a instanceof Secured)) {
+            return null;
+        }
+
+        String[] attributeTokens = ((Secured) a).value();
+        List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(attributeTokens.length);
+
+        for(String token : attributeTokens) {
+            attributes.add(new SecurityConfig(token));
+        }
+
+        return attributes;
+    }
 }

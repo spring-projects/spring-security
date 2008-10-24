@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -54,10 +55,10 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
     /** Map from RegisteredMethod to ConfigAttributeDefinition */
-    protected Map methodMap = new HashMap();
+    protected Map<RegisteredMethod, List<? extends ConfigAttribute>> methodMap = new HashMap();
 
     /** Map from RegisteredMethod to name pattern used for registration */
-    private Map nameMap = new HashMap();
+    private Map<RegisteredMethod, String> nameMap = new HashMap();
 
     //~ Methods ========================================================================================================
 
@@ -73,21 +74,21 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
 
         while (iterator.hasNext()) {
             Map.Entry entry = (Map.Entry) iterator.next();
-            addSecureMethod((String)entry.getKey(), (ConfigAttributeDefinition)entry.getValue());
+            addSecureMethod((String)entry.getKey(), (List<ConfigAttribute>)entry.getValue());
         }
     }
 
     /**
      * Implementation does not support class-level attributes.
      */
-    protected ConfigAttributeDefinition findAttributes(Class clazz) {
+    protected List<ConfigAttribute> findAttributes(Class clazz) {
         return null;
     }
 
     /**
      * Will walk the method inheritance tree to find the most specific declaration applicable.
      */
-    protected ConfigAttributeDefinition findAttributes(Method method, Class targetClass) {
+    protected List<ConfigAttribute> findAttributes(Method method, Class targetClass) {
         if (targetClass == null) {
             return null;
         }
@@ -95,10 +96,10 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
         return findAttributesSpecifiedAgainst(method, targetClass);
     }
 
-    private ConfigAttributeDefinition findAttributesSpecifiedAgainst(Method method, Class clazz) {
+    private List<ConfigAttribute> findAttributesSpecifiedAgainst(Method method, Class clazz) {
         RegisteredMethod registeredMethod = new RegisteredMethod(method, clazz);
         if (methodMap.containsKey(registeredMethod)) {
-            return (ConfigAttributeDefinition) methodMap.get(registeredMethod);
+            return (List<ConfigAttribute>) methodMap.get(registeredMethod);
         }
         // Search superclass
         if (clazz.getSuperclass() != null) {
@@ -114,7 +115,7 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
      * @param name type and method name, separated by a dot
      * @param attr required authorities associated with the method
      */
-    public void addSecureMethod(String name, ConfigAttributeDefinition attr) {
+    public void addSecureMethod(String name, List<? extends ConfigAttribute> attr) {
         int lastDotIndex = name.lastIndexOf(".");
 
         if (lastDotIndex == -1) {
@@ -138,7 +139,7 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
      * @param mappedName mapped method name, which the javaType has declared or inherited
      * @param attr required authorities associated with the method
      */
-    public void addSecureMethod(Class javaType, String mappedName, ConfigAttributeDefinition attr) {
+    public void addSecureMethod(Class javaType, String mappedName, List<? extends ConfigAttribute> attr) {
         String name = javaType.getName() + '.' + mappedName;
 
         if (logger.isDebugEnabled()) {
@@ -187,7 +188,7 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
      * the existing match will be retained, so that if this method is called for a more general pointcut
      * it will not override a more specific one which has already been added. This
      */
-    public void addSecureMethod(Class javaType, Method method, ConfigAttributeDefinition attr) {
+    public void addSecureMethod(Class javaType, Method method, List<? extends ConfigAttribute> attr) {
         RegisteredMethod key = new RegisteredMethod(method, javaType);
 
         if (methodMap.containsKey(key)) {
@@ -204,7 +205,7 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
      * @param method the method to be secured
      * @param attr required authorities associated with the method
      */
-    private void addSecureMethod(RegisteredMethod method, ConfigAttributeDefinition attr) {
+    private void addSecureMethod(RegisteredMethod method, List<? extends ConfigAttribute> attr) {
         Assert.notNull(method, "RegisteredMethod required");
         Assert.notNull(attr, "Configuration attribute required");
         if (logger.isInfoEnabled()) {
@@ -219,7 +220,13 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
      * @return the attributes explicitly defined against this bean
      */
     public Collection getConfigAttributeDefinitions() {
-        return Collections.unmodifiableCollection(methodMap.values());
+        List<ConfigAttributeDefinition> configAttrs = new ArrayList<ConfigAttributeDefinition>(methodMap.values().size());
+
+        for(List<? extends ConfigAttribute> attrList : methodMap.values()) {
+            configAttrs.add(new ConfigAttributeDefinition(attrList));
+        }
+
+        return configAttrs;
     }
 
     /**

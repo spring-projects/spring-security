@@ -15,6 +15,8 @@
 
 package org.springframework.security.intercept.method;
 
+import org.aopalliance.intercept.MethodInvocation;
+import org.aspectj.lang.JoinPoint;
 import org.springframework.security.ConfigAttributeDefinition;
 
 import java.lang.reflect.Method;
@@ -29,7 +31,7 @@ import java.util.Collection;
  * @author Ben Alex
  * @version $Id$
  */
-public class MockMethodDefinitionSource extends AbstractMethodDefinitionSource {
+public class MockMethodDefinitionSource implements MethodDefinitionSource {
     //~ Instance fields ================================================================================================
 
     private List list;
@@ -65,14 +67,19 @@ public class MockMethodDefinitionSource extends AbstractMethodDefinitionSource {
             return list;
         } else {
             return null;
-        }
+        }	
     }
 
-    protected ConfigAttributeDefinition lookupAttributes(Method method) {
+    public ConfigAttributeDefinition getAttributes(Object object) throws IllegalArgumentException {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
-	public ConfigAttributeDefinition getAttributes(Method method, Class targetClass) {
+    public ConfigAttributeDefinition getAttributes(Method method, Class targetClass) {
         throw new UnsupportedOperationException("mock method not implemented");
-	}
+    }
+
+    public boolean supports(Class clazz) {
+        return (MethodInvocation.class.isAssignableFrom(clazz) || JoinPoint.class.isAssignableFrom(clazz));
+    }
+
 }

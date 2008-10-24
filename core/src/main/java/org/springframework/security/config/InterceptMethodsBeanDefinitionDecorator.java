@@ -30,8 +30,8 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
         ConfigUtils.registerProviderManagerIfNecessary(parserContext);
-        ConfigUtils.registerDefaultAccessManagerIfNecessary(parserContext);
-        
+        ConfigUtils.registerDefaultMethodAccessManagerIfNecessary(parserContext);
+
         return delegate.decorate(node, definition, parserContext);
     }
 }
@@ -41,8 +41,8 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
  * registration.
  */
 class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractInterceptorDrivenBeanDefinitionDecorator {
-	static final String ATT_METHOD = "method";
-	static final String ATT_ACCESS = "access";
+    static final String ATT_METHOD = "method";
+    static final String ATT_ACCESS = "access";
     private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
 
     private Log logger = LogFactory.getLog(getClass());
@@ -57,40 +57,40 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
         String accessManagerId = interceptMethodsElt.getAttribute(ATT_ACCESS_MGR);
 
         if (!StringUtils.hasText(accessManagerId)) {
-            accessManagerId = BeanIds.ACCESS_MANAGER;
+            accessManagerId = BeanIds.METHOD_ACCESS_MANAGER;
         }
 
         interceptor.addPropertyValue("accessDecisionManager", new RuntimeBeanReference(accessManagerId));
         interceptor.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
 
         // Lookup parent bean information
-    	Element parent = (Element) node.getParentNode();
-    	String parentBeanClass = parent.getAttribute("class");
-    	String parentBeanId = parent.getAttribute("id");
+        Element parent = (Element) node.getParentNode();
+        String parentBeanClass = parent.getAttribute("class");
+        String parentBeanId = parent.getAttribute("id");
         parent = null;
-        
+
         // Parse the included methods
         List methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);
 
         StringBuffer sb = new StringBuffer();
-        
+
         for (Iterator i = methods.iterator(); i.hasNext();) {
             Element protectmethodElt = (Element) i.next();
             String accessConfig = protectmethodElt.getAttribute(ATT_ACCESS);
 
             // Support inference of class names
             String methodName = protectmethodElt.getAttribute(ATT_METHOD);
-            
+
             if (methodName.lastIndexOf(".") == -1) {
-            	if (parentBeanClass != null && !"".equals(parentBeanClass)) {
-            		methodName = parentBeanClass + "." + methodName;
-            	}
+                if (parentBeanClass != null && !"".equals(parentBeanClass)) {
+                    methodName = parentBeanClass + "." + methodName;
+                }
             }
-            
+
             // Rely on the default property editor for MethodSecurityInterceptor.setObjectDefinitionSource to setup the MethodDefinitionSource
             sb.append(methodName + "=" + accessConfig).append("\r\n");
         }
-        
+
         interceptor.addPropertyValue("objectDefinitionSource", sb.toString());
 
         return interceptor.getBeanDefinition();

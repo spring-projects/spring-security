@@ -1,5 +1,6 @@
 package org.springframework.security.config;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,7 +15,9 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.SecurityConfig;
+import org.springframework.security.expression.support.MethodExpressionAfterInvocationProvider;
 import org.springframework.security.intercept.method.DelegatingMethodDefinitionSource;
 import org.springframework.security.intercept.method.MapBasedMethodDefinitionSource;
 import org.springframework.security.intercept.method.ProtectPointcutPostProcessor;
@@ -33,6 +36,7 @@ import org.w3c.dom.Element;
 class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     public static final String SECURED_DEPENDENCY_CLASS = "org.springframework.security.annotation.Secured";
     public static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.SecuredMethodDefinitionSource";
+    public static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.expression.support.ExpressionAnnotationMethodDefinitionSource";
     public static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.Jsr250MethodDefinitionSource";
     public static final String JSR_250_VOTER_CLASS = "org.springframework.security.annotation.Jsr250Voter";
     private static final String ATT_ACCESS = "access";
@@ -40,6 +44,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
     private static final String ATT_USE_JSR250 = "jsr250-annotations";
     private static final String ATT_USE_SECURED = "secured-annotations";
+    private static final String ATT_USE_EXPRESSIONS = "spel-annotations";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         Object source = parserContext.extractSource(element);
@@ -61,17 +66,21 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         registerDelegatingMethodDefinitionSource(parserContext, delegates, source);
 
+        // Add the expression-based after invocation provider
+        ConfigUtils.getRegisteredAfterInvocationProviders(parserContext).add(
+                new RootBeanDefinition(MethodExpressionAfterInvocationProvider.class));
+
         // Register the applicable AccessDecisionManager, handling the special JSR 250 voter if being used
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
         if (!StringUtils.hasText(accessManagerId)) {
-            ConfigUtils.registerDefaultAccessManagerIfNecessary(parserContext);
+            ConfigUtils.registerDefaultMethodAccessManagerIfNecessary(parserContext);
 
             if (jsr250Enabled) {
                 ConfigUtils.addVoter(new RootBeanDefinition(JSR_250_VOTER_CLASS, null, null), parserContext);
             }
 
-            accessManagerId = BeanIds.ACCESS_MANAGER;
+            accessManagerId = BeanIds.METHOD_ACCESS_MANAGER;
         }
 
         registerMethodSecurityInterceptor(parserContext, accessManagerId, source);
@@ -84,12 +93,17 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     /**
-     * Checks whether JSR-250 and/or Secured annotations are enabled and adds the appropriate
+     * Checks whether el-based, JSR-250 and/or Secured annotations are enabled and adds the appropriate
      * MethodDefinitionSource delegates if required.
      */
     private boolean registerAnnotationBasedMethodDefinitionSources(Element element, ParserContext pc, ManagedList delegates) {
         boolean useJsr250 = "enabled".equals(element.getAttribute(ATT_USE_JSR250));
         boolean useSecured = "enabled".equals(element.getAttribute(ATT_USE_SECURED));
+        boolean useExpressions = "enabled".equals(element.getAttribute(ATT_USE_EXPRESSIONS));
+
+        if (useExpressions) {
+            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
+        }
 
         if (useSecured) {
             delegates.add(BeanDefinitionBuilder.rootBeanDefinition(SECURED_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
@@ -139,8 +153,14 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 parserContext.getReaderContext().error("Pointcut expression required", parserContext.extractSource(childElt));
             }
 
-            ConfigAttributeDefinition def = new ConfigAttributeDefinition(StringUtils.commaDelimitedListToStringArray(accessConfig));
-            pointcutMap.put(expression, def);
+            String[] attributeTokens = StringUtils.commaDelimitedListToStringArray(accessConfig);
+            List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(attributeTokens.length);
+
+            for(String token : attributeTokens) {
+                attributes.add(new SecurityConfig(token));
+            }
+
+            pointcutMap.put(expression, attributes);
         }
 
         return pointcutMap;
@@ -158,7 +178,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         parserContext.registerComponent(new BeanComponentDefinition(interceptor, BeanIds.METHOD_SECURITY_INTERCEPTOR));
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_INTERCEPTOR_POST_PROCESSOR,
-        		new RootBeanDefinition(MethodSecurityInterceptorPostProcessor.class));
+                new RootBeanDefinition(MethodSecurityInterceptorPostProcessor.class));
     }
 
     private void registerAdvisor(ParserContext parserContext, Object source) {

@@ -36,8 +36,7 @@ import java.util.Set;
 class ArrayFilterer implements Filterer {
     //~ Static fields/initializers =====================================================================================
 
-    protected static final Log logger =
-            LogFactory.getLog(BasicAclEntryAfterInvocationCollectionFilteringProvider.class);
+    protected static final Log logger = LogFactory.getLog(ArrayFilterer.class);
 
     //~ Instance fields ================================================================================================
 

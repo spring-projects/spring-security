@@ -19,7 +19,7 @@ import java.util.Iterator;
 
 
 /**
- * Filter strategy interface.
+ * Filterer strategy interface.
  *
  * @author Ben Alex
  * @author Paulo Neves

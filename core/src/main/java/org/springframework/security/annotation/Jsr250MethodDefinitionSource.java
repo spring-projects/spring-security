@@ -26,12 +26,13 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.intercept.method.AbstractFallbackMethodDefinitionSource;
 
 
 /**
- * Sources method security metadata from major JSR 250 security annotations. 
+ * Sources method security metadata from major JSR 250 security annotations.
  *
  * @author Ben Alex
  * @version $Id$
@@ -39,38 +40,42 @@ import org.springframework.security.intercept.method.AbstractFallbackMethodDefin
  */
 public class Jsr250MethodDefinitionSource extends AbstractFallbackMethodDefinitionSource {
 
-	protected ConfigAttributeDefinition findAttributes(Class clazz) {
-		return processAnnotations(clazz.getAnnotations());
-	}
+    protected List<ConfigAttribute> findAttributes(Class clazz) {
+        return processAnnotations(clazz.getAnnotations());
+    }
 
-	protected ConfigAttributeDefinition findAttributes(Method method, Class targetClass) {
-		return processAnnotations(AnnotationUtils.getAnnotations(method));
-	}
-	
+    protected List<ConfigAttribute> findAttributes(Method method, Class targetClass) {
+        return processAnnotations(AnnotationUtils.getAnnotations(method));
+    }
+
     public Collection getConfigAttributeDefinitions() {
         return null;
     }
-    
-	private ConfigAttributeDefinition processAnnotations(Annotation[] annotations) {
-		if (annotations == null || annotations.length == 0) {
-			return null;
-		}
-		for (Annotation a: annotations) {
-			if (a instanceof DenyAll) {
-				return new ConfigAttributeDefinition(Jsr250SecurityConfig.DENY_ALL_ATTRIBUTE);
-			}
-			if (a instanceof PermitAll) {
-				return new ConfigAttributeDefinition(Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE);
-			}
-			if (a instanceof RolesAllowed) {
-				RolesAllowed ra = (RolesAllowed) a;
-				List attributes = new ArrayList();
-				for (String allowed : ra.value()) {
-					attributes.add(new Jsr250SecurityConfig(allowed));
-				}
-				return new ConfigAttributeDefinition(attributes);
-			}
-		}
-		return null;
-	}
+
+    private List<ConfigAttribute> processAnnotations(Annotation[] annotations) {
+        if (annotations == null || annotations.length == 0) {
+            return null;
+        }
+        List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>();
+
+        for (Annotation a: annotations) {
+            if (a instanceof DenyAll) {
+                attributes.add(Jsr250SecurityConfig.DENY_ALL_ATTRIBUTE);
+                return attributes;
+            }
+            if (a instanceof PermitAll) {
+                attributes.add(Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE);
+                return attributes;
+            }
+            if (a instanceof RolesAllowed) {
+                RolesAllowed ra = (RolesAllowed) a;
+
+                for (String allowed : ra.value()) {
+                    attributes.add(new Jsr250SecurityConfig(allowed));
+                }
+                return attributes;
+            }
+        }
+        return null;
+    }
 }

@@ -2,6 +2,7 @@ package org.springframework.security.intercept.method;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -9,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.CodeSignature;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -88,12 +90,14 @@ public abstract class AbstractFallbackMethodDefinitionSource implements MethodDe
             }
             else {
                 // We need to work it out.
-                ConfigAttributeDefinition cfgAtt = computeAttributes(method, targetClass);
+                List<ConfigAttribute> attributes = computeAttributes(method, targetClass);
+                ConfigAttributeDefinition cfgAtt = null;
                 // Put it in the cache.
-                if (cfgAtt == null) {
+                if (attributes == null) {
                     this.attributeCache.put(cacheKey, NULL_CONFIG_ATTRIBUTE);
-                }
-                else {
+                } else {
+                    cfgAtt = new ConfigAttributeDefinition(attributes);
+
                     if (logger.isDebugEnabled()) {
                         logger.debug("Adding security method [" + cacheKey + "] with attribute [" + cfgAtt + "]");
                     }
@@ -110,12 +114,12 @@ public abstract class AbstractFallbackMethodDefinitionSource implements MethodDe
      * @param targetClass the target class for this invocation (may be <code>null</code>)
      * @return
      */
-    private ConfigAttributeDefinition computeAttributes(Method method, Class targetClass) {
+    private List<ConfigAttribute> computeAttributes(Method method, Class targetClass) {
         // The method may be on an interface, but we need attributes from the target class.
         // If the target class is null, the method will be unchanged.
         Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
         // First try is the method in the target class.
-        ConfigAttributeDefinition attr = findAttributes(specificMethod, targetClass);
+        List<ConfigAttribute> attr = findAttributes(specificMethod, targetClass);
         if (attr != null) {
             return attr;
         }
@@ -152,7 +156,7 @@ public abstract class AbstractFallbackMethodDefinitionSource implements MethodDe
      * @param targetClass the target class for the invocation (may be <code>null</code>)
      * @return the security metadata (or null if no metadata applies)
      */
-    protected abstract ConfigAttributeDefinition findAttributes(Method method, Class targetClass);
+    protected abstract List<ConfigAttribute> findAttributes(Method method, Class targetClass);
 
     /**
      * Obtains the security metadata registered against the specified class.
@@ -166,7 +170,7 @@ public abstract class AbstractFallbackMethodDefinitionSource implements MethodDe
      * @param clazz the target class for the invocation (never <code>null</code>)
      * @return the security metadata (or null if no metadata applies)
      */
-    protected abstract ConfigAttributeDefinition findAttributes(Class clazz);
+    protected abstract List<ConfigAttribute> findAttributes(Class clazz);
 
     private static class DefaultCacheKey {
 

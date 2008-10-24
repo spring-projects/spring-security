@@ -15,7 +15,8 @@
 
 package org.springframework.security.intercept.method;
 
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.SecurityConfig;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,7 +26,9 @@ import org.springframework.util.StringUtils;
 
 import java.beans.PropertyEditorSupport;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -65,8 +68,13 @@ public class MethodDefinitionSourceEditor extends PropertyEditorSupport {
             String value = props.getProperty(name);
 
             String[] tokens = StringUtils.commaDelimitedListToStringArray(value);
+            List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(tokens.length);
 
-            mappings.put(name, new ConfigAttributeDefinition(tokens));
+            for(String token : tokens) {
+                attributes.add(new SecurityConfig(token));
+            }
+
+            mappings.put(name, attributes);
         }
 
         setValue(new MapBasedMethodDefinitionSource(mappings));

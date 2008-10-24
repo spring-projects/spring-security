@@ -17,6 +17,7 @@
         <module>acl</module>
         <module>taglibs</module>
         <module>itest</module>
+        <module>spring-el</module>
   </modules>
 
     <description>Spring Security</description>
@@ -76,11 +77,16 @@
     </distributionManagement>
 
     <repositories>
-		<repository>
-			<id>spring-external</id>
-			<name>Spring Portfolio Release Repository</name>
-			<url>http://s3.amazonaws.com/maven.springframework.org/external</url>
-		</repository>
+        <repository>
+            <id>com.springsource.repository.bundles.release</id>
+            <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/release</url>
+        </repository>
+        <repository>
+            <id>com.springsource.repository.bundles.external</id>
+            <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/external</url>
+        </repository>         
     </repositories>
 
     <mailingLists>
@@ -634,14 +640,13 @@
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
-                <artifactId>aspectjweaver</artifactId>
-                <optional>true</optional>
-                <version>1.5.4</version>
+                <artifactId>com.springsource.org.aspectj.runtime</artifactId>
+                <version>1.6.2.RELEASE</version>
             </dependency>	    
             <dependency>
                 <groupId>org.aspectj</groupId>
-                <artifactId>aspectjrt</artifactId>
-                <version>1.5.4</version>
+                <artifactId>com.springsource.org.aspectj.weaver</artifactId>
+                <version>1.6.2.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>

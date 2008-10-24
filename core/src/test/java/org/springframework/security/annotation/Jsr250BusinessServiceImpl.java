@@ -1,5 +1,8 @@
 package org.springframework.security.annotation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.PermitAll;
 
@@ -34,4 +37,17 @@ public class Jsr250BusinessServiceImpl implements BusinessService {
     public int someOther(int input) {
         return input;
     }
+
+    public List methodReturningAList(List someList) {
+        return someList;
+    }
+
+    public List methodReturningAList(String userName, String arg2) {
+        return new ArrayList();
+    }
+
+    public Object[] methodReturningAnArray(Object[] someArray) {
+        return null;
+    }
+
 }

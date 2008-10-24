@@ -11,6 +11,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-el-security</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
@@ -39,13 +44,11 @@
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
-        <artifactId>aspectjrt</artifactId>
-        <optional>true</optional>
+            <artifactId>com.springsource.org.aspectj.runtime</artifactId>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
-        <artifactId>aspectjweaver</artifactId>
-        <optional>true</optional>
+            <artifactId>com.springsource.org.aspectj.weaver</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.ldap</groupId>

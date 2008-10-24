@@ -15,8 +15,12 @@
 
 package org.springframework.security.annotation;
 
+import java.util.List;
+
 import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.PermitAll;
+
+import org.springframework.security.expression.annotation.PreAuthorize;
 
 /**
  * @version $Id$
@@ -28,6 +32,7 @@ public interface BusinessService {
 
     @Secured({"ROLE_ADMIN"})
     @RolesAllowed({"ROLE_ADMIN"})
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void someAdminMethod();
 
     @Secured({"ROLE_USER", "ROLE_ADMIN"})
@@ -45,4 +50,11 @@ public interface BusinessService {
     public int someOther(String s);
 
     public int someOther(int input);
+
+    public List methodReturningAList(List someList);
+
+    public Object[] methodReturningAnArray(Object[] someArray);
+
+    public List methodReturningAList(String userName, String extraParam);
+
 }

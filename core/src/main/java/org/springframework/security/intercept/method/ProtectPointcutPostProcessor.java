@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +15,7 @@ import org.aspectj.weaver.tools.PointcutParser;
 import org.aspectj.weaver.tools.PointcutPrimitive;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.intercept.method.aopalliance.MethodDefinitionSourceAdvisor;
 import org.springframework.util.Assert;
@@ -57,7 +59,7 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
     private static final Log logger = LogFactory.getLog(ProtectPointcutPostProcessor.class);
 
-    private Map pointcutMap = new LinkedHashMap(); /** Key: string-based pointcut, value: ConfigAttributeDefinition */
+    private Map<String,List<ConfigAttribute>> pointcutMap = new LinkedHashMap();
     private MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource;
     private PointcutParser parser;
 
@@ -119,7 +121,7 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
         // Handle accordingly
         if (matches) {
-            ConfigAttributeDefinition attr = (ConfigAttributeDefinition) pointcutMap.get(expression.getPointcutExpression());
+            List<ConfigAttribute> attr = pointcutMap.get(expression.getPointcutExpression());
 
             if (logger.isDebugEnabled()) {
                 logger.debug("AspectJ pointcut expression '" + expression.getPointcutExpression() + "' matches target class '" + targetClass.getName() + "' (bean ID '" + beanName + "') for method '" + method + "'; registering security configuration attribute '" + attr + "'");
@@ -131,18 +133,17 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
         return matches;
     }
 
-    public void setPointcutMap(Map map) {
+    public void setPointcutMap(Map<String, List<ConfigAttribute>> map) {
         Assert.notEmpty(map);
         Iterator i = map.keySet().iterator();
         while (i.hasNext()) {
             String expression = i.next().toString();
-            Object value = map.get(expression);
-            Assert.isInstanceOf(ConfigAttributeDefinition.class, value, "Map keys must be instances of ConfigAttributeDefinition");
-            addPointcut(expression, (ConfigAttributeDefinition) value);
+            List<ConfigAttribute> value = map.get(expression);
+            addPointcut(expression, value);
         }
     }
 
-    private void addPointcut(String pointcutExpression, ConfigAttributeDefinition definition) {
+    private void addPointcut(String pointcutExpression, List<ConfigAttribute> definition) {
         Assert.hasText(pointcutExpression, "An AspectJ pointcut expression is required");
         Assert.notNull(definition, "ConfigAttributeDefinition required");
         pointcutExpression = replaceBooleanOperators(pointcutExpression);

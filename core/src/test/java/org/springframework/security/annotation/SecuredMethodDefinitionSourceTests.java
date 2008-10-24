@@ -15,11 +15,13 @@
 package org.springframework.security.annotation;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.SecurityConfig;
 import org.springframework.util.StringUtils;
@@ -50,22 +52,19 @@ public class SecuredMethodDefinitionSourceTests extends TestCase {
             fail("Should be a superMethod called 'someUserMethod3' on class!");
         }
 
-        ConfigAttributeDefinition attrs = this.mds.findAttributes(method, DepartmentServiceImpl.class);
+        List<ConfigAttribute> attrs = mds.findAttributes(method, DepartmentServiceImpl.class);
 
         assertNotNull(attrs);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("attrs: " + StringUtils.collectionToCommaDelimitedString(attrs.getConfigAttributes()));
+            logger.debug("attrs: " + StringUtils.collectionToCommaDelimitedString(attrs));
         }
 
         // expect 1 attribute
-        assertTrue("Did not find 1 attribute", attrs.getConfigAttributes().size() == 1);
+        assertTrue("Did not find 1 attribute", attrs.size() == 1);
 
         // should have 1 SecurityConfig
-        for (Object obj : attrs.getConfigAttributes()) {
-            assertTrue(obj instanceof SecurityConfig);
-
-            SecurityConfig sc = (SecurityConfig) obj;
+        for (ConfigAttribute sc : attrs) {
             assertEquals("Found an incorrect role", "ROLE_ADMIN", sc.getAttribute());
         }
 
@@ -77,37 +76,35 @@ public class SecuredMethodDefinitionSourceTests extends TestCase {
             fail("Should be a superMethod called 'someUserMethod3' on class!");
         }
 
-        ConfigAttributeDefinition superAttrs = this.mds.findAttributes(superMethod, DepartmentServiceImpl.class);
+        List<ConfigAttribute> superAttrs = this.mds.findAttributes(superMethod, DepartmentServiceImpl.class);
 
         assertNotNull(superAttrs);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("superAttrs: " + StringUtils.collectionToCommaDelimitedString(superAttrs.getConfigAttributes()));
+            logger.debug("superAttrs: " + StringUtils.collectionToCommaDelimitedString(superAttrs));
         }
 
         // This part of the test relates to SEC-274
         // expect 1 attribute
-        assertTrue("Did not find 1 attribute", superAttrs.getConfigAttributes().size() == 1);
+        assertEquals("Did not find 1 attribute", 1, superAttrs.size());
         // should have 1 SecurityConfig
-        for (Object obj : superAttrs.getConfigAttributes()) {
-        	assertTrue(obj instanceof SecurityConfig);
-            SecurityConfig sc = (SecurityConfig) obj;
+        for (ConfigAttribute sc : superAttrs) {
             assertEquals("Found an incorrect role", "ROLE_ADMIN", sc.getAttribute());
         }
     }
 
     public void testGetAttributesClass() {
-    	ConfigAttributeDefinition attrs = this.mds.findAttributes(BusinessService.class);
+        List<ConfigAttribute> attrs = this.mds.findAttributes(BusinessService.class);
 
         assertNotNull(attrs);
 
         // expect 1 annotation
-        assertTrue(attrs.getConfigAttributes().size() == 1);
+        assertEquals(1, attrs.size());
 
         // should have 1 SecurityConfig
-        SecurityConfig sc = (SecurityConfig) attrs.getConfigAttributes().iterator().next();
+        SecurityConfig sc = ((SecurityConfig) attrs.get(0));
 
-        assertTrue(sc.getAttribute().equals("ROLE_USER"));
+        assertEquals("ROLE_USER", sc.getAttribute());
     }
 
     public void testGetAttributesMethod() {
@@ -119,21 +116,19 @@ public class SecuredMethodDefinitionSourceTests extends TestCase {
             fail("Should be a method called 'someUserAndAdminMethod' on class!");
         }
 
-        ConfigAttributeDefinition attrs = this.mds.findAttributes(method, BusinessService.class);
+        List<ConfigAttribute> attrs = this.mds.findAttributes(method, BusinessService.class);
 
         assertNotNull(attrs);
 
         // expect 2 attributes
-        assertTrue(attrs.getConfigAttributes().size() == 2);
+        assertEquals(2, attrs.size());
 
         boolean user = false;
         boolean admin = false;
 
         // should have 2 SecurityConfigs
-        for (Object obj : attrs.getConfigAttributes()) {
-            assertTrue(obj instanceof SecurityConfig);
-
-            SecurityConfig sc = (SecurityConfig) obj;
+        for (ConfigAttribute sc : attrs) {
+            assertTrue(sc instanceof SecurityConfig);
 
             if (sc.getAttribute().equals("ROLE_USER")) {
                 user = true;
@@ -145,5 +140,5 @@ public class SecuredMethodDefinitionSourceTests extends TestCase {
         // expect to have ROLE_USER and ROLE_ADMIN
         assertTrue(user && admin);
     }
-    
+
 }

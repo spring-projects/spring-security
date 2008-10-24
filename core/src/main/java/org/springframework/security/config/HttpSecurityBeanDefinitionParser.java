@@ -124,8 +124,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
         if (!StringUtils.hasText(accessManagerId)) {
-            ConfigUtils.registerDefaultAccessManagerIfNecessary(parserContext);
-            accessManagerId = BeanIds.ACCESS_MANAGER;
+            ConfigUtils.registerDefaultWebAccessManagerIfNecessary(parserContext);
+            accessManagerId = BeanIds.WEB_ACCESS_MANAGER;
         }
 
         // Register the portMapper. A default will always be created, even if no element exists.
@@ -273,8 +273,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         exceptionTranslationFilterBuilder.addPropertyValue("createSessionAllowed", new Boolean(allowSessionCreation));
 
         if (StringUtils.hasText(accessDeniedPage)) {
-        	BeanDefinition accessDeniedHandler = new RootBeanDefinition(AccessDeniedHandlerImpl.class);
-        	accessDeniedHandler.getPropertyValues().addPropertyValue("errorPage", accessDeniedPage);
+            BeanDefinition accessDeniedHandler = new RootBeanDefinition(AccessDeniedHandlerImpl.class);
+            accessDeniedHandler.getPropertyValues().addPropertyValue("errorPage", accessDeniedPage);
             exceptionTranslationFilterBuilder.addPropertyValue("accessDeniedHandler", accessDeniedHandler);
         }
 

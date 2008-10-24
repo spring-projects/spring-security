@@ -3,6 +3,9 @@ package org.springframework.security.config;
 import static org.junit.Assert.*;
 import static org.springframework.security.config.ConfigTestUtils.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
@@ -178,6 +181,50 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         SecurityContextHolder.getContext().setAuthentication(token);
         target = (BusinessService) appContext.getBean("businessService");
         target.someUserMethod1();
+    }
+
+    @Test(expected=AccessDeniedException.class)
+    public void accessIsDeniedForHasRoleExpression() {
+        setContext(
+                "<global-method-security spel-annotations='enabled'/>" +
+                "<b:bean id='target' class='org.springframework.security.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
+                AUTH_PROVIDER_XML);
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
+        target = (BusinessService) appContext.getBean("target");
+        target.someAdminMethod();
+    }
+
+    @Test
+    public void preAndPostFilterAnnotationsWorkWithLists() {
+        setContext(
+                "<global-method-security spel-annotations='enabled'/>" +
+                "<b:bean id='target' class='org.springframework.security.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
+                AUTH_PROVIDER_XML);
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
+        target = (BusinessService) appContext.getBean("target");
+        List arg = new ArrayList();
+        arg.add("joe");
+        arg.add("bob");
+        arg.add("sam");
+        List result = target.methodReturningAList(arg);
+        // Expression is (filterObject == name or filterObject == 'sam'), so "joe" should be gone after pre-filter
+        // PostFilter should remove sam from the return object
+        assertEquals(1, result.size());
+        assertEquals("bob", result.get(0));
+    }
+
+    @Test
+    public void preAndPostFilterAnnotationsWorkWithArrays() {
+        setContext(
+                "<global-method-security spel-annotations='enabled'/>" +
+                "<b:bean id='target' class='org.springframework.security.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
+                AUTH_PROVIDER_XML);
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
+        target = (BusinessService) appContext.getBean("target");
+        Object[] arg = new String[] {"joe", "bob", "sam"};
+        Object[] result = target.methodReturningAnArray(arg);
+        assertEquals(1, result.length);
+        assertEquals("bob", result[0]);
     }
 
     private void setContext(String context) {
