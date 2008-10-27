@@ -25,7 +25,7 @@ import org.springframework.security.util.StringSplitUtils;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.util.UrlMatcher;
 import org.springframework.security.util.AntUrlPathMatcher;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.SecurityConfig;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -167,7 +167,7 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
 
             String[] tokens = StringUtils.commaDelimitedListToStringArray(value);
 
-            urlMap.put(new RequestKey(name), new ConfigAttributeDefinition(tokens));
+            urlMap.put(new RequestKey(name), SecurityConfig.createList(tokens));
         }
 
         DefaultFilterInvocationDefinitionSource fids =

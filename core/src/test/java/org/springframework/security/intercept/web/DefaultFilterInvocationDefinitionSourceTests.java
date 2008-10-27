@@ -15,17 +15,22 @@
 
 package org.springframework.security.intercept.web;
 
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.MockFilterChain;
-import org.springframework.security.util.AntUrlPathMatcher;
-import org.springframework.security.util.InMemoryXmlApplicationContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import org.junit.Test;
-import org.junit.Before;
-import static org.junit.Assert.*;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.MockFilterChain;
+import org.springframework.security.SecurityConfig;
+import org.springframework.security.util.AntUrlPathMatcher;
+import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
  * Tests parts of {@link DefaultFilterInvocationDefinitionSource} not tested by {@link
@@ -35,7 +40,8 @@ import static org.junit.Assert.*;
  * @version $Id$
  */
 public class DefaultFilterInvocationDefinitionSourceTests {
-    DefaultFilterInvocationDefinitionSource map;
+    private DefaultFilterInvocationDefinitionSource map;
+    private List<ConfigAttribute> def = SecurityConfig.createList("ROLE_ONE");
 
     //~ Methods ========================================================================================================
     @Before
@@ -51,13 +57,11 @@ public class DefaultFilterInvocationDefinitionSourceTests {
 
     @Test
     public void lookupNotRequiringExactMatchSuccessIfNotMatching() {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/secure/super/**", def);
 
         FilterInvocation fi = createFilterInvocation("/SeCuRE/super/somefile.html", null);
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
-        assertEquals(def, response);
+        assertEquals(def, map.lookupAttributes(fi.getRequestUrl()));
     }
 
     /**
@@ -65,12 +69,11 @@ public class DefaultFilterInvocationDefinitionSourceTests {
      */
     @Test
     public void lookupNotRequiringExactMatchSucceedsIfSecureUrlPathContainsUpperCase() {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/SeCuRE/super/**", def);
 
         FilterInvocation fi = createFilterInvocation("/secure/super/somefile.html", null);
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
+        List<? extends ConfigAttribute> response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
     }
 
@@ -78,75 +81,69 @@ public class DefaultFilterInvocationDefinitionSourceTests {
     @Test
     public void lookupRequiringExactMatchFailsIfNotMatching() {
         map = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(false));
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/secure/super/**", def);
 
         FilterInvocation fi = createFilterInvocation("/SeCuRE/super/somefile.html", null);
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
+        List<? extends ConfigAttribute> response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(null, response);
     }
 
     @Test
     public void lookupRequiringExactMatchIsSuccessful() {
         map = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(false));
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/SeCurE/super/**", def);
 
         FilterInvocation fi = createFilterInvocation("/SeCurE/super/somefile.html", null);
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
+        List<? extends ConfigAttribute> response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
     }
 
     @Test
     public void lookupRequiringExactMatchWithAdditionalSlashesIsSuccessful() {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/someAdminPage.html**", def);
 
         FilterInvocation fi = createFilterInvocation("/someAdminPage.html?a=/test", null);
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
+        List<? extends ConfigAttribute> response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response); // see SEC-161 (it should truncate after ? sign)
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void unknownHttpMethodIsRejected() {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/someAdminPage.html**", "UNKNOWN", def);
     }
 
     @Test
     public void httpMethodLookupSucceeds() {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/somepage**", "GET", def);
 
         FilterInvocation fi = createFilterInvocation("/somepage", "GET");
-        ConfigAttributeDefinition attrs = map.getAttributes(fi);
+        List<? extends ConfigAttribute> attrs = map.getAttributes(fi);
         assertEquals(def, attrs);
     }
 
     @Test
     public void requestWithDifferentHttpMethodDoesntMatch() {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
         map.addSecureUrl("/somepage**", "GET", def);
 
         FilterInvocation fi = createFilterInvocation("/somepage", null);
-        ConfigAttributeDefinition attrs = map.getAttributes(fi);
+        List<? extends ConfigAttribute> attrs = map.getAttributes(fi);
         assertNull(attrs);
     }
 
     @Test
     public void httpMethodSpecificUrlTakesPrecedence() {
         // Even though this is added before the method-specific def, the latter should match
-        ConfigAttributeDefinition allMethodDef = new ConfigAttributeDefinition("ROLE_ONE");
-        map.addSecureUrl("/**", null, allMethodDef);
+        List<? extends ConfigAttribute> allMethodDef = def;
+        map.addSecureUrl("/**", null, def);
 
-        ConfigAttributeDefinition postOnlyDef = new ConfigAttributeDefinition("ROLE_TWO");
+        List<? extends ConfigAttribute> postOnlyDef = SecurityConfig.createList("ROLE_TWO");
         map.addSecureUrl("/somepage**", "POST", postOnlyDef);
 
         FilterInvocation fi = createFilterInvocation("/somepage", "POST");
-        ConfigAttributeDefinition attrs = map.getAttributes(fi);
+        List<? extends ConfigAttribute> attrs = map.getAttributes(fi);
         assertEquals(postOnlyDef, attrs);
     }
 
@@ -154,13 +151,12 @@ public class DefaultFilterInvocationDefinitionSourceTests {
      * Check fixes for SEC-321
      */
     @Test
-    public void extraQuestionMarkStillMatches() {        
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("ROLE_ONE");
+    public void extraQuestionMarkStillMatches() {
         map.addSecureUrl("/someAdminPage.html*", def);
 
         FilterInvocation fi = createFilterInvocation("/someAdminPage.html?x=2/aa?y=3", null);
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
+        List<? extends ConfigAttribute> response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
 
         fi = createFilterInvocation("/someAdminPage.html??", null);
@@ -168,13 +164,13 @@ public class DefaultFilterInvocationDefinitionSourceTests {
         response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
     }
-    
+
     @Test
     public void xmlMapConfigurationIsSuccessful() {
         InMemoryXmlApplicationContext context = new InMemoryXmlApplicationContext(
         "<b:bean id='fids' class='org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource'>" +
         "    <b:constructor-arg>" +
-        "        <b:bean class='org.springframework.security.util.AntUrlPathMatcher'/>" +        
+        "        <b:bean class='org.springframework.security.util.AntUrlPathMatcher'/>" +
         "    </b:constructor-arg>" +
         "    <b:constructor-arg>" +
         "        <b:map>" +
@@ -193,11 +189,11 @@ public class DefaultFilterInvocationDefinitionSourceTests {
         "    </b:constructor-arg>" +
         "</b:bean>"
         );
-        
+
         DefaultFilterInvocationDefinitionSource fids = (DefaultFilterInvocationDefinitionSource) context.getBean("fids");
-        ConfigAttributeDefinition cad = fids.lookupAttributes("/anything", "GET");
+        List<? extends ConfigAttribute> cad = fids.lookupAttributes("/anything", "GET");
         assertNotNull(cad);
-        assertEquals(1, cad.getConfigAttributes().size());
+        assertEquals(1, cad.size());
         context.close();
     }
 

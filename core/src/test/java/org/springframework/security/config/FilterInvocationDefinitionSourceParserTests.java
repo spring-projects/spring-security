@@ -2,12 +2,15 @@ package org.springframework.security.config;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
@@ -41,7 +44,7 @@ public class FilterInvocationDefinitionSourceParserTests {
                 "   <intercept-url pattern='/**' access='ROLE_A'/>" +
                 "</filter-invocation-definition-source>");
         DefaultFilterInvocationDefinitionSource fids = (DefaultFilterInvocationDefinitionSource) appContext.getBean("fids");
-        ConfigAttributeDefinition cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
+        List<? extends ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
         assertTrue(cad.contains(new SecurityConfig("ROLE_A")));
     }
 

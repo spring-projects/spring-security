@@ -15,12 +15,13 @@
 
 package org.springframework.security.intercept.web;
 
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.util.AntUrlPathMatcher;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
-import java.util.Collection;
 
 
 /**
@@ -61,7 +62,7 @@ public class MockFilterInvocationDefinitionSource extends DefaultFilterInvocatio
 
     //~ Methods ========================================================================================================
 
-    public Collection getConfigAttributeDefinitions() {
+    public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
         if (returnAnIterator) {
             return list;
         } else {
@@ -69,7 +70,7 @@ public class MockFilterInvocationDefinitionSource extends DefaultFilterInvocatio
         }
     }
 
-    public ConfigAttributeDefinition lookupAttributes(String url, String method) {
+    public List<ConfigAttribute> lookupAttributes(String url, String method) {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 }

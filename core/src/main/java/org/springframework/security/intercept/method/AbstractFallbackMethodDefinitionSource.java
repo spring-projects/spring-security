@@ -1,6 +1,7 @@
 package org.springframework.security.intercept.method;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,6 @@ import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.CodeSignature;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
@@ -39,12 +39,12 @@ import org.springframework.util.ObjectUtils;
  * @since 2.0
  */
 public abstract class AbstractFallbackMethodDefinitionSource implements MethodDefinitionSource {
+    protected final Log logger = LogFactory.getLog(getClass());
 
-    private static final Log logger = LogFactory.getLog(AbstractFallbackMethodDefinitionSource.class);
-    private final static Object NULL_CONFIG_ATTRIBUTE = new Object();
-    private final Map attributeCache = new HashMap();
+    private final static List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = new ArrayList<ConfigAttribute>(0);
+    private final Map<DefaultCacheKey, List<ConfigAttribute>> attributeCache = new HashMap();
 
-    public ConfigAttributeDefinition getAttributes(Object object) throws IllegalArgumentException {
+    public List<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         Assert.notNull(object, "Object cannot be null");
 
         if (object instanceof MethodInvocation) {
@@ -73,11 +73,11 @@ public abstract class AbstractFallbackMethodDefinitionSource implements MethodDe
         return (MethodInvocation.class.isAssignableFrom(clazz) || JoinPoint.class.isAssignableFrom(clazz));
     }
 
-    public ConfigAttributeDefinition getAttributes(Method method, Class targetClass) {
+    public List<ConfigAttribute> getAttributes(Method method, Class targetClass) {
         // First, see if we have a cached value.
-        Object cacheKey = new DefaultCacheKey(method, targetClass);
-        synchronized (this.attributeCache) {
-            Object cached = this.attributeCache.get(cacheKey);
+        DefaultCacheKey cacheKey = new DefaultCacheKey(method, targetClass);
+        synchronized (attributeCache) {
+            List<ConfigAttribute> cached = attributeCache.get(cacheKey);
             if (cached != null) {
                 // Value will either be canonical value indicating there is no config attribute,
                 // or an actual config attribute.
@@ -85,25 +85,22 @@ public abstract class AbstractFallbackMethodDefinitionSource implements MethodDe
                     return null;
                 }
                 else {
-                    return (ConfigAttributeDefinition) cached;
+                    return cached;
                 }
             }
             else {
                 // We need to work it out.
                 List<ConfigAttribute> attributes = computeAttributes(method, targetClass);
-                ConfigAttributeDefinition cfgAtt = null;
                 // Put it in the cache.
                 if (attributes == null) {
                     this.attributeCache.put(cacheKey, NULL_CONFIG_ATTRIBUTE);
                 } else {
-                    cfgAtt = new ConfigAttributeDefinition(attributes);
-
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Adding security method [" + cacheKey + "] with attribute [" + cfgAtt + "]");
+                        logger.debug("Adding security method [" + cacheKey + "] with attributes " + attributes);
                     }
-                    this.attributeCache.put(cacheKey, cfgAtt);
+                    this.attributeCache.put(cacheKey, attributes);
                 }
-                return cfgAtt;
+                return attributes;
             }
         }
     }

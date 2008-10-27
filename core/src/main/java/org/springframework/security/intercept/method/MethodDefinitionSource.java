@@ -16,8 +16,9 @@
 package org.springframework.security.intercept.method;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.intercept.ObjectDefinitionSource;
 
 
@@ -29,5 +30,5 @@ import org.springframework.security.intercept.ObjectDefinitionSource;
  * @version $Id$
  */
 public interface MethodDefinitionSource extends ObjectDefinitionSource {
-    public ConfigAttributeDefinition getAttributes(Method method, Class targetClass);
+    public List<ConfigAttribute> getAttributes(Method method, Class targetClass);
 }

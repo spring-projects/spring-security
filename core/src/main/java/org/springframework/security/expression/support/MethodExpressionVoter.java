@@ -44,7 +44,7 @@ public class MethodExpressionVoter implements AccessDecisionVoter {
     }
 
     public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
-        PreInvocationExpressionBasedMethodConfigAttribute mace = findMethodAccessControlExpression(config);
+        PreInvocationExpressionConfigAttribute mace = findMethodAccessControlExpression(config);
 
         if (mace == null) {
             // No expression based metadata, so abstain
@@ -62,7 +62,7 @@ public class MethodExpressionVoter implements AccessDecisionVoter {
 
         if (preFilter != null) {
             // TODO: Allow null target if only single parameter, or single collection/array?
-            Object filtered = ExpressionUtils.doFilter(filterTarget, preFilter, ctx);
+            ExpressionUtils.doFilter(filterTarget, preFilter, ctx);
         }
 
         if (preAuthorize == null) {
@@ -88,19 +88,25 @@ public class MethodExpressionVoter implements AccessDecisionVoter {
             }
         }
 
-        if (filterTargetName != null && filterTarget == null) {
-            throw new IllegalArgumentException("No filter target argument with name " + filterTargetName +
-                    " found in method: " + method.getName());
+        if (filterTargetName != null) {
+            if (filterTarget == null) {
+                throw new IllegalArgumentException("No filter target argument with name " + filterTargetName +
+                        " found in method: " + method.getName());
+            }
+            if (filterTarget.getClass().isArray()) {
+                throw new IllegalArgumentException("Pre-filtering on array types is not supported. Changing '" +
+                        filterTargetName +"' to a collection will solve this problem");
+            }
         }
 
         return filterTarget;
     }
 
-    private PreInvocationExpressionBasedMethodConfigAttribute findMethodAccessControlExpression(ConfigAttributeDefinition config) {
+    private PreInvocationExpressionConfigAttribute findMethodAccessControlExpression(ConfigAttributeDefinition config) {
         // Find the MethodAccessControlExpression attribute
         for (ConfigAttribute attribute : config.getConfigAttributes()) {
-            if (attribute instanceof AbstractExpressionBasedMethodConfigAttribute) {
-                return (PreInvocationExpressionBasedMethodConfigAttribute)attribute;
+            if (attribute instanceof PreInvocationExpressionConfigAttribute) {
+                return (PreInvocationExpressionConfigAttribute)attribute;
             }
         }
 

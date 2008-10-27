@@ -214,7 +214,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void preAndPostFilterAnnotationsWorkWithArrays() {
+    public void prePostFilterAnnotationWorksWithArrays() {
         setContext(
                 "<global-method-security spel-annotations='enabled'/>" +
                 "<b:bean id='target' class='org.springframework.security.annotation.ExpressionProtectedBusinessServiceImpl'/>" +

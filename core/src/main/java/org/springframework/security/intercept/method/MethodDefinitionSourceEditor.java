@@ -36,9 +36,11 @@ import java.util.LinkedHashMap;
 
 /**
  * Property editor to assist with the setup of a {@link MethodDefinitionSource}.
- * <p>The class creates and populates a {@link MapBasedMethodDefinitionSource}.</p>
+ * <p>
+ * The class creates and populates a {@link MapBasedMethodDefinitionSource}.
  *
  * @author Ben Alex
+ * @deprecated use method annotations or the protect-pointcut support from the namespace
  * @version $Id$
  */
 public class MethodDefinitionSourceEditor extends PropertyEditorSupport {

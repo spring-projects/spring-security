@@ -43,7 +43,7 @@ public class SecuredMethodDefinitionSource extends AbstractFallbackMethodDefinit
         return processAnnotation(AnnotationUtils.findAnnotation(method, Secured.class));
     }
 
-    public Collection getConfigAttributeDefinitions() {
+    public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
         return null;
     }
 

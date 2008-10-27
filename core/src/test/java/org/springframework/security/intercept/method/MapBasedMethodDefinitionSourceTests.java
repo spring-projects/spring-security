@@ -35,7 +35,7 @@ public class MapBasedMethodDefinitionSourceTests {
     public void wildcardedMatchIsOverwrittenByMoreSpecificMatch() {
         mds.addSecureMethod(MockService.class, "some*", ROLE_A);
         mds.addSecureMethod(MockService.class, "someMethod*", ROLE_B);
-        assertEquals(ROLE_B, mds.getAttributes(someMethodInteger, MockService.class).getConfigAttributes());
+        assertEquals(ROLE_B, mds.getAttributes(someMethodInteger, MockService.class));
     }
 
     @Test
@@ -43,8 +43,8 @@ public class MapBasedMethodDefinitionSourceTests {
         mds.addSecureMethod(MockService.class, someMethodInteger, ROLE_A);
         mds.addSecureMethod(MockService.class, someMethodString, ROLE_B);
 
-        assertEquals(ROLE_A, mds.getAttributes(someMethodInteger, MockService.class).getConfigAttributes());
-        assertEquals(ROLE_B, mds.getAttributes(someMethodString, MockService.class).getConfigAttributes());
+        assertEquals(ROLE_A, mds.getAttributes(someMethodInteger, MockService.class));
+        assertEquals(ROLE_B, mds.getAttributes(someMethodString, MockService.class));
     }
 
     private class MockService {

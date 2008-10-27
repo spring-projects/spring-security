@@ -15,7 +15,7 @@
 
 package org.springframework.security.intercept.method;
 
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -28,6 +28,7 @@ import org.aspectj.lang.reflect.CodeSignature;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 
 /**
@@ -44,7 +45,7 @@ public abstract class AbstractMethodDefinitionSource implements MethodDefinition
 
     //~ Methods ========================================================================================================
 
-    public ConfigAttributeDefinition getAttributes(Object object)
+    public List<ConfigAttribute> getAttributes(Object object)
         throws IllegalArgumentException {
         Assert.notNull(object, "Object cannot be null");
 
@@ -89,7 +90,7 @@ public abstract class AbstractMethodDefinitionSource implements MethodDefinition
      *
      * @return the <code>ConfigAttributeDefinition</code> that applies to the specified <code>Method</code>
      */
-    protected abstract ConfigAttributeDefinition lookupAttributes(Method method);
+    protected abstract List<ConfigAttribute> lookupAttributes(Method method);
 
     public boolean supports(Class clazz) {
         return (MethodInvocation.class.isAssignableFrom(clazz) || JoinPoint.class.isAssignableFrom(clazz));

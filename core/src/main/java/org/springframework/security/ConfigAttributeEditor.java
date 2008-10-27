@@ -34,7 +34,7 @@ public class ConfigAttributeEditor extends PropertyEditorSupport {
 
     public void setAsText(String s) throws IllegalArgumentException {
         if (StringUtils.hasText(s)) {
-            setValue(new ConfigAttributeDefinition(StringUtils.commaDelimitedListToStringArray(s)));
+            setValue(SecurityConfig.createList(StringUtils.commaDelimitedListToStringArray(s)));
         } else {
             setValue(null);
         }

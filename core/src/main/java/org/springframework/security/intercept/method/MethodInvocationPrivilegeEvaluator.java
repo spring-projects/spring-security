@@ -15,8 +15,11 @@
 
 package org.springframework.security.intercept.method;
 
+import java.util.List;
+
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 
 import org.springframework.security.intercept.AbstractSecurityInterceptor;
@@ -60,7 +63,7 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
         Assert.notNull(mi, "MethodInvocation required");
         Assert.notNull(mi.getMethod(), "MethodInvocation must provide a non-null getMethod()");
 
-        ConfigAttributeDefinition attrs = securityInterceptor.obtainObjectDefinitionSource().getAttributes(mi);
+        List<? extends ConfigAttribute> attrs = securityInterceptor.obtainObjectDefinitionSource().getAttributes(mi);
 
         if (attrs == null) {
             if (securityInterceptor.isRejectPublicInvocations()) {
@@ -76,7 +79,7 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
         }
 
         try {
-            securityInterceptor.getAccessDecisionManager().decide(authentication, mi, attrs);
+            securityInterceptor.getAccessDecisionManager().decide(authentication, mi, new ConfigAttributeDefinition(attrs));
         } catch (AccessDeniedException unauthorized) {
             if (logger.isDebugEnabled()) {
                 logger.debug(mi.toString() + " denied for " + authentication.toString(), unauthorized);

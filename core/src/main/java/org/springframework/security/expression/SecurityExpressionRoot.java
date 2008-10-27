@@ -17,7 +17,7 @@ public class SecurityExpressionRoot {
         this.authentication = a;
     }
 
-    public boolean hasRole(String role) {
+    public final boolean hasRole(String role) {
         return hasAnyRole(role);
     }
 
@@ -33,19 +33,27 @@ public class SecurityExpressionRoot {
         return false;
     }
 
-    public boolean isAnonymous() {
+    public final boolean permitAll() {
+        return true;
+    }
+
+    public final boolean denyAll() {
+        return false;
+    }
+
+    public final boolean isAnonymous() {
         return trustResolver.isAnonymous(authentication);
     }
 
-    public boolean isRememberMe() {
+    public final boolean isRememberMe() {
         return trustResolver.isRememberMe(authentication);
     }
 
-    public String getName() {
-        return authentication.getName();
+    public Authentication getAuthentication() {
+        return authentication;
     }
 
-    public boolean isFullyAuthenticated() {
+    public final boolean isFullyAuthenticated() {
         return !trustResolver.isAnonymous(authentication) && !trustResolver.isRememberMe(authentication);
     }
 
@@ -63,5 +71,9 @@ public class SecurityExpressionRoot {
 
     public Object getReturnObject() {
         return returnObject;
+    }
+
+    public Object getPrincipal() {
+        return authentication.getPrincipal();
     }
 }

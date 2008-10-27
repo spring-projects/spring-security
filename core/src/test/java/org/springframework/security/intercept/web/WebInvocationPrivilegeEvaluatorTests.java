@@ -47,10 +47,6 @@ public class WebInvocationPrivilegeEvaluatorTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(WebInvocationPrivilegeEvaluatorTests.class);
-    }
-
     private FilterSecurityInterceptor makeFilterSecurityInterceptor() {
         ApplicationContext context = new ClassPathXmlApplicationContext(
                 "org/springframework/security/intercept/web/applicationContext.xml");

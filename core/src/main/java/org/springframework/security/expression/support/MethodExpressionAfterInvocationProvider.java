@@ -35,7 +35,7 @@ public class MethodExpressionAfterInvocationProvider implements AfterInvocationP
     public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config, Object returnedObject)
             throws AccessDeniedException {
 
-        PostInvocationExpressionBasedMethodConfigAttribute mca = findMethodAccessControlExpression(config);
+        PostInvocationExpressionConfigAttribute mca = findMethodAccessControlExpression(config);
 
         if (mca == null) {
             return returnedObject;
@@ -86,11 +86,11 @@ public class MethodExpressionAfterInvocationProvider implements AfterInvocationP
         }
     }
 
-    private PostInvocationExpressionBasedMethodConfigAttribute findMethodAccessControlExpression(ConfigAttributeDefinition config) {
+    private PostInvocationExpressionConfigAttribute findMethodAccessControlExpression(ConfigAttributeDefinition config) {
         // Find the MethodAccessControlExpression attribute
         for (ConfigAttribute attribute : config.getConfigAttributes()) {
-            if (attribute instanceof PostInvocationExpressionBasedMethodConfigAttribute) {
-                return (PostInvocationExpressionBasedMethodConfigAttribute)attribute;
+            if (attribute instanceof PostInvocationExpressionConfigAttribute) {
+                return (PostInvocationExpressionConfigAttribute)attribute;
             }
         }
 
@@ -98,7 +98,7 @@ public class MethodExpressionAfterInvocationProvider implements AfterInvocationP
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        return attribute instanceof PostInvocationExpressionBasedMethodConfigAttribute;
+        return attribute instanceof PostInvocationExpressionConfigAttribute;
     }
 
     public boolean supports(Class clazz) {

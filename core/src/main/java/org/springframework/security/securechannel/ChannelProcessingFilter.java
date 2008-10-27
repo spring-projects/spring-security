@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Collection;
 
@@ -59,7 +60,7 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
         Assert.notNull(filterInvocationDefinitionSource, "filterInvocationDefinitionSource must be specified");
         Assert.notNull(channelDecisionManager, "channelDecisionManager must be specified");
 
-        Collection attrDefs = this.filterInvocationDefinitionSource.getConfigAttributeDefinitions();
+        Collection<List<? extends ConfigAttribute>> attrDefs = this.filterInvocationDefinitionSource.getConfigAttributeDefinitions();
 
         if (attrDefs == null) {
             if (logger.isWarnEnabled()) {
@@ -70,16 +71,10 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
             return;
         }
 
-        Iterator iter = attrDefs.iterator();
         Set set = new HashSet();
 
-        while (iter.hasNext()) {
-            ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter.next();
-            Iterator attributes = def.getConfigAttributes().iterator();
-
-            while (attributes.hasNext()) {
-                ConfigAttribute attr = (ConfigAttribute) attributes.next();
-
+        for (List<? extends ConfigAttribute> def : attrDefs) {
+            for (ConfigAttribute attr : def) {
                 if (!this.channelDecisionManager.supports(attr)) {
                     set.add(attr);
                 }
@@ -99,14 +94,14 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
         throws IOException, ServletException {
 
         FilterInvocation fi = new FilterInvocation(request, response, chain);
-        ConfigAttributeDefinition attr = this.filterInvocationDefinitionSource.getAttributes(fi);
+        List<? extends ConfigAttribute> attr = this.filterInvocationDefinitionSource.getAttributes(fi);
 
         if (attr != null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Request: " + fi.toString() + "; ConfigAttributes: " + attr.toString());
+                logger.debug("Request: " + fi.toString() + "; ConfigAttributes: " + attr);
             }
 
-            channelDecisionManager.decide(fi, attr);
+            channelDecisionManager.decide(fi, new ConfigAttributeDefinition(attr));
 
             if (fi.getResponse().isCommitted()) {
                 return;

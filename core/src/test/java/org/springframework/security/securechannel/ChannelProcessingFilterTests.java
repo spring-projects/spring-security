@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.SecurityConfig;
 
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
@@ -28,9 +29,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
-import java.util.Collection;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -51,8 +52,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("MOCK");
-        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, true);
+        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "MOCK");
         filter.setFilterInvocationDefinitionSource(fids);
 
         try {
@@ -80,9 +80,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SUPPORTS_MOCK_ONLY"));
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("SUPPORTS_MOCK_ONLY");
-
-        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, true);
+        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SUPPORTS_MOCK_ONLY");
 
         filter.setFilterInvocationDefinitionSource(fids);
 
@@ -94,8 +92,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SUPPORTS_MOCK_ONLY"));
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition(new String[] {"SUPPORTS_MOCK_ONLY", "INVALID_ATTRIBUTE"});
-        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, true);
+        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SUPPORTS_MOCK_ONLY", "INVALID_ATTRIBUTE");
 
         filter.setFilterInvocationDefinitionSource(fids);
 
@@ -111,9 +108,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(true, "SOME_ATTRIBUTE"));
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("SOME_ATTRIBUTE");
-
-        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, true);
+        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SOME_ATTRIBUTE");
 
         filter.setFilterInvocationDefinitionSource(fids);
 
@@ -132,9 +127,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SOME_ATTRIBUTE"));
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("SOME_ATTRIBUTE");
-
-        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, true);
+        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SOME_ATTRIBUTE");
 
         filter.setFilterInvocationDefinitionSource(fids);
 
@@ -154,9 +147,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "NOT_USED"));
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("NOT_USED");
-
-        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, true);
+        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "NOT_USED");
 
         filter.setFilterInvocationDefinitionSource(fids);
 
@@ -196,9 +187,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "MOCK"));
         assertTrue(filter.getChannelDecisionManager() != null);
 
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("MOCK");
-
-        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", attr, false);
+        MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", false, "MOCK");
 
         filter.setFilterInvocationDefinitionSource(fids);
         assertTrue(filter.getFilterInvocationDefinitionSource() != null);
@@ -257,18 +246,17 @@ public class ChannelProcessingFilterTests extends TestCase {
     }
 
     private class MockFilterInvocationDefinitionMap implements FilterInvocationDefinitionSource {
-        private ConfigAttributeDefinition toReturn;
+        private List<ConfigAttribute> toReturn;
         private String servletPath;
         private boolean provideIterator;
 
-        public MockFilterInvocationDefinitionMap(String servletPath, ConfigAttributeDefinition toReturn,
-            boolean provideIterator) {
+        public MockFilterInvocationDefinitionMap(String servletPath, boolean provideIterator, String... toReturn) {
             this.servletPath = servletPath;
-            this.toReturn = toReturn;
+            this.toReturn = SecurityConfig.createList(toReturn);
             this.provideIterator = provideIterator;
         }
 
-        public ConfigAttributeDefinition getAttributes(Object object)
+        public List<ConfigAttribute> getAttributes(Object object)
             throws IllegalArgumentException {
             FilterInvocation fi = (FilterInvocation) object;
 
@@ -279,7 +267,7 @@ public class ChannelProcessingFilterTests extends TestCase {
             }
         }
 
-        public Collection getConfigAttributeDefinitions() {
+        public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
             if (!provideIterator) {
                 return null;
             }

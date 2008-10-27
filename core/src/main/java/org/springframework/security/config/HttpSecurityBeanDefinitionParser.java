@@ -561,7 +561,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 }
 
                 editor.setAsText(channelConfigAttribute);
-                channelRequestMap.put(new RequestKey(path), (ConfigAttributeDefinition) editor.getValue());
+                channelRequestMap.put(new RequestKey(path), editor.getValue());
             }
 
             String filters = urlElt.getAttribute(ATT_FILTERS);

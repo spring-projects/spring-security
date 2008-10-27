@@ -17,13 +17,15 @@ package org.springframework.security.intercept.method;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.SecurityConfig;
 
 import java.lang.reflect.Method;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
-import java.util.Collection;
 
 
 /**
@@ -43,38 +45,38 @@ public class MockMethodDefinitionSource implements MethodDefinitionSource {
         returnACollection = returnACollectionWhenRequested;
         list = new Vector();
 
-        ConfigAttributeDefinition def1 = new ConfigAttributeDefinition("MOCK_LOWER");
+        List<? extends ConfigAttribute> def1 = SecurityConfig.createList("MOCK_LOWER");
         list.add(def1);
 
         if (includeInvalidAttributes) {
-            ConfigAttributeDefinition def2 = new ConfigAttributeDefinition(new String[] {"MOCK_LOWER","INVALID_ATTRIBUTE"});
+            List<? extends ConfigAttribute> def2 = SecurityConfig.createList("MOCK_LOWER","INVALID_ATTRIBUTE");
             list.add(def2);
         }
 
-        ConfigAttributeDefinition def3 = new ConfigAttributeDefinition(new String[] {"MOCK_UPPER", "RUN_AS_"});
+        List<? extends ConfigAttribute> def3 = SecurityConfig.createList("MOCK_UPPER", "RUN_AS_");
         list.add(def3);
 
         if (includeInvalidAttributes) {
-            ConfigAttributeDefinition def4 = new ConfigAttributeDefinition(new String[] {"MOCK_SOMETHING", "ANOTHER_INVALID"});
+            List<? extends ConfigAttribute> def4 = SecurityConfig.createList("MOCK_SOMETHING", "ANOTHER_INVALID");
             list.add(def4);
         }
     }
 
     //~ Methods ========================================================================================================
 
-    public Collection getConfigAttributeDefinitions() {
+    public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
         if (returnACollection) {
             return list;
         } else {
             return null;
-        }	
+        }
     }
 
-    public ConfigAttributeDefinition getAttributes(Object object) throws IllegalArgumentException {
+    public List<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
-    public ConfigAttributeDefinition getAttributes(Method method, Class targetClass) {
+    public List<ConfigAttribute> getAttributes(Method method, Class targetClass) {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 

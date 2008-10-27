@@ -51,6 +51,7 @@ import org.springframework.util.Assert;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Collection;
 
@@ -110,7 +111,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
     protected static final Log logger = LogFactory.getLog(AbstractSecurityInterceptor.class);
 
     //~ Instance fields ================================================================================================
-    
+
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private ApplicationEventPublisher eventPublisher;
     private AccessDecisionManager accessDecisionManager;
@@ -184,7 +185,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
         }
 
         if (this.validateConfigAttributes) {
-            Collection attributeDefs = this.obtainObjectDefinitionSource().getConfigAttributeDefinitions();
+            Collection<List<? extends ConfigAttribute>> attributeDefs = this.obtainObjectDefinitionSource().getConfigAttributeDefinitions();
 
             if (attributeDefs == null) {
                 logger.warn("Could not validate configuration attributes as the ObjectDefinitionSource did not return "
@@ -192,16 +193,10 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
                 return;
             }
 
-            Iterator iter = attributeDefs.iterator();
             Set unsupportedAttrs = new HashSet();
 
-            while (iter.hasNext()) {
-                ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter.next();
-                Iterator attributes = def.getConfigAttributes().iterator();
-
-                while (attributes.hasNext()) {
-                    ConfigAttribute attr = (ConfigAttribute) attributes.next();
-
+            for (List<? extends ConfigAttribute> def : attributeDefs) {
+                for (ConfigAttribute attr : def) {
                     if (!this.runAsManager.supports(attr) && !this.accessDecisionManager.supports(attr)
                             && ((this.afterInvocationManager == null) || !this.afterInvocationManager.supports(attr))) {
                         unsupportedAttrs.add(attr);
@@ -227,7 +222,13 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
                     + getSecureObjectClass());
         }
 
-        ConfigAttributeDefinition attr = this.obtainObjectDefinitionSource().getAttributes(object);
+        List<? extends ConfigAttribute> attributes = this.obtainObjectDefinitionSource().getAttributes(object);
+        ConfigAttributeDefinition attr = null;
+
+        // TODO: temporary until refactor security interceptor and AccessManager
+        if (attributes != null) {
+            attr = new ConfigAttributeDefinition(attributes);
+        }
 
         if (attr == null) {
             if (rejectPublicInvocations) {

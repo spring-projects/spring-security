@@ -29,6 +29,7 @@ import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockRunAsManager;
 import org.springframework.security.RunAsManager;
 import org.springframework.security.MockApplicationEventPublisher;
+import org.springframework.security.SecurityConfig;
 import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.context.SecurityContextHolder;
@@ -40,6 +41,7 @@ import java.io.IOException;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -145,8 +147,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
 
         // Setup a mock config attribute definition
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("MOCK_OK");
-        MockFilterInvocationDefinitionMap mockSource = new MockFilterInvocationDefinitionMap("/secure/page.html", def);
+        MockFilterInvocationDefinitionMap mockSource = new MockFilterInvocationDefinitionMap("/secure/page.html", "MOCK_OK");
         interceptor.setObjectDefinitionSource(mockSource);
 
         // Setup our expectation that the filter chain will be invoked, as access is granted
@@ -187,7 +188,6 @@ public class FilterSecurityInterceptorTests extends TestCase {
      * We just test invocation works in a success event. There is no need to test  access denied events as the
      * abstract parent enforces that logic, which is extensively tested separately.
      *
-     * @throws Throwable DOCUMENT ME!
      */
     public void testSuccessfulInvocation() throws Throwable {
         // Setup the FilterSecurityInterceptor
@@ -198,8 +198,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
 
         // Setup a mock config attribute definition
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("MOCK_OK");
-        MockFilterInvocationDefinitionMap mockSource = new MockFilterInvocationDefinitionMap("/secure/page.html", def);
+        MockFilterInvocationDefinitionMap mockSource = new MockFilterInvocationDefinitionMap("/secure/page.html", "MOCK_OK");
         interceptor.setObjectDefinitionSource(mockSource);
 
         // Setup our expectation that the filter chain will be invoked, as access is granted
@@ -224,7 +223,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         LinkedHashMap reqMap = new LinkedHashMap();
         reqMap.put(new RequestKey("/secure/**", null), new ConfigAttributeDefinition(new String[] {"ROLE_USER"}));
         DefaultFilterInvocationDefinitionSource fids
-                = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher());        
+                = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher());
 
         FilterSecurityInterceptor filter = new FilterSecurityInterceptor();
         filter.setObjectDefinitionSource(fids);
@@ -260,15 +259,15 @@ public class FilterSecurityInterceptorTests extends TestCase {
     }
 
     private class MockFilterInvocationDefinitionMap implements FilterInvocationDefinitionSource {
-        private ConfigAttributeDefinition toReturn;
+        private List<ConfigAttribute> toReturn;
         private String servletPath;
 
-        public MockFilterInvocationDefinitionMap(String servletPath, ConfigAttributeDefinition toReturn) {
+        public MockFilterInvocationDefinitionMap(String servletPath, String... toReturn) {
             this.servletPath = servletPath;
-            this.toReturn = toReturn;
+            this.toReturn = SecurityConfig.createList(toReturn);
         }
 
-        public ConfigAttributeDefinition getAttributes(Object object)
+        public List<ConfigAttribute> getAttributes(Object object)
             throws IllegalArgumentException {
             FilterInvocation fi = (FilterInvocation) object;
 
@@ -279,7 +278,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
             }
         }
 
-        public Collection getConfigAttributeDefinitions() {
+        public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
             return null;
         }
 

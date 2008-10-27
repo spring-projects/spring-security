@@ -15,9 +15,11 @@
 
 package org.springframework.security.intercept;
 
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 
 import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -32,17 +34,17 @@ public interface ObjectDefinitionSource {
     //~ Methods ========================================================================================================
 
     /**
-     * Accesses the <code>ConfigAttributeDefinition</code> that applies to a given secure object.<P>Returns
-     * <code>null</code> if no <code>ConfigAttribiteDefinition</code> applies.</p>
+     * Accesses the <code>ConfigAttributeDefinition</code> that applies to a given secure object.
+     * <p>Returns <code>null</code> if no attributes apply.
      *
      * @param object the object being secured
      *
-     * @return the <code>ConfigAttributeDefinition</code> that applies to the passed object
+     * @return the attributes that apply to the passed in secured object
      *
      * @throws IllegalArgumentException if the passed object is not of a type supported by the
      *         <code>ObjectDefinitionSource</code> implementation
      */
-    ConfigAttributeDefinition getAttributes(Object object) throws IllegalArgumentException;
+    List<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException;
 
     /**
      * If available, returns all of the <code>ConfigAttributeDefinition</code>s defined by the implementing class.
@@ -52,7 +54,7 @@ public interface ObjectDefinitionSource {
      *
      * @return the <code>ConfigAttributeDefinition</code>s or <code>null</code> if unsupported
      */
-    Collection getConfigAttributeDefinitions();
+    Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions();
 
     /**
      * Indicates whether the <code>ObjectDefinitionSource</code> implementation is able to provide

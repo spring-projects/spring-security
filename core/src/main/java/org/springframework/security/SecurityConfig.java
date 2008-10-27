@@ -15,6 +15,9 @@
 
 package org.springframework.security;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.util.Assert;
 
 /**
@@ -31,7 +34,7 @@ public class SecurityConfig implements ConfigAttribute {
     //~ Constructors ===================================================================================================
 
     public SecurityConfig(String config) {
-    	Assert.hasText(config, "You must provide a configuration attribute");
+        Assert.hasText(config, "You must provide a configuration attribute");
         this.attrib = config;
     }
 
@@ -57,5 +60,16 @@ public class SecurityConfig implements ConfigAttribute {
 
     public String toString() {
         return this.attrib;
+    }
+
+    public static List<ConfigAttribute> createList(String... attributeNames) {
+        Assert.notNull(attributeNames, "You must supply a list of argument names");
+        List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(attributeNames.length);
+
+        for (String attribute : attributeNames) {
+            attributes.add(new SecurityConfig(attribute));
+        }
+
+        return attributes;
     }
 }

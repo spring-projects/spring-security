@@ -18,6 +18,7 @@ package org.springframework.security.util;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockFilterConfig;
+import org.springframework.security.SecurityConfig;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.MockFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
@@ -76,10 +77,8 @@ public class FilterChainProxyTests {
         FilterChainProxy filterChainProxy = new FilterChainProxy();
         filterChainProxy.setApplicationContext(new StaticApplicationContext());
 
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new MockConfigAttribute());
-
         LinkedHashMap map = new LinkedHashMap();
-        map.put(new RequestKey("/**"), cad);
+        map.put(new RequestKey("/**"), SecurityConfig.createList(null));
         DefaultFilterInvocationDefinitionSource fids =
                 new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(), map);
 
@@ -225,13 +224,5 @@ public class FilterChainProxyTests {
         assertTrue(filter.isWasInitialized());
         assertTrue(filter.isWasDoFiltered());
         assertTrue(filter.isWasDestroyed());
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    private class MockConfigAttribute implements ConfigAttribute {
-        public String getAttribute() {
-            return null;
-        }
     }
 }

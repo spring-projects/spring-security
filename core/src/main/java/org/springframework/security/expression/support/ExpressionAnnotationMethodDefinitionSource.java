@@ -8,7 +8,6 @@ import java.util.List;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.ParseException;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.config.SecurityConfigurationException;
 import org.springframework.security.expression.annotation.PostAuthorize;
 import org.springframework.security.expression.annotation.PostFilter;
@@ -19,6 +18,10 @@ import org.springframework.security.intercept.method.AbstractFallbackMethodDefin
 /**
  * MethodDefinitionSource which extracts metadata from the @PreFilter and @PreAuthorize annotations
  * placed on a method. The metadata is encapsulated in a {@link AbstractExpressionBasedMethodConfigAttribute} instance.
+ * <p>
+ * Annotations may be specified on classes or methods, and method-specific annotations will take precedence.
+ * If you use any annotation and do not specify a pre-authorization condition, then the method will be
+ * allowed as if a @PreAuthorize("permitAll") were present.
  *
  * @see MethodExpressionVoter
  *
@@ -30,37 +33,79 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractFallback
 
     @Override
     protected List<ConfigAttribute> findAttributes(Method method, Class targetClass) {
-        ConfigAttribute pre = processPreInvocationAnnotations(AnnotationUtils.findAnnotation(method, PreFilter.class),
-                AnnotationUtils.findAnnotation(method, PreAuthorize.class));
-        ConfigAttribute post = processPostInvocationAnnotations(AnnotationUtils.findAnnotation(method, PostFilter.class),
-                AnnotationUtils.findAnnotation(method, PostAuthorize.class));
+        PreFilter preFilter = AnnotationUtils.findAnnotation(method, PreFilter.class);
+        PreAuthorize preAuthorize = AnnotationUtils.findAnnotation(method, PreAuthorize.class);
+        PostFilter postFilter = AnnotationUtils.findAnnotation(method, PostFilter.class);
+        PostAuthorize postAuthorize = AnnotationUtils.findAnnotation(method, PostAuthorize.class);
 
-        if (pre == null && post == null) {
+        if (preFilter == null && preAuthorize == null && postFilter == null && postAuthorize == null ) {
+            // There is no method level meta-data so return and allow parent to query at class-level
             return null;
         }
 
-        List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>(2);
-        if (pre != null) {
-            attrs.add(pre);
+        // There is at least one non-null value, so the parent class will not query for class-specific annotations
+        // and we have to locate them here as appropriate.
+
+        if (preAuthorize == null) {
+            preAuthorize = (PreAuthorize)targetClass.getAnnotation(PreAuthorize.class);
         }
 
-        if (post != null) {
-            attrs.add(post);
+        if (preFilter == null) {
+            preFilter = (PreFilter)targetClass.getAnnotation(PreFilter.class);
         }
 
-        return attrs;
+        if (postFilter == null) {
+            // TODO: Can we check for void methods and throw an exception here?
+            postFilter = (PostFilter)targetClass.getAnnotation(PostFilter.class);
+        }
+
+        if (postAuthorize == null) {
+            postAuthorize = (PostAuthorize)targetClass.getAnnotation(PostAuthorize.class);
+        }
+
+        return createAttributeList(preFilter, preAuthorize, postFilter, postAuthorize);
     }
 
     @Override
     protected List<ConfigAttribute> findAttributes(Class targetClass) {
-        ConfigAttribute pre = processPreInvocationAnnotations((PreFilter)targetClass.getAnnotation(PreFilter.class),
-                (PreAuthorize)targetClass.getAnnotation(PreAuthorize.class));
-        ConfigAttribute post = processPostInvocationAnnotations((PostFilter)targetClass.getAnnotation(PostFilter.class),
-                (PostAuthorize)targetClass.getAnnotation(PostAuthorize.class));
+        PreFilter preFilter = (PreFilter)targetClass.getAnnotation(PreFilter.class);
+        PreAuthorize preAuthorize = (PreAuthorize)targetClass.getAnnotation(PreAuthorize.class);
+        PostFilter postFilter = (PostFilter)targetClass.getAnnotation(PostFilter.class);
+        PostAuthorize postAuthorize = (PostAuthorize)targetClass.getAnnotation(PostAuthorize.class);
 
-        if (pre == null && post == null) {
+        if (preFilter == null && preAuthorize == null && postFilter == null && postAuthorize == null ) {
+            // There is no class level meta-data (and by implication no meta-data at all)
             return null;
         }
+
+        return createAttributeList(preFilter, preAuthorize, postFilter, postAuthorize);
+    }
+
+    public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
+        return null;
+    }
+
+    private List<ConfigAttribute> createAttributeList(PreFilter preFilter, PreAuthorize preAuthorize,
+            PostFilter postFilter, PostAuthorize postAuthorize) {
+        ConfigAttribute pre = null;
+        ConfigAttribute post = null;
+
+        // TODO: Optimization of permitAll
+        String preAuthorizeExpression = preAuthorize == null ? "permitAll()" : preAuthorize.value();
+        String preFilterExpression = preFilter == null ? null : preFilter.value();
+        String filterObject = preFilter == null ? null : preFilter.filterTarget();
+        String postAuthorizeExpression = postAuthorize == null ? null : postAuthorize.value();
+        String postFilterExpression = postFilter == null ? null : postFilter.value();
+
+        try {
+            pre = new PreInvocationExpressionConfigAttribute(preFilterExpression, filterObject, preAuthorizeExpression);
+            if (postFilterExpression != null || postAuthorizeExpression != null) {
+                post = new PostInvocationExpressionConfigAttribute(postFilterExpression, postAuthorizeExpression);
+            }
+        } catch (ParseException e) {
+            throw new SecurityConfigurationException("Failed to parse expression '" + e.getExpressionString() + "'", e);
+        }
+
 
         List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>(2);
         if (pre != null) {
@@ -72,40 +117,5 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractFallback
         }
 
         return attrs;
-    }
-
-    public Collection getConfigAttributeDefinitions() {
-        return null;
-    }
-
-    private ConfigAttribute processPreInvocationAnnotations(PreFilter preFilter, PreAuthorize preAuthz) {
-        if (preFilter == null && preAuthz == null) {
-            return null;
-        }
-
-        String preAuthorizeExpression = preAuthz == null ? null : preAuthz.value();
-        String preFilterExpression = preFilter == null ? null : preFilter.value();
-        String filterObject = preFilter == null ? null : preFilter.filterTarget();
-
-        try {
-            return new PreInvocationExpressionBasedMethodConfigAttribute(preFilterExpression, filterObject, preAuthorizeExpression);
-        } catch (ParseException e) {
-            throw new SecurityConfigurationException("Failed to parse expression '" + e.getExpressionString() + "'", e);
-        }
-    }
-
-    private ConfigAttribute processPostInvocationAnnotations(PostFilter postFilter, PostAuthorize postAuthz) {
-        if (postFilter == null && postAuthz == null) {
-            return null;
-        }
-
-        String postAuthorizeExpression = postAuthz == null ? null : postAuthz.value();
-        String postFilterExpression = postFilter == null ? null : postFilter.value();
-
-        try {
-            return new PostInvocationExpressionBasedMethodConfigAttribute(postFilterExpression, postAuthorizeExpression);
-        } catch (ParseException e) {
-            throw new SecurityConfigurationException("Failed to parse expression '" + e.getExpressionString() + "'", e);
-        }
     }
 }

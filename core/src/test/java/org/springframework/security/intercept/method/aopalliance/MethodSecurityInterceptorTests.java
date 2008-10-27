@@ -49,6 +49,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.lang.reflect.Method;
 
 import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -359,8 +360,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
         }
     }
 
-    public void testValidationFailsIfInvalidAttributePresented()
-        throws Exception {
+    public void testValidationFailsIfInvalidAttributePresented() throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
@@ -447,11 +447,11 @@ public class MethodSecurityInterceptorTests extends TestCase {
     }
 
     private class MockObjectDefinitionSourceWhichOnlySupportsStrings implements MethodDefinitionSource {
-        public Collection getConfigAttributeDefinitions() {
+        public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
             return null;
         }
 
-        public ConfigAttributeDefinition getAttributes(Method method, Class targetClass) {
+        public List<ConfigAttribute> getAttributes(Method method, Class targetClass) {
             throw new UnsupportedOperationException("mock method not implemented");
         }
 
@@ -463,7 +463,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
             }
         }
 
-        public ConfigAttributeDefinition getAttributes(Object object) {
+        public List<ConfigAttribute> getAttributes(Object object) {
             throw new UnsupportedOperationException("mock method not implemented");
         }
     }

@@ -17,8 +17,9 @@ package org.springframework.security.intercept.web;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.MockFilterChain;
+import org.springframework.security.SecurityConfig;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.util.AntUrlPathMatcher;
 
@@ -26,6 +27,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
 
@@ -164,7 +166,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/totally/different/path/index.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+        List<? extends ConfigAttribute> returned = map.getAttributes(new FilterInvocation(httpRequest,
                     new MockHttpServletResponse(), new MockFilterChain()));
 
         assertEquals(null, returned);
@@ -197,13 +199,10 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+        List<? extends ConfigAttribute> returned = map.getAttributes(new FilterInvocation(httpRequest,
                     new MockHttpServletResponse(), new MockFilterChain()));
 
-        ConfigAttributeDefinition expected = new ConfigAttributeDefinition(
-                new String[] {"ROLE_WE_DONT_HAVE", "ANOTHER_ROLE"});
-
-        assertEquals(expected, returned);
+        assertEquals(SecurityConfig.createList("ROLE_WE_DONT_HAVE", "ANOTHER_ROLE"), returned);
     }
 
     public void testOrderOfEntriesIsPreservedOrderB() {
@@ -216,11 +215,10 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+        List<? extends ConfigAttribute> returned = map.getAttributes(new FilterInvocation(httpRequest,
                     new MockHttpServletResponse(), new MockFilterChain()));
-        ConfigAttributeDefinition expected = new ConfigAttributeDefinition(new String[] {"ROLE_SUPERVISOR", "ROLE_TELLER"});
 
-        assertEquals(expected, returned);
+        assertEquals(SecurityConfig.createList("ROLE_SUPERVISOR", "ROLE_TELLER"), returned);
     }
 
     public void testSingleUrlParsingWithRegularExpressions() throws Exception {
@@ -232,9 +230,9 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+        List<? extends ConfigAttribute> returned = map.getAttributes(new FilterInvocation(httpRequest,
                     new MockHttpServletResponse(), new MockFilterChain()));
-        ConfigAttributeDefinition expected = new ConfigAttributeDefinition(new String[] {"ROLE_WE_DONT_HAVE", "ANOTHER_ROLE"});
+        List<? extends ConfigAttribute> expected = SecurityConfig.createList("ROLE_WE_DONT_HAVE", "ANOTHER_ROLE");
 
         assertEquals(expected, returned);
     }
@@ -248,11 +246,10 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+        List<? extends ConfigAttribute> returned = map.getAttributes(new FilterInvocation(httpRequest,
                     new MockHttpServletResponse(), new MockFilterChain()));
-        ConfigAttributeDefinition expected = new ConfigAttributeDefinition(new String[] {"ROLE_WE_DONT_HAVE", "ANOTHER_ROLE"});
 
-        assertEquals(expected, returned);
+        assertEquals(SecurityConfig.createList("ROLE_WE_DONT_HAVE", "ANOTHER_ROLE"), returned);
     }
 
     public void testWhitespaceAndCommentsAndLinesWithoutEqualsSignsAreIgnored() {
@@ -292,9 +289,9 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+        List<? extends ConfigAttribute> returned = map.getAttributes(new FilterInvocation(httpRequest,
                     new MockHttpServletResponse(), new MockFilterChain()));
-        ConfigAttributeDefinition expected = new ConfigAttributeDefinition(new String[] {"ROLE_WE_DONT_HAVE", "ANOTHER_ROLE"});
+        List<? extends ConfigAttribute> expected = SecurityConfig.createList("ROLE_WE_DONT_HAVE", "ANOTHER_ROLE");
 
         assertEquals(expected, returned);
     }

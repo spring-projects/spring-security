@@ -28,7 +28,7 @@ public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
     public void someUserMethod2() {
     }
 
-    @PreFilter(filterTarget="someList", value="filterObject == name or filterObject == 'sam'")
+    @PreFilter(filterTarget="someList", value="filterObject == authentication.name or filterObject == 'sam'")
     @PostFilter("filterObject == 'bob'")
     public List methodReturningAList(List someList) {
         return someList;
@@ -38,7 +38,6 @@ public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
         return new ArrayList();
     }
 
-    @PreFilter(filterTarget="someArray", value="filterObject == name or filterObject == 'sam'")
     @PostFilter("filterObject == 'bob'")
     public Object[] methodReturningAnArray(Object[] someArray) {
         return someArray;

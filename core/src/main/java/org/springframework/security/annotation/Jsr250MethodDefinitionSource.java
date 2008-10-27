@@ -48,7 +48,7 @@ public class Jsr250MethodDefinitionSource extends AbstractFallbackMethodDefiniti
         return processAnnotations(AnnotationUtils.getAnnotations(method));
     }
 
-    public Collection getConfigAttributeDefinitions() {
+    public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
         return null;
     }
 

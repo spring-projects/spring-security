@@ -3,7 +3,6 @@ package org.springframework.security.intercept.web;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.UrlMatcher;
 
@@ -38,13 +37,11 @@ public class FIDSToFilterChainMapConverter {
         while (paths.hasNext()) {
             Object entry = paths.next();
             String path = entry instanceof Pattern ? ((Pattern)entry).pattern() : (String)entry;
-            ConfigAttributeDefinition configAttributeDefinition = (ConfigAttributeDefinition) requestMap.get(entry);
+            List<? extends ConfigAttribute> configAttributeDefinition = (List<? extends ConfigAttribute>) requestMap.get(entry);
 
             List filters = new ArrayList();
-            Iterator attributes = configAttributeDefinition.getConfigAttributes().iterator();
 
-            while (attributes.hasNext()) {
-                ConfigAttribute attr = (ConfigAttribute) attributes.next();
+            for(ConfigAttribute attr : configAttributeDefinition) {
                 String filterName = attr.getAttribute();
 
                 Assert.notNull(filterName, "Configuration attribute: '" + attr + "' returned null to the getAttribute() " +

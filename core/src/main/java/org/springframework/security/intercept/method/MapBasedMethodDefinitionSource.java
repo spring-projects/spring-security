@@ -219,14 +219,8 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
      *
      * @return the attributes explicitly defined against this bean
      */
-    public Collection getConfigAttributeDefinitions() {
-        List<ConfigAttributeDefinition> configAttrs = new ArrayList<ConfigAttributeDefinition>(methodMap.values().size());
-
-        for(List<? extends ConfigAttribute> attrList : methodMap.values()) {
-            configAttrs.add(new ConfigAttributeDefinition(attrList));
-        }
-
-        return configAttrs;
+    public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
+        return methodMap.values();
     }
 
     /**
