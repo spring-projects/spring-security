@@ -26,73 +26,50 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.CodeSignature;
 
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
 
 /**
- * Abstract implementation of <code>MethodDefinitionSource</code>.
+ * Abstract implementation of <tt>MethodDefinitionSource</tt> which resolves the secured object type to
+ * either a MethodInvocation or a JoinPoint.
  *
  * @author Ben Alex
- * @deprecated No longer used within the framework and will be removed
+ * @author Luke Taylor
  * @version $Id$
  */
 public abstract class AbstractMethodDefinitionSource implements MethodDefinitionSource {
-    //~ Static fields/initializers =====================================================================================
 
-    private static final Log logger = LogFactory.getLog(AbstractMethodDefinitionSource.class);
+    protected final Log logger = LogFactory.getLog(getClass());
 
     //~ Methods ========================================================================================================
 
-    public List<ConfigAttribute> getAttributes(Object object)
-        throws IllegalArgumentException {
-        Assert.notNull(object, "Object cannot be null");
-
+    public final List<ConfigAttribute> getAttributes(Object object) {
         if (object instanceof MethodInvocation) {
-            return this.lookupAttributes(((MethodInvocation) object).getMethod());
+            MethodInvocation mi = (MethodInvocation) object;
+            Object target = mi.getThis();
+            return getAttributes(mi.getMethod(), target == null ? null : target.getClass());
         }
 
         if (object instanceof JoinPoint) {
             JoinPoint jp = (JoinPoint) object;
-            Class targetClazz = jp.getTarget().getClass();
+            Class targetClass = jp.getTarget().getClass();
             String targetMethodName = jp.getStaticPart().getSignature().getName();
             Class[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
+            Class declaringType = ((CodeSignature) jp.getStaticPart().getSignature()).getDeclaringType();
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Target Class: " + targetClazz);
-                logger.debug("Target Method Name: " + targetMethodName);
+            Method method = ClassUtils.getMethodIfAvailable(declaringType, targetMethodName, types);
+            Assert.notNull(method, "Could not obtain target method from JoinPoint: '"+ jp + "'");
 
-                for (int i = 0; i < types.length; i++) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Target Method Arg #" + i + ": " + types[i]);
-                    }
-                }
-            }
-
-            try {
-                return this.lookupAttributes(targetClazz.getMethod(targetMethodName, types));
-            } catch (NoSuchMethodException nsme) {
-                throw new IllegalArgumentException("Could not obtain target method from JoinPoint: " + jp);
-            }
+            return getAttributes(method, targetClass);
         }
 
-        throw new IllegalArgumentException("Object must be a MethodInvocation or JoinPoint");
+        throw new IllegalArgumentException("Object must be a non-null MethodInvocation or JoinPoint");
     }
 
-    /**
-     * Performs the actual lookup of the relevant <code>ConfigAttributeDefinition</code> for the specified
-     * <code>Method</code> which is subject of the method invocation.<P>Provided so subclasses need only to
-     * provide one basic method to properly interface with the <code>MethodDefinitionSource</code>.</p>
-     *  <p>Returns <code>null</code> if there are no matching attributes for the method.</p>
-     *
-     * @param method the method being invoked for which configuration attributes should be looked up
-     *
-     * @return the <code>ConfigAttributeDefinition</code> that applies to the specified <code>Method</code>
-     */
-    protected abstract List<ConfigAttribute> lookupAttributes(Method method);
-
-    public boolean supports(Class clazz) {
+    public final boolean supports(Class clazz) {
         return (MethodInvocation.class.isAssignableFrom(clazz) || JoinPoint.class.isAssignableFrom(clazz));
     }
 }

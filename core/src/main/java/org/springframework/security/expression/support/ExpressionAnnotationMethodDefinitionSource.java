@@ -1,5 +1,6 @@
 package org.springframework.security.expression.support;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,7 +14,8 @@ import org.springframework.security.expression.annotation.PostAuthorize;
 import org.springframework.security.expression.annotation.PostFilter;
 import org.springframework.security.expression.annotation.PreAuthorize;
 import org.springframework.security.expression.annotation.PreFilter;
-import org.springframework.security.intercept.method.AbstractFallbackMethodDefinitionSource;
+import org.springframework.security.intercept.method.AbstractMethodDefinitionSource;
+import org.springframework.util.ClassUtils;
 
 /**
  * MethodDefinitionSource which extracts metadata from the @PreFilter and @PreAuthorize annotations
@@ -22,6 +24,9 @@ import org.springframework.security.intercept.method.AbstractFallbackMethodDefin
  * Annotations may be specified on classes or methods, and method-specific annotations will take precedence.
  * If you use any annotation and do not specify a pre-authorization condition, then the method will be
  * allowed as if a @PreAuthorize("permitAll") were present.
+ * <p>
+ * Since we are handling multiple annotations here, it's possible that we may have to combine annotations defined in
+ * multiple locations for a single method - they may be defined on the method itself, or at interface or class level.
  *
  * @see MethodExpressionVoter
  *
@@ -29,56 +34,71 @@ import org.springframework.security.intercept.method.AbstractFallbackMethodDefin
  * @since 2.5
  * @version $Id$
  */
-public class ExpressionAnnotationMethodDefinitionSource extends AbstractFallbackMethodDefinitionSource {
+public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDefinitionSource {
 
-    @Override
-    protected List<ConfigAttribute> findAttributes(Method method, Class targetClass) {
-        PreFilter preFilter = AnnotationUtils.findAnnotation(method, PreFilter.class);
-        PreAuthorize preAuthorize = AnnotationUtils.findAnnotation(method, PreAuthorize.class);
-        PostFilter postFilter = AnnotationUtils.findAnnotation(method, PostFilter.class);
-        PostAuthorize postAuthorize = AnnotationUtils.findAnnotation(method, PostAuthorize.class);
+    public List<ConfigAttribute> getAttributes(Method method, Class targetClass) {
+        logger.debug("Looking for expression annotations for method '" +
+                method.getName() + "' on target class '" + targetClass + "'");
+        PreFilter preFilter = findAnnotation(method, targetClass, PreFilter.class);
+        PreAuthorize preAuthorize = findAnnotation(method, targetClass, PreAuthorize.class);
+        PostFilter postFilter = findAnnotation(method, targetClass, PostFilter.class);
+     // TODO: Can we check for void methods and throw an exception here?
+        PostAuthorize postAuthorize = findAnnotation(method, targetClass, PostAuthorize.class);
 
         if (preFilter == null && preAuthorize == null && postFilter == null && postAuthorize == null ) {
-            // There is no method level meta-data so return and allow parent to query at class-level
+            // There is no meta-data so return
+            logger.debug("No expression annotations found");
             return null;
-        }
-
-        // There is at least one non-null value, so the parent class will not query for class-specific annotations
-        // and we have to locate them here as appropriate.
-
-        if (preAuthorize == null) {
-            preAuthorize = (PreAuthorize)targetClass.getAnnotation(PreAuthorize.class);
-        }
-
-        if (preFilter == null) {
-            preFilter = (PreFilter)targetClass.getAnnotation(PreFilter.class);
-        }
-
-        if (postFilter == null) {
-            // TODO: Can we check for void methods and throw an exception here?
-            postFilter = (PostFilter)targetClass.getAnnotation(PostFilter.class);
-        }
-
-        if (postAuthorize == null) {
-            postAuthorize = (PostAuthorize)targetClass.getAnnotation(PostAuthorize.class);
         }
 
         return createAttributeList(preFilter, preAuthorize, postFilter, postAuthorize);
     }
 
-    @Override
-    protected List<ConfigAttribute> findAttributes(Class targetClass) {
-        PreFilter preFilter = (PreFilter)targetClass.getAnnotation(PreFilter.class);
-        PreAuthorize preAuthorize = (PreAuthorize)targetClass.getAnnotation(PreAuthorize.class);
-        PostFilter postFilter = (PostFilter)targetClass.getAnnotation(PostFilter.class);
-        PostAuthorize postAuthorize = (PostAuthorize)targetClass.getAnnotation(PostAuthorize.class);
+    /**
+     * See {@link org.springframework.security.intercept.method.AbstractFallbackMethodDefinitionSource#getAttributes(Method, Class)}
+     * for the logic of this method. The ordering here is slightly different in that we consider method-specific
+     * annotations on an interface before class-level ones.
+     */
+    private <A  extends Annotation> A findAnnotation(Method method, Class targetClass, Class<A> annotationClass) {
+        // The method may be on an interface, but we need attributes from the target class.
+        // If the target class is null, the method will be unchanged.
+        Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
+        A annotation = AnnotationUtils.findAnnotation(specificMethod, annotationClass);
 
-        if (preFilter == null && preAuthorize == null && postFilter == null && postAuthorize == null ) {
-            // There is no class level meta-data (and by implication no meta-data at all)
-            return null;
+        if (annotation != null) {
+            logger.debug(annotation + " found on specific method: " + specificMethod);
+            return annotation;
         }
 
-        return createAttributeList(preFilter, preAuthorize, postFilter, postAuthorize);
+        // Check the original (e.g. interface) method
+        if (specificMethod != method) {
+            annotation = AnnotationUtils.findAnnotation(method, annotationClass);
+
+            if (annotation != null) {
+                logger.debug(annotation + " found on: " + method);
+                return annotation;
+            }
+        }
+
+        // Check the class-level (note declaringClass, not targetClass, which may not actually implement the method)
+        annotation = specificMethod.getDeclaringClass().getAnnotation(annotationClass);
+
+        if (annotation != null) {
+            logger.debug(annotation + " found on: " + specificMethod.getDeclaringClass().getName());
+            return annotation;
+        }
+
+        // Check for a possible interface annotation which would not be inherited by the declaring class
+        if (specificMethod != method) {
+            annotation = method.getDeclaringClass().getAnnotation(annotationClass);
+
+            if (annotation != null) {
+                logger.debug(annotation + " found on: " + method.getDeclaringClass().getName());
+                return annotation;
+            }
+        }
+
+        return null;
     }
 
     public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
@@ -91,7 +111,7 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractFallback
         ConfigAttribute post = null;
 
         // TODO: Optimization of permitAll
-        String preAuthorizeExpression = preAuthorize == null ? "permitAll()" : preAuthorize.value();
+        String preAuthorizeExpression = preAuthorize == null ? "permitAll" : preAuthorize.value();
         String preFilterExpression = preFilter == null ? null : preFilter.value();
         String filterObject = preFilter == null ? null : preFilter.filterTarget();
         String postAuthorizeExpression = postAuthorize == null ? null : postAuthorize.value();
@@ -105,7 +125,6 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractFallback
         } catch (ParseException e) {
             throw new SecurityConfigurationException("Failed to parse expression '" + e.getExpressionString() + "'", e);
         }
-
 
         List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>(2);
         if (pre != null) {

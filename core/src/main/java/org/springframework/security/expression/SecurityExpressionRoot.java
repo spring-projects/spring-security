@@ -13,6 +13,13 @@ public class SecurityExpressionRoot {
     private Object filterObject;
     private Object returnObject;
 
+    /** Allows "permitAll" expression */
+    public final boolean permitAll = true;
+
+    /** Allows "denyAll" expression */
+    public final boolean denyAll = false;
+
+
     public SecurityExpressionRoot(Authentication a) {
         this.authentication = a;
     }

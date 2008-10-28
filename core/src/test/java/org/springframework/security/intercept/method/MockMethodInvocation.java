@@ -35,5 +35,3 @@ public class MockMethodInvocation implements MethodInvocation {
         return null;
     }
 }
-
-

@@ -18,14 +18,11 @@ package org.springframework.security.intercept.method;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
@@ -47,9 +44,6 @@ import org.springframework.util.ClassUtils;
  * @since 2.0
  */
 public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefinitionSource implements BeanClassLoaderAware {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final Log logger = LogFactory.getLog(MapBasedMethodDefinitionSource.class);
 
     //~ Instance fields ================================================================================================
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();

@@ -1,117 +1,33 @@
 package org.springframework.security.intercept.method;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.reflect.CodeSignature;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.ObjectUtils;
 
 /**
  * Abstract implementation of {@link MethodDefinitionSource} that supports both Spring AOP and AspectJ and
- * caches configuration attribute resolution from: 1. specific target method; 2. target class;  3. declaring method;
- * 4. declaring class/interface.
- *
+ * performs attribute resolution from: 1. specific target method; 2. target class;  3. declaring method;
+ * 4. declaring class/interface. Use with {@link DelegatingMethodDefinitionSource} for caching support.
  * <p>
  * This class mimics the behaviour of Spring's AbstractFallbackTransactionAttributeSource class.
- * </p>
- *
  * <p>
  * Note that this class cannot extract security metadata where that metadata is expressed by way of
- * a target method/class (ie #1 and #2 above) AND the target method/class is encapsulated in another
+ * a target method/class (i.e. #1 and #2 above) AND the target method/class is encapsulated in another
  * proxy object. Spring Security does not walk a proxy chain to locate the concrete/final target object.
  * Consider making Spring Security your final advisor (so it advises the final target, as opposed to
  * another proxy), move the metadata to declared methods or interfaces the proxy implements, or provide
  * your own replacement <tt>MethodDefinitionSource</tt>.
- * </p>
  *
  * @author Ben Alex
+ * @author Luke taylor
  * @version $Id$
  * @since 2.0
  */
-public abstract class AbstractFallbackMethodDefinitionSource implements MethodDefinitionSource {
-    protected final Log logger = LogFactory.getLog(getClass());
-
-    private final static List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = new ArrayList<ConfigAttribute>(0);
-    private final Map<DefaultCacheKey, List<ConfigAttribute>> attributeCache = new HashMap();
-
-    public List<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
-        Assert.notNull(object, "Object cannot be null");
-
-        if (object instanceof MethodInvocation) {
-            MethodInvocation mi = (MethodInvocation) object;
-            Object target = mi.getThis();
-            return getAttributes(mi.getMethod(), target == null ? null : target.getClass());
-        }
-
-        if (object instanceof JoinPoint) {
-            JoinPoint jp = (JoinPoint) object;
-            Class targetClass = jp.getTarget().getClass();
-            String targetMethodName = jp.getStaticPart().getSignature().getName();
-            Class[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
-            Class declaringType = ((CodeSignature) jp.getStaticPart().getSignature()).getDeclaringType();
-
-            Method method = ClassUtils.getMethodIfAvailable(declaringType, targetMethodName, types);
-            Assert.notNull(method, "Could not obtain target method from JoinPoint: '"+ jp + "'");
-
-            return getAttributes(method, targetClass);
-        }
-
-        throw new IllegalArgumentException("Object must be a MethodInvocation or JoinPoint");
-    }
-
-    public final boolean supports(Class clazz) {
-        return (MethodInvocation.class.isAssignableFrom(clazz) || JoinPoint.class.isAssignableFrom(clazz));
-    }
+public abstract class AbstractFallbackMethodDefinitionSource extends AbstractMethodDefinitionSource {
 
     public List<ConfigAttribute> getAttributes(Method method, Class targetClass) {
-        // First, see if we have a cached value.
-        DefaultCacheKey cacheKey = new DefaultCacheKey(method, targetClass);
-        synchronized (attributeCache) {
-            List<ConfigAttribute> cached = attributeCache.get(cacheKey);
-            if (cached != null) {
-                // Value will either be canonical value indicating there is no config attribute,
-                // or an actual config attribute.
-                if (cached == NULL_CONFIG_ATTRIBUTE) {
-                    return null;
-                }
-                else {
-                    return cached;
-                }
-            }
-            else {
-                // We need to work it out.
-                List<ConfigAttribute> attributes = computeAttributes(method, targetClass);
-                // Put it in the cache.
-                if (attributes == null) {
-                    this.attributeCache.put(cacheKey, NULL_CONFIG_ATTRIBUTE);
-                } else {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Adding security method [" + cacheKey + "] with attributes " + attributes);
-                    }
-                    this.attributeCache.put(cacheKey, attributes);
-                }
-                return attributes;
-            }
-        }
-    }
-
-    /**
-     *
-     * @param method the method for the current invocation (never <code>null</code>)
-     * @param targetClass the target class for this invocation (may be <code>null</code>)
-     * @return
-     */
-    private List<ConfigAttribute> computeAttributes(Method method, Class targetClass) {
         // The method may be on an interface, but we need attributes from the target class.
         // If the target class is null, the method will be unchanged.
         Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
@@ -137,7 +53,6 @@ public abstract class AbstractFallbackMethodDefinitionSource implements MethodDe
             return findAttributes(method.getDeclaringClass());
         }
         return null;
-
     }
 
     /**
@@ -169,35 +84,5 @@ public abstract class AbstractFallbackMethodDefinitionSource implements MethodDe
      */
     protected abstract List<ConfigAttribute> findAttributes(Class clazz);
 
-    private static class DefaultCacheKey {
-
-        private final Method method;
-        private final Class targetClass;
-
-        public DefaultCacheKey(Method method, Class targetClass) {
-            this.method = method;
-            this.targetClass = targetClass;
-        }
-
-        public boolean equals(Object other) {
-            if (this == other) {
-                return true;
-            }
-            if (!(other instanceof DefaultCacheKey)) {
-                return false;
-            }
-            DefaultCacheKey otherKey = (DefaultCacheKey) other;
-            return (this.method.equals(otherKey.method) &&
-                    ObjectUtils.nullSafeEquals(this.targetClass, otherKey.targetClass));
-        }
-
-        public int hashCode() {
-            return this.method.hashCode() * 21 + (this.targetClass != null ? this.targetClass.hashCode() : 0);
-        }
-
-        public String toString() {
-            return "CacheKey[" + (targetClass == null ? "-" : targetClass.getName()) + "; " + method + "]";
-        }
-    }
 
 }
