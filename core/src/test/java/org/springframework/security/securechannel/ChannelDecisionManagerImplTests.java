@@ -18,7 +18,6 @@ package org.springframework.security.securechannel;
 import junit.framework.TestCase;
 
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockFilterChain;
 import org.springframework.security.SecurityConfig;
 
@@ -95,7 +94,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         MockFilterChain chain = new MockFilterChain();
         FilterInvocation fi = new FilterInvocation(request, response, chain);
 
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition("xyz");
+        List<ConfigAttribute> cad = SecurityConfig.createList("xyz");
 
         cdm.decide(fi, cad);
         assertTrue(fi.getResponse().isCommitted());
@@ -114,9 +113,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         MockFilterChain chain = new MockFilterChain();
         FilterInvocation fi = new FilterInvocation(request, response, chain);
 
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new String[]{"abc", "ANY_CHANNEL"});
-
-        cdm.decide(fi, cad);
+        cdm.decide(fi, SecurityConfig.createList(new String[]{"abc", "ANY_CHANNEL"}));
         assertFalse(fi.getResponse().isCommitted());
     }
 
@@ -135,9 +132,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         MockFilterChain chain = new MockFilterChain();
         FilterInvocation fi = new FilterInvocation(request, response, chain);
 
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition("SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT");
-
-        cdm.decide(fi, cad);
+        cdm.decide(fi, SecurityConfig.createList("SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT"));
         assertFalse(fi.getResponse().isCommitted());
     }
 
@@ -192,9 +187,9 @@ public class ChannelDecisionManagerImplTests extends TestCase {
             this.failIfCalled = failIfCalled;
         }
 
-        public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
+        public void decide(FilterInvocation invocation, List<ConfigAttribute> config)
                 throws IOException, ServletException {
-            Iterator iter = config.getConfigAttributes().iterator();
+            Iterator iter = config.iterator();
 
             if (failIfCalled) {
                 fail("Should not have called this channel processor: " + configAttribute);

@@ -17,7 +17,6 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.config.ConfigUtils.FilterChainList;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
@@ -160,8 +159,6 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
                 return;
             }
 
-            ConfigAttributeDefinition cad = new ConfigAttributeDefinition(fids.lookupAttributes(loginPage, "POST"));
-
             if (!beanFactory.containsBean(BeanIds.ANONYMOUS_PROCESSING_FILTER)) {
                 logger.warn("The login page is being protected by the filter chain, but you don't appear to have" +
                         " anonymous authentication enabled. This is almost certainly an error.");
@@ -174,7 +171,7 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
                     new AnonymousAuthenticationToken("key", anonPF.getUserAttribute().getPassword(),
                             anonPF.getUserAttribute().getAuthorities());
             try {
-                fsi.getAccessDecisionManager().decide(token, new Object(), cad);
+                fsi.getAccessDecisionManager().decide(token, new Object(), fids.lookupAttributes(loginPage, "POST"));
             } catch (Exception e) {
                 logger.warn("Anonymous access to the login page doesn't appear to be enabled. This is almost certainly " +
                         "an error. Please check your configuration allows unauthenticated access to the configured " +

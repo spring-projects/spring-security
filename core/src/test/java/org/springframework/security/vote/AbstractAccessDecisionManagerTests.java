@@ -20,7 +20,6 @@ import junit.framework.TestCase;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.SecurityConfig;
 
 import java.util.List;
@@ -162,7 +161,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
     //~ Inner Classes ==================================================================================================
 
     private class MockDecisionManagerImpl extends AbstractAccessDecisionManager {
-        public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
+        public void decide(Authentication authentication, Object object, List<ConfigAttribute> configAttributes)
             throws AccessDeniedException {
             return;
         }
@@ -181,7 +180,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
             throw new UnsupportedOperationException("mock method not implemented");
         }
 
-        public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
+        public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
             throw new UnsupportedOperationException("mock method not implemented");
         }
     }

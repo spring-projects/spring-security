@@ -3,22 +3,22 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:security="http://www.springframework.org/schema/security"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-	<bean id="bankDao" class="bigbank.BankDaoStub"/>
+    <bean id="bankDao" class="bigbank.BankDaoStub"/>
 
-	<bean id="seedData" class="bigbank.SeedData">
-		<property name="bankDao" ref="bankDao"/>
-	</bean>
+    <bean id="seedData" class="bigbank.SeedData">
+        <property name="bankDao" ref="bankDao"/>
+    </bean>
 
-	<bean id="bankService" class="bigbank.BankServiceImpl">
-		<constructor-arg ref="bankDao"/>
+    <bean id="bankService" class="bigbank.BankServiceImpl">
+        <constructor-arg ref="bankDao"/>
         <!-- This will add a security interceptor to the bean
         <security:intercept-methods>
             <security:protect method="bigbank.BankService.*" access="IS_AUTHENTICATED_REMEMBERED" />
             <security:protect method="bigbank.BankService.post" access="ROLE_TELLER" />
         </security:intercept-methods>  -->
-	</bean>
+    </bean>
 
 </beans>

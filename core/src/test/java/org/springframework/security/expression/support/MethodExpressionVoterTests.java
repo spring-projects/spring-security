@@ -10,7 +10,7 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.annotation.ExpressionProtectedBusinessServiceImpl;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
@@ -40,43 +40,53 @@ public class MethodExpressionVoterTests {
 
     @Test
     public void hasRoleExpressionAllowsUserWithRole() throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new PreInvocationExpressionConfigAttribute(null, null, "hasRole('blah')"));
-        assertEquals(AccessDecisionVoter.ACCESS_GRANTED, am.vote(joe, miStringArgs, cad));
+        assertEquals(AccessDecisionVoter.ACCESS_GRANTED, am.vote(joe, miStringArgs, createAttributes(new PreInvocationExpressionConfigAttribute(null, null, "hasRole('blah')"))));
     }
 
     @Test
     public void hasRoleExpressionDeniesUserWithoutRole() throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new PreInvocationExpressionConfigAttribute(null, null, "hasRole('joedoesnt')"));
+        List<ConfigAttribute> cad = new ArrayList<ConfigAttribute>(1);
+        cad.add(new PreInvocationExpressionConfigAttribute(null, null, "hasRole('joedoesnt')"));
         assertEquals(AccessDecisionVoter.ACCESS_DENIED, am.vote(joe, miStringArgs, cad));
     }
 
     @Test
     public void matchingArgAgainstAuthenticationNameIsSuccessful() throws Exception {
-        // userName is an argument name of this method
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new PreInvocationExpressionConfigAttribute(null, null, "(#userName == principal) and (principal == 'joe')"));
-        assertEquals(AccessDecisionVoter.ACCESS_GRANTED, am.vote(joe, miStringArgs, cad));
+        assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
+                am.vote(joe, miStringArgs, createAttributes(new PreInvocationExpressionConfigAttribute(null, null, "(#userName == principal) and (principal == 'joe')"))));
     }
 
     @Test
     public void accessIsGrantedIfNoPreAuthorizeAttributeIsUsed() throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new PreInvocationExpressionConfigAttribute("(filterObject == 'jim')", "someList", null));
-        assertEquals(AccessDecisionVoter.ACCESS_GRANTED, am.vote(joe, miListArg, cad));
+        assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
+                am.vote(joe, miListArg, createAttributes(new PreInvocationExpressionConfigAttribute("(filterObject == 'jim')", "someList", null))));
         // All objects should have been removed, because the expression is always false
         assertEquals(0, listArg.size());
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void arraysCannotBePrefiltered() throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new PreInvocationExpressionConfigAttribute("(filterObject == 'jim')", "someArray", null));
-        am.vote(joe, miArrayArg, cad);
+        am.vote(joe, miArrayArg,
+                createAttributes(new PreInvocationExpressionConfigAttribute("(filterObject == 'jim')", "someArray", null)));
     }
 
     @Test
     public void listPreFilteringIsSuccessful() throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new PreInvocationExpressionConfigAttribute("(filterObject == 'joe' or filterObject == 'sam')", "someList", null));
-        am.vote(joe, miListArg, cad);
+        am.vote(joe, miListArg,
+                createAttributes(new PreInvocationExpressionConfigAttribute("(filterObject == 'joe' or filterObject == 'sam')", "someList", null)));
         assertEquals("joe and sam should still be in the list", 2, listArg.size());
         assertEquals("joe", listArg.get(0));
         assertEquals("sam", listArg.get(1));
     }
+
+    @Test
+    public void ruleDefinedInAClassMethodIsApplied() throws Exception {
+        assertEquals(AccessDecisionVoter.ACCESS_GRANTED, am.vote(joe, miStringArgs,
+                createAttributes(new PreInvocationExpressionConfigAttribute(null, null, "new org.springframework.security.expression.support.SecurityRules().isJoe(#userName)"))));
+    }
+
+    private List<ConfigAttribute> createAttributes(ConfigAttribute... attributes) {
+        return Arrays.asList(attributes);
+    }
+
 }

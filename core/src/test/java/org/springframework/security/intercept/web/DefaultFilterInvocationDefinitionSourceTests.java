@@ -16,7 +16,6 @@
 package org.springframework.security.intercept.web;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -30,7 +29,6 @@ import org.springframework.security.ConfigAttribute;
 import org.springframework.security.MockFilterChain;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.util.AntUrlPathMatcher;
-import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
  * Tests parts of {@link DefaultFilterInvocationDefinitionSource} not tested by {@link
@@ -136,14 +134,14 @@ public class DefaultFilterInvocationDefinitionSourceTests {
     @Test
     public void httpMethodSpecificUrlTakesPrecedence() {
         // Even though this is added before the method-specific def, the latter should match
-        List<? extends ConfigAttribute> allMethodDef = def;
-        map.addSecureUrl("/**", null, def);
+        List<ConfigAttribute> allMethodDef = def;
+        map.addSecureUrl("/**", null, allMethodDef);
 
-        List<? extends ConfigAttribute> postOnlyDef = SecurityConfig.createList("ROLE_TWO");
+        List<ConfigAttribute> postOnlyDef = SecurityConfig.createList("ROLE_TWO");
         map.addSecureUrl("/somepage**", "POST", postOnlyDef);
 
         FilterInvocation fi = createFilterInvocation("/somepage", "POST");
-        List<? extends ConfigAttribute> attrs = map.getAttributes(fi);
+        List<ConfigAttribute> attrs = map.getAttributes(fi);
         assertEquals(postOnlyDef, attrs);
     }
 
@@ -163,38 +161,6 @@ public class DefaultFilterInvocationDefinitionSourceTests {
 
         response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
-    }
-
-    @Test
-    public void xmlMapConfigurationIsSuccessful() {
-        InMemoryXmlApplicationContext context = new InMemoryXmlApplicationContext(
-        "<b:bean id='fids' class='org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource'>" +
-        "    <b:constructor-arg>" +
-        "        <b:bean class='org.springframework.security.util.AntUrlPathMatcher'/>" +
-        "    </b:constructor-arg>" +
-        "    <b:constructor-arg>" +
-        "        <b:map>" +
-        "             <b:entry>" +
-        "               <b:key>" +
-        "                   <b:bean class='org.springframework.security.intercept.web.RequestKey'>" +
-        "                     <b:constructor-arg index='0' value='/**'/>" +
-        "                     <b:constructor-arg index='1' value='GET'/>" +
-        "                   </b:bean>" +
-        "               </b:key>" +
-        "               <b:bean class='org.springframework.security.ConfigAttributeDefinition'>" +
-        "                   <b:constructor-arg value='ROLE_A'/>" +
-        "               </b:bean>" +
-        "             </b:entry>" +
-        "        </b:map>" +
-        "    </b:constructor-arg>" +
-        "</b:bean>"
-        );
-
-        DefaultFilterInvocationDefinitionSource fids = (DefaultFilterInvocationDefinitionSource) context.getBean("fids");
-        List<? extends ConfigAttribute> cad = fids.lookupAttributes("/anything", "GET");
-        assertNotNull(cad);
-        assertEquals(1, cad.size());
-        context.close();
     }
 
     private FilterInvocation createFilterInvocation(String path, String method) {

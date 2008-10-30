@@ -15,17 +15,17 @@
 
 package org.springframework.security.vote;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Test;
 import org.springframework.security.AccessDeniedException;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-
+import org.springframework.security.SecurityConfig;
 import org.springframework.security.providers.TestingAuthenticationToken;
-
-import java.util.List;
-import java.util.Vector;
 
 
 /**
@@ -34,29 +34,14 @@ import java.util.Vector;
  * @author Ben Alex
  * @version $Id$
  */
-public class AffirmativeBasedTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AffirmativeBasedTests() {
-        super();
-    }
-
-    public AffirmativeBasedTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AffirmativeBasedTests.class);
-    }
+public class AffirmativeBasedTests {
 
     private AffirmativeBased makeDecisionManager() {
         AffirmativeBased decisionManager = new AffirmativeBased();
         RoleVoter roleVoter = new RoleVoter();
         DenyVoter denyForSureVoter = new DenyVoter();
         DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
-        List voters = new Vector();
+        List voters = new ArrayList();
         voters.add(roleVoter);
         voters.add(denyForSureVoter);
         voters.add(denyAgainForSureVoter);
@@ -70,85 +55,55 @@ public class AffirmativeBasedTests extends TestCase {
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl("ROLE_2")});
     }
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccess()
-        throws Exception {
+    @Test
+    public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccess() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         AffirmativeBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "DENY_FOR_SURE"});
-
-        mgr.decide(auth, new Object(), config);
-        assertTrue(true);
+        mgr.decide(auth, new Object(), SecurityConfig.createList(new String[]{"ROLE_1", "DENY_FOR_SURE"}));
     }
 
-    public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess()
-        throws Exception {
+    @Test
+    public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         AffirmativeBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition("ROLE_2");
-
-        mgr.decide(auth, new Object(), config);
-        assertTrue(true);
+        mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_2"));
     }
 
-    public void testOneDenyVoteTwoAbstainVotesDeniesAccess()
-        throws Exception {
+    @Test(expected=AccessDeniedException.class)
+    public void testOneDenyVoteTwoAbstainVotesDeniesAccess() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         AffirmativeBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition("ROLE_WE_DO_NOT_HAVE");
-
-        try {
-            mgr.decide(auth, new Object(), config);
-            fail("Should have thrown AccessDeniedException");
-        } catch (AccessDeniedException expected) {
-            assertTrue(true);
-        }
+        mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_WE_DO_NOT_HAVE"));
     }
 
-    public void testThreeAbstainVotesDeniesAccessWithDefault()
-        throws Exception {
+    @Test(expected=AccessDeniedException.class)
+    public void testThreeAbstainVotesDeniesAccessWithDefault() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         AffirmativeBased mgr = makeDecisionManager();
 
         assertTrue(!mgr.isAllowIfAllAbstainDecisions()); // check default
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition("IGNORED_BY_ALL");
-
-        try {
-            mgr.decide(auth, new Object(), config);
-            fail("Should have thrown AccessDeniedException");
-        } catch (AccessDeniedException expected) {
-            assertTrue(true);
-        }
+        mgr.decide(auth, new Object(), SecurityConfig.createList("IGNORED_BY_ALL"));
     }
 
-    public void testThreeAbstainVotesGrantsAccessWithoutDefault()
-        throws Exception {
+    @Test
+    public void testThreeAbstainVotesGrantsAccessWithoutDefault() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         AffirmativeBased mgr = makeDecisionManager();
         mgr.setAllowIfAllAbstainDecisions(true);
         assertTrue(mgr.isAllowIfAllAbstainDecisions()); // check changed
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition("IGNORED_BY_ALL");
-
-        mgr.decide(auth, new Object(), config);
-        assertTrue(true);
+        mgr.decide(auth, new Object(), SecurityConfig.createList("IGNORED_BY_ALL"));
     }
 
-    public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess()
-        throws Exception {
+    @Test
+    public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         AffirmativeBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "ROLE_2"});
-
-        mgr.decide(auth, new Object(), config);
-        assertTrue(true);
+        mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_1", "ROLE_2"));
     }
 }

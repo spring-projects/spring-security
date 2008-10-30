@@ -15,15 +15,17 @@
 
 package org.springframework.security.runas;
 
+import java.util.List;
+
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.RunAsManager;
 
 
 /**
- * Implementation of a {@link RunAsManager} that does nothing.<p>This class should be used if you do not require
- * run-as authenticaiton replacement functionality.</p>
+ * Implementation of a {@link RunAsManager} that does nothing.
+ * <p>
+ * This class should be used if you do not require run-as authentication replacement functionality.
  *
  * @author Ben Alex
  * @version $Id$
@@ -31,7 +33,7 @@ import org.springframework.security.RunAsManager;
 public class NullRunAsManager implements RunAsManager {
     //~ Methods ========================================================================================================
 
-    public Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config) {
+    public Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> config) {
         return null;
     }
 

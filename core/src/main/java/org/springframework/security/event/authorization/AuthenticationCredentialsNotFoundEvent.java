@@ -15,8 +15,10 @@
 
 package org.springframework.security.event.authorization;
 
+import java.util.List;
+
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 
 
 /**
@@ -30,36 +32,34 @@ public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizatio
     //~ Instance fields ================================================================================================
 
     private AuthenticationCredentialsNotFoundException credentialsNotFoundException;
-    private ConfigAttributeDefinition configAttributeDefinition;
+    private List<ConfigAttribute> configAttribs;
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Construct the event.
      *
      * @param secureObject the secure object
      * @param configAttribs that apply to the secure object
-     * @param credentialsNotFoundException exception returned to the caller
-     *        (contains reason)
+     * @param credentialsNotFoundException exception returned to the caller (contains reason)
      *
-     * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public AuthenticationCredentialsNotFoundEvent(Object secureObject, ConfigAttributeDefinition configAttribs,
-        AuthenticationCredentialsNotFoundException credentialsNotFoundException) {
+    public AuthenticationCredentialsNotFoundEvent(Object secureObject, List<ConfigAttribute> configAttribs,
+            AuthenticationCredentialsNotFoundException credentialsNotFoundException) {
         super(secureObject);
 
         if ((configAttribs == null) || (credentialsNotFoundException == null)) {
             throw new IllegalArgumentException("All parameters are required and cannot be null");
         }
 
-        this.configAttributeDefinition = configAttribs;
+        this.configAttribs = configAttribs;
         this.credentialsNotFoundException = credentialsNotFoundException;
     }
 
     //~ Methods ========================================================================================================
 
-    public ConfigAttributeDefinition getConfigAttributeDefinition() {
-        return configAttributeDefinition;
+    public List<ConfigAttribute> getConfigAttributes() {
+        return configAttribs;
     }
 
     public AuthenticationCredentialsNotFoundException getCredentialsNotFoundException() {

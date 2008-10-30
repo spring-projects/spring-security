@@ -12,13 +12,11 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.ConfigAttributeEditor;
-import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
@@ -26,17 +24,18 @@ import org.springframework.security.intercept.web.RequestKey;
 import org.springframework.security.securechannel.ChannelDecisionManagerImpl;
 import org.springframework.security.securechannel.ChannelProcessingFilter;
 import org.springframework.security.securechannel.InsecureChannelProcessor;
-import org.springframework.security.securechannel.SecureChannelProcessor;
 import org.springframework.security.securechannel.RetryWithHttpEntryPoint;
 import org.springframework.security.securechannel.RetryWithHttpsEntryPoint;
+import org.springframework.security.securechannel.SecureChannelProcessor;
 import org.springframework.security.ui.AccessDeniedHandlerImpl;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.ui.SessionFixationProtectionFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.RegexUrlPathMatcher;
-import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.security.util.UrlMatcher;
+import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -603,7 +602,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
             String access = urlElt.getAttribute(ATT_ACCESS_CONFIG);
 
-            // Convert the comma-separated list of access attributes to a ConfigAttributeDefinition
+            // Convert the comma-separated list of access attributes to a List<ConfigAttribute>
             if (StringUtils.hasText(access)) {
                 editor.setAsText(access);
                 Object key = new RequestKey(path, method);

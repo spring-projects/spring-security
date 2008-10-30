@@ -15,9 +15,11 @@
 
 package org.springframework.security.event.authorization;
 
+import java.util.List;
+
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 
 
 /**
@@ -36,7 +38,7 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
 
     private AccessDeniedException accessDeniedException;
     private Authentication authentication;
-    private ConfigAttributeDefinition configAttributeDefinition;
+    private List<ConfigAttribute> configAttributeDefinition;
 
     //~ Constructors ===================================================================================================
 
@@ -51,7 +53,7 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
      *
      * @throws IllegalArgumentException if any null arguments are presented.
      */
-    public AuthorizationFailureEvent(Object secureObject, ConfigAttributeDefinition configAttribs,
+    public AuthorizationFailureEvent(Object secureObject, List<ConfigAttribute> configAttribs,
         Authentication authentication, AccessDeniedException accessDeniedException) {
         super(secureObject);
 
@@ -74,7 +76,7 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
         return authentication;
     }
 
-    public ConfigAttributeDefinition getConfigAttributeDefinition() {
+    public List<ConfigAttribute> getConfigAttributes() {
         return configAttributeDefinition;
     }
 }

@@ -15,17 +15,15 @@
 
 package org.springframework.security.intercept.method;
 
-import org.aopalliance.intercept.MethodInvocation;
-import org.aspectj.lang.JoinPoint;
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.SecurityConfig;
-
 import java.lang.reflect.Method;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
+
+import org.aopalliance.intercept.MethodInvocation;
+import org.aspectj.lang.JoinPoint;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.SecurityConfig;
 
 
 /**
@@ -64,7 +62,7 @@ public class MockMethodDefinitionSource implements MethodDefinitionSource {
 
     //~ Methods ========================================================================================================
 
-    public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
+    public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
         if (returnACollection) {
             return list;
         } else {

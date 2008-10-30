@@ -15,11 +15,9 @@
 
 package org.springframework.security.event.authorization;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.ConfigAttributeDefinition;
-
+import org.springframework.security.SecurityConfig;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 
@@ -29,42 +27,22 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationCredentialsNotFoundEventTests extends TestCase {
-    //~ Constructors ===================================================================================================
+public class AuthenticationCredentialsNotFoundEventTests {
 
-    public AuthenticationCredentialsNotFoundEventTests() {
-        super();
-    }
-
-    public AuthenticationCredentialsNotFoundEventTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
+    @Test(expected=IllegalArgumentException.class)
     public void testRejectsNulls() {
-        try {
-            new AuthenticationCredentialsNotFoundEvent(null, new ConfigAttributeDefinition(new String[] {}),
+        new AuthenticationCredentialsNotFoundEvent(null, SecurityConfig.createList("TEST"),
                 new AuthenticationCredentialsNotFoundException("test"));
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+    }
 
-        try {
-            new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), null,
+    @Test(expected=IllegalArgumentException.class)
+    public void testRejectsNulls2() {
+        new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), null,
                 new AuthenticationCredentialsNotFoundException("test"));
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+    }
 
-        try {
-            new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), new ConfigAttributeDefinition(new String[] {}),
-                null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+    @Test(expected=IllegalArgumentException.class)
+    public void testRejectsNulls3() {
+        new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), SecurityConfig.createList("TEST"), null);
     }
 }

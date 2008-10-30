@@ -1,15 +1,16 @@
 package bigbank;
 
-import org.springframework.security.annotation.Secured;
+import org.springframework.security.expression.annotation.PreAuthorize;
+
 
 public interface BankService {
-	
-	@Secured("IS_AUTHENTICATED_ANONYMOUSLY")
-	public Account readAccount(Long id);
-		
-	@Secured("IS_AUTHENTICATED_ANONYMOUSLY")
-	public Account[] findAccounts();
-	
-	@Secured("ROLE_TELLER")
-	public Account post(Account account, double amount);
+
+    public Account readAccount(Long id);
+
+    public Account[] findAccounts();
+
+    @PreAuthorize(
+            "hasRole('ROLE_SUPERVISOR') or " +
+            "hasRole('ROLE_TELLER') and (#account.balance + #amount >= -#account.overdraft)" )
+    public Account post(Account account, double amount);
 }

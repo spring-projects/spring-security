@@ -15,25 +15,24 @@
 
 package org.springframework.security.securechannel;
 
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.intercept.web.FilterInvocation;
-import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
-import org.springframework.security.ui.SpringSecurityFilter;
-import org.springframework.security.ui.FilterChainOrder;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Collection;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.intercept.web.FilterInvocation;
+import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
+import org.springframework.security.ui.FilterChainOrder;
+import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.util.Assert;
 
 
 /**
@@ -60,12 +59,12 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
         Assert.notNull(filterInvocationDefinitionSource, "filterInvocationDefinitionSource must be specified");
         Assert.notNull(channelDecisionManager, "channelDecisionManager must be specified");
 
-        Collection<List<? extends ConfigAttribute>> attrDefs = this.filterInvocationDefinitionSource.getConfigAttributeDefinitions();
+        Collection<List<? extends ConfigAttribute>> attrDefs = this.filterInvocationDefinitionSource.getAllConfigAttributes();
 
         if (attrDefs == null) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Could not validate configuration attributes as the FilterInvocationDefinitionSource did "
-                        + "not return a ConfigAttributeDefinition Iterator");
+                        + "not return any attributes");
             }
 
             return;
@@ -91,17 +90,17 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
     }
 
     public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-        throws IOException, ServletException {
+            throws IOException, ServletException {
 
         FilterInvocation fi = new FilterInvocation(request, response, chain);
-        List<? extends ConfigAttribute> attr = this.filterInvocationDefinitionSource.getAttributes(fi);
+        List<ConfigAttribute> attr = this.filterInvocationDefinitionSource.getAttributes(fi);
 
         if (attr != null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Request: " + fi.toString() + "; ConfigAttributes: " + attr);
             }
 
-            channelDecisionManager.decide(fi, new ConfigAttributeDefinition(attr));
+            channelDecisionManager.decide(fi, attr);
 
             if (fi.getResponse().isCommitted()) {
                 return;

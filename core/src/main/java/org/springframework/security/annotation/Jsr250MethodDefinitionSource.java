@@ -27,7 +27,6 @@ import javax.annotation.security.RolesAllowed;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.intercept.method.AbstractFallbackMethodDefinitionSource;
 
 
@@ -48,7 +47,7 @@ public class Jsr250MethodDefinitionSource extends AbstractFallbackMethodDefiniti
         return processAnnotations(AnnotationUtils.getAnnotations(method));
     }
 
-    public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
+    public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
         return null;
     }
 

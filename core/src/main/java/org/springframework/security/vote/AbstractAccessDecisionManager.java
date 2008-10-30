@@ -60,7 +60,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
         }
     }
 
-    public List getDecisionVoters() {
+    public List<AccessDecisionVoter> getDecisionVoters() {
         return this.decisionVoters;
     }
 

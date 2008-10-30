@@ -17,9 +17,9 @@ package org.springframework.security.vote;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Implementation of an {@link AccessDecisionVoter} for unit testing.
@@ -35,34 +35,34 @@ import java.util.Iterator;
  * @version $Id$
  */
 public class DenyAgainVoter implements AccessDecisionVoter {
-	// ~ Methods
-	// ========================================================================================================
+    // ~ Methods
+    // ========================================================================================================
 
-	public boolean supports(ConfigAttribute attribute) {
-		if ("DENY_AGAIN_FOR_SURE".equals(attribute.getAttribute())) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+    public boolean supports(ConfigAttribute attribute) {
+        if ("DENY_AGAIN_FOR_SURE".equals(attribute.getAttribute())) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
-	public boolean supports(Class clazz) {
-		return true;
-	}
+    public boolean supports(Class clazz) {
+        return true;
+    }
 
-	public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
-		Iterator iter = config.getConfigAttributes().iterator();
+    public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
+        Iterator iter = attributes.iterator();
 
-		while (iter.hasNext()) {
-			ConfigAttribute attribute = (ConfigAttribute) iter.next();
+        while (iter.hasNext()) {
+            ConfigAttribute attribute = (ConfigAttribute) iter.next();
 
-			if (this.supports(attribute)) {
-				return ACCESS_DENIED;
-			}
-		}
+            if (this.supports(attribute)) {
+                return ACCESS_DENIED;
+            }
+        }
 
-		return ACCESS_ABSTAIN;
-	}
+        return ACCESS_ABSTAIN;
+    }
 
 }

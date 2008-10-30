@@ -18,7 +18,6 @@ package org.springframework.security.vote;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthorizationServiceException;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 
 import org.springframework.security.acl.AclEntry;
 import org.springframework.security.acl.AclManager;
@@ -36,6 +35,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -163,8 +163,8 @@ public class BasicAclEntryVoter extends AbstractAclVoter implements Initializing
         }
     }
 
-    public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
-        Iterator iter = config.getConfigAttributes().iterator();
+    public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
+        Iterator iter = attributes.iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();

@@ -15,15 +15,10 @@
 
 package org.springframework.security.event.authorization;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.security.AccessDeniedException;
-import org.springframework.security.ConfigAttributeDefinition;
-
-import org.springframework.security.event.authorization.AuthorizationFailureEvent;
-
+import org.springframework.security.SecurityConfig;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
 import org.springframework.security.util.SimpleMethodInvocation;
 
 
@@ -33,54 +28,29 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthorizationFailureEventTests extends TestCase {
-    //~ Constructors ===================================================================================================
+public class AuthorizationFailureEventTests {
 
-    public AuthorizationFailureEventTests() {
-        super();
-    }
-
-    public AuthorizationFailureEventTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AuthorizationFailureEventTests.class);
-    }
-
+    @Test(expected=IllegalArgumentException.class)
     public void testRejectsNulls() {
-        try {
-            new AuthorizationFailureEvent(null, ConfigAttributeDefinition.NO_ATTRIBUTES,
-                new UsernamePasswordAuthenticationToken("foo", "bar"), new AccessDeniedException("error"));
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        new AuthorizationFailureEvent(null, SecurityConfig.createList("TEST"),
+            new UsernamePasswordAuthenticationToken("foo", "bar"), new AccessDeniedException("error"));
+    }
 
-        try {
-            new AuthorizationFailureEvent(new SimpleMethodInvocation(), null,
-                new UsernamePasswordAuthenticationToken("foo", "bar"), new AccessDeniedException("error"));
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+    @Test(expected=IllegalArgumentException.class)
+    public void testRejectsNulls2() {
+        new AuthorizationFailureEvent(new SimpleMethodInvocation(), null,
+            new UsernamePasswordAuthenticationToken("foo", "bar"), new AccessDeniedException("error"));
+    }
 
-        try {
-            new AuthorizationFailureEvent(new SimpleMethodInvocation(), ConfigAttributeDefinition.NO_ATTRIBUTES, null,
-                new AccessDeniedException("error"));
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+    @Test(expected=IllegalArgumentException.class)
+    public void testRejectsNulls3() {
+        new AuthorizationFailureEvent(new SimpleMethodInvocation(), SecurityConfig.createList("TEST"), null,
+            new AccessDeniedException("error"));
+    }
 
-        try {
-            new AuthorizationFailureEvent(new SimpleMethodInvocation(), ConfigAttributeDefinition.NO_ATTRIBUTES,
-                new UsernamePasswordAuthenticationToken("foo", "bar"), null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+    @Test(expected=IllegalArgumentException.class)
+    public void testRejectsNulls4() {
+        new AuthorizationFailureEvent(new SimpleMethodInvocation(), SecurityConfig.createList("TEST"),
+            new UsernamePasswordAuthenticationToken("foo", "bar"), null);
     }
 }

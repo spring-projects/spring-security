@@ -17,14 +17,11 @@ package org.springframework.security.securechannel;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.MockFilterChain;
-import org.springframework.security.SecurityConfig;
-
-import org.springframework.security.intercept.web.FilterInvocation;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.MockFilterChain;
+import org.springframework.security.SecurityConfig;
+import org.springframework.security.intercept.web.FilterInvocation;
 
 
 /**
@@ -37,8 +34,6 @@ public class SecureChannelProcessorTests extends TestCase {
     //~ Methods ========================================================================================================
 
     public void testDecideDetectsAcceptableChannel() throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new String[]{"SOME_IGNORED_ATTRIBUTE", "REQUIRES_SECURE_CHANNEL"});
-
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=true");
         request.setServerName("localhost");
@@ -53,14 +48,12 @@ public class SecureChannelProcessorTests extends TestCase {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
 
         SecureChannelProcessor processor = new SecureChannelProcessor();
-        processor.decide(fi, cad);
+        processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE", "REQUIRES_SECURE_CHANNEL"));
 
         assertFalse(fi.getResponse().isCommitted());
     }
 
     public void testDecideDetectsUnacceptableChannel() throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new String[]{"SOME_IGNORED_ATTRIBUTE", "REQUIRES_SECURE_CHANNEL"});
-
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=true");
         request.setServerName("localhost");
@@ -74,7 +67,7 @@ public class SecureChannelProcessorTests extends TestCase {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
 
         SecureChannelProcessor processor = new SecureChannelProcessor();
-        processor.decide(fi, cad);
+        processor.decide(fi, SecurityConfig.createList(new String[]{"SOME_IGNORED_ATTRIBUTE", "REQUIRES_SECURE_CHANNEL"}));
 
         assertTrue(fi.getResponse().isCommitted());
     }

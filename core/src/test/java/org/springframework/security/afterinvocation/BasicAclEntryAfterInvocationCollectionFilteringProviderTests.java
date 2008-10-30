@@ -15,22 +15,21 @@
 
 package org.springframework.security.afterinvocation;
 
+import java.util.List;
+import java.util.Vector;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.AuthorizationServiceException;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.MockAclManager;
+import org.springframework.security.SecurityConfig;
 import org.springframework.security.acl.AclEntry;
 import org.springframework.security.acl.AclManager;
 import org.springframework.security.acl.basic.MockAclObjectIdentity;
 import org.springframework.security.acl.basic.SimpleAclEntry;
-
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
 import org.springframework.security.util.SimpleMethodInvocation;
-
-import java.util.List;
-import java.util.Vector;
 
 
 /**
@@ -73,10 +72,10 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests extend
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("scott", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_COLLECTION_READ");
 
         // Filter
-        List filteredList = (List) provider.decide(auth, new SimpleMethodInvocation(), attr, list);
+        List filteredList = (List) provider.decide(auth, new SimpleMethodInvocation(),
+                SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"), list);
 
         assertEquals(0, filteredList.size());
     }
@@ -106,7 +105,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests extend
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("scott", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_COLLECTION_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_COLLECTION_READ");
 
         // Filter
         List filteredList = (List) provider.decide(auth, new SimpleMethodInvocation(), attr, list);
@@ -140,7 +139,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests extend
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_COLLECTION_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_COLLECTION_READ");
 
         // Filter
         List filteredList = (List) provider.decide(auth, new SimpleMethodInvocation(), attr, list);
@@ -175,7 +174,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests extend
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_COLLECTION_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_COLLECTION_READ");
 
         // Filter
         String[] filteredList = (String[]) provider.decide(auth, new SimpleMethodInvocation(), attr, list);
@@ -201,7 +200,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests extend
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_COLLECTION_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_COLLECTION_READ");
 
         // Filter
         try {
@@ -229,7 +228,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests extend
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_COLLECTION_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_COLLECTION_READ");
 
         // Filter
         List filteredList = (List) provider.decide(auth, new SimpleMethodInvocation(), attr, null);
@@ -262,14 +261,13 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests extend
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_COLLECTION_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_COLLECTION_READ");
 
         // As no matching config attrib, ensure provider doesn't change list
         assertEquals(4, ((List) provider.decide(auth, new SimpleMethodInvocation(), attr, list)).size());
 
         // Filter, this time with the conf attrib provider setup to answer
-        attr = new ConfigAttributeDefinition("AFTER_ACL_COLLECTION_ADMIN");
-        //attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_COLLECTION_ADMIN"));
+        attr = SecurityConfig.createList("AFTER_ACL_COLLECTION_ADMIN");
 
         List filteredList = (List) provider.decide(auth, new SimpleMethodInvocation(), attr, list);
 
@@ -303,7 +301,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests extend
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_COLLECTION_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_COLLECTION_READ");
 
         // Filter
         List filteredList = (List) provider.decide(auth, new SimpleMethodInvocation(), attr, list);

@@ -17,18 +17,13 @@ package org.springframework.security.intercept.web;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-
 import org.springframework.security.intercept.AbstractSecurityInterceptor;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.util.Assert;
 
 
@@ -56,7 +51,7 @@ public class WebInvocationPrivilegeEvaluator implements InitializingBean {
     public boolean isAllowed(FilterInvocation fi, Authentication authentication) {
         Assert.notNull(fi, "FilterInvocation required");
 
-        List<? extends ConfigAttribute> attrs = securityInterceptor.obtainObjectDefinitionSource().getAttributes(fi);
+        List<ConfigAttribute> attrs = securityInterceptor.obtainObjectDefinitionSource().getAttributes(fi);
 
         if (attrs == null) {
             if (securityInterceptor.isRejectPublicInvocations()) {
@@ -72,7 +67,7 @@ public class WebInvocationPrivilegeEvaluator implements InitializingBean {
         }
 
         try {
-            securityInterceptor.getAccessDecisionManager().decide(authentication, fi, new ConfigAttributeDefinition(attrs));
+            securityInterceptor.getAccessDecisionManager().decide(authentication, fi, attrs);
         } catch (AccessDeniedException unauthorized) {
             if (logger.isDebugEnabled()) {
                 logger.debug(fi.toString() + " denied for " + authentication.toString(), unauthorized);

@@ -1,9 +1,9 @@
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="runas"><info><title>Run-As Authentication Replacement</title></info>
-    
-    
+
+
     <section xml:id="runas-overview">
         <info><title>Overview</title></info>
-        
+
         <para>The <classname>AbstractSecurityInterceptor</classname> is able to
             temporarily replace the <interfacename>Authentication</interfacename> object in
             the <interfacename>SecurityContext</interfacename> and
@@ -15,7 +15,7 @@
             <literal>RunAsManager</literal> will indicate the replacement
             <interfacename>Authentication</interfacename> object, if any, that should be used
             during the <literal>SecurityInterceptorCallback</literal>.</para>
-        
+
         <para>By temporarily replacing the <interfacename>Authentication</interfacename>
             object during the secure object callback phase, the secured invocation
             will be able to call other objects which require different
@@ -27,17 +27,17 @@
             <classname>SecurityContextHolder</classname>, these run-as replacements
             are particularly useful when calling remote web services</para>
     </section>
-    
+
     <section xml:id="runas-config">
         <info><title>Configuration</title></info>
         <para>A <literal>RunAsManager</literal> interface is provided by Spring Security:
             <programlisting>
-  Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config);
+  Authentication buildRunAs(Authentication authentication, Object object, List&lt;ConfigAttribute&gt; config);
   boolean supports(ConfigAttribute attribute);
   boolean supports(Class clazz);
             </programlisting>
         </para>
-        
+
         <para>The first method returns the <interfacename>Authentication</interfacename>
             object that should replace the existing
             <interfacename>Authentication</interfacename> object for the duration of the
@@ -49,7 +49,7 @@
             interceptor implementation to ensure the configured
             <literal>RunAsManager</literal> supports the type of secure object
             that the security interceptor will present.</para>
-        
+
         <para>One concrete implementation of a <literal>RunAsManager</literal>
             is provided with Spring Security. The
             <literal>RunAsManagerImpl</literal> class returns a replacement
@@ -68,7 +68,7 @@
             <literal>RUN_AS_SERVER</literal> will result in the replacement
             <literal>RunAsUserToken</literal> containing a
             <literal>ROLE_RUN_AS_SERVER</literal> granted authority.</para>
-        
+
         <para>The replacement <literal>RunAsUserToken</literal> is just like
             any other <interfacename>Authentication</interfacename> object. It needs to be
             authenticated by the <interfacename>AuthenticationManager</interfacename>,
@@ -77,7 +77,7 @@
             <literal>RunAsImplAuthenticationProvider</literal> performs such
             authentication. It simply accepts as valid any
             <literal>RunAsUserToken</literal> presented.</para>
-        
+
         <para>To ensure malicious code does not create a
             <literal>RunAsUserToken</literal> and present it for guaranteed
             acceptance by the <literal>RunAsImplAuthenticationProvider</literal>,

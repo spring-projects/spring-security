@@ -28,8 +28,8 @@ public class FIDSToFilterChainMapConverter {
 
     public FIDSToFilterChainMapConverter(DefaultFilterInvocationDefinitionSource fids, ApplicationContext appContext) {
         // TODO: Check if this is necessary. Retained from refactoring of FilterChainProxy
-        Assert.notNull(fids.getConfigAttributeDefinitions(), "FilterChainProxy requires the " +
-                "FilterInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()");
+        Assert.notNull(fids.getAllConfigAttributes(), "FilterChainProxy requires the " +
+                "FilterInvocationDefinitionSource to return a non-null response to getAllConfigAttributes()");
         matcher = fids.getUrlMatcher();
         Map requestMap = fids.getRequestMap();
         Iterator paths = requestMap.keySet().iterator();

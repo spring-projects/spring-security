@@ -17,27 +17,23 @@ package org.springframework.security.intercept.method;
 
 import java.util.List;
 
+import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-
 import org.springframework.security.intercept.AbstractSecurityInterceptor;
-
-import org.aopalliance.intercept.MethodInvocation;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.util.Assert;
 
 
 /**
- * Allows users to determine whether they have "before invocation" privileges for a given method invocation.<p>Of
- * course, if an {@link org.springframework.security.AfterInvocationManager} is used to authorize the <em>result</em> of a method
- * invocation, this class cannot assist determine whether or not the <code>AfterInvocationManager</code> will enable
+ * Allows users to determine whether they have "before invocation" privileges for a given method invocation.
+ * <p>
+ * Of course, if an {@link org.springframework.security.AfterInvocationManager} is used to authorize the
+ * <em>result</em> of a method invocation, this class cannot assist determine whether or not the
+ * <code>AfterInvocationManager</code> will enable
  * access. Instead this class aims to allow applications to determine whether or not the current principal would be
  * allowed to at least attempt to invoke the method, irrespective of the "after" invocation handling.</p>
  *
@@ -63,7 +59,7 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
         Assert.notNull(mi, "MethodInvocation required");
         Assert.notNull(mi.getMethod(), "MethodInvocation must provide a non-null getMethod()");
 
-        List<? extends ConfigAttribute> attrs = securityInterceptor.obtainObjectDefinitionSource().getAttributes(mi);
+        List<ConfigAttribute> attrs = securityInterceptor.obtainObjectDefinitionSource().getAttributes(mi);
 
         if (attrs == null) {
             if (securityInterceptor.isRejectPublicInvocations()) {
@@ -79,7 +75,7 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
         }
 
         try {
-            securityInterceptor.getAccessDecisionManager().decide(authentication, mi, new ConfigAttributeDefinition(attrs));
+            securityInterceptor.getAccessDecisionManager().decide(authentication, mi, attrs);
         } catch (AccessDeniedException unauthorized) {
             if (logger.isDebugEnabled()) {
                 logger.debug(mi.toString() + " denied for " + authentication.toString(), unauthorized);

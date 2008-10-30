@@ -15,8 +15,10 @@
 
 package org.springframework.security.event.authorization;
 
+import java.util.List;
+
 import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 
 
 /**
@@ -30,20 +32,19 @@ public class AuthorizedEvent extends AbstractAuthorizationEvent {
     //~ Instance fields ================================================================================================
 
     private Authentication authentication;
-    private ConfigAttributeDefinition configAttributeDefinition;
+    private List<ConfigAttribute> configAttributeDefinition;
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Construct the event.
      *
      * @param secureObject the secure object
      * @param configAttribs that apply to the secure object
      * @param authentication that successfully called the secure object
      *
-     * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public AuthorizedEvent(Object secureObject, ConfigAttributeDefinition configAttribs, Authentication authentication) {
+    public AuthorizedEvent(Object secureObject, List<ConfigAttribute> configAttribs, Authentication authentication) {
         super(secureObject);
 
         if ((configAttribs == null) || (authentication == null)) {
@@ -60,7 +61,7 @@ public class AuthorizedEvent extends AbstractAuthorizationEvent {
         return authentication;
     }
 
-    public ConfigAttributeDefinition getConfigAttributeDefinition() {
+    public List<ConfigAttribute> getConfigAttributes() {
         return configAttributeDefinition;
     }
 }

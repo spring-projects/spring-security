@@ -7,6 +7,12 @@ import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.AuthenticationTrustResolverImpl;
 import org.springframework.security.util.AuthorityUtils;
 
+/**
+ * Default root object for use in Spring Security expression evaluations.
+ *
+ * @author Luke Taylor
+ *
+ */
 public class SecurityExpressionRoot {
     private Authentication authentication;
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
@@ -21,6 +27,9 @@ public class SecurityExpressionRoot {
 
 
     public SecurityExpressionRoot(Authentication a) {
+        if (a == null) {
+            throw new IllegalArgumentException("Authentication object cannot be null");
+        }
         this.authentication = a;
     }
 
@@ -56,12 +65,12 @@ public class SecurityExpressionRoot {
         return trustResolver.isRememberMe(authentication);
     }
 
-    public Authentication getAuthentication() {
-        return authentication;
-    }
-
     public final boolean isFullyAuthenticated() {
         return !trustResolver.isAnonymous(authentication) && !trustResolver.isRememberMe(authentication);
+    }
+
+    public Authentication getAuthentication() {
+        return authentication;
     }
 
     public void setFilterObject(Object filterObject) {

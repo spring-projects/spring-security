@@ -17,14 +17,11 @@ package org.springframework.security.securechannel;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.MockFilterChain;
-import org.springframework.security.SecurityConfig;
-
-import org.springframework.security.intercept.web.FilterInvocation;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.MockFilterChain;
+import org.springframework.security.SecurityConfig;
+import org.springframework.security.intercept.web.FilterInvocation;
 
 
 /**
@@ -34,19 +31,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @version $Id$
  */
 public class InsecureChannelProcessorTests extends TestCase {
-    //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(InsecureChannelProcessorTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testDecideDetectsAcceptableChannel() throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new String[]{"SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL"});
-
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=true");
         request.setServerName("localhost");
@@ -60,15 +46,13 @@ public class InsecureChannelProcessorTests extends TestCase {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
 
         InsecureChannelProcessor processor = new InsecureChannelProcessor();
-        processor.decide(fi, cad);
+        processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL"));
 
         assertFalse(fi.getResponse().isCommitted());
     }
 
     public void testDecideDetectsUnacceptableChannel()
         throws Exception {
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new String[]{"SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL"});
-
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=true");
         request.setServerName("localhost");
@@ -83,7 +67,7 @@ public class InsecureChannelProcessorTests extends TestCase {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
 
         InsecureChannelProcessor processor = new InsecureChannelProcessor();
-        processor.decide(fi, cad);
+        processor.decide(fi, SecurityConfig.createList(new String[]{"SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL"}));
 
         assertTrue(fi.getResponse().isCommitted());
     }

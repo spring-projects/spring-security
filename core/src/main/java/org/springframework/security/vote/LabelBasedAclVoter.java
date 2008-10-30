@@ -16,7 +16,6 @@ package org.springframework.security.vote;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -170,20 +169,16 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
      * Vote on whether or not the user has all the labels necessary to match the method argument's labeled
      * data.
      *
-     * @param authentication DOCUMENT ME!
-     * @param object DOCUMENT ME!
-     * @param config DOCUMENT ME!
-     *
      * @return ACCESS_ABSTAIN, ACCESS_GRANTED, or ACCESS_DENIED.
      */
-    public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
+    public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
         int result = ACCESS_ABSTAIN;
 
         if (logger.isDebugEnabled()) {
             logger.debug("==========================================================");
         }
 
-        if (this.supports((ConfigAttribute) config.getConfigAttributes().iterator().next())) {
+        if (this.supports((ConfigAttribute) attributes.iterator().next())) {
             result = ACCESS_DENIED;
 
             /* Parse out the user's labels by examining the security context, and checking

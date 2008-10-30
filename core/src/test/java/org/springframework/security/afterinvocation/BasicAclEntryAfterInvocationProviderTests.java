@@ -15,11 +15,15 @@
 
 package org.springframework.security.afterinvocation;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.AccessDeniedException;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockAclManager;
+import org.springframework.security.SecurityConfig;
 import org.springframework.security.acl.AclEntry;
 import org.springframework.security.acl.AclManager;
 import org.springframework.security.acl.basic.MockAclObjectIdentity;
@@ -54,7 +58,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("scott", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_READ");
 
         try {
             provider.decide(auth, new SimpleMethodInvocation(), attr, "belmont");
@@ -81,7 +85,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("scott", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_READ");
 
         try {
             provider.decide(auth, new SimpleMethodInvocation(), attr, "belmont");
@@ -109,7 +113,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_READ");
 
         // Filter
         assertEquals("belmont", provider.decide(auth, new SimpleMethodInvocation(), attr, "belmont"));
@@ -132,7 +136,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_READ");
 
         // Filter
         assertNull(provider.decide(auth, new SimpleMethodInvocation(), attr, null));
@@ -156,13 +160,13 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_READ");
 
         // As no matching config attrib, ensure provider returns original obj
         assertEquals("sydney", provider.decide(auth, new SimpleMethodInvocation(), attr, "sydney"));
 
         // Filter, this time with the conf attrib provider setup to answer
-        attr = new ConfigAttributeDefinition("AFTER_ACL_ADMIN");
+        attr = SecurityConfig.createList("AFTER_ACL_ADMIN");
         assertEquals("sydney", provider.decide(auth, new SimpleMethodInvocation(), attr, "sydney"));
     }
 
@@ -184,7 +188,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Create the Authentication and Config Attribs we'll be presenting
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("rod", "NOT_USED");
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("AFTER_ACL_READ");
+        List<ConfigAttribute> attr = SecurityConfig.createList("AFTER_ACL_READ");
 
         // Filter
         assertEquals("sydney", provider.decide(auth, new SimpleMethodInvocation(), attr, "sydney"));

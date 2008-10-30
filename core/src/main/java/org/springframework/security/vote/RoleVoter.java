@@ -16,10 +16,10 @@
 package org.springframework.security.vote;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.GrantedAuthority;
 
 /**
@@ -92,10 +92,10 @@ public class RoleVoter implements AccessDecisionVoter {
         return true;
     }
 
-    public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
+    public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
         int result = ACCESS_ABSTAIN;
-        Iterator iter = config.getConfigAttributes().iterator();
-        GrantedAuthority[] authorities = extractAuthorities(authentication);        
+        Iterator iter = attributes.iterator();
+        GrantedAuthority[] authorities = extractAuthorities(authentication);
 
         while (iter.hasNext()) {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();
@@ -114,8 +114,8 @@ public class RoleVoter implements AccessDecisionVoter {
 
         return result;
     }
-    
+
     GrantedAuthority[] extractAuthorities(Authentication authentication) {
-    	return authentication.getAuthorities();
+        return authentication.getAuthorities();
     }
 }

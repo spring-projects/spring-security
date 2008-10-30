@@ -16,7 +16,6 @@
 package org.springframework.security.securechannel;
 
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 
 import org.springframework.security.intercept.web.FilterInvocation;
 
@@ -65,15 +64,15 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
         Assert.notEmpty(listToCheck, "A list of ChannelProcessors is required");
     }
 
-    public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
+    public void decide(FilterInvocation invocation, List<ConfigAttribute> config)
             throws IOException, ServletException {
 
-        Iterator attrs = config.getConfigAttributes().iterator();
+        Iterator attrs = config.iterator();
 
         while (attrs.hasNext()) {
-			ConfigAttribute attribute = (ConfigAttribute) attrs.next();
-			if (ANY_CHANNEL.equals(attribute.getAttribute())) {
-				return;
+            ConfigAttribute attribute = (ConfigAttribute) attrs.next();
+            if (ANY_CHANNEL.equals(attribute.getAttribute())) {
+                return;
             }
         }
 

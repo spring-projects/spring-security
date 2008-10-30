@@ -2,11 +2,11 @@ package org.springframework.security.annotation;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.Authentication;
 import org.springframework.security.vote.AccessDecisionVoter;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Voter on JSR-250 configuration attributes.
@@ -44,9 +44,9 @@ public class Jsr250Voter implements AccessDecisionVoter {
      * @param definition     The configuration definition.
      * @return The vote.
      */
-    public int vote(Authentication authentication, Object object, ConfigAttributeDefinition definition) {
+    public int vote(Authentication authentication, Object object, List<ConfigAttribute> definition) {
         int result = ACCESS_ABSTAIN;
-        Iterator iter = definition.getConfigAttributes().iterator();
+        Iterator iter = definition.iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();

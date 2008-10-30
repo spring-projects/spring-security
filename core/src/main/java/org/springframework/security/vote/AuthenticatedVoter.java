@@ -19,24 +19,26 @@ import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.AuthenticationTrustResolverImpl;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 
 import org.springframework.util.Assert;
 
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
- * <p>Votes if a {@link ConfigAttribute#getAttribute()} of <code>IS_AUTHENTICATED_FULLY</code> or
+ * Votes if a {@link ConfigAttribute#getAttribute()} of <code>IS_AUTHENTICATED_FULLY</code> or
  * <code>IS_AUTHENTICATED_REMEMBERED</code> or <code>IS_AUTHENTICATED_ANONYMOUSLY</code> is present. This list is in
- * order of most strict checking to least strict checking.</p>
- *  <p>The current <code>Authentication</code> will be inspected to determine if the principal has a particular
- * level of authentication. The "FULLY" authenticated option means the user is authenticated fully (ie {@link
+ * order of most strict checking to least strict checking.
+ * <p>
+ * The current <code>Authentication</code> will be inspected to determine if the principal has a particular
+ * level of authentication. The "FULLY" authenticated option means the user is authenticated fully (i.e. {@link
  * org.springframework.security.AuthenticationTrustResolver#isAnonymous(Authentication)} is false and {@link
- * org.springframework.security.AuthenticationTrustResolver#isRememberMe(Authentication)} is false. The "REMEMBERED" will grant
+ * org.springframework.security.AuthenticationTrustResolver#isRememberMe(Authentication)} is false). The "REMEMBERED" will grant
  * access if the principal was either authenticated via remember-me OR is fully authenticated. The "ANONYMOUSLY" will
- * grant access if the principal was authenticated via remember-me, OR anonymously, OR via full authentication.</p>
- *  <p>All comparisons and prefixes are case sensitive.</p>
+ * grant access if the principal was authenticated via remember-me, OR anonymously, OR via full authentication.
+ * <p>
+ * All comparisons and prefixes are case sensitive.
  *
  * @author Ben Alex
  * @version $Id$
@@ -54,8 +56,8 @@ public class AuthenticatedVoter implements AccessDecisionVoter {
     //~ Methods ========================================================================================================
 
     private boolean isFullyAuthenticated(Authentication authentication) {
-        return (!authenticationTrustResolver.isAnonymous(authentication)
-        && !authenticationTrustResolver.isRememberMe(authentication));
+        return (!authenticationTrustResolver.isAnonymous(authentication) &&
+                !authenticationTrustResolver.isRememberMe(authentication));
     }
 
     public void setAuthenticationTrustResolver(AuthenticationTrustResolver authenticationTrustResolver) {
@@ -85,9 +87,9 @@ public class AuthenticatedVoter implements AccessDecisionVoter {
         return true;
     }
 
-    public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
+    public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
         int result = ACCESS_ABSTAIN;
-        Iterator iter = config.getConfigAttributes().iterator();
+        Iterator iter = attributes.iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();

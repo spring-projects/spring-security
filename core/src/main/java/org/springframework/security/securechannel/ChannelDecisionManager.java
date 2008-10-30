@@ -16,11 +16,10 @@
 package org.springframework.security.securechannel;
 
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-
 import org.springframework.security.intercept.web.FilterInvocation;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 
@@ -36,16 +35,10 @@ public interface ChannelDecisionManager {
 
     /**
      * Decided whether the presented {@link FilterInvocation} provides the appropriate level of channel
-     * security based on the requested {@link ConfigAttributeDefinition}.
+     * security based on the requested list of <tt>ConfigAttribute</tt>s.
      *
-     * @param invocation DOCUMENT ME!
-     * @param config DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
-     * @throws ServletException DOCUMENT ME!
      */
-    void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
-        throws IOException, ServletException;
+    void decide(FilterInvocation invocation, List<ConfigAttribute> config) throws IOException, ServletException;
 
     /**
      * Indicates whether this <code>ChannelDecisionManager</code> is able to process the passed

@@ -61,7 +61,7 @@
       or web requests. A pre-invocation decision on whether the invocation is allowed to proceed is made by
       the <interfacename>AccessDecisionManager</interfacename>.
     </para>
-    
+
     <section>
       <title>The AccessDecisionManager</title>
     <para>The <interfacename>AccessDecisionManager</interfacename> is called by the
@@ -70,7 +70,7 @@
     <interfacename>AccessDecisionManager</interfacename> interface contains three
     methods:
       <programlisting>
- void decide(Authentication authentication, Object secureObject, ConfigAttributeDefinition config) throws AccessDeniedException;
+ void decide(Authentication authentication, Object secureObject, List&lt;ConfigAttribute&gt; config) throws AccessDeniedException;
  boolean supports(ConfigAttribute attribute);
  boolean supports(Class clazz);
       </programlisting>
@@ -124,7 +124,7 @@
     <para>The <interfacename>AccessDecisionVoter</interfacename> interface has three
     methods:
 <programlisting>
-int vote(Authentication authentication, Object object, ConfigAttributeDefinition config);
+int vote(Authentication authentication, Object object, List&lt;ConfigAttribute&gt; config);
 boolean supports(ConfigAttribute attribute);
 boolean supports(Class clazz);
 </programlisting>
@@ -168,9 +168,9 @@ boolean supports(Class clazz);
       <para>
         The most commonly used <interfacename>AccessDecisionVoter</interfacename>
       provided with Spring Security is the simple <classname>RoleVoter</classname>, which treats
-      configuration attributes as simple role names and votes to grant access if the user has been assigned 
+      configuration attributes as simple role names and votes to grant access if the user has been assigned
       that role.</para>
-      <para>It will vote if any ConfigAttribute begins with the prefix <literal>ROLE_</literal>. 
+      <para>It will vote if any ConfigAttribute begins with the prefix <literal>ROLE_</literal>.
         It will vote to grant access if there is a <interfacename>GrantedAuthority</interfacename> which returns a
       <literal>String</literal> representation (via the
       <literal>getAuthority()</literal> method) exactly equal to one or more
@@ -183,8 +183,8 @@ boolean supports(Class clazz);
       <literal>RoleVoter</literal> is case sensitive on comparisons as well
       as the <literal>ROLE_</literal> prefix.</para>
     </section>
-      
-<!--      
+
+<!--
 
     <para><literal>BasicAclEntryVoter</literal> is the other concrete
     voter included with Spring Security. It integrates with Spring
@@ -206,7 +206,7 @@ boolean supports(Class clazz);
   </property>
 </bean>
 
-<bean id="aclContactDeleteVoter" 
+<bean id="aclContactDeleteVoter"
     class="org.springframework.security.vote.BasicAclEntryVoter">
   <property name="processConfigAttribute" value="ACL_CONTACT_DELETE"/>
   <property name="processDomainObjectClass" value="sample.contact.Contact"/>
@@ -248,7 +248,7 @@ boolean supports(Class clazz);
         deprecated, and have all references to the replacement package limited
         to the chapter describing the new ACL implementation.</para>
       -->
-      
+
       <section>
         <title>Custom Voters</title>
     <para>It is also possible to implement a custom
@@ -288,7 +288,7 @@ boolean supports(Class clazz);
     <para><xref linkend="authz-after-invocation"/> illustrates Spring Security's
     <literal>AfterInvocationManager</literal> and its concrete
     implementations.
-      
+
     <figure xml:id="authz-after-invocation">
       <title>After Invocation Implementation</title>
       <mediaobject>
@@ -299,7 +299,7 @@ boolean supports(Class clazz);
           <imagedata  align="center" fileref="images/AfterInvocation.gif" format="GIF"/>
         </imageobject>
       </mediaobject>
-    
+
     </figure>
     </para>
 
@@ -455,7 +455,7 @@ boolean supports(Class clazz);
       <ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/>
     </list>
   </property>
-</bean> 
+</bean>
 ]]>      </programlisting></para>
 
       <para>In the above example, the <literal>Contact</literal> will be
@@ -486,7 +486,7 @@ boolean supports(Class clazz);
       <ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/>
     </list>
   </property>
-</bean> 
+</bean>
 ]]></programlisting>
         As you can imagine, the returned <literal>Object</literal>
       must be a <literal>Collection</literal> or array for this provider
@@ -501,7 +501,7 @@ boolean supports(Class clazz);
   </section>
 
   <section xml:id="authorization-taglibs"><info><title>Authorization Tag Libraries</title></info>
-    
+
 
     <para><literal>AuthorizeTag</literal> is used to include content if
     the current principal holds certain

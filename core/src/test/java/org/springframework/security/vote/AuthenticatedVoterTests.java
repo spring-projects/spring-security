@@ -15,14 +15,15 @@
 
 package org.springframework.security.vote;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.SecurityConfig;
-
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import org.springframework.security.providers.rememberme.RememberMeAuthenticationToken;
@@ -35,17 +36,6 @@ import org.springframework.security.providers.rememberme.RememberMeAuthenticatio
  * @version $Id$
  */
 public class AuthenticatedVoterTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AuthenticatedVoterTests() {
-        super();
-    }
-
-    public AuthenticatedVoterTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
 
     private Authentication createAnonymous() {
         return new AnonymousAuthenticationToken("ignored", "ignored",
@@ -62,17 +52,9 @@ public class AuthenticatedVoterTests extends TestCase {
             new GrantedAuthority[] {new GrantedAuthorityImpl("ignored")});
     }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AuthenticatedVoterTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testAnonymousWorks() {
         AuthenticatedVoter voter = new AuthenticatedVoter();
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition(AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY);
+        List<ConfigAttribute> def = SecurityConfig.createList(AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY);
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(createAnonymous(), null, def));
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(createRememberMe(), null, def));
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(createFullyAuthenticated(), null, def));
@@ -80,7 +62,7 @@ public class AuthenticatedVoterTests extends TestCase {
 
     public void testFullyWorks() {
         AuthenticatedVoter voter = new AuthenticatedVoter();
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition(AuthenticatedVoter.IS_AUTHENTICATED_FULLY);
+        List<ConfigAttribute> def = SecurityConfig.createList(AuthenticatedVoter.IS_AUTHENTICATED_FULLY);
         assertEquals(AccessDecisionVoter.ACCESS_DENIED, voter.vote(createAnonymous(), null, def));
         assertEquals(AccessDecisionVoter.ACCESS_DENIED, voter.vote(createRememberMe(), null, def));
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(createFullyAuthenticated(), null, def));
@@ -88,7 +70,7 @@ public class AuthenticatedVoterTests extends TestCase {
 
     public void testRememberMeWorks() {
         AuthenticatedVoter voter = new AuthenticatedVoter();
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition(AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED);
+        List<ConfigAttribute> def = SecurityConfig.createList(AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED);
         assertEquals(AccessDecisionVoter.ACCESS_DENIED, voter.vote(createAnonymous(), null, def));
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(createRememberMe(), null, def));
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(createFullyAuthenticated(), null, def));

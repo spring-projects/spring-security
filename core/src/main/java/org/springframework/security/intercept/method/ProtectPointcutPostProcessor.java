@@ -16,7 +16,6 @@ import org.aspectj.weaver.tools.PointcutPrimitive;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.intercept.method.aopalliance.MethodDefinitionSourceAdvisor;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -145,7 +144,7 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
     private void addPointcut(String pointcutExpression, List<ConfigAttribute> definition) {
         Assert.hasText(pointcutExpression, "An AspectJ pointcut expression is required");
-        Assert.notNull(definition, "ConfigAttributeDefinition required");
+        Assert.notNull(definition, "A List of ConfigAttributes is required");
         pointcutExpression = replaceBooleanOperators(pointcutExpression);
         pointcutMap.put(pointcutExpression, definition);
 

@@ -15,17 +15,17 @@
 
 package org.springframework.security.vote;
 
+import java.util.List;
+import java.util.Vector;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.AccessDeniedException;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-
+import org.springframework.security.SecurityConfig;
 import org.springframework.security.providers.TestingAuthenticationToken;
-
-import java.util.List;
-import java.util.Vector;
 
 
 /**
@@ -86,7 +86,7 @@ public class UnanimousBasedTests extends TestCase {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "DENY_FOR_SURE"});
+        List<ConfigAttribute> config = SecurityConfig.createList(new String[]{"ROLE_1", "DENY_FOR_SURE"});
 
         try {
             mgr.decide(auth, new Object(), config);
@@ -100,7 +100,7 @@ public class UnanimousBasedTests extends TestCase {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition("ROLE_2");
+        List<ConfigAttribute> config = SecurityConfig.createList("ROLE_2");
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
@@ -110,7 +110,7 @@ public class UnanimousBasedTests extends TestCase {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition("ROLE_WE_DO_NOT_HAVE");
+        List<ConfigAttribute> config = SecurityConfig.createList("ROLE_WE_DO_NOT_HAVE");
 
         try {
             mgr.decide(auth, new Object(), config);
@@ -124,7 +124,7 @@ public class UnanimousBasedTests extends TestCase {
         TestingAuthenticationToken auth = makeTestTokenWithFooBarPrefix();
         UnanimousBased mgr = makeDecisionManagerWithFooBarPrefix();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"FOOBAR_1", "FOOBAR_2"});
+        List<ConfigAttribute> config = SecurityConfig.createList(new String[]{"FOOBAR_1", "FOOBAR_2"});
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
@@ -136,7 +136,7 @@ public class UnanimousBasedTests extends TestCase {
 
         assertTrue(!mgr.isAllowIfAllAbstainDecisions()); // check default
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition("IGNORED_BY_ALL");
+        List<ConfigAttribute> config = SecurityConfig.createList("IGNORED_BY_ALL");
 
         try {
             mgr.decide(auth, new Object(), config);
@@ -152,7 +152,7 @@ public class UnanimousBasedTests extends TestCase {
         mgr.setAllowIfAllAbstainDecisions(true);
         assertTrue(mgr.isAllowIfAllAbstainDecisions()); // check changed
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition("IGNORED_BY_ALL");
+        List<ConfigAttribute> config = SecurityConfig.createList("IGNORED_BY_ALL");
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
@@ -162,7 +162,7 @@ public class UnanimousBasedTests extends TestCase {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
 
-        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "ROLE_2"});
+        List<ConfigAttribute> config = SecurityConfig.createList(new String[]{"ROLE_1", "ROLE_2"});
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);

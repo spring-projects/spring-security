@@ -15,23 +15,20 @@
 
 package org.springframework.security.intercept.method;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.List;
+
 import junit.framework.TestCase;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.ITargetObject;
 import org.springframework.security.MockJoinPoint;
 import org.springframework.security.OtherTargetObject;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.TargetObject;
-
-import org.aopalliance.intercept.MethodInvocation;
-
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Method;
-
-import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -149,7 +146,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
             "org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY\r\norg.springframework.security.TargetObject.make*=ROLE_NINE,ROLE_SUPERVISOR");
 
         MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
-        Iterator iter = map.getConfigAttributeDefinitions().iterator();
+        Iterator iter = map.getAllConfigAttributes().iterator();
         int counter = 0;
 
         while (iter.hasNext()) {

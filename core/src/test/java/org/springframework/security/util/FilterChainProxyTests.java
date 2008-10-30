@@ -15,29 +15,26 @@
 
 package org.springframework.security.util;
 
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.MockFilterConfig;
-import org.springframework.security.SecurityConfig;
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
-import org.springframework.security.intercept.web.MockFilterInvocationDefinitionSource;
-import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
-import org.springframework.security.intercept.web.RequestKey;
-import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.util.List;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import org.junit.After;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.LinkedHashMap;
-import java.util.List;
+import org.springframework.security.MockFilterConfig;
+import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 
 /**
  * Tests {@link FilterChainProxy}.
@@ -61,31 +58,6 @@ public class FilterChainProxyTests {
         if (appCtx != null) {
             appCtx.close();
         }
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void testDetectsFilterInvocationDefinitionSourceThatDoesNotReturnAllConfigAttributes() throws Exception {
-        FilterChainProxy filterChainProxy = new FilterChainProxy();
-        filterChainProxy.setApplicationContext(new StaticApplicationContext());
-
-        filterChainProxy.setFilterInvocationDefinitionSource(new MockFilterInvocationDefinitionSource(false, false));
-        filterChainProxy.afterPropertiesSet();
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void testDetectsIfConfigAttributeDoesNotReturnValueForGetAttributeMethod() throws Exception {
-        FilterChainProxy filterChainProxy = new FilterChainProxy();
-        filterChainProxy.setApplicationContext(new StaticApplicationContext());
-
-        LinkedHashMap map = new LinkedHashMap();
-        map.put(new RequestKey("/**"), SecurityConfig.createList(null));
-        DefaultFilterInvocationDefinitionSource fids =
-                new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(), map);
-
-        filterChainProxy.setFilterInvocationDefinitionSource(fids);
-
-        filterChainProxy.afterPropertiesSet();
-        filterChainProxy.init(new MockFilterConfig());
     }
 
     @Test(expected = IllegalArgumentException.class)

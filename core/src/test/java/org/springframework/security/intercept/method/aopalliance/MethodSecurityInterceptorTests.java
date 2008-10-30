@@ -15,8 +15,14 @@
 
 package org.springframework.security.intercept.method.aopalliance;
 
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.List;
+
 import junit.framework.TestCase;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AfterInvocationManager;
@@ -24,7 +30,6 @@ import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.ITargetObject;
@@ -33,23 +38,11 @@ import org.springframework.security.MockAfterInvocationManager;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockRunAsManager;
 import org.springframework.security.RunAsManager;
-
 import org.springframework.security.context.SecurityContextHolder;
-
 import org.springframework.security.intercept.method.MethodDefinitionSource;
 import org.springframework.security.intercept.method.MockMethodDefinitionSource;
-
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
 import org.springframework.security.runas.RunAsManagerImpl;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import java.lang.reflect.Method;
-
-import java.util.Collection;
-import java.util.List;
 
 
 /**
@@ -409,7 +402,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
     //~ Inner Classes ==================================================================================================
 
     private class MockAccessDecisionManagerWhichOnlySupportsStrings implements AccessDecisionManager {
-        public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
+        public void decide(Authentication authentication, Object object, List<ConfigAttribute> configAttributes)
             throws AccessDeniedException {
             throw new UnsupportedOperationException("mock method not implemented");
         }
@@ -428,7 +421,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
     }
 
     private class MockAfterInvocationManagerWhichOnlySupportsStrings implements AfterInvocationManager {
-        public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+        public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
             Object returnedObject) throws AccessDeniedException {
             throw new UnsupportedOperationException("mock method not implemented");
         }
@@ -447,7 +440,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
     }
 
     private class MockObjectDefinitionSourceWhichOnlySupportsStrings implements MethodDefinitionSource {
-        public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
+        public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
             return null;
         }
 
@@ -469,7 +462,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
     }
 
     private class MockRunAsManagerWhichOnlySupportsStrings implements RunAsManager {
-        public Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config) {
+        public Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> config) {
             throw new UnsupportedOperationException("mock method not implemented");
         }
 

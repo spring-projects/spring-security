@@ -5,32 +5,32 @@
     <info>
       <title>AOP Alliance (MethodInvocation) Security Interceptor</title>
     </info>
-    
+
     <para>
-      Prior to Spring Security 2.0, securing <classname>MethodInvocation</classname>s needed quite a 
-      lot of boiler plate configuration. Now the recommended approach for method security 
+      Prior to Spring Security 2.0, securing <classname>MethodInvocation</classname>s needed quite a
+      lot of boiler plate configuration. Now the recommended approach for method security
       is to use <link xlink:href="#ns-method-security">namespace configuration</link>.
-      This way the method security infrastructure beans are configured automatically for you so you don't really need to  
+      This way the method security infrastructure beans are configured automatically for you so you don't really need to
       know about the implementation classes. We'll just provide a quick overview of the classes that are involved here.
     </para>
 
     <para>
       Method security in enforced using a <classname>MethodSecurityInterceptor</classname>, which secures
-     <classname>MethodInvocation</classname>s. Depending on the configuration approach, an interceptor may be specific to a single 
+     <classname>MethodInvocation</classname>s. Depending on the configuration approach, an interceptor may be specific to a single
       bean or shared between multiple beans. The interceptor uses a <interfacename>MethodDefinitionSource</interfacename>
-      instance to obtain the configuration attributes that apply to a particular method invocation. 
-      <classname>MapBasedMethodDefinitionSource</classname> is used to store configuration attributes keyed by method names 
+      instance to obtain the configuration attributes that apply to a particular method invocation.
+      <classname>MapBasedMethodDefinitionSource</classname> is used to store configuration attributes keyed by method names
       (which can be wildcarded) and will be used internally when the attributes are defined in the application context using
       the <literal>&lt;intercept-methods&gt;</literal> or <literal>&lt;protect-point&gt;</literal> elements. Other implementations
       will be used to handle annotation-based configuration.
     </para>
-    
+
     <section>
       <title>Explicit MethodSecurityIterceptor Configuration</title>
       <para>
         You can of course configure a <classname>MethodSecurityIterceptor</classname> directly in your application context
         for use with one of Spring AOP's proxying mechanisms:
-<programlisting><![CDATA[  
+<programlisting><![CDATA[
 <bean id="bankManagerSecurity"
     class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
@@ -42,7 +42,7 @@
       org.springframework.security.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR
     </value>
   </property>
-</bean> ]]>   
+</bean> ]]>
 </programlisting>
       </para>
     </section>
@@ -119,15 +119,15 @@ pointcut domainObjectInstanceExecution(): target(PersistableEntity)
 
 Object around(): domainObjectInstanceExecution() {
   if (this.securityInterceptor == null) {
-    return proceed();  
+    return proceed();
   }
-    
+
   AspectJCallback callback = new AspectJCallback() {
       public Object proceedWithObject() {
         return proceed();
       }
   };
-    
+
   return this.securityInterceptor.invoke(thisJoinPoint, callback);
 }
 
@@ -178,13 +178,13 @@ public void afterPropertiesSet() throws Exception {
     <info><title>FilterInvocation Security Interceptor</title></info>
 
       <para>To secure <classname>FilterInvocation</classname>s, developers need
-    to add a <classname>FilterSecurityInterceptor</classname> to their filter chain. 
+    to add a <classname>FilterSecurityInterceptor</classname> to their filter chain.
     A typical configuration example is provided below:</para>
 
     <para>In the application context you will need to configure three
     beans:</para>
 
-    <programlisting> 
+    <programlisting>
 <![CDATA[
 <bean id="exceptionTranslationFilter"
         class="org.springframework.security.ui.ExceptionTranslationFilter">
@@ -204,8 +204,8 @@ public void afterPropertiesSet() throws Exception {
   <property name="objectDefinitionSource">
     <security:filter-invocation-definition-source>
       <security:intercept-url pattern="/secure/super/**" access="ROLE_WE_DONT_HAVE"/>
-      <security:intercept-url pattern="/secure/**" access="ROLE_SUPERVISOR,ROLE_TELLER"/>    
-    </security:filter-invocation-definition-source>                
+      <security:intercept-url pattern="/secure/**" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
+    </security:filter-invocation-definition-source>
   </property>
 </bean>]]>         </programlisting>
 
@@ -245,7 +245,7 @@ public void afterPropertiesSet() throws Exception {
     Level Design section of this document.</para>
 
     <para>The <classname>FilterSecurityInterceptor</classname> can be
-    configured with configuration attributes in two ways. The first, 
+    configured with configuration attributes in two ways. The first,
     which is shown above, is using the <literal>&lt;filter-invocation-definition-source&gt;</literal>
     namespace element. This is similar to the <literal>&lt;filter-chain-map&gt;</literal>
     used to configure a <classname>FilterChainProxy</classname> but the <literal>&lt;intercept-url&gt;</literal>
@@ -254,7 +254,7 @@ public void afterPropertiesSet() throws Exception {
     <interfacename>ObjectDefinitionSource</interfacename>, although this is beyond the
     scope of this document. Irrespective of the approach used, the
     <interfacename>ObjectDefinitionSource</interfacename> is responsible for returning
-    a <literal>ConfigAttributeDefinition</literal> object that contains
+    a <literal>List&lt;ConfigAttribute&gt;</literal> containing
     all of the configuration attributes associated with a single secure
     HTTP URL.</para>
 
@@ -271,7 +271,7 @@ public void afterPropertiesSet() throws Exception {
     little relevance to most users of the
     <classname>FilterSecurityInterceptor</classname>.</para>
 
-    <para>When using the namespace option to configure the interceptor, 
+    <para>When using the namespace option to configure the interceptor,
         commas are used to delimit the different configuration
     attributes that apply to each HTTP URL. Each configuration attribute
     is assigned into its own <literal>SecurityConfig</literal> object. The
@@ -299,7 +299,7 @@ public void afterPropertiesSet() throws Exception {
     <security:filter-invocation-definition-source path-type="regex">
       <security:intercept-url pattern="\A/secure/super/.*\Z" access="ROLE_WE_DONT_HAVE"/>
       <security:intercept-url pattern="\A/secure/.*\" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
-    </security:filter-invocation-definition-source>  
+    </security:filter-invocation-definition-source>
   </property>
 </bean>]]>        </programlisting>
 

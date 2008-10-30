@@ -15,30 +15,7 @@
 
 package org.springframework.security.intercept.web;
 
-import junit.framework.TestCase;
-
-import org.springframework.security.AccessDecisionManager;
-import org.springframework.security.AccessDeniedException;
-import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.MockAccessDecisionManager;
-import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.MockRunAsManager;
-import org.springframework.security.RunAsManager;
-import org.springframework.security.MockApplicationEventPublisher;
-import org.springframework.security.SecurityConfig;
-import org.springframework.security.util.AntUrlPathMatcher;
-import org.springframework.security.util.RegexUrlPathMatcher;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
 import java.io.IOException;
-
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,6 +24,27 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import junit.framework.TestCase;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.AccessDecisionManager;
+import org.springframework.security.AccessDeniedException;
+import org.springframework.security.Authentication;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.MockAccessDecisionManager;
+import org.springframework.security.MockApplicationEventPublisher;
+import org.springframework.security.MockAuthenticationManager;
+import org.springframework.security.MockRunAsManager;
+import org.springframework.security.RunAsManager;
+import org.springframework.security.SecurityConfig;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.util.AntUrlPathMatcher;
+import org.springframework.security.util.RegexUrlPathMatcher;
 
 
 /**
@@ -92,7 +90,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
                     return true;
                 }
 
-                public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
+                public void decide(Authentication authentication, Object object, List<ConfigAttribute> configAttributes)
                     throws AccessDeniedException {
                     throw new UnsupportedOperationException("mock method not implemented");
                 }
@@ -124,7 +122,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
                 }
 
                 public Authentication buildRunAs(Authentication authentication, Object object,
-                    ConfigAttributeDefinition config) {
+                        List<ConfigAttribute> config) {
                     throw new UnsupportedOperationException("mock method not implemented");
                 }
             });
@@ -221,9 +219,9 @@ public class FilterSecurityInterceptorTests extends TestCase {
 
     public void testNotLoadedFromApplicationContext() throws Exception {
         LinkedHashMap reqMap = new LinkedHashMap();
-        reqMap.put(new RequestKey("/secure/**", null), new ConfigAttributeDefinition(new String[] {"ROLE_USER"}));
+        reqMap.put(new RequestKey("/secure/**", null), SecurityConfig.createList("ROLE_USER"));
         DefaultFilterInvocationDefinitionSource fids
-                = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher());
+                = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(), reqMap);
 
         FilterSecurityInterceptor filter = new FilterSecurityInterceptor();
         filter.setObjectDefinitionSource(fids);
@@ -278,7 +276,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
             }
         }
 
-        public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
+        public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
             return null;
         }
 

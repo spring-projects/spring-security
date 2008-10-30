@@ -17,9 +17,10 @@ package org.springframework.security.vote;
 
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -37,18 +38,18 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
      *
      * @param authentication the caller invoking the method
      * @param object the secured object
-     * @param config the configuration attributes associated with the method being invoked
+     * @param configAttributes the configuration attributes associated with the method being invoked
      *
      * @throws AccessDeniedException if access is denied
      */
-    public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
-        throws AccessDeniedException {
+    public void decide(Authentication authentication, Object object, List<ConfigAttribute> configAttributes)
+            throws AccessDeniedException {
         Iterator iter = this.getDecisionVoters().iterator();
         int deny = 0;
 
         while (iter.hasNext()) {
             AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
-            int result = voter.vote(authentication, object, config);
+            int result = voter.vote(authentication, object, configAttributes);
 
             switch (result) {
             case AccessDecisionVoter.ACCESS_GRANTED:

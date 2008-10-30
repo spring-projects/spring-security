@@ -15,10 +15,15 @@
 
 package org.springframework.security.vote;
 
+import java.lang.reflect.Method;
+import java.util.List;
+
 import junit.framework.TestCase;
 
+import org.aopalliance.intercept.MethodInvocation;
+import org.aspectj.lang.JoinPoint;
 import org.springframework.security.AuthorizationServiceException;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.MockAclManager;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.acl.AclEntry;
@@ -27,10 +32,6 @@ import org.springframework.security.acl.basic.MockAclObjectIdentity;
 import org.springframework.security.acl.basic.SimpleAclEntry;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
-import org.aopalliance.intercept.MethodInvocation;
-import org.aspectj.lang.JoinPoint;
-
-import java.lang.reflect.Method;
 
 /**
  * Tests {@link BasicAclEntryVoter}.
@@ -93,7 +94,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
+        List<ConfigAttribute> attr = SecurityConfig.createList("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         MethodInvocation mi = getMethodInvocation(domainObject);
@@ -213,7 +214,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("A_DIFFERENT_ATTRIBUTE");
+        List<ConfigAttribute> attr = SecurityConfig.createList("A_DIFFERENT_ATTRIBUTE");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         MethodInvocation mi = getMethodInvocation(domainObject);
@@ -245,7 +246,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
+        List<ConfigAttribute> attr = SecurityConfig.createList("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         MethodInvocation mi = getMethodInvocation(domainObject);
@@ -276,7 +277,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
+        List<ConfigAttribute> attr = SecurityConfig.createList("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         MethodInvocation mi = getMethodInvocation(domainObject);
@@ -307,7 +308,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
+        List<ConfigAttribute> attr = SecurityConfig.createList("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         MethodInvocation mi = getMethodInvocation(domainObject);
@@ -342,7 +343,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
+        List<ConfigAttribute> attr = SecurityConfig.createList("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         // (well actually it will access domainObject.getParent())
@@ -376,7 +377,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
+        List<ConfigAttribute> attr = SecurityConfig.createList("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation, so voter can retrieve domainObject
         // (well actually it will access domainObject.getParent())
@@ -413,7 +414,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         voter.afterPropertiesSet();
 
         // Wire up an invocation to be voted on
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO_ADMIN_OR_WRITE_ACCESS");
+        List<ConfigAttribute> attr = SecurityConfig.createList("FOO_ADMIN_OR_WRITE_ACCESS");
 
         // Setup a MockMethodInvocation that doesn't provide SomeDomainObject arg
         Class clazz = String.class;

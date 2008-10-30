@@ -16,6 +16,7 @@
 package org.springframework.security;
 
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -27,9 +28,9 @@ import java.util.Iterator;
 public class MockAfterInvocationManager implements AfterInvocationManager {
     //~ Methods ========================================================================================================
 
-    public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+    public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
         Object returnedObject) throws AccessDeniedException {
-        Iterator iter = config.getConfigAttributes().iterator();
+        Iterator iter = config.iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();

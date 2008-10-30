@@ -146,7 +146,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         editor.setAsText("\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
 
         DefaultFilterInvocationDefinitionSource map = (DefaultFilterInvocationDefinitionSource) editor.getValue();
-        Iterator iter = map.getConfigAttributeDefinitions().iterator();
+        Iterator iter = map.getAllConfigAttributes().iterator();
         int counter = 0;
 
         while (iter.hasNext()) {

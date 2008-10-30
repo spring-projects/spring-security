@@ -15,22 +15,18 @@
 
 package org.springframework.security.afterinvocation;
 
+import java.util.List;
+import java.util.Vector;
+
 import junit.framework.TestCase;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.SecurityConfig;
-
 import org.springframework.security.intercept.web.FilterInvocation;
-
 import org.springframework.security.util.SimpleMethodInvocation;
-
-import org.aopalliance.intercept.MethodInvocation;
-
-import java.util.List;
-import java.util.Vector;
 
 
 /**
@@ -62,11 +58,11 @@ public class AfterInvocationProviderManagerTests extends TestCase {
         assertEquals(list, manager.getProviders());
         manager.afterPropertiesSet();
 
-        ConfigAttributeDefinition attr1 = new ConfigAttributeDefinition(new String[] {"GIVE_ME_SWAP1"});
-        ConfigAttributeDefinition attr2 = new ConfigAttributeDefinition(new String[] {"GIVE_ME_SWAP2"});
-        ConfigAttributeDefinition attr3 = new ConfigAttributeDefinition(new String[] {"GIVE_ME_SWAP3"});
-        ConfigAttributeDefinition attr2and3 = new ConfigAttributeDefinition(new String[] {"GIVE_ME_SWAP2","GIVE_ME_SWAP3"});
-        ConfigAttributeDefinition attr4 = new ConfigAttributeDefinition(new String[] {"NEVER_CAUSES_SWAP"});
+        List<ConfigAttribute> attr1 = SecurityConfig.createList(new String[] {"GIVE_ME_SWAP1"});
+        List<ConfigAttribute> attr2 = SecurityConfig.createList(new String[] {"GIVE_ME_SWAP2"});
+        List<ConfigAttribute> attr3 = SecurityConfig.createList(new String[] {"GIVE_ME_SWAP3"});
+        List<ConfigAttribute> attr2and3 = SecurityConfig.createList(new String[] {"GIVE_ME_SWAP2","GIVE_ME_SWAP3"});
+        List<ConfigAttribute> attr4 = SecurityConfig.createList(new String[] {"NEVER_CAUSES_SWAP"});
 
         assertEquals("swap1", manager.decide(null, new SimpleMethodInvocation(), attr1, "content-before-swapping"));
 
@@ -162,7 +158,7 @@ public class AfterInvocationProviderManagerTests extends TestCase {
             this.configAttribute = configAttribute;
         }
 
-        public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+        public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
             Object returnedObject) throws AccessDeniedException {
             if (config.contains(configAttribute)) {
                 return forceReturnObject;

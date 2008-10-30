@@ -15,9 +15,10 @@
 
 package org.springframework.security.vote;
 
+import java.util.List;
+
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 
 
 /**
@@ -83,9 +84,9 @@ public interface AccessDecisionVoter {
      *
      * @param authentication the caller invoking the method
      * @param object the secured object
-     * @param config the configuration attributes associated with the method being invoked
+     * @param attributes the configuration attributes associated with the method being invoked
      *
      * @return either {@link #ACCESS_GRANTED}, {@link #ACCESS_ABSTAIN} or {@link #ACCESS_DENIED}
      */
-    int vote(Authentication authentication, Object object, ConfigAttributeDefinition config);
+    int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes);
 }

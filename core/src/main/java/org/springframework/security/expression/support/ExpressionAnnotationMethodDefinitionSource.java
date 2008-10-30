@@ -37,6 +37,10 @@ import org.springframework.util.ClassUtils;
 public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDefinitionSource {
 
     public List<ConfigAttribute> getAttributes(Method method, Class targetClass) {
+        if (method.getDeclaringClass() == Object.class) {
+            return null;
+        }
+
         logger.debug("Looking for expression annotations for method '" +
                 method.getName() + "' on target class '" + targetClass + "'");
         PreFilter preFilter = findAnnotation(method, targetClass, PreFilter.class);
@@ -101,7 +105,7 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDe
         return null;
     }
 
-    public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
+    public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
         return null;
     }
 

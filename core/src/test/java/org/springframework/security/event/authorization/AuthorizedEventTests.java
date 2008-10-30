@@ -15,12 +15,9 @@
 
 package org.springframework.security.event.authorization;
 
-import junit.framework.TestCase;
-
-import org.springframework.security.ConfigAttributeDefinition;
-
+import org.junit.Test;
+import org.springframework.security.SecurityConfig;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
 import org.springframework.security.util.SimpleMethodInvocation;
 
 
@@ -30,41 +27,21 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthorizedEventTests extends TestCase {
-    //~ Constructors ===================================================================================================
+public class AuthorizedEventTests {
 
-    public AuthorizedEventTests() {
-        super();
-    }
-
-    public AuthorizedEventTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
+    @Test(expected=IllegalArgumentException.class)
     public void testRejectsNulls() {
-        try {
-            new AuthorizedEvent(null, ConfigAttributeDefinition.NO_ATTRIBUTES,
-                new UsernamePasswordAuthenticationToken("foo", "bar"));
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        new AuthorizedEvent(null, SecurityConfig.createList("TEST"), new UsernamePasswordAuthenticationToken("foo", "bar"));
+    }
 
-        try {
-            new AuthorizedEvent(new SimpleMethodInvocation(), null,
-                new UsernamePasswordAuthenticationToken("foo", "bar"));
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+    @Test(expected=IllegalArgumentException.class)
+    public void testRejectsNulls2() {
 
-        try {
-            new AuthorizedEvent(new SimpleMethodInvocation(), ConfigAttributeDefinition.NO_ATTRIBUTES, null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        new AuthorizedEvent(new SimpleMethodInvocation(), null, new UsernamePasswordAuthenticationToken("foo", "bar"));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testRejectsNulls3() {
+        new AuthorizedEvent(new SimpleMethodInvocation(), SecurityConfig.createList("TEST"), null);
     }
 }

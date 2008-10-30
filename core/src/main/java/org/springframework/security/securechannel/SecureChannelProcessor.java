@@ -16,7 +16,6 @@
 package org.springframework.security.securechannel;
 
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 
 import org.springframework.security.intercept.web.FilterInvocation;
 
@@ -27,6 +26,7 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.ServletException;
 
@@ -55,11 +55,11 @@ public class SecureChannelProcessor implements InitializingBean, ChannelProcesso
         Assert.notNull(entryPoint, "entryPoint required");
     }
 
-    public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
+    public void decide(FilterInvocation invocation, List<ConfigAttribute> config)
         throws IOException, ServletException {
         Assert.isTrue((invocation != null) && (config != null), "Nulls cannot be provided");
 
-        Iterator iter = config.getConfigAttributes().iterator();
+        Iterator iter = config.iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();

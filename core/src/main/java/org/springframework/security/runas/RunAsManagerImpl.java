@@ -15,20 +15,16 @@
 
 package org.springframework.security.runas;
 
+import java.util.List;
+import java.util.Vector;
+
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.RunAsManager;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.util.Assert;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
 
 
 /**
@@ -39,14 +35,15 @@ import java.util.Vector;
  * created <code>GrantedAuthorityImpl</code>s will be prefixed with a special prefix indicating that it is a role
  * (default prefix value is <code>ROLE_</code>), and then the remainder of the <code>RUN_AS_</code> keyword. For
  * example, <code>RUN_AS_FOO</code> will result in the creation of a granted authority of
- * <code>ROLE_RUN_AS_FOO</code>.</p>
- *  <p>The role prefix may be overriden from the default, to match that used elsewhere, for example when using an
+ * <code>ROLE_RUN_AS_FOO</code>.
+ * <p>
+ * The role prefix may be overriden from the default, to match that used elsewhere, for example when using an
  * existing role database with another prefix. An empty role prefix may also be specified. Note however that there are
  * potential issues with using an empty role prefix since different categories of  {@link
  * org.springframework.security.ConfigAttribute} can not be properly discerned based on the prefix, with possible consequences
  * when performing voting and other actions. However, this option may be of some use when using preexisting role names
  * without a prefix, and no ability exists to prefix them with a role prefix on reading them in, such as provided for
- * example in  {@link org.springframework.security.userdetails.jdbc.JdbcDaoImpl}.</p>
+ * example in  {@link org.springframework.security.userdetails.jdbc.JdbcDaoImpl}.
  *
  * @author Ben Alex
  * @author colin sampaleanu
@@ -64,13 +61,10 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
         Assert.notNull(key, "A Key is required and should match that configured for the RunAsImplAuthenticationProvider");
     }
 
-    public Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config) {
+    public Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> config) {
         List newAuthorities = new Vector();
-        Iterator iter = config.getConfigAttributes().iterator();
 
-        while (iter.hasNext()) {
-            ConfigAttribute attribute = (ConfigAttribute) iter.next();
-
+        for(ConfigAttribute attribute : config) {
             if (this.supports(attribute)) {
                 GrantedAuthorityImpl extraAuthority = new GrantedAuthorityImpl(getRolePrefix()
                         + attribute.getAttribute());
@@ -80,17 +74,18 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 
         if (newAuthorities.size() == 0) {
             return null;
-        } else {
-            for (int i = 0; i < authentication.getAuthorities().length; i++) {
-                newAuthorities.add(authentication.getAuthorities()[i]);
-            }
-
-            GrantedAuthority[] resultType = {new GrantedAuthorityImpl("holder")};
-            GrantedAuthority[] newAuthoritiesAsArray = (GrantedAuthority[]) newAuthorities.toArray(resultType);
-
-            return new RunAsUserToken(this.key, authentication.getPrincipal(), authentication.getCredentials(),
-                newAuthoritiesAsArray, authentication.getClass());
         }
+
+
+        for (int i = 0; i < authentication.getAuthorities().length; i++) {
+            newAuthorities.add(authentication.getAuthorities()[i]);
+        }
+
+        GrantedAuthority[] resultType = {new GrantedAuthorityImpl("holder")};
+        GrantedAuthority[] newAuthoritiesAsArray = (GrantedAuthority[]) newAuthorities.toArray(resultType);
+
+        return new RunAsUserToken(this.key, authentication.getPrincipal(), authentication.getCredentials(),
+            newAuthoritiesAsArray, authentication.getClass());
     }
 
     public String getKey() {

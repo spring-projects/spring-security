@@ -15,30 +15,25 @@
 
 package org.springframework.security.afterinvocation;
 
-import org.springframework.security.AccessDeniedException;
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-
-import org.springframework.security.acl.AclEntry;
-import org.springframework.security.acl.AclManager;
-import org.springframework.security.acl.basic.BasicAclEntry;
-import org.springframework.security.acl.basic.SimpleAclEntry;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.MessageSourceAccessor;
-
+import org.springframework.security.AccessDeniedException;
+import org.springframework.security.Authentication;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.acl.AclEntry;
+import org.springframework.security.acl.AclManager;
+import org.springframework.security.acl.basic.BasicAclEntry;
+import org.springframework.security.acl.basic.SimpleAclEntry;
 import org.springframework.util.Assert;
-
-import java.util.Iterator;
 
 /**
  * <p>Given a domain object instance returned from a secure object invocation, ensures the principal has
@@ -61,7 +56,7 @@ import java.util.Iterator;
  *  <p>If the provided <code>returnObject</code> is <code>null</code>, permission will always be granted and
  * <code>null</code> will be returned.</p>
  *  <p>All comparisons and prefixes are case sensitive.</p>
- *  
+ *
  *  @deprecated Use new spring-security-acl module instead
  */
 public class BasicAclEntryAfterInvocationProvider implements AfterInvocationProvider, InitializingBean,
@@ -90,9 +85,9 @@ public class BasicAclEntryAfterInvocationProvider implements AfterInvocationProv
         }
     }
 
-    public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+    public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
         Object returnedObject) throws AccessDeniedException {
-        Iterator iter = config.getConfigAttributes().iterator();
+        Iterator iter = config.iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();

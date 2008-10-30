@@ -1,6 +1,7 @@
 package org.springframework.security.expression.support;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -12,7 +13,6 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.StandardEvaluationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.expression.ExpressionUtils;
 import org.springframework.security.expression.SecurityExpressionRoot;
 import org.springframework.security.vote.AccessDecisionVoter;
@@ -43,8 +43,8 @@ public class MethodExpressionVoter implements AccessDecisionVoter {
         return clazz.isAssignableFrom(MethodInvocation.class);
     }
 
-    public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
-        PreInvocationExpressionConfigAttribute mace = findMethodAccessControlExpression(config);
+    public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
+        PreInvocationExpressionConfigAttribute mace = findMethodAccessControlExpression(attributes);
 
         if (mace == null) {
             // No expression based metadata, so abstain
@@ -102,9 +102,9 @@ public class MethodExpressionVoter implements AccessDecisionVoter {
         return filterTarget;
     }
 
-    private PreInvocationExpressionConfigAttribute findMethodAccessControlExpression(ConfigAttributeDefinition config) {
+    private PreInvocationExpressionConfigAttribute findMethodAccessControlExpression(List<ConfigAttribute> config) {
         // Find the MethodAccessControlExpression attribute
-        for (ConfigAttribute attribute : config.getConfigAttributes()) {
+        for (ConfigAttribute attribute : config) {
             if (attribute instanceof PreInvocationExpressionConfigAttribute) {
                 return (PreInvocationExpressionConfigAttribute)attribute;
             }

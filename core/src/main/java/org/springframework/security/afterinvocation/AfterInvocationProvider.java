@@ -15,10 +15,11 @@
 
 package org.springframework.security.afterinvocation;
 
+import java.util.List;
+
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 
 
 /**
@@ -30,7 +31,7 @@ import org.springframework.security.ConfigAttributeDefinition;
 public interface AfterInvocationProvider {
     //~ Methods ========================================================================================================
 
-    Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+    Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
         Object returnedObject) throws AccessDeniedException;
 
     /**

@@ -1,6 +1,7 @@
 package org.springframework.security.expression.support;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -13,7 +14,6 @@ import org.springframework.expression.spel.standard.StandardEvaluationContext;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.afterinvocation.AfterInvocationProvider;
 import org.springframework.security.expression.ExpressionUtils;
 import org.springframework.security.expression.SecurityExpressionRoot;
@@ -32,7 +32,7 @@ public class MethodExpressionAfterInvocationProvider implements AfterInvocationP
 
     private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
-    public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config, Object returnedObject)
+    public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config, Object returnedObject)
             throws AccessDeniedException {
 
         PostInvocationExpressionConfigAttribute mca = findMethodAccessControlExpression(config);
@@ -86,9 +86,9 @@ public class MethodExpressionAfterInvocationProvider implements AfterInvocationP
         }
     }
 
-    private PostInvocationExpressionConfigAttribute findMethodAccessControlExpression(ConfigAttributeDefinition config) {
+    private PostInvocationExpressionConfigAttribute findMethodAccessControlExpression(List<ConfigAttribute> config) {
         // Find the MethodAccessControlExpression attribute
-        for (ConfigAttribute attribute : config.getConfigAttributes()) {
+        for (ConfigAttribute attribute : config) {
             if (attribute instanceof PostInvocationExpressionConfigAttribute) {
                 return (PostInvocationExpressionConfigAttribute)attribute;
             }

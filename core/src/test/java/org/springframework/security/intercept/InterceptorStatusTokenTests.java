@@ -15,13 +15,17 @@
 
 package org.springframework.security.intercept;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.util.SimpleMethodInvocation;
+import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.junit.Test;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.SecurityConfig;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.util.SimpleMethodInvocation;
 
 
 /**
@@ -30,39 +34,17 @@ import org.aopalliance.intercept.MethodInvocation;
  * @author Ben Alex
  * @version $Id$
  */
-public class InterceptorStatusTokenTests extends TestCase {
-    //~ Constructors ===================================================================================================
+public class InterceptorStatusTokenTests {
 
-    public InterceptorStatusTokenTests() {
-        super();
-    }
-
-    public InterceptorStatusTokenTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
-    public void testNoArgConstructorDoesntExist() {
-        Class clazz = InterceptorStatusToken.class;
-
-        try {
-            clazz.getDeclaredConstructor((Class[]) null);
-            fail("Should have thrown NoSuchMethodException");
-        } catch (NoSuchMethodException expected) {
-            assertTrue(true);
-        }
-    }
-
+    @Test
     public void testOperation() {
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO");
+        List<ConfigAttribute> attr = SecurityConfig.createList("FOO");
         MethodInvocation mi = new SimpleMethodInvocation();
-
         InterceptorStatusToken token = new InterceptorStatusToken(new UsernamePasswordAuthenticationToken("rod",
                     "koala"), true, attr, mi);
 
         assertTrue(token.isContextHolderRefreshRequired());
-        assertEquals(attr, token.getAttr());
+        assertEquals(attr, token.getAttributes());
         assertEquals(mi, token.getSecureObject());
         assertEquals("rod", token.getAuthentication().getPrincipal());
     }

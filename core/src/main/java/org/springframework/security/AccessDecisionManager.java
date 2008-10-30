@@ -15,6 +15,8 @@
 
 package org.springframework.security;
 
+import java.util.List;
+
 /**
  * Makes a final access control (authorization) decision.
  *
@@ -29,14 +31,14 @@ public interface AccessDecisionManager {
      *
      * @param authentication the caller invoking the method
      * @param object the secured object being called
-     * @param config the configuration attributes associated with the secured object being invoked
+     * @param configAttributes the configuration attributes associated with the secured object being invoked
      *
      * @throws AccessDeniedException if access is denied as the authentication does not hold a required authority or
      *         ACL privilege
      * @throws InsufficientAuthenticationException if access is denied as the authentication does not provide a
      *         sufficient level of trust
      */
-    void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
+    void decide(Authentication authentication, Object object, List<ConfigAttribute> configAttributes)
         throws AccessDeniedException, InsufficientAuthenticationException;
 
     /**

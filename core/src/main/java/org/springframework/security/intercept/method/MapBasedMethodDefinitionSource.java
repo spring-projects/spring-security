@@ -25,13 +25,12 @@ import java.util.Map;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 
 /**
- * Stores a {@link ConfigAttributeDefinition} for a method or class signature.
+ * Stores a list of <tt>ConfigAttribute</tt>s for a method or class signature.
  *
  * <p>
  * This class is the preferred implementation of {@link MethodDefinitionSource} for XML-based
@@ -48,7 +47,7 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
     //~ Instance fields ================================================================================================
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-    /** Map from RegisteredMethod to ConfigAttributeDefinition */
+    /** Map from RegisteredMethod to ConfigAttribute list */
     protected Map<RegisteredMethod, List<? extends ConfigAttribute>> methodMap = new HashMap();
 
     /** Map from RegisteredMethod to name pattern used for registration */
@@ -61,14 +60,11 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
 
     /**
      * Creates the MapBasedMethodDefinitionSource from a
-     * @param methodMap map of method names to <tt>ConfigAttributeDefinition</tt>s.
+     * @param methodMap map of method names to <tt>ConfigAttribute</tt>s.
      */
-    public MapBasedMethodDefinitionSource(Map methodMap) {
-        Iterator iterator = methodMap.entrySet().iterator();
-
-        while (iterator.hasNext()) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            addSecureMethod((String)entry.getKey(), (List<ConfigAttribute>)entry.getValue());
+    public MapBasedMethodDefinitionSource(Map<String, List<ConfigAttribute>> methodMap) {
+        for (Map.Entry<String, List<ConfigAttribute>> entry : methodMap.entrySet()) {
+            addSecureMethod(entry.getKey(), entry.getValue());
         }
     }
 
@@ -213,7 +209,7 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
      *
      * @return the attributes explicitly defined against this bean
      */
-    public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
+    public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
         return methodMap.values();
     }
 

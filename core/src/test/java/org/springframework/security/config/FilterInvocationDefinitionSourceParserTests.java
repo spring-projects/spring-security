@@ -1,6 +1,6 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -11,7 +11,6 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.FilterInvocation;

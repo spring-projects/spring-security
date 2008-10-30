@@ -21,9 +21,10 @@ import org.springframework.security.GrantedAuthority;
 /**
  * An {@link org.springframework.security.Authentication} implementation that is designed for simple presentation of a
  * username and password.
- * <p>The <code>principal</code> and <code>credentials</code> should be set with an <code>Object</code> that provides
+ * <p>
+ * The <code>principal</code> and <code>credentials</code> should be set with an <code>Object</code> that provides
  * the respective property via its <code>Object.toString()</code> method. The simplest such <code>Object</code> to use
- * is <code>String</code>.</p>
+ * is <code>String</code>.
  *
  * @author Ben Alex
  * @version $Id$
@@ -52,7 +53,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 
     /**
      * This constructor should only be used by <code>AuthenticationManager</code> or <code>AuthenticationProvider</code>
-     * implementations that are satisfied with producing a trusted (ie {@link #isAuthenticated()} = <code>true</code>)
+     * implementations that are satisfied with producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
      * authentication token.
      *
      * @param principal

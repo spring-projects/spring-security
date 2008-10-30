@@ -15,6 +15,8 @@
 
 package org.springframework.security;
 
+import java.util.List;
+
 /**
  * Creates a new temporary {@link Authentication} object for the current secure
  * object invocation only.
@@ -71,7 +73,7 @@ public interface RunAsManager {
      * @return a replacement object to be used for duration of the secure object invocation, or <code>null</code> if
      *         the <code>Authentication</code> should be left as is
      */
-    Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config);
+    Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> config);
 
     /**
      * Indicates whether this <code>RunAsManager</code> is able to process the passed

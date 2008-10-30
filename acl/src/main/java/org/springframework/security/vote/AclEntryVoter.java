@@ -17,11 +17,11 @@ package org.springframework.security.vote;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthorizationServiceException;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AclService;
 import org.springframework.security.acls.NotFoundException;
@@ -150,11 +150,9 @@ public class AclEntryVoter extends AbstractAclVoter {
         }
     }
 
-    public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
-        Iterator iter = config.getConfigAttributes().iterator();
+    public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
 
-        while (iter.hasNext()) {
-            ConfigAttribute attr = (ConfigAttribute) iter.next();
+        for(ConfigAttribute attr : attributes) {
 
             if (!this.supports(attr)) {
                 continue;

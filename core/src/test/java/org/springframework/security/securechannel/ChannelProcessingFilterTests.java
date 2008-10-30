@@ -18,7 +18,6 @@ package org.springframework.security.securechannel;
 import junit.framework.TestCase;
 
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.SecurityConfig;
 
 import org.springframework.security.intercept.web.FilterInvocation;
@@ -208,7 +207,7 @@ public class ChannelProcessingFilterTests extends TestCase {
             this.supportAttribute = supportAttribute;
         }
 
-        public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
+        public void decide(FilterInvocation invocation, List<ConfigAttribute> config)
             throws IOException, ServletException {
             if (commitAResponse) {
                 invocation.getHttpResponse().sendRedirect("/redirected");
@@ -267,7 +266,7 @@ public class ChannelProcessingFilterTests extends TestCase {
             }
         }
 
-        public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
+        public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
             if (!provideIterator) {
                 return null;
             }

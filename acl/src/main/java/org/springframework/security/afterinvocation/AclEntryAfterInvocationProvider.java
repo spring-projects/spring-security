@@ -14,23 +14,20 @@
  */
 package org.springframework.security.afterinvocation;
 
-import org.springframework.security.AccessDeniedException;
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-
-import org.springframework.security.acls.AclService;
-import org.springframework.security.acls.Permission;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.util.Iterator;
+import org.springframework.security.AccessDeniedException;
+import org.springframework.security.Authentication;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.acls.AclService;
+import org.springframework.security.acls.Permission;
 
 
 /**
@@ -74,10 +71,10 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 
     //~ Methods ========================================================================================================
 
-    public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+    public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
             Object returnedObject) throws AccessDeniedException {
 
-        Iterator iter = config.getConfigAttributes().iterator();
+        Iterator iter = config.iterator();
 
         if (returnedObject == null) {
             // AclManager interface contract prohibits nulls
@@ -95,7 +92,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
             }
 
             return returnedObject;
-        }        
+        }
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();

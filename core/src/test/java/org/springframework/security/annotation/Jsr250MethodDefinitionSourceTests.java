@@ -12,7 +12,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 
 /**
  * @author Luke Taylor

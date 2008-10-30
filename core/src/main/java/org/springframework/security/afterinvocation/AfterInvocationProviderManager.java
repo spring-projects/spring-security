@@ -19,8 +19,6 @@ import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AfterInvocationManager;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -35,7 +33,7 @@ import java.util.List;
  * Provider-based implementation of {@link AfterInvocationManager}.<p>Handles configuration of a bean context
  * defined list of  {@link AfterInvocationProvider}s.</p>
  *  <p>Every <code>AfterInvocationProvider</code> will be polled when the {@link #decide(Authentication, Object,
- * ConfigAttributeDefinition, Object)} method is called. The <code>Object</code> returned from each provider will be
+ * List<ConfigAttribute>, Object)} method is called. The <code>Object</code> returned from each provider will be
  * presented to the successive provider for processing. This means each provider <b>must</b> ensure they return the
  * <code>Object</code>, even if they are not interested in the "after invocation" decision (perhaps as the secure
  * object invocation did not include a configuration attribute a given provider is configured to respond to).</p>
@@ -64,7 +62,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
         }
     }
 
-    public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+    public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
         Object returnedObject) throws AccessDeniedException {
         Iterator iter = this.providers.iterator();
 

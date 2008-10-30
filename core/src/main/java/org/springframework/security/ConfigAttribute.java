@@ -27,12 +27,9 @@ import java.io.Serializable;
  * patterns. These configuration attributes have special meaning to a {@link
  * RunAsManager}, {@link AccessDecisionManager} or
  * <code>AccessDecisionManager</code> delegate.
- * </p>
  *
- * <P>
- * Stored at runtime with other <code>ConfigAttribute</code>s for the same
- * secure object target within a {@link ConfigAttributeDefinition}.
- * </p>
+ * <p>
+ * Stored at runtime with other <code>ConfigAttribute</code>s for the same secure object target.
  *
  * @author Ben Alex
  * @version $Id$

@@ -14,20 +14,18 @@
  */
 package org.springframework.security.afterinvocation;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthorizationServiceException;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-
 import org.springframework.security.acls.AclService;
 import org.springframework.security.acls.Permission;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Collection;
-import java.util.Iterator;
 
 
 /**
@@ -75,7 +73,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
 
     //~ Methods ========================================================================================================
 
-    public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+    public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
             Object returnedObject) throws AccessDeniedException {
 
         if (returnedObject == null) {
@@ -86,7 +84,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
             return null;
         }
 
-        Iterator iter = config.getConfigAttributes().iterator();
+        Iterator iter = config.iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();

@@ -73,12 +73,12 @@ public final class DelegatingMethodDefinitionSource extends AbstractMethodDefini
         }
     }
 
-    public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
+    public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
         Set set = new HashSet();
         Iterator i = methodDefinitionSources.iterator();
         while (i.hasNext()) {
             MethodDefinitionSource s = (MethodDefinitionSource) i.next();
-            Collection<List<? extends ConfigAttribute>> attrs = s.getConfigAttributeDefinitions();
+            Collection<List<? extends ConfigAttribute>> attrs = s.getAllConfigAttributes();
             if (attrs != null) {
                 set.addAll(attrs);
             }

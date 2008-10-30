@@ -46,7 +46,7 @@ public class LoggerListener implements ApplicationListener {
             if (logger.isWarnEnabled()) {
                 logger.warn("Security interception failed due to: " + authEvent.getCredentialsNotFoundException()
                     + "; secure object: " + authEvent.getSource() + "; configuration attributes: "
-                    + authEvent.getConfigAttributeDefinition());
+                    + authEvent.getConfigAttributes());
             }
         }
 
@@ -57,7 +57,7 @@ public class LoggerListener implements ApplicationListener {
                 logger.warn("Security authorization failed due to: " + authEvent.getAccessDeniedException()
                     + "; authenticated principal: " + authEvent.getAuthentication()
                     + "; secure object: " + authEvent.getSource()
-                    + "; configuration attributes: " + authEvent.getConfigAttributeDefinition());
+                    + "; configuration attributes: " + authEvent.getConfigAttributes());
             }
         }
 
@@ -67,7 +67,7 @@ public class LoggerListener implements ApplicationListener {
             if (logger.isInfoEnabled()) {
                 logger.info("Security authorized for authenticated principal: " + authEvent.getAuthentication()
                     + "; secure object: " + authEvent.getSource() + "; configuration attributes: "
-                    + authEvent.getConfigAttributeDefinition());
+                    + authEvent.getConfigAttributes());
             }
         }
 

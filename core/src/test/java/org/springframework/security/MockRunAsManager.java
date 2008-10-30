@@ -16,6 +16,7 @@
 package org.springframework.security;
 
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -28,8 +29,8 @@ import java.util.Iterator;
 public class MockRunAsManager implements RunAsManager {
     //~ Methods ========================================================================================================
 
-    public Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config) {
-        Iterator iter = config.getConfigAttributes().iterator();
+    public Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> config) {
+        Iterator iter = config.iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();

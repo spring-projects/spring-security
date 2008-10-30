@@ -15,6 +15,8 @@
 
 package org.springframework.security;
 
+import java.util.List;
+
 /**
  * Reviews the <code>Object</code> returned from a secure object invocation,
  * being able to modify the <code>Object</code> or throw an {@link
@@ -60,7 +62,7 @@ public interface AfterInvocationManager {
      *
      * @throws AccessDeniedException if access is denied
      */
-    Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+    Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
         Object returnedObject) throws AccessDeniedException;
 
     /**

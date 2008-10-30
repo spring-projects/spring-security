@@ -15,40 +15,37 @@
 
 package org.springframework.security.intercept.web;
 
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.util.UrlMatcher;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.Iterator;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
-import java.util.Collections;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.util.UrlMatcher;
 
 
 /**
  * Default implementation of <tt>FilterInvocationDefinitionSource</tt>.
  * <p>
- * Stores an ordered map of compiled URL paths to <tt>ConfigAttributeDefinition</tt>s and provides URL matching
+ * Stores an ordered map of compiled URL paths to <tt>ConfigAttribute</tt> lists and provides URL matching
  * against the items stored in this map using the configured <tt>UrlMatcher</tt>.
  * <p>
  * The order of registering the regular expressions using the
- * {@link #addSecureUrl(String, ConfigAttributeDefinition)} is very important.
+ * {@link #addSecureUrl(String, List<ConfigAttribute>)} is very important.
  * The system will identify the <b>first</b>  matching regular
  * expression for a given HTTP URL. It will not proceed to evaluate later regular expressions if a match has already
  * been found. Accordingly, the most specific regular expressions should be registered first, with the most general
  * regular expressions registered last.
  * <p>
  * If URLs are registered for a particular HTTP method using
- * {@link #addSecureUrl(String, String, ConfigAttributeDefinition)}, then the method-specific matches will take
+ * {@link #addSecureUrl(String, String, List<ConfigAttribute>)}, then the method-specific matches will take
  * precedence over any URLs which are registered without an HTTP method.
  *
  * @author Ben Alex
@@ -62,7 +59,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
     protected final Log logger = LogFactory.getLog(getClass());
 
     /**
-     * Non method-specific map of URL patterns to <tt>ConfigAttributeDefinition</tt>s
+     * Non method-specific map of URL patterns to <tt>List<ConfiAttribute></tt>s
      * TODO: Store in the httpMethod map with null key.
      */
     private Map requestMap = new LinkedHashMap();
@@ -87,30 +84,30 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
      * the type of the supplied UrlMatcher.
      *
      * @param urlMatcher typically an ant or regular expression matcher.
-     * @param requestMap order-preserving map of <RequestKey, ConfigAttributeDefinition>.
+     * @param requestMap order-preserving map of request definitions to attribute lists
      */
     public DefaultFilterInvocationDefinitionSource(UrlMatcher urlMatcher,
-            LinkedHashMap<RequestKey, List<? extends ConfigAttribute>> requestMap) {
+            LinkedHashMap<RequestKey, List<ConfigAttribute>> requestMap) {
         this.urlMatcher = urlMatcher;
 
-        for (Map.Entry<RequestKey, List<? extends ConfigAttribute>> entry : requestMap.entrySet()) {
+        for (Map.Entry<RequestKey, List<ConfigAttribute>> entry : requestMap.entrySet()) {
             addSecureUrl(entry.getKey().getUrl(), entry.getKey().getMethod(), entry.getValue());
         }
     }
 
     //~ Methods ========================================================================================================
 
-    void addSecureUrl(String pattern, List<? extends ConfigAttribute> attr) {
+    void addSecureUrl(String pattern, List<ConfigAttribute> attr) {
         addSecureUrl(pattern, null, attr);
     }
 
     /**
-     * Adds a URL-ConfigAttributeDefinition pair to the request map, first allowing the <tt>UrlMatcher</tt> to
+     * Adds a URL,attribute-list pair to the request map, first allowing the <tt>UrlMatcher</tt> to
      * process the pattern if required, using its <tt>compile</tt> method. The returned object will be used as the key
      * to the request map and will be passed back to the <tt>UrlMatcher</tt> when iterating through the map to find
      * a match for a particular URL.
      */
-    void addSecureUrl(String pattern, String method, List<? extends ConfigAttribute> attr) {
+    void addSecureUrl(String pattern, String method, List<ConfigAttribute> attr) {
         Map mapToUse = getRequestMapForHttpMethod(method);
 
         mapToUse.put(urlMatcher.compile(pattern), attr);
@@ -124,7 +121,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
     /**
      * Return the HTTP method specific request map, creating it if it doesn't already exist.
      * @param method GET, POST etc
-     * @return map of URL patterns to <tt>ConfigAttributeDefinition</tt>s for this method.
+     * @return map of URL patterns to <tt>ConfigAttribute</tt>s for this method.
      */
     private Map getRequestMapForHttpMethod(String method) {
         if (method == null) {
@@ -144,7 +141,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
         return methodRequestmap;
     }
 
-    public Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions() {
+    public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
         return Collections.unmodifiableCollection(getRequestMap().values());
     }
 
@@ -175,7 +172,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
      * @param url the URI to retrieve configuration attributes for
      * @param method the HTTP method (GET, POST, DELETE...).
      *
-     * @return the <code>ConfigAttributeDefinition</code> that applies to the specified <code>FilterInvocation</code>
+     * @return the <code>ConfigAttribute</code>s that apply to the specified <code>FilterInvocation</code>
      * or null if no match is foud
      */
     public List<ConfigAttribute> lookupAttributes(String url, String method) {

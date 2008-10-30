@@ -18,12 +18,10 @@ package org.springframework.security.runas;
 import junit.framework.TestCase;
 
 import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.RunAsManager;
 import org.springframework.security.SecurityConfig;
-
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 
@@ -34,46 +32,23 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
  * @version $Id$
  */
 public class RunAsManagerImplTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public RunAsManagerImplTests() {
-        super();
-    }
-
-    public RunAsManagerImplTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(RunAsManagerImplTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testAlwaysSupportsClass() {
         RunAsManagerImpl runAs = new RunAsManagerImpl();
         assertTrue(runAs.supports(String.class));
     }
 
-    public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting()
-        throws Exception {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("SOMETHING_WE_IGNORE");
+    public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting() throws Exception {
         UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
         RunAsManagerImpl runAs = new RunAsManagerImpl();
         runAs.setKey("my_password");
 
-        Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), def);
+        Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), SecurityConfig.createList("SOMETHING_WE_IGNORE"));
         assertEquals(null, resultingToken);
     }
 
     public void testRespectsRolePrefix() throws Exception {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("RUN_AS_SOMETHING");
         UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ONE"), new GrantedAuthorityImpl("TWO")});
 
@@ -81,7 +56,7 @@ public class RunAsManagerImplTests extends TestCase {
         runAs.setKey("my_password");
         runAs.setRolePrefix("FOOBAR_");
 
-        Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), def);
+        Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), SecurityConfig.createList("RUN_AS_SOMETHING"));
 
         if (!(resultingToken instanceof RunAsUserToken)) {
             fail("Should have returned a RunAsUserToken");
@@ -98,14 +73,13 @@ public class RunAsManagerImplTests extends TestCase {
     }
 
     public void testReturnsAdditionalGrantedAuthorities() throws Exception {
-        ConfigAttributeDefinition def = new ConfigAttributeDefinition("RUN_AS_SOMETHING");
         UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
         RunAsManagerImpl runAs = new RunAsManagerImpl();
         runAs.setKey("my_password");
 
-        Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), def);
+        Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), SecurityConfig.createList("RUN_AS_SOMETHING"));
 
         if (!(resultingToken instanceof RunAsUserToken)) {
             fail("Should have returned a RunAsUserToken");

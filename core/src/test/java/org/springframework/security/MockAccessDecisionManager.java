@@ -16,6 +16,7 @@
 package org.springframework.security;
 
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -28,13 +29,10 @@ import java.util.Iterator;
 public class MockAccessDecisionManager implements AccessDecisionManager {
     //~ Methods ========================================================================================================
 
-    public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
-        throws AccessDeniedException {
-        Iterator iter = config.getConfigAttributes().iterator();
+    public void decide(Authentication authentication, Object object, List<ConfigAttribute> configAttributes)
+            throws AccessDeniedException {
 
-        while (iter.hasNext()) {
-            ConfigAttribute attr = (ConfigAttribute) iter.next();
-
+        for(ConfigAttribute attr : configAttributes) {
             if (this.supports(attr)) {
                 for (int i = 0; i < authentication.getAuthorities().length; i++) {
                     if (attr.getAttribute().equals(authentication.getAuthorities()[i].getAuthority())) {

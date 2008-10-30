@@ -15,16 +15,15 @@
 
 package org.springframework.security.intercept;
 
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-
 import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.ConfigAttribute;
 
 
 /**
  * Implemented by classes that store and can identify the {@link
- * ConfigAttributeDefinition} that applies to a given secure object
+ * ConfigAttribute}s that applies to a given secure object
  * invocation.
  *
  * @author Ben Alex
@@ -34,7 +33,7 @@ public interface ObjectDefinitionSource {
     //~ Methods ========================================================================================================
 
     /**
-     * Accesses the <code>ConfigAttributeDefinition</code> that applies to a given secure object.
+     * Accesses the <code>ConfigAttribute</code>s that apply to a given secure object.
      * <p>Returns <code>null</code> if no attributes apply.
      *
      * @param object the object being secured
@@ -47,18 +46,18 @@ public interface ObjectDefinitionSource {
     List<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException;
 
     /**
-     * If available, returns all of the <code>ConfigAttributeDefinition</code>s defined by the implementing class.
+     * If available, returns all of the <code>ConfigAttribute</code>s defined by the implementing class.
      * <p>
      * This is used by the {@link AbstractSecurityInterceptor} to perform startup time validation of each
      * <code>ConfigAttribute</code> configured against it.
      *
-     * @return the <code>ConfigAttributeDefinition</code>s or <code>null</code> if unsupported
+     * @return the <code>ConfigAttribute</code>s or <code>null</code> if unsupported
      */
-    Collection<List<? extends ConfigAttribute>> getConfigAttributeDefinitions();
+    Collection<List<? extends ConfigAttribute>> getAllConfigAttributes();
 
     /**
      * Indicates whether the <code>ObjectDefinitionSource</code> implementation is able to provide
-     * <code>ConfigAttributeDefinition</code>s for the indicated secure object type.
+     * <code>ConfigAttribute</code>s for the indicated secure object type.
      *
      * @param clazz the class that is being queried
      *

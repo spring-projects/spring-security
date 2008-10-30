@@ -1,7 +1,12 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.*;
-import static org.springframework.security.config.ConfigTestUtils.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
 
 import java.lang.reflect.Method;
 import java.util.Iterator;
@@ -10,14 +15,12 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 import org.springframework.security.MockAuthenticationEntryPoint;
 import org.springframework.security.MockFilterChain;
 import org.springframework.security.SecurityConfig;
