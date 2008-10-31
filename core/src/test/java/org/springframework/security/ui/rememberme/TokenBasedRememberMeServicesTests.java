@@ -332,9 +332,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         request.addParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER, "false");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        services.loginSuccess(request, response,
-            new TestingAuthenticationToken("someone", "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")}));
+        services.loginSuccess(request, response, new TestingAuthenticationToken("someone", "password","ROLE_ABC"));
 
         Cookie cookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
         assertNull(cookie);
@@ -349,9 +347,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         request.addParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER, "true");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        services.loginSuccess(request, response,
-            new TestingAuthenticationToken("someone", "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")}));
+        services.loginSuccess(request, response, new TestingAuthenticationToken("someone", "password","ROLE_ABC"));
 
         Cookie cookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
         String expiryTime = services.decodeCookie(cookie.getValue())[1];
@@ -373,9 +369,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         UserDetails user = new User("someone", "password", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
-        services.loginSuccess(request, response,
-            new TestingAuthenticationToken(user, "ignored",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")}));
+        services.loginSuccess(request, response, new TestingAuthenticationToken("someone", "password","ROLE_ABC"));
 
         Cookie cookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(cookie);

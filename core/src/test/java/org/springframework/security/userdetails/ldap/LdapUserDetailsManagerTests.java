@@ -14,28 +14,32 @@
  */
 package org.springframework.security.userdetails.ldap;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.List;
+
+import org.junit.After;
+import org.junit.Test;
+import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.ldap.core.DirContextAdapter;
-
-import org.junit.After;
-import static org.junit.Assert.*;
-import org.junit.Test;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  * @author Luke Taylor
  * @version $Id$
  */
 public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
-    private static final GrantedAuthority[] TEST_AUTHORITIES = new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_CLOWNS"),
-                new GrantedAuthorityImpl("ROLE_ACROBATS")};
+    private static final List<GrantedAuthority> TEST_AUTHORITIES = AuthorityUtils.createAuthorityList("ROLE_CLOWNS","ROLE_ACROBATS");
     private LdapUserDetailsManager mgr;
     private SpringSecurityLdapTemplate template;
 
@@ -94,7 +98,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         assertEquals("uid=bob, ou=people, dc=springframework, dc=org", bob.getDn());
         assertEquals("bobspassword", bob.getPassword());
 
-        assertEquals(1, bob.getAuthorities().length);
+        assertEquals(1, bob.getAuthorities().size());
     }
 
     @Test(expected = UsernameNotFoundException.class)
@@ -150,7 +154,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 
         InetOrgPerson don = (InetOrgPerson) mgr.loadUserByUsername("don");
 
-        assertEquals(2, don.getAuthorities().length);
+        assertEquals(2, don.getAuthorities().size());
 
         mgr.deleteUser("don");
 
@@ -162,7 +166,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         }
 
         // Check that no authorities are left
-        assertEquals(0, mgr.getUserAuthorities(mgr.usernameMapper.buildDn("don"), "don").length);
+        assertEquals(0, mgr.getUserAuthorities(mgr.usernameMapper.buildDn("don"), "don").size());
     }
 
     @Test

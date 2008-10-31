@@ -82,7 +82,7 @@ public class RemoteAuthenticationProviderTests extends TestCase {
         Authentication result = provider.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
         assertEquals("rod", result.getPrincipal());
         assertEquals("password", result.getCredentials());
-        assertEquals("foo", result.getAuthorities()[0].getAuthority());
+        assertEquals("foo", result.getAuthorities().get(0).getAuthority());
     }
 
     public void testSupports() {

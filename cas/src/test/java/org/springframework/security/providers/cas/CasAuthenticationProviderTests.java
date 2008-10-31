@@ -61,13 +61,13 @@ public class CasAuthenticationProviderTests {
         return new User("user", "password", true, true, true, true,
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B")});
     }
-    
+
     private ServiceProperties makeServiceProperties() {
-    	final ServiceProperties serviceProperties = new ServiceProperties();
-    	serviceProperties.setSendRenew(false);
-    	serviceProperties.setService("http://test.com");
-    	
-    	return serviceProperties;
+        final ServiceProperties serviceProperties = new ServiceProperties();
+        serviceProperties.setSendRenew(false);
+        serviceProperties.setService("http://test.com");
+
+        return serviceProperties;
     }
 
     @Test
@@ -79,7 +79,7 @@ public class CasAuthenticationProviderTests {
         StatelessTicketCache cache = new MockStatelessTicketCache();
         cap.setStatelessTicketCache(cache);
         cap.setServiceProperties(makeServiceProperties());
-        
+
         cap.setTicketValidator(new MockTicketValidator(true));
         cap.afterPropertiesSet();
 
@@ -99,8 +99,8 @@ public class CasAuthenticationProviderTests {
         CasAuthenticationToken casResult = (CasAuthenticationToken) result;
         assertEquals(makeUserDetailsFromAuthoritiesPopulator(), casResult.getPrincipal());
         assertEquals("ST-123", casResult.getCredentials());
-        assertEquals(new GrantedAuthorityImpl("ROLE_A"), casResult.getAuthorities()[0]);
-        assertEquals(new GrantedAuthorityImpl("ROLE_B"), casResult.getAuthorities()[1]);
+        assertEquals(new GrantedAuthorityImpl("ROLE_A"), casResult.getAuthorities().get(0));
+        assertEquals(new GrantedAuthorityImpl("ROLE_B"), casResult.getAuthorities().get(1));
         assertEquals(cap.getKey().hashCode(), casResult.getKeyHash());
         assertEquals("details", casResult.getDetails());
 
@@ -171,7 +171,7 @@ public class CasAuthenticationProviderTests {
 
     @Test(expected = BadCredentialsException.class)
     public void invalidKeyIsDetected() throws Exception {
-    	final Assertion assertion = new AssertionImpl("test");
+        final Assertion assertion = new AssertionImpl("test");
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
         cap.setUserDetailsService(new MockAuthoritiesPopulator());
         cap.setKey("qwerty");
@@ -322,11 +322,11 @@ public class CasAuthenticationProviderTests {
         }
 
         public Assertion validate(final String ticket, final String service)
-				throws TicketValidationException {
-        	if (returnTicket) {
-        		return new AssertionImpl("rod");
-        	}
-        	throw new BadCredentialsException("As requested from mock");
-		}
+                throws TicketValidationException {
+            if (returnTicket) {
+                return new AssertionImpl("rod");
+            }
+            throw new BadCredentialsException("As requested from mock");
+        }
     }
 }

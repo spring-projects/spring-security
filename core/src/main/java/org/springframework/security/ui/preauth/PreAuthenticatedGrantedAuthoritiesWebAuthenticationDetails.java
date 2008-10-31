@@ -1,5 +1,7 @@
 package org.springframework.security.ui.preauth;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.ui.WebAuthenticationDetails;
@@ -25,11 +27,11 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends 
 		super(request);
 	}
 
-	public GrantedAuthority[] getGrantedAuthorities() {
+	public List<GrantedAuthority> getGrantedAuthorities() {
 		return authoritiesContainer.getGrantedAuthorities();
 	}
 
-	public void setGrantedAuthorities(GrantedAuthority[] authorities) {
+	public void setGrantedAuthorities(List<GrantedAuthority> authorities) {
 		this.authoritiesContainer.setGrantedAuthorities(authorities);
 	}
 	

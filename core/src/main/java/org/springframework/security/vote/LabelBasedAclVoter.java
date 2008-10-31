@@ -186,9 +186,9 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
              */
             List userLabels = new Vector();
 
-            for (int i = 0; i < authentication.getAuthorities().length; i++) {
-                if (labelMap.containsKey(authentication.getAuthorities()[i].getAuthority())) {
-                    String userLabel = authentication.getAuthorities()[i].getAuthority();
+            for (int i = 0; i < authentication.getAuthorities().size(); i++) {
+                String userLabel = authentication.getAuthorities().get(i).getAuthority();
+                if (labelMap.containsKey(userLabel)) {
                     userLabels.add(userLabel);
                     logger.debug("Adding " + userLabel + " to <<<" + authentication.getName()
                         + "'s>>> authorized label list");

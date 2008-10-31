@@ -134,7 +134,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
         assertNotNull(postAuth.getPrincipal());
         assertEquals(preAuth.getPrincipal(), postAuth.getPrincipal());
         assertNotNull(postAuth.getAuthorities());
-        assertTrue(postAuth.getAuthorities().length > 0);
+        assertTrue(postAuth.getAuthorities().size() > 0);
         assertTrue(((OpenIDAuthenticationToken) postAuth).getStatus() == OpenIDAuthenticationStatus.SUCCESS);
         assertTrue(((OpenIDAuthenticationToken) postAuth).getMessage() == null);
     }

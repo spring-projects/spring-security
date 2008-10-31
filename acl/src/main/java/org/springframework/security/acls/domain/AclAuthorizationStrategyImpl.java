@@ -15,6 +15,8 @@
 
 package org.springframework.security.acls.domain;
 
+import java.util.List;
+
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
@@ -100,10 +102,10 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
         }
 
         // Iterate this principal's authorities to determine right
-        GrantedAuthority[] auths = authentication.getAuthorities();
+        List<GrantedAuthority> auths = authentication.getAuthorities();
 
-        for (int i = 0; i < auths.length; i++) {
-            if (requiredAuthority.equals(auths[i])) {
+        for (int i = 0; i < auths.size(); i++) {
+            if (requiredAuthority.equals(auths.get(i))) {
                 return;
             }
         }

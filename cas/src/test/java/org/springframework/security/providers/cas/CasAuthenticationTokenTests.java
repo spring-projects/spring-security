@@ -64,7 +64,7 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     public void testConstructorRejectsNulls() {
-    	final Assertion assertion = new AssertionImpl("test");
+        final Assertion assertion = new AssertionImpl("test");
         try {
             new CasAuthenticationToken(null, makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
@@ -93,13 +93,6 @@ public class CasAuthenticationTokenTests extends TestCase {
         }
 
         try {
-            new CasAuthenticationToken("key", makeUserDetails(), "Password", null, makeUserDetails(), assertion);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-
-        try {
             new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 makeUserDetails(), null);
@@ -116,7 +109,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
-   
+
 
         try {
             new CasAuthenticationToken("key", makeUserDetails(), "Password",
@@ -129,7 +122,7 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     public void testEqualsWhenEqual() {
-    	final Assertion assertion = new AssertionImpl("test");
+        final Assertion assertion = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
@@ -144,15 +137,15 @@ public class CasAuthenticationTokenTests extends TestCase {
 
     public void testGetters() {
         // Build the proxy list returned in the ticket from CAS
-    	final Assertion assertion = new AssertionImpl("test");
+        final Assertion assertion = new AssertionImpl("test");
         CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 makeUserDetails(), assertion);
         assertEquals("key".hashCode(), token.getKeyHash());
         assertEquals(makeUserDetails(), token.getPrincipal());
         assertEquals("Password", token.getCredentials());
-        assertEquals("ROLE_ONE", token.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", token.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_ONE", token.getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_TWO", token.getAuthorities().get(1).getAuthority());
         assertEquals(assertion, token.getAssertion());
         assertEquals(makeUserDetails().getUsername(), token.getUserDetails().getUsername());
     }
@@ -169,7 +162,7 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     public void testNotEqualsDueToAbstractParentEqualsCheck() {
-    	final Assertion assertion = new AssertionImpl("test");
+        final Assertion assertion = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
@@ -183,7 +176,7 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     public void testNotEqualsDueToDifferentAuthenticationClass() {
-    	final Assertion assertion = new AssertionImpl("test");
+        final Assertion assertion = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
@@ -196,7 +189,7 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     public void testNotEqualsDueToKey() {
-    	final Assertion assertion = new AssertionImpl("test");
+        final Assertion assertion = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
@@ -210,8 +203,8 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     public void testNotEqualsDueToAssertion() {
-    	final Assertion assertion = new AssertionImpl("test");
-    	final Assertion assertion2 = new AssertionImpl("test");
+        final Assertion assertion = new AssertionImpl("test");
+        final Assertion assertion2 = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
@@ -225,7 +218,7 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     public void testSetAuthenticated() {
-    	final Assertion assertion = new AssertionImpl("test");
+        final Assertion assertion = new AssertionImpl("test");
         CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 makeUserDetails(), assertion);
@@ -235,7 +228,7 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     public void testToString() {
-    	final Assertion assertion = new AssertionImpl("test");
+        final Assertion assertion = new AssertionImpl("test");
         CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 makeUserDetails(), assertion);

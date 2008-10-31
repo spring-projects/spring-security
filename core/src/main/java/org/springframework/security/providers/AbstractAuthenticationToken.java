@@ -16,15 +16,18 @@
 package org.springframework.security.providers;
 
 import java.security.Principal;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
-import org.springframework.util.Assert;
 
 
 /**
- * Base class for <code>Authentication</code> objects.<p>Implementations which use this class should be immutable.</p>
+ * Base class for <code>Authentication</code> objects.
+ * <p>
+ * Implementations which use this class should be immutable.
  *
  * @author Ben Alex
  * @author Luke Taylor
@@ -34,21 +37,10 @@ public abstract class AbstractAuthenticationToken implements Authentication {
     //~ Instance fields ================================================================================================
 
     private Object details;
-    private GrantedAuthority[] authorities;
+    private List<GrantedAuthority> authorities;
     private boolean authenticated = false;
 
     //~ Constructors ===================================================================================================
-
-    /**
-     * Retained for compatibility with subclasses written before the
-     * <tt>AbstractAuthenticationToken(GrantedAuthority[])</tt> constructor
-     * was introduced.
-     *
-     * @deprecated in favour of the constructor which takes a
-     *             <code>GrantedAuthority[]</code> argument.
-     */
-    public AbstractAuthenticationToken() {
-    }
 
     /**
      * Creates a token with the supplied array of authorities.
@@ -60,82 +52,70 @@ public abstract class AbstractAuthenticationToken implements Authentication {
      *                    Authentication#getAuthorities()}<code>null</code> should only be
      *                    presented if the principal has not been authenticated).
      */
-    public AbstractAuthenticationToken(GrantedAuthority[] authorities) {
+    public AbstractAuthenticationToken(List<GrantedAuthority> authorities) {
         if (authorities != null) {
-            for (int i = 0; i < authorities.length; i++) {
-                Assert.notNull(authorities[i],
-                        "Granted authority element " + i + " is null - GrantedAuthority[] cannot contain any null elements");
+            for (int i = 0; i < authorities.size(); i++) {
+                if(authorities.get(i) == null) {
+                    throw new IllegalArgumentException("Granted authority element " + i
+                            + " is null - GrantedAuthority[] cannot contain any null elements");
+                }
             }
+            this.authorities = Collections.unmodifiableList(authorities);
         }
-
-        this.authorities = authorities;
     }
 
     //~ Methods ========================================================================================================
 
     public boolean equals(Object obj) {
-        if (obj instanceof AbstractAuthenticationToken) {
-            AbstractAuthenticationToken test = (AbstractAuthenticationToken) obj;
-
-            if (!((this.getAuthorities() == null) && (test.getAuthorities() == null))) {
-                if ((this.getAuthorities() == null) || (test.getAuthorities() == null)) {
-                    return false;
-                }
-
-                if (this.getAuthorities().length != test.getAuthorities().length) {
-                    return false;
-                }
-
-                for (int i = 0; i < this.getAuthorities().length; i++) {
-                    if (!this.getAuthorities()[i].equals(test.getAuthorities()[i])) {
-                        return false;
-                    }
-                }
-            }
-
-            if ((this.details == null) && (test.getDetails() != null)) {
-                return false;
-            }
-
-            if ((this.details != null) && (test.getDetails() == null)) {
-                return false;
-            }
-
-            if ((this.details != null) && (!this.details.equals(test.getDetails()))) {
-                return false;
-            }
-
-            if ((this.getCredentials() == null) && (test.getCredentials() != null)) {
-                return false;
-            }
-
-            if ((this.getCredentials() != null) && !this.getCredentials().equals(test.getCredentials())) {
-                return false;
-            }
-            
-            if (this.getPrincipal() == null && test.getPrincipal() != null) {
-                return false;
-            }
-
-            if (this.getPrincipal() != null && !this.getPrincipal().equals(test.getPrincipal())) {
-                return false;
-            }            
-            
-            return this.isAuthenticated() == test.isAuthenticated();
+        if (!(obj instanceof AbstractAuthenticationToken)) {
+            return false;
         }
 
-        return false;
+        AbstractAuthenticationToken test = (AbstractAuthenticationToken) obj;
+
+        if (!(authorities == null && test.authorities == null)) {
+            // Not both null
+            if (authorities == null || test.authorities == null) {
+                return false;
+            }
+            if(!authorities.equals(test.authorities)) {
+                return false;
+            }
+        }
+
+        if ((this.details == null) && (test.getDetails() != null)) {
+            return false;
+        }
+
+        if ((this.details != null) && (test.getDetails() == null)) {
+            return false;
+        }
+
+        if ((this.details != null) && (!this.details.equals(test.getDetails()))) {
+            return false;
+        }
+
+        if ((this.getCredentials() == null) && (test.getCredentials() != null)) {
+            return false;
+        }
+
+        if ((this.getCredentials() != null) && !this.getCredentials().equals(test.getCredentials())) {
+            return false;
+        }
+
+        if (this.getPrincipal() == null && test.getPrincipal() != null) {
+            return false;
+        }
+
+        if (this.getPrincipal() != null && !this.getPrincipal().equals(test.getPrincipal())) {
+            return false;
+        }
+
+        return this.isAuthenticated() == test.isAuthenticated();
     }
 
-    public GrantedAuthority[] getAuthorities() {
-        if (authorities == null) {
-            return null;
-        }
-
-        GrantedAuthority[] copy = new GrantedAuthority[authorities.length];
-        System.arraycopy(authorities, 0, copy, 0, authorities.length);
-
-        return copy;
+    public List<GrantedAuthority> getAuthorities() {
+        return authorities;
     }
 
     public Object getDetails() {
@@ -146,7 +126,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
         if (this.getPrincipal() instanceof UserDetails) {
             return ((UserDetails) this.getPrincipal()).getUsername();
         }
-        
+
         if (getPrincipal() instanceof Principal) {
             return ((Principal)getPrincipal()).getName();
         }
@@ -157,12 +137,9 @@ public abstract class AbstractAuthenticationToken implements Authentication {
     public int hashCode() {
         int code = 31;
 
-        // Copy authorities to local variable for performance (SEC-223)
-        GrantedAuthority[] authorities = this.getAuthorities();
-
         if (authorities != null) {
-            for (int i = 0; i < authorities.length; i++) {
-                code ^= authorities[i].hashCode();
+            for (GrantedAuthority authority : authorities) {
+                code ^= authority.hashCode();
             }
         }
 
@@ -205,15 +182,16 @@ public abstract class AbstractAuthenticationToken implements Authentication {
         sb.append("Authenticated: ").append(this.isAuthenticated()).append("; ");
         sb.append("Details: ").append(this.getDetails()).append("; ");
 
-        if (this.getAuthorities() != null) {
+        if (authorities != null) {
             sb.append("Granted Authorities: ");
 
-            for (int i = 0; i < this.getAuthorities().length; i++) {
-                if (i > 0) {
+            int i = 0;
+            for (GrantedAuthority authority: authorities) {
+                if (i++ > 0) {
                     sb.append(", ");
                 }
 
-                sb.append(this.getAuthorities()[i].toString());
+                sb.append(authority);
             }
         } else {
             sb.append("Not granted any authorities");

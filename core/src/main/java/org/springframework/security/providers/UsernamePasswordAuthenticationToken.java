@@ -15,6 +15,9 @@
 
 package org.springframework.security.providers;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.security.GrantedAuthority;
 
 
@@ -52,6 +55,13 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
     }
 
     /**
+     * @deprecated use the list of authorities version
+     */
+    public UsernamePasswordAuthenticationToken(Object principal, Object credentials, GrantedAuthority[] authorities) {
+        this(principal, credentials, Arrays.asList(authorities));
+    }
+
+    /**
      * This constructor should only be used by <code>AuthenticationManager</code> or <code>AuthenticationProvider</code>
      * implementations that are satisfied with producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
      * authentication token.
@@ -60,12 +70,13 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
      * @param credentials
      * @param authorities
      */
-    public UsernamePasswordAuthenticationToken(Object principal, Object credentials, GrantedAuthority[] authorities) {
+    public UsernamePasswordAuthenticationToken(Object principal, Object credentials, List<GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
         super.setAuthenticated(true); // must use super, as we override
     }
+
 
     //~ Methods ========================================================================================================
 

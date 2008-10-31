@@ -23,6 +23,8 @@ import org.springframework.security.providers.AbstractAuthenticationToken;
 import org.springframework.security.userdetails.UserDetails;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Represents a successful CAS <code>Authentication</code>.
@@ -43,7 +45,15 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
+     * @deprecated
+     */
+    public CasAuthenticationToken(final String key, final Object principal, final Object credentials,
+            final GrantedAuthority[] authorities, final UserDetails userDetails, final Assertion assertion) {
+        this(key, principal, credentials, Arrays.asList(authorities), userDetails, assertion);
+    }
+
+    /**
      * Constructor.
      *
      * @param key to identify if this object made by a given {@link
@@ -61,7 +71,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
     public CasAuthenticationToken(final String key, final Object principal, final Object credentials,
-        final GrantedAuthority[] authorities, final UserDetails userDetails, final Assertion assertion) {
+        final List<GrantedAuthority> authorities, final UserDetails userDetails, final Assertion assertion) {
         super(authorities);
 
         if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal) || (credentials == null)
@@ -86,9 +96,9 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 
         if (obj instanceof CasAuthenticationToken) {
             CasAuthenticationToken test = (CasAuthenticationToken) obj;
-            
+
             if (!this.assertion.equals(test.getAssertion())) {
-            	return false;
+                return false;
             }
 
             if (this.getKeyHash() != test.getKeyHash()) {

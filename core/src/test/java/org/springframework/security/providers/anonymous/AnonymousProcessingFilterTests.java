@@ -150,8 +150,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
         assertEquals(originalAuth, SecurityContextHolder.getContext().getAuthentication());
     }
 
-    public void testOperationWhenNoAuthenticationInSecurityContextHolder()
-        throws Exception {
+    public void testOperationWhenNoAuthenticationInSecurityContextHolder() throws Exception {
         UserAttribute user = new UserAttribute();
         user.setPassword("anonymousUsername");
         user.addAuthority(new GrantedAuthorityImpl("ROLE_ANONYMOUS"));
@@ -169,7 +168,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         assertEquals("anonymousUsername", auth.getPrincipal());
-        assertEquals(new GrantedAuthorityImpl("ROLE_ANONYMOUS"), auth.getAuthorities()[0]);
+        assertEquals(new GrantedAuthorityImpl("ROLE_ANONYMOUS"), auth.getAuthorities().get(0));
         SecurityContextHolder.getContext().setAuthentication(null); // so anonymous fires again
 
         // Now test operation if we have removeAfterRequest = true

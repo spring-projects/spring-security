@@ -79,8 +79,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
         RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
         aap.setKey("qwerty");
 
-        TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
+        TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password","ROLE_A");
         assertFalse(aap.supports(TestingAuthenticationToken.class));
 
         // Try it anyway

@@ -27,8 +27,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.naming.directory.SearchControls;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 
@@ -158,7 +161,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * @return the extra roles which will be merged with those returned by the group search
      */
 
-    protected Set getAdditionalRoles(DirContextOperations user, String username) {
+    protected Set<GrantedAuthority> getAdditionalRoles(DirContextOperations user, String username) {
         return null;
     }
 
@@ -169,14 +172,14 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * @param user the user who's authorities are required
      * @return the set of roles granted to the user.
      */
-    public final GrantedAuthority[] getGrantedAuthorities(DirContextOperations user, String username) {
+    public final List<GrantedAuthority> getGrantedAuthorities(DirContextOperations user, String username) {
         String userDn = user.getNameInNamespace();
 
         if (logger.isDebugEnabled()) {
             logger.debug("Getting authorities for user " + userDn);
         }
 
-        Set roles = getGroupMembershipRoles(userDn, username);
+        Set<GrantedAuthority> roles = getGroupMembershipRoles(userDn, username);
 
         Set extraRoles = getAdditionalRoles(user, username);
 
@@ -188,10 +191,13 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
             roles.add(defaultRole);
         }
 
-        return (GrantedAuthority[]) roles.toArray(new GrantedAuthority[roles.size()]);
+        List<GrantedAuthority> result = new ArrayList<GrantedAuthority>(roles.size());
+        result.addAll(roles);
+
+        return result;
     }
 
-    public Set getGroupMembershipRoles(String userDn, String username) {
+    public Set<GrantedAuthority> getGroupMembershipRoles(String userDn, String username) {
         Set authorities = new HashSet();
 
         if (getGroupSearchBase() == null) {

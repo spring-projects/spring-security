@@ -98,27 +98,30 @@ public class RoleHierarchyImpl implements RoleHierarchy {
         buildRolesReachableInOneOrMoreStepsMap();
     }
 
-    public GrantedAuthority[] getReachableGrantedAuthorities(GrantedAuthority[] authorities) {
-        if (authorities == null || authorities.length == 0) {
+    public List<GrantedAuthority> getReachableGrantedAuthorities(List<GrantedAuthority> authorities) {
+        if (authorities == null || authorities.isEmpty()) {
             return null;
         }
 
-        Set reachableRoles = new HashSet();
+        Set<GrantedAuthority> reachableRoles = new HashSet<GrantedAuthority>();
 
-        for (int i = 0; i < authorities.length; i++) {
-            reachableRoles.add(authorities[i]);
-            Set additionalReachableRoles = (Set) rolesReachableInOneOrMoreStepsMap.get(authorities[i]);
+        for (GrantedAuthority authority : authorities) {
+            reachableRoles.add(authority);
+            Set additionalReachableRoles = (Set) rolesReachableInOneOrMoreStepsMap.get(authority);
             if (additionalReachableRoles != null) {
                 reachableRoles.addAll(additionalReachableRoles);
             }
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("getReachableGrantedAuthorities() - From the roles " + Arrays.asList(authorities)
+            logger.debug("getReachableGrantedAuthorities() - From the roles " + authorities
                     + " one can reach " + reachableRoles + " in zero or more steps.");
         }
 
-        return (GrantedAuthority[]) reachableRoles.toArray(new GrantedAuthority[reachableRoles.size()]);
+        List<GrantedAuthority> reachableRoleList = new ArrayList<GrantedAuthority>(reachableRoles.size());
+        reachableRoleList.addAll(reachableRoles);
+
+        return reachableRoleList;
     }
 
     /**

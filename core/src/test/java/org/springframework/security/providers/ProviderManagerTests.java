@@ -25,7 +25,9 @@ import org.springframework.security.AccountStatusException;
 import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.concurrent.NullConcurrentSessionController;
 import org.springframework.security.concurrent.ConcurrentLoginException;
+import org.springframework.security.util.AuthorityUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
@@ -55,8 +57,7 @@ public class ProviderManagerTests {
 
     @Test
     public void authenticationSucceedsWithSupportedTokenAndReturnsExpectedObject() throws Exception {
-        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password","ROLE_ONE","ROLE_TWO");
 
         ProviderManager mgr = makeProviderManager();
         mgr.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
@@ -70,15 +71,12 @@ public class ProviderManagerTests {
         TestingAuthenticationToken castResult = (TestingAuthenticationToken) result;
         assertEquals("Test", castResult.getPrincipal());
         assertEquals("Password", castResult.getCredentials());
-        assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
+        assertEquals(AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO"), castResult.getAuthorities());
     }
 
     @Test
     public void authenticationSuccessWhenFirstProviderReturnsNullButSecondAuthenticates() {
-        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
-
+        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password","ROLE_ONE","ROLE_TWO");
         ProviderManager mgr = makeProviderManagerWithMockProviderWhichReturnsNullInList();
         mgr.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
 
@@ -91,8 +89,8 @@ public class ProviderManagerTests {
         TestingAuthenticationToken castResult = (TestingAuthenticationToken) result;
         assertEquals("Test", castResult.getPrincipal());
         assertEquals("Password", castResult.getCredentials());
-        assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_ONE", castResult.getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_TWO", castResult.getAuthorities().get(1).getAuthority());
     }
 
     @Test
@@ -193,7 +191,7 @@ public class ProviderManagerTests {
     }
 
     private TestingAuthenticationToken createAuthenticationToken() {
-        return new TestingAuthenticationToken("name", "password", new GrantedAuthorityImpl[0]);
+        return new TestingAuthenticationToken("name", "password", new ArrayList<GrantedAuthority>(0));
     }
 
     private ProviderManager makeProviderManager() throws Exception {
@@ -221,7 +219,7 @@ public class ProviderManagerTests {
 
         return mgr;
     }
-    
+
     //~ Inner Classes ==================================================================================================
 
     private class MockProvider implements AuthenticationProvider {

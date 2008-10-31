@@ -1,9 +1,12 @@
 package org.springframework.security.providers.preauth;
 
+import java.util.Arrays;
+
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
+import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsChecker;
@@ -34,7 +37,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     private static final Log logger = LogFactory.getLog(PreAuthenticatedAuthenticationProvider.class);
 
     private AuthenticationUserDetailsService preAuthenticatedUserDetailsService = null;
-    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker(); 
+    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
     private boolean throwExceptionWhenTokenRejected = false;
 
     private int order = -1; // default: same as non-ordered
@@ -63,7 +66,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 
         if (authentication.getPrincipal() == null) {
             logger.debug("No pre-authenticated principal found in request.");
-            
+
             if (throwExceptionWhenTokenRejected) {
                 throw new BadCredentialsException("No pre-authenticated principal found in request.");
             }
@@ -75,16 +78,17 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 
             if (throwExceptionWhenTokenRejected) {
                 throw new BadCredentialsException("No pre-authenticated credentials found in request.");
-            }            
+            }
             return null;
         }
-        
+
         UserDetails ud = preAuthenticatedUserDetailsService.loadUserDetails(authentication);
 
         userDetailsChecker.check(ud);
 
         PreAuthenticatedAuthenticationToken result =
-                new PreAuthenticatedAuthenticationToken(ud, authentication.getCredentials(), ud.getAuthorities());
+                new PreAuthenticatedAuthenticationToken(ud, authentication.getCredentials(),
+                        ud.getAuthorities().toArray(new GrantedAuthority[0]));
         result.setDetails(authentication.getDetails());
 
         return result;
@@ -114,22 +118,22 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
         order = i;
     }
 
-    /** 
-     * If true, causes the provider to throw a BadCredentialsException if the presented authentication 
-     * request is invalid (contains a null principal or credentials). Otherwise it will just return 
+    /**
+     * If true, causes the provider to throw a BadCredentialsException if the presented authentication
+     * request is invalid (contains a null principal or credentials). Otherwise it will just return
      * null. Defaults to false.
-     */    
+     */
     public void setThrowExceptionWhenTokenRejected(boolean throwExceptionWhenTokenRejected) {
         this.throwExceptionWhenTokenRejected = throwExceptionWhenTokenRejected;
     }
 
     /**
      * Sets the strategy which will be used to validate the loaded <tt>UserDetails</tt> object
-     * for the user. Defaults to an {@link AccountStatusUserDetailsChecker}. 
+     * for the user. Defaults to an {@link AccountStatusUserDetailsChecker}.
      * @param userDetailsChecker
      */
-	public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
-		Assert.notNull(userDetailsChecker, "userDetailsChacker cannot be null");
-		this.userDetailsChecker = userDetailsChecker;
-	}
+    public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
+        Assert.notNull(userDetailsChecker, "userDetailsChacker cannot be null");
+        this.userDetailsChecker = userDetailsChecker;
+    }
 }

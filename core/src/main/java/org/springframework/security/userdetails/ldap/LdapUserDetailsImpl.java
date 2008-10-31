@@ -50,7 +50,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
     private String dn;
     private String password;
     private String username;
-    private GrantedAuthority[] authorities = AuthorityUtils.NO_AUTHORITIES;
+    private List<GrantedAuthority> authorities = AuthorityUtils.NO_AUTHORITIES;
     private boolean accountNonExpired = true;
     private boolean accountNonLocked = true;
     private boolean credentialsNonExpired = true;
@@ -62,7 +62,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
 
     //~ Methods ========================================================================================================
 
-    public GrantedAuthority[] getAuthorities() {
+    public List<GrantedAuthority> getAuthorities() {
         return authorities;
     }
 
@@ -107,12 +107,12 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
         if (this.getAuthorities() != null) {
             sb.append("Granted Authorities: ");
 
-            for (int i = 0; i < this.getAuthorities().length; i++) {
+            for (int i = 0; i < this.getAuthorities().size(); i++) {
                 if (i > 0) {
                     sb.append(", ");
                 }
 
-                sb.append(this.getAuthorities()[i].toString());
+                sb.append(this.getAuthorities().get(i).toString());
             }
         } else {
             sb.append("Not granted any authorities");
@@ -184,8 +184,8 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
             return newInstance;
         }
 
-        public GrantedAuthority[] getGrantedAuthorities() {
-            return (GrantedAuthority[]) mutableAuthorities.toArray(new GrantedAuthority[0]);
+        public List<GrantedAuthority> getGrantedAuthorities() {
+            return mutableAuthorities;
         }
 
         public void setAccountNonExpired(boolean accountNonExpired) {
@@ -196,8 +196,8 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
             instance.accountNonLocked = accountNonLocked;
         }
 
-        public void setAuthorities(GrantedAuthority[] authorities) {
-            mutableAuthorities = new ArrayList(Arrays.asList(authorities));
+        public void setAuthorities(List<GrantedAuthority> authorities) {
+            mutableAuthorities = authorities;
         }
 
         public void setCredentialsNonExpired(boolean credentialsNonExpired) {

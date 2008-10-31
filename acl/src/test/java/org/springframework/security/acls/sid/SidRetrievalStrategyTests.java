@@ -4,13 +4,11 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.providers.TestingAuthenticationToken;
 
 /**
  * Tests for {@link SidRetrievalStrategyImpl}
- * 
+ *
  * @author Andrei Stefan
  */
 public class SidRetrievalStrategyTests extends TestCase {
@@ -18,8 +16,7 @@ public class SidRetrievalStrategyTests extends TestCase {
     //~ Methods ========================================================================================================
 
     public void testSidsRetrieval() throws Exception {
-        Authentication authentication = new TestingAuthenticationToken("scott", "password", new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl("ROLE_2"), new GrantedAuthorityImpl("ROLE_3") });
+        Authentication authentication = new TestingAuthenticationToken("scott", "password", "ROLE_1", "ROLE_2", "ROLE_3");
         SidRetrievalStrategy retrStrategy = new SidRetrievalStrategyImpl();
         Sid[] sids = retrStrategy.getSids(authentication);
 

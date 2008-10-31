@@ -15,6 +15,8 @@
 
 package org.springframework.security.ui.ntlm;
 
+import java.util.List;
+
 import jcifs.smb.NtlmPasswordAuthentication;
 
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
@@ -29,29 +31,29 @@ import org.springframework.security.util.AuthorityUtils;
  */
 public class NtlmUsernamePasswordAuthenticationToken extends UsernamePasswordAuthenticationToken {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Dummy authority array which is passed to the constructor of the parent class,
      * ensuring that the "authenticated" property is set to "true" by default. See SEC-609.
      */
-    private static final GrantedAuthority[] NTLM_AUTHENTICATED =
-            AuthorityUtils.stringArrayToAuthorityArray(new String[] {"NTLM_AUTHENTICATED"});
+    private static final List<GrantedAuthority> NTLM_AUTHENTICATED =
+            AuthorityUtils.createAuthorityList("NTLM_AUTHENTICATED");
 
     /**
-	 * Spring Security often checks password ; but we do not have one. This is the replacement password
-	 */
-	public static final String DEFAULT_PASSWORD = "";
+     * Spring Security often checks password ; but we do not have one. This is the replacement password
+     */
+    public static final String DEFAULT_PASSWORD = "";
 
-	/**
-	 * Create an NTLM {@link UsernamePasswordAuthenticationToken} using the
-	 * JCIFS {@link NtlmPasswordAuthentication} object.
-	 *
-	 * @param ntlmAuth		The {@link NtlmPasswordAuthentication} object.
-	 * @param stripDomain	Uses just the username if <code>true</code>,
-	 * 						otherwise use the username and domain name.
-	 */
-	public NtlmUsernamePasswordAuthenticationToken(final NtlmPasswordAuthentication ntlmAuth, final boolean stripDomain) {
-		super((stripDomain) ? ntlmAuth.getUsername() : ntlmAuth.getName(), DEFAULT_PASSWORD, NTLM_AUTHENTICATED);
-	}
+    /**
+     * Create an NTLM {@link UsernamePasswordAuthenticationToken} using the
+     * JCIFS {@link NtlmPasswordAuthentication} object.
+     *
+     * @param ntlmAuth		The {@link NtlmPasswordAuthentication} object.
+     * @param stripDomain	Uses just the username if <code>true</code>,
+     * 						otherwise use the username and domain name.
+     */
+    public NtlmUsernamePasswordAuthenticationToken(NtlmPasswordAuthentication ntlmAuth, boolean stripDomain) {
+        super((stripDomain) ? ntlmAuth.getUsername() : ntlmAuth.getName(), DEFAULT_PASSWORD, NTLM_AUTHENTICATED);
+    }
 }

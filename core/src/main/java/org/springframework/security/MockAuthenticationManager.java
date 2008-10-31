@@ -34,7 +34,6 @@ public class MockAuthenticationManager extends AbstractAuthenticationManager {
     }
 
     public MockAuthenticationManager() {
-        super();
     }
 
     //~ Methods ========================================================================================================

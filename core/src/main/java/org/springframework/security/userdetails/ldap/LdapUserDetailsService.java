@@ -1,12 +1,11 @@
 package org.springframework.security.userdetails.ldap;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.ldap.LdapUserSearch;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
+import org.springframework.security.ldap.LdapUserSearch;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.util.Assert;
 
 /**
@@ -32,9 +31,8 @@ public class LdapUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         DirContextOperations userData = userSearch.searchForUser(username);
 
-        GrantedAuthority[] authorities = authoritiesPopulator.getGrantedAuthorities(userData, username);
-
-        return userDetailsMapper.mapUserFromContext(userData, username, authorities);
+        return userDetailsMapper.mapUserFromContext(userData, username,
+                authoritiesPopulator.getGrantedAuthorities(userData, username));
     }
 
     public void setUserDetailsMapper(UserDetailsContextMapper userDetailsMapper) {

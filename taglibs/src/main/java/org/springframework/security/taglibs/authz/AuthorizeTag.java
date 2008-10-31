@@ -15,17 +15,6 @@
 
 package org.springframework.security.taglibs.authz;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-
-import org.springframework.security.context.SecurityContextHolder;
-
-import org.springframework.util.StringUtils;
-
-import org.springframework.web.util.ExpressionEvaluationUtils;
-
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,6 +24,13 @@ import java.util.Set;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
+
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.ExpressionEvaluationUtils;
 
 
 /**
@@ -125,20 +121,18 @@ public class AuthorizeTag extends TagSupport {
         return ifNotGranted;
     }
 
-    private Collection getPrincipalAuthorities() {
+    private Collection<GrantedAuthority> getPrincipalAuthorities() {
         Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
 
         if (null == currentUser) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
-        if ((null == currentUser.getAuthorities()) || (currentUser.getAuthorities().length < 1)) {
-            return Collections.EMPTY_LIST;
+        if ((null == currentUser.getAuthorities())) {
+            return Collections.emptyList();
         }
 
-        Collection granted = Arrays.asList(currentUser.getAuthorities());
-
-        return granted;
+        return currentUser.getAuthorities();
     }
 
     private Set parseAuthoritiesString(String authorizationsString) {

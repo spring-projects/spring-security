@@ -15,14 +15,14 @@
 
 package org.springframework.security.userdetails.ldap;
 
-import junit.framework.TestCase;
-
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+
+import junit.framework.TestCase;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  * Tests {@link LdapUserDetailsMapper}.
@@ -31,7 +31,6 @@ import org.springframework.security.GrantedAuthority;
  * @version $Id$
  */
 public class LdapUserDetailsMapperTests extends TestCase {
-
 
     public void testMultipleRoleAttributeValuesAreMappedToAuthorities() throws Exception {
         LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
@@ -45,9 +44,9 @@ public class LdapUserDetailsMapperTests extends TestCase {
         ctx.setAttributeValues("userRole", new String[] {"X", "Y", "Z"});
         ctx.setAttributeValue("uid", "ani");
 
-        LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", new GrantedAuthority[0]);
+        LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", AuthorityUtils.NO_AUTHORITIES);
 
-        assertEquals(3, user.getAuthorities().length);
+        assertEquals(3, user.getAuthorities().size());
     }
 
     /**
@@ -64,26 +63,11 @@ public class LdapUserDetailsMapperTests extends TestCase {
         DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
         ctx.setAttributeValue("uid", "ani");
 
-        LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", new GrantedAuthority[0]);
+        LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", AuthorityUtils.NO_AUTHORITIES);
 
-        assertEquals(1, user.getAuthorities().length);
-        assertEquals("ROLE_X", user.getAuthorities()[0].getAuthority());
+        assertEquals(1, user.getAuthorities().size());
+        assertEquals("ROLE_X", user.getAuthorities().get(0).getAuthority());
     }
-
-//    public void testNonStringRoleAttributeIsIgnoredByDefault() throws Exception {
-//        LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
-//
-//        mapper.setRoleAttributes(new String[] {"userRole"});
-//
-//        BasicAttributes attrs = new BasicAttributes();
-//        attrs.put(new BasicAttribute("userRole", new GrantedAuthorityImpl("X")));
-//
-//        DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
-//
-//        LdapUserDetailsImpl.Essence user = (LdapUserDetailsImpl.Essence) mapper.mapFromContext(ctx);
-//
-//        assertEquals(0, user.getGrantedAuthorities().length);
-//    }
 
     public void testPasswordAttributeIsMappedCorrectly() throws Exception {
         LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
@@ -95,7 +79,7 @@ public class LdapUserDetailsMapperTests extends TestCase {
         DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
         ctx.setAttributeValue("uid", "ani");
 
-        LdapUserDetails user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", new GrantedAuthority[0]);
+        LdapUserDetails user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", AuthorityUtils.NO_AUTHORITIES);
 
         assertEquals("mypassword", user.getPassword());
     }

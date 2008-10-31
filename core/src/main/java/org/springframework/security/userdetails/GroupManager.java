@@ -1,5 +1,7 @@
 package org.springframework.security.userdetails;
 
+import java.util.List;
+
 import org.springframework.security.GrantedAuthority;
 
 /**
@@ -36,7 +38,7 @@ public interface GroupManager {
      * @param groupName the name for the new group
      * @param authorities the authorities which are to be allocated to this group.
      */
-    void createGroup(String groupName, GrantedAuthority[] authorities);
+    void createGroup(String groupName, List<GrantedAuthority> authorities);
 
     /**
      * Removes a group, including all members and authorities.
@@ -69,7 +71,7 @@ public interface GroupManager {
     /**
      * Obtains the list of authorities which are assigned to a group.
      */
-    GrantedAuthority[] findGroupAuthorities(String groupName);
+    List<GrantedAuthority> findGroupAuthorities(String groupName);
 
     /**
      * Assigns a new authority to a group.

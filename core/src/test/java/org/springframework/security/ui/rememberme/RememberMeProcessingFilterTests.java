@@ -15,19 +15,7 @@
 
 package org.springframework.security.ui.rememberme;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.MockFilterConfig;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.MockApplicationEventPublisher;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
-import junit.framework.TestCase;
+import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -37,7 +25,18 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import junit.framework.TestCase;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.MockApplicationEventPublisher;
+import org.springframework.security.MockAuthenticationManager;
+import org.springframework.security.MockFilterConfig;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.TestingAuthenticationToken;
 
 
 /**
@@ -47,14 +46,7 @@ import java.io.IOException;
  * @version $Id$
  */
 public class RememberMeProcessingFilterTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public RememberMeProcessingFilterTests() {
-    }
-
-    public RememberMeProcessingFilterTests(String arg0) {
-        super(arg0);
-    }
+    Authentication remembered = new TestingAuthenticationToken("remembered", "password","ROLE_REMEMBERED");
 
     //~ Methods ========================================================================================================
 
@@ -118,13 +110,10 @@ public class RememberMeProcessingFilterTests extends TestCase {
 
     public void testOperationWhenAuthenticationExistsInContextHolder() throws Exception {
         // Put an Authentication object into the SecurityContextHolder
-        Authentication originalAuth = new TestingAuthenticationToken("user", "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
+        Authentication originalAuth = new TestingAuthenticationToken("user", "password","ROLE_A");
         SecurityContextHolder.getContext().setAuthentication(originalAuth);
 
         // Setup our filter correctly
-        Authentication remembered = new TestingAuthenticationToken("remembered", "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_REMEMBERED")});
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
         filter.setAuthenticationManager(new MockAuthenticationManager());
         filter.setRememberMeServices(new MockRememberMeServices(remembered));
@@ -141,8 +130,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
     }
 
     public void testOperationWhenNoAuthenticationInContextHolder() throws Exception {
-        Authentication remembered = new TestingAuthenticationToken("remembered", "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_REMEMBERED")});
+
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
         filter.setAuthenticationManager(new MockAuthenticationManager());
         filter.setRememberMeServices(new MockRememberMeServices(remembered));
@@ -158,8 +146,6 @@ public class RememberMeProcessingFilterTests extends TestCase {
     }
 
     public void testOnunsuccessfulLoginIsCalledWhenProviderRejectsAuth() throws Exception {
-        Authentication remembered = new TestingAuthenticationToken("remembered", "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_REMEMBERED")});
         final Authentication failedAuth = new TestingAuthenticationToken("failed", "");
 
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter() {

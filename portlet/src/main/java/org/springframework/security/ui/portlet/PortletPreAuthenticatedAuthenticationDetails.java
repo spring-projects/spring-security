@@ -1,6 +1,8 @@
 package org.springframework.security.ui.portlet;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.portlet.PortletRequest;
 
@@ -9,25 +11,22 @@ import org.springframework.security.MutableGrantedAuthoritiesContainer;
 import org.springframework.util.Assert;
 
 public class PortletPreAuthenticatedAuthenticationDetails extends PortletAuthenticationDetails implements MutableGrantedAuthoritiesContainer {
-    
-    private GrantedAuthority[] preAuthenticatedGrantedAuthorities = null;
-    
+
+    private List<GrantedAuthority> preAuthenticatedGrantedAuthorities = null;
+
     public PortletPreAuthenticatedAuthenticationDetails(PortletRequest request) {
         super(request);
     }
-    
-    public GrantedAuthority[] getGrantedAuthorities() {
+
+    public List<GrantedAuthority> getGrantedAuthorities() {
         Assert.notNull(preAuthenticatedGrantedAuthorities, "Pre-authenticated granted authorities have not been set");
-        GrantedAuthority[] result = new GrantedAuthority[preAuthenticatedGrantedAuthorities.length];
-        System.arraycopy(preAuthenticatedGrantedAuthorities, 0, result, 0, result.length);
-        return result;
+        return preAuthenticatedGrantedAuthorities;
     }
 
-    public void setGrantedAuthorities(GrantedAuthority[] authorities) {
-        this.preAuthenticatedGrantedAuthorities = new GrantedAuthority[authorities.length];
-        System.arraycopy(authorities, 0, preAuthenticatedGrantedAuthorities, 0, preAuthenticatedGrantedAuthorities.length);
+    public void setGrantedAuthorities(List<GrantedAuthority> authorities) {
+        this.preAuthenticatedGrantedAuthorities = Collections.unmodifiableList(authorities);
     }
-    
+
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(super.toString() + "; ");

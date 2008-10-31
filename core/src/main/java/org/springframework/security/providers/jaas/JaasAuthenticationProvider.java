@@ -153,12 +153,12 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
 
     //~ Methods ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() throws Exception {
         Assert.notNull(loginConfig, "loginConfig must be set on " + getClass());
         Assert.hasLength(loginContextName, "loginContextName must be set on " + getClass());
 
         configureJaas(loginConfig);
-        
+
         Assert.notNull(Configuration.getConfiguration(),
               "As per http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/Configuration.html "
             + "\"If a Configuration object was set via the Configuration.setConfiguration method, then that object is "
@@ -190,10 +190,10 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
                 loginContext.login();
 
                 //create a set to hold the authorities, and add any that have already been applied.
-                Set authorities = new HashSet();
+                Set<GrantedAuthority> authorities = new HashSet();
 
                 if (request.getAuthorities() != null) {
-                    authorities.addAll(Arrays.asList(request.getAuthorities()));
+                    authorities.addAll(request.getAuthorities());
                 }
 
                 //get the subject principals and pass them to each of the AuthorityGranters
@@ -219,7 +219,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
                 //Convert the authorities set back to an array and apply it to the token.
                 JaasAuthenticationToken result = new JaasAuthenticationToken(request.getPrincipal(),
                         request.getCredentials(),
-                        (GrantedAuthority[]) authorities.toArray(new GrantedAuthority[authorities.size()]), loginContext);
+                        (GrantedAuthority[]) authorities.toArray(new GrantedAuthority[0]), loginContext);
 
                 //Publish the success event
                 publishSuccessEvent(result);
@@ -379,7 +379,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      */
     protected void publishSuccessEvent(UsernamePasswordAuthenticationToken token) {
         if (applicationEventPublisher != null) {
-        	applicationEventPublisher.publishEvent(new JaasAuthenticationSuccessEvent(token));
+            applicationEventPublisher.publishEvent(new JaasAuthenticationSuccessEvent(token));
         }
     }
 

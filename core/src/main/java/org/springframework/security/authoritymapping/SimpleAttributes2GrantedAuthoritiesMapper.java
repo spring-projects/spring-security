@@ -3,6 +3,9 @@ package org.springframework.security.authoritymapping;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -41,10 +44,10 @@ public class SimpleAttributes2GrantedAuthoritiesMapper implements Attributes2Gra
     /**
      * Map the given list of string attributes one-to-one to Spring Security GrantedAuthorities.
      */
-    public GrantedAuthority[] getGrantedAuthorities(String[] attributes) {
-        GrantedAuthority[] result = new GrantedAuthority[attributes.length];
-        for (int i = 0; i < attributes.length; i++) {
-            result[i] = getGrantedAuthority(attributes[i]);
+    public List<GrantedAuthority> getGrantedAuthorities(Collection<String> attributes) {
+        List<GrantedAuthority> result = new ArrayList<GrantedAuthority>(attributes.size());
+        for (String attribute : attributes) {
+            result.add(getGrantedAuthority(attribute));
         }
         return result;
     }

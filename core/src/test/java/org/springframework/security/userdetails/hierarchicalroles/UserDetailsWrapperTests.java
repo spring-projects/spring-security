@@ -1,11 +1,14 @@
 package org.springframework.security.userdetails.hierarchicalroles;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  * Tests for {@link UserDetailsWrapper}.
@@ -48,7 +51,7 @@ public class UserDetailsWrapperTests extends TestCase {
     }
 
     public void testGetAuthorities() {
-        GrantedAuthority[] expectedAuthorities = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B") };
+        List<GrantedAuthority> expectedAuthorities = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B");
         assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(userDetailsWrapper1.getAuthorities(), expectedAuthorities));
         assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(userDetailsWrapper2.getAuthorities(), expectedAuthorities));
     }

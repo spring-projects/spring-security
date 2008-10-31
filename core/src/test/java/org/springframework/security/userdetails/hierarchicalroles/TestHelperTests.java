@@ -14,31 +14,29 @@
 
 package org.springframework.security.userdetails.hierarchicalroles;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
+import org.junit.Test;
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  * Tests for {@link HierarchicalRolesTestHelper}.
  *
  * @author Michael Mayr
  */
-public class TestHelperTests extends TestCase {
+public class TestHelperTests {
 
-    public TestHelperTests() {
-    }
-
-    public TestHelperTests(String testCaseName) {
-        super(testCaseName);
-    }
-
+    @Test
     public void testContainTheSameGrantedAuthorities() {
-        GrantedAuthority[] authorities1 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B") };
-        GrantedAuthority[] authorities2 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_B"), new GrantedAuthorityImpl("ROLE_A") };
-        GrantedAuthority[] authorities3 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_C") };
-        GrantedAuthority[] authorities4 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A") };
-        GrantedAuthority[] authorities5 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_A") };
+        List<GrantedAuthority> authorities1 = AuthorityUtils.createAuthorityList("ROLE_A","ROLE_B");
+        List<GrantedAuthority> authorities2 = AuthorityUtils.createAuthorityList("ROLE_B","ROLE_A");
+        List<GrantedAuthority> authorities3 = AuthorityUtils.createAuthorityList("ROLE_A","ROLE_C");
+        List<GrantedAuthority> authorities4 = AuthorityUtils.createAuthorityList("ROLE_A");
+        List<GrantedAuthority> authorities5 = AuthorityUtils.createAuthorityList("ROLE_A","ROLE_A");
 
         assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null, null));
         assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(authorities1, authorities1));

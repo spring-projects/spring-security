@@ -23,6 +23,7 @@ import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsMapper;
+import org.springframework.security.util.AuthorityUtils;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
@@ -30,6 +31,7 @@ import org.springframework.ldap.core.DistinguishedName;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -101,14 +103,14 @@ public class LdapAuthenticationProviderTests extends TestCase {
         Authentication authResult = ldapProvider.authenticate(authRequest);
         assertEquals("benspassword", authResult.getCredentials());
         UserDetails user = (UserDetails) authResult.getPrincipal();
-        assertEquals(2, user.getAuthorities().length);
+        assertEquals(2, user.getAuthorities().size());
         assertEquals("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=", user.getPassword());
         assertEquals("ben", user.getUsername());
         assertEquals("ben", populator.getRequestedUsername());
 
         ArrayList authorities = new ArrayList();
-        authorities.add(user.getAuthorities()[0].getAuthority());
-        authorities.add(user.getAuthorities()[1].getAuthority());
+        authorities.add(user.getAuthorities().get(0).getAuthority());
+        authorities.add(user.getAuthorities().get(1).getAuthority());
 
         assertTrue(authorities.contains("ROLE_FROM_ENTRY"));
         assertTrue(authorities.contains("ROLE_FROM_POPULATOR"));
@@ -132,8 +134,8 @@ public class LdapAuthenticationProviderTests extends TestCase {
         ldapProvider.setUserDetailsContextMapper(userMapper);
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben", "benspassword");
         UserDetails user = (UserDetails) ldapProvider.authenticate(authRequest).getPrincipal();
-        assertEquals(1, user.getAuthorities().length);
-        assertEquals("ROLE_FROM_ENTRY", user.getAuthorities()[0].getAuthority());
+        assertEquals(1, user.getAuthorities().size());
+        assertEquals("ROLE_FROM_ENTRY", user.getAuthorities().get(0).getAuthority());
     }
 
     //~ Inner Classes ==================================================================================================
@@ -165,9 +167,9 @@ public class LdapAuthenticationProviderTests extends TestCase {
     class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {
         String username;
 
-        public GrantedAuthority[] getGrantedAuthorities(DirContextOperations userCtx, String username) {
+        public List<GrantedAuthority> getGrantedAuthorities(DirContextOperations userCtx, String username) {
             this.username = username;
-            return new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FROM_POPULATOR")};
+            return AuthorityUtils.createAuthorityList("ROLE_FROM_POPULATOR");
         }
 
         String getRequestedUsername() {

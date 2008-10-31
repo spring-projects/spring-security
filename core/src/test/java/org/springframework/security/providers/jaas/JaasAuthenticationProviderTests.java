@@ -15,32 +15,29 @@
 
 package org.springframework.security.providers.jaas;
 
-import junit.framework.TestCase;
-
-import org.springframework.security.*;
-
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
-import org.springframework.security.context.SecurityContextImpl;
-
-import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
-import org.springframework.security.ui.session.HttpSessionDestroyedEvent;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import org.springframework.mock.web.MockHttpSession;
-
 import java.net.URL;
-
 import java.security.Security;
-
-import java.util.Arrays;
 import java.util.List;
 
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+
+import junit.framework.TestCase;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.LockedException;
+import org.springframework.security.SpringSecurityException;
+import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.context.SecurityContextImpl;
+import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.ui.session.HttpSessionDestroyedEvent;
 
 
 /**
@@ -155,14 +152,11 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertNotNull(jaasProvider.getLoginConfig());
         assertNotNull(jaasProvider.getLoginContextName());
 
-        List list = Arrays.asList(auth.getAuthorities());
+        List list = auth.getAuthorities();
 
         assertTrue("GrantedAuthorities should contain ROLE_TEST1", list.contains(new GrantedAuthorityImpl("ROLE_TEST1")));
-
         assertTrue("GrantedAuthorities should contain ROLE_TEST2", list.contains(new GrantedAuthorityImpl("ROLE_TEST2")));
-
         assertTrue("GrantedAuthorities should contain ROLE_1", list.contains(role1));
-
         assertTrue("GrantedAuthorities should contain ROLE_2", list.contains(role2));
 
         boolean foundit = false;
@@ -179,10 +173,10 @@ public class JaasAuthenticationProviderTests extends TestCase {
 
         assertTrue("Could not find a JaasGrantedAuthority", foundit);
 
-        assertNotNull("Success event not fired", eventCheck.successEvent);
-        assertEquals("Auth objects are not equal", auth, eventCheck.successEvent.getAuthentication());
+        assertNotNull("Success event should be fired", eventCheck.successEvent);
+        assertEquals("Auth objects should be equal", auth, eventCheck.successEvent.getAuthentication());
 
-        assertNull("Failure event was fired", eventCheck.failedEvent);
+        assertNull("Failure event should not be fired", eventCheck.failedEvent);
     }
 
     public void testGetApplicationEventPublisher() throws Exception {
@@ -222,12 +216,12 @@ public class JaasAuthenticationProviderTests extends TestCase {
     }
 
     public void testNullDefaultAuthorities() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password", null);
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
 
         assertTrue(jaasProvider.supports(UsernamePasswordAuthenticationToken.class));
 
         Authentication auth = jaasProvider.authenticate(token);
-        assertTrue("Only ROLE_TEST1 and ROLE_TEST2 should have been returned", auth.getAuthorities().length == 2);
+        assertTrue("Only ROLE_TEST1 and ROLE_TEST2 should have been returned", auth.getAuthorities().size() == 2);
     }
 
     public void testUnsupportedAuthenticationObjectReturnsNull() {

@@ -14,6 +14,8 @@
 
 package org.springframework.security.userdetails.hierarchicalroles;
 
+import java.util.List;
+
 import org.springframework.security.GrantedAuthority;
 
 /**
@@ -37,6 +39,6 @@ public interface RoleHierarchy {
      * @param authorities - Array of the directly assigned authorities.
      * @return Array of all reachable authorities given the assigned authorities.
      */
-    public GrantedAuthority[] getReachableGrantedAuthorities(GrantedAuthority[] authorities);
+    public List<GrantedAuthority> getReachableGrantedAuthorities(List<GrantedAuthority> authorities);
 
 }

@@ -94,18 +94,15 @@ public class RoleVoter implements AccessDecisionVoter {
 
     public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
         int result = ACCESS_ABSTAIN;
-        Iterator iter = attributes.iterator();
-        GrantedAuthority[] authorities = extractAuthorities(authentication);
+        List<GrantedAuthority> authorities = extractAuthorities(authentication);
 
-        while (iter.hasNext()) {
-            ConfigAttribute attribute = (ConfigAttribute) iter.next();
-
+        for (ConfigAttribute attribute : attributes) {
             if (this.supports(attribute)) {
                 result = ACCESS_DENIED;
 
                 // Attempt to find a matching granted authority
-                for (int i = 0; i < authorities.length; i++) {
-                    if (attribute.getAttribute().equals(authorities[i].getAuthority())) {
+                for (GrantedAuthority authority : authorities) {
+                    if (attribute.getAttribute().equals(authority.getAuthority())) {
                         return ACCESS_GRANTED;
                     }
                 }
@@ -115,7 +112,7 @@ public class RoleVoter implements AccessDecisionVoter {
         return result;
     }
 
-    GrantedAuthority[] extractAuthorities(Authentication authentication) {
+    List<GrantedAuthority> extractAuthorities(Authentication authentication) {
         return authentication.getAuthorities();
     }
 }

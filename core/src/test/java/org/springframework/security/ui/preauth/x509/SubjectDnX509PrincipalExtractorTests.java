@@ -1,6 +1,5 @@
 package org.springframework.security.ui.preauth.x509;
 
-import org.springframework.security.providers.x509.X509TestUtils;
 import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.BadCredentialsException;
 

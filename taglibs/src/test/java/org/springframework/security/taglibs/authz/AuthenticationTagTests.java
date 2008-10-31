@@ -22,6 +22,7 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.userdetails.User;
+import org.springframework.security.util.AuthorityUtils;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
@@ -38,7 +39,7 @@ public class AuthenticationTagTests extends TestCase {
 
     private final MyAuthenticationTag authenticationTag = new MyAuthenticationTag();
     private final Authentication auth = new TestingAuthenticationToken(new User("rodUserDetails", "koala", true, true, true,
-                    true, new GrantedAuthority[] {}), "koala", new GrantedAuthority[] {});
+                    true, AuthorityUtils.NO_AUTHORITIES), "koala", AuthorityUtils.NO_AUTHORITIES);
 
     //~ Methods ========================================================================================================
 

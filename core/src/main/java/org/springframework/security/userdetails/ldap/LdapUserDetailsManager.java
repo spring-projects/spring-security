@@ -60,13 +60,10 @@ import java.util.ListIterator;
  * <p>
  * It is designed around a standard setup where users and groups/roles are stored under separate contexts,
  * defined by the "userDnBase" and "groupSearchBase" properties respectively.
- * </p>
  * <p>
  * In this case, LDAP is being used purely to retrieve information and this class can be used in place of any other
  * UserDetailsService for authentication. Authentication isn't performed directly against the directory, unlike with the
  * LDAP authentication provider setup.
- * </p>
- *
  *
  * @author Luke Taylor
  * @since 2.0
@@ -127,7 +124,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
         DistinguishedName dn = usernameMapper.buildDn(username);
-        GrantedAuthority[] authorities = getUserAuthorities(dn, username);
+        List<GrantedAuthority> authorities = getUserAuthorities(dn, username);
 
         logger.debug("Loading user '"+ username + "' with DN '" + dn + "'");
 
@@ -207,7 +204,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
      * @param username the user whose roles are required.
      * @return the granted authorities returned by the group search
      */
-    GrantedAuthority[] getUserAuthorities(final DistinguishedName dn, final String username) {
+    List<GrantedAuthority> getUserAuthorities(final DistinguishedName dn, final String username) {
         SearchExecutor se = new SearchExecutor() {
             public NamingEnumeration executeSearch(DirContext ctx) throws NamingException {
                 DistinguishedName fullDn = LdapUtils.getFullDn(dn, ctx);
@@ -222,9 +219,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
                 new AttributesMapperCallbackHandler(roleMapper);
 
         template.search(se, roleCollector);
-        List authorities = roleCollector.getList();
-
-        return (GrantedAuthority[]) authorities.toArray(new GrantedAuthority[authorities.size()]);
+        return roleCollector.getList();
     }
 
 //    protected String getRoleFilter(DistinguishedName dn, String username) {
@@ -236,9 +231,9 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         copyToContext(user, ctx);
         DistinguishedName dn = usernameMapper.buildDn(user.getUsername());
         // Check for any existing authorities which might be set for this DN
-        GrantedAuthority[] authorities = getUserAuthorities(dn, user.getUsername());
+        List<GrantedAuthority> authorities = getUserAuthorities(dn, user.getUsername());
 
-        if(authorities.length > 0) {
+        if(authorities.size() > 0) {
             removeAuthorities(dn, authorities);
         }
 
@@ -255,7 +250,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
         logger.debug("Updating user '"+ user.getUsername() + "' with DN '" + dn + "'");
 
-        GrantedAuthority[] authorities = getUserAuthorities(dn, user.getUsername());
+        List<GrantedAuthority> authorities = getUserAuthorities(dn, user.getUsername());
 
         DirContextAdapter ctx = loadUserAsContext(dn, user.getUsername());
         ctx.setUpdateMode(true);
@@ -318,19 +313,19 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         userDetailsMapper.mapUserToContext(user, ctx);
     }
 
-    protected void addAuthorities(DistinguishedName userDn, GrantedAuthority[] authorities) {
+    protected void addAuthorities(DistinguishedName userDn, List<GrantedAuthority> authorities) {
         modifyAuthorities(userDn, authorities, DirContext.ADD_ATTRIBUTE);
     }
 
-    protected void removeAuthorities(DistinguishedName userDn, GrantedAuthority[] authorities) {
+    protected void removeAuthorities(DistinguishedName userDn, List<GrantedAuthority> authorities) {
         modifyAuthorities(userDn, authorities, DirContext.REMOVE_ATTRIBUTE);
     }
 
-    private void modifyAuthorities(final DistinguishedName userDn, final GrantedAuthority[] authorities, final int modType) {
+    private void modifyAuthorities(final DistinguishedName userDn, final List<GrantedAuthority> authorities, final int modType) {
         template.executeReadWrite(new ContextExecutor() {
             public Object executeWithContext(DirContext ctx) throws NamingException {
-                for(int i=0; i < authorities.length; i++) {
-                    GrantedAuthority authority = authorities[i];
+                for(int i=0; i < authorities.size(); i++) {
+                    GrantedAuthority authority = authorities.get(i);
                     String group = convertAuthorityToGroup(authority);
                     DistinguishedName fullDn = LdapUtils.getFullDn(userDn, ctx);
                     ModificationItem addGroup = new ModificationItem(modType,

@@ -18,6 +18,7 @@ package org.springframework.security.wrapper;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.AuthenticationTrustResolverImpl;
+import org.springframework.security.GrantedAuthority;
 
 import org.springframework.security.context.SecurityContextHolder;
 
@@ -25,6 +26,7 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.util.PortResolver;
 
 import java.security.Principal;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -124,12 +126,19 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
             role = rolePrefix + role;
         }
 
-        if ((auth == null) || (auth.getPrincipal() == null) || (auth.getAuthorities() == null)) {
+        if ((auth == null) || (auth.getPrincipal() == null)) {
             return false;
         }
 
-        for (int i = 0; i < auth.getAuthorities().length; i++) {
-            if (role.equals(auth.getAuthorities()[i].getAuthority())) {
+        List<GrantedAuthority> authorities = auth.getAuthorities();
+
+        if (authorities == null) {
+            return false;
+        }
+
+
+        for (GrantedAuthority grantedAuthority : authorities) {
+            if (role.equals(grantedAuthority.getAuthority())) {
                 return true;
             }
         }
@@ -138,10 +147,11 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
     }
 
     /**
-     * Simple searches for an exactly matching {@link org.springframework.security.GrantedAuthority#getAuthority()}.<p>Will
-     * always return <code>false</code> if the <code>SecurityContextHolder</code> contains an
+     * Simple searches for an exactly matching {@link org.springframework.security.GrantedAuthority#getAuthority()}.
+     * <p>
+     * Will always return <code>false</code> if the <code>SecurityContextHolder</code> contains an
      * <code>Authentication</code> with <code>null</code><code>principal</code> and/or <code>GrantedAuthority[]</code>
-     * objects.</p>
+     * objects.
      *
      * @param role the <code>GrantedAuthority</code><code>String</code> representation to check for
      *

@@ -240,7 +240,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR, currentAuth);
 
         // get the original authorities
-        List orig = Arrays.asList(targetUser.getAuthorities());
+        List orig = targetUser.getAuthorities();
 
         // Allow subclasses to change the authorities to be granted
         if (switchUserAuthorityChanger != null) {
@@ -251,11 +251,8 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         List newAuths = new ArrayList(orig);
         newAuths.add(switchAuthority);
 
-        GrantedAuthority[] authorities =
-                (GrantedAuthority[]) newAuths.toArray(new GrantedAuthority[newAuths.size()]);
-
         // create the new authentication token
-        targetUserRequest = new UsernamePasswordAuthenticationToken(targetUser, targetUser.getPassword(), authorities);
+        targetUserRequest = new UsernamePasswordAuthenticationToken(targetUser, targetUser.getPassword(), newAuths);
 
         // set details
         targetUserRequest.setDetails(authenticationDetailsSource.buildDetails(request));
@@ -304,7 +301,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         logger.debug("Switch User failed", failed);
 
         if (switchFailureUrl != null) {
-        	sendRedirect(request, response, switchFailureUrl);
+            sendRedirect(request, response, switchFailureUrl);
         } else {
             response.getWriter().print("Switch user failed: " + failed.getMessage());
             response.flushBuffer();
@@ -330,12 +327,12 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         Authentication original = null;
 
         // iterate over granted authorities and find the 'switch user' authority
-        GrantedAuthority[] authorities = current.getAuthorities();
+        List<GrantedAuthority> authorities = current.getAuthorities();
 
-        for (int i = 0; i < authorities.length; i++) {
+        for (GrantedAuthority auth : authorities) {
             // check for switch user type of authority
-            if (authorities[i] instanceof SwitchUserGrantedAuthority) {
-                original = ((SwitchUserGrantedAuthority) authorities[i]).getSource();
+            if (auth instanceof SwitchUserGrantedAuthority) {
+                original = ((SwitchUserGrantedAuthority) auth).getSource();
                 logger.debug("Found original switch user granted authority [" + original + "]");
             }
         }

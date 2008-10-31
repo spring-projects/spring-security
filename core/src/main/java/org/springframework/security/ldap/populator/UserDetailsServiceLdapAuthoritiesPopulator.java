@@ -1,5 +1,7 @@
 package org.springframework.security.ldap.populator;
 
+import java.util.List;
+
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -23,7 +25,7 @@ public class UserDetailsServiceLdapAuthoritiesPopulator implements LdapAuthoriti
         this.userDetailsService = userService;
     }
 
-    public GrantedAuthority[] getGrantedAuthorities(DirContextOperations userData, String username) {
+    public List<GrantedAuthority> getGrantedAuthorities(DirContextOperations userData, String username) {
         return userDetailsService.loadUserByUsername(username).getAuthorities();
     }
 }

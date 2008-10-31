@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.util.AuthorityUtils;
 
 
 /**
@@ -49,9 +50,9 @@ public class UsernamePasswordAuthenticationTokenTests extends TestCase {
     }
 
     public void testAuthenticated() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password", null);
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password", AuthorityUtils.NO_AUTHORITIES);
 
-        // check default given we passed some GrantedAuthorty[]s (well, we passed null)
+        // check default given we passed some GrantedAuthorty[]s (well, we passed empty list)
         assertTrue(token.isAuthenticated());
 
         // check explicit set to untrusted (we can safely go from trusted to untrusted, but not the reverse)
@@ -81,8 +82,8 @@ public class UsernamePasswordAuthenticationTokenTests extends TestCase {
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
-        assertEquals("ROLE_ONE", token.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", token.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_ONE", token.getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_TWO", token.getAuthorities().get(1).getAuthority());
     }
 
     public void testNoArgConstructorDoesntExist() {

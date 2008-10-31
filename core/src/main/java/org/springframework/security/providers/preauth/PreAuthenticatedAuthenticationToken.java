@@ -1,5 +1,8 @@
 package org.springframework.security.providers.preauth;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.security.providers.AbstractAuthenticationToken;
 import org.springframework.security.GrantedAuthority;
 
@@ -38,6 +41,14 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
     }
 
     /**
+     *
+     * @deprecated
+     */
+    public PreAuthenticatedAuthenticationToken(Object aPrincipal, Object aCredentials, GrantedAuthority[] anAuthorities) {
+        this(aPrincipal, aCredentials, Arrays.asList(anAuthorities));
+    }
+
+    /**
      * Constructor used for an authentication response. The {@link
      * org.springframework.security.Authentication#isAuthenticated()} will return
      * <code>true</code>.
@@ -47,7 +58,7 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
      * @param anAuthorities
      *            The granted authorities
      */
-    public PreAuthenticatedAuthenticationToken(Object aPrincipal, Object aCredentials, GrantedAuthority[] anAuthorities) {
+    public PreAuthenticatedAuthenticationToken(Object aPrincipal, Object aCredentials, List<GrantedAuthority> anAuthorities) {
         super(anAuthorities);
         this.principal = aPrincipal;
         this.credentials = aCredentials;

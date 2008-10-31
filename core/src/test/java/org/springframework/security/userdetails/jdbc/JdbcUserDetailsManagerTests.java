@@ -41,7 +41,7 @@ public class JdbcUserDetailsManagerTests {
     private static final String SELECT_JOE_AUTHORITIES_SQL = "select * from authorities where username = 'joe'";
 
     private static final UserDetails joe = new User("joe", "password", true, true, true, true,
-            AuthorityUtils.stringArrayToAuthorityArray(new String[]{"A","C","B"}));
+            AuthorityUtils.createAuthorityList("A","C","B"));
 
     private static TestDataSource dataSource;
     private JdbcUserDetailsManager manager;
@@ -116,7 +116,7 @@ public class JdbcUserDetailsManagerTests {
     public void updateUserChangesDataCorrectlyAndClearsCache() {
         insertJoe();
         User newJoe = new User("joe","newpassword",false,true,true,true,
-                AuthorityUtils.stringArrayToAuthorityArray(new String[]{"D","F","E"}));
+                AuthorityUtils.createAuthorityList(new String[]{"D","F","E"}));
 
         manager.updateUser(newJoe);
 
@@ -213,7 +213,7 @@ public class JdbcUserDetailsManagerTests {
 
     @Test
     public void createGroupInsertsCorrectData() {
-        manager.createGroup("TEST_GROUP", AuthorityUtils.stringArrayToAuthorityArray(new String[] {"ROLE_X", "ROLE_Y"}));
+        manager.createGroup("TEST_GROUP", AuthorityUtils.createAuthorityList("ROLE_X", "ROLE_Y"));
 
         List roles = template.queryForList(
                 "select ga.authority from groups g, group_authorities ga " +
@@ -258,9 +258,7 @@ public class JdbcUserDetailsManagerTests {
 
     @Test
     public void findGroupAuthoritiesReturnsCorrectAuthorities() throws Exception {
-        GrantedAuthority[] authorities = manager.findGroupAuthorities("GROUP_0");
-
-        assertEquals("ROLE_A", authorities[0].getAuthority());
+        assertEquals(AuthorityUtils.createAuthorityList("ROLE_A"), manager.findGroupAuthorities("GROUP_0"));
     }
 
     @Test
@@ -278,7 +276,7 @@ public class JdbcUserDetailsManagerTests {
         assertEquals(0, template.queryForList("select authority from group_authorities where group_id = 0").size());
 
         manager.removeGroupAuthority("GROUP_2", auth);
-        assertEquals(2, template.queryForList("select authority from group_authorities where group_id = 2").size());        
+        assertEquals(2, template.queryForList("select authority from group_authorities where group_id = 2").size());
     }
 
     private Authentication authenticateJoe() {

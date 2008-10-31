@@ -64,9 +64,9 @@ public class RunAsManagerImplTests extends TestCase {
 
         assertEquals(inputToken.getPrincipal(), resultingToken.getPrincipal());
         assertEquals(inputToken.getCredentials(), resultingToken.getCredentials());
-        assertEquals("FOOBAR_RUN_AS_SOMETHING", resultingToken.getAuthorities()[0].getAuthority());
-        assertEquals("ONE", resultingToken.getAuthorities()[1].getAuthority());
-        assertEquals("TWO", resultingToken.getAuthorities()[2].getAuthority());
+        assertEquals("FOOBAR_RUN_AS_SOMETHING", resultingToken.getAuthorities().get(0).getAuthority());
+        assertEquals("ONE", resultingToken.getAuthorities().get(1).getAuthority());
+        assertEquals("TWO", resultingToken.getAuthorities().get(2).getAuthority());
 
         RunAsUserToken resultCast = (RunAsUserToken) resultingToken;
         assertEquals("my_password".hashCode(), resultCast.getKeyHash());
@@ -87,9 +87,9 @@ public class RunAsManagerImplTests extends TestCase {
 
         assertEquals(inputToken.getPrincipal(), resultingToken.getPrincipal());
         assertEquals(inputToken.getCredentials(), resultingToken.getCredentials());
-        assertEquals("ROLE_RUN_AS_SOMETHING", resultingToken.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_ONE", resultingToken.getAuthorities()[1].getAuthority());
-        assertEquals("ROLE_TWO", resultingToken.getAuthorities()[2].getAuthority());
+        assertEquals("ROLE_RUN_AS_SOMETHING", resultingToken.getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_ONE", resultingToken.getAuthorities().get(1).getAuthority());
+        assertEquals("ROLE_TWO", resultingToken.getAuthorities().get(2).getAuthority());
 
         RunAsUserToken resultCast = (RunAsUserToken) resultingToken;
         assertEquals("my_password".hashCode(), resultCast.getKeyHash());

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.providers.x509;
+package org.springframework.security.ui.preauth.x509;
 
 import java.io.ByteArrayInputStream;
 
@@ -98,9 +98,5 @@ public class X509TestUtils {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
         return (X509Certificate) cf.generateCertificate(in);
-    }
-
-    public static X509AuthenticationToken createToken() throws Exception {
-        return new X509AuthenticationToken(buildTestCertificate());
     }
 }

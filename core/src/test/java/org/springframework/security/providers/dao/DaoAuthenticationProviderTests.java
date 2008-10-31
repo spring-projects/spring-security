@@ -69,18 +69,18 @@ public class DaoAuthenticationProviderTests extends TestCase {
     }
 
     public void testReceivedBadCredentialsWhenCredentialsNotProvided() {
-    	// Test related to SEC-434
+        // Test related to SEC-434
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
         provider.setUserCache(new MockUserCache());
 
-    	UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken("rod", null);
-    	try {
-    		provider.authenticate(authenticationToken);
-    		fail("Expected BadCredenialsException");
-    	} catch (BadCredentialsException expected) {
-    		assertTrue(true);
-    	}
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken("rod", null);
+        try {
+            provider.authenticate(authenticationToken);
+            fail("Expected BadCredenialsException");
+        } catch (BadCredentialsException expected) {
+            assertTrue(true);
+        }
     }
 
     public void testAuthenticateFailsIfAccountExpired() {
@@ -263,8 +263,8 @@ public class DaoAuthenticationProviderTests extends TestCase {
         UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
         assertEquals(User.class, castResult.getPrincipal().getClass());
         assertEquals("koala", castResult.getCredentials());
-        assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_ONE", castResult.getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_TWO", castResult.getAuthorities().get(1).getAuthority());
         assertEquals("192.168.0.1", castResult.getDetails());
     }
 
@@ -313,8 +313,8 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         // We expect original credentials user submitted to be returned
         assertEquals("koala", castResult.getCredentials());
-        assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_ONE", castResult.getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_TWO", castResult.getAuthorities().get(1).getAuthority());
     }
 
     public void testAuthenticatesWithForcePrincipalAsString() {

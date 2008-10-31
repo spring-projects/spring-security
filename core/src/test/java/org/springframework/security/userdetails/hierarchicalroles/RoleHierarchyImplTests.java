@@ -14,10 +14,12 @@
 
 package org.springframework.security.userdetails.hierarchicalroles;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  * Tests for {@link RoleHierarchyImpl}.
@@ -26,17 +28,11 @@ import org.springframework.security.GrantedAuthorityImpl;
  */
 public class RoleHierarchyImplTests extends TestCase {
 
-    public RoleHierarchyImplTests() {
-    }
-
-    public RoleHierarchyImplTests(String testCaseName) {
-        super(testCaseName);
-    }
-
     public void testSimpleRoleHierarchy() {
-        GrantedAuthority[] authorities0 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_0") };
-        GrantedAuthority[] authorities1 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A") };
-        GrantedAuthority[] authorities2 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B") };
+
+        List<GrantedAuthority> authorities0 = AuthorityUtils.createAuthorityList("ROLE_0");
+        List<GrantedAuthority> authorities1 = AuthorityUtils.createAuthorityList("ROLE_A");
+        List<GrantedAuthority> authorities2 = AuthorityUtils.createAuthorityList("ROLE_A","ROLE_B");
 
         RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
         roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B");
@@ -47,10 +43,9 @@ public class RoleHierarchyImplTests extends TestCase {
     }
 
     public void testTransitiveRoleHierarchies() {
-        GrantedAuthority[] authorities1 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A") };
-        GrantedAuthority[] authorities2 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B"), new GrantedAuthorityImpl("ROLE_C") };
-        GrantedAuthority[] authorities3 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B"), new GrantedAuthorityImpl("ROLE_C"),
-                                                                   new GrantedAuthorityImpl("ROLE_D") };
+        List<GrantedAuthority> authorities1 = AuthorityUtils.createAuthorityList("ROLE_A");
+        List<GrantedAuthority> authorities2 = AuthorityUtils.createAuthorityList("ROLE_A","ROLE_B","ROLE_C");
+        List<GrantedAuthority> authorities3 = AuthorityUtils.createAuthorityList("ROLE_A","ROLE_B","ROLE_C","ROLE_D");
 
         RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
 
@@ -62,15 +57,14 @@ public class RoleHierarchyImplTests extends TestCase {
     }
 
     public void testComplexRoleHierarchy() {
-        GrantedAuthority[] authoritiesInput1 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A") };
-        GrantedAuthority[] authoritiesOutput1 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B"), new GrantedAuthorityImpl("ROLE_C"),
-                                                                         new GrantedAuthorityImpl("ROLE_D") };
-        GrantedAuthority[] authoritiesInput2 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_B") };
-        GrantedAuthority[] authoritiesOutput2 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_B"), new GrantedAuthorityImpl("ROLE_D") };
-        GrantedAuthority[] authoritiesInput3 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_C") };
-        GrantedAuthority[] authoritiesOutput3 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_C"), new GrantedAuthorityImpl("ROLE_D") };
-        GrantedAuthority[] authoritiesInput4 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_D") };
-        GrantedAuthority[] authoritiesOutput4 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_D") };
+        List<GrantedAuthority> authoritiesInput1 = AuthorityUtils.createAuthorityList("ROLE_A");
+        List<GrantedAuthority> authoritiesOutput1 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B","ROLE_C", "ROLE_D");
+        List<GrantedAuthority> authoritiesInput2 = AuthorityUtils.createAuthorityList("ROLE_B");
+        List<GrantedAuthority> authoritiesOutput2 = AuthorityUtils.createAuthorityList("ROLE_B","ROLE_D");
+        List<GrantedAuthority> authoritiesInput3 = AuthorityUtils.createAuthorityList("ROLE_C");
+        List<GrantedAuthority> authoritiesOutput3 = AuthorityUtils.createAuthorityList("ROLE_C","ROLE_D");
+        List<GrantedAuthority> authoritiesInput4 = AuthorityUtils.createAuthorityList("ROLE_D");
+        List<GrantedAuthority> authoritiesOutput4 = AuthorityUtils.createAuthorityList("ROLE_D");
 
         RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
         roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_C > ROLE_D\nROLE_B > ROLE_D");

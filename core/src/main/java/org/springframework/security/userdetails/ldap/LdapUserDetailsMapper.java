@@ -15,6 +15,8 @@
 
 package org.springframework.security.userdetails.ldap;
 
+import java.util.List;
+
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
@@ -44,7 +46,7 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 
     //~ Methods ========================================================================================================
 
-    public UserDetails mapUserFromContext(DirContextOperations ctx, String username, GrantedAuthority[] authorities) {
+    public UserDetails mapUserFromContext(DirContextOperations ctx, String username, List<GrantedAuthority> authorities) {
         String dn = ctx.getNameInNamespace();
 
         logger.debug("Mapping user details from context with DN: " + dn);
@@ -80,8 +82,8 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 
         // Add the supplied authorities
 
-        for (int i=0; i < authorities.length; i++) {
-            essence.addAuthority(authorities[i]);
+        for (int i=0; i < authorities.size(); i++) {
+            essence.addAuthority(authorities.get(i));
         }
 
         return essence.createUserDetails();

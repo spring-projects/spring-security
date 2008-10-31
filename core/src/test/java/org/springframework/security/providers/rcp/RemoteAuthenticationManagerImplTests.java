@@ -56,8 +56,7 @@ public class RemoteAuthenticationManagerImplTests extends TestCase {
         assertNotNull(manager.getAuthenticationManager());
     }
 
-    public void testStartupChecksAuthenticationManagerSet()
-        throws Exception {
+    public void testStartupChecksAuthenticationManagerSet() throws Exception {
         RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
 
         try {

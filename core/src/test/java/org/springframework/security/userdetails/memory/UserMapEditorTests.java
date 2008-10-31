@@ -63,8 +63,8 @@ public class UserMapEditorTests extends TestCase {
         UserMap map = (UserMap) editor.getValue();
         assertEquals("rod", map.getUser("rod").getUsername());
         assertEquals("koala", map.getUser("rod").getPassword());
-        assertEquals("ROLE_ONE", map.getUser("rod").getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", map.getUser("rod").getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_ONE", map.getUser("rod").getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_TWO", map.getUser("rod").getAuthorities().get(1).getAuthority());
         assertTrue(map.getUser("rod").isEnabled());
     }
 

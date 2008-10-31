@@ -20,6 +20,8 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.providers.AbstractAuthenticationToken;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -37,7 +39,11 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 
     //~ Constructors ===================================================================================================
 
-/**
+    public AnonymousAuthenticationToken(String key, Object principal, GrantedAuthority[] authorities) {
+        this(key, principal, Arrays.asList(authorities));
+    }
+
+    /**
      * Constructor.
      *
      * @param key to identify if this object made by an authorised client
@@ -46,11 +52,11 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
      *
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
-    public AnonymousAuthenticationToken(String key, Object principal, GrantedAuthority[] authorities) {
+    public AnonymousAuthenticationToken(String key, Object principal, List<GrantedAuthority> authorities) {
         super(authorities);
 
         if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal) || (authorities == null)
-            || (authorities.length == 0)) {
+            || (authorities.isEmpty())) {
             throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
         }
 

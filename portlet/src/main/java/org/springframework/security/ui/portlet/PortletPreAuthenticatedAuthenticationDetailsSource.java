@@ -1,18 +1,19 @@
 package org.springframework.security.ui.portlet;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.portlet.PortletRequest;
 
 import org.springframework.security.ui.preauth.j2ee.AbstractPreAuthenticatedAuthenticationDetailsSource;
 
 public class PortletPreAuthenticatedAuthenticationDetailsSource extends AbstractPreAuthenticatedAuthenticationDetailsSource {
-    
+
     public PortletPreAuthenticatedAuthenticationDetailsSource() {
          setClazz(PortletPreAuthenticatedAuthenticationDetails.class);
     }
 
-    protected String[] getUserRoles(Object context, String[] mappableRoles) {
+    protected Collection<String> getUserRoles(Object context, String[] mappableRoles) {
         ArrayList portletRoles = new ArrayList();
 
         for (int i = 0; i < mappableRoles.length; i++) {
@@ -20,8 +21,9 @@ public class PortletPreAuthenticatedAuthenticationDetailsSource extends Abstract
                 portletRoles.add(mappableRoles[i]);
             }
         }
-        
-        return (String[]) portletRoles.toArray(new String[portletRoles.size()]);
+        portletRoles.trimToSize();
+
+        return portletRoles;
     }
 
 }

@@ -70,7 +70,7 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
         }
 
         if ((authentication == null) || (authentication.getAuthorities() == null)
-            || (authentication.getAuthorities().length == 0)) {
+            || (authentication.getAuthorities().isEmpty())) {
             return false;
         }
 

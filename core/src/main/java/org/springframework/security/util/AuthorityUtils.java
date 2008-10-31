@@ -6,7 +6,10 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -14,7 +17,7 @@ import java.util.Set;
  * @version $Id$
  */
 public abstract class AuthorityUtils {
-    public static final GrantedAuthority[] NO_AUTHORITIES = new GrantedAuthority[0];
+    public static final List<GrantedAuthority> NO_AUTHORITIES = Collections.EMPTY_LIST;
 
     /**
      * Returns true if the current user has the specified authority.
@@ -24,10 +27,10 @@ public abstract class AuthorityUtils {
      * name exists in the current user's list of authorities. False otherwise, or if the user in not authenticated.
      */
     public static boolean userHasAuthority(String authority) {
-        GrantedAuthority[] authorities = getUserAuthorities();
+        List<GrantedAuthority> authorities = getUserAuthorities();
 
-        for (int i = 0; i < authorities.length; i++) {
-            if (authority.equals(authorities[i].getAuthority())) {
+        for (GrantedAuthority grantedAuthority : authorities) {
+            if (authority.equals(grantedAuthority.getAuthority())) {
                 return true;
             }
         }
@@ -40,7 +43,7 @@ public abstract class AuthorityUtils {
      *
      * @return an array containing the current user's authorities (or an empty array if not authenticated), never null.
      */
-    private static GrantedAuthority[] getUserAuthorities() {
+    private static List<GrantedAuthority> getUserAuthorities() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || auth.getAuthorities() == null) {
@@ -73,21 +76,21 @@ public abstract class AuthorityUtils {
      * Converts an array of GrantedAuthority objects to a Set.
      * @return a Set of the Strings obtained from each call to GrantedAuthority.getAuthority()
      */
-    public static Set authorityArrayToSet(GrantedAuthority[] authorities) {
-        Set set = new HashSet(authorities.length);
+    public static Set authorityArrayToSet(List<GrantedAuthority> authorities) {
+        Set set = new HashSet(authorities.size());
 
-        for (int i = 0; i < authorities.length; i++) {
-            set.add(authorities[i].getAuthority());
+        for (GrantedAuthority authority: authorities) {
+            set.add(authority.getAuthority());
         }
 
         return set;
     }
 
-    public static GrantedAuthority[] stringArrayToAuthorityArray(String[] roles) {
-        GrantedAuthority[] authorities = new GrantedAuthority[roles.length];
+    public static List<GrantedAuthority> createAuthorityList(String... roles) {
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(roles.length);
 
         for (int i=0; i < roles.length; i++) {
-            authorities[i] = new GrantedAuthorityImpl(roles[i]);
+            authorities.add(new GrantedAuthorityImpl(roles[i]));
         }
 
         return authorities;

@@ -1,19 +1,20 @@
 package org.springframework.security.userdetails.ldap;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+import java.util.Set;
+
+import org.junit.Test;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.security.providers.ldap.authenticator.MockUserSearch;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.util.AuthorityUtils;
-import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
-
-import static org.junit.Assert.*;
-import org.junit.Test;
-
-import java.util.Set;
 
 /**
  * Tests for {@link LdapUserDetailsService}
@@ -49,8 +50,8 @@ public class LdapUserDetailsServiceTests {
     }
 
     class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {
-        public GrantedAuthority[] getGrantedAuthorities(DirContextOperations userCtx, String username) {
-            return new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FROM_POPULATOR")};
+        public List<GrantedAuthority> getGrantedAuthorities(DirContextOperations userCtx, String username) {
+            return AuthorityUtils.createAuthorityList("ROLE_FROM_POPULATOR");
         }
     }
 }

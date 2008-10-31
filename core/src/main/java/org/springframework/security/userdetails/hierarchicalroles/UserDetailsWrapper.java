@@ -14,6 +14,8 @@
 
 package org.springframework.security.userdetails.hierarchicalroles;
 
+import java.util.List;
+
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
 
@@ -46,7 +48,7 @@ public class UserDetailsWrapper implements UserDetails {
         return userDetails.isAccountNonLocked();
     }
 
-    public GrantedAuthority[] getAuthorities() {
+    public List<GrantedAuthority> getAuthorities() {
         return roleHierarchy.getReachableGrantedAuthorities(userDetails.getAuthorities());
     }
 

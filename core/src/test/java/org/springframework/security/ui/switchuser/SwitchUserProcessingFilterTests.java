@@ -56,12 +56,12 @@ public class SwitchUserProcessingFilterTests {
     @Before
     public void authenticateCurrentUser() {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
-        SecurityContextHolder.getContext().setAuthentication(auth);    	
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
-    
+
     @After
     public void clearContext() {
-    	SecurityContextHolder.clearContext();
+        SecurityContextHolder.clearContext();
     }
 
     private MockHttpServletRequest createMockSwitchRequest() {
@@ -72,7 +72,7 @@ public class SwitchUserProcessingFilterTests {
 
         return request;
     }
-    
+
     private Authentication switchToUser(String name) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, name);
@@ -81,9 +81,9 @@ public class SwitchUserProcessingFilterTests {
         filter.setUserDetailsService(new MockUserDetailsService());
 
         return filter.attemptSwitchUser(request);
-    	
+
     }
-    
+
     @Test
     public void requiresExitUserMatchesCorrectly() {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
@@ -101,11 +101,11 @@ public class SwitchUserProcessingFilterTests {
         filter.setSwitchUserUrl("/j_spring_security_my_switch_user");
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("/j_spring_security_my_switch_user");        
-        
+        request.setRequestURI("/j_spring_security_my_switch_user");
+
         assertTrue(filter.requiresSwitchUser(request));
-    }    
-    
+    }
+
     @Test(expected=UsernameNotFoundException.class)
     public void attemptSwitchToUnknownUserFails() throws Exception {
 
@@ -119,27 +119,27 @@ public class SwitchUserProcessingFilterTests {
 
     @Test(expected=DisabledException.class)
     public void attemptSwitchToUserThatIsDisabledFails() throws Exception {
-    	switchToUser("mcgarrett");
+        switchToUser("mcgarrett");
     }
 
     @Test(expected=AccountExpiredException.class)
     public void attemptSwitchToUserWithAccountExpiredFails() throws Exception {
-    	switchToUser("wofat");
+        switchToUser("wofat");
     }
 
     @Test(expected=CredentialsExpiredException.class)
     public void attemptSwitchToUserWithExpiredCredentialsFails() throws Exception {
-    	switchToUser("steve");
+        switchToUser("steve");
     }
 
     @Test(expected=UsernameNotFoundException.class)
     public void switchUserWithNullUsernameThrowsException() throws Exception {
-    	switchToUser(null);
-    }    
-    
+        switchToUser(null);
+    }
+
     @Test
     public void attemptSwitchUserIsSuccessfulWithValidUser() throws Exception {
-    	assertNotNull(switchToUser("jacklord"));
+        assertNotNull(switchToUser("jacklord"));
     }
 
     @Test
@@ -177,7 +177,7 @@ public class SwitchUserProcessingFilterTests {
         filter.afterPropertiesSet();
     }
 
-    @Test(expected=IllegalArgumentException.class)    
+    @Test(expected=IllegalArgumentException.class)
     public void testBadConfigMissingTargetUrl() throws Exception {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
@@ -342,8 +342,8 @@ public class SwitchUserProcessingFilterTests {
 
         Authentication result = filter.attemptSwitchUser(request);
         assertTrue(result != null);
-        assertEquals(2, result.getAuthorities().length);
-        assertEquals("ROLE_NEW", result.getAuthorities()[0].getAuthority());
+        assertEquals(2, result.getAuthorities().size());
+        assertEquals("ROLE_NEW", result.getAuthorities().get(0).getAuthority());
     }
 
 

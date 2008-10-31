@@ -126,12 +126,12 @@ public class UserTests extends TestCase {
             assertTrue(true);
         }
 
-        try {
-            UserDetails user = new User("rod", "koala", true, true, true, true, null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+//        try {
+//            UserDetails user = new User("rod", "koala", true, true, true, true, null);
+//            fail("Should have thrown IllegalArgumentException");
+//        } catch (IllegalArgumentException expected) {
+//            assertTrue(true);
+//        }
 
         try {
             UserDetails user = new User("rod", "koala", true, true, true, true,
@@ -162,8 +162,8 @@ public class UserTests extends TestCase {
         assertEquals("rod", user.getUsername());
         assertEquals("koala", user.getPassword());
         assertTrue(user.isEnabled());
-        assertEquals(new GrantedAuthorityImpl("ROLE_ONE"), user.getAuthorities()[0]);
-        assertEquals(new GrantedAuthorityImpl("ROLE_TWO"), user.getAuthorities()[1]);
+        assertEquals(new GrantedAuthorityImpl("ROLE_ONE"), user.getAuthorities().get(0));
+        assertEquals(new GrantedAuthorityImpl("ROLE_TWO"), user.getAuthorities().get(1));
         assertTrue(user.toString().indexOf("rod") != -1);
     }
 

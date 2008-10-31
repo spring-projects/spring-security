@@ -34,8 +34,9 @@ import java.util.Vector;
  * "recipient" types presented in a <code>BasicAclEntry</code> because it merely delegates to the detected {@link
  * Authentication#getPrincipal()} or {@link Authentication#getAuthorities()}. The principal object or granted
  * authorities object has its <code>Object.equals(recipient)</code> method called to make the decision as to whether
- * the recipient in the <code>BasicAclEntry</code> is the same as the principal or granted authority.</p>
- *  <P>This class should prove an adequate ACLs resolver if you're using standard Spring Security classes. This is
+ * the recipient in the <code>BasicAclEntry</code> is the same as the principal or granted authority.
+ * <p>
+ * This class should prove an adequate ACLs resolver if you're using standard Spring Security classes. This is
  * because the typical <code>Authentication</code> token is <code>UsernamePasswordAuthenticationToken</code>, which
  * for its <code>principal</code> is usually a <code>String</code>. The <code>GrantedAuthorityImpl</code> is typically
  * used for granted authorities, which tests for equality based on a <code>String</code>. This means
@@ -93,9 +94,9 @@ public class GrantedAuthorityEffectiveAclsResolver implements EffectiveAclsResol
                 // As with the principal, allow each of the Authentication's
                 // granted authorities to decide whether the presented
                 // recipient is "equal"
-                GrantedAuthority[] authorities = filteredBy.getAuthorities();
+                List<GrantedAuthority >authorities = filteredBy.getAuthorities();
 
-                if ((authorities == null) || (authorities.length == 0)) {
+                if ((authorities == null) || (authorities.size() == 0)) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Did not match principal and there are no granted authorities, "
                                 + "so cannot compare with recipient: " + recipient);
@@ -104,10 +105,10 @@ public class GrantedAuthorityEffectiveAclsResolver implements EffectiveAclsResol
                     continue;
                 }
 
-                for (int k = 0; k < authorities.length; k++) {
-                    if (authorities[k].equals(recipient)) {
+                for (int k = 0; k < authorities.size(); k++) {
+                    if (authorities.get(k).equals(recipient)) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug("GrantedAuthority: " + authorities[k] + " matches recipient: " + recipient);
+                            logger.debug("GrantedAuthority: " + authorities.get(k) + " matches recipient: " + recipient);
                         }
 
                         list.add(allAcls[i]);

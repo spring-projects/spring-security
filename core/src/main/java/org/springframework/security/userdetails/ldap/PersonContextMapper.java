@@ -1,5 +1,7 @@
 package org.springframework.security.userdetails.ldap;
 
+import java.util.List;
+
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.ldap.core.DirContextOperations;
@@ -12,7 +14,7 @@ import org.springframework.util.Assert;
  */
 public class PersonContextMapper implements UserDetailsContextMapper {
 
-    public UserDetails mapUserFromContext(DirContextOperations ctx, String username, GrantedAuthority[] authorities) {
+    public UserDetails mapUserFromContext(DirContextOperations ctx, String username, List<GrantedAuthority> authorities) {
         Person.Essence p = new Person.Essence(ctx);
 
         p.setUsername(username);

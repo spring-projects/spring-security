@@ -22,8 +22,6 @@ import junit.framework.TestCase;
 
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.providers.TestingAuthenticationToken;
 
@@ -69,17 +67,11 @@ public class UnanimousBasedTests extends TestCase {
     }
 
     private TestingAuthenticationToken makeTestToken() {
-        return new TestingAuthenticationToken("somebody", "password",
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl("ROLE_2")});
+        return new TestingAuthenticationToken("somebody", "password", "ROLE_1", "ROLE_2");
     }
 
     private TestingAuthenticationToken makeTestTokenWithFooBarPrefix() {
-        return new TestingAuthenticationToken("somebody", "password",
-            new GrantedAuthority[] {new GrantedAuthorityImpl("FOOBAR_1"), new GrantedAuthorityImpl("FOOBAR_2")});
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
+        return new TestingAuthenticationToken("somebody", "password", "FOOBAR_1", "FOOBAR_2");
     }
 
     public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccess() throws Exception {

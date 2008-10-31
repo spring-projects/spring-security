@@ -91,20 +91,9 @@ public class RememberMeAuthenticationTokenTests extends TestCase {
         assertEquals("key".hashCode(), token.getKeyHash());
         assertEquals("Test", token.getPrincipal());
         assertEquals("", token.getCredentials());
-        assertEquals("ROLE_ONE", token.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", token.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_ONE", token.getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_TWO", token.getAuthorities().get(1).getAuthority());
         assertTrue(token.isAuthenticated());
-    }
-
-    public void testNoArgConstructorDoesntExist() {
-        Class clazz = RememberMeAuthenticationToken.class;
-
-        try {
-            clazz.getDeclaredConstructor((Class[]) null);
-            fail("Should have thrown NoSuchMethodException");
-        } catch (NoSuchMethodException expected) {
-            assertTrue(true);
-        }
     }
 
     public void testNotEqualsDueToAbstractParentEqualsCheck() {

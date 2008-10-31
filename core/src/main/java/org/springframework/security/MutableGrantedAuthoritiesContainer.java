@@ -1,5 +1,7 @@
 package org.springframework.security;
 
+import java.util.List;
+
 /**
  * Indicates that a object can be used to store and retrieve GrantedAuthority objects.
  * <p>
@@ -14,5 +16,5 @@ public interface MutableGrantedAuthoritiesContainer extends GrantedAuthoritiesCo
     /**
      * Used to store authorities in the containing object.
      */
-    void setGrantedAuthorities(GrantedAuthority[] authorities);
+    void setGrantedAuthorities(List<GrantedAuthority> authorities);
 }

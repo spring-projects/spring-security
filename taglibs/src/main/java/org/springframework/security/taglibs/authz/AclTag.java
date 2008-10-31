@@ -46,16 +46,19 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 /**
  * An implementation of {@link javax.servlet.jsp.tagext.Tag} that allows its body through if some authorizations
- * are granted to the request's principal.<P>Only works with permissions that are subclasses of {@link
- * org.springframework.security.acl.basic.BasicAclEntry}.</p>
- *  <p>One or more comma separate integer permissions are specified via the <code>hasPermission</code> attribute.
+ * are granted to the request's principal.
+ * <p>
+ * Only works with permissions that are subclasses of {@link org.springframework.security.acl.basic.BasicAclEntry}.
+ * <p>
+ * One or more comma separate integer permissions are specified via the <code>hasPermission</code> attribute.
  * The tag will include its body if <b>any</b> of the integer permissions have been granted to the current
- * <code>Authentication</code> (obtained from the <code>SecurityContextHolder</code>).</p>
- *  <p>For this class to operate it must be able to access the application context via the
+ * <code>Authentication</code> (obtained from the <code>SecurityContextHolder</code>).
+ * <p>
+ * For this class to operate it must be able to access the application context via the
  * <code>WebApplicationContextUtils</code> and locate an {@link AclManager}. Application contexts have no need to have
  * more than one <code>AclManager</code> (as a provider-based implementation can be used so that it locates a provider
  * that is authoritative for the given domain object instance), so the first <code>AclManager</code> located will be
- * used.</p>
+ * used.
  *
  * @author Ben Alex
  * @version $Id$

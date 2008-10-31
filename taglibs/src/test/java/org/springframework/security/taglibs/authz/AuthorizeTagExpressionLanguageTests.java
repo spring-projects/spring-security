@@ -43,8 +43,6 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
     //~ Methods ========================================================================================================
 
     protected void setUp() throws Exception {
-        super.setUp();
-
         pageContext = new MockPageContext();
         authorizeTag.setPageContext(pageContext);
 

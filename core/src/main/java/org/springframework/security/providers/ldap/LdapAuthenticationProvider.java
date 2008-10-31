@@ -15,6 +15,8 @@
 
 package org.springframework.security.providers.ldap;
 
+import java.util.List;
+
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
@@ -28,6 +30,7 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsMapper;
 import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
+import org.springframework.security.util.AuthorityUtils;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.ldap.NamingException;
 import org.springframework.ldap.core.DirContextOperations;
@@ -228,7 +231,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
         try {
             DirContextOperations userData = getAuthenticator().authenticate(authentication);
 
-            GrantedAuthority[] extraAuthorities = loadUserAuthorities(userData, username, password);
+            List<GrantedAuthority> extraAuthorities = loadUserAuthorities(userData, username, password);
 
             UserDetails user = userDetailsContextMapper.mapUserFromContext(userData, username, extraAuthorities);
 
@@ -239,7 +242,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
-    protected GrantedAuthority[] loadUserAuthorities(DirContextOperations userData, String username, String password) {
+    protected List<GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username, String password) {
         return getAuthoritiesPopulator().getGrantedAuthorities(userData, username);
     }
 
@@ -257,8 +260,8 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
     //~ Inner Classes ==================================================================================================
 
     private static class NullAuthoritiesPopulator implements LdapAuthoritiesPopulator {
-        public GrantedAuthority[] getGrantedAuthorities(DirContextOperations userDetails, String username) {
-            return new GrantedAuthority[0];
+        public List<GrantedAuthority> getGrantedAuthorities(DirContextOperations userDetails, String username) {
+            return AuthorityUtils.NO_AUTHORITIES;
         }
     }
 }

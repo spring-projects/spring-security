@@ -15,17 +15,12 @@
 
 package org.springframework.security.taglibs.velocity;
 
-import org.springframework.security.acl.AclManager;
-
-import org.springframework.security.taglibs.authz.AclTag;
-import org.springframework.security.taglibs.authz.AuthenticationTag;
-import org.springframework.security.taglibs.authz.AuthorizeTag;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.Tag;
 
 import org.springframework.context.ApplicationContext;
-
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.Tag;
+import org.springframework.security.taglibs.authz.AuthenticationTag;
+import org.springframework.security.taglibs.authz.AuthorizeTag;
 
 
 /**
@@ -60,56 +55,20 @@ public class AuthzImpl implements Authz {
 
     /**
      * implementation of AuthenticationTag
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws IllegalArgumentException DOCUMENT ME!
      */
     public String getPrincipal() {
         MyAuthenticationTag authenticationTag = new MyAuthenticationTag();
 
-        authenticationTag.setProperty("username");
+        authenticationTag.setProperty("name");
 
         try {
-            authenticationTag.doStartTag();
+            authenticationTag.doEndTag();
         } catch (JspException je) {
             je.printStackTrace();
             throw new IllegalArgumentException(je.getMessage());
         }
 
         return authenticationTag.getLastMessage();
-    }
-
-    /**
-     * implementation of AclTag
-     *
-     * @param domainObject DOCUMENT ME!
-     * @param permissions DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws IllegalArgumentException DOCUMENT ME!
-     */
-    public boolean hasPermission(Object domainObject, String permissions) {
-        MyAclTag aclTag = new MyAclTag();
-        aclTag.setPageContext(null);
-        aclTag.setContext(getAppCtx());
-        aclTag.setDomainObject(domainObject);
-        aclTag.setHasPermission(permissions);
-
-        int result = -1;
-
-        try {
-            result = aclTag.doStartTag();
-        } catch (JspException je) {
-            throw new IllegalArgumentException(je.getMessage());
-        }
-
-        if (Tag.EVAL_BODY_INCLUDE == result) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     /**
@@ -166,32 +125,12 @@ public class AuthzImpl implements Authz {
 
     /**
      * test case can use this class to mock application context with aclManager bean in it.
-     *
-     * @param appCtx DOCUMENT ME!
      */
     public void setAppCtx(ApplicationContext appCtx) {
         this.appCtx = appCtx;
     }
 
     //~ Inner Classes ==================================================================================================
-
-    /**
-     * AclTag need to access the application context via the <code> WebApplicationContextUtils</code> and
-     * locate an {@link AclManager}. WebApplicationContextUtils get application context via ServletContext. I decided
-     * to let the Authz provide the Spring application context.
-     */
-    private class MyAclTag extends AclTag {
-        private static final long serialVersionUID = 6752340622125924108L;
-        ApplicationContext context;
-
-        protected ApplicationContext getContext(PageContext pageContext) {
-            return context;
-        }
-
-        protected void setContext(ApplicationContext context) {
-            this.context = context;
-        }
-    }
 
     /**
      * it must output somthing to JSP page, so have to override the writeMessage method to avoid JSP related

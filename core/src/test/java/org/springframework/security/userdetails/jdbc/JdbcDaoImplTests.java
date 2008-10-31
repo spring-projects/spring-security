@@ -73,8 +73,8 @@ public class JdbcDaoImplTests extends TestCase {
         assertTrue(user.isEnabled());
 
         HashSet authorities = new HashSet(2);
-        authorities.add(user.getAuthorities()[0].getAuthority());
-        authorities.add(user.getAuthorities()[1].getAuthority());
+        authorities.add(user.getAuthorities().get(0).getAuthority());
+        authorities.add(user.getAuthorities().get(1).getAuthority());
         assertTrue(authorities.contains("ROLE_TELLER"));
         assertTrue(authorities.contains("ROLE_SUPERVISOR"));
     }
@@ -82,8 +82,8 @@ public class JdbcDaoImplTests extends TestCase {
     public void testCheckDaoOnlyReturnsGrantedAuthoritiesGrantedToUser() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
         UserDetails user = dao.loadUserByUsername("scott");
-        assertEquals("ROLE_TELLER", user.getAuthorities()[0].getAuthority());
-        assertEquals(1, user.getAuthorities().length);
+        assertEquals("ROLE_TELLER", user.getAuthorities().get(0).getAuthority());
+        assertEquals(1, user.getAuthorities().size());
     }
 
     public void testCheckDaoReturnsCorrectDisabledProperty() throws Exception {
@@ -135,11 +135,11 @@ public class JdbcDaoImplTests extends TestCase {
 
         UserDetails user = dao.loadUserByUsername("rod");
         assertEquals("rod", user.getUsername());
-        assertEquals(2, user.getAuthorities().length);
+        assertEquals(2, user.getAuthorities().size());
 
         HashSet authorities = new HashSet(2);
-        authorities.add(user.getAuthorities()[0].getAuthority());
-        authorities.add(user.getAuthorities()[1].getAuthority());
+        authorities.add(user.getAuthorities().get(0).getAuthority());
+        authorities.add(user.getAuthorities().get(1).getAuthority());
         assertTrue(authorities.contains("ARBITRARY_PREFIX_ROLE_TELLER"));
         assertTrue(authorities.contains("ARBITRARY_PREFIX_ROLE_SUPERVISOR"));
     }
@@ -150,7 +150,7 @@ public class JdbcDaoImplTests extends TestCase {
         dao.setEnableGroups(true);
 
         UserDetails jerry = dao.loadUserByUsername("jerry");
-        assertEquals(3, jerry.getAuthorities().length);
+        assertEquals(3, jerry.getAuthorities().size());
     }
 
     public void testDuplicateGroupAuthoritiesAreRemoved() throws Exception {
@@ -159,7 +159,7 @@ public class JdbcDaoImplTests extends TestCase {
         dao.setEnableGroups(true);
         // Tom has roles A, B, C and B, C duplicates
         UserDetails tom = dao.loadUserByUsername("tom");
-        assertEquals(3, tom.getAuthorities().length);
+        assertEquals(3, tom.getAuthorities().size());
     }
 
     public void testStartupFailsIfDataSourceNotSet() throws Exception {
@@ -182,14 +182,6 @@ public class JdbcDaoImplTests extends TestCase {
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
-        }
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    private class MockMappingSqlQuery extends MappingSqlQuery {
-        protected Object mapRow(ResultSet arg0, int arg1) throws SQLException {
-            return null;
         }
     }
 }

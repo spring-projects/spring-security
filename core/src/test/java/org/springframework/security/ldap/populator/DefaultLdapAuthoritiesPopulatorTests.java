@@ -24,6 +24,7 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -53,9 +54,9 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 
         DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("cn=notfound"));
 
-        GrantedAuthority[] authorities = populator.getGrantedAuthorities(ctx, "notfound");
-        assertEquals(1, authorities.length);
-        assertEquals("ROLE_USER", authorities[0].getAuthority());
+        List<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "notfound");
+        assertEquals(1, authorities.size());
+        assertEquals("ROLE_USER", authorities.get(0).getAuthority());
     }
 
     @Test
@@ -69,13 +70,13 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 
         DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
-        GrantedAuthority[] authorities = populator.getGrantedAuthorities(ctx, "ben");
+        List<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "ben");
 
-        assertEquals("Should have 2 roles", 2, authorities.length);
+        assertEquals("Should have 2 roles", 2, authorities.size());
 
         Set roles = new HashSet();
-        roles.add(authorities[0].toString());
-        roles.add(authorities[1].toString());
+        roles.add(authorities.get(0).toString());
+        roles.add(authorities.get(1).toString());
         assertTrue(roles.contains("ROLE_DEVELOPER"));
         assertTrue(roles.contains("ROLE_MANAGER"));
     }
@@ -88,10 +89,10 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 
         DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
-        GrantedAuthority[] authorities = populator.getGrantedAuthorities(ctx, "manager");
+        List<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "manager");
 
-        assertEquals("Should have 1 role", 1, authorities.length);
-        assertEquals("ROLE_MANAGER", authorities[0].getAuthority());
+        assertEquals("Should have 1 role", 1, authorities.size());
+        assertEquals("ROLE_MANAGER", authorities.get(0).getAuthority());
     }
 
     @Test
@@ -101,12 +102,12 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 
         DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
-        GrantedAuthority[] authorities = populator.getGrantedAuthorities(ctx, "manager");
+        List<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "manager");
 
-        assertEquals("Should have 2 roles", 2, authorities.length);
+        assertEquals("Should have 2 roles", 2, authorities.size());
         Set roles = new HashSet(2);
-        roles.add(authorities[0].getAuthority());
-        roles.add(authorities[1].getAuthority());
+        roles.add(authorities.get(0).getAuthority());
+        roles.add(authorities.get(1).getAuthority());
         assertTrue(roles.contains("ROLE_MANAGER"));
         assertTrue(roles.contains("ROLE_DEVELOPER"));
     }
@@ -119,13 +120,13 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 
         DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
-        GrantedAuthority[] authorities = populator.getGrantedAuthorities(ctx, "manager");
+        List<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "manager");
 
-        assertEquals("Should have 3 roles", 3, authorities.length);
+        assertEquals("Should have 3 roles", 3, authorities.size());
         Set roles = new HashSet(3);
-        roles.add(authorities[0].getAuthority());
-        roles.add(authorities[1].getAuthority());
-        roles.add(authorities[2].getAuthority());
+        roles.add(authorities.get(0).getAuthority());
+        roles.add(authorities.get(1).getAuthority());
+        roles.add(authorities.get(2).getAuthority());
         assertTrue(roles.contains("ROLE_MANAGER"));
         assertTrue(roles.contains("ROLE_DEVELOPER"));
         assertTrue(roles.contains("ROLE_SUBMANAGER"));
@@ -134,15 +135,15 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
     @Test
     public void testUserDnWithEscapedCharacterParameterReturnsExpectedRoles() {
         populator.setGroupRoleAttribute("ou");
-        populator.setConvertToUpperCase(true);        
+        populator.setConvertToUpperCase(true);
         populator.setGroupSearchFilter("(member={0})");
 
         DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("cn=mouse\\, jerry,ou=people,dc=springframework,dc=org"));
 
-        GrantedAuthority[] authorities = populator.getGrantedAuthorities(ctx, "notused");
+        List<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "notused");
 
-        assertEquals("Should have 1 role", 1, authorities.length);
-        assertEquals("ROLE_MANAGER", authorities[0].getAuthority());
-    }    
-    
+        assertEquals("Should have 1 role", 1, authorities.size());
+        assertEquals("ROLE_MANAGER", authorities.get(0).getAuthority());
+    }
+
 }

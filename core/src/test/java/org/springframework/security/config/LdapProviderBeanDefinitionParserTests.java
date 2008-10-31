@@ -38,15 +38,15 @@ public class LdapProviderBeanDefinitionParserTests {
         Authentication auth = provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "benspassword"));
         LdapUserDetailsImpl ben = (LdapUserDetailsImpl) auth.getPrincipal();
 
-        assertEquals(3, ben.getAuthorities().length);
+        assertEquals(3, ben.getAuthorities().size());
     }
-    
+
     @Test(expected = SecurityConfigurationException.class)
     public void missingServerEltCausesConfigException() {
         setContext("<ldap-authentication-provider />");
     }
 
-    
+
     @Test
     public void supportsPasswordComparisonAuthentication() {
         setContext("<ldap-server /> " +
@@ -54,10 +54,10 @@ public class LdapProviderBeanDefinitionParserTests {
                 "    <password-compare />" +
                 "</ldap-authentication-provider>");
         LdapAuthenticationProvider provider = getProvider();
-        provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "benspassword"));        
-    }    
-    
-    
+        provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "benspassword"));
+    }
+
+
     @Test
     public void supportsPasswordComparisonAuthenticationWithHashAttribute() {
         setContext("<ldap-server /> " +
@@ -65,27 +65,27 @@ public class LdapProviderBeanDefinitionParserTests {
                 "    <password-compare password-attribute='uid' hash='plaintext'/>" +
                 "</ldap-authentication-provider>");
         LdapAuthenticationProvider provider = getProvider();
-        provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "ben"));        
-    }    
-    
+        provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "ben"));
+    }
+
     @Test
     public void supportsPasswordComparisonAuthenticationWithPasswordEncoder() {
         setContext("<ldap-server /> " +
-        		"<ldap-authentication-provider user-dn-pattern='uid={0},ou=people'>" +
-        		"    <password-compare password-attribute='uid'>" +
-        		"        <password-encoder hash='plaintext'/>" +
-        		"    </password-compare>" +
-        		"</ldap-authentication-provider>");
+                "<ldap-authentication-provider user-dn-pattern='uid={0},ou=people'>" +
+                "    <password-compare password-attribute='uid'>" +
+                "        <password-encoder hash='plaintext'/>" +
+                "    </password-compare>" +
+                "</ldap-authentication-provider>");
         LdapAuthenticationProvider provider = getProvider();
-        provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "ben"));        
-    }    
+        provider.authenticate(new UsernamePasswordAuthenticationToken("ben", "ben"));
+    }
 
     @Test
     public void detectsNonStandardServerId() {
         setContext("<ldap-server id='myServer'/> " +
                 "<ldap-authentication-provider />");
     }
-    
+
     @Test
     public void inetOrgContextMapperIsSupported() throws Exception {
         setContext(
@@ -93,8 +93,8 @@ public class LdapProviderBeanDefinitionParserTests {
                 "<ldap-authentication-provider user-details-class='inetOrgPerson'/>");
         LdapAuthenticationProvider provider = getProvider();
         assertTrue(FieldUtils.getFieldValue(provider, "userDetailsContextMapper") instanceof InetOrgPersonContextMapper);
-    }    
-    
+    }
+
     private void setContext(String context) {
         appCtx = new InMemoryXmlApplicationContext(context);
     }
@@ -106,5 +106,5 @@ public class LdapProviderBeanDefinitionParserTests {
 
         LdapAuthenticationProvider provider = (LdapAuthenticationProvider) authManager.getProviders().get(0);
         return provider;
-    }    
+    }
 }

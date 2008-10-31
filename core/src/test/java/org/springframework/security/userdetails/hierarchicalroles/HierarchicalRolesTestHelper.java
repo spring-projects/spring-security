@@ -14,7 +14,6 @@
 
 package org.springframework.security.userdetails.hierarchicalroles;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.security.GrantedAuthority;
@@ -27,17 +26,15 @@ import org.apache.commons.collections.CollectionUtils;
  */
 public abstract class HierarchicalRolesTestHelper {
 
-    public static boolean containTheSameGrantedAuthorities(GrantedAuthority[] authorities1, GrantedAuthority[] authorities2) {
+    public static boolean containTheSameGrantedAuthorities(List<GrantedAuthority> authorities1, List<GrantedAuthority> authorities2) {
         if (authorities1 == null && authorities2 == null) {
             return true;
-        } else if (authorities1 == null || authorities2 == null) {
+        }
+
+        if (authorities1 == null || authorities2 == null) {
             return false;
         }
-        List authoritiesList1 = new ArrayList();
-        CollectionUtils.addAll(authoritiesList1, authorities1);
-        List authoritiesList2 = new ArrayList();
-        CollectionUtils.addAll(authoritiesList2, authorities2);
-        return CollectionUtils.isEqualCollection(authoritiesList1, authoritiesList2);
+        return CollectionUtils.isEqualCollection(authorities1, authorities2);
     }
 
 }

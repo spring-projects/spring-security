@@ -17,8 +17,6 @@ package org.springframework.security.taglibs.velocity;
 
 import org.springframework.security.Authentication;
 
-import org.springframework.security.acl.AclManager;
-
 import org.springframework.security.taglibs.authz.AclTag;
 import org.springframework.security.taglibs.authz.AuthenticationTag;
 import org.springframework.security.taglibs.authz.AuthorizeTag;
@@ -39,7 +37,7 @@ public interface Authz {
     //~ Methods ========================================================================================================
 
     /**
-     * all the listed roles must be granted to return true, otherwise fasle;
+     * all the listed roles must be granted to return true, otherwise false;
      *
      * @param roles - comma separate GrantedAuthoritys
      *
@@ -48,7 +46,7 @@ public interface Authz {
     boolean allGranted(String roles);
 
     /**
-     * any the listed roles must be granted to return true, otherwise fasle;
+     * any the listed roles must be granted to return true, otherwise false;
      *
      * @param roles - comma separate GrantedAuthoritys
      *
@@ -57,9 +55,8 @@ public interface Authz {
     boolean anyGranted(String roles);
 
     /**
-     * set Spring application context which contains acegi related bean
+     * get Spring application context which contains
      *
-     * @return DOCUMENT ME!
      */
     ApplicationContext getAppCtx();
 
@@ -72,20 +69,7 @@ public interface Authz {
     String getPrincipal();
 
     /**
-     * return true if the principal holds either permission specified for the provided domain object<P>Only
-     * works with permissions that are subclasses of {@link org.springframework.security.acl.basic.AbstractBasicAclEntry}.</p>
-     *  <p>For this class to operate it must be able to access the application context via the
-     * <code>WebApplicationContextUtils</code> and locate an {@link AclManager}.</p>
-     *
-     * @param domainObject - domain object need acl control
-     * @param permissions - comma separate integer permissions
-     *
-     * @return got acl permission (true|false)
-     */
-    boolean hasPermission(Object domainObject, String permissions);
-
-    /**
-     * none the listed roles must be granted to return true, otherwise fasle;
+     * none the listed roles must be granted to return true, otherwise false;
      *
      * @param roles - comma separate GrantedAuthoritys
      *
@@ -94,9 +78,8 @@ public interface Authz {
     boolean noneGranted(String roles);
 
     /**
-     * get Spring application context which contains acegi related bean
+     * set Spring application context which contains Acegi related bean
      *
-     * @param appCtx DOCUMENT ME!
      */
     void setAppCtx(ApplicationContext appCtx);
 }

@@ -1,80 +1,77 @@
 package org.springframework.security.providers.preauth;
 
-import org.springframework.security.GrantedAuthoritiesContainer;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.userdetails.UserDetails;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.springframework.security.GrantedAuthoritiesContainer;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
- * 
+ *
  * @author TSARDD
  * @since 18-okt-2007
  */
-public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests extends TestCase {
+public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 
-	public final void testGetUserDetailsInvalidType() {
-		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
-		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("dummy", "dummy");
-		token.setDetails(new Object());
-		try {
-			svc.loadUserDetails(token);
-			fail("Expected exception didn't occur");
-		} catch (IllegalArgumentException expected) {
-		}
-	}
+    @Test(expected=IllegalArgumentException.class)
+    public void testGetUserDetailsInvalidType() {
+        PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
+        PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("dummy", "dummy");
+        token.setDetails(new Object());
+        svc.loadUserDetails(token);
+    }
 
-	public final void testGetUserDetailsNoDetails() {
-		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
-		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("dummy", "dummy");
-		token.setDetails(null);
-		try {
-			svc.loadUserDetails(token);
-			fail("Expected exception didn't occur");
-		} catch (IllegalArgumentException expected) {
-		}
-	}
+    @Test(expected=IllegalArgumentException.class)
+    public void testGetUserDetailsNoDetails() {
+        PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
+        PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken("dummy", "dummy");
+        token.setDetails(null);
+        svc.loadUserDetails(token);
+    }
 
-	public final void testGetUserDetailsEmptyAuthorities() {
-		final String userName = "dummyUser";
-		final GrantedAuthority[] gas = new GrantedAuthority[] {};
-		testGetUserDetails(userName, gas);
-	}
+    @Test
+    public void testGetUserDetailsEmptyAuthorities() {
+        final String userName = "dummyUser";
+        testGetUserDetails(userName, AuthorityUtils.NO_AUTHORITIES);
+    }
 
-	public final void testGetUserDetailsWithAuthorities() {
-		final String userName = "dummyUser";
-		final GrantedAuthority[] gas = new GrantedAuthority[] { new GrantedAuthorityImpl("Role1"), new GrantedAuthorityImpl("Role2") };
-		testGetUserDetails(userName, gas);
-	}
+    @Test
+    public void testGetUserDetailsWithAuthorities() {
+        final String userName = "dummyUser";
+        testGetUserDetails(userName, AuthorityUtils.createAuthorityList("Role1", "Role2"));
+    }
 
-	private void testGetUserDetails(final String userName, final GrantedAuthority[] gas) {
-		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
-		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(userName, "dummy");
-		token.setDetails(new GrantedAuthoritiesContainer() {
-			public GrantedAuthority[] getGrantedAuthorities() {
-				return gas;
-			}
-		});
-		UserDetails ud = svc.loadUserDetails(token);
-		assertTrue(ud.isAccountNonExpired());
-		assertTrue(ud.isAccountNonLocked());
-		assertTrue(ud.isCredentialsNonExpired());
-		assertTrue(ud.isEnabled());
-		assertEquals(ud.getUsername(), userName);
+    private void testGetUserDetails(final String userName, final List<GrantedAuthority> gas) {
+        PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
+        PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(userName, "dummy");
+        token.setDetails(new GrantedAuthoritiesContainer() {
+            public List<GrantedAuthority> getGrantedAuthorities() {
+                return gas;
+            }
+        });
+        UserDetails ud = svc.loadUserDetails(token);
+        assertTrue(ud.isAccountNonExpired());
+        assertTrue(ud.isAccountNonLocked());
+        assertTrue(ud.isCredentialsNonExpired());
+        assertTrue(ud.isEnabled());
+        assertEquals(ud.getUsername(), userName);
 
-		//Password is not saved by
-		// PreAuthenticatedGrantedAuthoritiesUserDetailsService
-		//assertEquals(ud.getPassword(),password);
+        //Password is not saved by
+        // PreAuthenticatedGrantedAuthoritiesUserDetailsService
+        //assertEquals(ud.getPassword(),password);
 
-		Collection expectedColl = Arrays.asList(gas);
-		Collection resultColl = Arrays.asList(ud.getAuthorities());
-		assertTrue("GrantedAuthority collections do not match; result: " + resultColl + ", expected: " + expectedColl, expectedColl
-				.containsAll(resultColl)
-				&& resultColl.containsAll(expectedColl));
-	}
+        Collection expectedColl = Arrays.asList(gas);
+        Collection resultColl = Arrays.asList(ud.getAuthorities());
+        assertTrue("GrantedAuthority collections do not match; result: " + resultColl + ", expected: " + expectedColl, expectedColl
+                .containsAll(resultColl)
+                && resultColl.containsAll(expectedColl));
+    }
 
 }

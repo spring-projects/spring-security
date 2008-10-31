@@ -15,6 +15,8 @@
 
 package org.springframework.security.providers.rcp;
 
+import java.util.List;
+
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.GrantedAuthority;
@@ -27,9 +29,10 @@ import org.springframework.util.Assert;
 
 
 /**
- * Server-side processor of a remote authentication request.<P>This bean requires no security interceptor to
- * protect it. Instead, the bean uses the configured <code>AuthenticationManager</code> to resolve an authentication
- * request.</p>
+ * Server-side processor of a remote authentication request.
+ * <p>
+ * This bean requires no security interceptor to protect it. Instead, the bean uses the configured
+ * <code>AuthenticationManager</code> to resolve an authentication request.
  *
  * @author Ben Alex
  * @version $Id$
@@ -46,11 +49,13 @@ public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationMana
     }
 
     public GrantedAuthority[] attemptAuthentication(String username, String password)
-        throws RemoteAuthenticationException {
+            throws RemoteAuthenticationException {
         UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(username, password);
 
         try {
-            return authenticationManager.authenticate(request).getAuthorities();
+            List<GrantedAuthority> authorities = authenticationManager.authenticate(request).getAuthorities();
+
+            return authorities == null ? null : authorities.toArray(new GrantedAuthority[authorities.size()]);
         } catch (AuthenticationException authEx) {
             throw new RemoteAuthenticationException(authEx.getMessage());
         }

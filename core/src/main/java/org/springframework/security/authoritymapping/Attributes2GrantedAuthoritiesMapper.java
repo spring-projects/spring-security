@@ -1,5 +1,8 @@
 package org.springframework.security.authoritymapping;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.springframework.security.GrantedAuthority;
 
 /**
@@ -20,5 +23,5 @@ public interface Attributes2GrantedAuthoritiesMapper {
      * @param attribute the attributes to be mapped
      * @return the list of mapped GrantedAuthorities
      */
-    public GrantedAuthority[] getGrantedAuthorities(String[] attributes);
+    public List<GrantedAuthority> getGrantedAuthorities(Collection<String> attributes);
 }

@@ -16,6 +16,8 @@
 package org.springframework.security.providers.rememberme;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.providers.AbstractAuthenticationToken;
@@ -37,6 +39,10 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken i
 
     //~ Constructors ===================================================================================================
 
+    public RememberMeAuthenticationToken(String key, Object principal, GrantedAuthority[] authorities) {
+        this(key, principal, Arrays.asList(authorities));
+    }
+
     /**
      * Constructor.
      *
@@ -46,7 +52,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken i
      *
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
-    public RememberMeAuthenticationToken(String key, Object principal, GrantedAuthority[] authorities) {
+    public RememberMeAuthenticationToken(String key, Object principal, List<GrantedAuthority> authorities) {
         super(authorities);
 
         if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal)) {

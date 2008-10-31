@@ -10,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -39,7 +40,7 @@ public class AuthorityUtilsTests {
     @Test
     public void userHasAuthorityReturnsTrueWhenUserHasCorrectAuthority() {
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("user", "password",
-                AuthorityUtils.stringArrayToAuthorityArray(new String[] {"A", "B"})));
+                AuthorityUtils.createAuthorityList("A", "B")));
         assertTrue(AuthorityUtils.userHasAuthority("A"));
         assertTrue(AuthorityUtils.userHasAuthority("B"));
         assertFalse(AuthorityUtils.userHasAuthority("C"));
@@ -50,7 +51,7 @@ public class AuthorityUtilsTests {
         GrantedAuthority[] authorityArray =
                 AuthorityUtils.commaSeparatedStringToAuthorityArray(" ROLE_A, B, C, ROLE_D, E ");
 
-        Set authorities = AuthorityUtils.authorityArrayToSet(authorityArray);
+        Set authorities = AuthorityUtils.authorityArrayToSet(Arrays.asList(authorityArray));
 
         assertTrue(authorities.contains("B"));
         assertTrue(authorities.contains("C"));

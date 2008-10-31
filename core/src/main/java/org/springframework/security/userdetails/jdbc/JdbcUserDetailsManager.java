@@ -134,12 +134,12 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     public void createUser(final UserDetails user) {
         validateUserDetails(user);
         getJdbcTemplate().update(createUserSql, new PreparedStatementSetter() {
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setString(1, user.getUsername());
-				ps.setString(2, user.getPassword());
-				ps.setBoolean(3, user.isEnabled());
-			}
-        	
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setString(1, user.getUsername());
+                ps.setString(2, user.getPassword());
+                ps.setBoolean(3, user.isEnabled());
+            }
+
         });
 
         insertUserAuthorities(user);
@@ -148,11 +148,11 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     public void updateUser(final UserDetails user) {
         validateUserDetails(user);
         getJdbcTemplate().update(updateUserSql, new PreparedStatementSetter() {
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setString(1, user.getPassword());
-				ps.setBoolean(2, user.isEnabled());
-				ps.setString(3, user.getUsername());
-			}
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setString(1, user.getPassword());
+                ps.setBoolean(2, user.isEnabled());
+                ps.setString(3, user.getUsername());
+            }
         });
 
         deleteUserAuthorities(user.getUsername());
@@ -162,9 +162,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     }
 
     private void insertUserAuthorities(UserDetails user) {
-        for (int i=0; i < user.getAuthorities().length; i++) {
-        	getJdbcTemplate().update(createAuthoritySql, 
-        			new Object[] {user.getUsername(), user.getAuthorities()[i].getAuthority()});
+        for (int i=0; i < user.getAuthorities().size(); i++) {
+            getJdbcTemplate().update(createAuthoritySql,
+                    new Object[] {user.getUsername(), user.getAuthorities().get(i).getAuthority()});
         }
     }
 
@@ -173,9 +173,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         getJdbcTemplate().update(deleteUserSql, new Object[] {username});
         userCache.removeUserFromCache(username);
     }
-    
+
     private void deleteUserAuthorities(String username) {
-    	getJdbcTemplate().update(deleteUserAuthoritiesSql, new Object[] {username});
+        getJdbcTemplate().update(deleteUserAuthoritiesSql, new Object[] {username});
     }
 
     public void changePassword(String oldPassword, String newPassword) throws AuthenticationException {
@@ -218,7 +218,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     }
 
     public boolean userExists(String username) {
-    	List users = getJdbcTemplate().queryForList(userExistsSql, new Object[] {username});
+        List users = getJdbcTemplate().queryForList(userExistsSql, new Object[] {username});
 
         if (users.size() > 1) {
             throw new IncorrectResultSizeDataAccessException("More than one user found with name '" + username + "'", 1);
@@ -238,25 +238,25 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         return (String[]) getJdbcTemplate().queryForList(findUsersInGroupSql, new String[] {groupName}, String.class).toArray(new String[0]);
     }
 
-    public void createGroup(final String groupName, final GrantedAuthority[] authorities) {
+    public void createGroup(final String groupName, final List<GrantedAuthority> authorities) {
         Assert.hasText(groupName);
         Assert.notNull(authorities);
 
         logger.debug("Creating new group '" + groupName + "' with authorities " +
-                    AuthorityUtils.authorityArrayToSet(authorities));
+                AuthorityUtils.authorityArrayToSet(authorities));
 
         getJdbcTemplate().update(insertGroupSql, new String[] {groupName});
-        
+
         final int groupId = findGroupId(groupName);
 
-        for (int i=0; i < authorities.length; i++) {
-        	final String authority = authorities[i].getAuthority(); 
-        	getJdbcTemplate().update(insertGroupAuthoritySql, new PreparedStatementSetter() {
-				public void setValues(PreparedStatement ps) throws SQLException {
-					ps.setInt(1, groupId);
-					ps.setString(2, authority);
-				}
-        	});
+        for (int i=0; i < authorities.size(); i++) {
+            final String authority = authorities.get(i).getAuthority();
+            getJdbcTemplate().update(insertGroupAuthoritySql, new PreparedStatementSetter() {
+                public void setValues(PreparedStatement ps) throws SQLException {
+                    ps.setInt(1, groupId);
+                    ps.setString(2, authority);
+                }
+            });
         }
     }
 
@@ -266,9 +266,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
         final int id = findGroupId(groupName);
         PreparedStatementSetter groupIdPSS = new PreparedStatementSetter() {
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setInt(1, id);
-			}
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setInt(1, id);
+            }
         };
         getJdbcTemplate().update(deleteGroupMembersSql, groupIdPSS);
         getJdbcTemplate().update(deleteGroupAuthoritiesSql, groupIdPSS);
@@ -290,10 +290,10 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
         final int id = findGroupId(groupName);
         getJdbcTemplate().update(insertGroupMemberSql, new PreparedStatementSetter() {
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setInt(1, id);
-				ps.setString(2, username);
-			}
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setInt(1, id);
+                ps.setString(2, username);
+            }
         });
 
         userCache.removeUserFromCache(username);
@@ -307,29 +307,29 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         final int id = findGroupId(groupName);
 
         getJdbcTemplate().update(deleteGroupMemberSql, new PreparedStatementSetter() {
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setInt(1, id);
-				ps.setString(2, username);
-			}
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setInt(1, id);
+                ps.setString(2, username);
+            }
         });
 
         userCache.removeUserFromCache(username);
     }
 
-    public GrantedAuthority[] findGroupAuthorities(String groupName) {
+    public List<GrantedAuthority> findGroupAuthorities(String groupName) {
         logger.debug("Loading authorities for group '" + groupName + "'");
         Assert.hasText(groupName);
-        
-        List authorities = getJdbcTemplate().query(groupAuthoritiesSql, new String[] {groupName}, new RowMapper() {
-			public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-	             String roleName = getRolePrefix() + rs.getString(3);
-	             GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
 
-	             return authority;				
-			}        	
+        List<GrantedAuthority> authorities = getJdbcTemplate().query(groupAuthoritiesSql, new String[] {groupName}, new RowMapper() {
+            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+                 String roleName = getRolePrefix() + rs.getString(3);
+                 GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
+
+                 return authority;
+            }
         });
 
-        return (GrantedAuthority[]) authorities.toArray(new GrantedAuthority[0]);
+        return authorities;
     }
 
     public void removeGroupAuthority(String groupName, final GrantedAuthority authority) {
@@ -338,13 +338,13 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         Assert.notNull(authority);
 
         final int id = findGroupId(groupName);
-        
+
         getJdbcTemplate().update(deleteGroupAuthoritySql, new PreparedStatementSetter() {
 
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setInt(1, id);
-				ps.setString(2, authority.getAuthority());
-			}        	
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setInt(1, id);
+                ps.setString(2, authority.getAuthority());
+            }
         });
     }
 
@@ -355,15 +355,15 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
         final int id = findGroupId(groupName);
         getJdbcTemplate().update(insertGroupAuthoritySql, new PreparedStatementSetter() {
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setInt(1, id);
-				ps.setString(2, authority.getAuthority());
-			}
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setInt(1, id);
+                ps.setString(2, authority.getAuthority());
+            }
         });
     }
-    
+
     private int findGroupId(String group) {
-    	return getJdbcTemplate().queryForInt(findGroupIdSql, new Object[] {group});
+        return getJdbcTemplate().queryForInt(findGroupIdSql, new Object[] {group});
     }
 
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
@@ -425,12 +425,12 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         validateAuthorities(user.getAuthorities());
     }
 
-    private void validateAuthorities(GrantedAuthority[] authorities) {
+    private void validateAuthorities(List<GrantedAuthority> authorities) {
         Assert.notNull(authorities, "Authorities list must not be null");
 
-        for (int i=0; i < authorities.length; i++) {
-            Assert.notNull(authorities[i], "Authorities list contains a null entry");
-            Assert.hasText(authorities[i].getAuthority(), "getAuthority() method must return a non-empty string");
+        for (int i=0; i < authorities.size(); i++) {
+            Assert.notNull(authorities.get(i), "Authorities list contains a null entry");
+            Assert.hasText(authorities.get(i).getAuthority(), "getAuthority() method must return a non-empty string");
         }
     }
 }

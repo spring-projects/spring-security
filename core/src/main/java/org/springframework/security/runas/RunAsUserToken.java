@@ -15,6 +15,8 @@
 
 package org.springframework.security.runas;
 
+import java.util.Arrays;
+
 import org.springframework.security.GrantedAuthority;
 
 import org.springframework.security.providers.AbstractAuthenticationToken;
@@ -38,8 +40,8 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
     //~ Constructors ===================================================================================================
 
     public RunAsUserToken(String key, Object principal, Object credentials, GrantedAuthority[] authorities,
-        Class originalAuthentication) {
-        super(authorities);
+            Class originalAuthentication) {
+        super(Arrays.asList(authorities));
         this.keyHash = key.hashCode();
         this.principal = principal;
         this.credentials = credentials;

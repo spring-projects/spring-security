@@ -15,7 +15,6 @@
 
 package org.springframework.security;
 
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -34,8 +33,8 @@ public class MockAccessDecisionManager implements AccessDecisionManager {
 
         for(ConfigAttribute attr : configAttributes) {
             if (this.supports(attr)) {
-                for (int i = 0; i < authentication.getAuthorities().length; i++) {
-                    if (attr.getAttribute().equals(authentication.getAuthorities()[i].getAuthority())) {
+                for(GrantedAuthority authority : authentication.getAuthorities()) {
+                    if (attr.getAttribute().equals(authority.getAuthority())) {
                         return;
                     }
                 }

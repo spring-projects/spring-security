@@ -15,12 +15,15 @@
 
 package org.springframework.security.userdetails;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.util.Assert;
-
 
 /**
  * Models core user information retieved by an {@link UserDetailsService}.<p>Implemented with value object
@@ -36,7 +39,7 @@ public class User implements UserDetails {
     private static final long serialVersionUID = 1L;
     private String password;
     private String username;
-    private GrantedAuthority[] authorities;
+    private List<GrantedAuthority> authorities;
     private boolean accountNonExpired;
     private boolean accountNonLocked;
     private boolean credentialsNonExpired;
@@ -45,58 +48,12 @@ public class User implements UserDetails {
     //~ Constructors ===================================================================================================
 
     /**
-     * Construct the <code>User</code> with the details required by
-     * {@link org.springframework.security.providers.dao.DaoAuthenticationProvider}.
-     *
-     * @param username the username presented to the
-     *        <code>DaoAuthenticationProvider</code>
-     * @param password the password that should be presented to the
-     *        <code>DaoAuthenticationProvider</code>
-     * @param enabled set to <code>true</code> if the user is enabled
-     * @param authorities the authorities that should be granted to the caller
-     *        if they presented the correct username and password and the user
-     *        is enabled
-     *
-     * @throws IllegalArgumentException if a <code>null</code> value was passed
-     *         either as a parameter or as an element in the
-     *         <code>GrantedAuthority[]</code> array
-     *
-     * @deprecated use new constructor with extended properties (this
-     *             constructor will be removed from release 1.0.0)
-     */
-    public User(String username, String password, boolean enabled, GrantedAuthority[] authorities)
-        throws IllegalArgumentException {
-        this(username, password, enabled, true, true, authorities);
-    }
-
-    /**
-     * Construct the <code>User</code> with the details required by
-     * {@link org.springframework.security.providers.dao.DaoAuthenticationProvider}.
-     *
-     * @param username the username presented to the
-     *        <code>DaoAuthenticationProvider</code>
-     * @param password the password that should be presented to the
-     *        <code>DaoAuthenticationProvider</code>
-     * @param enabled set to <code>true</code> if the user is enabled
-     * @param accountNonExpired set to <code>true</code> if the account has not
-     *        expired
-     * @param credentialsNonExpired set to <code>true</code> if the credentials
-     *        have not expired
-     * @param authorities the authorities that should be granted to the caller
-     *        if they presented the correct username and password and the user
-     *        is enabled
-     *
-     * @throws IllegalArgumentException if a <code>null</code> value was passed
-     *         either as a parameter or as an element in the
-     *         <code>GrantedAuthority[]</code> array
-     *
-     * @deprecated use new constructor with extended properties (this
-     *             constructor will be removed from release 1.0.0)
+     * @deprecated
      */
     public User(String username, String password, boolean enabled, boolean accountNonExpired,
-        boolean credentialsNonExpired, GrantedAuthority[] authorities)
-        throws IllegalArgumentException {
-        this(username, password, enabled, accountNonExpired, credentialsNonExpired, true, authorities);
+            boolean credentialsNonExpired, boolean accountNonLocked, GrantedAuthority[] authorities) {
+        this(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked,
+                authorities == null ? null : Arrays.asList(authorities));
     }
 
     /**
@@ -123,8 +80,8 @@ public class User implements UserDetails {
      *         <code>GrantedAuthority[]</code> array
      */
     public User(String username, String password, boolean enabled, boolean accountNonExpired,
-        boolean credentialsNonExpired, boolean accountNonLocked, GrantedAuthority[] authorities)
-        throws IllegalArgumentException {
+            boolean credentialsNonExpired, boolean accountNonLocked, List<GrantedAuthority> authorities) {
+
         if (((username == null) || "".equals(username)) || (password == null)) {
             throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
         }
@@ -149,14 +106,8 @@ public class User implements UserDetails {
 
         // We rely on constructor to guarantee any User has non-null and >0
         // authorities
-        if (user.getAuthorities().length != this.getAuthorities().length) {
+        if (!authorities.equals(user.authorities)) {
             return false;
-        }
-
-        for (int i = 0; i < this.getAuthorities().length; i++) {
-            if (!this.getAuthorities()[i].equals(user.getAuthorities()[i])) {
-                return false;
-            }
         }
 
         // We rely on constructor to guarantee non-null username and password
@@ -167,7 +118,7 @@ public class User implements UserDetails {
                 && (this.isEnabled() == user.isEnabled()));
     }
 
-    public GrantedAuthority[] getAuthorities() {
+    public List<GrantedAuthority> getAuthorities() {
         return authorities;
     }
 
@@ -183,8 +134,8 @@ public class User implements UserDetails {
         int code = 9792;
 
         if (this.getAuthorities() != null) {
-            for (int i = 0; i < this.getAuthorities().length; i++) {
-                code = code * (this.getAuthorities()[i].hashCode() % 7);
+            for (int i = 0; i < this.getAuthorities().size(); i++) {
+                code = code * (authorities.get(i).hashCode() % 7);
             }
         }
 
@@ -231,17 +182,20 @@ public class User implements UserDetails {
         return enabled;
     }
 
-    protected void setAuthorities(GrantedAuthority[] authorities) {
+    protected void setAuthorities(List<GrantedAuthority> authorities) {
         Assert.notNull(authorities, "Cannot pass a null GrantedAuthority array");
         // Ensure array iteration order is predictable (as per UserDetails.getAuthorities() contract and SEC-xxx)
-        SortedSet sorter = new TreeSet();
-        for (int i = 0; i < authorities.length; i++) {
-            Assert.notNull(authorities[i],
-                "Granted authority element " + i + " is null - GrantedAuthority[] cannot contain any null elements");
-            sorter.add(authorities[i]);
+        SortedSet<GrantedAuthority> sorter = new TreeSet<GrantedAuthority>();
+
+        for (GrantedAuthority grantedAuthority : authorities) {
+            Assert.notNull(grantedAuthority, "GrantedAuthority list cannot contain any null elements");
+            sorter.add(grantedAuthority);
         }
-        
-        this.authorities = (GrantedAuthority[]) sorter.toArray(new GrantedAuthority[sorter.size()]);
+
+        List<GrantedAuthority> sortedAuthorities = new ArrayList<GrantedAuthority>(sorter.size());
+        sortedAuthorities.addAll(sorter);
+
+        this.authorities = Collections.unmodifiableList(sortedAuthorities);
     }
 
     public String toString() {
@@ -257,12 +211,12 @@ public class User implements UserDetails {
         if (this.getAuthorities() != null) {
             sb.append("Granted Authorities: ");
 
-            for (int i = 0; i < this.getAuthorities().length; i++) {
+            for (int i = 0; i < authorities.size(); i++) {
                 if (i > 0) {
                     sb.append(", ");
                 }
 
-                sb.append(this.getAuthorities()[i].toString());
+                sb.append(authorities.get(i));
             }
         } else {
             sb.append("Not granted any authorities");

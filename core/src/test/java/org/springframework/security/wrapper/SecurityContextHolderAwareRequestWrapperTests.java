@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.userdetails.User;
@@ -51,8 +50,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
     }
 
     public void testCorrectOperationWithStringBasedPrincipal() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("rod", "koala",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FOO")});
+        Authentication auth = new TestingAuthenticationToken("rod", "koala","ROLE_FOO");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -67,8 +65,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
     }
 
     public void testUseOfRolePrefixMeansItIsntNeededWhenCallngIsUserInRole() {
-        Authentication auth = new TestingAuthenticationToken("rod", "koala",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FOO")});
+        Authentication auth = new TestingAuthenticationToken("rod", "koala", "ROLE_FOO");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -81,8 +78,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 
     public void testCorrectOperationWithUserDetailsBasedPrincipal() throws Exception {
         Authentication auth = new TestingAuthenticationToken(new User("rodAsUserDetails", "koala", true, true,
-                    true, true, new GrantedAuthority[] {}), "koala",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_HELLO"), new GrantedAuthorityImpl("ROLE_FOOBAR")});
+                    true, true, new GrantedAuthority[] {}), "koala", "ROLE_HELLO", "ROLE_FOOBAR");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -111,8 +107,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
     }
 
     public void testRolesArentHeldIfAuthenticationPrincipalIsNull() throws Exception {
-        Authentication auth = new TestingAuthenticationToken(null, "koala",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_HELLO"), new GrantedAuthorityImpl("ROLE_FOOBAR")});
+        Authentication auth = new TestingAuthenticationToken(null, "koala","ROLE_HELLO","ROLE_FOOBAR");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();

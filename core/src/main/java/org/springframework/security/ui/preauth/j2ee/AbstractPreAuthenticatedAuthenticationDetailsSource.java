@@ -1,6 +1,8 @@
 package org.springframework.security.ui.preauth.j2ee;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,18 +16,18 @@ import org.springframework.util.Assert;
 
 /**
  * Base implementation for classes scenarios where the authentication details object is used
- * to store a list of authorities obtained from the context object (such as an HttpServletRequest) 
+ * to store a list of authorities obtained from the context object (such as an HttpServletRequest)
  * passed to {@link #buildDetails(Object)}.
  * <p>
- * 
- * 
+ *
+ *
  * @author Luke Taylor
  * @since 2.0
  */
 public abstract class AbstractPreAuthenticatedAuthenticationDetailsSource extends AuthenticationDetailsSourceImpl {
     protected final Log logger = LogFactory.getLog(getClass());
     protected String[] j2eeMappableRoles;
-    protected Attributes2GrantedAuthoritiesMapper j2eeUserRoles2GrantedAuthoritiesMapper = 
+    protected Attributes2GrantedAuthoritiesMapper j2eeUserRoles2GrantedAuthoritiesMapper =
         new SimpleAttributes2GrantedAuthoritiesMapper();
 
     public AbstractPreAuthenticatedAuthenticationDetailsSource() {
@@ -49,29 +51,28 @@ public abstract class AbstractPreAuthenticatedAuthenticationDetailsSource extend
      */
     public Object buildDetails(Object context) {
         Object result = super.buildDetails(context);
-        
+
         if (result instanceof MutableGrantedAuthoritiesContainer) {
-            String[] j2eeUserRoles = getUserRoles(context, j2eeMappableRoles);            
-            GrantedAuthority[] userGas = j2eeUserRoles2GrantedAuthoritiesMapper.getGrantedAuthorities(j2eeUserRoles);
+            Collection<String> j2eeUserRoles = getUserRoles(context, j2eeMappableRoles);
+            List<GrantedAuthority> userGas = j2eeUserRoles2GrantedAuthoritiesMapper.getGrantedAuthorities(j2eeUserRoles);
 
             if (logger.isDebugEnabled()) {
-                logger.debug("J2EE user roles [" + Arrays.asList(j2eeUserRoles) + "] mapped to Granted Authorities: ["
-                        + Arrays.asList(userGas) + "]");
+                logger.debug("J2EE roles [" + j2eeUserRoles + "] mapped to Granted Authorities: [" + userGas + "]");
             }
-            
+
             ((MutableGrantedAuthoritiesContainer) result).setGrantedAuthorities(userGas);
         }
         return result;
     }
-    
+
     /**
      * Allows the roles of the current user to be determined from the context object
-     * 
+     *
      * @param context the context object (an HttpRequest, PortletRequest etc)
      * @param mappableRoles the possible roles as determined by the MappableAttributesRetriever
      * @return the subset of mappable roles which the current user has.
      */
-    protected abstract String[] getUserRoles(Object context, String[] mappableRoles);
+    protected abstract Collection<String> getUserRoles(Object context, String[] mappableRoles);
 
     /**
      * @param aJ2eeMappableRolesRetriever

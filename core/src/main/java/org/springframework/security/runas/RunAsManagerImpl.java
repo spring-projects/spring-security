@@ -15,8 +15,8 @@
 
 package org.springframework.security.runas;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.Authentication;
@@ -28,22 +28,23 @@ import org.springframework.util.Assert;
 
 
 /**
- * Basic concrete implementation of a {@link RunAsManager}.<p>Is activated if any {@link
- * ConfigAttribute#getAttribute()} is prefixed  with <Code>RUN_AS_</code>. If found, it generates a new {@link
- * RunAsUserToken} containing the same principal, credentials and granted authorities as the original {@link
- * Authentication} object, along with {@link GrantedAuthorityImpl}s for each <code>RUN_AS_</code> indicated. The
- * created <code>GrantedAuthorityImpl</code>s will be prefixed with a special prefix indicating that it is a role
- * (default prefix value is <code>ROLE_</code>), and then the remainder of the <code>RUN_AS_</code> keyword. For
- * example, <code>RUN_AS_FOO</code> will result in the creation of a granted authority of
- * <code>ROLE_RUN_AS_FOO</code>.
+ * Basic concrete implementation of a {@link RunAsManager}.
+ * <p>
+ * Is activated if any {@link ConfigAttribute#getAttribute()} is prefixed  with <Code>RUN_AS_</code>.
+ * If found, it generates a new {@link RunAsUserToken} containing the same principal, credentials and granted
+ * authorities as the original {@link Authentication} object, along with {@link GrantedAuthorityImpl}s for each
+ * <code>RUN_AS_</code> indicated. The created <code>GrantedAuthorityImpl</code>s will be prefixed with a special
+ * prefix indicating that it is a role (default prefix value is <code>ROLE_</code>), and then the remainder of the
+ * <code>RUN_AS_</code> keyword. For example, <code>RUN_AS_FOO</code> will result in the creation of a granted
+ * authority of <code>ROLE_RUN_AS_FOO</code>.
  * <p>
  * The role prefix may be overriden from the default, to match that used elsewhere, for example when using an
  * existing role database with another prefix. An empty role prefix may also be specified. Note however that there are
- * potential issues with using an empty role prefix since different categories of  {@link
- * org.springframework.security.ConfigAttribute} can not be properly discerned based on the prefix, with possible consequences
- * when performing voting and other actions. However, this option may be of some use when using preexisting role names
- * without a prefix, and no ability exists to prefix them with a role prefix on reading them in, such as provided for
- * example in  {@link org.springframework.security.userdetails.jdbc.JdbcDaoImpl}.
+ * potential issues with using an empty role prefix since different categories of  {@link ConfigAttribute} can not be
+ * properly discerned based on the prefix, with possible consequences when performing voting and other actions.
+ * However, this option may be of some use when using preexisting role names without a prefix, and no ability exists to
+ * prefix them with a role prefix on reading them in, such as provided for example in
+ * {@link org.springframework.security.userdetails.jdbc.JdbcDaoImpl}.
  *
  * @author Ben Alex
  * @author colin sampaleanu
@@ -62,12 +63,11 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
     }
 
     public Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> config) {
-        List newAuthorities = new Vector();
+        List<GrantedAuthority> newAuthorities = new ArrayList();
 
         for(ConfigAttribute attribute : config) {
             if (this.supports(attribute)) {
-                GrantedAuthorityImpl extraAuthority = new GrantedAuthorityImpl(getRolePrefix()
-                        + attribute.getAttribute());
+                GrantedAuthority extraAuthority = new GrantedAuthorityImpl(getRolePrefix() + attribute.getAttribute());
                 newAuthorities.add(extraAuthority);
             }
         }
@@ -76,16 +76,14 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
             return null;
         }
 
+        // Add existing authorities
+        newAuthorities.addAll(authentication.getAuthorities());
 
-        for (int i = 0; i < authentication.getAuthorities().length; i++) {
-            newAuthorities.add(authentication.getAuthorities()[i]);
-        }
-
-        GrantedAuthority[] resultType = {new GrantedAuthorityImpl("holder")};
-        GrantedAuthority[] newAuthoritiesAsArray = (GrantedAuthority[]) newAuthorities.toArray(resultType);
+//        GrantedAuthority[] resultType = {new GrantedAuthorityImpl("holder")};
+        GrantedAuthority[] newAuthoritiesAsArray = newAuthorities.toArray(new GrantedAuthority[0]);
 
         return new RunAsUserToken(this.key, authentication.getPrincipal(), authentication.getCredentials(),
-            newAuthoritiesAsArray, authentication.getClass());
+                newAuthoritiesAsArray, authentication.getClass());
     }
 
     public String getKey() {

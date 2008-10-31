@@ -40,73 +40,73 @@ import org.springframework.mock.web.portlet.MockRenderResponse;
  */
 public class PortletTestUtils {
 
-	//~ Static fields/initializers =====================================================================================
+    //~ Static fields/initializers =====================================================================================
 
-	public static final String PORTALROLE1 = "ONE";
-	public static final String PORTALROLE2 = "TWO";
+    public static final String PORTALROLE1 = "ONE";
+    public static final String PORTALROLE2 = "TWO";
 
-	public static final String TESTUSER = "testuser";
-	public static final String TESTCRED = PortletRequest.FORM_AUTH;
-	public static final String TESTROLE1 = "ROLE_" + PORTALROLE1;
-	public static final String TESTROLE2 = "ROLE_" + PORTALROLE2;
+    public static final String TESTUSER = "testuser";
+    public static final String TESTCRED = PortletRequest.FORM_AUTH;
+    public static final String TESTROLE1 = "ROLE_" + PORTALROLE1;
+    public static final String TESTROLE2 = "ROLE_" + PORTALROLE2;
 
-	//~ Methods ========================================================================================================
+    //~ Methods ========================================================================================================
 
-	public static UserDetails createUser() {
-		return new User(PortletTestUtils.TESTUSER, "dummy", true, true, true, true,
-			new GrantedAuthority[] {new GrantedAuthorityImpl(TESTROLE1), new GrantedAuthorityImpl(TESTROLE2)});
-	}
+    public static UserDetails createUser() {
+        return new User(PortletTestUtils.TESTUSER, "dummy", true, true, true, true,
+            new GrantedAuthority[] {new GrantedAuthorityImpl(TESTROLE1), new GrantedAuthorityImpl(TESTROLE2)});
+    }
 
     public static void applyPortletRequestSecurity(MockPortletRequest request) {
-		request.setRemoteUser(TESTUSER);
-		request.setUserPrincipal(new TestingAuthenticationToken(TESTUSER, TESTCRED));
-		request.addUserRole(PORTALROLE1);
-		request.addUserRole(PORTALROLE2);
+        request.setRemoteUser(TESTUSER);
+        request.setUserPrincipal(new TestingAuthenticationToken(TESTUSER, TESTCRED));
+        request.addUserRole(PORTALROLE1);
+        request.addUserRole(PORTALROLE2);
 //		request.setAuthType(PortletRequest.FORM_AUTH);
     }
 
     public static MockRenderRequest createRenderRequest() {
-		MockRenderRequest request = new MockRenderRequest();
-		applyPortletRequestSecurity(request);
-		return request;
+        MockRenderRequest request = new MockRenderRequest();
+        applyPortletRequestSecurity(request);
+        return request;
     }
 
     public static MockRenderResponse createRenderResponse() {
-		MockRenderResponse response = new MockRenderResponse();
-		return response;
+        MockRenderResponse response = new MockRenderResponse();
+        return response;
     }
 
     public static MockActionRequest createActionRequest() {
-    	MockActionRequest request = new MockActionRequest();
-		applyPortletRequestSecurity(request);
-		return request;
+        MockActionRequest request = new MockActionRequest();
+        applyPortletRequestSecurity(request);
+        return request;
     }
 
     public static MockActionResponse createActionResponse() {
-    	MockActionResponse response = new MockActionResponse();
-		return response;
+        MockActionResponse response = new MockActionResponse();
+        return response;
     }
 
-	public static PreAuthenticatedAuthenticationToken createToken(PortletRequest request) {
-		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(TESTUSER, TESTCRED);
-		token.setDetails(new PortletAuthenticationDetails(request));
-		return token;
-	}
+    public static PreAuthenticatedAuthenticationToken createToken(PortletRequest request) {
+        PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(TESTUSER, TESTCRED);
+        token.setDetails(new PortletAuthenticationDetails(request));
+        return token;
+    }
 
-	public static PreAuthenticatedAuthenticationToken createToken() {
-		MockRenderRequest request = createRenderRequest();
-		return createToken(request);
-	}
+    public static PreAuthenticatedAuthenticationToken createToken() {
+        MockRenderRequest request = createRenderRequest();
+        return createToken(request);
+    }
 
-	public static PreAuthenticatedAuthenticationToken createAuthenticatedToken(UserDetails user) {
-	    PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(
-				user, user.getPassword(), user.getAuthorities());
-		result.setAuthenticated(true);
-		return result;
-	}
+    public static PreAuthenticatedAuthenticationToken createAuthenticatedToken(UserDetails user) {
+        PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(
+                user, user.getPassword(), user.getAuthorities().toArray(new GrantedAuthority[0]));
+        result.setAuthenticated(true);
+        return result;
+    }
 
-	public static PreAuthenticatedAuthenticationToken createAuthenticatedToken() {
-		return createAuthenticatedToken(createUser());
-	}
+    public static PreAuthenticatedAuthenticationToken createAuthenticatedToken() {
+        return createAuthenticatedToken(createUser());
+    }
 
 }

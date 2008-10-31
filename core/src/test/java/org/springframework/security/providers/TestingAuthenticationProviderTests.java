@@ -18,9 +18,6 @@ package org.springframework.security.providers;
 import junit.framework.TestCase;
 
 import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-
 
 /**
  * Tests {@link TestingAuthenticationProvider}.
@@ -29,41 +26,19 @@ import org.springframework.security.GrantedAuthorityImpl;
  * @version $Id$
  */
 public class TestingAuthenticationProviderTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public TestingAuthenticationProviderTests() {
-        super();
-    }
-
-    public TestingAuthenticationProviderTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(TestingAuthenticationProviderTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testAuthenticates() {
         TestingAuthenticationProvider provider = new TestingAuthenticationProvider();
-        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password","ROLE_ONE","ROLE_TWO");
         Authentication result = provider.authenticate(token);
 
-        if (!(result instanceof TestingAuthenticationToken)) {
-            fail("Should have returned instance of TestingAuthenticationToken");
-        }
+        assertTrue(result instanceof TestingAuthenticationToken);
 
         TestingAuthenticationToken castResult = (TestingAuthenticationToken) result;
         assertEquals("Test", castResult.getPrincipal());
         assertEquals("Password", castResult.getCredentials());
-        assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_ONE", castResult.getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_TWO", castResult.getAuthorities().get(1).getAuthority());
     }
 
     public void testSupports() {

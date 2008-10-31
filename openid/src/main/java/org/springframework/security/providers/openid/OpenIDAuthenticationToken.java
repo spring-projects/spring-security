@@ -14,6 +14,10 @@
  */
 package org.springframework.security.providers.openid;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.security.GrantedAuthority;
 
 import org.springframework.security.providers.AbstractAuthenticationToken;
@@ -34,7 +38,7 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
     //~ Constructors ===================================================================================================
 
     public OpenIDAuthenticationToken(OpenIDAuthenticationStatus status, String identityUrl, String message) {
-        super(new GrantedAuthority[0]);
+        super(new ArrayList<GrantedAuthority>(0));
         this.status = status;
         this.identityUrl = identityUrl;
         this.message = message;
@@ -46,7 +50,7 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
      * <b>Do not use directly</b>
      *
      */
-    public OpenIDAuthenticationToken(GrantedAuthority[] authorities, OpenIDAuthenticationStatus status, String identityUrl) {
+    public OpenIDAuthenticationToken(List<GrantedAuthority> authorities, OpenIDAuthenticationStatus status, String identityUrl) {
         super(authorities);
         this.status = status;
         this.identityUrl = identityUrl;

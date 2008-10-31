@@ -18,6 +18,7 @@ package org.springframework.security;
 import java.io.Serializable;
 
 import java.security.Principal;
+import java.util.List;
 
 
 /**
@@ -46,7 +47,7 @@ public interface Authentication extends Principal, Serializable {
      *
      * @return the authorities granted to the principal, or <code>null</code> if authentication has not been completed
      */
-    GrantedAuthority[] getAuthorities();
+    List<GrantedAuthority> getAuthorities();
 
     /**
      * The credentials that prove the principal is correct. This is usually a password, but could be anything
