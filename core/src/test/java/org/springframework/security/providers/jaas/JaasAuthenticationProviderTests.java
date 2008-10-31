@@ -38,6 +38,7 @@ import org.springframework.security.context.SecurityContextImpl;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.ui.session.HttpSessionDestroyedEvent;
+import org.springframework.security.util.AuthorityUtils;
 
 
 /**
@@ -225,7 +226,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
     }
 
     public void testUnsupportedAuthenticationObjectReturnsNull() {
-        assertNull(jaasProvider.authenticate(new TestingAuthenticationToken("foo", "bar", new GrantedAuthority[] {})));
+        assertNull(jaasProvider.authenticate(new TestingAuthenticationToken("foo", "bar", AuthorityUtils.NO_AUTHORITIES )));
     }
 
     //~ Inner Classes ==================================================================================================

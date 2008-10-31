@@ -36,10 +36,10 @@ public class SimpleMethodInvocation implements MethodInvocation {
 
     //~ Constructors ===================================================================================================
 
-    public SimpleMethodInvocation(Object targetObject, Method method, Object[] arguments) {
+    public SimpleMethodInvocation(Object targetObject, Method method, Object... arguments) {
         this.targetObject = targetObject;
-    	this.method = method;
-        this.arguments = arguments;
+        this.method = method;
+        this.arguments = arguments == null ? new Object[0] : arguments;
     }
 
     public SimpleMethodInvocation() {}

@@ -58,7 +58,7 @@ public class AuthenticationTagTests extends TestCase {
 
     public void testOperationWhenPrincipalIsAString() throws JspException {
         SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken("rodAsString", "koala", new GrantedAuthority[] {}));
+                new TestingAuthenticationToken("rodAsString", "koala", AuthorityUtils.NO_AUTHORITIES ));
 
         authenticationTag.setProperty("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
@@ -77,7 +77,7 @@ public class AuthenticationTagTests extends TestCase {
 
     public void testOperationWhenPrincipalIsNull() throws JspException {
         SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken(null, "koala", new GrantedAuthority[] {}));
+                new TestingAuthenticationToken(null, "koala", AuthorityUtils.NO_AUTHORITIES ));
 
         authenticationTag.setProperty("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());

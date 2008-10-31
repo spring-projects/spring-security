@@ -122,9 +122,9 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDe
         String postFilterExpression = postFilter == null ? null : postFilter.value();
 
         try {
-            pre = new PreInvocationExpressionConfigAttribute(preFilterExpression, filterObject, preAuthorizeExpression);
+            pre = new PreInvocationExpressionAttribute(preFilterExpression, filterObject, preAuthorizeExpression);
             if (postFilterExpression != null || postAuthorizeExpression != null) {
-                post = new PostInvocationExpressionConfigAttribute(postFilterExpression, postAuthorizeExpression);
+                post = new PostInvocationExpressionAttribute(postFilterExpression, postAuthorizeExpression);
             }
         } catch (ParseException e) {
             throw new SecurityConfigurationException("Failed to parse expression '" + e.getExpressionString() + "'", e);

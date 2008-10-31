@@ -32,6 +32,7 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.intercept.method.MapBasedMethodDefinitionSource;
 import org.springframework.security.intercept.method.MethodDefinitionSourceEditor;
 import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.util.AuthorityUtils;
 
 
 /**
@@ -116,7 +117,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
 
         SecurityContextHolder.getContext()
                              .setAuthentication(new TestingAuthenticationToken("rod", "koala",
-                new GrantedAuthority[] {}));
+                AuthorityUtils.NO_AUTHORITIES ));
 
         try {
             si.invoke(joinPoint, aspectJCallback);

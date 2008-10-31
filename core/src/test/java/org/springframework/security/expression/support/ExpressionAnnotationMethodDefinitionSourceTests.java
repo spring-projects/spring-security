@@ -39,8 +39,8 @@ public class ExpressionAnnotationMethodDefinitionSourceTests {
         List<ConfigAttribute> attrs = mds.getAttributes(voidImpl1);
 
         assertEquals(1, attrs.size());
-        assertTrue(attrs.get(0) instanceof PreInvocationExpressionConfigAttribute);
-        PreInvocationExpressionConfigAttribute pre = (PreInvocationExpressionConfigAttribute) attrs.get(0);
+        assertTrue(attrs.get(0) instanceof PreInvocationExpressionAttribute);
+        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs.get(0);
         assertNotNull(pre.getAuthorizeExpression());
         assertEquals("someExpression", pre.getAuthorizeExpression().getExpressionString());
         assertNull(pre.getFilterExpression());
@@ -51,8 +51,8 @@ public class ExpressionAnnotationMethodDefinitionSourceTests {
         List<ConfigAttribute> attrs = mds.getAttributes(voidImpl2);
 
         assertEquals(1, attrs.size());
-        assertTrue(attrs.get(0) instanceof PreInvocationExpressionConfigAttribute);
-        PreInvocationExpressionConfigAttribute pre = (PreInvocationExpressionConfigAttribute)attrs.get(0);
+        assertTrue(attrs.get(0) instanceof PreInvocationExpressionAttribute);
+        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute)attrs.get(0);
         assertEquals("someExpression", pre.getAuthorizeExpression().getExpressionString());
         assertNotNull(pre.getFilterExpression());
         assertEquals("somePreFilterExpression", pre.getFilterExpression().getExpressionString());
@@ -63,8 +63,8 @@ public class ExpressionAnnotationMethodDefinitionSourceTests {
         List<ConfigAttribute> attrs = mds.getAttributes(voidImpl3);
 
         assertEquals(1, attrs.size());
-        assertTrue(attrs.get(0) instanceof PreInvocationExpressionConfigAttribute);
-        PreInvocationExpressionConfigAttribute pre = (PreInvocationExpressionConfigAttribute)attrs.get(0);
+        assertTrue(attrs.get(0) instanceof PreInvocationExpressionAttribute);
+        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute)attrs.get(0);
         assertEquals("permitAll", pre.getAuthorizeExpression().getExpressionString());
         assertNotNull(pre.getFilterExpression());
         assertEquals("somePreFilterExpression", pre.getFilterExpression().getExpressionString());
@@ -75,10 +75,10 @@ public class ExpressionAnnotationMethodDefinitionSourceTests {
         List<ConfigAttribute> attrs = mds.getAttributes(listImpl1);
 
         assertEquals(2, attrs.size());
-        assertTrue(attrs.get(0) instanceof PreInvocationExpressionConfigAttribute);
-        assertTrue(attrs.get(1) instanceof PostInvocationExpressionConfigAttribute);
-        PreInvocationExpressionConfigAttribute pre = (PreInvocationExpressionConfigAttribute)attrs.get(0);
-        PostInvocationExpressionConfigAttribute post = (PostInvocationExpressionConfigAttribute)attrs.get(1);
+        assertTrue(attrs.get(0) instanceof PreInvocationExpressionAttribute);
+        assertTrue(attrs.get(1) instanceof PostInvocationExpressionAttribute);
+        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute)attrs.get(0);
+        PostInvocationExpressionAttribute post = (PostInvocationExpressionAttribute)attrs.get(1);
         assertEquals("permitAll", pre.getAuthorizeExpression().getExpressionString());
         assertNotNull(post.getFilterExpression());
         assertEquals("somePostFilterExpression", post.getFilterExpression().getExpressionString());
@@ -89,8 +89,8 @@ public class ExpressionAnnotationMethodDefinitionSourceTests {
         List<ConfigAttribute> attrs = mds.getAttributes(notherListImpl1);
 
         assertEquals(1, attrs.size());
-        assertTrue(attrs.get(0) instanceof PreInvocationExpressionConfigAttribute);
-        PreInvocationExpressionConfigAttribute pre = (PreInvocationExpressionConfigAttribute)attrs.get(0);
+        assertTrue(attrs.get(0) instanceof PreInvocationExpressionAttribute);
+        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute)attrs.get(0);
         assertNotNull(pre.getFilterExpression());
         assertNotNull(pre.getAuthorizeExpression());
         assertEquals("interfaceMethodAuthzExpression", pre.getAuthorizeExpression().getExpressionString());
@@ -102,8 +102,8 @@ public class ExpressionAnnotationMethodDefinitionSourceTests {
         List<ConfigAttribute> attrs = mds.getAttributes(notherListImpl2);
 
         assertEquals(1, attrs.size());
-        assertTrue(attrs.get(0) instanceof PreInvocationExpressionConfigAttribute);
-        PreInvocationExpressionConfigAttribute pre = (PreInvocationExpressionConfigAttribute)attrs.get(0);
+        assertTrue(attrs.get(0) instanceof PreInvocationExpressionAttribute);
+        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute)attrs.get(0);
         assertNotNull(pre.getFilterExpression());
         assertNotNull(pre.getAuthorizeExpression());
         assertEquals("interfaceMethodAuthzExpression", pre.getAuthorizeExpression().getExpressionString());

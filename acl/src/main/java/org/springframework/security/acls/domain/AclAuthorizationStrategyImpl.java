@@ -34,10 +34,12 @@ import org.springframework.util.Assert;
 
 
 /**
- * Default implementation of {@link AclAuthorizationStrategy}.<p>Permission will be granted provided the current
- * principal is either the owner (as defined by the ACL), has {@link BasePermission#ADMINISTRATION} (as defined by the
- * ACL and via a {@link Sid} retrieved for the current principal via {@link #sidRetrievalStrategy}), or if the current
- * principal holds the relevant system-wide {@link GrantedAuthority} and injected into the constructor.</p>
+ * Default implementation of {@link AclAuthorizationStrategy}.
+ * <p>
+ * Permission will be granted provided the current principal is either the owner (as defined by the ACL), has
+ * {@link BasePermission#ADMINISTRATION} (as defined by the ACL and via a {@link Sid} retrieved for the current
+ * principal via {@link #sidRetrievalStrategy}), or if the current principal holds the relevant system-wide
+ * {@link GrantedAuthority} and injected into the constructor.
  *
  * @author Ben Alex
  * @version $Id$
@@ -52,7 +54,7 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructor. The only mandatory parameter relates to the system-wide {@link GrantedAuthority} instances that
      * can be held to always permit ACL changes.
      *
@@ -62,8 +64,7 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
      * index 2 is the authority needed to change other ACL and ACE details) (required)
      */
     public AclAuthorizationStrategyImpl(GrantedAuthority[] auths) {
-        Assert.notEmpty(auths, "GrantedAuthority[] with three elements required");
-        Assert.isTrue(auths.length == 3, "GrantedAuthority[] with three elements required");
+        Assert.isTrue(auths != null && auths.length == 3, "GrantedAuthority[] with three elements required");
         this.gaTakeOwnership = auths[0];
         this.gaModifyAuditing = auths[1];
         this.gaGeneralChanges = auths[2];

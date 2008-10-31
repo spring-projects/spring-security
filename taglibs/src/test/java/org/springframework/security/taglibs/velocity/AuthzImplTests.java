@@ -33,7 +33,7 @@ public class AuthzImplTests extends TestCase {
     //~ Methods ========================================================================================================
 
     public void testOperationWhenPrincipalIsAString() {
-        Authentication auth = new TestingAuthenticationToken("rodAsString", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rodAsString", "koala", AuthorityUtils.NO_AUTHORITIES );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         assertEquals("rodAsString", authz.getPrincipal());
@@ -48,7 +48,7 @@ public class AuthzImplTests extends TestCase {
     }
 
     public void testOperationWhenPrincipalIsNull() {
-        Authentication auth = new TestingAuthenticationToken(null, "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken(null, "koala", AuthorityUtils.NO_AUTHORITIES );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         assertNull(authz.getPrincipal());

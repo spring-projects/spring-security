@@ -1,22 +1,18 @@
 package org.springframework.security.expression.support;
 
-import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
-import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.StandardEvaluationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.expression.ExpressionUtils;
-import org.springframework.security.expression.SecurityExpressionRoot;
+import org.springframework.security.expression.SecurityEvaluationContext;
 import org.springframework.security.vote.AccessDecisionVoter;
-import org.springframework.util.ClassUtils;
 
 /**
  * Voter which performs the actions for @PreFilter and @PostAuthorize annotations.
@@ -32,9 +28,6 @@ import org.springframework.util.ClassUtils;
 public class MethodExpressionVoter implements AccessDecisionVoter {
     protected final Log logger = LogFactory.getLog(getClass());
 
-    // TODO: Share this between classes
-    private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
-
     public boolean supports(ConfigAttribute attribute) {
         return attribute instanceof AbstractExpressionBasedMethodConfigAttribute;
     }
@@ -44,24 +37,21 @@ public class MethodExpressionVoter implements AccessDecisionVoter {
     }
 
     public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
-        PreInvocationExpressionConfigAttribute mace = findMethodAccessControlExpression(attributes);
+        PreInvocationExpressionAttribute mace = findMethodAccessControlExpression(attributes);
 
         if (mace == null) {
             // No expression based metadata, so abstain
             return ACCESS_ABSTAIN;
         }
 
-        StandardEvaluationContext ctx = new StandardEvaluationContext();
-        Object filterTarget =
-            populateContextVariablesAndFindFilterTarget(ctx, (MethodInvocation)object, mace.getFilterTarget());
-
-        ctx.setRootObject(new SecurityExpressionRoot(authentication));
-
+        MethodInvocation mi = (MethodInvocation)object;
+        EvaluationContext ctx = new SecurityEvaluationContext(authentication, mi);
         Expression preFilter = mace.getFilterExpression();
         Expression preAuthorize = mace.getAuthorizeExpression();
 
         if (preFilter != null) {
-            // TODO: Allow null target if only single parameter, or single collection/array?
+            Object filterTarget = findFilterTarget(mace.getFilterTarget(), ctx, mi);
+
             ExpressionUtils.doFilter(filterTarget, preFilter, ctx);
         }
 
@@ -72,41 +62,40 @@ public class MethodExpressionVoter implements AccessDecisionVoter {
         return ExpressionUtils.evaluateAsBoolean(preAuthorize, ctx) ? ACCESS_GRANTED : ACCESS_DENIED;
     }
 
-    private Object populateContextVariablesAndFindFilterTarget(EvaluationContext ctx, MethodInvocation mi,
-            String filterTargetName) {
-
-        Object[] args = mi.getArguments();
-        Object targetObject = mi.getThis();
-        Method method = ClassUtils.getMostSpecificMethod(mi.getMethod(), targetObject.getClass());
+    private Object findFilterTarget(String filterTargetName, EvaluationContext ctx, MethodInvocation mi) {
         Object filterTarget = null;
-        String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
 
-        for(int i=0; i < args.length; i++) {
-            ctx.setVariable(paramNames[i], args[i]);
-            if (filterTargetName != null && paramNames[i].equals(filterTargetName)) {
-                filterTarget = args[i];
+        if (filterTargetName.length() > 0) {
+            filterTarget = ctx.lookupVariable(filterTargetName);
+            if (filterTarget == null) {
+                throw new IllegalArgumentException("Filter target was null, or no argument with name "
+                        + filterTargetName + " found in method");
+            }
+        } else if (mi.getArguments().length == 1) {
+            Object arg = mi.getArguments()[0];
+            if (arg.getClass().isArray() ||
+                arg instanceof Collection) {
+                filterTarget = arg;
+            }
+            if (filterTarget == null) {
+                throw new IllegalArgumentException("A PreFilter expression was set but the method argument type" +
+                        arg.getClass() + " is not filterable");
             }
         }
 
-        if (filterTargetName != null) {
-            if (filterTarget == null) {
-                throw new IllegalArgumentException("No filter target argument with name " + filterTargetName +
-                        " found in method: " + method.getName());
-            }
-            if (filterTarget.getClass().isArray()) {
-                throw new IllegalArgumentException("Pre-filtering on array types is not supported. Changing '" +
-                        filterTargetName +"' to a collection will solve this problem");
-            }
+        if (filterTarget.getClass().isArray()) {
+            throw new IllegalArgumentException("Pre-filtering on array types is not supported. " +
+                    "Using a Collection will solve this problem");
         }
 
         return filterTarget;
     }
 
-    private PreInvocationExpressionConfigAttribute findMethodAccessControlExpression(List<ConfigAttribute> config) {
+    private PreInvocationExpressionAttribute findMethodAccessControlExpression(List<ConfigAttribute> config) {
         // Find the MethodAccessControlExpression attribute
         for (ConfigAttribute attribute : config) {
-            if (attribute instanceof PreInvocationExpressionConfigAttribute) {
-                return (PreInvocationExpressionConfigAttribute)attribute;
+            if (attribute instanceof PreInvocationExpressionAttribute) {
+                return (PreInvocationExpressionAttribute)attribute;
             }
         }
 

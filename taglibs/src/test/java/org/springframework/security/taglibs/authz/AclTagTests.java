@@ -15,24 +15,22 @@
 
 package org.springframework.security.taglibs.authz;
 
-import junit.framework.TestCase;
-
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-
-import org.springframework.security.acl.AclEntry;
-import org.springframework.security.acl.AclManager;
-import org.springframework.security.acl.basic.SimpleAclEntry;
-import org.springframework.security.acl.basic.AclObjectIdentity;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.StaticApplicationContext;
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
+
+import junit.framework.TestCase;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.StaticApplicationContext;
+import org.springframework.security.Authentication;
+import org.springframework.security.acl.AclEntry;
+import org.springframework.security.acl.AclManager;
+import org.springframework.security.acl.basic.AclObjectIdentity;
+import org.springframework.security.acl.basic.SimpleAclEntry;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.util.AuthorityUtils;
 
 
 /**
@@ -54,7 +52,7 @@ public class AclTagTests extends TestCase {
     }
 
     public void testInclusionDeniedWhenAclManagerUnawareOfObject() throws JspException {
-        Authentication auth = new TestingAuthenticationToken("rod", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rod", "koala", AuthorityUtils.NO_AUTHORITIES );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         aclTag.setHasPermission(new Long(SimpleAclEntry.ADMINISTRATION).toString());
@@ -63,7 +61,7 @@ public class AclTagTests extends TestCase {
     }
 
     public void testInclusionDeniedWhenNoListOfPermissionsGiven() throws JspException {
-        Authentication auth = new TestingAuthenticationToken("rod", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rod", "koala", AuthorityUtils.NO_AUTHORITIES );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         aclTag.setHasPermission(null);
@@ -72,7 +70,7 @@ public class AclTagTests extends TestCase {
     }
 
     public void testInclusionDeniedWhenPrincipalDoesNotHoldAnyPermissions() throws JspException {
-        Authentication auth = new TestingAuthenticationToken("john", "crow", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("john", "crow", AuthorityUtils.NO_AUTHORITIES );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         aclTag.setHasPermission(new Integer(SimpleAclEntry.ADMINISTRATION) + "," + new Integer(SimpleAclEntry.READ));
@@ -84,7 +82,7 @@ public class AclTagTests extends TestCase {
     }
 
     public void testInclusionDeniedWhenPrincipalDoesNotHoldRequiredPermissions() throws JspException {
-        Authentication auth = new TestingAuthenticationToken("rod", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rod", "koala", AuthorityUtils.NO_AUTHORITIES );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         aclTag.setHasPermission(new Integer(SimpleAclEntry.DELETE).toString());
@@ -107,7 +105,7 @@ public class AclTagTests extends TestCase {
     }
 
     public void testJspExceptionThrownIfHasPermissionNotValidFormat() throws JspException {
-        Authentication auth = new TestingAuthenticationToken("john", "crow", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("john", "crow", AuthorityUtils.NO_AUTHORITIES );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         aclTag.setHasPermission("0,5, 6"); // shouldn't be any space
@@ -121,7 +119,7 @@ public class AclTagTests extends TestCase {
     }
 
     public void testOperationWhenPrincipalHoldsPermissionOfMultipleList() throws JspException {
-        Authentication auth = new TestingAuthenticationToken("rod", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rod", "koala", AuthorityUtils.NO_AUTHORITIES );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         aclTag.setHasPermission(new Integer(SimpleAclEntry.ADMINISTRATION) + "," + new Integer(SimpleAclEntry.READ));
@@ -130,7 +128,7 @@ public class AclTagTests extends TestCase {
     }
 
     public void testOperationWhenPrincipalHoldsPermissionOfSingleList() throws JspException {
-        Authentication auth = new TestingAuthenticationToken("rod", "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("rod", "koala", AuthorityUtils.NO_AUTHORITIES );
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         aclTag.setHasPermission(new Integer(SimpleAclEntry.READ).toString());
@@ -177,5 +175,5 @@ public class AclTagTests extends TestCase {
     }
 
     private static class MockAclObjectIdentity implements AclObjectIdentity {
-    }    
+    }
 }

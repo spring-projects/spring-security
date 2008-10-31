@@ -38,28 +38,18 @@ import java.lang.reflect.Method;
  * @version $Id$
  */
 public class ContextPropagatingRemoteInvocationTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public ContextPropagatingRemoteInvocationTests() {
-    }
-
-    public ContextPropagatingRemoteInvocationTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
-
 
     protected void tearDown() throws Exception {
         super.tearDown();
         SecurityContextHolder.clearContext();
     }
 
-    private ContextPropagatingRemoteInvocation getRemoteInvocation()
-        throws Exception {
+    private ContextPropagatingRemoteInvocation getRemoteInvocation() throws Exception {
         Class clazz = TargetObject.class;
         Method method = clazz.getMethod("makeLowerCase", new Class[] {String.class});
-        MethodInvocation mi = new SimpleMethodInvocation(new TargetObject(), method, new Object[] {"SOME_STRING"});
+        MethodInvocation mi = new SimpleMethodInvocation(new TargetObject(), method, "SOME_STRING");
 
         ContextPropagatingRemoteInvocationFactory factory = new ContextPropagatingRemoteInvocationFactory();
 

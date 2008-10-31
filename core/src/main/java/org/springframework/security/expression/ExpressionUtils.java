@@ -5,12 +5,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.StandardEvaluationContext;
 
 public class ExpressionUtils {
-    public static Object doFilter(Object filterTarget, Expression filterExpression, StandardEvaluationContext ctx) {
+    public static Object doFilter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
         SecurityExpressionRoot rootObject = (SecurityExpressionRoot) ctx.getRootContextObject();
         Set removeList = new HashSet();
 
@@ -55,7 +55,7 @@ public class ExpressionUtils {
         throw new IllegalArgumentException("Filter target must be a collection or array type, but was " + filterTarget);
     }
 
-    public static boolean evaluateAsBoolean(Expression expr, StandardEvaluationContext ctx) {
+    public static boolean evaluateAsBoolean(Expression expr, EvaluationContext ctx) {
         try {
             return ((Boolean) expr.getValue(ctx, Boolean.class)).booleanValue();
         } catch (EvaluationException e) {

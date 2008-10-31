@@ -17,13 +17,13 @@ package org.springframework.security.wrapper;
 
 import junit.framework.TestCase;
 
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.userdetails.User;
+import org.springframework.security.util.AuthorityUtils;
 import org.springframework.security.util.PortResolverImpl;
-import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**
@@ -78,7 +78,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 
     public void testCorrectOperationWithUserDetailsBasedPrincipal() throws Exception {
         Authentication auth = new TestingAuthenticationToken(new User("rodAsUserDetails", "koala", true, true,
-                    true, true, new GrantedAuthority[] {}), "koala", "ROLE_HELLO", "ROLE_FOOBAR");
+                    true, true, AuthorityUtils.NO_AUTHORITIES ), "koala", "ROLE_HELLO", "ROLE_FOOBAR");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
