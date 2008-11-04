@@ -4,18 +4,19 @@ import java.util.Set;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
-import org.springframework.security.AuthenticationTrustResolverImpl;
 import org.springframework.security.util.AuthorityUtils;
 
 /**
  * Default root object for use in Spring Security expression evaluations.
  *
  * @author Luke Taylor
- *
+ * @version $Id$
+ * @since 2.5
  */
 public class SecurityExpressionRoot {
     private Authentication authentication;
-    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+    private AuthenticationTrustResolver trustResolver;
+    private PermissionEvaluator permissionEvaluator;
     private Object filterObject;
     private Object returnObject;
 
@@ -25,8 +26,14 @@ public class SecurityExpressionRoot {
     /** Allows "denyAll" expression */
     public final boolean denyAll = false;
 
+    public final String read = "read";
+    public final String write = "write";
+    public final String create = "create";
+    public final String delete = "delete";
+    public final String admin = "admin";
 
-    public SecurityExpressionRoot(Authentication a) {
+
+    SecurityExpressionRoot(Authentication a) {
         if (a == null) {
             throw new IllegalArgumentException("Authentication object cannot be null");
         }
@@ -34,10 +41,10 @@ public class SecurityExpressionRoot {
     }
 
     public final boolean hasRole(String role) {
-        return hasAnyRole(role);
+        return AuthorityUtils.userHasAuthority(role);
     }
 
-    public boolean hasAnyRole(String... roles) {
+    public final boolean hasAnyRole(String... roles) {
         Set roleSet = AuthorityUtils.authorityArrayToSet(authentication.getAuthorities());
 
         for (String role : roles) {
@@ -69,6 +76,10 @@ public class SecurityExpressionRoot {
         return !trustResolver.isAnonymous(authentication) && !trustResolver.isRememberMe(authentication);
     }
 
+    public boolean hasPermission(Object target, Object permission) {
+        return permissionEvaluator.hasPermission(authentication, target, permission);
+    }
+
     public Authentication getAuthentication() {
         return authentication;
     }
@@ -92,4 +103,14 @@ public class SecurityExpressionRoot {
     public Object getPrincipal() {
         return authentication.getPrincipal();
     }
+
+    public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
+        this.permissionEvaluator = permissionEvaluator;
+    }
+
+    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+        this.trustResolver = trustResolver;
+    }
+
+
 }

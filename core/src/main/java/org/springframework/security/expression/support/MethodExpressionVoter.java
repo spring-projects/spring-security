@@ -10,8 +10,9 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
+import org.springframework.security.expression.DefaultSecurityExpressionHandler;
 import org.springframework.security.expression.ExpressionUtils;
-import org.springframework.security.expression.SecurityEvaluationContext;
+import org.springframework.security.expression.SecurityExpressionHandler;
 import org.springframework.security.vote.AccessDecisionVoter;
 
 /**
@@ -27,6 +28,8 @@ import org.springframework.security.vote.AccessDecisionVoter;
  */
 public class MethodExpressionVoter implements AccessDecisionVoter {
     protected final Log logger = LogFactory.getLog(getClass());
+
+    private SecurityExpressionHandler expressionHandler = new DefaultSecurityExpressionHandler();
 
     public boolean supports(ConfigAttribute attribute) {
         return attribute instanceof AbstractExpressionBasedMethodConfigAttribute;
@@ -45,14 +48,14 @@ public class MethodExpressionVoter implements AccessDecisionVoter {
         }
 
         MethodInvocation mi = (MethodInvocation)object;
-        EvaluationContext ctx = new SecurityEvaluationContext(authentication, mi);
+        EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, mi);
         Expression preFilter = mace.getFilterExpression();
         Expression preAuthorize = mace.getAuthorizeExpression();
 
         if (preFilter != null) {
             Object filterTarget = findFilterTarget(mace.getFilterTarget(), ctx, mi);
 
-            ExpressionUtils.doFilter(filterTarget, preFilter, ctx);
+            expressionHandler.doFilter(filterTarget, preFilter, ctx);
         }
 
         if (preAuthorize == null) {

@@ -1,11 +1,19 @@
 package org.springframework.security.expression.support;
 
+import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;
 
 class PreInvocationExpressionAttribute extends AbstractExpressionBasedMethodConfigAttribute {
     private final String filterTarget;
 
     PreInvocationExpressionAttribute(String filterExpression, String filterTarget, String authorizeExpression)
+            throws ParseException {
+        super(filterExpression, authorizeExpression);
+
+        this.filterTarget = filterTarget;
+    }
+
+    PreInvocationExpressionAttribute(Expression filterExpression, String filterTarget, Expression authorizeExpression)
             throws ParseException {
         super(filterExpression, authorizeExpression);
 

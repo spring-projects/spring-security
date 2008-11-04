@@ -7,7 +7,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParseException;
+import org.springframework.expression.spel.SpelExpressionParser;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.config.SecurityConfigurationException;
 import org.springframework.security.expression.annotation.PostAuthorize;
@@ -35,6 +38,7 @@ import org.springframework.util.ClassUtils;
  * @version $Id$
  */
 public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDefinitionSource {
+    private ExpressionParser parser = new SpelExpressionParser();
 
     public List<ConfigAttribute> getAttributes(Method method, Class targetClass) {
         if (method.getDeclaringClass() == Object.class) {
@@ -115,13 +119,13 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDe
         ConfigAttribute post = null;
 
         // TODO: Optimization of permitAll
-        String preAuthorizeExpression = preAuthorize == null ? "permitAll" : preAuthorize.value();
-        String preFilterExpression = preFilter == null ? null : preFilter.value();
-        String filterObject = preFilter == null ? null : preFilter.filterTarget();
-        String postAuthorizeExpression = postAuthorize == null ? null : postAuthorize.value();
-        String postFilterExpression = postFilter == null ? null : postFilter.value();
-
         try {
+            Expression preAuthorizeExpression = preAuthorize == null ? parser.parseExpression("permitAll") : parser.parseExpression(preAuthorize.value());
+            Expression preFilterExpression = preFilter == null ? null : parser.parseExpression(preFilter.value());
+            String filterObject = preFilter == null ? null : preFilter.filterTarget();
+            Expression postAuthorizeExpression = postAuthorize == null ? null : parser.parseExpression(postAuthorize.value());
+            Expression postFilterExpression = postFilter == null ? null : parser.parseExpression(postFilter.value());
+
             pre = new PreInvocationExpressionAttribute(preFilterExpression, filterObject, preAuthorizeExpression);
             if (postFilterExpression != null || postAuthorizeExpression != null) {
                 post = new PostInvocationExpressionAttribute(postFilterExpression, postAuthorizeExpression);

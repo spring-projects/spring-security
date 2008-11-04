@@ -10,28 +10,49 @@ import org.springframework.security.Authentication;
 import org.springframework.util.ClassUtils;
 
 /**
+ * Internal security-specific EvaluationContext implementation which lazily adds the
+ * method parameter values as variables (with the corresponding parameter names) if
+ * and when they are required.
  *
  * @author Luke Taylor
  * @since 2.5
  */
 public class SecurityEvaluationContext extends StandardEvaluationContext {
-
-    private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+    private ParameterNameDiscoverer parameterNameDiscoverer;
     private boolean argumentsAdded;
     private MethodInvocation mi;
 
+    /**
+     * Intended for testing. Don't use in practice as it creates a new parameter resolver
+     * for each instance. Use the constructor which takes the resolver, as an argument thus
+     * allowing for caching.
+     */
     public SecurityEvaluationContext(Authentication user, MethodInvocation mi) {
-        setRootObject(new SecurityExpressionRoot(user));
+        this(user, mi, new LocalVariableTableParameterNameDiscoverer());
+    }
+
+    public SecurityEvaluationContext(Authentication user, MethodInvocation mi,
+                    ParameterNameDiscoverer parameterNameDiscoverer) {
         this.mi = mi;
+        this.parameterNameDiscoverer = parameterNameDiscoverer;
     }
 
     @Override
     public Object lookupVariable(String name) {
+        Object variable = super.lookupVariable(name);
+        if (variable != null) {
+            return variable;
+        }
+
         if (!argumentsAdded) {
             addArgumentsAsVariables();
         }
 
         return super.lookupVariable(name);
+    }
+
+    public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
+        this.parameterNameDiscoverer = parameterNameDiscoverer;
     }
 
     private void addArgumentsAsVariables() {
