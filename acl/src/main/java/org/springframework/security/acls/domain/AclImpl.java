@@ -40,7 +40,7 @@ import org.springframework.util.Assert;
  */
 public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
     //~ Instance fields ================================================================================================
-	
+
     private Acl parentAcl;
     private transient AclAuthorizationStrategy aclAuthorizationStrategy;
     private transient AuditLogger auditLogger;
@@ -53,7 +53,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Minimal constructor, which should be used {@link
      * org.springframework.security.acls.MutableAclService#createAcl(ObjectIdentity)}.
      *
@@ -63,7 +63,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
      * @param auditLogger audit logger (required)
      */
     public AclImpl(ObjectIdentity objectIdentity, Serializable id, AclAuthorizationStrategy aclAuthorizationStrategy,
-        AuditLogger auditLogger) {
+                    AuditLogger auditLogger) {
         Assert.notNull(objectIdentity, "Object Identity required");
         Assert.notNull(id, "Id required");
         Assert.notNull(aclAuthorizationStrategy, "AclAuthorizationStrategy required");
@@ -74,7 +74,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         this.auditLogger = auditLogger;
     }
 
-/**
+    /**
      * Full constructor, which should be used by persistence tools that do not
      * provide field-level access features.
      *
@@ -90,7 +90,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
      * @param owner the owner (required)
      */
     public AclImpl(ObjectIdentity objectIdentity, Serializable id, AclAuthorizationStrategy aclAuthorizationStrategy,
-        AuditLogger auditLogger, Acl parentAcl, Sid[] loadedSids, boolean entriesInheriting, Sid owner) {
+                    AuditLogger auditLogger, Acl parentAcl, Sid[] loadedSids, boolean entriesInheriting, Sid owner) {
         Assert.notNull(objectIdentity, "Object Identity required");
         Assert.notNull(id, "Id required");
         Assert.notNull(aclAuthorizationStrategy, "AclAuthorizationStrategy required");
@@ -106,7 +106,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         this.owner = owner;
     }
 
-/**
+    /**
      * Private no-argument constructor for use by reflection-based persistence
      * tools along with field-level access.
      */
@@ -116,17 +116,17 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
     private void verifyAceIndexExists(int aceIndex) {
         if (aceIndex < 0) {
-        	throw new NotFoundException("aceIndex must be greater than or equal to zero");
+            throw new NotFoundException("aceIndex must be greater than or equal to zero");
         }
         if (aceIndex > this.aces.size()) {
-        	throw new NotFoundException("aceIndex must correctly refer to an index of the AccessControlEntry collection");
+            throw new NotFoundException("aceIndex must correctly refer to an index of the AccessControlEntry collection");
         }
     }
-    
+
     public void deleteAce(int aceIndex) throws NotFoundException {
         aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
         verifyAceIndexExists(aceIndex);
-        
+
         synchronized (aces) {
             this.aces.remove(aceIndex);
         }
@@ -153,16 +153,15 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         return parentAcl;
     }
 
-    public void insertAce(int atIndexLocation, Permission permission, Sid sid, boolean granting)
-        throws NotFoundException {
+    public void insertAce(int atIndexLocation, Permission permission, Sid sid, boolean granting) throws NotFoundException {
         aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
         Assert.notNull(permission, "Permission required");
         Assert.notNull(sid, "Sid required");
         if (atIndexLocation < 0) {
-        	throw new NotFoundException("atIndexLocation must be greater than or equal to zero");
+            throw new NotFoundException("atIndexLocation must be greater than or equal to zero");
         }
         if (atIndexLocation > this.aces.size()) {
-        	throw new NotFoundException("atIndexLocation must be less than or equal to the size of the AccessControlEntry collection");
+            throw new NotFoundException("atIndexLocation must be less than or equal to the size of the AccessControlEntry collection");
         }
 
         AccessControlEntryImpl ace = new AccessControlEntryImpl(null, this, sid, permission, granting, false, false);
@@ -208,7 +207,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
      *         subset of SIDs
      */
     public boolean isGranted(Permission[] permission, Sid[] sids, boolean administrativeMode)
-        throws NotFoundException, UnloadedSidException {
+            throws NotFoundException, UnloadedSidException {
         Assert.notEmpty(permission, "Permissions required");
         Assert.notEmpty(sids, "SIDs required");
 
@@ -360,7 +359,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         throws NotFoundException {
         aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
         verifyAceIndexExists(aceIndex);
-        
+
         synchronized (aces) {
             AccessControlEntryImpl ace = (AccessControlEntryImpl) aces.get(aceIndex);
             ace.setPermission(permission);
@@ -370,42 +369,42 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
     public void updateAuditing(int aceIndex, boolean auditSuccess, boolean auditFailure) {
         aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_AUDITING);
         verifyAceIndexExists(aceIndex);
-        
+
         synchronized (aces) {
             AccessControlEntryImpl ace = (AccessControlEntryImpl) aces.get(aceIndex);
             ace.setAuditSuccess(auditSuccess);
             ace.setAuditFailure(auditFailure);
         }
     }
-    
-	public boolean equals(Object obj) {
-		if (obj instanceof AclImpl) {
-			AclImpl rhs = (AclImpl) obj;
-			if (this.aces.equals(rhs.aces)) {
-				if ((this.parentAcl == null && rhs.parentAcl == null) || (this.parentAcl.equals(rhs.parentAcl))) {
-					if ((this.objectIdentity == null && rhs.objectIdentity == null) || (this.objectIdentity.equals(rhs.objectIdentity))) {
-						if ((this.id == null && rhs.id == null) || (this.id.equals(rhs.id))) {
-							if ((this.owner == null && rhs.owner == null) || this.owner.equals(rhs.owner)) {
-								if (this.entriesInheriting == rhs.entriesInheriting) {
-									if ((this.loadedSids == null && rhs.loadedSids == null)) {
-										return true;
-									}
-									if (this.loadedSids.length == rhs.loadedSids.length) {
-										for (int i = 0; i < this.loadedSids.length; i++) {
-											if (!this.loadedSids[i].equals(rhs.loadedSids[i])) {
-												return false;
-											}
-										}
-										return true;
-									}
-								}								
-							}
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-    
+
+    public boolean equals(Object obj) {
+        if (obj instanceof AclImpl) {
+            AclImpl rhs = (AclImpl) obj;
+            if (this.aces.equals(rhs.aces)) {
+                if ((this.parentAcl == null && rhs.parentAcl == null) || (this.parentAcl.equals(rhs.parentAcl))) {
+                    if ((this.objectIdentity == null && rhs.objectIdentity == null) || (this.objectIdentity.equals(rhs.objectIdentity))) {
+                        if ((this.id == null && rhs.id == null) || (this.id.equals(rhs.id))) {
+                            if ((this.owner == null && rhs.owner == null) || this.owner.equals(rhs.owner)) {
+                                if (this.entriesInheriting == rhs.entriesInheriting) {
+                                    if ((this.loadedSids == null && rhs.loadedSids == null)) {
+                                        return true;
+                                    }
+                                    if (this.loadedSids.length == rhs.loadedSids.length) {
+                                        for (int i = 0; i < this.loadedSids.length; i++) {
+                                            if (!this.loadedSids[i].equals(rhs.loadedSids[i])) {
+                                                return false;
+                                            }
+                                        }
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
 }
