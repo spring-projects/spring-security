@@ -15,16 +15,14 @@
 
 package org.springframework.security.intercept.web;
 
+import static org.junit.Assert.*;
+
 import org.springframework.security.MockFilterChain;
 
-import org.jmock.MockObjectTestCase;
+import org.junit.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 
 /**
  * Tests {@link FilterInvocation}.
@@ -33,27 +31,11 @@ import javax.servlet.ServletResponse;
  * @author colin sampaleanu
  * @version $Id$
  */
-public class FilterInvocationTests extends MockObjectTestCase {
-    //~ Constructors ===================================================================================================
-
-    public FilterInvocationTests() {
-        super();
-    }
-
-    public FilterInvocationTests(String arg0) {
-        super(arg0);
-    }
+public class FilterInvocationTests {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(FilterInvocationTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
+    @Test
     public void testGettersAndStringMethods() {
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
         request.setServletPath("/HelloWorld");
@@ -77,79 +59,31 @@ public class FilterInvocationTests extends MockObjectTestCase {
         assertEquals("http://www.example.com/mycontext/HelloWorld/some/more/segments.html", fi.getFullRequestUrl());
     }
 
-    public void testNoArgConstructorDoesntExist() {
-        Class clazz = FilterInvocation.class;
-
-        try {
-            clazz.getDeclaredConstructor((Class[]) null);
-            fail("Should have thrown NoSuchMethodException");
-        } catch (NoSuchMethodException expected) {
-            assertTrue(true);
-        }
-    }
-
+    @Test(expected=IllegalArgumentException.class)
     public void testRejectsNullFilterChain() {
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        try {
-            new FilterInvocation(request, response, null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        new FilterInvocation(request, response, null);
     }
 
+    @Test(expected=IllegalArgumentException.class)
     public void testRejectsNullServletRequest() {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
-        try {
-            new FilterInvocation(null, response, chain);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        new FilterInvocation(null, response, chain);
     }
 
+    @Test(expected=IllegalArgumentException.class)
     public void testRejectsNullServletResponse() {
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
         MockFilterChain chain = new MockFilterChain();
 
-        try {
-            new FilterInvocation(request, null, chain);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        new FilterInvocation(request, null, chain);
     }
 
-    public void testRejectsServletRequestWhichIsNotHttpServletRequest() {
-        ServletRequest request = (ServletRequest) newDummy(ServletRequest.class);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain chain = new MockFilterChain();
-
-        try {
-            new FilterInvocation(request, response, chain);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("Can only process HttpServletRequest", expected.getMessage());
-        }
-    }
-
-    public void testRejectsServletResponseWhichIsNotHttpServletResponse() {
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null);
-        ServletResponse response = (ServletResponse) newDummy(ServletResponse.class);
-        MockFilterChain chain = new MockFilterChain();
-
-        try {
-            new FilterInvocation(request, response, chain);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("Can only process HttpServletResponse", expected.getMessage());
-        }
-    }
-
+    @Test
     public void testStringMethodsWithAQueryString() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("foo=bar");
@@ -168,6 +102,7 @@ public class FilterInvocationTests extends MockObjectTestCase {
         assertEquals("http://www.example.com/mycontext/HelloWorld?foo=bar", fi.getFullRequestUrl());
     }
 
+    @Test
     public void testStringMethodsWithoutAnyQueryString() {
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
         request.setServletPath("/HelloWorld");

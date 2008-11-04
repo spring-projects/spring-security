@@ -15,7 +15,14 @@
 
 package org.springframework.security.ui.digestauth;
 
-import org.springframework.security.MockFilterChain;
+import static org.junit.Assert.*;
+
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.security.MockFilterConfig;
 
 import org.springframework.security.context.SecurityContextHolder;
@@ -31,9 +38,6 @@ import org.springframework.security.util.StringSplitUtils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-
-import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -57,7 +61,7 @@ import javax.servlet.ServletRequest;
  * @author Luke Taylor
  * @version $Id$
  */
-public class DigestProcessingFilterTests extends MockObjectTestCase {
+public class DigestProcessingFilterTests {
     //~ Static fields/initializers =====================================================================================
 
     private static final String NC = "00000002";
@@ -80,14 +84,6 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
     private DigestProcessingFilter filter;
     private MockHttpServletRequest request;
 
-    //~ Constructors ===================================================================================================
-
-    public DigestProcessingFilterTests() {
-    }
-
-    public DigestProcessingFilterTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
 
@@ -97,19 +93,22 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
                 + "\", response=\"" + responseDigest + "\", qop=" + qop + ", nc=" + nc + ", cnonce=\"" + cnonce + "\"";
     }
 
-    private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter, ServletRequest request,
-                                                                      boolean expectChainToProceed) throws ServletException, IOException {
+    private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter, final ServletRequest request,
+                                                                      final boolean expectChainToProceed) throws ServletException, IOException {
         filter.init(new MockFilterConfig());
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        Mock mockChain = mock(FilterChain.class);
-        FilterChain chain = (FilterChain) mockChain.proxy();
+        final MockHttpServletResponse response = new MockHttpServletResponse();
 
-        mockChain.expects(expectChainToProceed ? once() : never()).method("doFilter");
+        Mockery jmockContext = new JUnit4Mockery();
+        final FilterChain chain = jmockContext.mock(FilterChain.class);
+
+        jmockContext.checking(new Expectations() {{
+             exactly(expectChainToProceed ? 1 : 0).of(chain).doFilter(request, response);
+        }});
 
         filter.doFilter(request, response, chain);
         filter.destroy();
-
+        jmockContext.assertIsSatisfied();
         return response;
     }
 
@@ -121,8 +120,13 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
         return new String(Base64.encodeBase64(nonceValue.getBytes()));
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @After
+    public void clearContext() throws Exception {
+        SecurityContextHolder.clearContext();
+    }
+
+    @Before
+    public void setUp() throws Exception {
         SecurityContextHolder.clearContext();
 
         // Create User Details Service
@@ -143,35 +147,7 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
         request.setServletPath(REQUEST_URI);
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        SecurityContextHolder.clearContext();
-    }
-
-    public void testDoFilterWithNonHttpServletRequestDetected()
-            throws Exception {
-        DigestProcessingFilter filter = new DigestProcessingFilter();
-
-        try {
-            filter.doFilter(null, new MockHttpServletResponse(), new MockFilterChain());
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertEquals("Can only process HttpServletRequest", expected.getMessage());
-        }
-    }
-
-    public void testDoFilterWithNonHttpServletResponseDetected()
-            throws Exception {
-        DigestProcessingFilter filter = new DigestProcessingFilter();
-
-        try {
-            filter.doFilter(new MockHttpServletRequest(null, null), null, new MockFilterChain());
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertEquals("Can only process HttpServletResponse", expected.getMessage());
-        }
-    }
-
+    @Test
     public void testExpiredNonceReturnsForbiddenWithStaleHeader()
             throws Exception {
         String nonce = generateNonce(0);
@@ -194,6 +170,7 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
         assertEquals("true", headerMap.get("stale"));
     }
 
+    @Test
     public void testFilterIgnoresRequestsContainingNoAuthorizationHeader()
             throws Exception {
         executeFilterInContainerSimulator(filter, request, true);
@@ -201,6 +178,7 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
     public void testGettersSetters() {
         DigestProcessingFilter filter = new DigestProcessingFilter();
         filter.setUserDetailsService(new InMemoryDaoImpl());
@@ -215,6 +193,7 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
         assertNotNull(filter.getUserCache());
     }
 
+    @Test
     public void testInvalidDigestAuthorizationTokenGeneratesError()
             throws Exception {
         String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
@@ -227,6 +206,7 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
     public void testMalformedHeaderReturnsForbidden() throws Exception {
         request.addHeader("Authorization", "Digest scsdcsdc");
 

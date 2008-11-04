@@ -15,9 +15,16 @@
 
 package org.springframework.security.ui.basicauth;
 
+import static org.junit.Assert.*;
+
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.security.MockAuthenticationEntryPoint;
 import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.MockFilterChain;
 import org.springframework.security.MockFilterConfig;
 import org.springframework.security.MockApplicationEventPublisher;
 
@@ -32,9 +39,6 @@ import org.springframework.security.userdetails.memory.UserMap;
 import org.springframework.security.userdetails.memory.UserMapEditor;
 
 import org.apache.commons.codec.binary.Base64;
-
-import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -56,40 +60,33 @@ import javax.servlet.ServletRequest;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilterTests extends MockObjectTestCase {
+public class BasicProcessingFilterTests {
     //~ Instance fields ================================================================================================
 
     private BasicProcessingFilter filter;
 
-    //~ Constructors ===================================================================================================
-
-    public BasicProcessingFilterTests() {
-    }
-
-    public BasicProcessingFilterTests(String arg0) {
-        super(arg0);
-    }
-
     //~ Methods ========================================================================================================
 
-    private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter, ServletRequest request,
-        boolean expectChainToProceed) throws ServletException, IOException {
+    private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter, final ServletRequest request,
+                    final boolean expectChainToProceed) throws ServletException, IOException {
         filter.init(new MockFilterConfig());
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        Mock mockChain = mock(FilterChain.class);
-        FilterChain chain = (FilterChain) mockChain.proxy();
+        final MockHttpServletResponse response = new MockHttpServletResponse();
+        Mockery jmockContext = new JUnit4Mockery();
 
-        mockChain.expects(expectChainToProceed ? once() : never()).method("doFilter");
+        final FilterChain chain = jmockContext.mock(FilterChain.class);
+        jmockContext.checking(new Expectations() {{
+                exactly(expectChainToProceed ? 1 : 0).of(chain).doFilter(request, response);
+            }});
 
         filter.doFilter(request, response, chain);
         filter.destroy();
-
+        jmockContext.assertIsSatisfied();
         return response;
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         SecurityContextHolder.clearContext();
 
         // Create User Details Service, provider and authentication manager
@@ -111,33 +108,12 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         filter.setAuthenticationEntryPoint(new BasicProcessingFilterEntryPoint());
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @After
+    public void clearContext() throws Exception {
         SecurityContextHolder.clearContext();
     }
 
-    public void testDoFilterWithNonHttpServletRequestDetected() throws Exception {
-        BasicProcessingFilter filter = new BasicProcessingFilter();
-
-        try {
-            filter.doFilter(null, new MockHttpServletResponse(), new MockFilterChain());
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertEquals("Can only process HttpServletRequest", expected.getMessage());
-        }
-    }
-
-    public void testDoFilterWithNonHttpServletResponseDetected() throws Exception {
-        BasicProcessingFilter filter = new BasicProcessingFilter();
-
-        try {
-            filter.doFilter(new MockHttpServletRequest(null, null), null, new MockFilterChain());
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertEquals("Can only process HttpServletResponse", expected.getMessage());
-        }
-    }
-
+    @Test
     public void testFilterIgnoresRequestsContainingNoAuthorizationHeader() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -149,6 +125,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
     public void testGettersSetters() {
         BasicProcessingFilter filter = new BasicProcessingFilter();
         filter.setAuthenticationManager(new MockAuthenticationManager());
@@ -158,6 +135,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         assertTrue(filter.getAuthenticationEntryPoint() != null);
     }
 
+    @Test
     public void testInvalidBasicAuthorizationTokenIsIgnored() throws Exception {
         // Setup our HTTP request
         String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
@@ -172,6 +150,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
     public void testNormalOperation() throws Exception {
         // Setup our HTTP request
         String token = "rod:koala";
@@ -189,6 +168,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
             ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
     }
 
+    @Test
     public void testOtherAuthorizationSchemeIsIgnored() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -201,6 +181,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
     public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
         try {
             BasicProcessingFilter filter = new BasicProcessingFilter();
@@ -212,6 +193,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         }
     }
 
+    @Test
     public void testStartupDetectsMissingAuthenticationManager() throws Exception {
         try {
             BasicProcessingFilter filter = new BasicProcessingFilter();
@@ -223,6 +205,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         }
     }
 
+    @Test
     public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken() throws Exception {
         // Setup our HTTP request
         String token = "rod:koala";
@@ -253,6 +236,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         assertEquals(401, response.getStatus());
     }
 
+    @Test
     public void testWrongPasswordContinuesFilterChainIfIgnoreFailureIsTrue() throws Exception {
         // Setup our HTTP request
         String token = "rod:WRONG_PASSWORD";
@@ -270,6 +254,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
     public void testWrongPasswordReturnsForbiddenIfIgnoreFailureIsFalse() throws Exception {
         // Setup our HTTP request
         String token = "rod:WRONG_PASSWORD";

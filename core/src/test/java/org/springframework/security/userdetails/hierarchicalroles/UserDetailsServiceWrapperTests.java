@@ -1,50 +1,50 @@
 package org.springframework.security.userdetails.hierarchicalroles;
 
-import junit.textui.TestRunner;
+import static org.junit.Assert.*;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JMock;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-public class UserDetailsServiceWrapperTests extends MockObjectTestCase {
+@RunWith(JMock.class)
+public class UserDetailsServiceWrapperTests {
 
     private UserDetailsService wrappedUserDetailsService = null;
     private UserDetailsServiceWrapper userDetailsServiceWrapper = null;
+    private Mockery jmockContext = new JUnit4Mockery();
 
-    public UserDetailsServiceWrapperTests() {
-        super();
-    }
-
-    public UserDetailsServiceWrapperTests(String testCaseName) {
-        super(testCaseName);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.run(UserDetailsServiceWrapperTests.class);
-    }
-
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
         roleHierarchy.setHierarchy("ROLE_A > ROLE_B");
         GrantedAuthority[] authorities = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A") };
-        UserDetails user = new User("EXISTING_USER", "PASSWORD", true, true, true, true, authorities);
-        Mock wrappedUserDetailsServiceMock = mock(UserDetailsService.class);
-        wrappedUserDetailsServiceMock.stubs().method("loadUserByUsername").with(eq("EXISTING_USER")).will(returnValue(user));
-        wrappedUserDetailsServiceMock.stubs().method("loadUserByUsername").with(eq("USERNAME_NOT_FOUND_EXCEPTION")).will(throwException(new UsernameNotFoundException("USERNAME_NOT_FOUND_EXCEPTION")));
-        wrappedUserDetailsServiceMock.stubs().method("loadUserByUsername").with(eq("DATA_ACCESS_EXCEPTION")).will(throwException(new EmptyResultDataAccessException(1234)));
-        wrappedUserDetailsService = (UserDetailsService) wrappedUserDetailsServiceMock.proxy();
+        final UserDetails user = new User("EXISTING_USER", "PASSWORD", true, true, true, true, authorities);
+        final UserDetailsService wrappedUserDetailsService = jmockContext.mock(UserDetailsService.class);
+
+        jmockContext.checking( new Expectations() {{
+            allowing(wrappedUserDetailsService).loadUserByUsername("EXISTING_USER"); will(returnValue(user));
+            allowing(wrappedUserDetailsService).loadUserByUsername("USERNAME_NOT_FOUND_EXCEPTION"); will(throwException(new UsernameNotFoundException("USERNAME_NOT_FOUND_EXCEPTION")));
+            allowing(wrappedUserDetailsService).loadUserByUsername("DATA_ACCESS_EXCEPTION"); will(throwException(new EmptyResultDataAccessException(1234)));
+        }});
+        this.wrappedUserDetailsService = wrappedUserDetailsService;
         userDetailsServiceWrapper = new UserDetailsServiceWrapper();
         userDetailsServiceWrapper.setRoleHierarchy(roleHierarchy);
         userDetailsServiceWrapper.setUserDetailsService(wrappedUserDetailsService);
     }
 
+    @Test
     public void testLoadUserByUsername() {
         GrantedAuthority[] authorities = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B") };
         UserDetails expectedUserDetails = new User("EXISTING_USER", "PASSWORD", true, true, true, true, authorities);
@@ -68,6 +68,7 @@ public class UserDetailsServiceWrapperTests extends MockObjectTestCase {
         } catch (DataAccessException e) {}
     }
 
+    @Test
     public void testGetWrappedUserDetailsService() {
         assertTrue(userDetailsServiceWrapper.getWrappedUserDetailsService() == wrappedUserDetailsService);
     }

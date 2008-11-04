@@ -129,10 +129,8 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>jmock</groupId>
-            <artifactId>jmock</artifactId>
-            <version>1.0.1</version>
-            <scope>test</scope>
+            <groupId>org.jmock</groupId>
+            <artifactId>jmock-junit4</artifactId>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
