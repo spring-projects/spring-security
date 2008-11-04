@@ -1,11 +1,16 @@
 package org.springframework.security.acls.domain;
 
+import static org.junit.Assert.*;
+
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -29,142 +34,103 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.util.FieldUtils;
 
+
 /**
  * Tests for {@link AclImpl}.
- * 
+ *
  * @author Andrei Stefan
  */
-public class AclImplTests extends TestCase {
+public class AclImplTests {
+    Authentication auth = new TestingAuthenticationToken("johndoe", "ignored", "ROLE_ADMINISTRATOR");
+    Mockery jmockCtx = new Mockery();
+    AclAuthorizationStrategy mockAuthzStrategy;
+    AuditLogger mockAuditLogger;
+    ObjectIdentity objectIdentity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+
     // ~ Methods ========================================================================================================
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        mockAuthzStrategy = jmockCtx.mock(AclAuthorizationStrategy.class);
+        mockAuditLogger = jmockCtx.mock(AuditLogger.class);;
+        jmockCtx.checking(new Expectations() {{
+            ignoring(mockAuthzStrategy);
+            ignoring(mockAuditLogger);
+        }});
+        auth.setAuthenticated(true);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
-        super.tearDown();
     }
 
-    public void testConstructorsRejectNullParameters() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("johndoe", "ignored",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_ADMINISTRATOR") });
-        auth.setAuthenticated(true);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-
+    @Test(expected=IllegalArgumentException.class)
+    public void testConstructorsRejectNullObjectIdentity() throws Exception {
         try {
-            Acl acl = new AclImpl(null, new Long(1), strategy, auditLogger);
-            fail("It should have thrown IllegalArgumentException");
+            new AclImpl(null, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid("johndoe"));
+            fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
-        try {
-            Acl acl = new AclImpl(identity, null, strategy, auditLogger);
-            fail("It should have thrown IllegalArgumentException");
-        }
-        catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-        try {
-            Acl acl = new AclImpl(identity, new Long(1), null, auditLogger);
-            fail("It should have thrown IllegalArgumentException");
-        }
-        catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-        try {
-            Acl acl = new AclImpl(identity, new Long(1), strategy, null);
-            fail("It should have thrown IllegalArgumentException");
-        }
-        catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-        try {
-            Acl acl = new AclImpl(null, new Long(1), strategy, auditLogger, null, null, true, new PrincipalSid("johndoe"));
-            fail("It should have thrown IllegalArgumentException");
-        }
-        catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-        try {
-            Acl acl = new AclImpl(identity, null, strategy, auditLogger, null, null, true, new PrincipalSid("johndoe"));
-            fail("It should have thrown IllegalArgumentException");
-        }
-        catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-        try {
-            Acl acl = new AclImpl(identity, new Long(1), null, auditLogger, null, null, true, new PrincipalSid("johndoe"));
-            fail("It should have thrown IllegalArgumentException");
-        }
-        catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-        try {
-            Acl acl = new AclImpl(identity, new Long(1), strategy, null, null, null, true, new PrincipalSid("johndoe"));
-            fail("It should have thrown IllegalArgumentException");
-        }
-        catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-        try {
-            Acl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, null, true, null);
-            fail("It should have thrown IllegalArgumentException");
-        }
-        catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        new AclImpl(null, new Long(1), mockAuthzStrategy, mockAuditLogger);
     }
 
+    @Test(expected=IllegalArgumentException.class)
+    public void testConstructorsRejectNullId() throws Exception {
+        try {
+            new AclImpl(objectIdentity, null, mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid("johndoe"));
+            fail("Should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+        }
+        new AclImpl(objectIdentity, null, mockAuthzStrategy, mockAuditLogger);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testConstructorsRejectNullAclAuthzStrategy() throws Exception {
+        try {
+            new AclImpl(objectIdentity, new Long(1), null, mockAuditLogger, null, null, true, new PrincipalSid("johndoe"));
+            fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+        }
+        new AclImpl(objectIdentity, new Long(1), null, mockAuditLogger);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testConstructorsRejectNullAuditLogger() throws Exception {
+        try {
+            new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, null, null, null, true, new PrincipalSid("johndoe"));
+            fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+        }
+        new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, null);
+    }
+
+    @Test
     public void testInsertAceRejectsNullParameters() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("johndoe", "ignored",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_ADMINISTRATOR") });
-        auth.setAuthenticated(true);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-
-        MutableAcl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, null, true, new PrincipalSid(
+        MutableAcl acl = new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(
                 "johndoe"));
         try {
             acl.insertAce(0, null, new GrantedAuthoritySid("ROLE_IGNORED"), true);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
         try {
             acl.insertAce(0, BasePermission.READ, null, true);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
     }
 
+    @Test
     public void testInsertAceAddsElementAtCorrectIndex() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("johndoe", "ignored",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_ADMINISTRATOR") });
-        auth.setAuthenticated(true);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        MutableAcl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, null, true, new PrincipalSid(
-                "johndoe"));
+        MutableAcl acl = new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid("johndoe"));
         MockAclService service = new MockAclService();
 
         // Insert one permission
@@ -198,17 +164,9 @@ public class AclImplTests extends TestCase {
         assertEquals(acl.getEntries()[2].getSid(), new GrantedAuthoritySid("ROLE_TEST2"));
     }
 
+    @Test(expected=NotFoundException.class)
     public void testInsertAceFailsForInexistentElement() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("johndoe", "ignored",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_ADMINISTRATOR") });
-        auth.setAuthenticated(true);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        MutableAcl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, null, true, new PrincipalSid(
+        MutableAcl acl = new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(
                 "johndoe"));
         MockAclService service = new MockAclService();
 
@@ -216,26 +174,12 @@ public class AclImplTests extends TestCase {
         acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST1"), true);
         service.updateAcl(acl);
 
-        try {
-            acl.insertAce(55, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true);
-            fail("It should have thrown NotFoundException");
-        }
-        catch (NotFoundException expected) {
-            assertTrue(true);
-        }
+        acl.insertAce(55, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true);
     }
 
+    @Test
     public void testDeleteAceKeepsInitialOrdering() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("johndoe", "ignored",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_ADMINISTRATOR") });
-        auth.setAuthenticated(true);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        MutableAcl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, null, true, new PrincipalSid(
+        MutableAcl acl = new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(
                 "johndoe"));
         MockAclService service = new MockAclService();
 
@@ -265,65 +209,49 @@ public class AclImplTests extends TestCase {
         assertEquals(0, acl.getEntries().length);
     }
 
+    @Test
     public void testDeleteAceFailsForInexistentElement() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("johndoe", "ignored",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_ADMINISTRATOR") });
-        auth.setAuthenticated(true);
-        SecurityContextHolder.getContext().setAuthentication(auth);
         AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
                 new GrantedAuthorityImpl("ROLE_GENERAL") });
         AuditLogger auditLogger = new ConsoleAuditLogger();
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        MutableAcl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, null, true, new PrincipalSid(
+        MutableAcl acl = new AclImpl(objectIdentity, new Long(1), strategy, auditLogger, null, null, true, new PrincipalSid(
                 "johndoe"));
         try {
             acl.deleteAce(99);
             fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
-            assertTrue(true);
         }
     }
 
+    @Test
     public void testIsGrantingRejectsEmptyParameters() throws Exception {
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        MutableAcl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, null, true, new PrincipalSid(
+        MutableAcl acl = new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(
                 "johndoe"));
-
         try {
             acl.isGranted(new Permission[] {}, new Sid[] { new PrincipalSid("ben") }, false);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
         try {
             acl.isGranted(new Permission[] { BasePermission.READ }, new Sid[] {}, false);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
     }
 
+    @Test
     public void testIsGrantingGrantsAccessForAclWithNoParent() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("ben", "ignored", new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_GENERAL"), new GrantedAuthorityImpl("ROLE_GUEST") });
+        Authentication auth = new TestingAuthenticationToken("ben", "ignored", "ROLE_GENERAL","ROLE_GUEST");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
         ObjectIdentity rootOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
 
         // Create an ACL which owner is not the authenticated principal
-        MutableAcl rootAcl = new AclImpl(rootOid, new Long(1), strategy, auditLogger, null, null, false, new PrincipalSid(
+        MutableAcl rootAcl = new AclImpl(rootOid, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, false, new PrincipalSid(
                 "johndoe"));
 
         // Grant some permissions
@@ -341,7 +269,6 @@ public class AclImplTests extends TestCase {
             fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
-            assertTrue(true);
         }
         assertTrue(rootAcl.isGranted(new Permission[] { BasePermission.WRITE }, new Sid[] { new PrincipalSid("scott") },
                 false));
@@ -356,19 +283,14 @@ public class AclImplTests extends TestCase {
             fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
-            assertTrue(true);
         }
     }
 
+    @Test
     public void testIsGrantingGrantsAccessForInheritableAcls() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("ben", "ignored",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_GENERAL") });
+        Authentication auth = new TestingAuthenticationToken("ben", "ignored","ROLE_GENERAL");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
         ObjectIdentity grandParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
         ObjectIdentity parentOid1 = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
         ObjectIdentity parentOid2 = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
@@ -376,15 +298,15 @@ public class AclImplTests extends TestCase {
         ObjectIdentity childOid2 = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(104));
 
         // Create ACLs
-        MutableAcl grandParentAcl = new AclImpl(grandParentOid, new Long(1), strategy, auditLogger, null, null, false,
+        MutableAcl grandParentAcl = new AclImpl(grandParentOid, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, false,
                 new PrincipalSid("johndoe"));
-        MutableAcl parentAcl1 = new AclImpl(parentOid1, new Long(2), strategy, auditLogger, null, null, true,
+        MutableAcl parentAcl1 = new AclImpl(parentOid1, new Long(2), mockAuthzStrategy, mockAuditLogger, null, null, true,
                 new PrincipalSid("johndoe"));
-        MutableAcl parentAcl2 = new AclImpl(parentOid2, new Long(3), strategy, auditLogger, null, null, true,
+        MutableAcl parentAcl2 = new AclImpl(parentOid2, new Long(3), mockAuthzStrategy, mockAuditLogger, null, null, true,
                 new PrincipalSid("johndoe"));
-        MutableAcl childAcl1 = new AclImpl(childOid1, new Long(4), strategy, auditLogger, null, null, true,
+        MutableAcl childAcl1 = new AclImpl(childOid1, new Long(4), mockAuthzStrategy, mockAuditLogger, null, null, true,
                 new PrincipalSid("johndoe"));
-        MutableAcl childAcl2 = new AclImpl(childOid2, new Long(4), strategy, auditLogger, null, null, false,
+        MutableAcl childAcl2 = new AclImpl(childOid2, new Long(4), mockAuthzStrategy, mockAuditLogger, null, null, false,
                 new PrincipalSid("johndoe"));
 
         // Create hierarchies
@@ -450,17 +372,12 @@ public class AclImplTests extends TestCase {
         }
     }
 
+    @Test
     public void testUpdateAce() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("ben", "ignored",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_GENERAL") });
+        Authentication auth = new TestingAuthenticationToken("ben", "ignored","ROLE_GENERAL");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        MutableAcl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, null, false, new PrincipalSid(
+        MutableAcl acl = new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, false, new PrincipalSid(
                 "johndoe"));
         MockAclService service = new MockAclService();
 
@@ -484,17 +401,12 @@ public class AclImplTests extends TestCase {
         assertEquals(acl.getEntries()[2].getPermission(), BasePermission.READ);
     }
 
+    @Test
     public void testUpdateAuditing() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("ben", "ignored", new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_AUDITING"), new GrantedAuthorityImpl("ROLE_GENERAL") });
+        Authentication auth = new TestingAuthenticationToken("ben", "ignored", "ROLE_AUDITING", "ROLE_GENERAL");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        MutableAcl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, null, false, new PrincipalSid(
+        MutableAcl acl = new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, false, new PrincipalSid(
                 "johndoe"));
         MockAclService service = new MockAclService();
 
@@ -518,54 +430,50 @@ public class AclImplTests extends TestCase {
         assertTrue(((AuditableAccessControlEntry) acl.getEntries()[1]).isAuditSuccess());
     }
 
+    @Test
     public void testGettersSetters() throws Exception {
         Authentication auth = new TestingAuthenticationToken("ben", "ignored", new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_GENERAL") });
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_GENERAL"), new GrantedAuthorityImpl("ROLE_GENERAL"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
         ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
         ObjectIdentity identity2 = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
-        MutableAcl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, null, true, new PrincipalSid(
+        MutableAcl acl = new AclImpl(identity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(
                 "johndoe"));
-        MutableAcl parentAcl = new AclImpl(identity2, new Long(2), strategy, auditLogger, null, null, true, new PrincipalSid(
+        MutableAcl parentAcl = new AclImpl(identity2, new Long(2), mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(
                 "johndoe"));
         MockAclService service = new MockAclService();
         acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_USER_READ"), true);
         acl.insertAce(1, BasePermission.WRITE, new GrantedAuthoritySid("ROLE_USER_READ"), true);
         service.updateAcl(acl);
-        
+
         assertEquals(acl.getId(), new Long(1));
         assertEquals(acl.getObjectIdentity(), identity);
         assertEquals(acl.getOwner(), new PrincipalSid("johndoe"));
         assertNull(acl.getParentAcl());
         assertTrue(acl.isEntriesInheriting());
         assertEquals(2, acl.getEntries().length);
-        
+
         acl.setParent(parentAcl);
         assertEquals(acl.getParentAcl(), parentAcl);
-        
+
         acl.setEntriesInheriting(false);
         assertFalse(acl.isEntriesInheriting());
-        
+
         ((OwnershipAcl) acl).setOwner(new PrincipalSid("ben"));
         assertEquals(acl.getOwner(), new PrincipalSid("ben"));
     }
-    
+
+    @Test
     public void testIsSidLoaded() throws Exception {
         AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_GENERAL"), new GrantedAuthorityImpl("ROLE_GENERAL"),
                 new GrantedAuthorityImpl("ROLE_GENERAL") });
         AuditLogger auditLogger = new ConsoleAuditLogger();
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        
         Sid[] loadedSids = new Sid[] { new PrincipalSid("ben"), new GrantedAuthoritySid("ROLE_IGNORED") };
-        MutableAcl acl = new AclImpl(identity, new Long(1), strategy, auditLogger, null, loadedSids, true, new PrincipalSid(
+        MutableAcl acl = new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, loadedSids, true, new PrincipalSid(
                 "johndoe"));
-        
+
         assertTrue(acl.isSidLoaded(loadedSids));
         assertTrue(acl.isSidLoaded(new Sid[] { new GrantedAuthoritySid("ROLE_IGNORED"), new PrincipalSid("ben") }));
         assertTrue(acl.isSidLoaded(new Sid[] { new GrantedAuthoritySid("ROLE_IGNORED")}));
@@ -576,8 +484,8 @@ public class AclImplTests extends TestCase {
         assertFalse(acl.isSidLoaded(new Sid[] { new GrantedAuthoritySid("ROLE_GENERAL"), new GrantedAuthoritySid("ROLE_IGNORED") }));
         assertFalse(acl.isSidLoaded(new Sid[] { new GrantedAuthoritySid("ROLE_IGNORED"), new GrantedAuthoritySid("ROLE_GENERAL") }));
     }
-    
-    // ~ Inner Classes ==================================================================================================
+
+    //~ Inner Classes ==================================================================================================
 
     private class MockAclService implements MutableAclService {
         public MutableAcl createAcl(ObjectIdentity objectIdentity) throws AlreadyExistsException {

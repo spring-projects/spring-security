@@ -17,7 +17,7 @@
             <artifactId>spring-security-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-<!--        
+<!--
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
@@ -25,7 +25,7 @@
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
--->        
+-->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
@@ -56,13 +56,17 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jmock</groupId>
+            <artifactId>jmock-junit4</artifactId>
+        </dependency>
     </dependencies>
-    
+
     <properties>
         <spring.osgi.export>
             org.springframework.security.*;version=${pom.version.osgi}
         </spring.osgi.export>
-            
+
         <spring.osgi.import>
             net.sf.ehcache.*;version="[1.4.1, 2.0.0)";resolution:=optional,
             org.springframework.security.*;version="[${pom.version.osgi},${pom.version.osgi}]",
@@ -79,7 +83,7 @@
             !org.springframework.security.*
         </spring.osgi.private.pkg>
 
-        <spring.osgi.symbolic.name>org.springframework.security.acls</spring.osgi.symbolic.name>        
-    </properties>    
-    
+        <spring.osgi.symbolic.name>org.springframework.security.acls</spring.osgi.symbolic.name>
+    </properties>
+
 </project>
