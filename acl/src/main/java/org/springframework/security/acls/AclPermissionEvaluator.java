@@ -1,10 +1,13 @@
 package org.springframework.security.acls;
 
+import java.io.Serializable;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
+import org.springframework.security.acls.objectidentity.ObjectIdentityGenerator;
 import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalStrategy;
 import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalStrategyImpl;
 import org.springframework.security.acls.sid.Sid;
@@ -27,6 +30,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 
     private AclService aclService;
     private ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
+    private ObjectIdentityGenerator objectIdentityGenerator = new ObjectIdentityRetrievalStrategyImpl();
     private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
 
     public AclPermissionEvaluator(AclService aclService) {
@@ -45,13 +49,23 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 
         ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
 
+        return checkPermission(authentication, objectIdentity, permission);
+    }
+
+    public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+        ObjectIdentity objectIdentity = objectIdentityGenerator.createObjectIdentity(targetId, targetType);
+
+        return checkPermission(authentication, objectIdentity, permission);
+    }
+
+    private boolean checkPermission(Authentication authentication, ObjectIdentity oid, Object permission) {
         // Obtain the SIDs applicable to the principal
         Sid[] sids = sidRetrievalStrategy.getSids(authentication);
         Permission[] requiredPermission = resolvePermission(permission);
 
         try {
             // Lookup only ACLs for SIDs we're interested in
-            Acl acl = aclService.readAclById(objectIdentity, sids);
+            Acl acl = aclService.readAclById(oid, sids);
 
             if (acl.isGranted(requiredPermission, sids, false)) {
                 if (logger.isDebugEnabled()) {
@@ -72,6 +86,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
         }
 
         return false;
+
     }
 
     // TODO: Add permission resolver/PermissionFactory rewrite
@@ -111,5 +126,4 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
     public void setSidRetrievalStrategy(SidRetrievalStrategy sidRetrievalStrategy) {
         this.sidRetrievalStrategy = sidRetrievalStrategy;
     }
-
 }

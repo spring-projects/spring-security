@@ -63,7 +63,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
         this.identifier = identifier;
     }
 
-/**
+    /**
      * Creates the <code>ObjectIdentityImpl</code> based on the passed
      * object instance. The passed object must provide a <code>getId()</code>
      * method, otherwise an exception will be thrown. The object passed will
@@ -98,7 +98,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
     /**
      * Important so caching operates properly.<P>Considers an object of the same class equal if it has the same
      * <code>classname</code> and <code>id</code> properties.</p>
-     * 
+     *
      * <p>
      * Note that this class uses string equality for the identifier field, which ensures it better supports
      * differences between {@link LookupStrategy} requirements and the domain object represented by this

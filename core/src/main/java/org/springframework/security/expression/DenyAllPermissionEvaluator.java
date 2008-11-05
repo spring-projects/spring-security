@@ -1,5 +1,7 @@
 package org.springframework.security.expression;
 
+import java.io.Serializable;
+
 import org.springframework.security.Authentication;
 
 /**
@@ -16,6 +18,14 @@ public class DenyAllPermissionEvaluator implements PermissionEvaluator {
      * @return false always
      */
     public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+        return false;
+    }
+
+    /**
+     * @return false always
+     */
+    public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+                    Object permission) {
         return false;
     }
 

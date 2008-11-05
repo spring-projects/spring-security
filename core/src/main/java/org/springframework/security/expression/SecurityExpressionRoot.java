@@ -1,11 +1,13 @@
 package org.springframework.security.expression;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.util.AuthorityUtils;
+
 
 /**
  * Default root object for use in Spring Security expression evaluations.
@@ -85,6 +87,10 @@ public class SecurityExpressionRoot {
 
     public boolean hasPermission(Object target, Object permission) {
         return permissionEvaluator.hasPermission(authentication, target, permission);
+    }
+
+    public boolean hasPermission(Object targetId, String targetType, Object permission) {
+        return permissionEvaluator.hasPermission(authentication, (Serializable)targetId, targetType, permission);
     }
 
     public Authentication getAuthentication() {

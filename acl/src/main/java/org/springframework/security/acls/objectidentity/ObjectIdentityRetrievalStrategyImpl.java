@@ -15,17 +15,23 @@
 
 package org.springframework.security.acls.objectidentity;
 
+import java.io.Serializable;
+
 /**
- * Basic implementation of {@link ObjectIdentityRetrievalStrategy} that uses the constructor of {@link
- * ObjectIdentityImpl} to create the {@link ObjectIdentity}.
+ * Basic implementation of {@link ObjectIdentityRetrievalStrategy} and <tt>ObjectIdentityGenerator</tt>
+ * that uses the constructors of {@link ObjectIdentityImpl} to create the {@link ObjectIdentity}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class ObjectIdentityRetrievalStrategyImpl implements ObjectIdentityRetrievalStrategy {
+public class ObjectIdentityRetrievalStrategyImpl implements ObjectIdentityRetrievalStrategy, ObjectIdentityGenerator {
     //~ Methods ========================================================================================================
 
     public ObjectIdentity getObjectIdentity(Object domainObject) {
         return new ObjectIdentityImpl(domainObject);
+    }
+
+    public ObjectIdentity createObjectIdentity(Serializable id, String type) {
+        return new ObjectIdentityImpl(type, id);
     }
 }
