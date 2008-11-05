@@ -51,6 +51,6 @@ public class AclPermissionEvaluatorTests {
                 will(returnValue(true));
         }});
 
-        assertTrue(pe.hasPermission(user, new Object(), "read"));
+        assertTrue(pe.hasPermission(user, new Object(), "READ"));
     }
 }
