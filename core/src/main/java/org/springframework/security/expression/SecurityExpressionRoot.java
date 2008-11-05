@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
+import org.springframework.security.GrantedAuthority;
 import org.springframework.security.util.AuthorityUtils;
 
 /**
@@ -41,7 +42,13 @@ public class SecurityExpressionRoot {
     }
 
     public final boolean hasRole(String role) {
-        return AuthorityUtils.userHasAuthority(role);
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            if (role.equals(authority.getAuthority())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public final boolean hasAnyRole(String... roles) {
