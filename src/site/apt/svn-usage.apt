@@ -7,7 +7,7 @@ Subversion Usage
 * Web Access
 
     You can browse the Subversion repository at
-    {{{http://acegisecurity.svn.sourceforge.net/viewvc/acegisecurity/}}}
+    {{{https://src.springframework.org/svn/spring-security/}}}
 
 * Subversion Access
 
@@ -15,23 +15,23 @@ Subversion Usage
 
 +----------------------------------------------------------------------------------------------------------------------+
 
-          svn co http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/
+          svn co https://src.springframework.org/svn/spring-security/trunk/ spring-security
 
 +----------------------------------------------------------------------------------------------------------------------+
 
     Note that the above command checks out the trunk source which is the least likely to be stable (although it should
     always build correctly with no failing unit tests). If you are a beginner, or are looking for the source for a
-    specific stable version, you can use a different URL. For example, the following command would check out the 1.0
+    specific stable version, you can use a different URL. For example, the following command would check out the 2.0
     branch of the code which should only contain bugfixes and minor updates so should be very stable:
 
 +----------------------------------------------------------------------------------------------------------------------+
 
-          svn co http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/branches/1.0.x-branch/
+          svn co https://src.springframework.org/svn/spring-security/branches/2.0.x-branch/
 
 +----------------------------------------------------------------------------------------------------------------------+
 
     Specific tagged releases can be checked out from the URL
-    {{{http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/tags/}}}.
+    {{{https://src.springframework.org/svn/spring-security/tags/}}}.
 
 
 
