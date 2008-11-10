@@ -36,8 +36,9 @@ import java.util.Map;
 
 
 /**
- * Demonstrates accessing the {@link ContactManager} via remoting protocols.<P>Based on Spring's JPetStore sample,
- * written by Juergen Hoeller.</p>
+ * Demonstrates accessing the {@link ContactManager} via remoting protocols.
+ * <p>
+ * Based on Spring's JPetStore sample, written by Juergen Hoeller.
  *
  * @author Ben Alex
  */

@@ -30,11 +30,11 @@ public class CustomAfterInvocationProviderBeanDefinitionDecoratorTests {
                 ConfigTestUtils.AUTH_PROVIDER_XML
         );
 
-        MethodSecurityInterceptor msi = (MethodSecurityInterceptor) appContext.getBean(BeanIds.METHOD_SECURITY_INTERCEPTOR);
+        MethodSecurityInterceptor msi = (MethodSecurityInterceptor) appContext.getBean(GlobalMethodSecurityBeanDefinitionParser.SECURITY_INTERCEPTOR_ID);
         AfterInvocationProviderManager apm = (AfterInvocationProviderManager) msi.getAfterInvocationManager();
         assertNotNull(apm);
-        assertEquals(2, apm.getProviders().size());
-        assertTrue(apm.getProviders().get(1) instanceof MockAfterInvocationProvider);
+        assertEquals(1, apm.getProviders().size());
+        assertTrue(apm.getProviders().get(0) instanceof MockAfterInvocationProvider);
     }
 
     private void setContext(String context) {

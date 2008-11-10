@@ -68,17 +68,6 @@ abstract class ConfigUtils {
         return nonNulls;
     }
 
-    static void addVoter(BeanDefinition voter, ParserContext parserContext) {
-        registerDefaultMethodAccessManagerIfNecessary(parserContext);
-
-        BeanDefinition accessMgr = parserContext.getRegistry().getBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER);
-
-        ManagedList voters = (ManagedList) accessMgr.getPropertyValues().getPropertyValue("decisionVoters").getValue();
-        voters.add(voter);
-
-        accessMgr.getPropertyValues().addPropertyValue("decisionVoters", voters);
-    }
-
     /**
      * Creates and registers the bean definition for the default ProviderManager instance and returns
      * the BeanDefinition for it. This method will typically be called when registering authentication providers

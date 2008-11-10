@@ -565,6 +565,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
+        <xs:element minOccurs="0" ref="security:permission-evaluator"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="protect-pointcut">
           <xs:annotation>
             <xs:documentation>Defines a protected pointcut and the access control configuration
@@ -581,7 +582,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="global-method-security.attlist">
-    <xs:attribute name="spel-annotations">
+    <xs:attribute name="expression-annotations">
       <xs:annotation>
         <xs:documentation>Specifies whether the use of Spring Security's expression-based
           annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for
@@ -626,6 +627,15 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="permission-evaluator">
+    <xs:annotation>
+      <xs:documentation>Defines the PermissionEvaluator implementation which will be used to
+        evaluate calls to hasPermission() expressions</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="security:ref"/>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="custom-after-invocation-provider">
     <xs:annotation>
       <xs:documentation>Used to decorate an AfterInvocationProvider to specify that it should be

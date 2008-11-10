@@ -24,7 +24,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.util.Assert;
 
-import org.springframework.web.bind.RequestUtils;
+import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
@@ -60,9 +60,9 @@ public class DeletePermissionController implements Controller, InitializingBean 
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
         // <c:param name="sid" value="${acl.sid.principal}"/><c:param name="permission" value="${acl.permission.mask}"/></c:url>">Del</A>
-        int contactId = RequestUtils.getRequiredIntParameter(request, "contactId");
-        String sid = RequestUtils.getRequiredStringParameter(request, "sid");
-        int mask = RequestUtils.getRequiredIntParameter(request, "permission");
+        int contactId = ServletRequestUtils.getRequiredIntParameter(request, "contactId");
+        String sid = ServletRequestUtils.getRequiredStringParameter(request, "sid");
+        int mask = ServletRequestUtils.getRequiredIntParameter(request, "permission");
 
         Contact contact = contactManager.getById(new Long(contactId));
 

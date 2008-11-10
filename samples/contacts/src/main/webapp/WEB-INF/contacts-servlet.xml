@@ -9,7 +9,7 @@
 
 <beans>
 
-	<!-- ========================== WEB DEFINITIONS ======================= -->
+    <!-- ========================== WEB DEFINITIONS ======================= -->
 
   <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
     <property name="basename" value="messages"/>
@@ -21,6 +21,7 @@
 
   <bean id="secureIndexController" class="sample.contact.SecureIndexController">
     <property name="contactManager" ref="contactManager"/>
+    <property name="permissionEvaluator" ref="permissionEvaluator" />
   </bean>
 
   <bean id="secureDeleteController" class="sample.contact.DeleteController">
@@ -75,9 +76,9 @@
     <property name="contactManager" ref="contactManager"/>
   </bean>
 
-	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<property name="prefix" value="/WEB-INF/jsp/"/>
-		<property name="suffix" value=".jsp"/>
-	</bean>
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
 
 </beans>

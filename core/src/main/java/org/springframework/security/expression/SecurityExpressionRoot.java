@@ -33,7 +33,7 @@ public class SecurityExpressionRoot {
     public final String write = "write";
     public final String create = "create";
     public final String delete = "delete";
-    public final String admin = "admin";
+    public final String admin = "administration";
 
 
     SecurityExpressionRoot(Authentication a) {

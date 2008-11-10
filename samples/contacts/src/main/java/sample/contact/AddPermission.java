@@ -14,7 +14,7 @@
  */
 package sample.contact;
 
-import org.springframework.security.acl.basic.SimpleAclEntry;
+import org.springframework.security.acls.domain.BasePermission;
 
 
 /**
@@ -27,7 +27,7 @@ public class AddPermission {
     //~ Instance fields ================================================================================================
 
     public Contact contact;
-    public Integer permission = new Integer(SimpleAclEntry.READ);
+    public Integer permission = BasePermission.READ.getMask();
     public String recipient;
 
     //~ Methods ========================================================================================================

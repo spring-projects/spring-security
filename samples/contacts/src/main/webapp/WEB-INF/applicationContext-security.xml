@@ -11,15 +11,18 @@
 <b:beans xmlns="http://www.springframework.org/schema/security"
     xmlns:b="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.1.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.5.xsd">
 
+    <global-method-security expression-annotations="enabled">
+        <permission-evaluator ref="permissionEvaluator"/>
+    </global-method-security>
 
     <http auto-config="true" realm="Contacts Realm">
         <intercept-url pattern="/" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/hello.htm" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-        <intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>        
+        <intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/switchuser.jsp" access="ROLE_SUPERVISOR"/>
         <intercept-url pattern="/j_spring_security_switch_user" access="ROLE_SUPERVISOR"/>
         <intercept-url pattern="/**" access="ROLE_USER"/>
@@ -28,20 +31,24 @@
         <logout logout-success-url="/index.jsp"/>
     </http>
 
-   <authentication-provider>
+    <authentication-provider>
        <password-encoder hash="md5"/>
        <jdbc-user-service data-source-ref="dataSource"/>
-   </authentication-provider>
+    </authentication-provider>
 
-   <!-- Automatically receives AuthenticationEvent messages -->
-   <b:bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
+    <!-- Automatically receives AuthenticationEvent messages -->
+    <b:bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
 
-   <!-- Filter used to switch the user context. Note: the switch and exit url must be secured
+    <!-- Filter used to switch the user context. Note: the switch and exit url must be secured
         based on the role granted the ability to 'switch' to another user -->
-   <!-- In this example 'rod' has ROLE_SUPERVISOR that can switch to regular ROLE_USER(s) -->
-   <b:bean id="switchUserProcessingFilter" class="org.springframework.security.ui.switchuser.SwitchUserProcessingFilter" autowire="byType">
-       <custom-filter position="SWITCH_USER_FILTER"/>       
+    <!-- In this example 'rod' has ROLE_SUPERVISOR that can switch to regular ROLE_USER(s) -->
+    <b:bean id="switchUserProcessingFilter" class="org.springframework.security.ui.switchuser.SwitchUserProcessingFilter" autowire="byType">
+       <custom-filter position="SWITCH_USER_FILTER"/>
        <b:property name="targetUrl" value="/secure/index.htm"/>
-   </b:bean>
+    </b:bean>
+
+    <b:bean id="permissionEvaluator" class="org.springframework.security.acls.AclPermissionEvaluator">
+        <b:constructor-arg ref="aclService" />
+    </b:bean>
 
 </b:beans>

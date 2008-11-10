@@ -51,7 +51,7 @@ public class PublicIndexController implements Controller, InitializingBean {
     }
 
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         Contact rnd = contactManager.getRandomContact();
 
         return new ModelAndView("hello", "contact", rnd);

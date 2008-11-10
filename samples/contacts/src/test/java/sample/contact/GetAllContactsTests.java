@@ -14,21 +14,23 @@
  */
 package sample.contact;
 
-import org.springframework.security.Authentication;
-
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.sid.PrincipalSid;
-
-import org.springframework.security.context.SecurityContextHolder;
-
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.Iterator;
 import java.util.List;
+
+import org.junit.After;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.Authentication;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.sid.PrincipalSid;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
 /**
@@ -37,9 +39,15 @@ import java.util.List;
  * @author David Leal
  * @author Ben Alex
  */
-public class GetAllContactsTests extends AbstractTransactionalSpringContextTests {
+@ContextConfiguration(locations={
+                "/applicationContext-common-authorization.xml",
+                "/applicationContext-common-business.xml",
+                "/applicationContext-contacts-test.xml"})
+@RunWith(SpringJUnit4ClassRunner.class)
+public class GetAllContactsTests {
     //~ Instance fields ================================================================================================
 
+    @Autowired
     protected ContactManager contactManager;
 
     //~ Methods ========================================================================================================
@@ -59,7 +67,7 @@ public class GetAllContactsTests extends AbstractTransactionalSpringContextTests
         fail("List of contacts should have contained: " + id);
     }
 
-    protected void assertNotContainsContact(String id, List contacts) {
+    void assertDoestNotContainContact(String id, List contacts) {
         Iterator iter = contacts.iterator();
 
         while (iter.hasNext()) {
@@ -69,15 +77,6 @@ public class GetAllContactsTests extends AbstractTransactionalSpringContextTests
                 fail("List of contact should NOT (but did) contain: " + id);
             }
         }
-    }
-
-    protected String[] getConfigLocations() {
-        setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_BY_NAME);
-
-        return new String[] {
-            "applicationContext-common-authorization.xml", "applicationContext-common-business.xml",
-            "applicationContext-contacts-test.xml"
-        };
     }
 
     /**
@@ -120,14 +119,12 @@ public class GetAllContactsTests extends AbstractTransactionalSpringContextTests
         SecurityContextHolder.getContext().setAuthentication(authRequest);
     }
 
-    protected void onTearDownInTransaction() {
+    @After
+    public void onTearDownInTransaction() {
         SecurityContextHolder.clearContext();
     }
 
-    public void setContactManager(ContactManager contactManager) {
-        this.contactManager = contactManager;
-    }
-
+    @Test
     public void testDianne() {
         makeActiveUser("dianne"); // has ROLE_USER
 
@@ -139,11 +136,12 @@ public class GetAllContactsTests extends AbstractTransactionalSpringContextTests
         assertContainsContact(Long.toString(6), contacts);
         assertContainsContact(Long.toString(8), contacts);
 
-        assertNotContainsContact(Long.toString(1), contacts);
-        assertNotContainsContact(Long.toString(2), contacts);
-        assertNotContainsContact(Long.toString(3), contacts);
+        assertDoestNotContainContact(Long.toString(1), contacts);
+        assertDoestNotContainContact(Long.toString(2), contacts);
+        assertDoestNotContainContact(Long.toString(3), contacts);
     }
 
+    @Test
     public void testrod() {
         makeActiveUser("rod"); // has ROLE_SUPERVISOR
 
@@ -156,13 +154,14 @@ public class GetAllContactsTests extends AbstractTransactionalSpringContextTests
         assertContainsContact(Long.toString(3), contacts);
         assertContainsContact(Long.toString(4), contacts);
 
-        assertNotContainsContact(Long.toString(5), contacts);
+        assertDoestNotContainContact(Long.toString(5), contacts);
 
         Contact c1 = contactManager.getById(new Long(4));
 
         contactManager.deletePermission(c1, new PrincipalSid("bob"), BasePermission.ADMINISTRATION);
     }
 
+    @Test
     public void testScott() {
         makeActiveUser("scott"); // has ROLE_USER
 
@@ -176,6 +175,6 @@ public class GetAllContactsTests extends AbstractTransactionalSpringContextTests
         assertContainsContact(Long.toString(8), contacts);
         assertContainsContact(Long.toString(9), contacts);
 
-        assertNotContainsContact(Long.toString(1), contacts);
+        assertDoestNotContainContact(Long.toString(1), contacts);
     }
 }

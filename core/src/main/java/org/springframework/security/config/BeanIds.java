@@ -1,9 +1,9 @@
 package org.springframework.security.config;
 
 /**
- * Contains all the default Bean IDs created by the namespace support in Spring Security 2.
+ * Contains globally used default Bean IDs for beans created by the namespace support in Spring Security 2.
  * <p>
- * These are mainly intended for internal use.
+ * These are intended for internal use.
  *
  * @author Ben Alex
  * @version $Id$
@@ -31,7 +31,7 @@ public abstract class BeanIds {
     public static final String SESSION_REGISTRY = "_sessionRegistry";
     public static final String CONCURRENT_SESSION_FILTER = "_concurrentSessionFilter";
     public static final String CONCURRENT_SESSION_CONTROLLER = "_concurrentSessionController";
-    public static final String METHOD_ACCESS_MANAGER = "_methodAccessManager";
+    public static final String METHOD_ACCESS_MANAGER = "_defaultMethodAccessManager";
     public static final String WEB_ACCESS_MANAGER = "_webAccessManager";
     public static final String AUTHENTICATION_MANAGER = "_authenticationManager";
     public static final String AFTER_INVOCATION_MANAGER = "_afterInvocationManager";
@@ -55,11 +55,11 @@ public abstract class BeanIds {
     public static final String DEFAULT_LOGIN_PAGE_GENERATING_FILTER = "_defaultLoginPageFilter";
     public static final String SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER = "_securityContextHolderAwareRequestFilter";
     public static final String SESSION_FIXATION_PROTECTION_FILTER = "_sessionFixationProtectionFilter";
-    public static final String METHOD_SECURITY_INTERCEPTOR = "_methodSecurityInterceptor";
-    public static final String METHOD_SECURITY_INTERCEPTOR_POST_PROCESSOR = "_methodSecurityInterceptorPostProcessor";
+//    public static final String GLOBAL_METHOD_SECURITY_INTERCEPTOR = "_methodSecurityInterceptor";
+//    public static final String METHOD_SECURITY_INTERCEPTOR_POST_PROCESSOR = "_methodSecurityInterceptorPostProcessor";
     public static final String METHOD_DEFINITION_SOURCE_ADVISOR = "_methodDefinitionSourceAdvisor";
     public static final String PROTECT_POINTCUT_POST_PROCESSOR = "_protectPointcutPostProcessor";
-    public static final String DELEGATING_METHOD_DEFINITION_SOURCE = "_delegatingMethodDefinitionSource";
+//    public static final String DELEGATING_METHOD_DEFINITION_SOURCE = "_delegatingMethodDefinitionSource";
     public static final String SECURED_METHOD_DEFINITION_SOURCE = "_securedMethodDefinitionSource";
     public static final String JSR_250_METHOD_DEFINITION_SOURCE = "_jsr250MethodDefinitionSource";
     public static final String EMBEDDED_APACHE_DS = "_apacheDirectoryServerContainer";

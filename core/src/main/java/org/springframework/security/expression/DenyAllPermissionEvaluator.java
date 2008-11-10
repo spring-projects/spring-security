@@ -2,6 +2,8 @@ package org.springframework.security.expression;
 
 import java.io.Serializable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.Authentication;
 
 /**
@@ -12,12 +14,15 @@ import org.springframework.security.Authentication;
  * @version $Id$
  * @since 2.5
  */
-public class DenyAllPermissionEvaluator implements PermissionEvaluator {
+public final class DenyAllPermissionEvaluator implements PermissionEvaluator {
+
+    private final Log logger = LogFactory.getLog(getClass());
 
     /**
      * @return false always
      */
-    public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+    public boolean hasPermission(Authentication authentication, Object target, Object permission) {
+        logger.warn("Denying user " + authentication.getName() + " permission '" + permission + "' on object " + target);
         return false;
     }
 
@@ -26,6 +31,8 @@ public class DenyAllPermissionEvaluator implements PermissionEvaluator {
      */
     public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
                     Object permission) {
+        logger.warn("Denying user " + authentication.getName() + " permission '" + permission + "' on object with Id '"
+                        + targetId);
         return false;
     }
 

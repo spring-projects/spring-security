@@ -7,7 +7,7 @@
 <P>
 <table cellpadding=3 border=0>
 <tr><td><b>id</b></td><td><b>Name</b></td><td><b>Email</b></td></tr>
-<c:forEach var="contact" items="${model.contacts}">
+<c:forEach var="contact" items="${model.contacts}" >
   <tr>
   <td>
       <c:out value="${contact.id}"/>
@@ -18,12 +18,12 @@
   <td>
       <c:out value="${contact.email}"/>
   </td>
-  <security:accesscontrollist domainObject="${contact}" hasPermission="8,16">
-    <td><A HREF="<c:url value="del.htm"><c:param name="contactId" value="${contact.id}"/></c:url>">Del</A></td>
-  </security:accesscontrollist>
-  <security:accesscontrollist domainObject="${contact}" hasPermission="16">
-    <td><A HREF="<c:url value="adminPermission.htm"><c:param name="contactId" value="${contact.id}"/></c:url>">Admin Permission</A></td>
-  </security:accesscontrollist>
+  <c:if test="${model.hasDeletePermission[contact]}">
+    <td><a href="<c:url value="del.htm"><c:param name="contactId" value="${contact.id}"/></c:url>">Del</a></td>
+  </c:if>
+  <c:if test="${model.hasAdminPermission[contact]}">
+    <td><a href="<c:url value="adminPermission.htm"><c:param name="contactId" value="${contact.id}"/></c:url>">Admin Permission</a></td>
+  </c:if>
   </tr>
 </c:forEach>
 </table>

@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.config.AopNamespaceUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -17,12 +19,17 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.SecurityConfig;
+import org.springframework.security.expression.DefaultSecurityExpressionHandler;
 import org.springframework.security.expression.support.MethodExpressionAfterInvocationProvider;
+import org.springframework.security.expression.support.MethodExpressionVoter;
 import org.springframework.security.intercept.method.DelegatingMethodDefinitionSource;
 import org.springframework.security.intercept.method.MapBasedMethodDefinitionSource;
 import org.springframework.security.intercept.method.ProtectPointcutPostProcessor;
 import org.springframework.security.intercept.method.aopalliance.MethodDefinitionSourceAdvisor;
 import org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor;
+import org.springframework.security.vote.AffirmativeBased;
+import org.springframework.security.vote.AuthenticatedVoter;
+import org.springframework.security.vote.RoleVoter;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -34,24 +41,51 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
-    public static final String SECURED_DEPENDENCY_CLASS = "org.springframework.security.annotation.Secured";
-    public static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.SecuredMethodDefinitionSource";
-    public static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.expression.support.ExpressionAnnotationMethodDefinitionSource";
-    public static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.Jsr250MethodDefinitionSource";
-    public static final String JSR_250_VOTER_CLASS = "org.springframework.security.annotation.Jsr250Voter";
+
+    private final Log logger = LogFactory.getLog(getClass());
+
+    static final String SECURED_DEPENDENCY_CLASS = "org.springframework.security.annotation.Secured";
+    static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.SecuredMethodDefinitionSource";
+    static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.expression.support.ExpressionAnnotationMethodDefinitionSource";
+    static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.Jsr250MethodDefinitionSource";
+    static final String JSR_250_VOTER_CLASS = "org.springframework.security.annotation.Jsr250Voter";
+
+    /*
+     * Internal Bean IDs which are only used within this class
+     */
+    static final String SECURITY_INTERCEPTOR_ID = "_globalMethodSecurityInterceptor";
+    static final String INTERCEPTOR_POST_PROCESSOR_ID = "_globalMethodSecurityInterceptorPostProcessor";
+    static final String ACCESS_MANAGER_ID = "_globalMethodSecurityAccessManager";
+    static final String DELEGATING_METHOD_DEFINITION_SOURCE_ID = "_delegatingMethodDefinitionSource";
+    static final String EXPRESSION_HANDLER_ID = "_expressionHandler";
+
     private static final String ATT_ACCESS = "access";
     private static final String ATT_EXPRESSION = "expression";
     private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
     private static final String ATT_USE_JSR250 = "jsr250-annotations";
     private static final String ATT_USE_SECURED = "secured-annotations";
-    private static final String ATT_USE_EXPRESSIONS = "spel-annotations";
+    private static final String ATT_USE_EXPRESSIONS = "expression-annotations";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         Object source = parserContext.extractSource(element);
         // The list of method metadata delegates
         ManagedList delegates = new ManagedList();
 
-        boolean jsr250Enabled = registerAnnotationBasedMethodDefinitionSources(element, parserContext, delegates);
+        boolean jsr250Enabled = "enabled".equals(element.getAttribute(ATT_USE_JSR250));
+        boolean useSecured = "enabled".equals(element.getAttribute(ATT_USE_SECURED));
+        boolean expressionsEnabled = "enabled".equals(element.getAttribute(ATT_USE_EXPRESSIONS));
+
+        if (expressionsEnabled) {
+            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
+        }
+
+        if (useSecured) {
+            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(SECURED_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
+        }
+
+        if (jsr250Enabled) {
+            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
+        }
 
         MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource = new MapBasedMethodDefinitionSource();
         delegates.add(mapBasedMethodDefinitionSource);
@@ -66,21 +100,11 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         registerDelegatingMethodDefinitionSource(parserContext, delegates, source);
 
-        // Add the expression-based after invocation provider
-        ConfigUtils.getRegisteredAfterInvocationProviders(parserContext).add(
-                new RootBeanDefinition(MethodExpressionAfterInvocationProvider.class));
-
-        // Register the applicable AccessDecisionManager, handling the special JSR 250 voter if being used
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
         if (!StringUtils.hasText(accessManagerId)) {
-            ConfigUtils.registerDefaultMethodAccessManagerIfNecessary(parserContext);
-
-            if (jsr250Enabled) {
-                ConfigUtils.addVoter(new RootBeanDefinition(JSR_250_VOTER_CLASS, null, null), parserContext);
-            }
-
-            accessManagerId = BeanIds.METHOD_ACCESS_MANAGER;
+            registerAccessManager(element, parserContext, jsr250Enabled, expressionsEnabled);
+            accessManagerId = ACCESS_MANAGER_ID;
         }
 
         registerMethodSecurityInterceptor(parserContext, accessManagerId, source);
@@ -93,38 +117,58 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     /**
-     * Checks whether el-based, JSR-250 and/or Secured annotations are enabled and adds the appropriate
-     * MethodDefinitionSource delegates if required.
+     * Register the default AccessDecisionManager. Adds the special JSR 250 voter jsr-250 is enabled and an
+     * expression voter if expression-based access control is enabled. If expressions are in use, a after-invocation
+     * provider will also be registered to handle post-invocation filtering and authorization expression annotations.
      */
-    private boolean registerAnnotationBasedMethodDefinitionSources(Element element, ParserContext pc, ManagedList delegates) {
-        boolean useJsr250 = "enabled".equals(element.getAttribute(ATT_USE_JSR250));
-        boolean useSecured = "enabled".equals(element.getAttribute(ATT_USE_SECURED));
-        boolean useExpressions = "enabled".equals(element.getAttribute(ATT_USE_EXPRESSIONS));
+    private void registerAccessManager(Element element, ParserContext pc, boolean jsr250Enabled, boolean expressionsEnabled) {
+        Element permissionEvaluatorElt = DomUtils.getChildElementByTagName(element, Elements.PERMISSON_EVALUATOR);
+        BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
+        ManagedList voters = new ManagedList(4);
 
-        if (useExpressions) {
-            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
+        if (expressionsEnabled) {
+            BeanDefinitionBuilder expressionHandler = BeanDefinitionBuilder.rootBeanDefinition(DefaultSecurityExpressionHandler.class);
+            BeanDefinitionBuilder expressionVoter = BeanDefinitionBuilder.rootBeanDefinition(MethodExpressionVoter.class);
+            BeanDefinitionBuilder afterInvocationProvider = BeanDefinitionBuilder.rootBeanDefinition(MethodExpressionAfterInvocationProvider.class);
+
+            if (permissionEvaluatorElt != null) {
+                String ref = permissionEvaluatorElt.getAttribute("ref");
+                logger.info("Using bean '" + ref + "' as PermissionEvaluator implementation");
+                expressionHandler.addPropertyReference("permissionEvaluator", ref);
+            } else {
+                logger.warn("Expressions were enabled but no PermissionEvaluator was configured. " +
+                        "All hasPermision() expressions will evaluate to false.");
+            }
+
+            pc.getRegistry().registerBeanDefinition(EXPRESSION_HANDLER_ID, expressionHandler.getBeanDefinition());
+
+            expressionVoter.addPropertyReference("expressionHandler", EXPRESSION_HANDLER_ID);
+            afterInvocationProvider.addPropertyReference("expressionHandler", EXPRESSION_HANDLER_ID);
+            ConfigUtils.getRegisteredAfterInvocationProviders(pc).add(afterInvocationProvider.getBeanDefinition());
+            voters.add(expressionVoter.getBeanDefinition());
         }
 
-        if (useSecured) {
-            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(SECURED_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
+        voters.add(new RootBeanDefinition(RoleVoter.class));
+        voters.add(new RootBeanDefinition(AuthenticatedVoter.class));
+
+        if (jsr250Enabled) {
+            voters.add(new RootBeanDefinition(JSR_250_VOTER_CLASS, null, null));
         }
 
-        if (useJsr250) {
-            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
-        }
+        accessMgrBuilder.addPropertyValue("decisionVoters", voters);
 
-        return useJsr250;
+        pc.getRegistry().registerBeanDefinition(ACCESS_MANAGER_ID, accessMgrBuilder.getBeanDefinition());
     }
 
     private void registerDelegatingMethodDefinitionSource(ParserContext parserContext, ManagedList delegates, Object source) {
-        if (parserContext.getRegistry().containsBeanDefinition(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE)) {
+        if (parserContext.getRegistry().containsBeanDefinition(DELEGATING_METHOD_DEFINITION_SOURCE_ID)) {
             parserContext.getReaderContext().error("Duplicate <global-method-security> detected.", source);
         }
         RootBeanDefinition delegatingMethodDefinitionSource = new RootBeanDefinition(DelegatingMethodDefinitionSource.class);
         delegatingMethodDefinitionSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         delegatingMethodDefinitionSource.setSource(source);
         delegatingMethodDefinitionSource.getPropertyValues().addPropertyValue("methodDefinitionSources", delegates);
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE, delegatingMethodDefinitionSource);
+        parserContext.getRegistry().registerBeanDefinition(DELEGATING_METHOD_DEFINITION_SOURCE_ID, delegatingMethodDefinitionSource);
     }
 
     private void registerProtectPointcutPostProcessor(ParserContext parserContext, Map pointcutMap,
@@ -173,11 +217,11 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         interceptor.getPropertyValues().addPropertyValue("accessDecisionManager", new RuntimeBeanReference(accessManagerId));
         interceptor.getPropertyValues().addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
-        interceptor.getPropertyValues().addPropertyValue("objectDefinitionSource", new RuntimeBeanReference(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE));
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_INTERCEPTOR, interceptor);
-        parserContext.registerComponent(new BeanComponentDefinition(interceptor, BeanIds.METHOD_SECURITY_INTERCEPTOR));
+        interceptor.getPropertyValues().addPropertyValue("objectDefinitionSource", new RuntimeBeanReference(DELEGATING_METHOD_DEFINITION_SOURCE_ID));
+        parserContext.getRegistry().registerBeanDefinition(SECURITY_INTERCEPTOR_ID, interceptor);
+        parserContext.registerComponent(new BeanComponentDefinition(interceptor, SECURITY_INTERCEPTOR_ID));
 
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_INTERCEPTOR_POST_PROCESSOR,
+        parserContext.getRegistry().registerBeanDefinition(INTERCEPTOR_POST_PROCESSOR_ID,
                 new RootBeanDefinition(MethodSecurityInterceptorPostProcessor.class));
     }
 
@@ -185,8 +229,8 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         RootBeanDefinition advisor = new RootBeanDefinition(MethodDefinitionSourceAdvisor.class);
         advisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         advisor.setSource(source);
-        advisor.getConstructorArgumentValues().addGenericArgumentValue(BeanIds.METHOD_SECURITY_INTERCEPTOR);
-        advisor.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(BeanIds.DELEGATING_METHOD_DEFINITION_SOURCE));
+        advisor.getConstructorArgumentValues().addGenericArgumentValue(SECURITY_INTERCEPTOR_ID);
+        advisor.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(DELEGATING_METHOD_DEFINITION_SOURCE_ID));
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_DEFINITION_SOURCE_ADVISOR, advisor);
     }

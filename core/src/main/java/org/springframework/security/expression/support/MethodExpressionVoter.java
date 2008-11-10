@@ -55,7 +55,7 @@ public class MethodExpressionVoter implements AccessDecisionVoter {
         if (preFilter != null) {
             Object filterTarget = findFilterTarget(mace.getFilterTarget(), ctx, mi);
 
-            expressionHandler.doFilter(filterTarget, preFilter, ctx);
+            expressionHandler.filter(filterTarget, preFilter, ctx);
         }
 
         if (preAuthorize == null) {
@@ -103,5 +103,9 @@ public class MethodExpressionVoter implements AccessDecisionVoter {
         }
 
         return null;
+    }
+
+    public void setExpressionHandler(SecurityExpressionHandler expressionHandler) {
+        this.expressionHandler = expressionHandler;
     }
 }

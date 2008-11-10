@@ -105,9 +105,11 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 
         if (permission instanceof String) {
             String permString = (String)permission;
-            Permission p = BasePermission.buildFromName(permString);
+            Permission p = null;
 
-            if (p == null) {
+            try {
+                p = BasePermission.buildFromName(permString);
+            } catch(IllegalArgumentException notfound) {
                 p = BasePermission.buildFromName(permString.toUpperCase());
             }
 
@@ -121,6 +123,10 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 
     public void setObjectIdentityRetrievalStrategy(ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
         this.objectIdentityRetrievalStrategy = objectIdentityRetrievalStrategy;
+    }
+
+    public void setObjectIdentityGenerator(ObjectIdentityGenerator objectIdentityGenerator) {
+        this.objectIdentityGenerator = objectIdentityGenerator;
     }
 
     public void setSidRetrievalStrategy(SidRetrievalStrategy sidRetrievalStrategy) {

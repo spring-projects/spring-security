@@ -51,7 +51,7 @@ public class MethodExpressionAfterInvocationProvider implements AfterInvocationP
             }
 
             if (returnedObject != null) {
-                returnedObject = expressionHandler.doFilter(returnedObject, postFilter, ctx);
+                returnedObject = expressionHandler.filter(returnedObject, postFilter, ctx);
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Return object is null, filtering will be skipped");
@@ -90,6 +90,7 @@ public class MethodExpressionAfterInvocationProvider implements AfterInvocationP
         return clazz.isAssignableFrom(MethodInvocation.class);
     }
 
-
-
+    public void setExpressionHandler(SecurityExpressionHandler expressionHandler) {
+        this.expressionHandler = expressionHandler;
+    }
 }

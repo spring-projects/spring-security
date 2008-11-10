@@ -43,8 +43,6 @@ public class Contact implements Serializable {
     //~ Methods ========================================================================================================
 
     /**
-     * DOCUMENT ME!
-     *
      * @return Returns the email.
      */
     public String getEmail() {
@@ -52,8 +50,6 @@ public class Contact implements Serializable {
     }
 
     /**
-     * DOCUMENT ME!
-     *
      * @return Returns the id.
      */
     public Long getId() {
@@ -61,8 +57,6 @@ public class Contact implements Serializable {
     }
 
     /**
-     * DOCUMENT ME!
-     *
      * @return Returns the name.
      */
     public String getName() {
@@ -70,8 +64,6 @@ public class Contact implements Serializable {
     }
 
     /**
-     * DOCUMENT ME!
-     *
      * @param email The email to set.
      */
     public void setEmail(String email) {
@@ -83,8 +75,6 @@ public class Contact implements Serializable {
     }
 
     /**
-     * DOCUMENT ME!
-     *
      * @param name The name to set.
      */
     public void setName(String name) {

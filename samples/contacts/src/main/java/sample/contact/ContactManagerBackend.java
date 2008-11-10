@@ -30,6 +30,7 @@ import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.context.SecurityContextHolder;
 
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -47,6 +48,7 @@ import java.util.Random;
  * @author Ben Alex
  * @version $Id$
  */
+@Transactional
 public class ContactManagerBackend extends ApplicationObjectSupport implements ContactManager, InitializingBean {
     //~ Instance fields ================================================================================================
 
@@ -124,6 +126,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
         }
     }
 
+    @Transactional(readOnly=true)
     public List getAll() {
         if (logger.isDebugEnabled()) {
             logger.debug("Returning all contacts");
@@ -132,6 +135,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
         return contactDao.findAll();
     }
 
+    @Transactional(readOnly=true)
     public List getAllRecipients() {
         if (logger.isDebugEnabled()) {
             logger.debug("Returning all recipients");
@@ -142,6 +146,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
         return list;
     }
 
+    @Transactional(readOnly=true)
     public Contact getById(Long id) {
         if (logger.isDebugEnabled()) {
             logger.debug("Returning contact with id: " + id);
@@ -152,9 +157,8 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
 
     /**
      * This is a public method.
-     *
-     * @return DOCUMENT ME!
      */
+    @Transactional(readOnly=true)    
     public Contact getRandomContact() {
         if (logger.isDebugEnabled()) {
             logger.debug("Returning random contact");

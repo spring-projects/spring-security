@@ -11,11 +11,13 @@ import org.junit.Test;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.security.AccessDeniedException;
+import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.annotation.BusinessService;
 import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
@@ -69,8 +71,9 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     @Test(expected=AccessDeniedException.class)
     public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
         loadContext();
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SOMEOTHERROLE")});
+        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password", "ROLE_SOMEOTHERROLE");
+        token.setAuthenticated(true);
+
         SecurityContextHolder.getContext().setAuthentication(token);
 
         target.someAdminMethod();
@@ -186,7 +189,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     @Test(expected=AccessDeniedException.class)
     public void accessIsDeniedForHasRoleExpression() {
         setContext(
-                "<global-method-security spel-annotations='enabled'/>" +
+                "<global-method-security expression-annotations='enabled'/>" +
                 "<b:bean id='target' class='org.springframework.security.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
                 AUTH_PROVIDER_XML);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
@@ -197,7 +200,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     @Test
     public void preAndPostFilterAnnotationsWorkWithLists() {
         setContext(
-                "<global-method-security spel-annotations='enabled'/>" +
+                "<global-method-security expression-annotations='enabled'/>" +
                 "<b:bean id='target' class='org.springframework.security.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
                 AUTH_PROVIDER_XML);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
@@ -216,7 +219,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     @Test
     public void prePostFilterAnnotationWorksWithArrays() {
         setContext(
-                "<global-method-security spel-annotations='enabled'/>" +
+                "<global-method-security expression-annotations='enabled'/>" +
                 "<b:bean id='target' class='org.springframework.security.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
                 AUTH_PROVIDER_XML);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));

@@ -26,7 +26,7 @@ import org.springframework.util.Assert;
 
 import org.springframework.validation.BindException;
 
-import org.springframework.web.bind.RequestUtils;
+import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 import org.springframework.web.servlet.view.RedirectView;
@@ -67,7 +67,7 @@ public class AddPermissionController extends SimpleFormController implements Ini
 
     protected Object formBackingObject(HttpServletRequest request)
         throws Exception {
-        int contactId = RequestUtils.getRequiredIntParameter(request, "contactId");
+        int contactId = ServletRequestUtils.getRequiredIntParameter(request, "contactId");
 
         Contact contact = contactManager.getById(new Long(contactId));
 

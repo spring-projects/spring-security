@@ -181,10 +181,10 @@ protect.attlist &=
 
 global-method-security =
     ## Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for matches with the ordered list of "protect-pointcut" sub-elements, Spring Security annotations and/or. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. If you use and enable all four sources of method security metadata (ie "protect-pointcut" declarations, expression annotations, @Secured and also JSR250 security annotations), the metadata sources will be queried in that order. In practical terms, this enables you to use XML to override method security metadata expressed in annotations. If using annotations, the order of precedence is EL-based (@PreAuthorize etc.), @Secured and finally JSR-250.
-	element global-method-security {global-method-security.attlist, protect-pointcut*}
+	element global-method-security {global-method-security.attlist, permission-evaluator?, protect-pointcut*}
 global-method-security.attlist &=
     ## Specifies whether the use of Spring Security's expression-based annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this application context. Defaults to "disabled".
-    attribute spel-annotations {"disabled" | "enabled" }?
+    attribute expression-annotations {"disabled" | "enabled" }?
 global-method-security.attlist &=
     ## Specifies whether the use of Spring Security's @Secured annotations should be enabled for this application context. Defaults to "disabled".
     attribute secured-annotations {"disabled" | "enabled" }?
@@ -194,6 +194,10 @@ global-method-security.attlist &=
 global-method-security.attlist &=
     ## Optional AccessDecisionManager bean ID to override the default used for method security.
     attribute access-decision-manager-ref {xsd:string}?
+
+permission-evaluator =
+    ## Defines the PermissionEvaluator implementation which will be used to evaluate calls to hasPermission() expressions
+    element permission-evaluator {ref}
 
 custom-after-invocation-provider =
     ## Used to decorate an AfterInvocationProvider to specify that it should be used with method security.

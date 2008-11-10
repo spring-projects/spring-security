@@ -466,10 +466,6 @@ public class AclImplTests {
 
     @Test
     public void testIsSidLoaded() throws Exception {
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_GENERAL"), new GrantedAuthorityImpl("ROLE_GENERAL"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
         Sid[] loadedSids = new Sid[] { new PrincipalSid("ben"), new GrantedAuthoritySid("ROLE_IGNORED") };
         MutableAcl acl = new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, loadedSids, true, new PrincipalSid(
                 "johndoe"));

@@ -30,10 +30,10 @@ public interface SecurityExpressionHandler {
      *          {@link #createEvaluationContext(Authentication, MethodInvocation)}
      * @return the filtered collection or array
      */
-    Object doFilter(Object filterTarget, Expression filterExpression, EvaluationContext ctx);
+    Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx);
 
     /**
-     * Used to inform the expression system of the return object
+     * Used to inform the expression system of the return object for the given evaluation context.
      *
      * @param returnObject the return object value
      * @param ctx the context within which the object should be set

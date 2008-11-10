@@ -22,7 +22,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.util.Assert;
 
-import org.springframework.web.bind.RequestUtils;
+import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
@@ -57,7 +57,7 @@ public class AdminPermissionController implements Controller, InitializingBean {
 
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-        int id = RequestUtils.getRequiredIntParameter(request, "contactId");
+        int id = ServletRequestUtils.getRequiredIntParameter(request, "contactId");
 
         Contact contact = contactManager.getById(new Long(id));
         Acl acl = aclService.readAclById(new ObjectIdentityImpl(contact));

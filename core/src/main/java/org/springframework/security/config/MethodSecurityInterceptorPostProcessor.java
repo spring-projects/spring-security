@@ -10,12 +10,12 @@ import org.springframework.security.AfterInvocationManager;
 import org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor;
 
 /**
- * BeanPostProcessor which sets the AfterInvocationManager on the default MethodSecurityInterceptor,
- * if one has been configured. 
- * 
+ * BeanPostProcessor which sets the AfterInvocationManager on the global MethodSecurityInterceptor,
+ * if one has been configured.
+ *
  * @author Luke Taylor
  * @version $Id$
- * 
+ *
  */
 public class MethodSecurityInterceptorPostProcessor implements BeanPostProcessor, BeanFactoryAware{
     private Log logger = LogFactory.getLog(getClass());
@@ -23,26 +23,26 @@ public class MethodSecurityInterceptorPostProcessor implements BeanPostProcessor
     private BeanFactory beanFactory;
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if(!BeanIds.METHOD_SECURITY_INTERCEPTOR.equals(beanName)) {
+        if(!GlobalMethodSecurityBeanDefinitionParser.SECURITY_INTERCEPTOR_ID.equals(beanName)) {
             return bean;
         }
 
         MethodSecurityInterceptor interceptor = (MethodSecurityInterceptor) bean;
 
         if (beanFactory.containsBean(BeanIds.AFTER_INVOCATION_MANAGER)) {
-        	logger.debug("Setting AfterInvocationManaer on MethodSecurityInterceptor");
-        	interceptor.setAfterInvocationManager((AfterInvocationManager) 
-        			beanFactory.getBean(BeanIds.AFTER_INVOCATION_MANAGER));
+            logger.debug("Setting AfterInvocationManaer on MethodSecurityInterceptor");
+            interceptor.setAfterInvocationManager((AfterInvocationManager)
+                    beanFactory.getBean(BeanIds.AFTER_INVOCATION_MANAGER));
         }
 
         return bean;
     }
 
-	public Object postProcessAfterInitialization(Object bean, String beanName) {
-		return bean;
-	}
+    public Object postProcessAfterInitialization(Object bean, String beanName) {
+        return bean;
+    }
 
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		this.beanFactory = beanFactory;
-	}
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
 }
