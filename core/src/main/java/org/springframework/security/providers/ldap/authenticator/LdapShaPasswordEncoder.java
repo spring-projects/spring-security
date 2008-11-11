@@ -86,9 +86,9 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
             sha.update(rawPass.getBytes("UTF-8"));
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new IllegalStateException("No SHA implementation available!");
-		} catch (UnsupportedEncodingException ue) {
-			throw new IllegalStateException("UTF-8 not supported!");
-		}
+        } catch (UnsupportedEncodingException ue) {
+            throw new IllegalStateException("UTF-8 not supported!");
+        }
 
         if (salt != null) {
             Assert.isInstanceOf(byte[].class, salt, "Salt value must be a byte array");
@@ -131,7 +131,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
      */
     public boolean isPasswordValid(final String encPass, final String rawPass, Object salt) {
         String prefix = extractPrefix(encPass);
-        
+
         if (prefix == null) {
             return encPass.equals(rawPass);
         }
@@ -141,32 +141,32 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
         } else if (!prefix.equals(SHA_PREFIX) && !prefix.equals(SHA_PREFIX_LC)) {
             throw new IllegalArgumentException("Unsupported password prefix '" + prefix + "'");
         } else {
-        	// Standard SHA
-        	salt = null;
+            // Standard SHA
+            salt = null;
         }
 
-        int startOfHash = prefix.length() + 1;
-        
+        int startOfHash = prefix.length();
+
         String encodedRawPass = encodePassword(rawPass, salt).substring(startOfHash);
-        
+
         return encodedRawPass.equals(encPass.substring(startOfHash));
     }
-    
+
     /**
-     * Returns the hash prefix or null if there isn't one. 
+     * Returns the hash prefix or null if there isn't one.
      */
     private String extractPrefix(String encPass) {
         if (!encPass.startsWith("{")) {
-        	return null;
+            return null;
         }
 
-		int secondBrace = encPass.lastIndexOf('}');
-		
-		if (secondBrace < 0) {
-			throw new IllegalArgumentException("Couldn't find closing brace for SHA prefix");
-		}
-		
-		return encPass.substring(0, secondBrace + 1);
+        int secondBrace = encPass.lastIndexOf('}');
+
+        if (secondBrace < 0) {
+            throw new IllegalArgumentException("Couldn't find closing brace for SHA prefix");
+        }
+
+        return encPass.substring(0, secondBrace + 1);
     }
 
     public void setForceLowerCasePrefix(boolean forceLowerCasePrefix) {
