@@ -3,53 +3,53 @@
         PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
         "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
 <taglib>
-	<tlib-version>1.0</tlib-version>
-	<jsp-version>1.2</jsp-version>
-	<short-name>security</short-name>
-	<uri>http://www.springframework.org/security/tags</uri>
-	<description>
+    <tlib-version>1.0</tlib-version>
+    <jsp-version>1.2</jsp-version>
+    <short-name>security</short-name>
+    <uri>http://www.springframework.org/security/tags</uri>
+    <description>
         Spring Security Authorization Tag Library
-		$Id$
-	</description>
+        $Id$
+    </description>
 
-	<tag>
-		<name>authorize</name>
-		<tag-class>org.springframework.security.taglibs.authz.AuthorizeTag</tag-class>
-		<description>
+    <tag>
+        <name>authorize</name>
+        <tag-class>org.springframework.security.taglibs.authz.AuthorizeTag</tag-class>
+        <description>
             A simple tag to output or not the body of the tag if the principal
             has or doesn't have certain authorities.
-		</description>
+        </description>
 
-		<attribute>
-			<name>ifNotGranted</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-			<description>
+        <attribute>
+            <name>ifNotGranted</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
                 A comma separated list of roles which the user must not have
                 for the body to be output.
-			</description>
-		</attribute>
+            </description>
+        </attribute>
 
-		<attribute>
-			<name>ifAllGranted</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-			<description>
+        <attribute>
+            <name>ifAllGranted</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
                 A comma separated list of roles which the user must all
                 possess for the body to be output.
-			</description>
-		</attribute>
+            </description>
+        </attribute>
 
-		<attribute>
-			<name>ifAnyGranted</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-			<description>
+        <attribute>
+            <name>ifAnyGranted</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
                 A comma separated list of roles, one of which the user must
                 possess for the body to be output.
-			</description>
-		</attribute>
-	</tag>
+            </description>
+        </attribute>
+    </tag>
 
     <tag>
         <name>authentication</name>
@@ -88,66 +88,34 @@
         </attribute>
     </tag>
 
-	<tag>
-		<name>acl</name>
-		<tag-class>org.springframework.security.taglibs.authz.AclTag</tag-class>
-		<description>
+    <tag>
+        <name>accesscontrollist</name>
+        <tag-class>org.springframework.security.taglibs.authz.AccessControlListTag</tag-class>
+        <description>
             Allows inclusion of a tag body if the current Authentication
-			has one of the specified permissions to the presented
-			domain object instance. This tag uses the first AclManager
-			it locates via
-			WebApplicationContextUtils.getRequiredWebApplicationContext(HttpServletContext).
-		</description>
+            has one of the specified permissions to the presented
+            domain object instance.
+        </description>
 
-		<attribute>
-			<name>hasPermission</name>
-			<required>true</required>
-			<rtexprvalue>true</rtexprvalue>
-			<description>
+        <attribute>
+            <name>hasPermission</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
                 A comma separated list of integers, each representing a
-				required bit mask permission from a subclass of
+                required bit mask permission from a subclass of
                 org.springframework.security.acl.basic.AbstractBasicAclEntry.
             </description>
-		</attribute>
-		<attribute>
-			<name>domainObject</name>
-			<required>true</required>
-			<rtexprvalue>true</rtexprvalue>
-			<description>
+        </attribute>
+        <attribute>
+            <name>domainObject</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description>
                 The actual domain object instance for which permissions
-				are being evaluated.
-			</description>
-		</attribute>
-	</tag>
-
-	<tag>
-		<name>accesscontrollist</name>
-		<tag-class>org.springframework.security.taglibs.authz.AccessControlListTag</tag-class>
-		<description>
-            Allows inclusion of a tag body if the current Authentication
-			has one of the specified permissions to the presented
-			domain object instance.
-		</description>
-
-		<attribute>
-			<name>hasPermission</name>
-			<required>true</required>
-			<rtexprvalue>true</rtexprvalue>
-			<description>
-                A comma separated list of integers, each representing a
-				required bit mask permission from a subclass of
-                org.springframework.security.acl.basic.AbstractBasicAclEntry.
+                are being evaluated.
             </description>
-		</attribute>
-		<attribute>
-			<name>domainObject</name>
-			<required>true</required>
-			<rtexprvalue>true</rtexprvalue>
-			<description>
-                The actual domain object instance for which permissions
-				are being evaluated.
-			</description>
-		</attribute>
-	</tag>
+        </attribute>
+    </tag>
 
 </taglib>
