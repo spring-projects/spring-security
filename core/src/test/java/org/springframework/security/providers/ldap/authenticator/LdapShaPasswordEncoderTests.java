@@ -44,7 +44,7 @@ public class LdapShaPasswordEncoderTests {
         assertFalse(sha.isPasswordValid("{SHA}ddSFGmjXYPbZC+NXR2kCzBRjqiE=", "wrongpassword", null));
     }
 
-    @Test    
+    @Test
     public void invalidSaltedPasswordFails() {
         assertFalse(sha.isPasswordValid("{SSHA}25ro4PKC8jhQZ26jVsozhX/xaP0suHgX", "wrongpassword", null));
         assertFalse(sha.isPasswordValid("{SSHA}PQy2j+6n5ytA+YlAKkM8Fh4p6u2JxfVd", "wrongpassword", null));
@@ -82,6 +82,15 @@ public class LdapShaPasswordEncoderTests {
     }
 
     @Test
+    // SEC-1031
+    public void fullLengthOfHashIsUsedInComparison() throws Exception {
+        // Change the first hash character from '2' to '3'
+        assertFalse(sha.isPasswordValid("{SSHA}35ro4PKC8jhQZ26jVsozhX/xaP0suHgX", "boabspasswurd", null));
+     // Change the last hash character from 'X' to 'Y'
+        assertFalse(sha.isPasswordValid("{SSHA}25ro4PKC8jhQZ26jVsozhX/xaP0suHgY", "boabspasswurd", null));
+    }
+
+    @Test
     public void correctPrefixCaseIsUsed() {
         sha.setForceLowerCasePrefix(false);
         assertEquals("{SHA}ddSFGmjXYPbZC+NXR2kCzBRjqiE=", sha.encodePassword("boabspasswurd", null));
@@ -95,12 +104,12 @@ public class LdapShaPasswordEncoderTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void invalidPrefixIsRejected() {
-    	sha.isPasswordValid("{MD9}xxxxxxxxxx" , "somepassword", null);
+        sha.isPasswordValid("{MD9}xxxxxxxxxx" , "somepassword", null);
     }
-    
+
     @Test(expected=IllegalArgumentException.class)
     public void malformedPrefixIsRejected() {
-    	// No right brace
-    	sha.isPasswordValid("{SSHA25ro4PKC8jhQZ26jVsozhX/xaP0suHgX" , "somepassword", null);
+        // No right brace
+        sha.isPasswordValid("{SSHA25ro4PKC8jhQZ26jVsozhX/xaP0suHgX" , "somepassword", null);
     }
 }
