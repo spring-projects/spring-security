@@ -65,8 +65,7 @@ public class AddPermissionController extends SimpleFormController implements Ini
         return showForm(request, response, errors);
     }
 
-    protected Object formBackingObject(HttpServletRequest request)
-        throws Exception {
+    protected Object formBackingObject(HttpServletRequest request) throws Exception {
         int contactId = ServletRequestUtils.getRequiredIntParameter(request, "contactId");
 
         Contact contact = contactManager.getById(new Long(contactId));
@@ -77,13 +76,12 @@ public class AddPermissionController extends SimpleFormController implements Ini
         return addPermission;
     }
 
-    protected ModelAndView handleInvalidSubmit(HttpServletRequest request, HttpServletResponse response)
-        throws Exception {
+    protected ModelAndView handleInvalidSubmit(HttpServletRequest request, HttpServletResponse response) throws Exception {
         return disallowDuplicateFormSubmission(request, response);
     }
 
-    private Map listPermissions(HttpServletRequest request) {
-        Map map = new LinkedHashMap();
+    private Map<Integer, String> listPermissions(HttpServletRequest request) {
+        Map<Integer, String> map = new LinkedHashMap<Integer, String>();
         map.put(new Integer(BasePermission.ADMINISTRATION.getMask()),
             getApplicationContext().getMessage("select.administer", null, "Administer", request.getLocale()));
         map.put(new Integer(BasePermission.READ.getMask()),
@@ -94,15 +92,12 @@ public class AddPermissionController extends SimpleFormController implements Ini
         return map;
     }
 
-    private Map listRecipients(HttpServletRequest request) {
-        Map map = new LinkedHashMap();
+    private Map<String, String> listRecipients(HttpServletRequest request) {
+        Map<String, String> map = new LinkedHashMap<String, String>();
         map.put("",
             getApplicationContext().getMessage("select.pleaseSelect", null, "-- please select --", request.getLocale()));
 
-        Iterator recipientsIter = contactManager.getAllRecipients().iterator();
-
-        while (recipientsIter.hasNext()) {
-            String recipient = (String) recipientsIter.next();
+        for (String recipient : contactManager.getAllRecipients()) {
             map.put(recipient, recipient);
         }
 
@@ -128,9 +123,10 @@ public class AddPermissionController extends SimpleFormController implements Ini
         return new ModelAndView(new RedirectView(getSuccessView()));
     }
 
-    protected Map referenceData(HttpServletRequest request)
-        throws Exception {
-        Map model = new HashMap();
+    @Override
+    @SuppressWarnings("unchecked")
+    protected Map referenceData(HttpServletRequest request) throws Exception {
+        Map  model = new HashMap(2);
         model.put("recipients", listRecipients(request));
         model.put("permissions", listPermissions(request));
 

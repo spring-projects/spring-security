@@ -37,12 +37,12 @@ public class BusinessServiceImpl<E extends Entity> implements BusinessService {
         return input;
     }
 
-    public List methodReturningAList(List someList) {
+    public List<Object> methodReturningAList(List<Object> someList) {
         return someList;
     }
 
-    public List methodReturningAList(String userName, String arg2) {
-        return new ArrayList();
+    public List<Object> methodReturningAList(String userName, String arg2) {
+        return new ArrayList<Object>();
     }
 
     public Object[] methodReturningAnArray(Object[] someArray) {

@@ -13,7 +13,7 @@ public class WebExpressionVoter implements AccessDecisionVoter {
         return false;
     }
 
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<? extends Object> clazz) {
         return clazz.isAssignableFrom(FilterInvocation.class);
     }
 

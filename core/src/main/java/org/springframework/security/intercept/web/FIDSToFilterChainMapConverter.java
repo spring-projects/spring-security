@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  */
 public class FIDSToFilterChainMapConverter {
 
-    private LinkedHashMap filterChainMap = new LinkedHashMap();
+    private LinkedHashMap<String, List<Filter>> filterChainMap = new LinkedHashMap<String, List<Filter>>();
     private UrlMatcher matcher;
 
     public FIDSToFilterChainMapConverter(DefaultFilterInvocationDefinitionSource fids, ApplicationContext appContext) {
@@ -31,15 +31,12 @@ public class FIDSToFilterChainMapConverter {
         Assert.notNull(fids.getAllConfigAttributes(), "FilterChainProxy requires the " +
                 "FilterInvocationDefinitionSource to return a non-null response to getAllConfigAttributes()");
         matcher = fids.getUrlMatcher();
-        Map requestMap = fids.getRequestMap();
-        Iterator paths = requestMap.keySet().iterator();
+        Map<Object, List<ConfigAttribute>> requestMap = fids.getRequestMap();
 
-        while (paths.hasNext()) {
-            Object entry = paths.next();
+        for(Object entry : requestMap.keySet()) {
             String path = entry instanceof Pattern ? ((Pattern)entry).pattern() : (String)entry;
-            List<? extends ConfigAttribute> configAttributeDefinition = (List<? extends ConfigAttribute>) requestMap.get(entry);
-
-            List filters = new ArrayList();
+            List<ConfigAttribute> configAttributeDefinition = requestMap.get(entry);
+            List<Filter> filters = new ArrayList<Filter>();
 
             for(ConfigAttribute attr : configAttributeDefinition) {
                 String filterName = attr.getAttribute();
@@ -48,7 +45,7 @@ public class FIDSToFilterChainMapConverter {
                         "method, which is invalid when used with FilterChainProxy");
 
                 if (!filterName.equals(FilterChainProxy.TOKEN_NONE)) {
-                    filters.add(appContext.getBean(filterName, Filter.class));
+                    filters.add((Filter) appContext.getBean(filterName, Filter.class));
                 }
             }
 
@@ -56,7 +53,7 @@ public class FIDSToFilterChainMapConverter {
         }
     }
 
-    public Map getFilterChainMap() {
+    public Map<String, List<Filter>> getFilterChainMap() {
         return filterChainMap;
     }
 

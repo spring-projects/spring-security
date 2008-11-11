@@ -46,6 +46,7 @@ import java.util.TreeMap;
  * @author Ben Alex
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class SavedRequest implements java.io.Serializable {
     //~ Static fields/initializers =====================================================================================
 

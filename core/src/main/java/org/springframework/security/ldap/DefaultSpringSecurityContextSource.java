@@ -44,7 +44,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource implem
 
         StringTokenizer st = new StringTokenizer(providerUrl);
 
-        ArrayList urls = new ArrayList();
+        ArrayList<String> urls = new ArrayList<String>();
 
         // Work out rootDn from the first URL and check that the other URLs (if any) match
         while (st.hasMoreTokens()) {
@@ -62,10 +62,11 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource implem
             }
         }
 
-        super.setUrls((String[]) urls.toArray(new String[urls.size()]));
+        super.setUrls(urls.toArray(new String[urls.size()]));
         super.setBase(rootDn);
     }
 
+    @SuppressWarnings("unchecked")
     public DirContext getReadWriteContext(String userDn, Object credentials) {
         Hashtable env = new Hashtable(getAnonymousEnv());
 

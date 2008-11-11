@@ -86,7 +86,7 @@ public class MethodExpressionAfterInvocationProvider implements AfterInvocationP
         return attribute instanceof PostInvocationExpressionAttribute;
     }
 
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<? extends Object> clazz) {
         return clazz.isAssignableFrom(MethodInvocation.class);
     }
 

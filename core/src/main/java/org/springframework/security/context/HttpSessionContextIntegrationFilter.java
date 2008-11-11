@@ -106,7 +106,7 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
 
     //~ Instance fields ================================================================================================
 
-    private Class contextClass = SecurityContextImpl.class;
+    private Class<? extends SecurityContext> contextClass = SecurityContextImpl.class;
 
     private Object contextObject;
 
@@ -152,8 +152,8 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
      * method.
      */
     private boolean cloneFromHttpSession = false;
-    
-    private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl(); 
+
+    private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
     public boolean isCloneFromHttpSession() {
         return cloneFromHttpSession;
@@ -180,7 +180,7 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
             throw new IllegalArgumentException(
                     "If using forceEagerSessionCreation, you must set allowSessionCreation to also be true");
         }
-        
+
         contextObject = generateNewContext();
     }
 
@@ -327,7 +327,7 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
     /**
      * Stores the supplied security context in the session (if available) and if it has changed since it was
      * set at the start of the request. If the AuthenticationTrustResolver identifies the current user as
-     * anonymous, then the context will not be stored. 
+     * anonymous, then the context will not be stored.
      *
      * @param securityContext the context object obtained from the SecurityContextHolder after the request has
      *        been processed by the filter chain. SecurityContextHolder.getContext() cannot be used to obtain
@@ -363,13 +363,13 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
                                         + "(because the allowSessionCreation property is false) - SecurityContext thus not "
                                         + "stored for next request");
                     }
-                } else if (!contextObject.equals(securityContext)) {                	
+                } else if (!contextObject.equals(securityContext)) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("HttpSession being created as SecurityContextHolder contents are non-default");
                     }
 
                     httpSession = safeGetSession(request, true);
-                    
+
                 } else {
                     if (logger.isDebugEnabled()) {
                         logger.debug("HttpSession is null, but SecurityContextHolder has not changed from default: ' "
@@ -383,28 +383,28 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
         // If HttpSession exists, store current SecurityContextHolder contents but only if
         // the SecurityContext has actually changed (see JIRA SEC-37)
         if (httpSession != null && securityContext.hashCode() != contextHashBeforeChainExecution) {
-        	// See SEC-766
-        	if (authenticationTrustResolver.isAnonymous(securityContext.getAuthentication())) {
+            // See SEC-766
+            if (authenticationTrustResolver.isAnonymous(securityContext.getAuthentication())) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("SecurityContext contents are anonymous - context will not be stored in HttpSession. ");
                 }
-        	} else {
-	            httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
-	
-	            if (logger.isDebugEnabled()) {
-	                logger.debug("SecurityContext stored to HttpSession: '" + securityContext + "'");
-	            }
-        	}
+            } else {
+                httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("SecurityContext stored to HttpSession: '" + securityContext + "'");
+                }
+            }
         }
     }
-    
+
     private HttpSession safeGetSession(HttpServletRequest request, boolean allowCreate) {
         try {
             return request.getSession(allowCreate);
         }
         catch (IllegalStateException ignored) {
             return null;
-        }        
+        }
     }
 
     public SecurityContext generateNewContext() throws ServletException {
@@ -427,10 +427,11 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
         this.allowSessionCreation = allowSessionCreation;
     }
 
-    protected Class getContextClass() {
+    protected Class<? extends SecurityContext> getContextClass() {
         return contextClass;
     }
 
+    @SuppressWarnings("unchecked")
     public void setContextClass(Class secureContext) {
         this.contextClass = secureContext;
     }

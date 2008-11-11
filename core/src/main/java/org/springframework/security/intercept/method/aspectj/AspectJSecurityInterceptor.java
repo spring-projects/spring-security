@@ -46,7 +46,7 @@ public class AspectJSecurityInterceptor extends AbstractSecurityInterceptor {
         return this.objectDefinitionSource;
     }
 
-    public Class getSecureObjectClass() {
+    public Class<? extends Object> getSecureObjectClass() {
         return JoinPoint.class;
     }
 

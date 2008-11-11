@@ -87,12 +87,12 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
      *
      * @return the list of possible DN matches, empty if <tt>userDnPatterns</tt> wasn't set.
      */
-    protected List getUserDns(String username) {
+    protected List<String> getUserDns(String username) {
         if (userDnFormat == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
-        List userDns = new ArrayList(userDnFormat.length);
+        List<String> userDns = new ArrayList<String>(userDnFormat.length);
         String[] args = new String[] {username};
 
         synchronized (userDnFormat) {

@@ -18,7 +18,7 @@ public class MockAfterInvocationProvider implements AfterInvocationProvider {
         return true;
     }
 
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<? extends Object> clazz) {
         return true;
     }
 

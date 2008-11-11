@@ -35,16 +35,8 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * @author Ben Alex
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class AfterInvocationProviderManagerTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AfterInvocationProviderManagerTests() {
-        super();
-    }
-
-    public AfterInvocationProviderManagerTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
 
@@ -167,7 +159,7 @@ public class AfterInvocationProviderManagerTests extends TestCase {
             return returnedObject;
         }
 
-        public boolean supports(Class clazz) {
+        public boolean supports(Class<? extends Object> clazz) {
             return secureObject.isAssignableFrom(clazz);
         }
 

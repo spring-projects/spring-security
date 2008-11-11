@@ -127,7 +127,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
     }
 
     @Transactional(readOnly=true)
-    public List getAll() {
+    public List<Contact> getAll() {
         if (logger.isDebugEnabled()) {
             logger.debug("Returning all contacts");
         }
@@ -136,12 +136,12 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
     }
 
     @Transactional(readOnly=true)
-    public List getAllRecipients() {
+    public List<String> getAllRecipients() {
         if (logger.isDebugEnabled()) {
             logger.debug("Returning all recipients");
         }
 
-        List list = contactDao.findAllPrincipals();
+        List<String> list = contactDao.findAllPrincipals();
 
         return list;
     }
@@ -158,7 +158,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
     /**
      * This is a public method.
      */
-    @Transactional(readOnly=true)    
+    @Transactional(readOnly=true)
     public Contact getRandomContact() {
         if (logger.isDebugEnabled()) {
             logger.debug("Returning random contact");

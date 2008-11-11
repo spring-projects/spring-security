@@ -37,7 +37,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource extends Abs
      * @return GrantedAuthority[] mapped from the user's J2EE roles.
      */
     protected Collection<String> getUserRoles(Object context, String[] mappableRoles) {
-        ArrayList j2eeUserRolesList = new ArrayList();
+        ArrayList<String> j2eeUserRolesList = new ArrayList<String>();
 
         for (int i = 0; i < mappableRoles.length; i++) {
             if (((HttpServletRequest)context).isUserInRole(mappableRoles[i])) {

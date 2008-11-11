@@ -202,7 +202,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         this.ticketValidator = ticketValidator;
     }
 
-    public boolean supports(final Class authentication) {
+    public boolean supports(final Class<? extends Object> authentication) {
         if (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication)) {
             return true;
         } else if (CasAuthenticationToken.class.isAssignableFrom(authentication)) {

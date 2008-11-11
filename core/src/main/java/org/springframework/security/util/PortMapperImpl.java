@@ -35,12 +35,12 @@ import java.util.Map;
 public class PortMapperImpl implements PortMapper {
     //~ Instance fields ================================================================================================
 
-    private Map httpsPortMappings;
+    private Map<Integer, Integer> httpsPortMappings;
 
     //~ Constructors ===================================================================================================
 
     public PortMapperImpl() {
-        httpsPortMappings = new HashMap();
+        httpsPortMappings = new HashMap<Integer, Integer>();
         httpsPortMappings.put(new Integer(80), new Integer(443));
         httpsPortMappings.put(new Integer(8080), new Integer(8443));
     }
@@ -50,18 +50,16 @@ public class PortMapperImpl implements PortMapper {
     /**
      * Returns the translated (Integer -> Integer) version of the original port mapping specified via
      * setHttpsPortMapping()
-     *
-     * @return DOCUMENT ME!
      */
-    public Map getTranslatedPortMappings() {
+    public Map<Integer, Integer> getTranslatedPortMappings() {
         return httpsPortMappings;
     }
 
     public Integer lookupHttpPort(Integer httpsPort) {
-        Iterator iter = httpsPortMappings.keySet().iterator();
+        Iterator<Integer> iter = httpsPortMappings.keySet().iterator();
 
         while (iter.hasNext()) {
-            Integer httpPort = (Integer) iter.next();
+            Integer httpPort = iter.next();
 
             if (httpsPortMappings.get(httpPort).equals(httpsPort)) {
                 return httpPort;
@@ -72,7 +70,7 @@ public class PortMapperImpl implements PortMapper {
     }
 
     public Integer lookupHttpsPort(Integer httpPort) {
-        return (Integer) httpsPortMappings.get(httpPort);
+        return httpsPortMappings.get(httpPort);
     }
 
     /**
@@ -93,17 +91,14 @@ public class PortMapperImpl implements PortMapper {
      * @throws IllegalArgumentException if input map does not consist of String keys and values, each representing an
      *         integer port number in the range 1-65535 for that mapping.
      */
-    public void setPortMappings(Map newMappings) {
+    public void setPortMappings(Map<String,String> newMappings) {
         Assert.notNull(newMappings, "A valid list of HTTPS port mappings must be provided");
 
         httpsPortMappings.clear();
 
-        Iterator it = newMappings.entrySet().iterator();
-
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
-            Integer httpPort = new Integer((String) entry.getKey());
-            Integer httpsPort = new Integer((String) entry.getValue());
+        for (Map.Entry<String,String> entry : newMappings.entrySet()) {
+            Integer httpPort = new Integer(entry.getKey());
+            Integer httpsPort = new Integer(entry.getValue());
 
             if ((httpPort.intValue() < 1) || (httpPort.intValue() > 65535) || (httpsPort.intValue() < 1)
                 || (httpsPort.intValue() > 65535)) {

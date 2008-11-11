@@ -74,6 +74,7 @@ import javax.servlet.ServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class FilterToBeanProxy implements Filter {
     //~ Instance fields ================================================================================================
 

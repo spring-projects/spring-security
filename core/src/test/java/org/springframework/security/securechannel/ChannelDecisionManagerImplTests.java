@@ -41,6 +41,7 @@ import javax.servlet.ServletException;
  * @author Ben Alex
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class ChannelDecisionManagerImplTests extends TestCase {
     //~ Methods ========================================================================================================
 

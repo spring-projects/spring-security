@@ -30,12 +30,12 @@ public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
 
     @PreFilter(filterTarget="someList", value="filterObject == authentication.name or filterObject == 'sam'")
     @PostFilter("filterObject == 'bob'")
-    public List methodReturningAList(List someList) {
+    public List<Object> methodReturningAList(List<Object> someList) {
         return someList;
     }
 
-    public List methodReturningAList(String userName, String arg2) {
-        return new ArrayList();
+    public List<Object> methodReturningAList(String userName, String arg2) {
+        return new ArrayList<Object>();
     }
 
     @PostFilter("filterObject == 'bob'")

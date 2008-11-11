@@ -9,33 +9,16 @@ import java.util.Collection;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.annotation.ExpressionProtectedBusinessServiceImpl;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
 import org.springframework.security.vote.AccessDecisionVoter;
 
+@SuppressWarnings("unchecked")
 public class MethodExpressionVoterTests {
     private TestingAuthenticationToken joe = new TestingAuthenticationToken("joe", "joespass", "blah");
-    private MethodInvocation miListArg;
-    private MethodInvocation miArrayArg;
-    private List listArg;
-    private Object[] arrayArg;
     private MethodExpressionVoter am = new MethodExpressionVoter();
-
-    @Before
-    public void setUp() throws Exception {
-        Method m = ExpressionProtectedBusinessServiceImpl.class.getMethod("methodReturningAList",
-                String.class, String.class);
-        m = ExpressionProtectedBusinessServiceImpl.class.getMethod("methodReturningAList", List.class);
-        listArg = new ArrayList(Arrays.asList("joe", "bob", "sam"));
-        miListArg = new SimpleMethodInvocation(new Object(), m, new Object[] {listArg});
-        m = ExpressionProtectedBusinessServiceImpl.class.getMethod("methodReturningAnArray", Object[].class);
-        arrayArg = new Object[] {"joe", "bob", "sam"};
-        miArrayArg = new SimpleMethodInvocation(new Object(), m, new Object[] {arrayArg});
-    }
 
     @Test
     public void hasRoleExpressionAllowsUserWithRole() throws Exception {

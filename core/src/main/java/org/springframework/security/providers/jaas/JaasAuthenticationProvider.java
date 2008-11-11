@@ -431,7 +431,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
         this.loginExceptionResolver = loginExceptionResolver;
     }
 
-    public boolean supports(Class aClass) {
+    public boolean supports(Class<? extends Object> aClass) {
         return UsernamePasswordAuthenticationToken.class.isAssignableFrom(aClass);
     }
 

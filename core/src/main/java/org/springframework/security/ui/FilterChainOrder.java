@@ -22,13 +22,13 @@ public abstract class FilterChainOrder {
 
     public static final int CHANNEL_FILTER              = FILTER_CHAIN_FIRST;
     public static final int CONCURRENT_SESSION_FILTER   = FILTER_CHAIN_FIRST + INTERVAL * i++;
-    public static final int HTTP_SESSION_CONTEXT_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;    
+    public static final int HTTP_SESSION_CONTEXT_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int LOGOUT_FILTER               = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int X509_FILTER                 = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int PRE_AUTH_FILTER             = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int CAS_PROCESSING_FILTER       = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int AUTHENTICATION_PROCESSING_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
-    public static final int OPENID_PROCESSING_FILTER    = FILTER_CHAIN_FIRST + INTERVAL * i++;    
+    public static final int OPENID_PROCESSING_FILTER    = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int LOGIN_PAGE_FILTER           = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int BASIC_PROCESSING_FILTER     = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int SERVLET_API_SUPPORT_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
@@ -36,11 +36,11 @@ public abstract class FilterChainOrder {
     public static final int ANONYMOUS_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int EXCEPTION_TRANSLATION_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int NTLM_FILTER                 = FILTER_CHAIN_FIRST + INTERVAL * i++;
-    public static final int SESSION_FIXATION_FILTER     = FILTER_CHAIN_FIRST + INTERVAL * i++;    
+    public static final int SESSION_FIXATION_FILTER     = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int FILTER_SECURITY_INTERCEPTOR = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int SWITCH_USER_FILTER          = FILTER_CHAIN_FIRST + INTERVAL * i++;
 
-    private static final Map filterNameToOrder = new LinkedHashMap();
+    private static final Map<String, Integer> filterNameToOrder = new LinkedHashMap<String, Integer>();
 
     static {
         filterNameToOrder.put("FIRST", new Integer(Integer.MIN_VALUE));
@@ -58,7 +58,7 @@ public abstract class FilterChainOrder {
         filterNameToOrder.put("ANONYMOUS_FILTER", new Integer(ANONYMOUS_FILTER));
         filterNameToOrder.put("EXCEPTION_TRANSLATION_FILTER", new Integer(EXCEPTION_TRANSLATION_FILTER));
         filterNameToOrder.put("NTLM_FILTER", new Integer(NTLM_FILTER));
-        filterNameToOrder.put("SESSION_CONTEXT_INTEGRATION_FILTER", new Integer(HTTP_SESSION_CONTEXT_FILTER));        
+        filterNameToOrder.put("SESSION_CONTEXT_INTEGRATION_FILTER", new Integer(HTTP_SESSION_CONTEXT_FILTER));
         filterNameToOrder.put("FILTER_SECURITY_INTERCEPTOR", new Integer(FILTER_SECURITY_INTERCEPTOR));
         filterNameToOrder.put("SWITCH_USER_FILTER", new Integer(SWITCH_USER_FILTER));
         filterNameToOrder.put("LAST", new Integer(Integer.MAX_VALUE));
@@ -66,7 +66,7 @@ public abstract class FilterChainOrder {
 
     /** Allows filters to be used by name in the XSD file without explicit reference to Java constants */
     public static int getOrder(String filterName) {
-        Integer order = (Integer) filterNameToOrder.get(filterName);
+        Integer order = filterNameToOrder.get(filterName);
 
         Assert.notNull(order, "Unable to match filter name " + filterName);
 

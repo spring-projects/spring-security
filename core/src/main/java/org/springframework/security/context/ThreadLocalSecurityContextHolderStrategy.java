@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
 public class ThreadLocalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
     //~ Static fields/initializers =====================================================================================
 
-    private static ThreadLocal contextHolder = new ThreadLocal();
+    private static ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<SecurityContext>();
 
     //~ Methods ========================================================================================================
 
@@ -44,7 +44,7 @@ public class ThreadLocalSecurityContextHolderStrategy implements SecurityContext
             contextHolder.set(new SecurityContextImpl());
         }
 
-        return (SecurityContext) contextHolder.get();
+        return contextHolder.get();
     }
 
     public void setContext(SecurityContext context) {

@@ -31,11 +31,11 @@ public interface ContactDao {
 
     public void delete(Long contactId);
 
-    public List findAll();
+    public List<Contact> findAll();
 
-    public List findAllPrincipals();
+    public List<String> findAllPrincipals();
 
-    public List findAllRoles();
+    public List<String> findAllRoles();
 
     public Contact getById(Long id);
 

@@ -37,7 +37,7 @@ public class TestingAuthenticationProvider implements AuthenticationProvider {
         return authentication;
     }
 
-    public boolean supports(Class authentication) {
+    public boolean supports(Class<? extends Object> authentication) {
         return TestingAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

@@ -87,7 +87,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
         return this.objectDefinitionSource;
     }
 
-    public Class getSecureObjectClass() {
+    public Class<? extends Object> getSecureObjectClass() {
         return FilterInvocation.class;
     }
 

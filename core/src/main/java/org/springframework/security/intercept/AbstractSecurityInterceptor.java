@@ -359,7 +359,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
      *
      * @return the type of secure object the subclass provides services for
      */
-    public abstract Class getSecureObjectClass();
+    public abstract Class<? extends Object> getSecureObjectClass();
 
     public boolean isAlwaysReauthenticate() {
         return alwaysReauthenticate;

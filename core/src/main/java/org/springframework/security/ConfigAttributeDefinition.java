@@ -38,6 +38,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
+@SuppressWarnings("all")
 public class ConfigAttributeDefinition implements Serializable {
     public static final ConfigAttributeDefinition NO_ATTRIBUTES = new ConfigAttributeDefinition();
 

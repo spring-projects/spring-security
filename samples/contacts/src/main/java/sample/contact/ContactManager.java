@@ -44,10 +44,10 @@ public interface ContactManager {
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @PostFilter("hasPermission(filterObject, 'read') or hasPermission(filterObject, admin)")
-    public List getAll();
+    public List<Contact> getAll();
 
     @PreAuthorize("hasRole('ROLE_USER')")
-    public List getAllRecipients();
+    public List<String> getAllRecipients();
 
     @PreAuthorize(
             "hasPermission(#id, 'sample.contact.Contact', read) or " +

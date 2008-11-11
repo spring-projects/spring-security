@@ -99,7 +99,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
     /* (non-Javadoc)
      * @see org.springframework.security.providers.AuthenticationProvider#supports(java.lang.Class)
      */
-    public boolean supports(Class authentication) {
+    public boolean supports(Class<? extends Object> authentication) {
         return OpenIDAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

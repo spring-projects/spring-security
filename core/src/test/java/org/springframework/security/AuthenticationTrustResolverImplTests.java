@@ -29,21 +29,8 @@ import org.springframework.security.providers.rememberme.RememberMeAuthenticatio
  * @version $Id$
  */
 public class AuthenticationTrustResolverImplTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AuthenticationTrustResolverImplTests() {
-        super();
-    }
-
-    public AuthenticationTrustResolverImplTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AuthenticationTrustResolverImplTests.class);
-    }
 
     public void testCorrectOperationIsAnonymous() {
         AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
@@ -69,11 +56,11 @@ public class AuthenticationTrustResolverImplTests extends TestCase {
         AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
 
         assertEquals(AnonymousAuthenticationToken.class, trustResolver.getAnonymousClass());
-        trustResolver.setAnonymousClass(String.class);
-        assertEquals(String.class, trustResolver.getAnonymousClass());
+        trustResolver.setAnonymousClass(TestingAuthenticationToken.class);
+        assertEquals(TestingAuthenticationToken.class, trustResolver.getAnonymousClass());
 
         assertEquals(RememberMeAuthenticationToken.class, trustResolver.getRememberMeClass());
-        trustResolver.setRememberMeClass(String.class);
-        assertEquals(String.class, trustResolver.getRememberMeClass());
+        trustResolver.setRememberMeClass(TestingAuthenticationToken.class);
+        assertEquals(TestingAuthenticationToken.class, trustResolver.getRememberMeClass());
     }
 }

@@ -33,6 +33,7 @@ import java.util.NoSuchElementException;
  * @author Andrey Grebnev
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class Enumerator implements Enumeration {
     //~ Instance fields ================================================================================================
 
@@ -73,7 +74,7 @@ public class Enumerator implements Enumeration {
         this.iterator = iterator;
     }
 
-/**
+    /**
      * Return an Enumeration over the values returned by the specified
      * Iterator.
      *
@@ -81,7 +82,6 @@ public class Enumerator implements Enumeration {
      * @param clone true to clone iterator
      */
     public Enumerator(Iterator iterator, boolean clone) {
-        super();
 
         if (!clone) {
             this.iterator = iterator;
@@ -96,7 +96,7 @@ public class Enumerator implements Enumeration {
         }
     }
 
-/**
+    /**
      * Return an Enumeration over the values of the specified Map.
      *
      * @param map Map whose values should be enumerated

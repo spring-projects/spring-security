@@ -15,25 +15,26 @@
 
 package org.springframework.security.providers;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationServiceException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.MockApplicationEventPublisher;
-import org.springframework.security.AccountStatusException;
-import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
-import org.springframework.security.concurrent.NullConcurrentSessionController;
-import org.springframework.security.concurrent.ConcurrentLoginException;
-import org.springframework.security.util.AuthorityUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.springframework.security.AccountStatusException;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationServiceException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.MockApplicationEventPublisher;
+import org.springframework.security.concurrent.ConcurrentLoginException;
+import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
+import org.springframework.security.concurrent.NullConcurrentSessionController;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  * Tests {@link ProviderManager}.
@@ -48,7 +49,7 @@ public class ProviderManagerTests {
     @Test(expected=ProviderNotFoundException.class)
     public void authenticationFailsWithUnsupportedToken() throws Exception {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
         ProviderManager mgr = makeProviderManager();
         mgr.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
@@ -108,7 +109,7 @@ public class ProviderManagerTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void startupFailsIfProviderListDoesNotContainProviders() throws Exception {
-        List providers = new Vector();
+        List<Object> providers = new ArrayList<Object>();
         providers.add("THIS_IS_NOT_A_PROVIDER");
 
         ProviderManager mgr = new ProviderManager();
@@ -143,7 +144,7 @@ public class ProviderManagerTests {
                 return authentication;
             }
 
-            public boolean supports(Class authentication) {
+            public boolean supports(Class<? extends Object> authentication) {
                 return true;
             }
         };
@@ -196,7 +197,7 @@ public class ProviderManagerTests {
 
     private ProviderManager makeProviderManager() throws Exception {
         MockProvider provider1 = new MockProvider();
-        List providers = new Vector();
+        List<AuthenticationProvider> providers = new ArrayList<AuthenticationProvider>();
         providers.add(provider1);
 
         ProviderManager mgr = new ProviderManager();
@@ -210,7 +211,7 @@ public class ProviderManagerTests {
     private ProviderManager makeProviderManagerWithMockProviderWhichReturnsNullInList() {
         MockProviderWhichReturnsNull provider1 = new MockProviderWhichReturnsNull();
         MockProvider provider2 = new MockProvider();
-        List providers = new Vector();
+        List<Object> providers = new ArrayList<Object>();
         providers.add(provider1);
         providers.add(provider2);
 
@@ -231,7 +232,7 @@ public class ProviderManagerTests {
             }
         }
 
-        public boolean supports(Class authentication) {
+        public boolean supports(Class<? extends Object> authentication) {
             if (TestingAuthenticationToken.class.isAssignableFrom(authentication)) {
                 return true;
             } else {
@@ -249,7 +250,7 @@ public class ProviderManagerTests {
             }
         }
 
-        public boolean supports(Class authentication) {
+        public boolean supports(Class<? extends Object> authentication) {
             if (TestingAuthenticationToken.class.isAssignableFrom(authentication)) {
                 return true;
             } else {
@@ -263,7 +264,7 @@ public class ProviderManagerTests {
             throw new AccountStatusException("xxx") {};
         }
 
-        public boolean supports(Class authentication) {
+        public boolean supports(Class<? extends Object> authentication) {
             return true;
         }
     }
@@ -273,7 +274,7 @@ public class ProviderManagerTests {
             throw new ConcurrentLoginException("xxx") {};
         }
 
-        public boolean supports(Class authentication) {
+        public boolean supports(Class<? extends Object> authentication) {
             return true;
         }
     }

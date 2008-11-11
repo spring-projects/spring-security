@@ -40,7 +40,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
         MessageSourceAware {
     //~ Instance fields ================================================================================================
 
-    private List decisionVoters;
+    private List<AccessDecisionVoter> decisionVoters;
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
@@ -72,10 +72,10 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
         this.allowIfAllAbstainDecisions = allowIfAllAbstainDecisions;
     }
 
-    public void setDecisionVoters(List newList) {
+    public void setDecisionVoters(List<AccessDecisionVoter> newList) {
         Assert.notEmpty(newList);
 
-        Iterator iter = newList.iterator();
+        Iterator<AccessDecisionVoter> iter = newList.iterator();
 
         while (iter.hasNext()) {
             Object currentObject = iter.next();
@@ -91,10 +91,10 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        Iterator iter = this.decisionVoters.iterator();
+        Iterator<AccessDecisionVoter> iter = this.decisionVoters.iterator();
 
         while (iter.hasNext()) {
-            AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
+            AccessDecisionVoter voter = iter.next();
 
             if (voter.supports(attribute)) {
                 return true;
@@ -114,10 +114,10 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
      * @return true if this type is supported
      */
     public boolean supports(Class clazz) {
-        Iterator iter = this.decisionVoters.iterator();
+        Iterator<AccessDecisionVoter> iter = this.decisionVoters.iterator();
 
         while (iter.hasNext()) {
-            AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
+            AccessDecisionVoter voter = iter.next();
 
             if (!voter.supports(clazz)) {
                 return false;

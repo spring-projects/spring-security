@@ -32,26 +32,10 @@ import java.util.Vector;
  * @author Ben Alex
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class AbstractAccessDecisionManagerTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AbstractAccessDecisionManagerTests() {
-        super();
-    }
-
-    public AbstractAccessDecisionManagerTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AbstractAccessDecisionManagerTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testAllowIfAccessDecisionManagerDefaults()
         throws Exception {
@@ -168,7 +152,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
     }
 
     private class MockStringOnlyVoter implements AccessDecisionVoter {
-        public boolean supports(Class clazz) {
+        public boolean supports(Class<? extends Object> clazz) {
             if (String.class.isAssignableFrom(clazz)) {
                 return true;
             } else {

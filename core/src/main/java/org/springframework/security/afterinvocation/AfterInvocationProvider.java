@@ -56,5 +56,5 @@ public interface AfterInvocationProvider {
      *
      * @return true if the implementation can process the indicated class
      */
-    boolean supports(Class clazz);
+    boolean supports(Class<? extends Object> clazz);
 }

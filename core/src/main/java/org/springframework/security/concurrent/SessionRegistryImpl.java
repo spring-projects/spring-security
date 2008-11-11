@@ -15,26 +15,23 @@
 
 package org.springframework.security.concurrent;
 
-import org.springframework.security.ui.session.HttpSessionDestroyedEvent;
-
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-
-import org.springframework.util.Assert;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.security.ui.session.HttpSessionDestroyedEvent;
+import org.springframework.util.Assert;
 
 /**
  * Base implementation of {@link org.springframework.security.concurrent.SessionRegistry}
@@ -56,95 +53,96 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 
     // ~ Instance fields ===============================================================================================
 
-	private Map principals = Collections.synchronizedMap(new HashMap()); // <principal:Object,SessionIdSet>
-	private Map sessionIds = Collections.synchronizedMap(new HashMap()); // <sessionId:Object,SessionInformation>
+    /** <principal:Object,SessionIdSet> */
+    private Map<Object,Set<String>> principals = Collections.synchronizedMap(new HashMap<Object,Set<String>>());
+    /** <sessionId:Object,SessionInformation> */
+    private Map<String, SessionInformation> sessionIds = Collections.synchronizedMap(new HashMap<String, SessionInformation>());
 
-	// ~ Methods =======================================================================================================
+    // ~ Methods =======================================================================================================
 
-	public Object[] getAllPrincipals() {
-		return principals.keySet().toArray();
-	}
+    public Object[] getAllPrincipals() {
+        return principals.keySet().toArray();
+    }
 
-	public SessionInformation[] getAllSessions(Object principal, boolean includeExpiredSessions) {
-		Set sessionsUsedByPrincipal = (Set) principals.get(principal);
+    public SessionInformation[] getAllSessions(Object principal, boolean includeExpiredSessions) {
+        Set<String> sessionsUsedByPrincipal = principals.get(principal);
 
         if (sessionsUsedByPrincipal == null) {
-			return null;
-		}
+            return null;
+        }
 
-		List list = new ArrayList();
+        List<SessionInformation> list = new ArrayList<SessionInformation>();
 
         synchronized (sessionsUsedByPrincipal) {
-			for (Iterator iter = sessionsUsedByPrincipal.iterator(); iter.hasNext();) {
-				String sessionId = (String) iter.next();
-				SessionInformation sessionInformation = getSessionInformation(sessionId);
+            for (String sessionId : sessionsUsedByPrincipal) {
+                SessionInformation sessionInformation = getSessionInformation(sessionId);
 
                 if (sessionInformation == null) {
                     continue;
                 }
 
                 if (includeExpiredSessions || !sessionInformation.isExpired()) {
-					list.add(sessionInformation);
-				}
-			}
-		}
+                    list.add(sessionInformation);
+                }
+            }
+        }
 
-		return (SessionInformation[]) list.toArray(new SessionInformation[] {});
-	}
+        return (SessionInformation[]) list.toArray(new SessionInformation[0]);
+    }
 
-	public SessionInformation getSessionInformation(String sessionId) {
-		Assert.hasText(sessionId, "SessionId required as per interface contract");
+    public SessionInformation getSessionInformation(String sessionId) {
+        Assert.hasText(sessionId, "SessionId required as per interface contract");
 
-		return (SessionInformation) sessionIds.get(sessionId);
-	}
+        return (SessionInformation) sessionIds.get(sessionId);
+    }
 
-	public void onApplicationEvent(ApplicationEvent event) {
-		if (event instanceof HttpSessionDestroyedEvent) {
-			String sessionId = ((HttpSession) event.getSource()).getId();
-			removeSessionInformation(sessionId);
-		}
-	}
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof HttpSessionDestroyedEvent) {
+            String sessionId = ((HttpSession) event.getSource()).getId();
+            removeSessionInformation(sessionId);
+        }
+    }
 
-	public void refreshLastRequest(String sessionId) {
-		Assert.hasText(sessionId, "SessionId required as per interface contract");
+    public void refreshLastRequest(String sessionId) {
+        Assert.hasText(sessionId, "SessionId required as per interface contract");
 
-		SessionInformation info = getSessionInformation(sessionId);
+        SessionInformation info = getSessionInformation(sessionId);
 
-		if (info != null) {
-			info.refreshLastRequest();
-		}
-	}
+        if (info != null) {
+            info.refreshLastRequest();
+        }
+    }
 
-	public synchronized void registerNewSession(String sessionId, Object principal) {
-		Assert.hasText(sessionId, "SessionId required as per interface contract");
-		Assert.notNull(principal, "Principal required as per interface contract");
+    public synchronized void registerNewSession(String sessionId, Object principal) {
+        Assert.hasText(sessionId, "SessionId required as per interface contract");
+        Assert.notNull(principal, "Principal required as per interface contract");
 
         if (logger.isDebugEnabled()) {
             logger.debug("Registering session " + sessionId +", for principal " + principal);
         }
 
         if (getSessionInformation(sessionId) != null) {
-			removeSessionInformation(sessionId);
-		}
+            removeSessionInformation(sessionId);
+        }
 
         sessionIds.put(sessionId, new SessionInformation(principal, sessionId, new Date()));
 
-        Set sessionsUsedByPrincipal = (Set) principals.get(principal);
+        Set<String> sessionsUsedByPrincipal = principals.get(principal);
 
-		if (sessionsUsedByPrincipal == null) {
-			sessionsUsedByPrincipal = Collections.synchronizedSet(new HashSet(4));
+        if (sessionsUsedByPrincipal == null) {
+            sessionsUsedByPrincipal = Collections.synchronizedSet(new HashSet<String>(4));
             principals.put(principal, sessionsUsedByPrincipal);
         }
 
-		sessionsUsedByPrincipal.add(sessionId);
-	}
+        sessionsUsedByPrincipal.add(sessionId);
+    }
 
-	public void removeSessionInformation(String sessionId) {
-		Assert.hasText(sessionId, "SessionId required as per interface contract");
+    public void removeSessionInformation(String sessionId) {
+        Assert.hasText(sessionId, "SessionId required as per interface contract");
 
-		SessionInformation info = getSessionInformation(sessionId);
+        SessionInformation info = getSessionInformation(sessionId);
 
-		if (info == null) {
+        if (info == null) {
             return;
         }
 
@@ -154,7 +152,7 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 
         sessionIds.remove(sessionId);
 
-        Set sessionsUsedByPrincipal = (Set) principals.get(info.getPrincipal());
+        Set<String> sessionsUsedByPrincipal = principals.get(info.getPrincipal());
 
         if (sessionsUsedByPrincipal == null) {
             return;
@@ -163,7 +161,7 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
         if (logger.isDebugEnabled()) {
             logger.debug("Removing session " + sessionId + " from principal's set of registered sessions");
         }
-        
+
         synchronized (sessionsUsedByPrincipal) {
             sessionsUsedByPrincipal.remove(sessionId);
 
@@ -175,5 +173,5 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
                 principals.remove(info.getPrincipal());
             }
         }
-	}
+    }
 }

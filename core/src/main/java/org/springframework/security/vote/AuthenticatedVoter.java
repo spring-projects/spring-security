@@ -83,17 +83,14 @@ public class AuthenticatedVoter implements AccessDecisionVoter {
      *
      * @return always <code>true</code>
      */
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<? extends Object> clazz) {
         return true;
     }
 
     public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
         int result = ACCESS_ABSTAIN;
-        Iterator iter = attributes.iterator();
 
-        while (iter.hasNext()) {
-            ConfigAttribute attribute = (ConfigAttribute) iter.next();
-
+        for (ConfigAttribute attribute : attributes) {
             if (this.supports(attribute)) {
                 result = ACCESS_DENIED;
 

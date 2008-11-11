@@ -90,7 +90,7 @@ public class AbstractSecurityInterceptorTests extends TestCase {
     private class MockSecurityInterceptorReturnsNull extends AbstractSecurityInterceptor {
         private ObjectDefinitionSource objectDefinitionSource;
 
-        public Class getSecureObjectClass() {
+        public Class<? extends Object> getSecureObjectClass() {
             return null;
         }
 
@@ -106,7 +106,7 @@ public class AbstractSecurityInterceptorTests extends TestCase {
     private class MockSecurityInterceptorWhichOnlySupportsStrings extends AbstractSecurityInterceptor {
         private ObjectDefinitionSource objectDefinitionSource;
 
-        public Class getSecureObjectClass() {
+        public Class<? extends Object> getSecureObjectClass() {
             return String.class;
         }
 

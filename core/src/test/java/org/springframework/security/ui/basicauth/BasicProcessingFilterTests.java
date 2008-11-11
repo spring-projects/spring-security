@@ -15,43 +15,39 @@
 
 package org.springframework.security.ui.basicauth;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.springframework.security.matcher.AuthenticationMatcher.anAuthenticationWithUsernameAndPassword;
 
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+
+import org.apache.commons.codec.binary.Base64;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.MockAuthenticationEntryPoint;
-import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.MockFilterConfig;
-import org.springframework.security.MockApplicationEventPublisher;
-
-import org.springframework.security.context.SecurityContextHolder;
-
-import org.springframework.security.providers.ProviderManager;
-import org.springframework.security.providers.dao.DaoAuthenticationProvider;
-
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.memory.InMemoryDaoImpl;
-import org.springframework.security.userdetails.memory.UserMap;
-import org.springframework.security.userdetails.memory.UserMapEditor;
-
-import org.apache.commons.codec.binary.Base64;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
-
-import java.io.IOException;
-
-import java.util.Arrays;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationManager;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.MockAuthenticationEntryPoint;
+import org.springframework.security.MockAuthenticationManager;
+import org.springframework.security.MockFilterConfig;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.TestingAuthenticationToken;
 
 
 /**
@@ -64,6 +60,7 @@ public class BasicProcessingFilterTests {
     //~ Instance fields ================================================================================================
 
     private BasicProcessingFilter filter;
+    private Mockery jmock = new JUnit4Mockery();
 
     //~ Methods ========================================================================================================
 
@@ -89,19 +86,14 @@ public class BasicProcessingFilterTests {
     public void setUp() throws Exception {
         SecurityContextHolder.clearContext();
 
-        // Create User Details Service, provider and authentication manager
-        InMemoryDaoImpl dao = new InMemoryDaoImpl();
-        UserMapEditor editor = new UserMapEditor();
-        editor.setAsText("rod=koala,ROLE_ONE,ROLE_TWO,enabled\r\n");
-        dao.setUserMap((UserMap) editor.getValue());
-
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(dao);
-
-        ProviderManager manager = new ProviderManager();
-        manager.setProviders(Arrays.asList(new Object[] {provider}));
-        manager.setApplicationEventPublisher(new MockApplicationEventPublisher());
-        manager.afterPropertiesSet();
+        final AuthenticationManager manager = jmock.mock(AuthenticationManager.class);
+        final Authentication rod = new TestingAuthenticationToken("rod", "koala", "ROLE_1");
+        jmock.checking(new Expectations() {{
+            allowing(manager).authenticate(with(anAuthenticationWithUsernameAndPassword("rod", "koala")));
+                will(returnValue(rod));
+            allowing(manager).authenticate(with(any(Authentication.class)));
+                will(throwException(new BadCredentialsException("")));
+        }});
 
         filter = new BasicProcessingFilter();
         filter.setAuthenticationManager(manager);
@@ -164,8 +156,8 @@ public class BasicProcessingFilterTests {
         executeFilterInContainerSimulator(filter, request, true);
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals("rod",
-            ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+        assertEquals("rod", SecurityContextHolder.getContext().getAuthentication().getName());
+
     }
 
     @Test
@@ -193,16 +185,11 @@ public class BasicProcessingFilterTests {
         }
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testStartupDetectsMissingAuthenticationManager() throws Exception {
-        try {
-            BasicProcessingFilter filter = new BasicProcessingFilter();
-            filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("x"));
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("An AuthenticationManager is required", expected.getMessage());
-        }
+        BasicProcessingFilter filter = new BasicProcessingFilter();
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("x"));
+        filter.afterPropertiesSet();
     }
 
     @Test
@@ -218,8 +205,7 @@ public class BasicProcessingFilterTests {
         executeFilterInContainerSimulator(filter, request, true);
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals("rod",
-            ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+        assertEquals("rod", SecurityContextHolder.getContext().getAuthentication().getName());
 
         // NOW PERFORM FAILED AUTHENTICATION
         // Setup our HTTP request
@@ -249,7 +235,7 @@ public class BasicProcessingFilterTests {
         assertTrue(filter.isIgnoreFailure());
 
         // Test - the filter chain will be invoked, as we've set ignoreFailure = true
-        MockHttpServletResponse response = executeFilterInContainerSimulator(filter, request, true);
+        executeFilterInContainerSimulator(filter, request, true);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }

@@ -20,10 +20,12 @@ import org.springframework.security.providers.rememberme.RememberMeAuthenticatio
 
 
 /**
- * Basic implementation of {@link AuthenticationTrustResolver}.<p>Makes trust decisions based on whether the passed
- * <code>Authentication</code> is an instance of a defined class.</p>
- *  <p>If {@link #anonymousClass} or {@link #rememberMeClass} is <code>null</code>, the corresponding method will
- * always return <code>false</code>.</p>
+ * Basic implementation of {@link AuthenticationTrustResolver}.
+ * <p>
+ * Makes trust decisions based on whether the passed <code>Authentication</code> is an instance of a defined class.
+ * <p>
+ * If {@link #anonymousClass} or {@link #rememberMeClass} is <code>null</code>, the corresponding method will
+ * always return <code>false</code>.
  *
  * @author Ben Alex
  * @version $Id$
@@ -31,16 +33,16 @@ import org.springframework.security.providers.rememberme.RememberMeAuthenticatio
 public class AuthenticationTrustResolverImpl implements AuthenticationTrustResolver {
     //~ Instance fields ================================================================================================
 
-    private Class anonymousClass = AnonymousAuthenticationToken.class;
-    private Class rememberMeClass = RememberMeAuthenticationToken.class;
+    private Class<? extends Authentication> anonymousClass = AnonymousAuthenticationToken.class;
+    private Class<? extends Authentication> rememberMeClass = RememberMeAuthenticationToken.class;
 
     //~ Methods ========================================================================================================
 
-    public Class getAnonymousClass() {
+    Class<? extends Authentication> getAnonymousClass() {
         return anonymousClass;
     }
 
-    public Class getRememberMeClass() {
+    Class<? extends Authentication> getRememberMeClass() {
         return rememberMeClass;
     }
 
@@ -60,11 +62,11 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
         return rememberMeClass.isAssignableFrom(authentication.getClass());
     }
 
-    public void setAnonymousClass(Class anonymousClass) {
+    public void setAnonymousClass(Class<? extends Authentication> anonymousClass) {
         this.anonymousClass = anonymousClass;
     }
 
-    public void setRememberMeClass(Class rememberMeClass) {
+    public void setRememberMeClass(Class<? extends Authentication> rememberMeClass) {
         this.rememberMeClass = rememberMeClass;
     }
 }

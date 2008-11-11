@@ -1,7 +1,7 @@
 package org.springframework.security.config;
 
 import static org.junit.Assert.*;
-import static org.springframework.security.config.ConfigTestUtils.*;
+import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +11,19 @@ import org.junit.Test;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.security.AccessDeniedException;
-import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.afterinvocation.AfterInvocationProviderManager;
 import org.springframework.security.annotation.BusinessService;
 import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.expression.support.MethodExpressionAfterInvocationProvider;
+import org.springframework.security.expression.support.MethodExpressionVoter;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.util.FieldUtils;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
+import org.springframework.security.vote.AffirmativeBased;
 
 /**
  * @author Ben Alex
@@ -107,7 +110,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
         UserDetailsService service = (UserDetailsService) appContext.getBean("myUserService");
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SOMEOTHERROLE")});
+                AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
         SecurityContextHolder.getContext().setAuthentication(token);
 
         service.loadUserByUsername("notused");
@@ -180,10 +183,23 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
                 );
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SOMEOTHERROLE")});
+                AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
         SecurityContextHolder.getContext().setAuthentication(token);
         target = (BusinessService) appContext.getBean("businessService");
         target.someUserMethod1();
+    }
+
+    // Expression configuration tests
+
+    @Test
+    public void expressionVoterAndAfterInvocationProviderUseSameExpressionHandlerInstance() throws Exception {
+        setContext("<global-method-security expression-annotations='enabled'/>" + AUTH_PROVIDER_XML);
+        AffirmativeBased adm = (AffirmativeBased) appContext.getBean(GlobalMethodSecurityBeanDefinitionParser.ACCESS_MANAGER_ID);
+        List voters = (List) FieldUtils.getFieldValue(adm, "decisionVoters");
+        MethodExpressionVoter mev = (MethodExpressionVoter) voters.get(0);
+        AfterInvocationProviderManager pm = (AfterInvocationProviderManager) appContext.getBean(BeanIds.AFTER_INVOCATION_MANAGER);
+        MethodExpressionAfterInvocationProvider aip = (MethodExpressionAfterInvocationProvider) pm.getProviders().get(0);
+        assertTrue(FieldUtils.getFieldValue(mev, "expressionHandler") == FieldUtils.getFieldValue(aip, "expressionHandler"));
     }
 
     @Test(expected=AccessDeniedException.class)

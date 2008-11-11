@@ -12,10 +12,10 @@ import org.springframework.util.Assert;
  *
  */
 public abstract class AbstractElement {
-    /** The name of this token (ie filename or directory segment name */
+    /** The name of this token (a filename or directory segment name */
     private String name;
 
-    /** The parent of this token (ie directory, or null if referring to root) */
+    /** The parent of this token (a directory, or null if referring to root) */
     private AbstractElement parent;
 
     /** The database identifier for this object (null if not persisted) */
@@ -63,7 +63,7 @@ public abstract class AbstractElement {
      * @return the fully-qualified name of this element, including any parents
      */
     public String getFullName() {
-        List strings = new ArrayList();
+        List<String> strings = new ArrayList<String>();
         AbstractElement currentElement = this;
         while (currentElement != null) {
             strings.add(0, currentElement.getName());
@@ -72,8 +72,8 @@ public abstract class AbstractElement {
 
         StringBuffer sb = new StringBuffer();
         String lastCharacter = null;
-        for (Iterator i = strings.iterator(); i.hasNext();) {
-            String token = (String) i.next();
+        for (Iterator<String> i = strings.iterator(); i.hasNext();) {
+            String token = i.next();
             if (!"/".equals(lastCharacter) && lastCharacter != null) {
                 sb.append("/");
             }

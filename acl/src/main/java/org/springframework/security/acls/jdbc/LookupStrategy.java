@@ -14,6 +14,7 @@
  */
 package org.springframework.security.acls.jdbc;
 
+import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.NotFoundException;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.sid.Sid;
@@ -23,7 +24,7 @@ import java.util.Map;
 
 /**
  * Performs lookups for {@link org.springframework.security.acls.AclService}.
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  */
@@ -40,7 +41,7 @@ public interface LookupStrategy {
      * @return a <tt>Map</tt> where keys represent the {@link ObjectIdentity} of the located {@link Acl} and values
      *         are the located {@link Acl} (never <tt>null</tt> although some entries may be missing; this method
      *         should not throw {@link NotFoundException}, as a chain of {@link LookupStrategy}s may be used
-     *         to automatically create entries if required) 
+     *         to automatically create entries if required)
      */
-    Map readAclsById(ObjectIdentity[] objects, Sid[] sids);
+    Map<ObjectIdentity, Acl> readAclsById(ObjectIdentity[] objects, Sid[] sids);
 }

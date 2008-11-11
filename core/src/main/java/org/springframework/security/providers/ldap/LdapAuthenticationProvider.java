@@ -253,7 +253,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
         return new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
     }
 
-    public boolean supports(Class authentication) {
+    public boolean supports(Class<? extends Object> authentication) {
         return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
     }
 

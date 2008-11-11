@@ -1,9 +1,9 @@
 package org.springframework.security.expression;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -49,9 +49,10 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
         return ctx;
     }
 
+    @SuppressWarnings("unchecked")
     public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
         SecurityExpressionRoot rootObject = (SecurityExpressionRoot) ctx.getRootContextObject();
-        Set removeList = new HashSet();
+        List retainList;
 
         if (logger.isDebugEnabled()) {
             logger.debug("Filtering with expression: " + filterExpression.getExpressionString());
@@ -59,6 +60,7 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
 
         if (filterTarget instanceof Collection) {
             Collection collection = (Collection)filterTarget;
+            retainList = new ArrayList(collection.size());
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Filtering collection with " + collection.size() + " elements");
@@ -66,24 +68,24 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
             for (Object filterObject : (Collection)filterTarget) {
                 rootObject.setFilterObject(filterObject);
 
-                if (!ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
-                    removeList.add(filterObject);
+                if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
+                    retainList.add(filterObject);
                 }
             }
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Removing elements: " + removeList);
+                logger.debug("Retaining elements: " + retainList);
             }
 
-            for(Object toRemove : removeList) {
-                ((Collection)filterTarget).remove(toRemove);
-            }
+            collection.clear();
+            collection.addAll(retainList);
 
             return filterTarget;
         }
 
         if (filterTarget.getClass().isArray()) {
             Object[] array = (Object[])filterTarget;
+            retainList = new ArrayList(array.length);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Filtering collection with " + array.length + " elements");
@@ -92,21 +94,19 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
             for (int i = 0; i < array.length; i++) {
                 rootObject.setFilterObject(array[i]);
 
-                if (!ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
-                    removeList.add(array[i]);
+                if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
+                    retainList.add(array[i]);
                 }
             }
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Removing elements: " + removeList);
+                logger.debug("Retaining elements: " + retainList);
             }
 
             Object[] filtered = (Object[]) Array.newInstance(filterTarget.getClass().getComponentType(),
-                    array.length - removeList.size());
-            for (int i = 0, j = 0; i < array.length; i++) {
-                if (!removeList.contains(array[i])) {
-                    filtered[j++] = array[i];
-                }
+                            retainList.size());
+            for (int i = 0; i < retainList.size(); i++) {
+                filtered[i] = retainList.get(i);
             }
 
             return filtered;

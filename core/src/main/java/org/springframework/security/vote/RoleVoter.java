@@ -88,7 +88,7 @@ public class RoleVoter implements AccessDecisionVoter {
      *
      * @return always <code>true</code>
      */
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<? extends Object> clazz) {
         return true;
     }
 

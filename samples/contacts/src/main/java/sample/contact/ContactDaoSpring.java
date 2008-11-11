@@ -57,15 +57,15 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         contactDelete.delete(contactId);
     }
 
-    public List findAll() {
+    public List<Contact> findAll() {
         return contactsAllQuery.execute();
     }
 
-    public List findAllPrincipals() {
+    public List<String> findAllPrincipals() {
         return principalsAllQuery.execute();
     }
 
-    public List findAllRoles() {
+    public List<String> findAllRoles() {
         return rolesAllQuery.execute();
     }
 

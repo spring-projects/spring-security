@@ -41,7 +41,7 @@ public class AffirmativeBasedTests {
         RoleVoter roleVoter = new RoleVoter();
         DenyVoter denyForSureVoter = new DenyVoter();
         DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
-        List voters = new ArrayList();
+        List<AccessDecisionVoter> voters = new ArrayList<AccessDecisionVoter>();
         voters.add(roleVoter);
         voters.add(denyForSureVoter);
         voters.add(denyAgainForSureVoter);

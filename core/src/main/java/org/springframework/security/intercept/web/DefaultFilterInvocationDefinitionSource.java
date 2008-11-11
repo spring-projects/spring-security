@@ -54,7 +54,7 @@ import org.springframework.security.util.UrlMatcher;
  */
 public class DefaultFilterInvocationDefinitionSource implements FilterInvocationDefinitionSource {
 
-    private static final Set HTTP_METHODS = new HashSet(Arrays.asList(new String[]{ "DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE" }));
+    private static final Set<String> HTTP_METHODS = new HashSet<String>(Arrays.asList("DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"));
 
     protected final Log logger = LogFactory.getLog(getClass());
 
@@ -62,9 +62,10 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
      * Non method-specific map of URL patterns to <tt>List<ConfiAttribute></tt>s
      * TODO: Store in the httpMethod map with null key.
      */
-    private Map requestMap = new LinkedHashMap();
+    private Map<Object, List<ConfigAttribute>> requestMap = new LinkedHashMap<Object, List<ConfigAttribute>>();
     /** Stores request maps keyed by specific HTTP methods */
-    private Map httpMethodMap = new HashMap();
+    private Map<String, Map<Object, List<ConfigAttribute>>> httpMethodMap =
+        new HashMap<String, Map<Object, List<ConfigAttribute>>>();
 
     private UrlMatcher urlMatcher;
 
@@ -108,7 +109,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
      * a match for a particular URL.
      */
     void addSecureUrl(String pattern, String method, List<ConfigAttribute> attr) {
-        Map mapToUse = getRequestMapForHttpMethod(method);
+        Map<Object, List<ConfigAttribute>> mapToUse = getRequestMapForHttpMethod(method);
 
         mapToUse.put(urlMatcher.compile(pattern), attr);
 
@@ -123,7 +124,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
      * @param method GET, POST etc
      * @return map of URL patterns to <tt>ConfigAttribute</tt>s for this method.
      */
-    private Map getRequestMapForHttpMethod(String method) {
+    private Map<Object, List<ConfigAttribute>> getRequestMapForHttpMethod(String method) {
         if (method == null) {
             return requestMap;
         }
@@ -131,10 +132,10 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
             throw new IllegalArgumentException("Unrecognised HTTP method: '" + method + "'");
         }
 
-        Map methodRequestmap = (Map) httpMethodMap.get(method);
+        Map<Object, List<ConfigAttribute>> methodRequestmap = httpMethodMap.get(method);
 
         if (methodRequestmap == null) {
-            methodRequestmap = new LinkedHashMap();
+            methodRequestmap = new LinkedHashMap<Object, List<ConfigAttribute>>();
             httpMethodMap.put(method, methodRequestmap);
         }
 
@@ -195,7 +196,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
 
         List<ConfigAttribute> attributes = null;
 
-        Map methodSpecificMap = (Map) httpMethodMap.get(method);
+        Map<Object, List<ConfigAttribute>> methodSpecificMap = httpMethodMap.get(method);
 
         if (methodSpecificMap != null) {
             attributes = lookupUrlInMap(methodSpecificMap, url);
@@ -208,10 +209,9 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
         return attributes;
     }
 
-    private List<ConfigAttribute> lookupUrlInMap(Map<RequestKey, List<ConfigAttribute>> requestMap,
-            String url) {
+    private List<ConfigAttribute> lookupUrlInMap(Map<Object, List<ConfigAttribute>> requestMap, String url) {
 
-        for (Map.Entry<RequestKey, List<ConfigAttribute>> entry : requestMap.entrySet()) {
+        for (Map.Entry<Object, List<ConfigAttribute>> entry : requestMap.entrySet()) {
             Object p = entry.getKey();
             boolean matched = urlMatcher.pathMatchesUrl(entry.getKey(), url);
 
@@ -235,7 +235,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
         return this.requestMap.size();
     }
 
-    Map getRequestMap() {
+    /*Map<Object, List<ConfigAttribute>>*/ Map getRequestMap() {
         return requestMap;
     }
 

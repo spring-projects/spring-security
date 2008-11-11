@@ -15,9 +15,23 @@
 
 package org.springframework.security.providers;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.AbstractAuthenticationManager;
 import org.springframework.security.AccountExpiredException;
-import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.AccountStatusException;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
@@ -25,7 +39,7 @@ import org.springframework.security.BadCredentialsException;
 import org.springframework.security.CredentialsExpiredException;
 import org.springframework.security.DisabledException;
 import org.springframework.security.LockedException;
-import org.springframework.security.AccountStatusException;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.concurrent.ConcurrentLoginException;
 import org.springframework.security.concurrent.ConcurrentSessionController;
 import org.springframework.security.concurrent.NullConcurrentSessionController;
@@ -41,25 +55,7 @@ import org.springframework.security.event.authentication.AuthenticationFailurePr
 import org.springframework.security.event.authentication.AuthenticationFailureServiceExceptionEvent;
 import org.springframework.security.event.authentication.AuthenticationSuccessEvent;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.util.Assert;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
 
 
 /**
@@ -109,7 +105,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
 
     private ApplicationEventPublisher applicationEventPublisher;
     private ConcurrentSessionController sessionController = new NullConcurrentSessionController();
-    private List providers;
+    private List<AuthenticationProvider> providers;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private Properties exceptionMappings = new Properties();
     private Properties additionalExceptionMappings = new Properties();
@@ -167,15 +163,10 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
      * @throws AuthenticationException if authentication fails.
      */
     public Authentication doAuthentication(Authentication authentication) throws AuthenticationException {
-        Iterator iter = getProviders().iterator();
-
-        Class toTest = authentication.getClass();
-
+        Class<? extends Authentication> toTest = authentication.getClass();
         AuthenticationException lastException = null;
 
-        while (iter.hasNext()) {
-            AuthenticationProvider provider = (AuthenticationProvider) iter.next();
-
+        for (AuthenticationProvider provider : getProviders()) {
             if (!provider.supports(toTest)) {
                 continue;
             }
@@ -265,7 +256,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
         }
     }
 
-    public List getProviders() {
+    public List<AuthenticationProvider> getProviders() {
         if (providers == null || providers.size() == 0) {
             throw new IllegalArgumentException("A list of AuthenticationProviders is required");
         }
@@ -299,22 +290,20 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
      * @throws IllegalArgumentException if the list is empty or null, or any of the elements in the list is not an
      * AuthenticationProvider instance.
      */
+    @SuppressWarnings("unchecked")
     public void setProviders(List providers) {
-    	Assert.notEmpty(providers, "A list of AuthenticationProviders is required");
-        Iterator iter = providers.iterator();
+        Assert.notEmpty(providers, "A list of AuthenticationProviders is required");
 
-        while (iter.hasNext()) {
-            Object currentObject = iter.next();
-            Assert.isInstanceOf(AuthenticationProvider.class, currentObject,
-                    "Can only provide AuthenticationProvider instances");
+        for(Object currentObject : providers) {
+            Assert.isInstanceOf(AuthenticationProvider.class, currentObject, "Can only provide AuthenticationProvider instances");
         }
 
         this.providers = providers;
     }
 
     /**
-     * Set the {@link ConcurrentSessionController} to be used for limiting users' sessions. The {@link
-     * NullConcurrentSessionController} is used by default.
+     * Set the {@link ConcurrentSessionController} to be used for limiting users' sessions.
+     * The {@link NullConcurrentSessionController} is used by default.
      *
      * @param sessionController {@link ConcurrentSessionController}
      */

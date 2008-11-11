@@ -23,6 +23,7 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.util.AuthorityUtils;
 
 import org.springframework.context.ApplicationContextException;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -47,23 +48,23 @@ import javax.sql.DataSource;
 
 
 /**
- * <tt>UserDetailsServiceRetrieves</tt> implementation which retrieves the user details 
+ * <tt>UserDetailsServiceRetrieves</tt> implementation which retrieves the user details
  * (username, password, enabled flag, and authorities) from a database using JDBC queries.
- * 
- * <h3>Default Schema</h3> 
+ *
+ * <h3>Default Schema</h3>
  * A default database schema is assumed, with two tables "users" and "authorities".
- *  
+ *
  * <h4>The Users table</h4>
- * 
+ *
  * This table contains the login name, password and enabled status of the user.
- * 
+ *
  * <table>
  * <tr><th>Column</th></tr>
  * <tr><td>username</td></tr>
  * <tr><td>password</td></tr>
  * <tr><td>enabled</td></tr>
  * </table>
- * 
+ *
  * <h4>The Authorities Table</h4>
  *
  * <table>
@@ -73,7 +74,7 @@ import javax.sql.DataSource;
  * </table>
  *
  * If you are using an existing schema you will have to set the queries <tt>usersByUsernameQuery</tt> and
- * <tt>authoritiesByUsernameQuery</tt> to match your database setup 
+ * <tt>authoritiesByUsernameQuery</tt> to match your database setup
  * (see {@link #DEF_USERS_BY_USERNAME_QUERY} and {@link #DEF_AUTHORITIES_BY_USERNAME_QUERY}).
  *
  * <p>
@@ -81,7 +82,7 @@ import javax.sql.DataSource;
  * accounts or the expiration of user credentials. However, it does recognise and honour the user enabled/disabled
  * column. This should map to a <tt>boolean</tt> type in the result set (the SQL type will depend on the
  * database you are using). All the other columns map to <tt>String</tt>s.
- * 
+ *
  * <h3>Group Support</h3>
  * Support for group-based authorities can be enabled by setting the <tt>enableGroups</tt> property to <tt>true</tt>
  * (you may also then wish to set <tt>enableAuthorities</tt> to <tt>false</tt> to disable loading of authorities
@@ -151,7 +152,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
      * @param authorities the current granted authorities, as populated from the <code>authoritiesByUsername</code>
      *        mapping
      */
-    protected void addCustomAuthorities(String username, List authorities) {}
+    protected void addCustomAuthorities(String username, List<GrantedAuthority> authorities) {}
 
     public String getUsersByUsernameQuery() {
         return usersByUsernameQuery;
@@ -172,7 +173,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     }
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
-        List users = loadUsersByUsername(username);
+        List<UserDetails> users = loadUsersByUsername(username);
 
         if (users.size() == 0) {
             throw new UsernameNotFoundException(
@@ -181,7 +182,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 
         UserDetails user = (UserDetails) users.get(0); // contains no GrantedAuthority[]
 
-        Set dbAuthsSet = new HashSet();
+        Set<GrantedAuthority> dbAuthsSet = new HashSet<GrantedAuthority>();
 
         if (enableAuthorities) {
             dbAuthsSet.addAll(loadUserAuthorities(user.getUsername()));
@@ -191,7 +192,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
             dbAuthsSet.addAll(loadGroupAuthorities(user.getUsername()));
         }
 
-        List dbAuths = new ArrayList(dbAuthsSet);
+        List<GrantedAuthority> dbAuths = new ArrayList<GrantedAuthority>(dbAuthsSet);
 
         addCustomAuthorities(user.getUsername(), dbAuths);
 
@@ -201,49 +202,47 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
                             new Object[] {username}, "User {0} has no GrantedAuthority"), username);
         }
 
-        GrantedAuthority[] arrayAuths = (GrantedAuthority[]) dbAuths.toArray(new GrantedAuthority[dbAuths.size()]);
-
-        return createUserDetails(username, user, arrayAuths);
+        return createUserDetails(username, user, dbAuths);
     }
-    
-    /** 
-     * Executes the <tt>usersByUsernameQuery</tt> and returns a list of UserDetails objects (there should normally 
-     * only be one matching user). 
+
+    /**
+     * Executes the <tt>usersByUsernameQuery</tt> and returns a list of UserDetails objects (there should normally
+     * only be one matching user).
      */
-    protected List loadUsersByUsername(String username) {
+    protected List<UserDetails> loadUsersByUsername(String username) {
         return usersByUsernameMapping.execute(username);
     }
-    
+
     /**
      * Loads authorities by executing the authoritiesByUsernameQuery.
-     *  
+     *
      * @return a list of GrantedAuthority objects for the user
      */
-    protected List loadUserAuthorities(String username) {
+    protected List<GrantedAuthority> loadUserAuthorities(String username) {
         return authoritiesByUsernameMapping.execute(username);
     }
-    
-    protected List loadGroupAuthorities(String username) {
+
+    protected List<GrantedAuthority> loadGroupAuthorities(String username) {
         return groupAuthoritiesByUsernameMapping.execute(username);
     }
-    
+
     /**
      * Can be overridden to customize the creation of the final UserDetailsObject returnd from <tt>loadUserByUsername</tt>.
-     * 
+     *
      * @param username the name originally passed to loadUserByUsername
-     * @param userFromUserQuery the object returned from the execution of the 
+     * @param userFromUserQuery the object returned from the execution of the
      * @param combinedAuthorities the combined array of authorities from all the authority loading queries.
      * @return the final UserDetails which should be used in the system.
      */
-    protected UserDetails createUserDetails(String username, UserDetails userFromUserQuery, 
-            GrantedAuthority[] combinedAuthorities) {
+    protected UserDetails createUserDetails(String username, UserDetails userFromUserQuery,
+            List<GrantedAuthority> combinedAuthorities) {
         String returnUsername = userFromUserQuery.getUsername();
 
         if (!usernameBasedPrimaryKey) {
             returnUsername = username;
         }
 
-        return new User(returnUsername, userFromUserQuery.getPassword(), userFromUserQuery.isEnabled(), 
+        return new User(returnUsername, userFromUserQuery.getPassword(), userFromUserQuery.isEnabled(),
                 true, true, true, combinedAuthorities);
     }
 
@@ -395,8 +394,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
             String username = rs.getString(1);
             String password = rs.getString(2);
             boolean enabled = rs.getBoolean(3);
-            UserDetails user = new User(username, password, enabled, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
+            UserDetails user = new User(username, password, enabled, true, true, true, AuthorityUtils.NO_AUTHORITIES);
 
             return user;
         }
