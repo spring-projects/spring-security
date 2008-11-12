@@ -1,4 +1,4 @@
-package org.springframework.security.expression.support;
+package org.springframework.security.expression.method;
 
 import java.util.Collection;
 import java.util.List;
@@ -10,9 +10,9 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.expression.DefaultSecurityExpressionHandler;
 import org.springframework.security.expression.ExpressionUtils;
 import org.springframework.security.expression.SecurityExpressionHandler;
+import org.springframework.security.expression.support.DefaultSecurityExpressionHandler;
 import org.springframework.security.vote.AccessDecisionVoter;
 
 /**

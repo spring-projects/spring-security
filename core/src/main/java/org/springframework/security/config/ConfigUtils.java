@@ -13,7 +13,7 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.afterinvocation.AfterInvocationProviderManager;
-import org.springframework.security.expression.support.MethodExpressionVoter;
+import org.springframework.security.expression.method.MethodExpressionVoter;
 import org.springframework.security.util.UrlUtils;
 import org.springframework.security.vote.AffirmativeBased;
 import org.springframework.security.vote.AuthenticatedVoter;

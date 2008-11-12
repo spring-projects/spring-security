@@ -1,6 +1,5 @@
-package org.springframework.security.expression;
+package org.springframework.security.expression.support;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import org.springframework.security.Authentication;
@@ -10,31 +9,20 @@ import org.springframework.security.util.AuthorityUtils;
 
 
 /**
- * Default root object for use in Spring Security expression evaluations.
+ * Base root object for use in Spring Security expression evaluations.
  *
  * @author Luke Taylor
  * @version $Id$
  * @since 2.5
  */
-public class SecurityExpressionRoot {
-    private Authentication authentication;
+abstract class SecurityExpressionRoot {
+    protected final Authentication authentication;
     private AuthenticationTrustResolver trustResolver;
-    private PermissionEvaluator permissionEvaluator;
-    private Object filterObject;
-    private Object returnObject;
-
     /** Allows "permitAll" expression */
     public final boolean permitAll = true;
 
     /** Allows "denyAll" expression */
     public final boolean denyAll = false;
-
-    public final String read = "read";
-    public final String write = "write";
-    public final String create = "create";
-    public final String delete = "delete";
-    public final String admin = "administration";
-
 
     SecurityExpressionRoot(Authentication a) {
         if (a == null) {
@@ -54,7 +42,7 @@ public class SecurityExpressionRoot {
     }
 
     public final boolean hasAnyRole(String... roles) {
-        Set roleSet = AuthorityUtils.authorityArrayToSet(authentication.getAuthorities());
+        Set<String> roleSet = AuthorityUtils.authorityArrayToSet(authentication.getAuthorities());
 
         for (String role : roles) {
             if (roleSet.contains(role)) {
@@ -63,6 +51,10 @@ public class SecurityExpressionRoot {
         }
 
         return false;
+    }
+
+    public final Authentication getAuthentication() {
+        return authentication;
     }
 
     public final boolean permitAll() {
@@ -85,45 +77,11 @@ public class SecurityExpressionRoot {
         return !trustResolver.isAnonymous(authentication) && !trustResolver.isRememberMe(authentication);
     }
 
-    public boolean hasPermission(Object target, Object permission) {
-        return permissionEvaluator.hasPermission(authentication, target, permission);
-    }
-
-    public boolean hasPermission(Object targetId, String targetType, Object permission) {
-        return permissionEvaluator.hasPermission(authentication, (Serializable)targetId, targetType, permission);
-    }
-
-    public Authentication getAuthentication() {
-        return authentication;
-    }
-
-    public void setFilterObject(Object filterObject) {
-        this.filterObject = filterObject;
-    }
-
-    public Object getFilterObject() {
-        return filterObject;
-    }
-
-    public void setReturnObject(Object returnObject) {
-        this.returnObject = returnObject;
-    }
-
-    public Object getReturnObject() {
-        return returnObject;
-    }
-
     public Object getPrincipal() {
         return authentication.getPrincipal();
-    }
-
-    public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
-        this.permissionEvaluator = permissionEvaluator;
     }
 
     public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
         this.trustResolver = trustResolver;
     }
-
-
 }

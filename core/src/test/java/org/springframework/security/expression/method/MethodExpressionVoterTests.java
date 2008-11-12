@@ -1,4 +1,4 @@
-package org.springframework.security.expression.support;
+package org.springframework.security.expression.method;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,6 +11,8 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
 import org.springframework.security.ConfigAttribute;
+import org.springframework.security.expression.method.MethodExpressionVoter;
+import org.springframework.security.expression.method.PreInvocationExpressionAttribute;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
 import org.springframework.security.vote.AccessDecisionVoter;
@@ -83,7 +85,7 @@ public class MethodExpressionVoterTests {
     public void ruleDefinedInAClassMethodIsApplied() throws Exception {
         MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingAString(), "joe");
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED, am.vote(joe, mi,
-                createAttributes(new PreInvocationExpressionAttribute(null, null, "new org.springframework.security.expression.support.SecurityRules().isJoe(#argument)"))));
+                createAttributes(new PreInvocationExpressionAttribute(null, null, "new org.springframework.security.expression.method.SecurityRules().isJoe(#argument)"))));
     }
 
     private List<ConfigAttribute> createAttributes(ConfigAttribute... attributes) {
@@ -132,6 +134,4 @@ public class MethodExpressionVoterTests {
 
         public Collection methodTakingACollection(Collection collection) {return collection;}
     }
-
-
 }

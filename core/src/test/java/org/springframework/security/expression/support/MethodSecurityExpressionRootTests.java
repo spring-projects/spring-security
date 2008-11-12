@@ -1,4 +1,4 @@
-package org.springframework.security.expression;
+package org.springframework.security.expression.support;
 
 import static org.junit.Assert.*;
 
@@ -11,18 +11,18 @@ import org.springframework.expression.spel.SpelExpressionParser;
 import org.springframework.expression.spel.standard.StandardEvaluationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
-import org.springframework.security.expression.SecurityExpressionRoot;
-
+import org.springframework.security.expression.ExpressionUtils;
+import org.springframework.security.expression.PermissionEvaluator;
 
 /**
- * Sandbox class for checking feasibility of different security-related expressions.
+ * Tests for {@link MethodSecurityExpressionRoot}
  *
  * @author Luke Taylor
  * @version $Id$
  */
-public class SecurityExpressionRootTests {
+public class MethodSecurityExpressionRootTests {
     SpelExpressionParser parser = new SpelExpressionParser();
-    SecurityExpressionRoot root;
+    MethodSecurityExpressionRoot root;
     StandardEvaluationContext ctx;
     Mockery jmock = new Mockery();
     private AuthenticationTrustResolver trustResolver;
@@ -32,7 +32,7 @@ public class SecurityExpressionRootTests {
     @Before
     public void createContext() {
         user = jmock.mock(Authentication.class);
-        root = new SecurityExpressionRoot(user);
+        root = new MethodSecurityExpressionRoot(user);
         ctx = new StandardEvaluationContext();
         ctx.setRootObject(root);
         trustResolver = jmock.mock(AuthenticationTrustResolver.class);

@@ -19,9 +19,9 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.SecurityConfig;
-import org.springframework.security.expression.DefaultSecurityExpressionHandler;
-import org.springframework.security.expression.support.MethodExpressionAfterInvocationProvider;
-import org.springframework.security.expression.support.MethodExpressionVoter;
+import org.springframework.security.expression.method.MethodExpressionAfterInvocationProvider;
+import org.springframework.security.expression.method.MethodExpressionVoter;
+import org.springframework.security.expression.support.DefaultSecurityExpressionHandler;
 import org.springframework.security.intercept.method.DelegatingMethodDefinitionSource;
 import org.springframework.security.intercept.method.MapBasedMethodDefinitionSource;
 import org.springframework.security.intercept.method.ProtectPointcutPostProcessor;
@@ -46,7 +46,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     static final String SECURED_DEPENDENCY_CLASS = "org.springframework.security.annotation.Secured";
     static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.SecuredMethodDefinitionSource";
-    static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.expression.support.ExpressionAnnotationMethodDefinitionSource";
+    static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.expression.method.ExpressionAnnotationMethodDefinitionSource";
     static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.Jsr250MethodDefinitionSource";
     static final String JSR_250_VOTER_CLASS = "org.springframework.security.annotation.Jsr250Voter";
 

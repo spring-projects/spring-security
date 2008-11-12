@@ -1,4 +1,4 @@
-package org.springframework.security.expression.support;
+package org.springframework.security.expression.method;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;

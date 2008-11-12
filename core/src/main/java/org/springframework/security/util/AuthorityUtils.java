@@ -17,7 +17,7 @@ import java.util.Set;
  * @version $Id$
  */
 public abstract class AuthorityUtils {
-    public static final List<GrantedAuthority> NO_AUTHORITIES = Collections.EMPTY_LIST;
+    public static final List<GrantedAuthority> NO_AUTHORITIES = Collections.emptyList();
 
     /**
      * Returns true if the current user has the specified authority.
@@ -76,8 +76,8 @@ public abstract class AuthorityUtils {
      * Converts an array of GrantedAuthority objects to a Set.
      * @return a Set of the Strings obtained from each call to GrantedAuthority.getAuthority()
      */
-    public static Set authorityArrayToSet(List<GrantedAuthority> authorities) {
-        Set set = new HashSet(authorities.size());
+    public static Set<String> authorityArrayToSet(List<GrantedAuthority> authorities) {
+        Set<String> set = new HashSet<String>(authorities.size());
 
         for (GrantedAuthority authority: authorities) {
             set.add(authority.getAuthority());

@@ -1,4 +1,4 @@
-package org.springframework.security.expression;
+package org.springframework.security.expression.support;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -12,17 +12,19 @@ import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.StandardEvaluationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.AuthenticationTrustResolverImpl;
+import org.springframework.security.expression.ExpressionUtils;
+import org.springframework.security.expression.PermissionEvaluator;
+import org.springframework.security.expression.SecurityExpressionHandler;
+import org.springframework.security.intercept.web.FilterInvocation;
 
 /**
- * The standard implementation of <tt>SecurityExpressionHandler</tt> which uses a {@link SecurityEvaluationContext}
- * as the <tt>EvaluationContext</tt> implementation and configures it with a {@link SecurityExpressionRoot} instance
- * as the expression root object.
+ * The standard implementation of <tt>SecurityExpressionHandler</tt>.
  * <p>
- * A single instance should usually be shared between the expression voter and after-invocation provider.
- *
+ * A single instance should usually be shared.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -39,9 +41,13 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
     public DefaultSecurityExpressionHandler() {
     }
 
+    /**
+     * Uses a {@link MethodSecurityEvaluationContext} as the <tt>EvaluationContext</tt> implementation and
+     * configures it with a {@link SecurityExpressionRoot} instance as the expression root object.
+     */
     public EvaluationContext createEvaluationContext(Authentication auth, MethodInvocation mi) {
-        SecurityEvaluationContext ctx = new SecurityEvaluationContext(auth, mi, parameterNameDiscoverer);
-        SecurityExpressionRoot root = new SecurityExpressionRoot(auth);
+        MethodSecurityEvaluationContext ctx = new MethodSecurityEvaluationContext(auth, mi, parameterNameDiscoverer);
+        MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(auth);
         root.setTrustResolver(trustResolver);
         root.setPermissionEvaluator(permissionEvaluator);
         ctx.setRootObject(root);
@@ -49,9 +55,15 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
         return ctx;
     }
 
+    public EvaluationContext createEvaluationContext(Authentication authentication, FilterInvocation fi) {
+        StandardEvaluationContext ctx = new StandardEvaluationContext();
+
+        return ctx;
+    }
+
     @SuppressWarnings("unchecked")
     public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
-        SecurityExpressionRoot rootObject = (SecurityExpressionRoot) ctx.getRootContextObject();
+        MethodSecurityExpressionRoot rootObject = (MethodSecurityExpressionRoot) ctx.getRootContextObject();
         List retainList;
 
         if (logger.isDebugEnabled()) {
@@ -128,6 +140,7 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
     }
 
     public void setReturnObject(Object returnObject, EvaluationContext ctx) {
-        ((SecurityExpressionRoot)ctx.getRootContextObject()).setReturnObject(returnObject);
+        ((MethodSecurityExpressionRoot)ctx.getRootContextObject()).setReturnObject(returnObject);
     }
+
 }

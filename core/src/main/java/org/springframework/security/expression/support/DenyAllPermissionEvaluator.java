@@ -1,10 +1,11 @@
-package org.springframework.security.expression;
+package org.springframework.security.expression.support;
 
 import java.io.Serializable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.Authentication;
+import org.springframework.security.expression.PermissionEvaluator;
 
 /**
  * A null PermissionEvaluator which denies all access. Used by default for situations when permission
@@ -14,7 +15,7 @@ import org.springframework.security.Authentication;
  * @version $Id$
  * @since 2.5
  */
-public final class DenyAllPermissionEvaluator implements PermissionEvaluator {
+class DenyAllPermissionEvaluator implements PermissionEvaluator {
 
     private final Log logger = LogFactory.getLog(getClass());
 

@@ -1,4 +1,4 @@
-package org.springframework.security.expression.support;
+package org.springframework.security.expression.method;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

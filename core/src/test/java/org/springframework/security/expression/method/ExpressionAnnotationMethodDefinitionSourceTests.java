@@ -1,4 +1,4 @@
-package org.springframework.security.expression.support;
+package org.springframework.security.expression.method;
 
 import static org.junit.Assert.*;
 
@@ -11,6 +11,9 @@ import org.springframework.security.expression.annotation.PostAuthorize;
 import org.springframework.security.expression.annotation.PostFilter;
 import org.springframework.security.expression.annotation.PreAuthorize;
 import org.springframework.security.expression.annotation.PreFilter;
+import org.springframework.security.expression.method.ExpressionAnnotationMethodDefinitionSource;
+import org.springframework.security.expression.method.PostInvocationExpressionAttribute;
+import org.springframework.security.expression.method.PreInvocationExpressionAttribute;
 import org.springframework.security.intercept.method.MockMethodInvocation;
 
 

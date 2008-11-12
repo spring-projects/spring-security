@@ -1,4 +1,4 @@
-package org.springframework.security.expression.support;
+package org.springframework.security.expression.method;
 
 import java.util.List;
 
@@ -11,9 +11,9 @@ import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.afterinvocation.AfterInvocationProvider;
-import org.springframework.security.expression.DefaultSecurityExpressionHandler;
 import org.springframework.security.expression.ExpressionUtils;
 import org.springframework.security.expression.SecurityExpressionHandler;
+import org.springframework.security.expression.support.DefaultSecurityExpressionHandler;
 
 /**
  * AfterInvocationProvider which handles the @PostAuthorize and @PostFilter annotation expressions.

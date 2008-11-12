@@ -1,10 +1,5 @@
 package org.springframework.security.expression;
 
-import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
@@ -18,6 +13,4 @@ public class ExpressionUtils {
             throw new IllegalArgumentException("Failed to evaluate expression", e);
         }
     }
-
-
 }

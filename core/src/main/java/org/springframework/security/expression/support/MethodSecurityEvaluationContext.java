@@ -1,4 +1,4 @@
-package org.springframework.security.expression;
+package org.springframework.security.expression.support;
 
 import java.lang.reflect.Method;
 
@@ -17,7 +17,7 @@ import org.springframework.util.ClassUtils;
  * @author Luke Taylor
  * @since 2.5
  */
-public class SecurityEvaluationContext extends StandardEvaluationContext {
+class MethodSecurityEvaluationContext extends StandardEvaluationContext {
     private ParameterNameDiscoverer parameterNameDiscoverer;
     private boolean argumentsAdded;
     private MethodInvocation mi;
@@ -27,11 +27,11 @@ public class SecurityEvaluationContext extends StandardEvaluationContext {
      * for each instance. Use the constructor which takes the resolver, as an argument thus
      * allowing for caching.
      */
-    public SecurityEvaluationContext(Authentication user, MethodInvocation mi) {
+    public MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi) {
         this(user, mi, new LocalVariableTableParameterNameDiscoverer());
     }
 
-    public SecurityEvaluationContext(Authentication user, MethodInvocation mi,
+    public MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi,
                     ParameterNameDiscoverer parameterNameDiscoverer) {
         this.mi = mi;
         this.parameterNameDiscoverer = parameterNameDiscoverer;

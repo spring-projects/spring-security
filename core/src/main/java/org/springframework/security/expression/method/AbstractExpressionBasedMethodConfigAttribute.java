@@ -1,4 +1,4 @@
-package org.springframework.security.expression.support;
+package org.springframework.security.expression.method;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;
@@ -33,7 +33,6 @@ abstract class AbstractExpressionBasedMethodConfigAttribute implements ConfigAtt
 
     AbstractExpressionBasedMethodConfigAttribute(Expression filterExpression, Expression authorizeExpression) throws ParseException {
         Assert.isTrue(filterExpression != null || authorizeExpression != null, "Filter and authorization Expressions cannot both be null");
-        SpelExpressionParser parser = new SpelExpressionParser();
         this.filterExpression = filterExpression == null ? null : filterExpression;
         this.authorizeExpression = authorizeExpression == null ? null : authorizeExpression;
     }
