@@ -148,6 +148,22 @@ org.springframework.security.AccessDeniedException: Access is denied
     			</p>
     		</answer>
     	</faq>
+    	<faq id="auth-exception-credentials-not-found">
+    		<question>I get an exception with the message "An Authentication object was not found in the SecurityContext". What's wrong?</question>
+    		<answer>
+    			<p>
+    				This is a another debug level message which occurs the first time an anonymous user attempts to access a protected
+    				resource, but when you do not have an AnonymousProcessingFilter in your filter chain configuration.
+    				<pre>
+    					DEBUG [ExceptionTranslationFilter] - Authentication exception occurred; redirecting to authentication entry point
+    					org.springframework.security.AuthenticationCredentialsNotFoundException: An Authentication object was not found in the SecurityContext
+    					at org.springframework.security.intercept.AbstractSecurityInterceptor.credentialsNotFound(AbstractSecurityInterceptor.java:342)
+    					at org.springframework.security.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:254)
+    				</pre>
+    				It is normal and shouldn't be anything to worry about.
+    			</p>
+    		</answer>
+    	</faq>    	
     	<faq id="tomcat-https-session">
     		<question>
     			I'm using Tomcat and have enabled HTTPS for my login page, switching back to HTTP afterwards. It doesn't work - I just 
