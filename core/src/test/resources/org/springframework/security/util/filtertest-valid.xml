@@ -42,28 +42,14 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     <bean id="mockNotAFilter" class="org.springframework.security.util.MockNotAFilter"/>
 
     <bean id="filterChain" class="org.springframework.security.util.FilterChainProxy">
-      <property name="filterInvocationDefinitionSource">
-         <value>
-            CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-            PATTERN_TYPE_APACHE_ANT
-            /foo/**=mockFilter
-            /some/other/path/**=mockFilter
-            /do/not/filter=#NONE#
-         </value>
-      </property>
+        <sec:filter-chain-map path-type="ant">
+            <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
+            <sec:filter-chain pattern="/some/other/path/**" filters="mockFilter"/>
+            <sec:filter-chain pattern="/do/not/filter" filters="none"/>
+        </sec:filter-chain-map>
     </bean>
 
-    <bean id="filterChainNonLowerCase" class="org.springframework.security.util.FilterChainProxy">
-      <property name="filterInvocationDefinitionSource">
-         <value>
-            PATTERN_TYPE_APACHE_ANT
-            /foo/**=mockFilter
-            /SOME/other/path/**=sif,mockFilter,mockFilter2
-            /do/not/filter=#NONE#
-         </value>
-      </property>
-    </bean>
-
+<!-- TODO: Refactor to replace the above (SEC-1034: 'new' is now the only valid syntax) -->
     <bean id="newFilterChainProxy" class="org.springframework.security.util.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>

@@ -85,25 +85,15 @@ public class FilterChainProxyTests {
         assertFalse(filter.isWasDestroyed());
     }
 
-    @Test
+    @Test(expected=BeanCreationException.class)
     public void misplacedUniversalPathShouldBeDetected() throws Exception {
-        try {
-            appCtx.getBean("newFilterChainProxyWrongPathOrder", FilterChainProxy.class);
-            fail("Expected BeanCreationException");
-        } catch (BeanCreationException expected) {
-        }
+        appCtx.getBean("newFilterChainProxyWrongPathOrder", FilterChainProxy.class);
     }
 
     @Test
     public void normalOperation() throws Exception {
         FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain", FilterChainProxy.class);
         doNormalOperation(filterChainProxy);
-    }
-
-    @Test
-    public void proxyPathWithoutLowerCaseConversionShouldntMatchDifferentCasePath() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChainNonLowerCase", FilterChainProxy.class);
-        assertNull(filterChainProxy.getFilters("/some/other/path/blah"));
     }
 
     @Test
