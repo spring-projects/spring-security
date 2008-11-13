@@ -111,12 +111,13 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         // true if Ant path and using lower case
         final boolean convertPathsToLowerCase = (matcher instanceof AntUrlPathMatcher) && matcher.requiresLowerCaseUrl();
 
-        final List interceptUrlElts = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
+        final List<Element> interceptUrlElts = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
         final Map filterChainMap =  new LinkedHashMap();
         final LinkedHashMap channelRequestMap = new LinkedHashMap();
 
         registerFilterChainProxy(parserContext, filterChainMap, matcher, source);
 
+        // filterChainMap and channelRequestMap are populated by this call
         parseInterceptUrlsForChannelSecurityAndFilterChain(interceptUrlElts, filterChainMap, channelRequestMap,
                 convertPathsToLowerCase, parserContext);
 
@@ -437,11 +438,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 BeanDefinitionBuilder.rootBeanDefinition(DefaultLoginPageGeneratingFilter.class);
 
             if (formLoginFilter != null) {
-                loginPageFilter.addConstructorArg(new RuntimeBeanReference(BeanIds.FORM_LOGIN_FILTER));
+                loginPageFilter.addConstructorArgValue(new RuntimeBeanReference(BeanIds.FORM_LOGIN_FILTER));
             }
 
             if (openIDFilter != null) {
-                loginPageFilter.addConstructorArg(new RuntimeBeanReference(BeanIds.OPEN_ID_FILTER));
+                loginPageFilter.addConstructorArgValue(new RuntimeBeanReference(BeanIds.OPEN_ID_FILTER));
             }
 
             pc.getRegistry().registerBeanDefinition(BeanIds.DEFAULT_LOGIN_PAGE_GENERATING_FILTER,
