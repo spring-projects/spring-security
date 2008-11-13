@@ -45,9 +45,9 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
         this.credentials = credentials;
     }
 
-
     public TestingAuthenticationToken(Object principal, Object credentials, String... authorities) {
         this(principal, credentials, AuthorityUtils.createAuthorityList(authorities));
+        setAuthenticated(true);
     }
 
     public TestingAuthenticationToken(Object principal, Object credentials, GrantedAuthority[] authorities) {
