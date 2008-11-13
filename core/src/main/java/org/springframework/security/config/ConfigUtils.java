@@ -15,6 +15,7 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.afterinvocation.AfterInvocationProviderManager;
 import org.springframework.security.expression.method.MethodExpressionVoter;
 import org.springframework.security.util.UrlUtils;
+import org.springframework.security.vote.AccessDecisionVoter;
 import org.springframework.security.vote.AffirmativeBased;
 import org.springframework.security.vote.AuthenticatedVoter;
 import org.springframework.security.vote.RoleVoter;
@@ -44,10 +45,10 @@ abstract class ConfigUtils {
         }
     }
 
-    private static BeanDefinition createAccessManagerBean(Class... voters) {
+    private static BeanDefinition createAccessManagerBean(Class<? extends AccessDecisionVoter>... voters) {
         ManagedList defaultVoters = new ManagedList(voters.length);
 
-        for(Class voter : voters) {
+        for(Class<? extends AccessDecisionVoter> voter : voters) {
             defaultVoters.add(new RootBeanDefinition(voter));
         }
 
@@ -80,10 +81,11 @@ abstract class ConfigUtils {
         }
 
         BeanDefinition authManager = new RootBeanDefinition(NamespaceAuthenticationManager.class);
-        authManager.getPropertyValues().addPropertyValue("providerBeanNames", new ArrayList());
+        authManager.getPropertyValues().addPropertyValue("providerBeanNames", new ArrayList<String>());
         parserContext.getRegistry().registerBeanDefinition(BeanIds.AUTHENTICATION_MANAGER, authManager);
     }
 
+    @SuppressWarnings("unchecked")
     static void addAuthenticationProvider(ParserContext parserContext, String beanName) {
         registerProviderManagerIfNecessary(parserContext);
         BeanDefinition authManager = parserContext.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);

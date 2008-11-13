@@ -20,7 +20,7 @@ abstract class Elements {
     public static final String LDAP_SERVER = "ldap-server";
     public static final String LDAP_USER_SERVICE = "ldap-user-service";
     public static final String PROTECT_POINTCUT = "protect-pointcut";
-    public static final String PERMISSON_EVALUATOR = "permission-evaluator";
+    public static final String EXPRESSION_HANDLER = "expression-handler";
     public static final String PROTECT = "protect";
     public static final String CONCURRENT_SESSIONS = "concurrent-session-control";
     public static final String LOGOUT = "logout";

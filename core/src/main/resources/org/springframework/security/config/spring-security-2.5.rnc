@@ -60,7 +60,10 @@ boolean = "true" | "false"
 role-prefix =
     ## A non-empty string prefix that will be added to role strings loaded from persistent storage (e.g. "ROLE_"). Use the value "none" for no prefix in cases where the default is non-empty.
     attribute role-prefix {xsd:string}
-
+    
+use-expressions =
+    ## Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted. 
+    attribute use-expressions {boolean}
 
 ldap-server =
     ## Defines an LDAP server location or starts an embedded server. The url indicates the location of a remote server. If no url is given, an embedded server will be started, listening on the supplied port number. The port is optional and defaults to 33389. A Spring LDAP ContextSource bean will be registered for the server with the id supplied. 
@@ -181,7 +184,7 @@ protect.attlist &=
 
 global-method-security =
     ## Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for matches with the ordered list of "protect-pointcut" sub-elements, Spring Security annotations and/or. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. If you use and enable all four sources of method security metadata (ie "protect-pointcut" declarations, expression annotations, @Secured and also JSR250 security annotations), the metadata sources will be queried in that order. In practical terms, this enables you to use XML to override method security metadata expressed in annotations. If using annotations, the order of precedence is EL-based (@PreAuthorize etc.), @Secured and finally JSR-250.
-	element global-method-security {global-method-security.attlist, permission-evaluator?, protect-pointcut*}
+	element global-method-security {global-method-security.attlist, expression-handler?, protect-pointcut*}
 global-method-security.attlist &=
     ## Specifies whether the use of Spring Security's expression-based annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this application context. Defaults to "disabled".
     attribute expression-annotations {"disabled" | "enabled" }?
@@ -195,9 +198,9 @@ global-method-security.attlist &=
     ## Optional AccessDecisionManager bean ID to override the default used for method security.
     attribute access-decision-manager-ref {xsd:string}?
 
-permission-evaluator =
-    ## Defines the PermissionEvaluator implementation which will be used to evaluate calls to hasPermission() expressions
-    element permission-evaluator {ref}
+expression-handler =
+    ## Defines the SecurityExpressionHandler instance which will be used if expression-based access-control is enabled. A default implementation (with no ACL support) will be used if not supplied.
+    element expression-handler {ref}
 
 custom-after-invocation-provider =
     ## Used to decorate an AfterInvocationProvider to specify that it should be used with method security.
@@ -220,6 +223,8 @@ http =
 http.attlist &=
     ## Automatically registers a login form, BASIC authentication, anonymous authentication, logout services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".
     attribute auto-config {boolean}?
+http.attlist &=
+    use-expressions?
 http.attlist &=
     ## Controls the eagerness with which an HTTP session is created. If not set, defaults to "ifRequired".
     attribute create-session {"ifRequired" | "always" | "never" }?
@@ -325,6 +330,8 @@ filter-chain.attlist &=
 filter-invocation-definition-source =
     ## Used to explicitly configure a FilterInvocationDefinitionSource bean for use with a FilterSecurityInterceptor. Usually only needed if you are configuring a FilterChainProxy explicitly, rather than using the <http> element. The intercept-url elements used should only contain pattern, method and access attributes. Any others will result in a configuration error. 
     element filter-invocation-definition-source {fids.attlist, intercept-url+}
+fids.attlist &=
+    use-expressions?
 fids.attlist &=
     id?
 fids.attlist &=

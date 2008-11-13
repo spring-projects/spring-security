@@ -30,6 +30,7 @@ import org.springframework.security.intercept.method.aopalliance.MethodSecurityI
 import org.springframework.security.vote.AffirmativeBased;
 import org.springframework.security.vote.AuthenticatedVoter;
 import org.springframework.security.vote.RoleVoter;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -56,8 +57,8 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String SECURITY_INTERCEPTOR_ID = "_globalMethodSecurityInterceptor";
     static final String INTERCEPTOR_POST_PROCESSOR_ID = "_globalMethodSecurityInterceptorPostProcessor";
     static final String ACCESS_MANAGER_ID = "_globalMethodSecurityAccessManager";
-    static final String DELEGATING_METHOD_DEFINITION_SOURCE_ID = "_delegatingMethodDefinitionSource";
-    static final String EXPRESSION_HANDLER_ID = "_expressionHandler";
+    private static final String DELEGATING_METHOD_DEFINITION_SOURCE_ID = "_delegatingMethodDefinitionSource";
+    private static final String EXPRESSION_HANDLER_ID = "_expressionHandler";
 
     private static final String ATT_ACCESS = "access";
     private static final String ATT_EXPRESSION = "expression";
@@ -122,28 +123,26 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
      * provider will also be registered to handle post-invocation filtering and authorization expression annotations.
      */
     private void registerAccessManager(Element element, ParserContext pc, boolean jsr250Enabled, boolean expressionsEnabled) {
-        Element permissionEvaluatorElt = DomUtils.getChildElementByTagName(element, Elements.PERMISSON_EVALUATOR);
+        Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
         BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
         ManagedList voters = new ManagedList(4);
 
         if (expressionsEnabled) {
-            BeanDefinitionBuilder expressionHandler = BeanDefinitionBuilder.rootBeanDefinition(DefaultSecurityExpressionHandler.class);
             BeanDefinitionBuilder expressionVoter = BeanDefinitionBuilder.rootBeanDefinition(MethodExpressionVoter.class);
             BeanDefinitionBuilder afterInvocationProvider = BeanDefinitionBuilder.rootBeanDefinition(MethodExpressionAfterInvocationProvider.class);
+            String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
 
-            if (permissionEvaluatorElt != null) {
-                String ref = permissionEvaluatorElt.getAttribute("ref");
-                logger.info("Using bean '" + ref + "' as PermissionEvaluator implementation");
-                expressionHandler.addPropertyReference("permissionEvaluator", ref);
+            if (StringUtils.hasText(expressionHandlerRef)) {
+                logger.info("Using bean '" + expressionHandlerRef + "' as SecurityExpressionHandler implementation");
             } else {
-                logger.warn("Expressions were enabled but no PermissionEvaluator was configured. " +
+                pc.getRegistry().registerBeanDefinition(EXPRESSION_HANDLER_ID, new RootBeanDefinition(DefaultSecurityExpressionHandler.class));
+                logger.warn("Expressions were enabled but no SecurityExpressionHandler was configured. " +
                         "All hasPermision() expressions will evaluate to false.");
+                expressionHandlerRef = EXPRESSION_HANDLER_ID;
             }
 
-            pc.getRegistry().registerBeanDefinition(EXPRESSION_HANDLER_ID, expressionHandler.getBeanDefinition());
-
-            expressionVoter.addPropertyReference("expressionHandler", EXPRESSION_HANDLER_ID);
-            afterInvocationProvider.addPropertyReference("expressionHandler", EXPRESSION_HANDLER_ID);
+            expressionVoter.addPropertyReference("expressionHandler", expressionHandlerRef);
+            afterInvocationProvider.addPropertyReference("expressionHandler", expressionHandlerRef);
             ConfigUtils.getRegisteredAfterInvocationProviders(pc).add(afterInvocationProvider.getBeanDefinition());
             voters.add(expressionVoter.getBeanDefinition());
         }

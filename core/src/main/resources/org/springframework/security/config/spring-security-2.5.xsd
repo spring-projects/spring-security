@@ -168,6 +168,17 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:attributeGroup name="use-expressions">
+    <xs:attribute name="use-expressions" use="required" type="security:boolean">
+      <xs:annotation>
+        <xs:documentation>Enables the use of expressions in the 'access' attributes in
+          &lt;intercept-url&gt; elements rather than the traditional list of configuration
+          attributes. Defaults to 'false'. If enabled, each attribute should contain a single
+          boolean expression. If the expression evaluates to 'true', access will be granted.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="ldap-server">
     <xs:annotation>
       <xs:documentation>Defines an LDAP server location or starts an embedded server. The url
@@ -565,7 +576,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" ref="security:permission-evaluator"/>
+        <xs:element minOccurs="0" ref="security:expression-handler"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="protect-pointcut">
           <xs:annotation>
             <xs:documentation>Defines a protected pointcut and the access control configuration
@@ -627,10 +638,11 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
-  <xs:element name="permission-evaluator">
+  <xs:element name="expression-handler">
     <xs:annotation>
-      <xs:documentation>Defines the PermissionEvaluator implementation which will be used to
-        evaluate calls to hasPermission() expressions</xs:documentation>
+      <xs:documentation>Defines the SecurityExpressionHandler instance which will be used if
+        expression-based access-control is enabled. A default implementation (with no ACL support)
+        will be used if not supplied.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:attributeGroup ref="security:ref"/>
@@ -761,6 +773,15 @@
           "true", all of these capabilities are added (although you can still customize the
           configuration of each by providing the respective element). If unspecified, defaults to
           "false".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="use-expressions" type="security:boolean">
+      <xs:annotation>
+        <xs:documentation>Enables the use of expressions in the 'access' attributes in
+          &lt;intercept-url&gt; elements rather than the traditional list of configuration
+          attributes. Defaults to 'false'. If enabled, each attribute should contain a single
+          boolean expression. If the expression evaluates to 'true', access will be granted.
+        </xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="create-session">
@@ -1036,6 +1057,15 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="fids.attlist">
+    <xs:attribute name="use-expressions" type="security:boolean">
+      <xs:annotation>
+        <xs:documentation>Enables the use of expressions in the 'access' attributes in
+          &lt;intercept-url&gt; elements rather than the traditional list of configuration
+          attributes. Defaults to 'false'. If enabled, each attribute should contain a single
+          boolean expression. If the expression evaluates to 'true', access will be granted.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="id" type="xs:ID">
       <xs:annotation>
         <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the

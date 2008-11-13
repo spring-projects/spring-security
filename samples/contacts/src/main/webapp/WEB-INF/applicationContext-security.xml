@@ -15,7 +15,7 @@
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.5.xsd">
 
     <global-method-security expression-annotations="enabled">
-        <permission-evaluator ref="permissionEvaluator"/>
+        <expression-handler ref="expressionHandler"/>
     </global-method-security>
 
     <http auto-config="true" realm="Contacts Realm">
@@ -47,8 +47,12 @@
        <b:property name="targetUrl" value="/secure/index.htm"/>
     </b:bean>
 
+    <b:bean id="expressionhandler" class="org.springframework.security.expression.support.DefaultSecurityExpressionHandler">
+        <b:property name="permissionEvaluator" ref="permissionEvaluator" />
+    </b:bean>
+
     <b:bean id="permissionEvaluator" class="org.springframework.security.acls.AclPermissionEvaluator">
-        <b:constructor-arg ref="aclService" />
+        <b:constructor-arg ref="aclService"/>
     </b:bean>
 
 </b:beans>

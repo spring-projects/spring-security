@@ -16,7 +16,9 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeEditor;
+import org.springframework.security.SecurityConfig;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
 import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
@@ -97,6 +99,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_ONCE_PER_REQUEST = "once-per-request";
     static final String ATT_ACCESS_DENIED_PAGE = "access-denied-page";
 
+    static final String ATT_USE_EXPRESSIONS = "use-expressions";
+    static final String DEF_USE_EXPRESSIONS = "false";
+
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         final BeanDefinitionRegistry registry = parserContext.getRegistry();
@@ -141,7 +146,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         registerFilterSecurityInterceptor(element, parserContext, matcher, accessManagerId,
-                parseInterceptUrlsForFilterInvocationRequestMap(interceptUrlElts, convertPathsToLowerCase, parserContext));
+                parseInterceptUrlsForFilterInvocationRequestMap(interceptUrlElts, convertPathsToLowerCase, false, parserContext));
 
         boolean sessionControlEnabled = registerConcurrentSessionControlBeansIfRequired(element, parserContext);
 
@@ -576,14 +581,21 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
     }
 
-    static LinkedHashMap parseInterceptUrlsForFilterInvocationRequestMap(List urlElts,  boolean useLowerCasePaths, ParserContext parserContext) {
-        LinkedHashMap filterInvocationDefinitionMap = new LinkedHashMap();
+    /**
+     * Parses the filter invocation map which will be used to configure the FilterInvocationDefinitionSource
+     * used in the security interceptor.
+     */
+    static LinkedHashMap<RequestKey, List<ConfigAttribute>>
+    parseInterceptUrlsForFilterInvocationRequestMap(List<Element> urlElts,  boolean useLowerCasePaths,
+            boolean useExpressions, ParserContext parserContext) {
 
-        Iterator urlEltsIterator = urlElts.iterator();
-        ConfigAttributeEditor editor = new ConfigAttributeEditor();
+        LinkedHashMap<RequestKey, List<ConfigAttribute>> filterInvocationDefinitionMap = new LinkedHashMap<RequestKey, List<ConfigAttribute>>();
 
-        while (urlEltsIterator.hasNext()) {
-            Element urlElt = (Element) urlEltsIterator.next();
+        for (Element urlElt : urlElts) {
+            String access = urlElt.getAttribute(ATT_ACCESS_CONFIG);
+            if (!StringUtils.hasText(access)) {
+                continue;
+            }
 
             String path = urlElt.getAttribute(ATT_PATH_PATTERN);
 
@@ -600,19 +612,23 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 method = null;
             }
 
-            String access = urlElt.getAttribute(ATT_ACCESS_CONFIG);
-
             // Convert the comma-separated list of access attributes to a List<ConfigAttribute>
-            if (StringUtils.hasText(access)) {
-                editor.setAsText(access);
-                Object key = new RequestKey(path, method);
 
-                if (filterInvocationDefinitionMap.containsKey(key)) {
-                    logger.warn("Duplicate URL defined: " + key + ". The original attribute values will be overwritten");
-                }
+            RequestKey key = new RequestKey(path, method);
+            List<ConfigAttribute> attributes = null;
 
-                filterInvocationDefinitionMap.put(key, editor.getValue());
+            if (useExpressions) {
+                logger.info("Creating access control expression attribute '" + access + "' for " + key);
+
+            } else {
+                attributes = SecurityConfig.createList(StringUtils.commaDelimitedListToStringArray(access));
             }
+
+            if (filterInvocationDefinitionMap.containsKey(key)) {
+                logger.warn("Duplicate URL defined: " + key + ". The original attribute values will be overwritten");
+            }
+
+            filterInvocationDefinitionMap.put(key, attributes);
         }
 
         return filterInvocationDefinitionMap;
