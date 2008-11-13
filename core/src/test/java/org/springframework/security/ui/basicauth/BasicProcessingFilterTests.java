@@ -47,7 +47,8 @@ import org.springframework.security.MockAuthenticationEntryPoint;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockFilterConfig;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.util.AuthorityUtils;
 
 
 /**
@@ -87,7 +88,8 @@ public class BasicProcessingFilterTests {
         SecurityContextHolder.clearContext();
 
         final AuthenticationManager manager = jmock.mock(AuthenticationManager.class);
-        final Authentication rod = new TestingAuthenticationToken("rod", "koala", "ROLE_1");
+        final Authentication rod =
+            new UsernamePasswordAuthenticationToken("rod", "koala", AuthorityUtils.createAuthorityList("ROLE_1"));
         jmock.checking(new Expectations() {{
             allowing(manager).authenticate(with(anAuthenticationWithUsernameAndPassword("rod", "koala")));
                 will(returnValue(rod));
