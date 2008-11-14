@@ -15,12 +15,11 @@
 
 package org.springframework.security.intercept.web;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.security.matcher.AuthenticationMatcher.anAuthenticationWithUsername;
 
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -32,20 +31,11 @@ import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.MockApplicationEventPublisher;
 import org.springframework.security.RunAsManager;
-import org.springframework.security.ConfigAttribute;
-
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
 import org.springframework.security.util.FilterInvocationUtils;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 /**
