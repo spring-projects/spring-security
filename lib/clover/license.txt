@@ -1,7 +1,0 @@
-Cenque has supported Spring Security project with a free
-Team Edition license of Clover.
-
-We thank Cenqua for their support.
-
-
-$Id$
