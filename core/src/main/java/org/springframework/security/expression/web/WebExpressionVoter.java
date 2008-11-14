@@ -2,7 +2,6 @@ package org.springframework.security.expression.web;
 
 import java.util.List;
 
-import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
