@@ -17,7 +17,6 @@ package sample.contact;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.junit.After;
@@ -52,13 +51,8 @@ public class GetAllContactsTests {
 
     //~ Methods ========================================================================================================
 
-    protected void assertContainsContact(String id, List contacts) {
-        Iterator iter = contacts.iterator();
-        System.out.println(contacts);
-
-        while (iter.hasNext()) {
-            Contact contact = (Contact) iter.next();
-
+    protected void assertContainsContact(String id, List<Contact> contacts) {
+        for(Contact contact : contacts) {
             if (contact.getId().toString().equals(id)) {
                 return;
             }
@@ -67,13 +61,9 @@ public class GetAllContactsTests {
         fail("List of contacts should have contained: " + id);
     }
 
-    void assertDoestNotContainContact(String id, List contacts) {
-        Iterator iter = contacts.iterator();
-
-        while (iter.hasNext()) {
-            Contact domain = (Contact) iter.next();
-
-            if (domain.getId().toString().equals(id)) {
+    void assertDoestNotContainContact(String id, List<Contact> contacts) {
+        for(Contact contact : contacts) {
+            if (contact.getId().toString().equals(id)) {
                 fail("List of contact should NOT (but did) contain: " + id);
             }
         }
@@ -88,12 +78,7 @@ public class GetAllContactsTests {
      * @return the domain or <code>null</code> if not found
      */
     protected Contact getContact(String id) {
-        List contacts = contactManager.getAll();
-        Iterator iter = contacts.iterator();
-
-        while (iter.hasNext()) {
-            Contact contact = (Contact) iter.next();
-
+        for(Contact contact : contactManager.getAll()) {
             if (contact.getId().equals(id)) {
                 return contact;
             }
@@ -128,7 +113,7 @@ public class GetAllContactsTests {
     public void testDianne() {
         makeActiveUser("dianne"); // has ROLE_USER
 
-        List contacts = contactManager.getAll();
+        List<Contact> contacts = contactManager.getAll();
         assertEquals(4, contacts.size());
 
         assertContainsContact(Long.toString(4), contacts);
@@ -145,7 +130,7 @@ public class GetAllContactsTests {
     public void testrod() {
         makeActiveUser("rod"); // has ROLE_SUPERVISOR
 
-        List contacts = contactManager.getAll();
+        List<Contact> contacts = contactManager.getAll();
 
         assertEquals(4, contacts.size());
 
@@ -165,7 +150,7 @@ public class GetAllContactsTests {
     public void testScott() {
         makeActiveUser("scott"); // has ROLE_USER
 
-        List contacts = contactManager.getAll();
+        List<Contact> contacts = contactManager.getAll();
 
         assertEquals(5, contacts.size());
 

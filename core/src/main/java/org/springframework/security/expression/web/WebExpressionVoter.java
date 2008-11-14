@@ -30,7 +30,6 @@ public class WebExpressionVoter implements AccessDecisionVoter {
         FilterInvocation fi = (FilterInvocation)object;
         EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, fi);
 
-
         weca.getAuthorizeExpression();
 
         return 0;
