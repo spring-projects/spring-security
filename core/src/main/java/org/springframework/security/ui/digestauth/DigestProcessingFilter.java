@@ -15,42 +15,7 @@
 
 package org.springframework.security.ui.digestauth;
 
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationServiceException;
-import org.springframework.security.BadCredentialsException;
-
-import org.springframework.security.context.SecurityContextHolder;
-
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.dao.UserCache;
-import org.springframework.security.providers.dao.cache.NullUserCache;
-
-import org.springframework.security.ui.AuthenticationDetailsSource;
-import org.springframework.security.ui.WebAuthenticationDetailsSource;
-
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.UsernameNotFoundException;
-
-import org.springframework.security.util.StringSplitUtils;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
-
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
 import java.io.IOException;
-
 import java.util.Map;
 
 import javax.servlet.Filter;
@@ -60,27 +25,58 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationServiceException;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.dao.UserCache;
+import org.springframework.security.providers.dao.cache.NullUserCache;
+import org.springframework.security.ui.AuthenticationDetailsSource;
+import org.springframework.security.ui.WebAuthenticationDetailsSource;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.util.StringSplitUtils;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 
 /**
  * Processes a HTTP request's Digest authorization headers, putting the result into the
- * <code>SecurityContextHolder</code>.<p>For a detailed background on what this filter is designed to process,
- * refer to <a href="http://www.ietf.org/rfc/rfc2617.txt">RFC 2617</a> (which superseded RFC 2069, although this
- * filter support clients that implement either RFC 2617 or RFC 2069).</p>
- * <p>This filter can be used to provide Digest authentication services to both remoting protocol clients (such as
- * Hessian and SOAP) as well as standard user agents (such as Internet Explorer and FireFox).</p>
- * <p>This Digest implementation has been designed to avoid needing to store session state between invocations.
+ * <code>SecurityContextHolder</code>.
+ * <p>
+ * For a detailed background on what this filter is designed to process, refer to
+ * <a href="http://www.ietf.org/rfc/rfc2617.txt">RFC 2617</a> (which superseded RFC 2069, although this
+ * filter support clients that implement either RFC 2617 or RFC 2069).
+ * <p>
+ * This filter can be used to provide Digest authentication services to both remoting protocol clients (such as
+ * Hessian and SOAP) as well as standard user agents (such as Internet Explorer and FireFox).
+ * <p>
+ * This Digest implementation has been designed to avoid needing to store session state between invocations.
  * All session management information is stored in the "nonce" that is sent to the client by the {@link
- * DigestProcessingFilterEntryPoint}.</p>
- * <P>If authentication is successful, the resulting {@link org.springframework.security.Authentication Authentication}
- * object will be placed into the <code>SecurityContextHolder</code>.</p>
- * <p>If authentication fails, an {@link org.springframework.security.ui.AuthenticationEntryPoint AuthenticationEntryPoint}
+ * DigestProcessingFilterEntryPoint}.
+ * <p>
+ * If authentication is successful, the resulting {@link org.springframework.security.Authentication Authentication}
+ * object will be placed into the <code>SecurityContextHolder</code>.
+ * <p>
+ * If authentication fails, an {@link org.springframework.security.ui.AuthenticationEntryPoint AuthenticationEntryPoint}
  * implementation is called. This must always be {@link DigestProcessingFilterEntryPoint}, which will prompt the user
- * to authenticate again via Digest authentication.</p>
- * <p>Note there are limitations to Digest authentication, although it is a more comprehensive and secure solution
+ * to authenticate again via Digest authentication.
+ * <p>
+ * Note there are limitations to Digest authentication, although it is a more comprehensive and secure solution
  * than Basic authentication. Please see RFC 2617 section 4 for a full discussion on the advantages of Digest
- * authentication over Basic authentication, including commentary on the limitations that it still imposes.</p>
+ * authentication over Basic authentication, including commentary on the limitations that it still imposes.
  */
 public class DigestProcessingFilter implements Filter, InitializingBean, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
@@ -108,13 +104,6 @@ public class DigestProcessingFilter implements Filter, InitializingBean, Message
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        if (!(request instanceof HttpServletRequest)) {
-            throw new ServletException("Can only process HttpServletRequest");
-        }
-
-        if (!(response instanceof HttpServletResponse)) {
-            throw new ServletException("Can only process HttpServletResponse");
-        }
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
 
@@ -128,7 +117,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean, Message
             String section212response = header.substring(7);
 
             String[] headerEntries = StringSplitUtils.splitIgnoringQuotes(section212response, ',');
-            Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+            Map<String,String> headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
             String username = (String) headerMap.get("username");
             String realm = (String) headerMap.get("realm");

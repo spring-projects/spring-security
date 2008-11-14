@@ -216,8 +216,8 @@ public class DigestProcessingFilterTests {
         assertEquals(401, response.getStatus());
     }
 
-    public void testNonBase64EncodedNonceReturnsForbidden()
-            throws Exception {
+    @Test
+    public void testNonBase64EncodedNonceReturnsForbidden() throws Exception {
         String nonce = "NOT_BASE_64_ENCODED";
 
         String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
@@ -232,8 +232,8 @@ public class DigestProcessingFilterTests {
         assertEquals(401, response.getStatus());
     }
 
-    public void testNonceWithIncorrectSignatureForNumericFieldReturnsForbidden()
-            throws Exception {
+    @Test
+    public void testNonceWithIncorrectSignatureForNumericFieldReturnsForbidden() throws Exception {
         String nonce = new String(Base64.encodeBase64("123456:incorrectStringPassword".getBytes()));
         String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, nonce, NC, CNONCE);
@@ -247,8 +247,8 @@ public class DigestProcessingFilterTests {
         assertEquals(401, response.getStatus());
     }
 
-    public void testNonceWithNonNumericFirstElementReturnsForbidden()
-            throws Exception {
+    @Test
+    public void testNonceWithNonNumericFirstElementReturnsForbidden() throws Exception {
         String nonce = new String(Base64.encodeBase64("hello:ignoredSecondElement".getBytes()));
         String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, nonce, NC, CNONCE);
@@ -262,8 +262,8 @@ public class DigestProcessingFilterTests {
         assertEquals(401, response.getStatus());
     }
 
-    public void testNonceWithoutTwoColonSeparatedElementsReturnsForbidden()
-            throws Exception {
+    @Test
+    public void testNonceWithoutTwoColonSeparatedElementsReturnsForbidden() throws Exception {
         String nonce = new String(Base64.encodeBase64("a base 64 string without a colon".getBytes()));
         String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, nonce, NC, CNONCE);
@@ -277,8 +277,8 @@ public class DigestProcessingFilterTests {
         assertEquals(401, response.getStatus());
     }
 
-    public void testNormalOperationWhenPasswordIsAlreadyEncoded()
-            throws Exception {
+    @Test
+    public void testNormalOperationWhenPasswordIsAlreadyEncoded() throws Exception {
         String encodedPassword = DigestProcessingFilter.encodePasswordInA1Format(USERNAME, REALM, PASSWORD);
         String responseDigest = DigestProcessingFilter.generateDigest(true, USERNAME, REALM, encodedPassword, "GET",
                 REQUEST_URI, QOP, NONCE, NC, CNONCE);
@@ -293,8 +293,8 @@ public class DigestProcessingFilterTests {
                 ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
     }
 
-    public void testNormalOperationWhenPasswordNotAlreadyEncoded()
-            throws Exception {
+    @Test
+    public void testNormalOperationWhenPasswordNotAlreadyEncoded() throws Exception {
         String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
@@ -308,7 +308,8 @@ public class DigestProcessingFilterTests {
                 ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
     }
 
-    public void testOtherAuthorizationSchemeIsIgnored()
+    @Test
+    public void otherAuthorizationSchemeIsIgnored()
             throws Exception {
         request.addHeader("Authorization", "SOME_OTHER_AUTHENTICATION_SCHEME");
 
@@ -317,32 +318,22 @@ public class DigestProcessingFilterTests {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
-    public void testStartupDetectsMissingAuthenticationEntryPoint()
-            throws Exception {
-        try {
-            DigestProcessingFilter filter = new DigestProcessingFilter();
-            filter.setUserDetailsService(new InMemoryDaoImpl());
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("A DigestProcessingFilterEntryPoint is required", expected.getMessage());
-        }
+    @Test(expected=IllegalArgumentException.class)
+    public void startupDetectsMissingAuthenticationEntryPoint() throws Exception {
+        DigestProcessingFilter filter = new DigestProcessingFilter();
+        filter.setUserDetailsService(new InMemoryDaoImpl());
+        filter.afterPropertiesSet();
     }
 
-    public void testStartupDetectsMissingUserDetailsService()
-            throws Exception {
-        try {
-            DigestProcessingFilter filter = new DigestProcessingFilter();
-            filter.setAuthenticationEntryPoint(new DigestProcessingFilterEntryPoint());
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("A UserDetailsService is required", expected.getMessage());
-        }
+    @Test(expected=IllegalArgumentException.class)
+    public void startupDetectsMissingUserDetailsService() throws Exception {
+        DigestProcessingFilter filter = new DigestProcessingFilter();
+        filter.setAuthenticationEntryPoint(new DigestProcessingFilterEntryPoint());
+        filter.afterPropertiesSet();
     }
 
-    public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken()
-            throws Exception {
+    @Test
+    public void successfulLoginThenFailedLoginResultsInSessionLosingToken() throws Exception {
         String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
@@ -368,8 +359,8 @@ public class DigestProcessingFilterTests {
         assertEquals(401, response.getStatus());
     }
 
-    public void testWrongCnonceBasedOnDigestReturnsForbidden()
-            throws Exception {
+    @Test
+    public void wrongCnonceBasedOnDigestReturnsForbidden() throws Exception {
         String cnonce = "NOT_SAME_AS_USED_FOR_DIGEST_COMPUTATION";
 
         String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
@@ -384,7 +375,8 @@ public class DigestProcessingFilterTests {
         assertEquals(401, response.getStatus());
     }
 
-    public void testWrongDigestReturnsForbidden() throws Exception {
+    @Test
+    public void wrongDigestReturnsForbidden() throws Exception {
         String password = "WRONG_PASSWORD";
         String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, password, "GET",
                 REQUEST_URI, QOP, NONCE, NC, CNONCE);
@@ -398,7 +390,8 @@ public class DigestProcessingFilterTests {
         assertEquals(401, response.getStatus());
     }
 
-    public void testWrongRealmReturnsForbidden() throws Exception {
+    @Test
+    public void wrongRealmReturnsForbidden() throws Exception {
         String realm = "WRONG_REALM";
         String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, realm, PASSWORD, "GET",
                 REQUEST_URI, QOP, NONCE, NC, CNONCE);
@@ -412,7 +405,8 @@ public class DigestProcessingFilterTests {
         assertEquals(401, response.getStatus());
     }
 
-    public void testWrongUsernameReturnsForbidden() throws Exception {
+    @Test
+    public void wrongUsernameReturnsForbidden() throws Exception {
         String responseDigest = DigestProcessingFilter.generateDigest(false, "NOT_A_KNOWN_USER", REALM, PASSWORD,
                 "GET", REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
