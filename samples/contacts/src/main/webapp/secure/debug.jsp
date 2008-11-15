@@ -1,28 +1,40 @@
 <%@ page import="org.springframework.security.context.SecurityContextHolder" %>
 <%@ page import="org.springframework.security.Authentication" %>
 <%@ page import="org.springframework.security.GrantedAuthority" %>
-<%@ page import="org.springframework.security.adapters.AuthByAdapter" %>
+
+<html>
+<head>
+<title>Security Debug Information</title>
+</head>
+<body>
+
+<h3>Security Debug Information</h3>
 
 <%
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth != null) { %>
-			Authentication object is of type: <%= auth.getClass().getName() %><BR><BR>
-			Authentication object as a String: <%= auth.toString() %><BR><BR>
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) { %>
+<p>
+            Authentication object is of type: <em><%= auth.getClass().getName() %></em>
+</p>
+<p>
+            Authentication object as a String: <br/><br/><%= auth.toString() %>
+</p>
 
-			Authentication object holds the following granted authorities:<BR><BR>
-<%			GrantedAuthority[] granted = auth.getAuthorities();
-			for (int i = 0; i < granted.length; i++) { %>
-				<%= granted[i].toString() %> (getAuthority(): <%= granted[i].getAuthority() %>)<BR>
+            Authentication object holds the following granted authorities:<br /><br />
+<%
+            for (GrantedAuthority authority : auth.getAuthorities()) { %>
+                <%= authority %> (<em>getAuthority()</em>: <%= authority.getAuthority() %>)<br />
 <%			}
+%>
 
-			if (auth instanceof AuthByAdapter) { %>
-				<BR><B>SUCCESS! Your container adapter appears to be properly configured!</B><BR><BR>
-<%			} else { %>
-				<BR><B>SUCCESS! Your web filters appear to be properly configured!</B><BR>
-<%			}
-
-		} else { %>
-			Authentication object is null.<BR>
-			This is an error and your Acegi Security application will not operate properly until corrected.<BR><BR>
+                <p><b>Success! Your web filters appear to be properly configured!</b></p>
+<%
+        } else {
+%>
+            Authentication object is null.<br />
+            This is an error and your Spring Security application will not operate properly until corrected.<br /><br />
 <%		}
 %>
+
+</body>
+</html>

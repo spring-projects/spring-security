@@ -47,7 +47,7 @@
        <b:property name="targetUrl" value="/secure/index.htm"/>
     </b:bean>
 
-    <b:bean id="expressionhandler" class="org.springframework.security.expression.support.DefaultSecurityExpressionHandler">
+    <b:bean id="expressionHandler" class="org.springframework.security.expression.support.DefaultSecurityExpressionHandler">
         <b:property name="permissionEvaluator" ref="permissionEvaluator" />
     </b:bean>
 
