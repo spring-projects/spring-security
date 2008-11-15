@@ -1,204 +1,177 @@
 package org.springframework.security.acls.objectidentity;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
+import org.junit.Test;
 import org.springframework.security.acls.IdentityUnavailableException;
 
 /**
  * Tests for {@link ObjectIdentityImpl}.
- * 
+ *
  * @author Andrei Stefan
  */
-public class ObjectIdentityTests extends TestCase {
-	
-	//~ Methods ========================================================================================================
+public class ObjectIdentityTests {
 
-	public void testConstructorsRequiredFields() throws Exception {
-		// Check one-argument constructor required field
-		try {
-			ObjectIdentity obj = new ObjectIdentityImpl(null);
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+    private static final String DOMAIN_CLASS =
+        "org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject";
 
-		// Check String-Serializable constructor required field
-		try {
-			ObjectIdentity obj = new ObjectIdentityImpl("", new Long(1));
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+    //~ Methods ========================================================================================================
 
-		// Check Serializable parameter is not null
-		try {
-			ObjectIdentity obj = new ObjectIdentityImpl(
-					"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", null);
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+    @Test
+    public void constructorsRespectRequiredFields() throws Exception {
+        // Check one-argument constructor required field
+        try {
+            new ObjectIdentityImpl(null);
+            fail("It should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+        }
 
-		// The correct way of using String-Serializable constructor
-		try {
-			ObjectIdentity obj = new ObjectIdentityImpl(
-					"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject",
-					new Long(1));
-			Assert.assertTrue(true);
-		}
-		catch (IllegalArgumentException notExpected) {
-			Assert.fail("It shouldn't have thrown IllegalArgumentException");
-		}
+        // Check String-Serializable constructor required field
+        try {
+            new ObjectIdentityImpl("", new Long(1));
+            fail("It should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+        }
 
-		// Check the Class-Serializable constructor
-		try {
-			ObjectIdentity obj = new ObjectIdentityImpl(MockIdDomainObject.class, null);
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
-	}
+        // Check Serializable parameter is not null
+        try {
+            new ObjectIdentityImpl(DOMAIN_CLASS, null);
+            fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+        }
 
-	public void testGetIdMethodConstraints() throws Exception {
-		// Check the getId() method is present
-		try {
-			ObjectIdentity obj = new ObjectIdentityImpl("A_STRING_OBJECT");
-			Assert.fail("It should have thrown IdentityUnavailableException");
-		}
-		catch (IdentityUnavailableException expected) {
-			Assert.assertTrue(true);
-		}
+        // The correct way of using String-Serializable constructor
+        try {
+            new ObjectIdentityImpl(DOMAIN_CLASS, new Long(1));
+        }
+        catch (IllegalArgumentException notExpected) {
+            fail("It shouldn't have thrown IllegalArgumentException");
+        }
 
-		// getId() should return a non-null value
-		MockIdDomainObject mockId = new MockIdDomainObject();
-		try {
-			ObjectIdentity obj = new ObjectIdentityImpl(mockId);
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+        // Check the Class-Serializable constructor
+        try {
+            new ObjectIdentityImpl(MockIdDomainObject.class, null);
+            fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
 
-		// getId() should return a Serializable object
-		mockId.setId(new MockIdDomainObject());
-		try {
-			ObjectIdentity obj = new ObjectIdentityImpl(mockId);
-			Assert.fail("It should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
-		}
+        }
+    }
 
-		// getId() should return a Serializable object
-		mockId.setId(new Long(100));
-		try {
-			ObjectIdentity obj = new ObjectIdentityImpl(mockId);
-			Assert.assertTrue(true);
-		}
-		catch (IllegalArgumentException expected) {
-			Assert.fail("It shouldn't have thrown IllegalArgumentException");
-		}
-	}
+    @Test
+    public void testGetIdMethodConstraints() throws Exception {
+        // Check the getId() method is present
+        try {
+            new ObjectIdentityImpl("A_STRING_OBJECT");
+            fail("It should have thrown IdentityUnavailableException");
+        }
+        catch (IdentityUnavailableException expected) {
 
-	public void testConstructorInvalidClassParameter() throws Exception {
-		try {
-			ObjectIdentity obj = new ObjectIdentityImpl("not.a.Class", new Long(1));
-		}
-		catch (IllegalStateException expected) {
-			return;
-		}
-		Assert.fail("It should have thrown IllegalStateException");
-	}
+        }
 
-	public void testEquals() throws Exception {
-		ObjectIdentity obj = new ObjectIdentityImpl(
-				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(1));
-		MockIdDomainObject mockObj = new MockIdDomainObject();
-		mockObj.setId(new Long(1));
+        // getId() should return a non-null value
+        MockIdDomainObject mockId = new MockIdDomainObject();
+        try {
+            new ObjectIdentityImpl(mockId);
+            fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
 
-		String string = "SOME_STRING";
-		Assert.assertNotSame(obj, string);
-		Assert.assertTrue(!obj.equals(null));
-		Assert.assertTrue(!obj.equals("DIFFERENT_OBJECT_TYPE"));
-		Assert.assertTrue(!obj
-				.equals(new ObjectIdentityImpl(
-						"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject",
-						new Long(2))));
-		Assert.assertTrue(!obj.equals(new ObjectIdentityImpl(
-				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockOtherIdDomainObject",
-				new Long(1))));
-		Assert.assertEquals(
-				new ObjectIdentityImpl(
-						"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject",
-						new Long(1)), obj);
-		Assert.assertTrue(new ObjectIdentityImpl(
-				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(1))
-				.equals(obj));
-		Assert.assertTrue(new ObjectIdentityImpl(
-				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(1))
-				.equals(new ObjectIdentityImpl(mockObj)));
-	}
+        }
 
-	public void testHashCode() throws Exception {
-		ObjectIdentity obj = new ObjectIdentityImpl(
-				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(1));
-		Assert.assertEquals(new ObjectIdentityImpl(
-				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(1))
-				.hashCode(), obj.hashCode());
-		Assert.assertTrue(new ObjectIdentityImpl(
-				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockOtherIdDomainObject",
-				new Long(1)).hashCode() != obj.hashCode());
-		Assert.assertTrue(new ObjectIdentityImpl(
-				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(2))
-				.hashCode() != obj.hashCode());
-	}
-    
+        // getId() should return a Serializable object
+        mockId.setId(new MockIdDomainObject());
+        try {
+            new ObjectIdentityImpl(mockId);
+            fail("It should have thrown IllegalArgumentException");
+        }
+        catch (IllegalArgumentException expected) {
+        }
+
+        // getId() should return a Serializable object
+        mockId.setId(new Long(100));
+        try {
+            new ObjectIdentityImpl(mockId);
+        }
+        catch (IllegalArgumentException expected) {
+        }
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testConstructorInvalidClassParameter() throws Exception {
+        new ObjectIdentityImpl("not.a.Class", new Long(1));
+    }
+
+    @Test
+    public void testEquals() throws Exception {
+        ObjectIdentity obj = new ObjectIdentityImpl(DOMAIN_CLASS, new Long(1));
+        MockIdDomainObject mockObj = new MockIdDomainObject();
+        mockObj.setId(new Long(1));
+
+        String string = "SOME_STRING";
+        assertNotSame(obj, string);
+        assertFalse(obj.equals(null));
+        assertFalse(obj.equals("DIFFERENT_OBJECT_TYPE"));
+        assertFalse(obj.equals(new ObjectIdentityImpl(DOMAIN_CLASS,new Long(2))));
+        assertFalse(obj.equals(new ObjectIdentityImpl(
+                "org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockOtherIdDomainObject",
+                new Long(1))));
+        assertEquals(new ObjectIdentityImpl(DOMAIN_CLASS,new Long(1)), obj);
+        assertEquals(obj, new ObjectIdentityImpl(mockObj));
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+        ObjectIdentity obj = new ObjectIdentityImpl(DOMAIN_CLASS, new Long(1));
+        assertEquals(new ObjectIdentityImpl(DOMAIN_CLASS, new Long(1)).hashCode(), obj.hashCode());
+        assertTrue(new ObjectIdentityImpl(
+                "org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockOtherIdDomainObject",
+                new Long(1)).hashCode() != obj.hashCode());
+        assertTrue(new ObjectIdentityImpl(DOMAIN_CLASS, new Long(2)).hashCode() != obj.hashCode());
+    }
+
 /*    public void testHashCodeDifferentSerializableTypes() throws Exception {
         ObjectIdentity obj = new ObjectIdentityImpl(
-                "org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(1));
-        Assert.assertEquals(new ObjectIdentityImpl(
-                "org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", "1")
+                DOMAIN_CLASS, new Long(1));
+        assertEquals(new ObjectIdentityImpl(
+                DOMAIN_CLASS, "1")
                 .hashCode(), obj.hashCode());
-        Assert.assertEquals(new ObjectIdentityImpl(
-                "org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject",
+        assertEquals(new ObjectIdentityImpl(
+                DOMAIN_CLASS,
                 new Integer(1)).hashCode(), obj.hashCode());
     }*/
-	
-	public void testGetters() throws Exception {
-		ObjectIdentity obj = new ObjectIdentityImpl(
-				"org.springframework.security.acls.objectidentity.ObjectIdentityTests$MockIdDomainObject", new Long(1));
-		Assert.assertEquals(new Long(1), obj.getIdentifier());
-		Assert.assertEquals(MockIdDomainObject.class, obj.getJavaType());
-	}
 
-	//~ Inner Classes ==================================================================================================
-	
-	private class MockIdDomainObject {
-		private Object id;
+    @Test
+    public void testGetters() throws Exception {
+        ObjectIdentity obj = new ObjectIdentityImpl(DOMAIN_CLASS, new Long(1));
+        assertEquals(new Long(1), obj.getIdentifier());
+        assertEquals(MockIdDomainObject.class, obj.getJavaType());
+    }
 
-		public Object getId() {
-			return id;
-		}
+    //~ Inner Classes ==================================================================================================
 
-		public void setId(Object id) {
-			this.id = id;
-		}
-	}
+    private class MockIdDomainObject {
+        private Object id;
 
-	private class MockOtherIdDomainObject {
-		private Object id;
+        public Object getId() {
+            return id;
+        }
 
-		public Object getId() {
-			return id;
-		}
+        public void setId(Object id) {
+            this.id = id;
+        }
+    }
 
-		public void setId(Object id) {
-			this.id = id;
-		}
-	}
+    private class MockOtherIdDomainObject {
+        private Object id;
+
+        public Object getId() {
+            return id;
+        }
+
+        public void setId(Object id) {
+            this.id = id;
+        }
+    }
 }
