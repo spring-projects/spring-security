@@ -217,8 +217,8 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
 
         if (className != null) {
             try {
-                Class clazz = getClass().getClassLoader().loadClass(className);
-                Constructor constructor = clazz.getConstructor(new Class[] {
+                Class<?> clazz = getClass().getClassLoader().loadClass(className);
+                Constructor<?> constructor = clazz.getConstructor(new Class[] {
                             Authentication.class, AuthenticationException.class
                         });
                 Object obj = constructor.newInstance(new Object[] {authentication, exception});

@@ -15,27 +15,23 @@
 
 package org.springframework.security.securechannel;
 
-import junit.framework.TestCase;
-
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.SecurityConfig;
-
-import org.springframework.security.intercept.web.FilterInvocation;
-import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
 import java.io.IOException;
-
 import java.util.Collection;
 import java.util.List;
-import java.util.Vector;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import junit.framework.TestCase;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.SecurityConfig;
+import org.springframework.security.intercept.web.FilterInvocation;
+import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
 
 
 /**
@@ -266,18 +262,15 @@ public class ChannelProcessingFilterTests extends TestCase {
             }
         }
 
-        public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
+        public Collection<ConfigAttribute> getAllConfigAttributes() {
             if (!provideIterator) {
                 return null;
             }
 
-            List list = new Vector();
-            list.add(toReturn);
-
-            return list;
+            return toReturn;
         }
 
-        public boolean supports(Class clazz) {
+        public boolean supports(Class<?> clazz) {
             return true;
         }
     }

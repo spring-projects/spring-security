@@ -147,14 +147,8 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
 
         MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
         Iterator iter = map.getAllConfigAttributes().iterator();
-        int counter = 0;
 
-        while (iter.hasNext()) {
-            iter.next();
-            counter++;
-        }
-
-        assertEquals(3, counter);
+        assertEquals(5, map.getAllConfigAttributes().size());
     }
 
     public void testMultiMethodParsing() {

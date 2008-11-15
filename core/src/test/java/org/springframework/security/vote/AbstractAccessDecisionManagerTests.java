@@ -152,7 +152,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
     }
 
     private class MockStringOnlyVoter implements AccessDecisionVoter {
-        public boolean supports(Class<? extends Object> clazz) {
+        public boolean supports(Class<?> clazz) {
             if (String.class.isAssignableFrom(clazz)) {
                 return true;
             } else {

@@ -33,13 +33,13 @@ import org.springframework.util.Assert;
 public abstract class AbstractAclVoter implements AccessDecisionVoter {
     //~ Instance fields ================================================================================================
 
-    private Class processDomainObjectClass;
+    private Class<?> processDomainObjectClass;
 
     //~ Methods ========================================================================================================
 
     protected Object getDomainObjectInstance(Object secureObject) {
         Object[] args;
-        Class[] params;
+        Class<?>[] params;
 
         if (secureObject instanceof MethodInvocation) {
             MethodInvocation invocation = (MethodInvocation) secureObject;
@@ -61,11 +61,11 @@ public abstract class AbstractAclVoter implements AccessDecisionVoter {
             + " did not provide any argument of type: " + processDomainObjectClass);
     }
 
-    public Class getProcessDomainObjectClass() {
+    public Class<?> getProcessDomainObjectClass() {
         return processDomainObjectClass;
     }
 
-    public void setProcessDomainObjectClass(Class processDomainObjectClass) {
+    public void setProcessDomainObjectClass(Class<?> processDomainObjectClass) {
         Assert.notNull(processDomainObjectClass, "processDomainObjectClass cannot be set to null");
         this.processDomainObjectClass = processDomainObjectClass;
     }
@@ -78,7 +78,7 @@ public abstract class AbstractAclVoter implements AccessDecisionVoter {
      *
      * @return <code>true</code> if the secure object is <code>MethodInvocation</code>, <code>false</code> otherwise
      */
-    public boolean supports(Class<? extends Object> clazz) {
+    public boolean supports(Class<?> clazz) {
         if (MethodInvocation.class.isAssignableFrom(clazz)) {
             return true;
         } else if (JoinPoint.class.isAssignableFrom(clazz)) {

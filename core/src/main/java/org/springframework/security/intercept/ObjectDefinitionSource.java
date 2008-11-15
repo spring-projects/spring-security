@@ -53,7 +53,7 @@ public interface ObjectDefinitionSource {
      *
      * @return the <code>ConfigAttribute</code>s or <code>null</code> if unsupported
      */
-    Collection<List<? extends ConfigAttribute>> getAllConfigAttributes();
+    Collection<ConfigAttribute> getAllConfigAttributes();
 
     /**
      * Indicates whether the <code>ObjectDefinitionSource</code> implementation is able to provide
@@ -63,5 +63,5 @@ public interface ObjectDefinitionSource {
      *
      * @return true if the implementation can process the indicated class
      */
-    boolean supports(Class clazz);
+    boolean supports(Class<?> clazz);
 }

@@ -16,6 +16,7 @@
 package org.springframework.security.intercept.method;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
@@ -34,35 +35,29 @@ import org.springframework.security.SecurityConfig;
 public class MockMethodDefinitionSource implements MethodDefinitionSource {
     //~ Instance fields ================================================================================================
 
-    private List list;
+    private List<ConfigAttribute> list;
     private boolean returnACollection;
 
     //~ Constructors ===================================================================================================
 
     public MockMethodDefinitionSource(boolean includeInvalidAttributes, boolean returnACollectionWhenRequested) {
         returnACollection = returnACollectionWhenRequested;
-        list = new Vector();
-
-        List<? extends ConfigAttribute> def1 = SecurityConfig.createList("MOCK_LOWER");
-        list.add(def1);
+        list = new ArrayList<ConfigAttribute>();
 
         if (includeInvalidAttributes) {
-            List<? extends ConfigAttribute> def2 = SecurityConfig.createList("MOCK_LOWER","INVALID_ATTRIBUTE");
-            list.add(def2);
+            list.addAll(SecurityConfig.createList("MOCK_LOWER","INVALID_ATTRIBUTE"));
         }
 
-        List<? extends ConfigAttribute> def3 = SecurityConfig.createList("MOCK_UPPER", "RUN_AS_");
-        list.add(def3);
+        list.addAll(SecurityConfig.createList("MOCK_LOWER", "MOCK_UPPER", "RUN_AS_"));
 
         if (includeInvalidAttributes) {
-            List<? extends ConfigAttribute> def4 = SecurityConfig.createList("MOCK_SOMETHING", "ANOTHER_INVALID");
-            list.add(def4);
+            list.addAll(SecurityConfig.createList("MOCK_SOMETHING", "ANOTHER_INVALID"));
         }
     }
 
     //~ Methods ========================================================================================================
 
-    public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
+    public Collection<ConfigAttribute> getAllConfigAttributes() {
         if (returnACollection) {
             return list;
         } else {
@@ -74,11 +69,11 @@ public class MockMethodDefinitionSource implements MethodDefinitionSource {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
-    public List<ConfigAttribute> getAttributes(Method method, Class targetClass) {
+    public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         return (MethodInvocation.class.isAssignableFrom(clazz) || JoinPoint.class.isAssignableFrom(clazz));
     }
 

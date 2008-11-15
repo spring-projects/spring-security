@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+@SuppressWarnings("unchecked")
 public class MockMethodInvocation implements MethodInvocation {
     private Method method;
     private Object targetObject;

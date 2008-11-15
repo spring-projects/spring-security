@@ -15,18 +15,15 @@
 
 package org.springframework.security.userdetails.ldap;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.util.AuthorityUtils;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.util.Assert;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.Name;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.util.AuthorityUtils;
+import org.springframework.util.Assert;
 
 
 /**
@@ -128,7 +125,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
      */
     public static class Essence {
         protected LdapUserDetailsImpl instance = createTarget();
-        private List mutableAuthorities = new ArrayList();
+        private List<GrantedAuthority> mutableAuthorities = new ArrayList<GrantedAuthority>();
 
         public Essence() { }
 
@@ -159,10 +156,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
         }
 
         private boolean hasAuthority(GrantedAuthority a) {
-            Iterator authorities = mutableAuthorities.iterator();
-
-            while(authorities.hasNext()) {
-                GrantedAuthority authority = (GrantedAuthority) authorities.next();
+            for (GrantedAuthority authority : mutableAuthorities) {
                 if(authority.equals(a)) {
                     return true;
                 }

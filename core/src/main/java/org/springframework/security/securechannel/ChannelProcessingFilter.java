@@ -59,7 +59,7 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
         Assert.notNull(filterInvocationDefinitionSource, "filterInvocationDefinitionSource must be specified");
         Assert.notNull(channelDecisionManager, "channelDecisionManager must be specified");
 
-        Collection<List<? extends ConfigAttribute>> attrDefs = this.filterInvocationDefinitionSource.getAllConfigAttributes();
+        Collection<ConfigAttribute> attrDefs = this.filterInvocationDefinitionSource.getAllConfigAttributes();
 
         if (attrDefs == null) {
             if (logger.isWarnEnabled()) {
@@ -70,22 +70,20 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
             return;
         }
 
-        Set set = new HashSet();
+        Set<ConfigAttribute> unsupportedAttributes = new HashSet<ConfigAttribute>();
 
-        for (List<? extends ConfigAttribute> def : attrDefs) {
-            for (ConfigAttribute attr : def) {
-                if (!this.channelDecisionManager.supports(attr)) {
-                    set.add(attr);
-                }
+        for (ConfigAttribute attr : attrDefs) {
+            if (!this.channelDecisionManager.supports(attr)) {
+                unsupportedAttributes.add(attr);
             }
         }
 
-        if (set.size() == 0) {
+        if (unsupportedAttributes.size() == 0) {
             if (logger.isInfoEnabled()) {
                 logger.info("Validated configuration attributes");
             }
         } else {
-            throw new IllegalArgumentException("Unsupported configuration attributes: " + set.toString());
+            throw new IllegalArgumentException("Unsupported configuration attributes: " + unsupportedAttributes);
         }
     }
 

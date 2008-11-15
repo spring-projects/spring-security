@@ -27,7 +27,7 @@ import org.springframework.util.ClassUtils;
  */
 public abstract class AbstractFallbackMethodDefinitionSource extends AbstractMethodDefinitionSource {
 
-    public List<ConfigAttribute> getAttributes(Method method, Class targetClass) {
+    public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
         // The method may be on an interface, but we need attributes from the target class.
         // If the target class is null, the method will be unchanged.
         Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
@@ -68,7 +68,7 @@ public abstract class AbstractFallbackMethodDefinitionSource extends AbstractMet
      * @param targetClass the target class for the invocation (may be <code>null</code>)
      * @return the security metadata (or null if no metadata applies)
      */
-    protected abstract List<ConfigAttribute> findAttributes(Method method, Class targetClass);
+    protected abstract List<ConfigAttribute> findAttributes(Method method, Class<?> targetClass);
 
     /**
      * Obtains the security metadata registered against the specified class.
@@ -82,7 +82,7 @@ public abstract class AbstractFallbackMethodDefinitionSource extends AbstractMet
      * @param clazz the target class for the invocation (never <code>null</code>)
      * @return the security metadata (or null if no metadata applies)
      */
-    protected abstract List<ConfigAttribute> findAttributes(Class clazz);
+    protected abstract List<ConfigAttribute> findAttributes(Class<?> clazz);
 
 
 }

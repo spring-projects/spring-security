@@ -35,7 +35,7 @@ public class MethodExpressionVoter implements AccessDecisionVoter {
         return attribute instanceof AbstractExpressionBasedMethodConfigAttribute;
     }
 
-    public boolean supports(Class<? extends Object> clazz) {
+    public boolean supports(Class<?> clazz) {
         return clazz.isAssignableFrom(MethodInvocation.class);
     }
 

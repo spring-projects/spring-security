@@ -63,7 +63,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
     }
 
     public Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> config) {
-        List<GrantedAuthority> newAuthorities = new ArrayList();
+        List<GrantedAuthority> newAuthorities = new ArrayList<GrantedAuthority>();
 
         for(ConfigAttribute attribute : config) {
             if (this.supports(attribute)) {
@@ -123,7 +123,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
      *
      * @return alwaus <code>true</code>
      */
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         return true;
     }
 }

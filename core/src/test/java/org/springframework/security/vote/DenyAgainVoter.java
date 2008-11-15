@@ -47,7 +47,7 @@ public class DenyAgainVoter implements AccessDecisionVoter {
         }
     }
 
-    public boolean supports(Class<? extends Object> clazz) {
+    public boolean supports(Class<?> clazz) {
         return true;
     }
 

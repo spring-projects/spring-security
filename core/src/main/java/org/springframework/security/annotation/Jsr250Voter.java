@@ -32,7 +32,7 @@ public class Jsr250Voter implements AccessDecisionVoter {
      * @param clazz the class.
      * @return true
      */
-    public boolean supports(Class<? extends Object> clazz) {
+    public boolean supports(Class<?> clazz) {
         return true;
     }
 

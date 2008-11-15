@@ -5,10 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import junit.framework.TestCase;
 
 /**
- * Testcases for {@link ThrowableAnalyzer}.
+ * Test cases for {@link ThrowableAnalyzer}.
  *
  * @author Andreas Senft
  */
+@SuppressWarnings("unchecked")
 public class ThrowableAnalyzerTests extends TestCase {
 
     /**
@@ -99,27 +100,6 @@ public class ThrowableAnalyzerTests extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-    }
-
-
-    public void testRegisterExtractorWithInvalidClass() {
-        try {
-            new ThrowableAnalyzer() {
-
-                /**
-                 * @see org.springframework.security.util.ThrowableAnalyzer#initExtractorMap()
-                 */
-                @Override
-                protected void initExtractorMap() {
-                    // Object is no subclass of Throwable
-                    super.registerExtractor(Object.class, DEFAULT_EXTRACTOR);
-                }
-            };
-
-            fail("IllegalArgumentExpected");
-        } catch (IllegalArgumentException e) {
-            // ok
-        }
     }
 
     public void testRegisterExtractorWithInvalidExtractor() {

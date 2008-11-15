@@ -30,5 +30,5 @@ import org.springframework.security.intercept.ObjectDefinitionSource;
  * @version $Id$
  */
 public interface MethodDefinitionSource extends ObjectDefinitionSource {
-    public List<ConfigAttribute> getAttributes(Method method, Class targetClass);
+    public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass);
 }

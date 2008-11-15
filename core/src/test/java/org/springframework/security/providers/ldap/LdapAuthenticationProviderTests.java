@@ -108,7 +108,7 @@ public class LdapAuthenticationProviderTests extends TestCase {
         assertEquals("ben", user.getUsername());
         assertEquals("ben", populator.getRequestedUsername());
 
-        ArrayList authorities = new ArrayList();
+        ArrayList<String> authorities = new ArrayList<String>();
         authorities.add(user.getAuthorities().get(0).getAuthority());
         authorities.add(user.getAuthorities().get(1).getAuthority());
 

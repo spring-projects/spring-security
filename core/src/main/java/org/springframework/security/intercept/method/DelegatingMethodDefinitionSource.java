@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +26,8 @@ public final class DelegatingMethodDefinitionSource extends AbstractMethodDefini
     private final static List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = Collections.emptyList();
 
     private List<MethodDefinitionSource> methodDefinitionSources;
-    private final Map<DefaultCacheKey, List<ConfigAttribute>> attributeCache = new HashMap();
+    private final Map<DefaultCacheKey, List<ConfigAttribute>> attributeCache =
+        new HashMap<DefaultCacheKey, List<ConfigAttribute>>();
 
     //~ Methods ========================================================================================================
 
@@ -35,7 +35,7 @@ public final class DelegatingMethodDefinitionSource extends AbstractMethodDefini
         Assert.notEmpty(methodDefinitionSources, "A list of MethodDefinitionSources is required");
     }
 
-    public List<ConfigAttribute> getAttributes(Method method, Class targetClass) {
+    public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
         DefaultCacheKey cacheKey = new DefaultCacheKey(method, targetClass);
         synchronized (attributeCache) {
             List<ConfigAttribute> cached = attributeCache.get(cacheKey);
@@ -73,12 +73,10 @@ public final class DelegatingMethodDefinitionSource extends AbstractMethodDefini
         }
     }
 
-    public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
-        Set set = new HashSet();
-        Iterator i = methodDefinitionSources.iterator();
-        while (i.hasNext()) {
-            MethodDefinitionSource s = (MethodDefinitionSource) i.next();
-            Collection<List<? extends ConfigAttribute>> attrs = s.getAllConfigAttributes();
+    public Collection<ConfigAttribute> getAllConfigAttributes() {
+        Set<ConfigAttribute> set = new HashSet<ConfigAttribute>();
+        for (MethodDefinitionSource s : methodDefinitionSources) {
+            Collection<ConfigAttribute> attrs = s.getAllConfigAttributes();
             if (attrs != null) {
                 set.addAll(attrs);
             }
@@ -86,6 +84,7 @@ public final class DelegatingMethodDefinitionSource extends AbstractMethodDefini
         return set;
     }
 
+    @SuppressWarnings("unchecked")
     public void setMethodDefinitionSources(List methodDefinitionSources) {
         Assert.notEmpty(methodDefinitionSources, "A list of MethodDefinitionSources is required");
         this.methodDefinitionSources = methodDefinitionSources;

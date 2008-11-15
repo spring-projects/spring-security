@@ -38,7 +38,7 @@ import java.lang.reflect.Method;
 public class ObjectIdentityImpl implements ObjectIdentity {
     //~ Instance fields ================================================================================================
 
-    private Class javaType;
+    private Class<?> javaType;
     private Serializable identifier;
 
     //~ Constructors ===================================================================================================
@@ -56,7 +56,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
         this.identifier = identifier;
     }
 
-    public ObjectIdentityImpl(Class javaType, Serializable identifier) {
+    public ObjectIdentityImpl(Class<?> javaType, Serializable identifier) {
         Assert.notNull(javaType, "Java Type required");
         Assert.notNull(identifier, "identifier required");
         this.javaType = javaType;
@@ -131,7 +131,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
         return identifier;
     }
 
-    public Class getJavaType() {
+    public Class<?> getJavaType() {
         return javaType;
     }
 

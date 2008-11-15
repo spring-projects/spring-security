@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
+import org.springframework.security.expression.ExpressionUtils;
 import org.springframework.security.expression.SecurityExpressionHandler;
 import org.springframework.security.expression.support.DefaultSecurityExpressionHandler;
 import org.springframework.security.intercept.web.FilterInvocation;
@@ -14,7 +15,7 @@ import org.springframework.security.vote.AccessDecisionVoter;
  * Voter which handles web authorisation decisions.
  * @author Luke Taylor
  * @version $Id$
- * @since
+ * @since 2.5
  */
 public class WebExpressionVoter implements AccessDecisionVoter {
     private SecurityExpressionHandler expressionHandler = new DefaultSecurityExpressionHandler();
@@ -29,9 +30,8 @@ public class WebExpressionVoter implements AccessDecisionVoter {
         FilterInvocation fi = (FilterInvocation)object;
         EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, fi);
 
-        weca.getAuthorizeExpression();
-
-        return 0;
+        return ExpressionUtils.evaluateAsBoolean(weca.getAuthorizeExpression(), ctx) ?
+                ACCESS_GRANTED : ACCESS_DENIED;
     }
 
     private WebExpressionConfigAttribute findConfigAttribute(List<ConfigAttribute> attributes) {
@@ -47,7 +47,7 @@ public class WebExpressionVoter implements AccessDecisionVoter {
         return attribute instanceof WebExpressionConfigAttribute;
     }
 
-    public boolean supports(Class<? extends Object> clazz) {
+    public boolean supports(Class<?> clazz) {
         return clazz.isAssignableFrom(FilterInvocation.class);
     }
 

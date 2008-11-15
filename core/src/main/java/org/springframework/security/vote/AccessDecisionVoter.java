@@ -63,7 +63,7 @@ public interface AccessDecisionVoter {
      *
      * @return true if the implementation can process the indicated class
      */
-    boolean supports(Class<? extends Object> clazz);
+    boolean supports(Class<?> clazz);
 
     /**
      * Indicates whether or not access is granted.

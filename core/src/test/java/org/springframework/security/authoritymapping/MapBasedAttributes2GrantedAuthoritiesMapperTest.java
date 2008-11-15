@@ -18,6 +18,7 @@ import org.springframework.security.GrantedAuthorityImpl;
  *
  * @author Ruud Senden
  */
+@SuppressWarnings("unchecked")
 public class MapBasedAttributes2GrantedAuthoritiesMapperTest {
 
     protected void setUp() throws Exception {

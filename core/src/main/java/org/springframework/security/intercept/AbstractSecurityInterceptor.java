@@ -136,7 +136,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
         }
 
         if (this.validateConfigAttributes) {
-            Collection<List<? extends ConfigAttribute>> attributeDefs = this.obtainObjectDefinitionSource().getAllConfigAttributes();
+            Collection<ConfigAttribute> attributeDefs = this.obtainObjectDefinitionSource().getAllConfigAttributes();
 
             if (attributeDefs == null) {
                 logger.warn("Could not validate configuration attributes as the ObjectDefinitionSource did not return "
@@ -144,14 +144,12 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
                 return;
             }
 
-            Set unsupportedAttrs = new HashSet();
+            Set<ConfigAttribute> unsupportedAttrs = new HashSet<ConfigAttribute>();
 
-            for (List<? extends ConfigAttribute> def : attributeDefs) {
-                for (ConfigAttribute attr : def) {
-                    if (!this.runAsManager.supports(attr) && !this.accessDecisionManager.supports(attr)
-                            && ((this.afterInvocationManager == null) || !this.afterInvocationManager.supports(attr))) {
-                        unsupportedAttrs.add(attr);
-                    }
+            for (ConfigAttribute attr : attributeDefs) {
+                if (!this.runAsManager.supports(attr) && !this.accessDecisionManager.supports(attr)
+                        && ((this.afterInvocationManager == null) || !this.afterInvocationManager.supports(attr))) {
+                    unsupportedAttrs.add(attr);
                 }
             }
 

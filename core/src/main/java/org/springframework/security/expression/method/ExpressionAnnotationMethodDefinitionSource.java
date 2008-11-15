@@ -40,7 +40,7 @@ import org.springframework.util.ClassUtils;
 public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDefinitionSource {
     private ExpressionParser parser = new SpelExpressionParser();
 
-    public List<ConfigAttribute> getAttributes(Method method, Class targetClass) {
+    public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
         if (method.getDeclaringClass() == Object.class) {
             return null;
         }
@@ -109,7 +109,7 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDe
         return null;
     }
 
-    public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
+    public Collection<ConfigAttribute> getAllConfigAttributes() {
         return null;
     }
 

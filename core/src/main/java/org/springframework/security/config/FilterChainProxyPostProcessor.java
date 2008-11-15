@@ -96,7 +96,7 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
     /**
      * Checks the filter list for possible errors and logs them
      */
-    private void checkFilterStack(List filters) {
+    private void checkFilterStack(List<Filter> filters) {
         checkForDuplicates(HttpSessionContextIntegrationFilter.class, filters);
         checkForDuplicates(AuthenticationProcessingFilter.class, filters);
         checkForDuplicates(SessionFixationProtectionFilter.class, filters);
@@ -106,13 +106,13 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
         checkForDuplicates(FilterSecurityInterceptor.class, filters);
     }
 
-    private void checkForDuplicates(Class clazz, List filters) {
+    private void checkForDuplicates(Class<? extends Filter> clazz, List<Filter> filters) {
         for (int i=0; i < filters.size(); i++) {
-            Filter f1 = (Filter)filters.get(i);
+            Filter f1 = filters.get(i);
             if (clazz.isAssignableFrom(f1.getClass())) {
                 // Found the first one, check remaining for another
                 for (int j=i+1; j < filters.size(); j++) {
-                    Filter f2 = (Filter)filters.get(j);
+                    Filter f2 = filters.get(j);
                     if (clazz.isAssignableFrom(f2.getClass())) {
                         logger.warn("Possible error: Filters at position " + i + " and " + j + " are both " +
                                 "instances of " + clazz.getName());
@@ -130,7 +130,7 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
         if (etf.getAuthenticationEntryPoint() instanceof AuthenticationProcessingFilterEntryPoint) {
             String loginPage =
                 ((AuthenticationProcessingFilterEntryPoint)etf.getAuthenticationEntryPoint()).getLoginFormUrl();
-            List filters = fcp.getFilters(loginPage);
+            List<Filter> filters = fcp.getFilters(loginPage);
             logger.info("Checking whether login URL '" + loginPage + "' is accessible with your configuration");
 
             if (filters == null || filters.isEmpty()) {
@@ -148,7 +148,7 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
                     ((FilterSecurityInterceptor)beanFactory.getBean(BeanIds.FILTER_SECURITY_INTERCEPTOR));
             DefaultFilterInvocationDefinitionSource fids =
                     (DefaultFilterInvocationDefinitionSource) fsi.getObjectDefinitionSource();
-            List<? extends ConfigAttribute> attributes = fids.lookupAttributes(loginPage, "POST");
+            List<ConfigAttribute> attributes = fids.lookupAttributes(loginPage, "POST");
 
             if (attributes == null) {
                 logger.debug("No access attributes defined for login page URL");

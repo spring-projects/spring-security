@@ -26,6 +26,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 import javax.servlet.*;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -103,9 +104,9 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
 
     private ApplicationContext applicationContext;
     /** Map of the original pattern Strings to filter chains */
-    private Map uncompiledFilterChainMap;
+    private Map<String, List<Filter>> uncompiledFilterChainMap;
     /** Compiled pattern version of the filter chain map */
-    private Map filterChainMap;
+    private Map<Object, List<Filter>> filterChainMap;
     private UrlMatcher matcher = new AntUrlPathMatcher();
     private boolean stripQueryStringFromUrls = true;
     private DefaultFilterInvocationDefinitionSource fids;
@@ -127,29 +128,25 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {
-        Filter[] filters = obtainAllDefinedFilters();
-
-        for (int i = 0; i < filters.length; i++) {
-            if (filters[i] != null) {
+        for (Filter filter : obtainAllDefinedFilters()) {
+            if (filter != null) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Initializing Filter defined in ApplicationContext: '" + filters[i].toString() + "'");
+                    logger.debug("Initializing Filter defined in ApplicationContext: '" + filter + "'");
                 }
 
-                filters[i].init(filterConfig);
+                filter.init(filterConfig);
             }
         }
     }
 
     public void destroy() {
-        Filter[] filters = obtainAllDefinedFilters();
-
-        for (int i = 0; i < filters.length; i++) {
-            if (filters[i] != null) {
+        for (Filter filter : obtainAllDefinedFilters()) {
+            if (filter != null) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Destroying Filter defined in ApplicationContext: '" + filters[i].toString() + "'");
+                    logger.debug("Destroying Filter defined in ApplicationContext: '" + filter + "'");
                 }
 
-                filters[i].destroy();
+                filter.destroy();
             }
         }
     }
@@ -158,7 +155,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
             throws IOException, ServletException {
 
         FilterInvocation fi = new FilterInvocation(request, response, chain);
-        List filters = getFilters(fi.getRequestUrl());
+        List<Filter> filters = getFilters(fi.getRequestUrl());
 
         if (filters == null || filters.size() == 0) {
             if (logger.isDebugEnabled()) {
@@ -181,7 +178,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
      * @param url the request URL
      * @return an ordered array of Filters defining the filter chain
      */
-    public List getFilters(String url)  {
+    public List<Filter> getFilters(String url)  {
         if (stripQueryStringFromUrls) {
             // String query string - see SEC-953
             int firstQuestionMarkIndex = url.indexOf("?");
@@ -191,11 +188,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
             }
         }
 
-
-        Iterator filterChains = filterChainMap.entrySet().iterator();
-
-        while (filterChains.hasNext()) {
-            Map.Entry entry = (Map.Entry) filterChains.next();
+        for (Map.Entry<Object, List<Filter>> entry : filterChainMap.entrySet()) {
             Object path = entry.getKey();
 
             if (matcher.requiresLowerCaseUrl()) {
@@ -213,7 +206,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
             }
 
             if (matched) {
-                return (List) entry.getValue();
+                return entry.getValue();
             }
         }
 
@@ -230,16 +223,14 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
      *         each <code>Filter</code> that actually exists in application context, even if a given
      *         <code>Filter</code> is defined multiples times in the filter chain map)
      */
-    protected Filter[] obtainAllDefinedFilters() {
-        Set allFilters = new LinkedHashSet();
+    protected Collection<Filter> obtainAllDefinedFilters() {
+        Set<Filter> allFilters = new LinkedHashSet<Filter>();
 
-        Iterator it = filterChainMap.values().iterator();
-
-        while (it.hasNext()) {
-            allFilters.addAll((List) it.next());
+        for (List<Filter> filters : filterChainMap.values()) {
+            allFilters.addAll(filters);
         }
 
-        return (Filter[]) new ArrayList(allFilters).toArray(new Filter[0]);
+        return allFilters;
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -266,12 +257,30 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
      * the Map used is an instance of <tt>LinkedHashMap</tt> or an equivalent, rather than a plain <tt>HashMap</tt>, for
      * example.
      *
-     * @param filterChainMap the map of path Strings to <tt>Filter[]</tt>s.
+     * @param filterChainMap the map of path Strings to <tt>List&lt;Filter&gt;</tt>s.
      */
+    @SuppressWarnings("unchecked")
     public void setFilterChainMap(Map filterChainMap) {
-        uncompiledFilterChainMap = new LinkedHashMap(filterChainMap);
+        checkContents(filterChainMap);
+        uncompiledFilterChainMap = new LinkedHashMap<String, List<Filter>>(filterChainMap);
         checkPathOrder();
         createCompiledMap();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void checkContents(Map filterChainMap) {
+        for (Object key : filterChainMap.keySet()) {
+            Assert.isInstanceOf(String.class, key, "Path key must be a String but found " + key);
+            Object filters = filterChainMap.get(key);
+            Assert.isInstanceOf(List.class, filters, "Value must be a filter list");
+            // Check the contents
+            Iterator filterIterator = ((List)filters).iterator();
+
+            while (filterIterator.hasNext()) {
+                Object filter = filterIterator.next();
+                Assert.isInstanceOf(Filter.class, filter, "Objects in filter chain must be of type Filter. ");
+            }
+        }
     }
 
     private void checkPathOrder() {
@@ -289,37 +298,21 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
     }
 
     private void createCompiledMap() {
-        Iterator paths = uncompiledFilterChainMap.keySet().iterator();
-        filterChainMap = new LinkedHashMap(uncompiledFilterChainMap.size());
+        filterChainMap = new LinkedHashMap<Object, List<Filter>>(uncompiledFilterChainMap.size());
 
-        while (paths.hasNext()) {
-            Object path = paths.next();
-            Assert.isInstanceOf(String.class, path, "Path pattern must be a String");
-            Object compiledPath = matcher.compile((String)path);
-            Object filters = uncompiledFilterChainMap.get(path);
-
-            Assert.isInstanceOf(List.class, filters);
-            // Check the contents
-            Iterator filterIterator = ((List)filters).iterator();
-
-            while (filterIterator.hasNext()) {
-                Object filter = filterIterator.next();
-                Assert.isInstanceOf(Filter.class, filter, "Objects in filter chain must be of type Filter. ");
-            }
-
-            filterChainMap.put(compiledPath, filters);
+        for (String path : uncompiledFilterChainMap.keySet()) {
+            filterChainMap.put(matcher.compile(path), uncompiledFilterChainMap.get(path));
         }
     }
-
 
     /**
      * Returns a copy of the underlying filter chain map. Modifications to the map contents
      * will not affect the FilterChainProxy state - to change the map call <tt>setFilterChainMap</tt>.
      *
-     * @return the map of path pattern Strings to filter chain arrays (with ordering guaranteed).
+     * @return the map of path pattern Strings to filter chain lists (with ordering guaranteed).
      */
-    public Map getFilterChainMap() {
-        return new LinkedHashMap(uncompiledFilterChainMap);
+    public Map<String, List<Filter>> getFilterChainMap() {
+        return new LinkedHashMap<String, List<Filter>>(uncompiledFilterChainMap);
     }
 
     public void setMatcher(UrlMatcher matcher) {
@@ -353,22 +346,22 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
 
     /**
      * A <code>FilterChain</code> that records whether or not {@link
-     * FilterChain#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse)} is called.<p>This
-     * <code>FilterChain</code> is used by <code>FilterChainProxy</code> to determine if the next <code>Filter</code>
-     * should be called or not.</p>
+     * FilterChain#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse)} is called.
+     * <p>
+     * This <code>FilterChain</code> is used by <code>FilterChainProxy</code> to determine if the next
+     * <code>Filter</code> should be called or not.</p>
      */
     private static class VirtualFilterChain implements FilterChain {
         private FilterInvocation fi;
-        private List additionalFilters;
+        private List<Filter> additionalFilters;
         private int currentPosition = 0;
 
-        private VirtualFilterChain(FilterInvocation filterInvocation, List additionalFilters) {
+        private VirtualFilterChain(FilterInvocation filterInvocation, List<Filter> additionalFilters) {
             this.fi = filterInvocation;
             this.additionalFilters = additionalFilters;
         }
 
-        public void doFilter(ServletRequest request, ServletResponse response)
-            throws IOException, ServletException {
+        public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
             if (currentPosition == additionalFilters.size()) {
                 if (logger.isDebugEnabled()) {
                     logger.debug(fi.getRequestUrl()
@@ -379,7 +372,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
             } else {
                 currentPosition++;
 
-                Filter nextFilter = (Filter) additionalFilters.get(currentPosition - 1);
+                Filter nextFilter = additionalFilters.get(currentPosition - 1);
 
                 if (logger.isDebugEnabled()) {
                     logger.debug(fi.getRequestUrl() + " at position " + currentPosition + " of "

@@ -1,9 +1,8 @@
 package org.springframework.security.intercept.method;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
@@ -18,8 +17,8 @@ import org.springframework.security.SecurityConfig;
  * @since 2.0.4
  */
 public class MapBasedMethodDefinitionSourceTests {
-    private final List<? extends ConfigAttribute> ROLE_A = Arrays.asList(new SecurityConfig("ROLE_A"));
-    private final List<? extends ConfigAttribute> ROLE_B = Arrays.asList(new SecurityConfig("ROLE_B"));
+    private final List<ConfigAttribute> ROLE_A = SecurityConfig.createList("ROLE_A");
+    private final List<ConfigAttribute> ROLE_B = SecurityConfig.createList("ROLE_B");
     private MapBasedMethodDefinitionSource mds;
     private Method someMethodString;
     private Method someMethodInteger;

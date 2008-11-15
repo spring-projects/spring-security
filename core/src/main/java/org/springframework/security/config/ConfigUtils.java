@@ -143,6 +143,7 @@ abstract class ConfigUtils {
      * Bean which holds the list of filters which are maintained in the context and modified by calls to
      * addHttpFilter. The post processor retrieves these before injecting the list into the FilterChainProxy.
      */
+    @SuppressWarnings("unchecked")
     public static class FilterChainList {
         List filters;
 

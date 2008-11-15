@@ -35,15 +35,15 @@ import org.springframework.security.intercept.method.AbstractFallbackMethodDefin
  */
 public class SecuredMethodDefinitionSource extends AbstractFallbackMethodDefinitionSource {
 
-    protected List<ConfigAttribute> findAttributes(Class clazz) {
+    protected List<ConfigAttribute> findAttributes(Class<?> clazz) {
         return processAnnotation(clazz.getAnnotation(Secured.class));
     }
 
-    protected List<ConfigAttribute> findAttributes(Method method, Class targetClass) {
+    protected List<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
         return processAnnotation(AnnotationUtils.findAnnotation(method, Secured.class));
     }
 
-    public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
+    public Collection<ConfigAttribute> getAllConfigAttributes() {
         return null;
     }
 

@@ -128,9 +128,9 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor imple
      */
     class InternalMethodInvocation implements MethodInvocation {
         private Method method;
-        private Class targetClass;
+        private Class<?> targetClass;
 
-        public InternalMethodInvocation(Method method, Class targetClass) {
+        public InternalMethodInvocation(Method method, Class<?> targetClass) {
             this.method = method;
             this.targetClass = targetClass;
         }

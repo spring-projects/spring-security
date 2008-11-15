@@ -100,8 +100,8 @@ public class SecurityContextHolder {
         } else {
             // Try to load a custom strategy
             try {
-                Class clazz = Class.forName(strategyName);
-                Constructor customStrategy = clazz.getConstructor(new Class[] {});
+                Class<?> clazz = Class.forName(strategyName);
+                Constructor<?> customStrategy = clazz.getConstructor(new Class[] {});
                 strategy = (SecurityContextHolderStrategy) customStrategy.newInstance(new Object[] {});
             } catch (Exception ex) {
                 ReflectionUtils.handleReflectionException(ex);

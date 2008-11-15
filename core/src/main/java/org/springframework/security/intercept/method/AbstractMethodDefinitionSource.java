@@ -55,10 +55,10 @@ public abstract class AbstractMethodDefinitionSource implements MethodDefinition
 
         if (object instanceof JoinPoint) {
             JoinPoint jp = (JoinPoint) object;
-            Class targetClass = jp.getTarget().getClass();
+            Class<?> targetClass = jp.getTarget().getClass();
             String targetMethodName = jp.getStaticPart().getSignature().getName();
-            Class[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
-            Class declaringType = ((CodeSignature) jp.getStaticPart().getSignature()).getDeclaringType();
+            Class<?>[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
+            Class<?> declaringType = ((CodeSignature) jp.getStaticPart().getSignature()).getDeclaringType();
 
             Method method = ClassUtils.getMethodIfAvailable(declaringType, targetMethodName, types);
             Assert.notNull(method, "Could not obtain target method from JoinPoint: '"+ jp + "'");
@@ -69,7 +69,7 @@ public abstract class AbstractMethodDefinitionSource implements MethodDefinition
         throw new IllegalArgumentException("Object must be a non-null MethodInvocation or JoinPoint");
     }
 
-    public final boolean supports(Class clazz) {
+    public final boolean supports(Class<?> clazz) {
         return (MethodInvocation.class.isAssignableFrom(clazz) || JoinPoint.class.isAssignableFrom(clazz));
     }
 }

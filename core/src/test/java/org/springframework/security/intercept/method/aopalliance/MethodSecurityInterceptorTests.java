@@ -440,15 +440,15 @@ public class MethodSecurityInterceptorTests extends TestCase {
     }
 
     private class MockObjectDefinitionSourceWhichOnlySupportsStrings implements MethodDefinitionSource {
-        public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
+        public Collection<ConfigAttribute> getAllConfigAttributes() {
             return null;
         }
 
-        public List<ConfigAttribute> getAttributes(Method method, Class targetClass) {
+        public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
             throw new UnsupportedOperationException("mock method not implemented");
         }
 
-        public boolean supports(Class clazz) {
+        public boolean supports(Class<?> clazz) {
             if (String.class.isAssignableFrom(clazz)) {
                 return true;
             } else {
@@ -466,7 +466,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
             throw new UnsupportedOperationException("mock method not implemented");
         }
 
-        public boolean supports(Class clazz) {
+        public boolean supports(Class<?> clazz) {
             if (String.class.isAssignableFrom(clazz)) {
                 return true;
             } else {

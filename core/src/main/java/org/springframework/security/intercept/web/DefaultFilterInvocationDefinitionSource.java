@@ -17,7 +17,6 @@ package org.springframework.security.intercept.web;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -142,9 +141,16 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
         return methodRequestmap;
     }
 
-    public Collection<List<? extends ConfigAttribute>> getAllConfigAttributes() {
-        return Collections.unmodifiableCollection(getRequestMap().values());
+    public Collection<ConfigAttribute> getAllConfigAttributes() {
+        Set<ConfigAttribute> allAttributes = new HashSet<ConfigAttribute>();
+
+        for(List<ConfigAttribute> attrs : requestMap.values()) {
+            allAttributes.addAll(attrs);
+        }
+
+        return allAttributes;
     }
+
 
     public List<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         if ((object == null) || !this.supports(object.getClass())) {
@@ -227,7 +233,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
         return null;
     }
 
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         return FilterInvocation.class.isAssignableFrom(clazz);
     }
 

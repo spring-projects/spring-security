@@ -70,7 +70,7 @@ public class RunAsUserTokenTests extends TestCase {
     }
 
     public void testNoArgConstructorDoesntExist() {
-        Class clazz = RunAsUserToken.class;
+        Class<RunAsUserToken> clazz = RunAsUserToken.class;
 
         try {
             clazz.getDeclaredConstructor((Class[]) null);
