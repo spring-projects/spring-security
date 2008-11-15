@@ -15,29 +15,15 @@
 
 package org.springframework.security.ui.switchuser;
 
-import org.springframework.security.AccountExpiredException;
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.CredentialsExpiredException;
-import org.springframework.security.DisabledException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.LockedException;
-import org.springframework.security.util.RedirectUtils;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.event.authentication.AuthenticationSwitchUserEvent;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.ui.AuthenticationDetailsSource;
-import org.springframework.security.ui.WebAuthenticationDetailsSource;
-import org.springframework.security.ui.SpringSecurityFilter;
-import org.springframework.security.ui.FilterChainOrder;
-import org.springframework.security.ui.AbstractProcessingFilter;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.userdetails.UserDetailsChecker;
-import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
@@ -45,19 +31,30 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
+import org.springframework.security.AccountExpiredException;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.CredentialsExpiredException;
+import org.springframework.security.DisabledException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.LockedException;
+import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.event.authentication.AuthenticationSwitchUserEvent;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.AuthenticationDetailsSource;
+import org.springframework.security.ui.FilterChainOrder;
+import org.springframework.security.ui.SpringSecurityFilter;
+import org.springframework.security.ui.WebAuthenticationDetailsSource;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsChecker;
+import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
+import org.springframework.security.util.RedirectUtils;
 import org.springframework.util.Assert;
-
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -240,7 +237,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR, currentAuth);
 
         // get the original authorities
-        List orig = targetUser.getAuthorities();
+        List<GrantedAuthority> orig = targetUser.getAuthorities();
 
         // Allow subclasses to change the authorities to be granted
         if (switchUserAuthorityChanger != null) {
@@ -248,7 +245,7 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         }
 
         // add the new switch user authority
-        List newAuths = new ArrayList(orig);
+        List<GrantedAuthority> newAuths = new ArrayList<GrantedAuthority>(orig);
         newAuths.add(switchAuthority);
 
         // create the new authentication token
