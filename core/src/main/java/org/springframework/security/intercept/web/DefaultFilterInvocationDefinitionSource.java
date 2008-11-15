@@ -168,8 +168,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
     }
 
     /**
-     * Performs the actual lookup of the relevant <code>ConfigAttributeDefinition</code> for the specified
-     * <code>FilterInvocation</code>.
+     * Performs the actual lookup of the relevant <tt>ConfigAttribute</tt>s for the given <code>FilterInvocation</code>.
      * <p>
      * By default, iterates through the stored URL map and calls the
      * {@link UrlMatcher#pathMatchesUrl(Object path, String url)} method until a match is found.
