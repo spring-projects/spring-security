@@ -15,21 +15,17 @@
 
 package org.springframework.security.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.List;
+
+import javax.servlet.Filter;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.MockFilterConfig;
@@ -58,14 +54,6 @@ public class FilterChainProxyTests {
         if (appCtx != null) {
             appCtx.close();
         }
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testDetectsMissingFilterInvocationDefinitionSource() throws Exception {
-        FilterChainProxy filterChainProxy = new FilterChainProxy();
-        filterChainProxy.setApplicationContext(new StaticApplicationContext());
-
-        filterChainProxy.afterPropertiesSet();
     }
 
     @Test
@@ -136,7 +124,7 @@ public class FilterChainProxyTests {
     }
 
     private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) throws Exception {
-        List filters = filterChainProxy.getFilters("/foo/blah");
+        List<Filter> filters = filterChainProxy.getFilters("/foo/blah");
         assertEquals(1, filters.size());
         assertTrue(filters.get(0) instanceof MockFilter);
 

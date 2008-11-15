@@ -15,20 +15,29 @@
 
 package org.springframework.security.util;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.security.intercept.web.*;
+import org.springframework.security.intercept.web.FilterInvocation;
+import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
-
-import javax.servlet.*;
-
-import java.io.IOException;
-import java.util.*;
 
 
 /**
@@ -94,7 +103,7 @@ import java.util.*;
  *
  * @version $Id$
  */
-public class FilterChainProxy implements Filter, InitializingBean, ApplicationContextAware {
+public class FilterChainProxy implements Filter, InitializingBean {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(FilterChainProxy.class);
@@ -102,29 +111,18 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
 
     //~ Instance fields ================================================================================================
 
-    private ApplicationContext applicationContext;
+//    private ApplicationContext applicationContext;
     /** Map of the original pattern Strings to filter chains */
     private Map<String, List<Filter>> uncompiledFilterChainMap;
     /** Compiled pattern version of the filter chain map */
     private Map<Object, List<Filter>> filterChainMap;
     private UrlMatcher matcher = new AntUrlPathMatcher();
     private boolean stripQueryStringFromUrls = true;
-    private DefaultFilterInvocationDefinitionSource fids;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        // Convert the FilterDefinitionSource to a filterChainMap if set
-        if (fids != null) {
-            Assert.isNull(uncompiledFilterChainMap, "Set the filterChainMap or FilterInvocationDefinitionSource but not both");
-            FIDSToFilterChainMapConverter converter = new FIDSToFilterChainMapConverter(fids, applicationContext);
-            setMatcher(converter.getMatcher());
-            setFilterChainMap(converter.getFilterChainMap());
-            fids = null;
-        }
-
         Assert.notNull(uncompiledFilterChainMap, "filterChainMap must be set");
-
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -231,20 +229,6 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
         }
 
         return allFilters;
-    }
-
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
-
-    /**
-     *
-     * @deprecated Use namespace configuration or call setFilterChainMap instead.
-     */
-    public void setFilterInvocationDefinitionSource(FilterInvocationDefinitionSource fids) {
-        Assert.isInstanceOf(DefaultFilterInvocationDefinitionSource.class, fids,
-                "Must be a DefaultFilterInvocationDefinitionSource");
-        this.fids = (DefaultFilterInvocationDefinitionSource) fids;
     }
 
     /**

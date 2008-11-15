@@ -237,14 +237,6 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
         return FilterInvocation.class.isAssignableFrom(clazz);
     }
 
-    public int getMapSize() {
-        return this.requestMap.size();
-    }
-
-    /*Map<Object, List<ConfigAttribute>>*/ Map getRequestMap() {
-        return requestMap;
-    }
-
     protected UrlMatcher getUrlMatcher() {
         return urlMatcher;
     }
