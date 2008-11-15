@@ -159,7 +159,7 @@ public class AfterInvocationProviderManagerTests extends TestCase {
             return returnedObject;
         }
 
-        public boolean supports(Class<? extends Object> clazz) {
+        public boolean supports(Class<?> clazz) {
             return secureObject.isAssignableFrom(clazz);
         }
 

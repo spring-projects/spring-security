@@ -42,25 +42,8 @@ import org.springframework.security.util.AuthorityUtils;
  * @version $Id$
  */
 public class AspectJSecurityInterceptorTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AspectJSecurityInterceptorTests() {
-    }
-
-    public AspectJSecurityInterceptorTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        SecurityContextHolder.clearContext();
-    }
 
     public void testCallbackIsInvokedWhenPermissionGranted() throws Exception {
         AspectJSecurityInterceptor si = new AspectJSecurityInterceptor();
@@ -78,7 +61,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
 
         si.afterPropertiesSet();
 
-        Class clazz = TargetObject.class;
+        Class<TargetObject> clazz = TargetObject.class;
         Method method = clazz.getMethod("countLength", new Class[] {String.class});
         MockJoinPoint joinPoint = new MockJoinPoint(new TargetObject(), method);
 
@@ -108,7 +91,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
 
         si.afterPropertiesSet();
 
-        Class clazz = TargetObject.class;
+        Class<TargetObject> clazz = TargetObject.class;
         Method method = clazz.getMethod("countLength", new Class[] {String.class});
         MockJoinPoint joinPoint = new MockJoinPoint(new TargetObject(), method);
 

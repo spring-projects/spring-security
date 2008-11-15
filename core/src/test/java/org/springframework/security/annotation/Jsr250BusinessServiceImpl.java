@@ -38,12 +38,12 @@ public class Jsr250BusinessServiceImpl implements BusinessService {
         return input;
     }
 
-    public List<Object> methodReturningAList(List<Object> someList) {
+    public List<?> methodReturningAList(List<?> someList) {
         return someList;
     }
 
-    public List<Object> methodReturningAList(String userName, String arg2) {
-        return new ArrayList();
+    public List<?> methodReturningAList(String userName, String arg2) {
+        return new ArrayList<Object>();
     }
 
     public Object[] methodReturningAnArray(Object[] someArray) {

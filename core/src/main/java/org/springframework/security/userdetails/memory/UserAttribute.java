@@ -33,14 +33,13 @@ import java.util.Vector;
 public class UserAttribute {
     //~ Instance fields ================================================================================================
 
-    private List authorities = new Vector();
+    private List<GrantedAuthority> authorities = new Vector<GrantedAuthority>();
     private String password;
     private boolean enabled = true;
 
     //~ Constructors ===================================================================================================
 
     public UserAttribute() {
-        super();
     }
 
     //~ Methods ========================================================================================================
@@ -52,7 +51,7 @@ public class UserAttribute {
     public GrantedAuthority[] getAuthorities() {
         GrantedAuthority[] toReturn = {new GrantedAuthorityImpl("demo")};
 
-        return (GrantedAuthority[]) this.authorities.toArray(toReturn);
+        return this.authorities.toArray(toReturn);
     }
 
     /**
@@ -61,7 +60,7 @@ public class UserAttribute {
      * @param authorities {@link List} &lt;{@link GrantedAuthority}>
      * @since 1.1
      */
-    public void setAuthorities(List authorities) {
+    public void setAuthorities(List<GrantedAuthority> authorities) {
         this.authorities = authorities;
     }
 
@@ -69,15 +68,13 @@ public class UserAttribute {
      * Set all authorities for this user from String values.
      * It will create the necessary {@link GrantedAuthority} objects.
      *
-     * @param authoritiesAsString {@link List} &lt;{@link String}>
+     * @param authoritiesAsStrings {@link List} &lt;{@link String}>
      * @since 1.1
      */
-    public void setAuthoritiesAsString(List authoritiesAsString) {
-        setAuthorities(new ArrayList(authoritiesAsString.size()));
-        Iterator it = authoritiesAsString.iterator();
-        while (it.hasNext()) {
-            GrantedAuthority grantedAuthority = new GrantedAuthorityImpl((String) it.next());
-            addAuthority(grantedAuthority);
+    public void setAuthoritiesAsString(List<String> authoritiesAsStrings) {
+        setAuthorities(new ArrayList<GrantedAuthority>(authoritiesAsStrings.size()));
+        for(String authority : authoritiesAsStrings) {
+            addAuthority(new GrantedAuthorityImpl(authority));
         }
     }
 

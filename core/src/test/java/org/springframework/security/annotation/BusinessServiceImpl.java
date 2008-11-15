@@ -37,7 +37,7 @@ public class BusinessServiceImpl<E extends Entity> implements BusinessService {
         return input;
     }
 
-    public List<Object> methodReturningAList(List<Object> someList) {
+    public List<?> methodReturningAList(List<?> someList) {
         return someList;
     }
 

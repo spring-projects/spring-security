@@ -40,6 +40,7 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.util.AuthorityUtils;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.util.MockFilterChain;
 
@@ -52,6 +53,7 @@ import org.springframework.security.util.MockFilterChain;
  * @version $Id$
  */
 public class SwitchUserProcessingFilterTests {
+    private final static List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 
     @Before
     public void authenticateCurrentUser() {
@@ -199,16 +201,14 @@ public class SwitchUserProcessingFilterTests {
     @Test
     public void exitUserJackLordToDanoSucceeds() throws Exception {
         // original user
-        GrantedAuthority[] auths = {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")};
-        UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("dano", "hawaii50", auths);
+        UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("dano", "hawaii50", ROLES_12);
 
         // set current user (Admin)
-        GrantedAuthority[] adminAuths = {
-                new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO"),
-                new SwitchUserGrantedAuthority("PREVIOUS_ADMINISTRATOR", source)
-            };
-        UsernamePasswordAuthenticationToken admin = new UsernamePasswordAuthenticationToken("jacklord", "hawaii50",
-                adminAuths);
+        List<GrantedAuthority> adminAuths = new ArrayList<GrantedAuthority>();
+        adminAuths.addAll(ROLES_12);
+        adminAuths.add(new SwitchUserGrantedAuthority("PREVIOUS_ADMINISTRATOR", source));
+        UsernamePasswordAuthenticationToken admin =
+            new UsernamePasswordAuthenticationToken("jacklord", "hawaii50", adminAuths);
 
         SecurityContextHolder.getContext().setAuthentication(admin);
 
@@ -333,8 +333,8 @@ public class SwitchUserProcessingFilterTests {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.setSwitchUserAuthorityChanger(new SwitchUserAuthorityChanger() {
-            public List modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, List authoritiesToBeGranted) {
-                List auths = new ArrayList();
+            public List<GrantedAuthority> modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, List<GrantedAuthority> authoritiesToBeGranted) {
+                List <GrantedAuthority>auths = new ArrayList<GrantedAuthority>();
                 auths.add(new GrantedAuthorityImpl("ROLE_NEW"));
                 return auths;
             }
@@ -358,17 +358,13 @@ public class SwitchUserProcessingFilterTests {
             // wofat (account expired)
             // steve (credentials expired)
             if ("jacklord".equals(username) || "dano".equals(username)) {
-                return new User(username, password, true, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                return new User(username, password, true, true, true, true, ROLES_12);
             } else if ("mcgarrett".equals(username)) {
-                return new User(username, password, false, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                return new User(username, password, false, true, true, true, ROLES_12);
             } else if ("wofat".equals(username)) {
-                return new User(username, password, true, false, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                return new User(username, password, true, false, true, true, ROLES_12);
             } else if ("steve".equals(username)) {
-                return new User(username, password, true, true, false, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                return new User(username, password, true, true, false, true, ROLES_12);
             } else {
                 throw new UsernameNotFoundException("Could not find: " + username);
             }

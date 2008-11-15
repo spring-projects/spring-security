@@ -1,6 +1,9 @@
 package org.springframework.security.authoritymapping;
 
-import org.springframework.util.Assert;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class implements the MappableAttributesRetriever interface by just returning
@@ -11,23 +14,21 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 public class SimpleMappableAttributesRetriever implements MappableAttributesRetriever {
-    private String[] mappableAttributes = null;
+    private Set<String> mappableAttributes = null;
 
     /*
      * (non-Javadoc)
      *
      * @see org.springframework.security.authoritymapping.MappableAttributesRetriever#getMappableAttributes()
      */
-    public String[] getMappableAttributes() {
-        Assert.notNull(mappableAttributes, "No mappable roles have been set");
-        String[] copy = new String[mappableAttributes.length];
-        System.arraycopy(mappableAttributes, 0, copy, 0, copy.length);
-        return copy;
+    public Set<String> getMappableAttributes() {
+        return mappableAttributes;
     }
 
     public void setMappableAttributes(String[] aMappableRoles) {
-        this.mappableAttributes = new String[aMappableRoles.length];
-        System.arraycopy(aMappableRoles, 0, mappableAttributes, 0, mappableAttributes.length);
+        mappableAttributes = new HashSet<String>(aMappableRoles.length);
+        mappableAttributes.addAll(Arrays.asList(aMappableRoles));
+        mappableAttributes = Collections.unmodifiableSet(mappableAttributes);
     }
 
 }

@@ -173,7 +173,7 @@ public class AclEntryVoter extends AbstractAclVoter {
             // Evaluate if we are required to use an inner domain object
             if (StringUtils.hasText(internalMethod)) {
                 try {
-                    Class clazz = domainObject.getClass();
+                    Class<?> clazz = domainObject.getClass();
                     Method method = clazz.getMethod(internalMethod, new Class[0]);
                     domainObject = method.invoke(domainObject, new Object[0]);
                 } catch (NoSuchMethodException nsme) {

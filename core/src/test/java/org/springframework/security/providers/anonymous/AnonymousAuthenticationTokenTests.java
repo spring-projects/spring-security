@@ -15,6 +15,8 @@
 
 package org.springframework.security.providers.anonymous;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.GrantedAuthority;
@@ -30,60 +32,46 @@ import org.springframework.security.util.AuthorityUtils;
  * @version $Id$
  */
 public class AnonymousAuthenticationTokenTests extends TestCase {
+
+    private final static List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
+
     //~ Methods ========================================================================================================
 
     public void testConstructorRejectsNulls() {
         try {
-            new AnonymousAuthenticationToken(null, "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+            new AnonymousAuthenticationToken(null, "Test", ROLES_12);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
 
         try {
-            new AnonymousAuthenticationToken("key", null,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+            new AnonymousAuthenticationToken("key", null, ROLES_12);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
-
-//        try {
-//            new AnonymousAuthenticationToken("key", "Test", null);
-//            fail("Should have thrown IllegalArgumentException");
-//        } catch (IllegalArgumentException expected) {
-//            assertTrue(true);
-//        }
 
         try {
             new AnonymousAuthenticationToken("key", "Test", new GrantedAuthority[] {null});
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
 
         try {
             new AnonymousAuthenticationToken("key", "Test", AuthorityUtils.NO_AUTHORITIES );
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
     }
 
     public void testEqualsWhenEqual() {
-        AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
-
-        AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("key", "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+        AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
+        AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
 
         assertEquals(token1, token2);
     }
 
     public void testGetters() {
-        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
 
         assertEquals("key".hashCode(), token.getKeyHash());
         assertEquals("Test", token.getPrincipal());
@@ -94,49 +82,39 @@ public class AnonymousAuthenticationTokenTests extends TestCase {
     }
 
     public void testNoArgConstructorDoesntExist() {
-        Class clazz = AnonymousAuthenticationToken.class;
+        Class<?> clazz = AnonymousAuthenticationToken.class;
 
         try {
             clazz.getDeclaredConstructor((Class[]) null);
             fail("Should have thrown NoSuchMethodException");
         } catch (NoSuchMethodException expected) {
-            assertTrue(true);
         }
     }
 
     public void testNotEqualsDueToAbstractParentEqualsCheck() {
-        AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
-
-        AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("key", "DIFFERENT_PRINCIPAL",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+        AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
+        AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("key", "DIFFERENT_PRINCIPAL", ROLES_12);
 
         assertFalse(token1.equals(token2));
     }
 
     public void testNotEqualsDueToDifferentAuthenticationClass() {
-        AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
-
-        UsernamePasswordAuthenticationToken token2 = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+        AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
+        UsernamePasswordAuthenticationToken token2 = new UsernamePasswordAuthenticationToken("Test", "Password", ROLES_12);
 
         assertFalse(token1.equals(token2));
     }
 
     public void testNotEqualsDueToKey() {
-        AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+        AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
 
-        AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("DIFFERENT_KEY", "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+        AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("DIFFERENT_KEY", "Test", ROLES_12);
 
         assertFalse(token1.equals(token2));
     }
 
     public void testSetAuthenticatedIgnored() {
-        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
         assertTrue(token.isAuthenticated());
         token.setAuthenticated(false);
         assertTrue(!token.isAuthenticated());

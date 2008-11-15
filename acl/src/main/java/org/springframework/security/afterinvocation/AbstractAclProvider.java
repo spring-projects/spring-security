@@ -43,7 +43,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
     //~ Instance fields ================================================================================================
 
     protected AclService aclService;
-    protected Class processDomainObjectClass = Object.class;
+    protected Class<?> processDomainObjectClass = Object.class;
     protected ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
     protected SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
     protected String processConfigAttribute;
@@ -66,7 +66,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 
     //~ Methods ========================================================================================================
 
-    protected Class getProcessDomainObjectClass() {
+    protected Class<?> getProcessDomainObjectClass() {
         return processDomainObjectClass;
     }
 
@@ -99,7 +99,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
         this.processConfigAttribute = processConfigAttribute;
     }
 
-    public void setProcessDomainObjectClass(Class processDomainObjectClass) {
+    public void setProcessDomainObjectClass(Class<?> processDomainObjectClass) {
         Assert.notNull(processDomainObjectClass, "processDomainObjectClass cannot be set to null");
         this.processDomainObjectClass = processDomainObjectClass;
     }
@@ -120,7 +120,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
      *
      * @return always <code>true</code>
      */
-    public boolean supports(Class<? extends Object> clazz) {
+    public boolean supports(Class<?> clazz) {
         return true;
     }
 }

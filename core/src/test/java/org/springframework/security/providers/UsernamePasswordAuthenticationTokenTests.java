@@ -15,10 +15,11 @@
 
 package org.springframework.security.providers;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.junit.Test;
 import org.springframework.security.util.AuthorityUtils;
 
 
@@ -28,28 +29,12 @@ import org.springframework.security.util.AuthorityUtils;
  * @author Ben Alex
  * @version $Id$
  */
-public class UsernamePasswordAuthenticationTokenTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public UsernamePasswordAuthenticationTokenTests() {
-        super();
-    }
-
-    public UsernamePasswordAuthenticationTokenTests(String arg0) {
-        super(arg0);
-    }
+public class UsernamePasswordAuthenticationTokenTests {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(UsernamePasswordAuthenticationTokenTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void testAuthenticated() {
+    @Test
+    public void authenticatedPropertyContractIsSatisfied() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password", AuthorityUtils.NO_AUTHORITIES);
 
         // check default given we passed some GrantedAuthorty[]s (well, we passed empty list)
@@ -73,27 +58,22 @@ public class UsernamePasswordAuthenticationTokenTests extends TestCase {
             token.setAuthenticated(true);
             fail("Should have prohibited setAuthenticated(true)");
         } catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
     }
 
-    public void testGetters() {
+    @Test
+    public void gettersReturnCorrectData() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
         assertEquals("ROLE_ONE", token.getAuthorities().get(0).getAuthority());
         assertEquals("ROLE_TWO", token.getAuthorities().get(1).getAuthority());
     }
 
-    public void testNoArgConstructorDoesntExist() {
-        Class clazz = UsernamePasswordAuthenticationToken.class;
-
-        try {
-            clazz.getDeclaredConstructor((Class[]) null);
-            fail("Should have thrown NoSuchMethodException");
-        } catch (NoSuchMethodException expected) {
-            assertTrue(true);
-        }
+    @Test(expected=NoSuchMethodException.class)
+    public void testNoArgConstructorDoesntExist() throws Exception {
+        Class<?> clazz = UsernamePasswordAuthenticationToken.class;
+        clazz.getDeclaredConstructor((Class[]) null);
     }
 }

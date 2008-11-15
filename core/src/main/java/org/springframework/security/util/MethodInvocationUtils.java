@@ -27,7 +27,8 @@ import org.springframework.util.Assert;
 
 /**
  * Static utility methods for creating <code>MethodInvocation</code>s usable within Spring Security.
- * <p>All methods of this class return a {@link org.springframework.security.util.SimpleMethodInvocation}.</p>
+ * <p>
+ * All methods of this class return a {@link org.springframework.security.util.SimpleMethodInvocation}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -41,57 +42,45 @@ public final class MethodInvocationUtils {
     //~ Methods ========================================================================================================
 
     /**
-     * Generates a <code>MethodInvocation</code> for specified <code>methodName</code> on the passed object.
-     *
-     * @param object the object that will be used to find the relevant <code>Method</code>
-     * @param methodName the name of the method to find
-     *
-     * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a problem
-     */
-    public static MethodInvocation create(Object object, String methodName) {
-        return create(object, methodName, null);
-    }
-
-    /**
      * Generates a <code>MethodInvocation</code> for specified <code>methodName</code> on the passed object,
      * using the <code>args</code> to locate the method.
      *
      * @param object the object that will be used to find the relevant <code>Method</code>
      * @param methodName the name of the method to find
-     * @param args arguments that are required as part of the method signature
+     * @param args arguments that are required as part of the method signature (can be empty)
      *
      * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a problem
      */
-    public static MethodInvocation create(Object object, String methodName, Object[] args) {
+    public static MethodInvocation create(Object object, String methodName, Object... args) {
         Assert.notNull(object, "Object required");
 
-        Class[] classArgs = null;
+        Class<?>[] classArgs = null;
 
         if (args != null) {
-            List list = new ArrayList();
+            List<Class<?>> list = new ArrayList<Class<?>>();
 
             for (int i = 0; i < args.length; i++) {
                 list.add(args[i].getClass());
             }
 
-            classArgs = (Class[]) list.toArray(new Class[] {});
+            classArgs = list.toArray(new Class[] {});
         }
-        
+
         // Determine the type that declares the requested method, taking into account proxies
-        Class target = AopUtils.getTargetClass(object);
+        Class<?> target = AopUtils.getTargetClass(object);
         if (object instanceof Advised) {
-        	Advised a = (Advised) object;
-        	if (!a.isProxyTargetClass()) {
-        		Class[] possibleInterfaces = a.getProxiedInterfaces();
-        		for (int i = 0; i < possibleInterfaces.length; i++) {
-        			try {
-            			possibleInterfaces[i].getMethod(methodName, classArgs);
-            			// to get here means no exception happened
-            			target = possibleInterfaces[i];
-            			break;
-        			} catch (Exception tryTheNextOne) {}
-        		}
-        	}
+            Advised a = (Advised) object;
+            if (!a.isProxyTargetClass()) {
+                Class<?>[] possibleInterfaces = a.getProxiedInterfaces();
+                for (int i = 0; i < possibleInterfaces.length; i++) {
+                    try {
+                        possibleInterfaces[i].getMethod(methodName, classArgs);
+                        // to get here means no exception happened
+                        target = possibleInterfaces[i];
+                        break;
+                    } catch (Exception tryTheNextOne) {}
+                }
+            }
         }
 
         return createFromClass(object, target, methodName, classArgs, args);
@@ -105,7 +94,7 @@ public final class MethodInvocationUtils {
      *
      * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a problem
      */
-    public static MethodInvocation createFromClass(Class clazz, String methodName) {
+    public static MethodInvocation createFromClass(Class<?> clazz, String methodName) {
         return createFromClass(null, clazz, methodName, null, null);
     }
 
@@ -120,8 +109,8 @@ public final class MethodInvocationUtils {
      * @param args the actual arguments that should be passed to SimpleMethodInvocation
      * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a problem
      */
-    public static MethodInvocation createFromClass(Object targetObject, Class clazz, String methodName, Class[] classArgs, Object[] args) {
-    	Assert.notNull(clazz, "Class required");
+    public static MethodInvocation createFromClass(Object targetObject, Class<?> clazz, String methodName, Class<?>[] classArgs, Object[] args) {
+        Assert.notNull(clazz, "Class required");
         Assert.hasText(methodName, "MethodName required");
 
         Method method;

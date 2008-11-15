@@ -2,6 +2,7 @@ package org.springframework.security.ui.portlet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import javax.portlet.PortletRequest;
 
@@ -13,12 +14,12 @@ public class PortletPreAuthenticatedAuthenticationDetailsSource extends Abstract
          setClazz(PortletPreAuthenticatedAuthenticationDetails.class);
     }
 
-    protected Collection<String> getUserRoles(Object context, String[] mappableRoles) {
-        ArrayList portletRoles = new ArrayList();
+    protected Collection<String> getUserRoles(Object context, Set<String> mappableRoles) {
+        ArrayList<String> portletRoles = new ArrayList<String>();
 
-        for (int i = 0; i < mappableRoles.length; i++) {
-            if (((PortletRequest)context).isUserInRole(mappableRoles[i])) {
-                portletRoles.add(mappableRoles[i]);
+        for (String role : mappableRoles) {
+            if (((PortletRequest)context).isUserInRole(role)) {
+                portletRoles.add(role);
             }
         }
         portletRoles.trimToSize();

@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -41,7 +44,7 @@ import org.xml.sax.SAXException;
 public abstract class XmlMappableAttributesRetriever implements MappableAttributesRetriever, InitializingBean {
     private static final Log logger = LogFactory.getLog(XmlMappableAttributesRetriever.class);
 
-    private String[] mappableAttributes = null;
+    private Set<String> mappableAttributes = null;
 
     private InputStream xmlInputStream = null;
 
@@ -55,27 +58,25 @@ public abstract class XmlMappableAttributesRetriever implements MappableAttribut
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(xmlInputStream, "An XML InputStream must be set");
         Assert.notNull(xpathExpression, "An XPath expression must be set");
-        mappableAttributes = getMappableAttributes(xmlInputStream);
+        mappableAttributes = Collections.unmodifiableSet(getMappableAttributes(xmlInputStream));
     }
 
-    public String[] getMappableAttributes() {
-        String[] copy = new String[mappableAttributes.length];
-        System.arraycopy(mappableAttributes, 0, copy, 0, copy.length);
-        return copy;
+    public Set<String> getMappableAttributes() {
+        return mappableAttributes;
     }
 
     /**
      * Get the mappable roles from the specified XML document.
      */
-    private String[] getMappableAttributes(InputStream aStream) {
+    private Set<String> getMappableAttributes(InputStream aStream) {
         if (logger.isDebugEnabled()) {
             logger.debug("Reading mappable attributes from XML document");
         }
         try {
             Document doc = getDocument(aStream);
-            String[] roles = getMappableAttributes(doc);
+            Set<String> roles = getMappableAttributes(doc);
             if (logger.isDebugEnabled()) {
-                logger.debug("Mappable attributes from XML document: " + Arrays.asList(roles));
+                logger.debug("Mappable attributes from XML document: " + roles);
             }
             return roles;
         } finally {
@@ -118,13 +119,14 @@ public abstract class XmlMappableAttributesRetriever implements MappableAttribut
      * @return String[] the list of roles.
      * @throws JaxenException
      */
-    private String[] getMappableAttributes(Document doc) {
+    private Set<String> getMappableAttributes(Document doc) {
         try {
             DOMXPath xpath = new DOMXPath(xpathExpression);
-            List roleElements = xpath.selectNodes(doc);
-            String[] roles = new String[roleElements.size()];
-            for (int i = 0; i < roles.length; i++) {
-                roles[i] = ((Node) roleElements.get(i)).getNodeValue();
+            List<Node> roleElements = xpath.selectNodes(doc);
+            Set<String> roles = new HashSet<String>(roleElements.size());
+
+            for (Node n : roleElements) {
+                roles.add(n.getNodeValue());
             }
             return roles;
         } catch (JaxenException e) {

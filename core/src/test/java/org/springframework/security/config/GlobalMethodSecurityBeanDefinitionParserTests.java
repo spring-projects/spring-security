@@ -221,11 +221,11 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
                 AUTH_PROVIDER_XML);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
         target = (BusinessService) appContext.getBean("target");
-        List arg = new ArrayList();
+        List<String> arg = new ArrayList<String>();
         arg.add("joe");
         arg.add("bob");
         arg.add("sam");
-        List result = target.methodReturningAList(arg);
+        List<?> result = target.methodReturningAList(arg);
         // Expression is (filterObject == name or filterObject == 'sam'), so "joe" should be gone after pre-filter
         // PostFilter should remove sam from the return object
         assertEquals(1, result.size());

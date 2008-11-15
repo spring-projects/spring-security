@@ -63,5 +63,5 @@ public interface AccessDecisionManager {
      *
      * @return <code>true</code> if the implementation can process the indicated class
      */
-    boolean supports(Class clazz);
+    boolean supports(Class<?> clazz);
 }

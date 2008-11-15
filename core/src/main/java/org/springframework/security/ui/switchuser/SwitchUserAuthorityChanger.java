@@ -28,5 +28,5 @@ public interface SwitchUserAuthorityChanger {
      *
      * @return the modified list of granted authorities.
      */
-    List modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, List authoritiesToBeGranted);
+    List<GrantedAuthority> modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, List<GrantedAuthority> authoritiesToBeGranted);
 }

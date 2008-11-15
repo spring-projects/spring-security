@@ -122,7 +122,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
      * @return if the <code>AfterInvocationProviderManager</code> can support the secure object class, which requires
      *         every one of its <code>AfterInvocationProvider</code>s to support the secure object class
      */
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         Iterator iter = this.providers.iterator();
 
         while (iter.hasNext()) {

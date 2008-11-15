@@ -100,11 +100,11 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests extends TestCase {
 
     private void testGetGrantedAuthorities(SimpleAttributes2GrantedAuthoritiesMapper mapper, String[] roles, String[] expectedGas) {
         List<GrantedAuthority> result = mapper.getGrantedAuthorities(Arrays.asList(roles));
-        Collection resultColl = new ArrayList(result.size());
+        Collection<String> resultColl = new ArrayList<String>(result.size());
         for (int i = 0; i < result.size(); i++) {
             resultColl.add(result.get(i).getAuthority());
         }
-        Collection expectedColl = Arrays.asList(expectedGas);
+        Collection<String> expectedColl = Arrays.asList(expectedGas);
         assertTrue("Role collections do not match; result: " + resultColl + ", expected: " + expectedColl, expectedColl
                 .containsAll(resultColl)
                 && resultColl.containsAll(expectedColl));

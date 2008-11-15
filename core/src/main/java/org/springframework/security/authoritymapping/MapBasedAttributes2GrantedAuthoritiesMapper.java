@@ -2,10 +2,11 @@ package org.springframework.security.authoritymapping;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -13,7 +14,6 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
 
 /**
  * This class implements the Attributes2GrantedAuthoritiesMapper and
@@ -27,7 +27,7 @@ import org.springframework.util.StringUtils;
 public class MapBasedAttributes2GrantedAuthoritiesMapper implements Attributes2GrantedAuthoritiesMapper, MappableAttributesRetriever, InitializingBean {
     private Map<String, Collection<GrantedAuthority>> attributes2grantedAuthoritiesMap = null;
     private String stringSeparator = ",";
-    private String[] mappableAttributes = null;
+    private Set<String> mappableAttributes = null;
 
 
     public void afterPropertiesSet() throws Exception {
@@ -51,21 +51,17 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements Attributes2G
     /**
      * @return Returns the attributes2grantedAuthoritiesMap.
      */
-    public Map getAttributes2grantedAuthoritiesMap() {
+    public Map<String, Collection<GrantedAuthority>> getAttributes2grantedAuthoritiesMap() {
         return attributes2grantedAuthoritiesMap;
     }
     /**
      * @param attributes2grantedAuthoritiesMap The attributes2grantedAuthoritiesMap to set.
      */
-    public void setAttributes2grantedAuthoritiesMap(final Map<String, Object> attributes2grantedAuthoritiesMap) {
+    public void setAttributes2grantedAuthoritiesMap(final Map attributes2grantedAuthoritiesMap) {
         Assert.notEmpty(attributes2grantedAuthoritiesMap,"A non-empty attributes2grantedAuthoritiesMap must be supplied");
         this.attributes2grantedAuthoritiesMap = preProcessMap(attributes2grantedAuthoritiesMap);
 
-        try {
-            mappableAttributes = (String[])this.attributes2grantedAuthoritiesMap.keySet().toArray(new String[]{});
-        } catch ( ArrayStoreException ase ) {
-            throw new IllegalArgumentException("attributes2grantedAuthoritiesMap contains non-String objects as keys");
-        }
+        mappableAttributes = Collections.unmodifiableSet(this.attributes2grantedAuthoritiesMap.keySet());
     }
 
     /**
@@ -74,11 +70,14 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements Attributes2G
      * @param orgMap The map to process
      * @return the processed Map
      */
-    private Map<String, Collection<GrantedAuthority>> preProcessMap(Map<String, Object> orgMap) {
-        Map result = new HashMap(orgMap.size());
+    private Map<String, Collection<GrantedAuthority>> preProcessMap(Map<?, ?> orgMap) {
+        Map<String, Collection<GrantedAuthority>> result =
+            new HashMap<String, Collection<GrantedAuthority>>(orgMap.size());
 
-        for(Map.Entry entry : orgMap.entrySet()) {
-            result.put(entry.getKey(),getGrantedAuthorityCollection(entry.getValue()));
+        for(Map.Entry<?,?> entry : orgMap.entrySet()) {
+            Assert.isInstanceOf(String.class, entry.getKey(),
+                    "attributes2grantedAuthoritiesMap contains non-String objects as keys");
+            result.put((String)entry.getKey(),getGrantedAuthorityCollection(entry.getValue()));
         }
         return result;
     }
@@ -90,8 +89,8 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements Attributes2G
      *            The value to convert to a GrantedAuthority Collection
      * @return Collection containing the GrantedAuthority Collection
      */
-    private Collection getGrantedAuthorityCollection(Object value) {
-        Collection result = new ArrayList();
+    private Collection<GrantedAuthority> getGrantedAuthorityCollection(Object value) {
+        Collection<GrantedAuthority> result = new ArrayList<GrantedAuthority>();
         addGrantedAuthorityCollection(result,value);
         return result;
     }
@@ -109,7 +108,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements Attributes2G
             return;
         }
         if ( value instanceof Collection ) {
-            addGrantedAuthorityCollection(result,(Collection)value);
+            addGrantedAuthorityCollection(result,(Collection<?>)value);
         } else if ( value instanceof Object[] ) {
             addGrantedAuthorityCollection(result,(Object[])value);
         } else if ( value instanceof String ) {
@@ -121,10 +120,9 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements Attributes2G
         }
     }
 
-    private void addGrantedAuthorityCollection(Collection<GrantedAuthority> result, Collection value) {
-        Iterator it = value.iterator();
-        while ( it.hasNext() ) {
-            addGrantedAuthorityCollection(result,it.next());
+    private void addGrantedAuthorityCollection(Collection<GrantedAuthority> result, Collection<?> value) {
+        for(Object elt : value) {
+            addGrantedAuthorityCollection(result, elt);
         }
     }
 
@@ -148,7 +146,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements Attributes2G
      *
      * @see org.springframework.security.authoritymapping.MappableAttributesRetriever#getMappableAttributes()
      */
-    public String[] getMappableAttributes() {
+    public Set<String> getMappableAttributes() {
         return mappableAttributes;
     }
     /**

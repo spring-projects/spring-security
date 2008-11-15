@@ -113,7 +113,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
      * @param clazz the type of secured object being presented
      * @return true if this type is supported
      */
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         Iterator<AccessDecisionVoter> iter = this.decisionVoters.iterator();
 
         while (iter.hasNext()) {

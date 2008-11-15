@@ -51,10 +51,10 @@ public interface BusinessService {
 
     public int someOther(int input);
 
-    public List<Object> methodReturningAList(List<Object> someList);
+    public List<?> methodReturningAList(List<?> someList);
 
     public Object[] methodReturningAnArray(Object[] someArray);
 
-    public List<Object> methodReturningAList(String userName, String extraParam);
+    public List<?> methodReturningAList(String userName, String extraParam);
 
 }

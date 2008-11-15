@@ -1,8 +1,8 @@
 package org.springframework.security.ui.preauth.j2ee;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,7 +26,7 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractPreAuthenticatedAuthenticationDetailsSource extends AuthenticationDetailsSourceImpl {
     protected final Log logger = LogFactory.getLog(getClass());
-    protected String[] j2eeMappableRoles;
+    protected Set<String> j2eeMappableRoles;
     protected Attributes2GrantedAuthoritiesMapper j2eeUserRoles2GrantedAuthoritiesMapper =
         new SimpleAttributes2GrantedAuthoritiesMapper();
 
@@ -72,7 +72,7 @@ public abstract class AbstractPreAuthenticatedAuthenticationDetailsSource extend
      * @param mappableRoles the possible roles as determined by the MappableAttributesRetriever
      * @return the subset of mappable roles which the current user has.
      */
-    protected abstract Collection<String> getUserRoles(Object context, String[] mappableRoles);
+    protected abstract Collection<String> getUserRoles(Object context, Set<String> mappableRoles);
 
     /**
      * @param aJ2eeMappableRolesRetriever

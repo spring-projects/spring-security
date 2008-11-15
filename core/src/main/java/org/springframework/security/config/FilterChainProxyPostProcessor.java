@@ -43,6 +43,7 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
 
     private ListableBeanFactory beanFactory;
 
+    @SuppressWarnings("unchecked")
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         if(!BeanIds.FILTER_CHAIN_PROXY.equals(beanName)) {
             return bean;
@@ -51,7 +52,7 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
         FilterChainProxy filterChainProxy = (FilterChainProxy) bean;
         FilterChainList filterList = (FilterChainList) beanFactory.getBean(BeanIds.FILTER_LIST);
 
-        List filters = new ArrayList(filterList.getFilters());
+        List<Filter> filters = new ArrayList<Filter>(filterList.getFilters());
         Collections.sort(filters, new OrderComparator());
 
         logger.info("Checking sorted filter chain: " + filters);
@@ -82,7 +83,7 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
         checkFilterStack(filters);
 
         // Note that this returns a copy
-        Map filterMap = filterChainProxy.getFilterChainMap();
+        Map<String, List<Filter>> filterMap = filterChainProxy.getFilterChainMap();
         filterMap.put(filterChainProxy.getMatcher().getUniversalMatchPattern(), filters);
         filterChainProxy.setFilterChainMap(filterMap);
 

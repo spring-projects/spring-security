@@ -35,7 +35,7 @@ public class UserAttributeEditor extends PropertyEditorSupport {
             String[] tokens = StringUtils.commaDelimitedListToStringArray(s);
             UserAttribute userAttrib = new UserAttribute();
 
-            List authoritiesAsString = new ArrayList();
+            List<String> authoritiesAsStrings = new ArrayList<String>();
 
             for (int i = 0; i < tokens.length; i++) {
                 String currentToken = tokens[i].trim();
@@ -48,11 +48,11 @@ public class UserAttributeEditor extends PropertyEditorSupport {
                     } else if (currentToken.toLowerCase().equals("disabled")) {
                         userAttrib.setEnabled(false);
                     } else {
-                        authoritiesAsString.add(currentToken);
+                        authoritiesAsStrings.add(currentToken);
                     }
                 }
             }
-            userAttrib.setAuthoritiesAsString(authoritiesAsString);
+            userAttrib.setAuthoritiesAsString(authoritiesAsStrings);
 
             if (userAttrib.isValid()) {
                 setValue(userAttrib);

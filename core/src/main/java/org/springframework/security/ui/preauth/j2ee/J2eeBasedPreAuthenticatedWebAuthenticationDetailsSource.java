@@ -5,6 +5,7 @@ import org.springframework.security.authoritymapping.SimpleAttributes2GrantedAut
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,12 +37,12 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource extends Abs
      *                returned by the MappableAttributesRetriever.
      * @return GrantedAuthority[] mapped from the user's J2EE roles.
      */
-    protected Collection<String> getUserRoles(Object context, String[] mappableRoles) {
+    protected Collection<String> getUserRoles(Object context, Set<String> mappableRoles) {
         ArrayList<String> j2eeUserRolesList = new ArrayList<String>();
 
-        for (int i = 0; i < mappableRoles.length; i++) {
-            if (((HttpServletRequest)context).isUserInRole(mappableRoles[i])) {
-                j2eeUserRolesList.add(mappableRoles[i]);
+        for (String role : mappableRoles) {
+            if (((HttpServletRequest)context).isUserInRole(role)) {
+                j2eeUserRolesList.add(role);
             }
         }
 
