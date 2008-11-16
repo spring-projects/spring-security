@@ -10,6 +10,7 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.annotation.BusinessService;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.util.AuthorityUtils;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
@@ -23,8 +24,9 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 
     @Before
     public void loadContext() {
+        SecurityContextHolder.clearContext();
         appContext = new InMemoryXmlApplicationContext(
-                "<b:bean id='target' class='org.springframework.security.annotation.Jsr250BusinessServiceImpl'/>" +
+                "<b:bean id='target' class='org.springframework.security.annotation.BusinessServiceImpl'/>" +
                 "<global-method-security secured-annotations='enabled'/>" + ConfigTestUtils.AUTH_PROVIDER_XML
                 );
         target = (BusinessService) appContext.getBean("target");
@@ -46,7 +48,7 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
     @Test
     public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_USER")});
+                AuthorityUtils.createAuthorityList("ROLE_USER"));
         SecurityContextHolder.getContext().setAuthentication(token);
 
         target.someUserMethod1();
@@ -55,7 +57,7 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
     @Test(expected=AccessDeniedException.class)
     public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SOMEOTHERROLE")});
+                AuthorityUtils.createAuthorityList("ROLE_SOMEOTHER"));
         SecurityContextHolder.getContext().setAuthentication(token);
 
         target.someAdminMethod();
