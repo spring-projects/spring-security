@@ -226,7 +226,6 @@
           shorthand syntax for:
           <programlisting><![CDATA[
   <http>
-    <intercept-url pattern="/**" access="ROLE_USER" />
     <form-login />
     <anonymous />
     <http-basic />
