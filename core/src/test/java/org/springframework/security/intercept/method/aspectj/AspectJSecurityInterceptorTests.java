@@ -15,10 +15,12 @@
 
 package org.springframework.security.intercept.method.aspectj;
 
+import static org.junit.Assert.*;
+
 import java.lang.reflect.Method;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Test;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -41,10 +43,16 @@ import org.springframework.security.util.AuthorityUtils;
  * @author Ben Alex
  * @version $Id$
  */
-public class AspectJSecurityInterceptorTests extends TestCase {
+public class AspectJSecurityInterceptorTests {
 
     //~ Methods ========================================================================================================
 
+    @After
+    public void clearContext() {
+        SecurityContextHolder.clearContext();
+    }
+
+    @Test
     public void testCallbackIsInvokedWhenPermissionGranted() throws Exception {
         AspectJSecurityInterceptor si = new AspectJSecurityInterceptor();
         si.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
@@ -76,6 +84,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         assertEquals("object proceeded", result);
     }
 
+    @Test(expected=AccessDeniedException.class)
     public void testCallbackIsNotInvokedWhenPermissionDenied() throws Exception {
         AspectJSecurityInterceptor si = new AspectJSecurityInterceptor();
         si.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
@@ -98,16 +107,11 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         MockAspectJCallback aspectJCallback = new MockAspectJCallback();
         aspectJCallback.setThrowExceptionIfInvoked(true);
 
-        SecurityContextHolder.getContext()
-                             .setAuthentication(new TestingAuthenticationToken("rod", "koala",
-                AuthorityUtils.NO_AUTHORITIES ));
+        SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken("rod", "koala", AuthorityUtils.NO_AUTHORITIES ));
 
-        try {
-            si.invoke(joinPoint, aspectJCallback);
-            fail("Should have thrown AccessDeniedException");
-        } catch (AccessDeniedException expected) {
-            assertTrue(true);
-        }
+        si.invoke(joinPoint, aspectJCallback);
+        fail("Should have thrown AccessDeniedException");
     }
 
     //~ Inner Classes ==================================================================================================
