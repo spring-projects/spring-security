@@ -5,8 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.annotation.BusinessService;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
