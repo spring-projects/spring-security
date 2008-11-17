@@ -86,6 +86,11 @@
             <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
             <url>http://repository.springsource.com/maven/bundles/external</url>
         </repository>         
+        <repository>
+            <id>com.springsource.repository.bundles.snapshot</id>
+            <name>SpringSource Enterprise Bundle Repository - SpringSource Snapshot Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/snapshot</url>
+        </repository>
     </repositories>
 
     <mailingLists>
