@@ -13,7 +13,7 @@ public class Account {
     private long id = -1;
     private String holder;
     private double balance;
-    private double overdraft = 500.00;
+    private double overdraft = 100.00;
 
     public Account(String holder) {
         this.holder = holder;
