@@ -15,18 +15,7 @@
 
 package org.springframework.security.wrapper;
 
-import org.springframework.security.ui.AbstractProcessingFilter;
-import org.springframework.security.ui.savedrequest.Enumerator;
-import org.springframework.security.ui.savedrequest.FastHttpDateFormat;
-import org.springframework.security.ui.savedrequest.SavedRequest;
-
-import org.springframework.security.util.PortResolver;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -38,11 +27,18 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.Map.Entry;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.savedrequest.Enumerator;
+import org.springframework.security.ui.savedrequest.FastHttpDateFormat;
+import org.springframework.security.ui.savedrequest.SavedRequest;
+import org.springframework.security.util.PortResolver;
 
 
 /**
@@ -121,16 +117,18 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
 
     //~ Methods ========================================================================================================
 
+    @Override
     public Cookie[] getCookies() {
         if (savedRequest == null) {
             return super.getCookies();
         } else {
-            List cookies = savedRequest.getCookies();
+            List<Cookie> cookies = savedRequest.getCookies();
 
-            return (Cookie[]) cookies.toArray(new Cookie[cookies.size()]);
+            return cookies.toArray(new Cookie[cookies.size()]);
         }
     }
 
+    @Override
     public long getDateHeader(String name) {
         if (savedRequest == null) {
             return super.getDateHeader(name);
@@ -152,15 +150,16 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         }
     }
 
+    @Override
     public String getHeader(String name) {
         if (savedRequest == null) {
             return super.getHeader(name);
         } else {
             String header = null;
-            Iterator iterator = savedRequest.getHeaderValues(name);
+            Iterator<String> iterator = savedRequest.getHeaderValues(name);
 
             while (iterator.hasNext()) {
-                header = (String) iterator.next();
+                header = iterator.next();
 
                 break;
             }
@@ -169,22 +168,25 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         }
     }
 
+    @Override
     public Enumeration getHeaderNames() {
         if (savedRequest == null) {
             return super.getHeaderNames();
         } else {
-            return new Enumerator(savedRequest.getHeaderNames());
+            return new Enumerator<String>(savedRequest.getHeaderNames());
         }
     }
 
+    @Override
     public Enumeration getHeaders(String name) {
         if (savedRequest == null) {
             return super.getHeaders(name);
         } else {
-            return new Enumerator(savedRequest.getHeaderValues(name));
+            return new Enumerator<String>(savedRequest.getHeaderValues(name));
         }
     }
 
+    @Override
     public int getIntHeader(String name) {
         if (savedRequest == null) {
             return super.getIntHeader(name);
@@ -199,12 +201,13 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         }
     }
 
+    @Override
     public Locale getLocale() {
         if (savedRequest == null) {
             return super.getLocale();
         } else {
             Locale locale = null;
-            Iterator iterator = savedRequest.getLocales();
+            Iterator<Locale> iterator = savedRequest.getLocales();
 
             while (iterator.hasNext()) {
                 locale = (Locale) iterator.next();
@@ -220,23 +223,25 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         }
     }
 
+    @Override
     public Enumeration getLocales() {
         if (savedRequest == null) {
             return super.getLocales();
-        } else {
-            Iterator iterator = savedRequest.getLocales();
-
-            if (iterator.hasNext()) {
-                return new Enumerator(iterator);
-            } else {
-                ArrayList results = new ArrayList();
-                results.add(defaultLocale);
-
-                return new Enumerator(results.iterator());
-            }
         }
+
+        Iterator<Locale> iterator = savedRequest.getLocales();
+
+        if (iterator.hasNext()) {
+            return new Enumerator<Locale>(iterator);
+        }
+        // Fall back to default locale
+        ArrayList<Locale> results = new ArrayList<Locale>(1);
+        results.add(defaultLocale);
+
+        return new Enumerator<Locale>(results.iterator());
     }
 
+    @Override
     public String getMethod() {
         if (savedRequest == null) {
             return super.getMethod();
@@ -257,83 +262,82 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
      * If the value from the wrapped request is null, an attempt will be made to retrieve the parameter
      * from the SavedRequest, if available..
      */
+    @Override
     public String getParameter(String name) {
         String value = super.getParameter(name);
-        
+
         if (value != null || savedRequest == null) {
-        	return value;
+            return value;
         }
 
         String[] values = savedRequest.getParameterValues(name);
-		if (values == null)
-			return null;
-		for (int i = 0; i < values.length; i++) {
-			value = values[i];
-			break;
-		}
+        if (values == null || values.length == 0) {
+            return null;
+        }
 
-		return value;
+        return values[0];
     }
 
+    @Override
     public Map getParameterMap() {
-    	if (savedRequest == null) {
+        if (savedRequest == null) {
             return super.getParameterMap();
         }
-    	
-    	Set names = getCombinedParameterNames();
-    	Iterator nameIter = names.iterator();
-    	Map parameterMap = new HashMap(names.size());
-    	
-    	while (nameIter.hasNext()) {
-    		String name = (String) nameIter.next();
-    		parameterMap.put(name, getParameterValues(name));
-    	}
-    	
-    	return parameterMap;
-    }
-    
-    private Set getCombinedParameterNames() {
-    	Set names = new HashSet();
-    	names.addAll(super.getParameterMap().keySet());
-    	
-    	if (savedRequest != null) {
-    		names.addAll(savedRequest.getParameterMap().keySet());
-    	}
-    	
-    	return names;
+
+        Set<String> names = getCombinedParameterNames();
+        Map<String, String[]> parameterMap = new HashMap<String, String[]>(names.size());
+
+        for (String name : names) {
+            parameterMap.put(name, getParameterValues(name));
+        }
+
+        return parameterMap;
     }
 
+    private Set<String> getCombinedParameterNames() {
+        Set<String> names = new HashSet<String>();
+        names.addAll(super.getParameterMap().keySet());
+
+        if (savedRequest != null) {
+            names.addAll(savedRequest.getParameterMap().keySet());
+        }
+
+        return names;
+    }
+
+    @Override
     public Enumeration getParameterNames() {
-    	return new Enumerator(getCombinedParameterNames());
+        return new Enumerator(getCombinedParameterNames());
     }
 
+    @Override
     public String[] getParameterValues(String name) {
-    	if (savedRequest == null) {
-    		return super.getParameterValues(name);
-    	}
-    	
-    	String[] savedRequestParams = savedRequest.getParameterValues(name);
-    	String[] wrappedRequestParams = super.getParameterValues(name);
+        if (savedRequest == null) {
+            return super.getParameterValues(name);
+        }
 
-    	if (savedRequestParams == null) {
-    		return wrappedRequestParams;
-    	}
-    	
-    	if (wrappedRequestParams == null) {
-    		return savedRequestParams;
-    	}
+        String[] savedRequestParams = savedRequest.getParameterValues(name);
+        String[] wrappedRequestParams = super.getParameterValues(name);
 
-    	// We have params in both saved and wrapped requests so have to merge them
-    	List wrappedParamsList = Arrays.asList(wrappedRequestParams);
-    	List combinedParams = new ArrayList(wrappedParamsList);
+        if (savedRequestParams == null) {
+            return wrappedRequestParams;
+        }
 
-    	// We want to add all parameters of the saved request *apart from* duplicates of those already added
-    	for (int i = 0; i < savedRequestParams.length; i++) {
-    		if (!wrappedParamsList.contains(savedRequestParams[i])) {
-    			combinedParams.add(savedRequestParams[i]);
-    		}
-    	}
+        if (wrappedRequestParams == null) {
+            return savedRequestParams;
+        }
 
-    	return (String[]) combinedParams.toArray(new String[combinedParams.size()]);
+        // We have parameters in both saved and wrapped requests so have to merge them
+        List<String> wrappedParamsList = Arrays.asList(wrappedRequestParams);
+        List<String> combinedParams = new ArrayList<String>(wrappedParamsList);
+
+        // We want to add all parameters of the saved request *apart from* duplicates of those already added
+        for (int i = 0; i < savedRequestParams.length; i++) {
+            if (!wrappedParamsList.contains(savedRequestParams[i])) {
+                combinedParams.add(savedRequestParams[i]);
+            }
+        }
+
+        return combinedParams.toArray(new String[combinedParams.size()]);
     }
 }

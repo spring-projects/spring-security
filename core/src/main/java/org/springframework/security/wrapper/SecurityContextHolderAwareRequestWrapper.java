@@ -89,6 +89,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
      *
      * @return the username or <code>null</code> if unavailable
      */
+    @Override
     public String getRemoteUser() {
         Authentication auth = getAuthentication();
 
@@ -109,6 +110,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
      *
      * @return the <code>Authentication</code>, or <code>null</code>
      */
+    @Override
     public Principal getUserPrincipal() {
         Authentication auth = getAuthentication();
 
@@ -158,6 +160,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
      * @return <code>true</code> if an <b>exact</b> (case sensitive) matching granted authority is located,
      *         <code>false</code> otherwise
      */
+    @Override
     public boolean isUserInRole(String role) {
         return isGranted(role);
     }

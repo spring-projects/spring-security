@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -46,7 +47,6 @@ import java.util.TreeMap;
  * @author Ben Alex
  * @version $Id$
  */
-@SuppressWarnings("unchecked")
 public class SavedRequest implements java.io.Serializable {
     //~ Static fields/initializers =====================================================================================
 
@@ -54,10 +54,10 @@ public class SavedRequest implements java.io.Serializable {
 
     //~ Instance fields ================================================================================================
 
-    private ArrayList cookies = new ArrayList();
-    private ArrayList locales = new ArrayList();
-    private Map headers = new TreeMap(String.CASE_INSENSITIVE_ORDER);
-    private Map parameters = new TreeMap(String.CASE_INSENSITIVE_ORDER);
+    private ArrayList<SavedCookie> cookies = new ArrayList<SavedCookie>();
+    private ArrayList<Locale> locales = new ArrayList<Locale>();
+    private Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+    private Map<String, String[]> parameters = new TreeMap<String, String[]>(String.CASE_INSENSITIVE_ORDER);
     private String contextPath;
     private String method;
     private String pathInfo;
@@ -71,6 +71,7 @@ public class SavedRequest implements java.io.Serializable {
 
     //~ Constructors ===================================================================================================
 
+    @SuppressWarnings("unchecked")
     public SavedRequest(HttpServletRequest request, PortResolver portResolver) {
         Assert.notNull(request, "Request required");
         Assert.notNull(portResolver, "PortResolver required");
@@ -85,20 +86,19 @@ public class SavedRequest implements java.io.Serializable {
         }
 
         // Headers
-        Enumeration names = request.getHeaderNames();
+        Enumeration<String> names = request.getHeaderNames();
 
         while (names.hasMoreElements()) {
-            String name = (String) names.nextElement();
-            Enumeration values = request.getHeaders(name);
+            String name = names.nextElement();
+            Enumeration<String> values = request.getHeaders(name);
 
             while (values.hasMoreElements()) {
-                String value = (String) values.nextElement();
-                this.addHeader(name, value);
+                this.addHeader(name, values.nextElement());
             }
         }
 
         // Locales
-        Enumeration locales = request.getLocales();
+        Enumeration<Locale> locales = request.getLocales();
 
         while (locales.hasMoreElements()) {
             Locale locale = (Locale) locales.nextElement();
@@ -106,15 +106,12 @@ public class SavedRequest implements java.io.Serializable {
         }
 
         // Parameters
-        Map parameters = request.getParameterMap();
-        Iterator paramNames = parameters.keySet().iterator();
+        Map<String,Object> parameters = request.getParameterMap();
 
-        while (paramNames.hasNext()) {
-            String paramName = (String) paramNames.next();
-            Object o = parameters.get(paramName);
-            if (o instanceof String[]) {
-                String[] paramValues = (String[]) o;
-                this.addParameter(paramName, paramValues);
+        for(String paramName : parameters.keySet()) {
+            Object paramValues = parameters.get(paramName);
+            if (paramValues instanceof String[]) {
+                this.addParameter(paramName, (String[]) paramValues);
             } else {
                 if (logger.isWarnEnabled()) {
                     logger.warn("ServletRequest.getParameterMap() returned non-String array");
@@ -142,10 +139,10 @@ public class SavedRequest implements java.io.Serializable {
     }
 
     private void addHeader(String name, String value) {
-        ArrayList values = (ArrayList) headers.get(name);
+        List<String> values = headers.get(name);
 
         if (values == null) {
-            values = new ArrayList();
+            values = new ArrayList<String>();
             headers.put(name, values);
         }
 
@@ -163,10 +160,6 @@ public class SavedRequest implements java.io.Serializable {
     /**
      * Determines if the current request matches the <code>SavedRequest</code>. All URL arguments are
      * considered, but <em>not</em> method (POST/GET), cookies, locales, headers or parameters.
-     *
-     * @param request DOCUMENT ME!
-     * @param portResolver DOCUMENT ME!
-     * @return DOCUMENT ME!
      */
     public boolean doesRequestMatch(HttpServletRequest request, PortResolver portResolver) {
         Assert.notNull(request, "Request required");
@@ -216,12 +209,13 @@ public class SavedRequest implements java.io.Serializable {
         return contextPath;
     }
 
-    public List getCookies() {
-        List cookieList = new ArrayList(cookies.size());
-        for (Iterator iterator = cookies.iterator(); iterator.hasNext();) {
-            SavedCookie savedCookie = (SavedCookie) iterator.next();
+    public List<Cookie> getCookies() {
+        List<Cookie> cookieList = new ArrayList<Cookie>(cookies.size());
+
+        for (SavedCookie savedCookie : cookies) {
             cookieList.add(savedCookie.getCookie());
         }
+
         return cookieList;
     }
 
@@ -234,33 +228,33 @@ public class SavedRequest implements java.io.Serializable {
         return UrlUtils.getFullRequestUrl(this);
     }
 
-    public Iterator getHeaderNames() {
+    public Iterator<String> getHeaderNames() {
         return (headers.keySet().iterator());
     }
 
-    public Iterator getHeaderValues(String name) {
-        ArrayList values = (ArrayList) headers.get(name);
+    public Iterator<String> getHeaderValues(String name) {
+        List<String> values = headers.get(name);
 
         if (values == null) {
-            return ((new ArrayList()).iterator());
-        } else {
-            return (values.iterator());
+            values = Collections.emptyList();
         }
+
+        return (values.iterator());
     }
 
-    public Iterator getLocales() {
+    public Iterator<Locale> getLocales() {
         return (locales.iterator());
     }
 
     public String getMethod() {
-        return (this.method);
+        return method;
     }
 
-    public Map getParameterMap() {
+    public Map<String, String[]> getParameterMap() {
         return parameters;
     }
 
-    public Iterator getParameterNames() {
+    public Iterator<String> getParameterNames() {
         return (parameters.keySet().iterator());
     }
 

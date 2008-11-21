@@ -33,44 +33,42 @@ import java.util.NoSuchElementException;
  * @author Andrey Grebnev
  * @version $Id$
  */
-@SuppressWarnings("unchecked")
-public class Enumerator implements Enumeration {
+public class Enumerator<T> implements Enumeration<T> {
     //~ Instance fields ================================================================================================
 
     /**
      * The <code>Iterator</code> over which the <code>Enumeration</code> represented by this class actually operates.
      */
-    private Iterator iterator = null;
+    private Iterator<T> iterator = null;
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Return an Enumeration over the values of the specified Collection.
      *
      * @param collection Collection whose values should be enumerated
      */
-    public Enumerator(Collection collection) {
+    public Enumerator(Collection<T> collection) {
         this(collection.iterator());
     }
 
-/**
+    /**
      * Return an Enumeration over the values of the specified Collection.
      *
      * @param collection Collection whose values should be enumerated
      * @param clone true to clone iterator
      */
-    public Enumerator(Collection collection, boolean clone) {
+    public Enumerator(Collection<T> collection, boolean clone) {
         this(collection.iterator(), clone);
     }
 
-/**
+    /**
      * Return an Enumeration over the values returned by the specified
      * Iterator.
      *
      * @param iterator Iterator to be wrapped
      */
-    public Enumerator(Iterator iterator) {
-        super();
+    public Enumerator(Iterator<T> iterator) {
         this.iterator = iterator;
     }
 
@@ -81,12 +79,12 @@ public class Enumerator implements Enumeration {
      * @param iterator Iterator to be wrapped
      * @param clone true to clone iterator
      */
-    public Enumerator(Iterator iterator, boolean clone) {
+    public Enumerator(Iterator<T> iterator, boolean clone) {
 
         if (!clone) {
             this.iterator = iterator;
         } else {
-            List list = new ArrayList();
+            List<T> list = new ArrayList<T>();
 
             while (iterator.hasNext()) {
                 list.add(iterator.next());
@@ -101,17 +99,17 @@ public class Enumerator implements Enumeration {
      *
      * @param map Map whose values should be enumerated
      */
-    public Enumerator(Map map) {
+    public Enumerator(Map<?, T> map) {
         this(map.values().iterator());
     }
 
-/**
+    /**
      * Return an Enumeration over the values of the specified Map.
      *
      * @param map Map whose values should be enumerated
      * @param clone true to clone iterator
      */
-    public Enumerator(Map map, boolean clone) {
+    public Enumerator(Map<?, T> map, boolean clone) {
         this(map.values().iterator(), clone);
     }
 
@@ -135,7 +133,7 @@ public class Enumerator implements Enumeration {
      *
      * @exception NoSuchElementException if no more elements exist
      */
-    public Object nextElement() throws NoSuchElementException {
+    public T nextElement() throws NoSuchElementException {
         return (iterator.next());
     }
 }
