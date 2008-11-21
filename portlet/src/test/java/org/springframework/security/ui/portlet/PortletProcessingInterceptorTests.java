@@ -16,19 +16,22 @@
 
 package org.springframework.security.ui.portlet;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
+import org.springframework.mock.web.portlet.MockActionRequest;
+import org.springframework.mock.web.portlet.MockActionResponse;
+import org.springframework.mock.web.portlet.MockRenderRequest;
+import org.springframework.mock.web.portlet.MockRenderResponse;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
@@ -36,10 +39,7 @@ import org.springframework.security.providers.portlet.PortletTestUtils;
 import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.userdetails.User;
-import org.springframework.mock.web.portlet.MockActionRequest;
-import org.springframework.mock.web.portlet.MockActionResponse;
-import org.springframework.mock.web.portlet.MockRenderRequest;
-import org.springframework.mock.web.portlet.MockRenderResponse;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  * Tests {@link PortletProcessingInterceptor}.
@@ -48,41 +48,25 @@ import org.springframework.mock.web.portlet.MockRenderResponse;
  * @since 2.0
  * @version $Id$
  */
-public class PortletProcessingInterceptorTests extends TestCase {
-
-    //~ Constructors ===================================================================================================
-
-    public PortletProcessingInterceptorTests() {
-        super();
-    }
-
-    public PortletProcessingInterceptorTests(String arg0) {
-        super(arg0);
-    }
-
+@SuppressWarnings("unchecked")
+public class PortletProcessingInterceptorTests {
     //~ Methods ========================================================================================================
 
     public void setUp() throws Exception {
-        super.setUp();
         SecurityContextHolder.clearContext();
     }
 
     public void tearDown() throws Exception {
-        super.tearDown();
         SecurityContextHolder.clearContext();
     }
 
+    @Test(expected=IllegalArgumentException.class)
     public void testRequiresAuthenticationManager() throws Exception {
         PortletProcessingInterceptor interceptor = new PortletProcessingInterceptor();
-
-        try {
-            interceptor.afterPropertiesSet();
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ignored
-        }
+        interceptor.afterPropertiesSet();
     }
 
+    @Test
     public void testNormalRenderRequestProcessing() throws Exception {
 
         // Build mock request and response
@@ -110,6 +94,7 @@ public class PortletProcessingInterceptorTests extends TestCase {
                 SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
     public void testNormalActionRequestProcessing() throws Exception {
 
         // Build mock request and response
@@ -132,8 +117,8 @@ public class PortletProcessingInterceptorTests extends TestCase {
                 SecurityContextHolder.getContext().getAuthentication());
     }
 
-    public void testAuthenticationFailsWithNoCredentials()
-        throws Exception {
+    @Test
+    public void testAuthenticationFailsWithNoCredentials() throws Exception {
 
         // Build mock request and response
         MockActionRequest request = new MockActionRequest();
@@ -155,6 +140,7 @@ public class PortletProcessingInterceptorTests extends TestCase {
                     instanceof BadCredentialsException);
     }
 
+    @Test
     public void testExistingAuthenticationIsLeftAlone() throws Exception {
 
         // Build mock request and response
@@ -181,6 +167,7 @@ public class PortletProcessingInterceptorTests extends TestCase {
         assertEquals(baselineToken, SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
     public void testUsernameFromRemoteUser() throws Exception {
 
         // Build mock request and response
@@ -200,6 +187,7 @@ public class PortletProcessingInterceptorTests extends TestCase {
                 SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
+    @Test
     public void testUsernameFromPrincipal() throws Exception {
 
         // Build mock request and response
@@ -219,6 +207,7 @@ public class PortletProcessingInterceptorTests extends TestCase {
                 SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
+    @Test
     public void testUsernameFromUserInfo() throws Exception {
 
         // Build mock request and response
@@ -253,7 +242,7 @@ public class PortletProcessingInterceptorTests extends TestCase {
 
             // Make sure we got a valid token
             if (!(token instanceof PreAuthenticatedAuthenticationToken)) {
-                TestCase.fail("Expected PreAuthenticatedAuthenticationToken object-- got: " + token);
+                fail("Expected PreAuthenticatedAuthenticationToken object-- got: " + token);
             }
 
             // Make sure the token details are the PortletRequest
@@ -273,9 +262,9 @@ public class PortletProcessingInterceptorTests extends TestCase {
 
             // create resulting Authentication object
             User user = new User(token.getName(), token.getCredentials().toString(), true, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl(PortletTestUtils.TESTROLE1), new GrantedAuthorityImpl(PortletTestUtils.TESTROLE2)});
+                    AuthorityUtils.createAuthorityList(PortletTestUtils.TESTROLE1, PortletTestUtils.TESTROLE2));
             PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(
-                    user, user.getPassword(), user.getAuthorities().toArray(new GrantedAuthority[0]));
+                    user, user.getPassword(), user.getAuthorities());
             result.setAuthenticated(true);
             return result;
         }
