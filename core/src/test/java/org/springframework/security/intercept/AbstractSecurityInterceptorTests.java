@@ -15,15 +15,14 @@
 
 package org.springframework.security.intercept;
 
-import junit.framework.TestCase;
-
-import org.springframework.security.MockAccessDecisionManager;
-import org.springframework.security.MockAfterInvocationManager;
-import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.MockRunAsManager;
-
-import org.springframework.security.intercept.method.MockMethodDefinitionSource;
-
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.Test;
+import org.springframework.security.AccessDecisionManager;
+import org.springframework.security.AfterInvocationManager;
+import org.springframework.security.AuthenticationManager;
+import org.springframework.security.RunAsManager;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 
@@ -34,55 +33,37 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * @author Ben Alex
  * @version $Id$
  */
-public class AbstractSecurityInterceptorTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AbstractSecurityInterceptorTests() {
-        super();
-    }
-
-    public AbstractSecurityInterceptorTests(String arg0) {
-        super(arg0);
-    }
+public class AbstractSecurityInterceptorTests {
+    private Mockery jmock = new JUnit4Mockery();
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AbstractSecurityInterceptorTests.class);
-    }
-
-    public void testDetectsIfInvocationPassedIncompatibleSecureObject()
-        throws Exception {
+    @Test(expected=IllegalArgumentException.class)
+    public void detectsIfInvocationPassedIncompatibleSecureObject() throws Exception {
         MockSecurityInterceptorWhichOnlySupportsStrings si = new MockSecurityInterceptorWhichOnlySupportsStrings();
-        si.setRunAsManager(new MockRunAsManager());
-        si.setAuthenticationManager(new MockAuthenticationManager());
-        si.setAfterInvocationManager(new MockAfterInvocationManager());
-        si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
 
-        try {
-            si.beforeInvocation(new SimpleMethodInvocation());
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage().startsWith("Security invocation attempted for object"));
-        }
+        si.setRunAsManager(jmock.mock(RunAsManager.class));
+        si.setAuthenticationManager(jmock.mock(AuthenticationManager.class));
+        si.setAfterInvocationManager(jmock.mock(AfterInvocationManager.class));
+        si.setAccessDecisionManager(jmock.mock(AccessDecisionManager.class));
+        si.setObjectDefinitionSource(jmock.mock(ObjectDefinitionSource.class));
+
+        jmock.checking(new Expectations() {{ ignoring(anything()); }});
+        si.beforeInvocation(new SimpleMethodInvocation());
     }
 
-    public void testDetectsViolationOfGetSecureObjectClassMethod()
-        throws Exception {
+    @Test(expected=IllegalArgumentException.class)
+    public void detectsViolationOfGetSecureObjectClassMethod() throws Exception {
         MockSecurityInterceptorReturnsNull si = new MockSecurityInterceptorReturnsNull();
-        si.setRunAsManager(new MockRunAsManager());
-        si.setAuthenticationManager(new MockAuthenticationManager());
-        si.setAfterInvocationManager(new MockAfterInvocationManager());
-        si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
+        si.setRunAsManager(jmock.mock(RunAsManager.class));
+        si.setAuthenticationManager(jmock.mock(AuthenticationManager.class));
+        si.setAfterInvocationManager(jmock.mock(AfterInvocationManager.class));
+        si.setAccessDecisionManager(jmock.mock(AccessDecisionManager.class));
+        si.setObjectDefinitionSource(jmock.mock(ObjectDefinitionSource.class));
 
-        try {
-            si.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("Subclass must provide a non-null response to getSecureObjectClass()", expected.getMessage());
-        }
+        jmock.checking(new Expectations() {{ ignoring(anything()); }});
+
+        si.afterPropertiesSet();
     }
 
     //~ Inner Classes ==================================================================================================
