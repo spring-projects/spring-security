@@ -72,19 +72,19 @@ public class RoleHierarchyImpl implements RoleHierarchy {
      * rolesReachableInOneStepMap is a Map that under the key of a specific role name contains a set of all roles
      * reachable from this role in 1 step
      */
-    private Map rolesReachableInOneStepMap = null;
+    private Map<GrantedAuthority, Set<GrantedAuthority>> rolesReachableInOneStepMap = null;
 
     /**
      * rolesReachableInOneOrMoreStepsMap is a Map that under the key of a specific role name contains a set of all
      * roles reachable from this role in 1 or more steps
      */
-    private Map rolesReachableInOneOrMoreStepsMap = null;
+    private Map<GrantedAuthority, Set<GrantedAuthority>> rolesReachableInOneOrMoreStepsMap = null;
 
     /**
-     * Set the role hierarchy and precalculate for every role the set of all reachable roles, i. e. all roles lower in
-     * the hierarchy of every given role. Precalculation is done for performance reasons (reachable roles can then be
+     * Set the role hierarchy and pre-calculate for every role the set of all reachable roles, i.e. all roles lower in
+     * the hierarchy of every given role. Pre-calculation is done for performance reasons (reachable roles can then be
      * calculated in O(1) time).
-     * During precalculation cycles in role hierarchy are detected and will cause a
+     * During pre-calculation, cycles in role hierarchy are detected and will cause a
      * <tt>CycleInRoleHierarchyException</tt> to be thrown.
      *
      * @param roleHierarchyStringRepresentation - String definition of the role hierarchy.
@@ -107,7 +107,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 
         for (GrantedAuthority authority : authorities) {
             reachableRoles.add(authority);
-            Set additionalReachableRoles = (Set) rolesReachableInOneOrMoreStepsMap.get(authority);
+            Set<GrantedAuthority> additionalReachableRoles = rolesReachableInOneOrMoreStepsMap.get(authority);
             if (additionalReachableRoles != null) {
                 reachableRoles.addAll(additionalReachableRoles);
             }
@@ -129,22 +129,21 @@ public class RoleHierarchyImpl implements RoleHierarchy {
      * references a set of the reachable lower roles.
      */
     private void buildRolesReachableInOneStepMap() {
-        String parsingRegex = "(\\s*([^\\s>]+)\\s*\\>\\s*([^\\s>]+))";
-        Pattern pattern = Pattern.compile(parsingRegex);
+        Pattern pattern = Pattern.compile("(\\s*([^\\s>]+)\\s*\\>\\s*([^\\s>]+))");
 
         Matcher roleHierarchyMatcher = pattern.matcher(roleHierarchyStringRepresentation);
-        rolesReachableInOneStepMap = new HashMap();
+        rolesReachableInOneStepMap = new HashMap<GrantedAuthority, Set<GrantedAuthority>>();
 
         while (roleHierarchyMatcher.find()) {
             GrantedAuthority higherRole = new GrantedAuthorityImpl(roleHierarchyMatcher.group(2));
             GrantedAuthority lowerRole = new GrantedAuthorityImpl(roleHierarchyMatcher.group(3));
-            Set rolesReachableInOneStepSet = null;
+            Set<GrantedAuthority> rolesReachableInOneStepSet = null;
 
             if (!rolesReachableInOneStepMap.containsKey(higherRole)) {
-                rolesReachableInOneStepSet = new HashSet();
+                rolesReachableInOneStepSet = new HashSet<GrantedAuthority>();
                 rolesReachableInOneStepMap.put(higherRole, rolesReachableInOneStepSet);
             } else {
-                rolesReachableInOneStepSet = (Set) rolesReachableInOneStepMap.get(higherRole);
+                rolesReachableInOneStepSet = rolesReachableInOneStepMap.get(higherRole);
             }
             rolesReachableInOneStepSet.add(lowerRole);
 
@@ -159,19 +158,17 @@ public class RoleHierarchyImpl implements RoleHierarchy {
      * hierarchy definition is detected)
      */
     private void buildRolesReachableInOneOrMoreStepsMap() {
-        rolesReachableInOneOrMoreStepsMap = new HashMap();
+        rolesReachableInOneOrMoreStepsMap = new HashMap<GrantedAuthority, Set<GrantedAuthority>>();
         // iterate over all higher roles from rolesReachableInOneStepMap
-        Iterator roleIterator = rolesReachableInOneStepMap.keySet().iterator();
 
-        while (roleIterator.hasNext()) {
-            GrantedAuthority role = (GrantedAuthority) roleIterator.next();
-            Set rolesToVisitSet = new HashSet();
+        for(GrantedAuthority role : rolesReachableInOneStepMap.keySet()) {
+            Set<GrantedAuthority> rolesToVisitSet = new HashSet<GrantedAuthority>();
 
             if (rolesReachableInOneStepMap.containsKey(role)) {
-                rolesToVisitSet.addAll((Set) rolesReachableInOneStepMap.get(role));
+                rolesToVisitSet.addAll(rolesReachableInOneStepMap.get(role));
             }
 
-            Set visitedRolesSet = new HashSet();
+            Set<GrantedAuthority> visitedRolesSet = new HashSet<GrantedAuthority>();
 
             while (!rolesToVisitSet.isEmpty()) {
                 // take a role from the rolesToVisit set
@@ -179,7 +176,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
                 rolesToVisitSet.remove(aRole);
                 visitedRolesSet.add(aRole);
                 if (rolesReachableInOneStepMap.containsKey(aRole)) {
-                    Set newReachableRoles = (Set) rolesReachableInOneStepMap.get(aRole);
+                    Set<GrantedAuthority> newReachableRoles = rolesReachableInOneStepMap.get(aRole);
 
                     // definition of a cycle: you can reach the role you are starting from
                     if (rolesToVisitSet.contains(role) || visitedRolesSet.contains(role)) {
