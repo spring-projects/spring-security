@@ -24,6 +24,8 @@ import java.util.HashMap;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.portlet.MockActionRequest;
 import org.springframework.mock.web.portlet.MockActionResponse;
@@ -52,10 +54,12 @@ import org.springframework.security.util.AuthorityUtils;
 public class PortletProcessingInterceptorTests {
     //~ Methods ========================================================================================================
 
+    @Before
     public void setUp() throws Exception {
         SecurityContextHolder.clearContext();
     }
 
+    @After
     public void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
     }
