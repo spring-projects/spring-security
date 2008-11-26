@@ -30,14 +30,14 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * The actual <code>RemoteInvocation</code> that is passed from the client to the server, which contains the
- * contents of {@link SecurityContextHolder}, being a {@link SecurityContext} object.<p>When constructed on the
- * client via {@link org.springframework.security.context.rmi.ContextPropagatingRemoteInvocationFactory}, the contents of the
+ * contents of {@link SecurityContextHolder}, being a {@link SecurityContext} object.
+ * <p>
+ * When constructed on the client via {@link ContextPropagatingRemoteInvocationFactory}, the contents of the
  * <code>SecurityContext</code> are stored inside the object. The object is then passed to the server that is
  * processing the remote invocation. Upon the server invoking the remote invocation, it will retrieve the passed
- * contents of the <code>SecurityContextHolder</code> and set them to the server-side
- * <code>SecurityContextHolder</code> whilst the target object is invoked. When the target invocation has been
- * completed, the server-side <code>SecurityContextHolder</code> will be reset to a new instance of
- * <code>SecurityContextImpl</code>.</p>
+ * contents of the <code>SecurityContextHolder</code> and set them on the server-side
+ * <code>SecurityContextHolder</code> while the target object is invoked. When the target invocation has been
+ * completed, the security context will be cleared using a call to {@link SecurityContextHolder#clearContext()}.
  *
  * @author James Monaghan
  * @author Ben Alex
@@ -54,7 +54,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs the object, storing the value of the client-side
      * <code>SecurityContextHolder</code> inside the object.
      *
@@ -72,11 +72,12 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
     //~ Methods ========================================================================================================
 
     /**
-     * Invoked on the server-side as described in the class JavaDocs.<p>Invocations will always have their
-     * {@link org.springframework.security.Authentication#setAuthenticated(boolean)} set to <code>false</code>, which is
-     * guaranteed to always be accepted by <code>Authentication</code> implementations. This ensures that even
-     * remotely authenticated <code>Authentication</code>s will be untrusted by the server-side, which is an
-     * appropriate security measure.</p>
+     * Invoked on the server-side as described in the class JavaDocs.
+     * <p>
+     * Invocations will always have their {@link org.springframework.security.Authentication#setAuthenticated(boolean)}
+     * set to <code>false</code>, which is guaranteed to always be accepted by <code>Authentication</code>
+     * implementations. This ensures that even remotely authenticated <code>Authentication</code>s will be untrusted by
+     * the server-side, which is an appropriate security measure.
      *
      * @param targetObject the target object to apply the invocation to
      *
@@ -87,7 +88,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
      * @throws InvocationTargetException if the method invocation resulted in an exception
      */
     public Object invoke(Object targetObject)
-        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         SecurityContextHolder.setContext(securityContext);
 
         if ((SecurityContextHolder.getContext() != null)
@@ -105,7 +106,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
             SecurityContextHolder.clearContext();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Set SecurityContext to new instance of SecurityContextImpl");
+                logger.debug("Cleared SecurityContextHolder.");
             }
         }
     }
