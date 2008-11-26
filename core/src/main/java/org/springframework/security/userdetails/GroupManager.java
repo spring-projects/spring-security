@@ -22,7 +22,7 @@ public interface GroupManager {
     /**
      * Returns the names of all groups that this group manager controls.
      */
-    String[] findAllGroups();
+    List<String> findAllGroups();
 
     /**
      * Locates the users who are members of a group
@@ -30,7 +30,7 @@ public interface GroupManager {
      * @param groupName the group whose members are required
      * @return the usernames of the group members
      */
-    String[] findUsersInGroup(String groupName);
+    List<String> findUsersInGroup(String groupName);
 
     /**
      * Creates a new group with the specified list of authorities.

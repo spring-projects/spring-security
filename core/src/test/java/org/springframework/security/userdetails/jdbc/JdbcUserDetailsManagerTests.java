@@ -1,12 +1,28 @@
 package org.springframework.security.userdetails.jdbc;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
-import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.PopulatedDatabase;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.MockAuthenticationManager;
+import org.springframework.security.PopulatedDatabase;
 import org.springframework.security.TestDataSource;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
@@ -14,21 +30,6 @@ import org.springframework.security.providers.dao.UserCache;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.util.AuthorityUtils;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Collections;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Tests for {@link JdbcUserDetailsManager}
@@ -192,7 +193,7 @@ public class JdbcUserDetailsManagerTests {
 
     @Test
     public void findAllGroupsReturnsExpectedGroupNames() {
-        List<String> groups = new ArrayList<String>(Arrays.asList(manager.findAllGroups()));
+        List<String> groups = manager.findAllGroups();
         assertEquals(4, groups.size());
 
         Collections.sort(groups);
@@ -204,11 +205,11 @@ public class JdbcUserDetailsManagerTests {
 
     @Test
     public void findGroupMembersReturnsCorrectData() {
-        String[] groupMembers = manager.findUsersInGroup("GROUP_0");
-        assertEquals(1, groupMembers.length);
-        assertEquals("jerry", groupMembers[0]);
+        List<String> groupMembers = manager.findUsersInGroup("GROUP_0");
+        assertEquals(1, groupMembers.size());
+        assertEquals("jerry", groupMembers.get(0));
         groupMembers = manager.findUsersInGroup("GROUP_1");
-        assertEquals(2, groupMembers.length);
+        assertEquals(2, groupMembers.size());
     }
 
     @Test
@@ -310,7 +311,7 @@ public class JdbcUserDetailsManagerTests {
             cache.remove(username);
         }
 
-        Map getUserMap() {
+        Map<String,UserDetails> getUserMap() {
             return cache;
         }
     }

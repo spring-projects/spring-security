@@ -229,13 +229,13 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
     //~ GroupManager implementation ====================================================================================
 
-    public String[] findAllGroups() {
-        return (String[]) getJdbcTemplate().queryForList(findAllGroupsSql, String.class).toArray(new String[0]);
+    public List<String> findAllGroups() {
+        return getJdbcTemplate().queryForList(findAllGroupsSql, String.class);
     }
 
-    public String[] findUsersInGroup(String groupName) {
+    public List<String> findUsersInGroup(String groupName) {
         Assert.hasText(groupName);
-        return (String[]) getJdbcTemplate().queryForList(findUsersInGroupSql, new String[] {groupName}, String.class).toArray(new String[0]);
+        return getJdbcTemplate().queryForList(findUsersInGroupSql, new String[] {groupName}, String.class);
     }
 
     public void createGroup(final String groupName, final List<GrantedAuthority> authorities) {
