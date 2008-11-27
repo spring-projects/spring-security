@@ -28,6 +28,7 @@ import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulat
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsMapper;
 import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
 import org.springframework.security.util.AuthorityUtils;
@@ -137,6 +138,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
     private LdapAuthoritiesPopulator authoritiesPopulator;
     private UserDetailsContextMapper userDetailsContextMapper = new LdapUserDetailsMapper();
     private boolean useAuthenticationRequestCredentials = true;
+    private boolean hideUserNotFoundExceptions = true;
 
     //~ Constructors ===================================================================================================
 
@@ -193,6 +195,10 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
         return userDetailsContextMapper;
     }
 
+    public void setHideUserNotFoundExceptions(boolean hideUserNotFoundExceptions) {
+        this.hideUserNotFoundExceptions = hideUserNotFoundExceptions;
+    }
+
     /**
      * Determines whether the supplied password will be used as the credentials in the successful authentication
      * token. If set to false, then the password will be obtained from the UserDetails object
@@ -236,7 +242,13 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
             UserDetails user = userDetailsContextMapper.mapUserFromContext(userData, username, extraAuthorities);
 
             return createSuccessfulAuthentication(userToken, user);
-
+        } catch (UsernameNotFoundException notFound) {
+            if (hideUserNotFoundExceptions) {
+                throw new BadCredentialsException(messages.getMessage(
+                        "LdapAuthenticationProvider.badCredentials", "Bad credentials"));
+            } else {
+                throw notFound;
+            }
         } catch (NamingException ldapAccessFailure) {
             throw new AuthenticationServiceException(ldapAccessFailure.getMessage(), ldapAccessFailure);
         }
