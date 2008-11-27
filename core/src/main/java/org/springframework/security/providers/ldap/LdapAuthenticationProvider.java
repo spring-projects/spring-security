@@ -32,6 +32,8 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsMapper;
 import org.springframework.security.userdetails.ldap.UserDetailsContextMapper;
 import org.springframework.security.util.AuthorityUtils;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.ldap.NamingException;
 import org.springframework.ldap.core.DirContextOperations;
@@ -100,7 +102,7 @@ import org.apache.commons.logging.LogFactory;
  *       &lt;/bean&gt;
  *     &lt;/constructor-arg&gt;
  *   &lt;/bean&gt;
- *    </pre>
+ *</pre>
  *
  * <p>
  * This would set up the provider to access an LDAP server with URL
@@ -125,7 +127,7 @@ import org.apache.commons.logging.LogFactory;
  * @see org.springframework.security.providers.ldap.authenticator.BindAuthenticator
  * @see DefaultLdapAuthoritiesPopulator
  */
-public class LdapAuthenticationProvider implements AuthenticationProvider {
+public class LdapAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(LdapAuthenticationProvider.class);
@@ -209,6 +211,10 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
      */
     public void setUseAuthenticationRequestCredentials(boolean useAuthenticationRequestCredentials) {
         this.useAuthenticationRequestCredentials = useAuthenticationRequestCredentials;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
     }
 
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
