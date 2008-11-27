@@ -38,8 +38,7 @@ import javax.servlet.ServletResponse;
  * Tests {@link HttpSessionContextIntegrationFilter}.
  *
  * @author Ben Alex
- * @version $Id: HttpSessionContextIntegrationFilterTests.java 1858 2007-05-24
- *          02:04:47Z benalex $
+ * @version $Id$
  */
 public class HttpSessionContextIntegrationFilterTests extends TestCase {
     // Build an Authentication object we simulate came from HttpSession
@@ -268,30 +267,6 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         assertEquals(updatedPrincipal, ((SecurityContext) context).getAuthentication());
     }
 
-    public void testConcurrentThreadsLazilyChangeFilterAppliedValueToTrue() throws Exception {
-        // Build a Context to store in HttpSession (simulating prior request)
-        SecurityContext sc = new SecurityContextImpl();
-        sc.setAuthentication(sessionPrincipal);
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.getSession().setAttribute(
-                HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY,
-                sc);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Prepare filter
-        HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-        filter.setContextClass(SecurityContextImpl.class);
-        filter.afterPropertiesSet();
-
-        for (int i = 0; i < 3; i++) {
-            ThreadRunner runner = new ThreadRunner(request, response, filter,
-                    new MockFilterChain(sessionPrincipal, null, null));
-            runner.start();
-        }
-
-    }
-
     //~ Inner Classes ==================================================================================================
 
     private class MockFilterChain extends TestCase implements FilterChain {
@@ -323,35 +298,5 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
             }
 
         }
-    }
-
-    private static class ThreadRunner extends Thread {
-        private MockHttpServletRequest request;
-        private MockHttpServletResponse response;
-        private HttpSessionContextIntegrationFilter filter;
-        private MockFilterChain chain;
-
-        public ThreadRunner(MockHttpServletRequest request,
-                MockHttpServletResponse response,
-                HttpSessionContextIntegrationFilter filter,
-                MockFilterChain chain) {
-            this.request = request;
-            this.response = response;
-            this.filter = filter;
-            this.chain = chain;
-        }
-
-        public void run() {
-            try {
-                // Execute filter
-                executeFilterInContainerSimulator(new MockFilterConfig(), filter, request, response, chain);
-
-                // Check the session is not null
-                assertNotNull(request.getSession(false));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
     }
 }
