@@ -15,22 +15,9 @@
 
 package org.springframework.security.context;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-
-import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.security.AuthenticationTrustResolver;
-import org.springframework.security.AuthenticationTrustResolverImpl;
-import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.FilterChainOrder;
 
 /**
@@ -110,8 +97,6 @@ public class HttpSessionContextIntegrationFilter extends SecurityContextPersiste
 
     private Class<? extends SecurityContext> contextClass = SecurityContextImpl.class;
 
-//    private Object contextObject;
-
     /**
      * Indicates if this filter can create a <code>HttpSession</code> if
      * needed (sessions are always created sparingly, but setting this value to
@@ -160,7 +145,6 @@ public class HttpSessionContextIntegrationFilter extends SecurityContextPersiste
     private HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 
     public HttpSessionContextIntegrationFilter() throws ServletException {
-//        this.contextObject = generateNewContext();
         super.setSecurityContextRepository(repo);
     }
 

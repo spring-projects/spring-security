@@ -90,7 +90,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
                 ctls.setReturningAttributes(NO_ATTRS);
                 ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
 
-                NamingEnumeration results = ctx.search(dn, comparisonFilter, new Object[] {value}, ctls);
+                NamingEnumeration<SearchResult> results = ctx.search(dn, comparisonFilter, new Object[] {value}, ctls);
 
                 return Boolean.valueOf(results.hasMore());
             }
@@ -135,7 +135,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
      *
      * @return the set of String values for the attribute as a union of the values found in all the matching entries.
      */
-    public Set searchForSingleAttributeValues(final String base, final String filter, final Object[] params,
+    public Set<String> searchForSingleAttributeValues(final String base, final String filter, final Object[] params,
             final String attributeName) {
         // Escape the params acording to RFC2254
         Object[] encodedParams = new String[params.length];
@@ -147,7 +147,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
         String formattedFilter = MessageFormat.format(filter, encodedParams);
         logger.debug("Using filter: " + formattedFilter);
 
-        final HashSet set = new HashSet();
+        final HashSet<String> set = new HashSet<String>();
 
         ContextMapper roleMapper = new ContextMapper() {
             public Object mapFromContext(Object ctx) {
@@ -193,12 +193,12 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
         return (DirContextOperations) executeReadOnly(new ContextExecutor() {
                 public Object executeWithContext(DirContext ctx) throws NamingException {
                     DistinguishedName ctxBaseDn = new DistinguishedName(ctx.getNameInNamespace());
-                    NamingEnumeration resultsEnum = ctx.search(base, filter, params, searchControls);
-                    Set results = new HashSet();
+                    NamingEnumeration<SearchResult> resultsEnum = ctx.search(base, filter, params, searchControls);
+                    Set<DirContextOperations> results = new HashSet<DirContextOperations>();
                     try {
                         while (resultsEnum.hasMore()) {
 
-                            SearchResult searchResult = (SearchResult) resultsEnum.next();
+                            SearchResult searchResult = resultsEnum.next();
                             // Work out the DN of the matched entry
                             StringBuffer dn = new StringBuffer(searchResult.getName());
 

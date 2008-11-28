@@ -64,8 +64,8 @@ public class SpringSecurityAuthenticationSourceTests {
         user.setDn(new DistinguishedName("uid=joe,ou=users"));
         AuthenticationSource source = new SpringSecurityAuthenticationSource();
         SecurityContextHolder.getContext().setAuthentication(
-        		new TestingAuthenticationToken(user.createUserDetails(), null));
+                new TestingAuthenticationToken(user.createUserDetails(), null));
 
-        assertEquals("uid=joe, ou=users", source.getPrincipal());
+        assertEquals("uid=joe,ou=users", source.getPrincipal());
     }
 }

@@ -11,6 +11,8 @@ import javax.naming.directory.DirContext;
  * @author Luke Taylor
  * @version $Id$
  * @since 2.0
+ *
+ * @deprecated As of Spring LDAP 1.3, ContextSource provides this method itself.
  */
 public interface SpringSecurityContextSource extends BaseLdapPathContextSource {
 

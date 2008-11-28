@@ -15,10 +15,12 @@
 
 package org.springframework.security.ldap;
 
-import org.springframework.dao.DataAccessException;
-import org.springframework.ldap.core.DistinguishedName;
-
 import javax.naming.directory.DirContext;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.ldap.NamingException;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 
 
 /**
@@ -26,7 +28,7 @@ import javax.naming.directory.DirContext;
  * @author Luke Taylor
  * @version $Id$
  */
-public class MockSpringSecurityContextSource implements SpringSecurityContextSource {
+public class MockSpringSecurityContextSource implements BaseLdapPathContextSource {
     //~ Instance fields ================================================================================================
 
     private DirContext ctx;
@@ -52,7 +54,7 @@ public class MockSpringSecurityContextSource implements SpringSecurityContextSou
         return ctx;
     }
 
-    public DirContext getReadWriteContext(String userDn, Object credentials) {
+    public DirContext getContext(String principal, String credentials) throws NamingException {
         return ctx;
     }
 

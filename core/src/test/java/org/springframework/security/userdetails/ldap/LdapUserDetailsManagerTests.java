@@ -95,7 +95,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         mgr.setGroupSearchBase("ou=groups");
         LdapUserDetails bob = (LdapUserDetails) mgr.loadUserByUsername("bob");
         assertEquals("bob", bob.getUsername());
-        assertEquals("uid=bob, ou=people, dc=springframework, dc=org", bob.getDn());
+        assertEquals("uid=bob,ou=people,dc=springframework,dc=org", bob.getDn());
         assertEquals("bobspassword", bob.getPassword());
 
         assertEquals(1, bob.getAuthorities().size());

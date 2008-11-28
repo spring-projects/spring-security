@@ -60,7 +60,7 @@ public class PasswordComparisonAuthenticatorMockTests {
         final Attributes searchResults = new BasicAttributes("", null);
 
         context.checking(new Expectations() {{
-            oneOf(dirCtx).search(with(equal("cn=Bob, ou=people")),
+            oneOf(dirCtx).search(with(equal("cn=Bob,ou=people")),
                             with(equal("(userPassword={0})")),
                             with(aNonNull(Object[].class)),
                             with(aNonNull(SearchControls.class)));

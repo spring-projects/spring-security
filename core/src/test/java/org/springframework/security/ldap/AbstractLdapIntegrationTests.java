@@ -14,24 +14,25 @@
  */
 package org.springframework.security.ldap;
 
-import org.springframework.security.config.BeanIds;
-import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.junit.BeforeClass;
-import org.junit.Before;
-import org.junit.AfterClass;
-import org.junit.After;
-import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
-import org.apache.directory.server.core.DirectoryService;
-
-import javax.naming.directory.DirContext;
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
 import javax.naming.Binding;
 import javax.naming.ContextNotEmptyException;
+import javax.naming.Name;
 import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.support.BaseLdapPathContextSource;
+import org.springframework.security.config.BeanIds;
+import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
  * Based on class borrowed from Spring Ldap project.
@@ -40,7 +41,7 @@ import javax.naming.NameNotFoundException;
  * @version $Id$
  */
 public abstract class AbstractLdapIntegrationTests {
-    private static ClassPathXmlApplicationContext appContext;
+    private static InMemoryXmlApplicationContext appContext;
 
     protected AbstractLdapIntegrationTests() {
     }
@@ -48,7 +49,7 @@ public abstract class AbstractLdapIntegrationTests {
     @BeforeClass
     public static void loadContext() throws NamingException {
         shutdownRunningServers();
-        appContext = new ClassPathXmlApplicationContext("/org/springframework/security/ldap/ldapIntegrationTestContext.xml");
+        appContext = new InMemoryXmlApplicationContext("<ldap-server port='53389' ldif='classpath:test-server.ldif'/>");
 
     }
 
@@ -98,22 +99,14 @@ public abstract class AbstractLdapIntegrationTests {
         }
     }
 
-    public SpringSecurityContextSource getContextSource() {
-        return (SpringSecurityContextSource) appContext.getBean(BeanIds.CONTEXT_SOURCE);
+    public BaseLdapPathContextSource getContextSource() {
+        return (BaseLdapPathContextSource)appContext.getBean(BeanIds.CONTEXT_SOURCE);
     }
 
-    /**
-     * We have both a context source and intitialdircontextfactory. The former is also used in
-     * the cleanAndSetup method so any mods during tests can mess it up.
-     * TODO: Once the initialdircontextfactory stuff has been refactored, revisit this and remove this property.
-     */
-    protected DefaultInitialDirContextFactory getInitialDirContextFactory() {
-        return (DefaultInitialDirContextFactory) appContext.getBean("initialDirContextFactory");
-    }
 
     private void clearSubContexts(DirContext ctx, Name name) throws NamingException {
 
-        NamingEnumeration enumeration = null;
+        NamingEnumeration<Binding> enumeration = null;
         try {
             enumeration = ctx.listBindings(name);
             while (enumeration.hasMore()) {
