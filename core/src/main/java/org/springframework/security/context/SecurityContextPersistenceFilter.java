@@ -73,6 +73,7 @@ public class SecurityContextPersistenceFilter extends SpringSecurityFilter {
             // Crucial removal of SecurityContextHolder contents - do this before anything else.
             SecurityContextHolder.clearContext();
             repo.saveContext(contextAfterChainExecution, holder.getRequest(), holder.getResponse());
+            request.removeAttribute(FILTER_APPLIED);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("SecurityContextHolder now cleared, as request processing completed");

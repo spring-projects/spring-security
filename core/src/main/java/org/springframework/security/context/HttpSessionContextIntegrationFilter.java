@@ -95,20 +95,22 @@ import org.springframework.security.ui.FilterChainOrder;
  * @author Luke Taylor
  * @author Martin Algesten
  *
+ * @deprecated Use SecurityContextPersistenceFilter instead.
+ *
  * @version $Id$
  */
-public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter implements InitializingBean {
+public class HttpSessionContextIntegrationFilter extends SecurityContextPersistenceFilter implements InitializingBean {
     //~ Static fields/initializers =====================================================================================
 
-    static final String FILTER_APPLIED = "__spring_security_session_integration_filter_applied";
-
+//    static final String FILTER_APPLIED = "__spring_security_session_integration_filter_applied";
+//
     public static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
 
     //~ Instance fields ================================================================================================
 
     private Class<? extends SecurityContext> contextClass = SecurityContextImpl.class;
 
-    private Object contextObject;
+//    private Object contextObject;
 
     /**
      * Indicates if this filter can create a <code>HttpSession</code> if
@@ -153,7 +155,14 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
      */
     private boolean cloneFromHttpSession = false;
 
-    private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
+ //   private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
+
+    private HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+
+    public HttpSessionContextIntegrationFilter() throws ServletException {
+//        this.contextObject = generateNewContext();
+        super.setSecurityContextRepository(repo);
+    }
 
     public boolean isCloneFromHttpSession() {
         return cloneFromHttpSession;
@@ -161,374 +170,49 @@ public class HttpSessionContextIntegrationFilter extends SpringSecurityFilter im
 
     public void setCloneFromHttpSession(boolean cloneFromHttpSession) {
         this.cloneFromHttpSession = cloneFromHttpSession;
+        repo.setCloneFromHttpSession(cloneFromHttpSession);
     }
 
-    public HttpSessionContextIntegrationFilter() throws ServletException {
-        this.contextObject = generateNewContext();
+    public boolean isAllowSessionCreation() {
+      return allowSessionCreation;
+    }
+
+    public void setAllowSessionCreation(boolean allowSessionCreation) {
+      this.allowSessionCreation = allowSessionCreation;
+      repo.setAllowSessionCreation(allowSessionCreation);
+    }
+
+    protected Class<? extends SecurityContext> getContextClass() {
+      return contextClass;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setContextClass(Class secureContext) {
+      this.contextClass = secureContext;
+      repo.setSecurityContextClass(secureContext);
+    }
+
+    public boolean isForceEagerSessionCreation() {
+      return forceEagerSessionCreation;
+    }
+
+    public void setForceEagerSessionCreation(boolean forceEagerSessionCreation) {
+      this.forceEagerSessionCreation = forceEagerSessionCreation;
+      super.setForceEagerSessionCreation(forceEagerSessionCreation);
+    }
+
+    public int getOrder() {
+      return FilterChainOrder.HTTP_SESSION_CONTEXT_FILTER;
     }
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        if ((this.contextClass == null) || (!SecurityContext.class.isAssignableFrom(this.contextClass))) {
-            throw new IllegalArgumentException("context must be defined and implement SecurityContext "
-                    + "(typically use org.springframework.security.context.SecurityContextImpl; existing class is "
-                    + this.contextClass + ")");
-        }
-
         if (forceEagerSessionCreation && !allowSessionCreation) {
             throw new IllegalArgumentException(
                     "If using forceEagerSessionCreation, you must set allowSessionCreation to also be true");
         }
-
-        contextObject = generateNewContext();
     }
 
-    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
-
-        if (request.getAttribute(FILTER_APPLIED) != null) {
-            // ensure that filter is only applied once per request
-            chain.doFilter(request, response);
-
-            return;
-        }
-
-        HttpSession httpSession = safeGetSession(request, forceEagerSessionCreation);
-        boolean httpSessionExistedAtStartOfRequest = httpSession != null;
-        SecurityContext contextBeforeChainExecution = readSecurityContextFromSession(httpSession);
-
-        // Make the HttpSession null, as we don't want to keep a reference to it lying
-        // around in case chain.doFilter() invalidates it.
-        httpSession = null;
-
-        if (contextBeforeChainExecution == null) {
-            contextBeforeChainExecution = generateNewContext();
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("New SecurityContext instance will be associated with SecurityContextHolder");
-            }
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Obtained a valid SecurityContext from SPRING_SECURITY_CONTEXT to "
-                        + "associate with SecurityContextHolder: '" + contextBeforeChainExecution + "'");
-            }
-        }
-
-        int contextHashBeforeChainExecution = contextBeforeChainExecution.hashCode();
-        request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
-
-        // Create a wrapper that will eagerly update the session with the security context
-        // if anything in the chain does a sendError() or sendRedirect().
-        // See SEC-398
-
-        OnRedirectUpdateSessionResponseWrapper responseWrapper =
-                new OnRedirectUpdateSessionResponseWrapper( response, request,
-                    httpSessionExistedAtStartOfRequest, contextHashBeforeChainExecution );
-
-        // Proceed with chain
-
-        try {
-            // This is the only place in this class where SecurityContextHolder.setContext() is called
-            SecurityContextHolder.setContext(contextBeforeChainExecution);
-
-            chain.doFilter(request, responseWrapper);
-        }
-        finally {
-            // This is the only place in this class where SecurityContextHolder.getContext() is called
-            SecurityContext contextAfterChainExecution = SecurityContextHolder.getContext();
-
-            // Crucial removal of SecurityContextHolder contents - do this before anything else.
-            SecurityContextHolder.clearContext();
-
-            request.removeAttribute(FILTER_APPLIED);
-
-            // storeSecurityContextInSession() might already be called by the response wrapper
-            // if something in the chain called sendError() or sendRedirect(). This ensures we only call it
-            // once per request.
-            if ( !responseWrapper.isSessionUpdateDone() ) {
-                storeSecurityContextInSession(contextAfterChainExecution, request,
-                      httpSessionExistedAtStartOfRequest, contextHashBeforeChainExecution);
-            }
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("SecurityContextHolder now cleared, as request processing completed");
-            }
-        }
-    }
-
-    /**
-     * Gets the security context from the session (if available) and returns it.
-     * <p/>
-     * If the session is null, the context object is null or the context object stored in the session
-     * is not an instance of SecurityContext it will return null.
-     * <p/>
-     * If <tt>cloneFromHttpSession</tt> is set to true, it will attempt to clone the context object
-     * and return the cloned instance.
-     *
-     * @param httpSession the session obtained from the request.
-     */
-    private SecurityContext readSecurityContextFromSession(HttpSession httpSession) {
-        if (httpSession == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("No HttpSession currently exists");
-            }
-
-            return null;
-        }
-
-        // Session exists, so try to obtain a context from it.
-
-        Object contextFromSessionObject = httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
-
-        if (contextFromSessionObject == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("HttpSession returned null object for SPRING_SECURITY_CONTEXT");
-            }
-
-            return null;
-        }
-
-        // We now have the security context object from the session.
-
-        // Clone if required (see SEC-356)
-        if (cloneFromHttpSession) {
-            Assert.isInstanceOf(Cloneable.class, contextFromSessionObject,
-                    "Context must implement Clonable and provide a Object.clone() method");
-            try {
-                Method m = contextFromSessionObject.getClass().getMethod("clone", new Class[]{});
-                if (!m.isAccessible()) {
-                    m.setAccessible(true);
-                }
-                contextFromSessionObject = m.invoke(contextFromSessionObject, new Object[]{});
-            }
-            catch (Exception ex) {
-                ReflectionUtils.handleReflectionException(ex);
-            }
-        }
-
-        if (!(contextFromSessionObject instanceof SecurityContext)) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("SPRING_SECURITY_CONTEXT did not contain a SecurityContext but contained: '"
-                        + contextFromSessionObject
-                        + "'; are you improperly modifying the HttpSession directly "
-                        + "(you should always use SecurityContextHolder) or using the HttpSession attribute "
-                        + "reserved for this class?");
-            }
-
-            return null;
-        }
-
-        // Everything OK. The only non-null return from this method.
-
-        return (SecurityContext) contextFromSessionObject;
-    }
-
-    /**
-     * Stores the supplied security context in the session (if available) and if it has changed since it was
-     * set at the start of the request. If the AuthenticationTrustResolver identifies the current user as
-     * anonymous, then the context will not be stored.
-     *
-     * @param securityContext the context object obtained from the SecurityContextHolder after the request has
-     *        been processed by the filter chain. SecurityContextHolder.getContext() cannot be used to obtain
-     *        the context as it has already been cleared by the time this method is called.
-     * @param request the request object (used to obtain the session, if one exists).
-     * @param httpSessionExistedAtStartOfRequest indicates whether there was a session in place before the
-     *        filter chain executed. If this is true, and the session is found to be null, this indicates that it was
-     *        invalidated during the request and a new session will now be created.
-     * @param contextHashBeforeChainExecution the hashcode of the context before the filter chain executed.
-     *        The context will only be stored if it has a different hashcode, indicating that the context changed
-     *        during the request.
-     *
-     */
-    private void storeSecurityContextInSession(SecurityContext securityContext,
-                                               HttpServletRequest request,
-                                               boolean httpSessionExistedAtStartOfRequest,
-                                               int contextHashBeforeChainExecution) {
-        HttpSession httpSession = safeGetSession(request, false);
-
-        if (httpSession == null) {
-            if (httpSessionExistedAtStartOfRequest) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("HttpSession is now null, but was not null at start of request; "
-                            + "session was invalidated, so do not create a new session");
-                }
-            } else {
-                // Generate a HttpSession only if we need to
-
-                if (!allowSessionCreation) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("The HttpSession is currently null, and the "
-                                        + "HttpSessionContextIntegrationFilter is prohibited from creating an HttpSession "
-                                        + "(because the allowSessionCreation property is false) - SecurityContext thus not "
-                                        + "stored for next request");
-                    }
-                } else if (!contextObject.equals(securityContext)) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("HttpSession being created as SecurityContextHolder contents are non-default");
-                    }
-
-                    httpSession = safeGetSession(request, true);
-
-                } else {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("HttpSession is null, but SecurityContextHolder has not changed from default: ' "
-                                + securityContext
-                                + "'; not creating HttpSession or storing SecurityContextHolder contents");
-                    }
-                }
-            }
-        }
-
-        // If HttpSession exists, store current SecurityContextHolder contents but only if
-        // the SecurityContext has actually changed (see JIRA SEC-37)
-        if (httpSession != null && securityContext.hashCode() != contextHashBeforeChainExecution) {
-            // See SEC-766
-            if (authenticationTrustResolver.isAnonymous(securityContext.getAuthentication())) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SecurityContext contents are anonymous - context will not be stored in HttpSession. ");
-                }
-            } else {
-                httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SecurityContext stored to HttpSession: '" + securityContext + "'");
-                }
-            }
-        }
-    }
-
-    private HttpSession safeGetSession(HttpServletRequest request, boolean allowCreate) {
-        try {
-            return request.getSession(allowCreate);
-        }
-        catch (IllegalStateException ignored) {
-            return null;
-        }
-    }
-
-    public SecurityContext generateNewContext() throws ServletException {
-        try {
-            return (SecurityContext) this.contextClass.newInstance();
-        }
-        catch (InstantiationException ie) {
-            throw new ServletException(ie);
-        }
-        catch (IllegalAccessException iae) {
-            throw new ServletException(iae);
-        }
-    }
-
-    public boolean isAllowSessionCreation() {
-        return allowSessionCreation;
-    }
-
-    public void setAllowSessionCreation(boolean allowSessionCreation) {
-        this.allowSessionCreation = allowSessionCreation;
-    }
-
-    protected Class<? extends SecurityContext> getContextClass() {
-        return contextClass;
-    }
-
-    @SuppressWarnings("unchecked")
-    public void setContextClass(Class secureContext) {
-        this.contextClass = secureContext;
-    }
-
-    public boolean isForceEagerSessionCreation() {
-        return forceEagerSessionCreation;
-    }
-
-    public void setForceEagerSessionCreation(boolean forceEagerSessionCreation) {
-        this.forceEagerSessionCreation = forceEagerSessionCreation;
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.HTTP_SESSION_CONTEXT_FILTER;
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    /**
-     * Wrapper that is applied to every request to update the <code>HttpSession<code> with
-     * the <code>SecurityContext</code> when a <code>sendError()</code> or <code>sendRedirect</code>
-     * happens. See SEC-398. The class contains the fields needed to call
-     * <code>storeSecurityContextInSession()</code>
-     */
-    private class OnRedirectUpdateSessionResponseWrapper extends HttpServletResponseWrapper {
-
-        HttpServletRequest request;
-        boolean httpSessionExistedAtStartOfRequest;
-        int contextHashBeforeChainExecution;
-
-        // Used to ensure storeSecurityContextInSession() is only
-        // called once.
-        boolean sessionUpdateDone = false;
-
-        /**
-         * Takes the parameters required to call <code>storeSecurityContextInSession()</code> in
-         * addition to the response object we are wrapping.
-         * @see HttpSessionContextIntegrationFilter#storeSecurityContextInSession(SecurityContext, HttpServletRequest, boolean, int)
-         */
-        public OnRedirectUpdateSessionResponseWrapper(HttpServletResponse response,
-                                                      HttpServletRequest request,
-                                                      boolean httpSessionExistedAtStartOfRequest,
-                                                      int contextHashBeforeChainExecution) {
-            super(response);
-            this.request = request;
-            this.httpSessionExistedAtStartOfRequest = httpSessionExistedAtStartOfRequest;
-            this.contextHashBeforeChainExecution = contextHashBeforeChainExecution;
-        }
-
-        /**
-         * Makes sure the session is updated before calling the
-         * superclass <code>sendError()</code>
-         */
-        public void sendError(int sc) throws IOException {
-            doSessionUpdate();
-            super.sendError(sc);
-        }
-
-        /**
-         * Makes sure the session is updated before calling the
-         * superclass <code>sendError()</code>
-         */
-        public void sendError(int sc, String msg) throws IOException {
-            doSessionUpdate();
-            super.sendError(sc, msg);
-        }
-
-        /**
-         * Makes sure the session is updated before calling the
-         * superclass <code>sendRedirect()</code>
-         */
-        public void sendRedirect(String location) throws IOException {
-            doSessionUpdate();
-            super.sendRedirect(location);
-        }
-
-        /**
-         * Calls <code>storeSecurityContextInSession()</code>
-         */
-        private void doSessionUpdate() {
-            if (sessionUpdateDone) {
-                return;
-            }
-            SecurityContext securityContext = SecurityContextHolder.getContext();
-            storeSecurityContextInSession(securityContext, request,
-                    httpSessionExistedAtStartOfRequest, contextHashBeforeChainExecution);
-            sessionUpdateDone = true;
-        }
-
-        /**
-         * Tells if the response wrapper has called
-         * <code>storeSecurityContextInSession()</code>.
-         */
-        public boolean isSessionUpdateDone() {
-            return sessionUpdateDone;
-        }
-
-    }
 
 }

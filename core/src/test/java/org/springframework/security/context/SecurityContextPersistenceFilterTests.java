@@ -98,23 +98,18 @@ public class SecurityContextPersistenceFilterTests {
     }
 
     @Test
-    public void filterIsOnlyAppliedOncePerRequest() throws Exception {
+    public void filterIsNotAppliedAgainIfFilterAppliedAttributeIsSet() throws Exception {
         final FilterChain chain = jmock.mock(FilterChain.class);
         final MockHttpServletRequest request = new MockHttpServletRequest();
         final MockHttpServletResponse response = new MockHttpServletResponse();
         SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
-        final SecurityContextRepository repo = jmock.mock(SecurityContextRepository.class);
-        filter.setSecurityContextRepository(repo);
-        final SecurityContext sc = SecurityContextHolder.getContext();
+        filter.setSecurityContextRepository(jmock.mock(SecurityContextRepository.class));
 
         jmock.checking(new Expectations() {{
-            oneOf(repo).loadContext(with(aNonNull(HttpRequestResponseHolder.class))); will(returnValue(sc));
-            oneOf(repo).saveContext(sc, request, response);
-            exactly(2).of(chain).doFilter(request, response);
+            oneOf(chain).doFilter(request, response);
         }});
 
-        filter.doFilter(request, response, chain);
-        assertNotNull(request.getAttribute(SecurityContextPersistenceFilter.FILTER_APPLIED));
+        request.setAttribute(SecurityContextPersistenceFilter.FILTER_APPLIED, Boolean.TRUE);
         filter.doFilter(request, response, chain);
         jmock.assertIsSatisfied();
     }
