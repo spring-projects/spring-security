@@ -1,38 +1,29 @@
 package org.springframework.security.ldap;
 
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.ldap.core.support.LdapContextSource;
-import org.springframework.util.Assert;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.naming.Context;
-import javax.naming.directory.DirContext;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.StringTokenizer;
+import org.springframework.ldap.core.support.LdapContextSource;
+import org.springframework.util.Assert;
 
 /**
- * SpringSecurityContextSource implementation which uses Spring LDAP's <tt>LdapContextSource</tt> as a base
- * class. Intended as a replacement for <tt>DefaultInitialDirContextFactory</tt> from versions of the framework prior
- * to 2.0.
+ * ContextSource implementation which uses Spring LDAP's <tt>LdapContextSource</tt> as a base
+ * class. Used internally by the Spring Security LDAP namespace configuration.
+ * <p>
+ * From Spring Security 2.5, Spring LDAP 1.3 is used and the <tt>ContextSource</tt> interface
+ * provides support for binding with a username and password. As a result, Spring LDAP <tt>ContextSource</tt>
+ * implementations such as <tt>LdapContextSource</tt> may be used directly with Spring Security.
  *
  * @author Luke Taylor
  * @version $Id$
  * @since 2.0
  */
-public class DefaultSpringSecurityContextSource extends LdapContextSource implements SpringSecurityContextSource,
-        MessageSourceAware {
+public class DefaultSpringSecurityContextSource extends LdapContextSource {
 
     private static final Log logger = LogFactory.getLog(DefaultSpringSecurityContextSource.class);
     private String rootDn;
-
-    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     /**
      * Create and initialize an instance which will connect to the supplied LDAP URL.
@@ -64,32 +55,5 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource implem
 
         super.setUrls(urls.toArray(new String[urls.size()]));
         super.setBase(rootDn);
-    }
-
-    @SuppressWarnings("unchecked")
-    public DirContext getReadWriteContext(String userDn, Object credentials) {
-        Hashtable env = new Hashtable(getAnonymousEnv());
-
-        env.put(Context.SECURITY_PRINCIPAL, userDn);
-        env.put(Context.SECURITY_CREDENTIALS, credentials);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Creating context with principal: '" + userDn + "'");
-        }
-
-        try {
-            return createContext(env);
-        } catch (org.springframework.ldap.NamingException e) {
-            if ((e instanceof org.springframework.ldap.AuthenticationException)
-                    || (e instanceof org.springframework.ldap.OperationNotSupportedException)) {
-                throw new BadCredentialsException(
-                        messages.getMessage("DefaultSpringSecurityContextSource.badCredentials", "Bad credentials"), e);
-            }
-            throw e;
-        }
-    }
-
-    public void setMessageSource(MessageSource messageSource) {
-        this.messages = new MessageSourceAccessor(messageSource);
     }
 }

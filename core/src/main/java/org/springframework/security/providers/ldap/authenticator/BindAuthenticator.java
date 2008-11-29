@@ -48,9 +48,9 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
     //~ Constructors ===================================================================================================
 
     /**
-     * Create an initialized instance using the {@link SpringSecurityContextSource} provided.
+     * Create an initialized instance using the {@link BaseLdapPathContextSource} provided.
      *
-     * @param contextSource the SpringSecurityContextSource instance against which bind operations will be
+     * @param contextSource the BaseLdapPathContextSource instance against which bind operations will be
      * performed.
      *
      */

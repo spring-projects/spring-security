@@ -1,12 +1,10 @@
 package org.springframework.security.config;
 
-import org.springframework.security.util.InMemoryXmlApplicationContext;
-import org.springframework.security.ldap.SpringSecurityContextSource;
-
-import org.springframework.ldap.core.LdapTemplate;
-
-import org.junit.Test;
 import org.junit.After;
+import org.junit.Test;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
+import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
  * @author Luke Taylor
@@ -27,7 +25,7 @@ public class LdapServerBeanDefinitionParserTests {
     public void embeddedServerCreationContainsExpectedContextSourceAndData() {
         appCtx = new InMemoryXmlApplicationContext("<ldap-server />");
 
-        SpringSecurityContextSource contextSource = (SpringSecurityContextSource) appCtx.getBean(BeanIds.CONTEXT_SOURCE);
+        DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) appCtx.getBean(BeanIds.CONTEXT_SOURCE);
 
         // Check data is loaded
         LdapTemplate template = new LdapTemplate(contextSource);
@@ -43,7 +41,7 @@ public class LdapServerBeanDefinitionParserTests {
         // Check the default context source is still there.
         appCtx.getBean(BeanIds.CONTEXT_SOURCE);
 
-        SpringSecurityContextSource contextSource = (SpringSecurityContextSource) appCtx.getBean("blah");
+        DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) appCtx.getBean("blah");
 
         // Check data is loaded as before
         LdapTemplate template = new LdapTemplate(contextSource);
@@ -54,7 +52,7 @@ public class LdapServerBeanDefinitionParserTests {
     public void loadingSpecificLdifFileIsSuccessful() {
         appCtx = new InMemoryXmlApplicationContext(
                 "<ldap-server ldif='classpath*:test-server2.xldif' root='dc=monkeymachine,dc=co,dc=uk' />");
-        SpringSecurityContextSource contextSource = (SpringSecurityContextSource) appCtx.getBean(BeanIds.CONTEXT_SOURCE);
+        DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) appCtx.getBean(BeanIds.CONTEXT_SOURCE);
 
         LdapTemplate template = new LdapTemplate(contextSource);
         template.lookup("uid=pg,ou=gorillas");
