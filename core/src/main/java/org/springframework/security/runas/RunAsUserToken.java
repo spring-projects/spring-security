@@ -16,7 +16,9 @@
 package org.springframework.security.runas;
 
 import java.util.Arrays;
+import java.util.List;
 
+import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
 import org.springframework.security.providers.AbstractAuthenticationToken;
@@ -32,7 +34,7 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================
 
     private static final long serialVersionUID = 1L;
-    private Class originalAuthentication;
+    private Class<? extends Authentication> originalAuthentication;
     private Object credentials;
     private Object principal;
     private int keyHash;
@@ -40,8 +42,13 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
     //~ Constructors ===================================================================================================
 
     public RunAsUserToken(String key, Object principal, Object credentials, GrantedAuthority[] authorities,
-            Class originalAuthentication) {
-        super(Arrays.asList(authorities));
+            Class<? extends Authentication> originalAuthentication) {
+        this(key, principal, credentials, Arrays.asList(authorities), originalAuthentication);
+    }
+
+    public RunAsUserToken(String key, Object principal, Object credentials, List<GrantedAuthority> authorities,
+            Class<? extends Authentication> originalAuthentication) {
+        super(authorities);
         this.keyHash = key.hashCode();
         this.principal = principal;
         this.credentials = credentials;
@@ -59,7 +66,7 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
         return this.keyHash;
     }
 
-    public Class getOriginalAuthentication() {
+    public Class<? extends Authentication> getOriginalAuthentication() {
         return this.originalAuthentication;
     }
 

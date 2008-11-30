@@ -38,11 +38,11 @@ import org.springframework.util.Assert;
  * <code>RUN_AS_</code> keyword. For example, <code>RUN_AS_FOO</code> will result in the creation of a granted
  * authority of <code>ROLE_RUN_AS_FOO</code>.
  * <p>
- * The role prefix may be overriden from the default, to match that used elsewhere, for example when using an
+ * The role prefix may be overridden from the default, to match that used elsewhere, for example when using an
  * existing role database with another prefix. An empty role prefix may also be specified. Note however that there are
  * potential issues with using an empty role prefix since different categories of  {@link ConfigAttribute} can not be
  * properly discerned based on the prefix, with possible consequences when performing voting and other actions.
- * However, this option may be of some use when using preexisting role names without a prefix, and no ability exists to
+ * However, this option may be of some use when using pre-existing role names without a prefix, and no ability exists to
  * prefix them with a role prefix on reading them in, such as provided for example in
  * {@link org.springframework.security.userdetails.jdbc.JdbcDaoImpl}.
  *
@@ -62,10 +62,10 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
         Assert.notNull(key, "A Key is required and should match that configured for the RunAsImplAuthenticationProvider");
     }
 
-    public Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> config) {
+    public Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
         List<GrantedAuthority> newAuthorities = new ArrayList<GrantedAuthority>();
 
-        for(ConfigAttribute attribute : config) {
+        for (ConfigAttribute attribute : attributes) {
             if (this.supports(attribute)) {
                 GrantedAuthority extraAuthority = new GrantedAuthorityImpl(getRolePrefix() + attribute.getAttribute());
                 newAuthorities.add(extraAuthority);
@@ -79,11 +79,8 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
         // Add existing authorities
         newAuthorities.addAll(authentication.getAuthorities());
 
-//        GrantedAuthority[] resultType = {new GrantedAuthorityImpl("holder")};
-        GrantedAuthority[] newAuthoritiesAsArray = newAuthorities.toArray(new GrantedAuthority[0]);
-
         return new RunAsUserToken(this.key, authentication.getPrincipal(), authentication.getCredentials(),
-                newAuthoritiesAsArray, authentication.getClass());
+                newAuthorities, authentication.getClass());
     }
 
     public String getKey() {
@@ -99,8 +96,8 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
     }
 
     /**
-     * Allows the default role prefix of <code>ROLE_</code> to be overriden. May be set to an empty value,
-     * although this is usually not desireable.
+     * Allows the default role prefix of <code>ROLE_</code> to be overridden. May be set to an empty value,
+     * although this is usually not desirable.
      *
      * @param rolePrefix the new prefix
      */
@@ -109,11 +106,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        if ((attribute.getAttribute() != null) && attribute.getAttribute().startsWith("RUN_AS_")) {
-            return true;
-        } else {
-            return false;
-        }
+        return attribute.getAttribute() != null && attribute.getAttribute().startsWith("RUN_AS_");
     }
 
     /**
@@ -121,7 +114,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
      *
      * @param clazz the secure object
      *
-     * @return alwaus <code>true</code>
+     * @return always <code>true</code>
      */
     public boolean supports(Class<?> clazz) {
         return true;
