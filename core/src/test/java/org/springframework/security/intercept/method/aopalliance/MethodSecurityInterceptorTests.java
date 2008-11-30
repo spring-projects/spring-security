@@ -15,35 +15,45 @@
 
 package org.springframework.security.intercept.method.aopalliance;
 
-import java.lang.reflect.Method;
-import java.util.Collection;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.List;
 
-import junit.framework.TestCase;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.aopalliance.intercept.MethodInvocation;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AfterInvocationManager;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationManager;
+import org.springframework.security.BadCredentialsException;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.ITargetObject;
 import org.springframework.security.MockAccessDecisionManager;
-import org.springframework.security.MockAfterInvocationManager;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockRunAsManager;
 import org.springframework.security.RunAsManager;
+import org.springframework.security.SecurityConfig;
+import org.springframework.security.TargetObject;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.intercept.method.MethodDefinitionSource;
 import org.springframework.security.intercept.method.MockMethodDefinitionSource;
+import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.runas.RunAsManagerImpl;
-
+import org.springframework.security.runas.RunAsUserToken;
 
 /**
  * Tests {@link MethodSecurityInterceptor}.
@@ -51,356 +61,265 @@ import org.springframework.security.runas.RunAsManagerImpl;
  * @author Ben Alex
  * @version $Id$
  */
-public class MethodSecurityInterceptorTests extends TestCase {
-    //~ Constructors ===================================================================================================
+public class MethodSecurityInterceptorTests {
+    private Mockery jmock = new JUnit4Mockery();
+    private TestingAuthenticationToken token;
+    private MethodSecurityInterceptor interceptor;
+    private ITargetObject realTarget;
+    private ITargetObject advisedTarget;
+    private AccessDecisionManager adm;
+    private MethodDefinitionSource mds;
+    private AuthenticationManager authman;
 
-    public MethodSecurityInterceptorTests() {
-        super();
-    }
-
-    public MethodSecurityInterceptorTests(String arg0) {
-        super(arg0);
-    }
+    private Expectations mdsWillReturnNullFromGetAttributes;
+    private Expectations mdsWillReturnROLE_USERFromGetAttributes;
 
     //~ Methods ========================================================================================================
 
+    @Before
     public final void setUp() throws Exception {
-        super.setUp();
+        SecurityContextHolder.clearContext();
+        token = new TestingAuthenticationToken("Test", "Password");
+        interceptor = new MethodSecurityInterceptor();
+        adm = jmock.mock(AccessDecisionManager.class);
+        authman = jmock.mock(AuthenticationManager.class);
+        mds = jmock.mock(MethodDefinitionSource.class);
+        interceptor.setAccessDecisionManager(adm);
+        interceptor.setAuthenticationManager(authman);
+        interceptor.setObjectDefinitionSource(mds);
+        createTarget(false);
+
+        mdsWillReturnNullFromGetAttributes = new Expectations() {{
+            oneOf(mds).getAttributes(with(any(MethodInvocation.class))); will (returnValue(null));
+        }};
+        mdsWillReturnROLE_USERFromGetAttributes = new Expectations() {{
+            oneOf(mds).getAttributes(with(any(MethodInvocation.class))); will (returnValue(SecurityConfig.createList("ROLE_USER")));
+        }};
+    }
+
+    @After
+    public void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        SecurityContextHolder.clearContext();
+    private void createTarget(boolean useMock) {
+        realTarget = useMock ? jmock.mock(ITargetObject.class) : new TargetObject();
+        ProxyFactory pf = new ProxyFactory(realTarget);
+        pf.addAdvice(interceptor);
+        advisedTarget = (ITargetObject) pf.getProxy();
     }
 
-    private ITargetObject makeInterceptedTarget() {
-        ApplicationContext context = new ClassPathXmlApplicationContext(
-                "org/springframework/security/intercept/method/aopalliance/applicationContext.xml");
-
-        return (ITargetObject) context.getBean("target");
+    @Test
+    public void gettersReturnExpectedData() {
+        RunAsManager runAs = jmock.mock(RunAsManager.class);
+        AfterInvocationManager aim = jmock.mock(AfterInvocationManager.class);
+        interceptor.setRunAsManager(runAs);
+        interceptor.setAfterInvocationManager(aim);
+        assertEquals(adm, interceptor.getAccessDecisionManager());
+        assertEquals(runAs, interceptor.getRunAsManager());
+        assertEquals(authman, interceptor.getAuthenticationManager());
+        assertEquals(mds, interceptor.getObjectDefinitionSource());
+        assertEquals(aim, interceptor.getAfterInvocationManager());
     }
 
-    private ITargetObject makeInterceptedTargetRejectsAuthentication() {
-        ApplicationContext context = new ClassPathXmlApplicationContext(
-                "org/springframework/security/intercept/method/aopalliance/applicationContext.xml");
-
-        MockAuthenticationManager authenticationManager = new MockAuthenticationManager(false);
-        MethodSecurityInterceptor si = (MethodSecurityInterceptor) context.getBean("securityInterceptor");
-        si.setAuthenticationManager(authenticationManager);
-
-        return (ITargetObject) context.getBean("target");
+    @Test(expected=IllegalArgumentException.class)
+    public void missingAccessDecisionManagerIsDetected() throws Exception {
+        interceptor.setAccessDecisionManager(null);
+        interceptor.afterPropertiesSet();
     }
 
-    private ITargetObject makeInterceptedTargetWithoutAnAfterInvocationManager() {
-        ApplicationContext context = new ClassPathXmlApplicationContext(
-                "org/springframework/security/intercept/method/aopalliance/applicationContext.xml");
-
-        MethodSecurityInterceptor si = (MethodSecurityInterceptor) context.getBean("securityInterceptor");
-        si.setAfterInvocationManager(null);
-
-        return (ITargetObject) context.getBean("target");
+    @Test(expected=IllegalArgumentException.class)
+    public void missingAuthenticationManagerIsDetected() throws Exception {
+        interceptor.setAuthenticationManager(null);
+        interceptor.afterPropertiesSet();
     }
 
-    public void testCallingAPublicMethodFacadeWillNotRepeatSecurityChecksWhenPassedToTheSecuredMethodItFronts()
-        throws Exception {
-        ITargetObject target = makeInterceptedTarget();
-        String result = target.publicMakeLowerCase("HELLO");
+    @Test(expected=IllegalArgumentException.class)
+    public void missingMethodDefinitionSourceIsRejected() throws Exception {
+        interceptor.setObjectDefinitionSource(null);
+        interceptor.afterPropertiesSet();
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void missingRunAsManagerIsRejected() throws Exception {
+        interceptor.setRunAsManager(null);
+        interceptor.afterPropertiesSet();
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void initializationRejectsObjectDefinitionSourceThatDoesNotSupportMethodInvocation() throws Throwable {
+        jmock.checking(new Expectations() {{
+           oneOf(mds).supports(MethodInvocation.class); will(returnValue(false));
+        }});
+        interceptor.afterPropertiesSet();
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void initializationRejectsAccessDecisionManagerThatDoesNotSupportMethodInvocation() throws Exception {
+        jmock.checking(new Expectations() {{
+            oneOf(mds).supports(MethodInvocation.class); will(returnValue(true));
+            oneOf(adm).supports(MethodInvocation.class); will(returnValue(false));
+         }});
+         interceptor.afterPropertiesSet();
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void intitalizationRejectsRunAsManagerThatDoesNotSupportMethodInvocation() throws Exception {
+        final RunAsManager ram = jmock.mock(RunAsManager.class);
+        jmock.checking(new Expectations() {{
+            ignoring(mds);
+            oneOf(ram).supports(MethodInvocation.class); will(returnValue(false));
+        }});
+        interceptor.setRunAsManager(ram);
+        interceptor.afterPropertiesSet();
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void intitalizationRejectsAfterInvocationManagerThatDoesNotSupportMethodInvocation() throws Exception {
+        final AfterInvocationManager aim = jmock.mock(AfterInvocationManager.class);
+        jmock.checking(new Expectations() {{
+            oneOf(aim).supports(MethodInvocation.class); will(returnValue(false));
+            ignoring(anything());
+        }});
+        interceptor.setAfterInvocationManager(aim);
+        interceptor.afterPropertiesSet();
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void initializationFailsIfAccessDecisionManagerRejectsConfigAttributes() throws Exception {
+        jmock.checking(new Expectations() {{
+            oneOf(adm).supports(with(aNonNull(ConfigAttribute.class))); will(returnValue(false));
+            ignoring(anything());
+        }});
+        interceptor.afterPropertiesSet();
+    }
+
+    @Test
+    public void validationNotAttemptedIfIsValidateConfigAttributesSetToFalse() throws Exception {
+        jmock.checking(new Expectations() {{
+            oneOf(mds).supports(MethodInvocation.class); will(returnValue(true));
+            oneOf(adm).supports(MethodInvocation.class); will(returnValue(true));
+            never(mds).getAllConfigAttributes();
+            never(adm).supports(with(any(ConfigAttribute.class)));
+        }});
+        interceptor.setValidateConfigAttributes(false);
+        interceptor.afterPropertiesSet();
+    }
+
+    @Test
+    public void validationNotAttemptedIfMethodDefinitionSourceReturnsNullForAttributes() throws Exception {
+        jmock.checking(new Expectations() {{
+            oneOf(mds).supports(MethodInvocation.class); will(returnValue(true));
+            oneOf(adm).supports(MethodInvocation.class); will(returnValue(true));
+            oneOf(mds).getAllConfigAttributes(); will(returnValue(null));
+            never(adm).supports(with(any(ConfigAttribute.class)));
+        }});
+        interceptor.setValidateConfigAttributes(true);
+        interceptor.afterPropertiesSet();
+    }
+
+    @Test
+    public void callingAPublicMethodFacadeWillNotRepeatSecurityChecksWhenPassedToTheSecuredMethodItFronts() {
+        jmock.checking(mdsWillReturnNullFromGetAttributes);
+        String result = advisedTarget.publicMakeLowerCase("HELLO");
         assertEquals("hello Authentication empty", result);
+        jmock.assertIsSatisfied();
     }
 
-    public void testCallingAPublicMethodWhenPresentingAnAuthenticationObjectWillNotChangeItsIsAuthenticatedProperty()
-        throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password");
+    @Test
+    public void callingAPublicMethodWhenPresentingAnAuthenticationObjectDoesntChangeItsAuthenticatedProperty() {
+        jmock.checking(mdsWillReturnNullFromGetAttributes);
+        SecurityContextHolder.getContext().setAuthentication(token);
+        assertEquals("hello org.springframework.security.providers.TestingAuthenticationToken false",
+                advisedTarget.publicMakeLowerCase("HELLO"));
         assertTrue(!token.isAuthenticated());
-        SecurityContextHolder.getContext().setAuthentication(token);
-
-        // The associated MockAuthenticationManager WILL accept the above UsernamePasswordAuthenticationToken
-        ITargetObject target = makeInterceptedTarget();
-        String result = target.publicMakeLowerCase("HELLO");
-        assertEquals("hello org.springframework.security.providers.UsernamePasswordAuthenticationToken false", result);
     }
 
-    public void testDeniesWhenAppropriate() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_NO_BENEFIT_TO_THIS_GRANTED_AUTHORITY")});
+    @Test(expected=AuthenticationException.class)
+    public void callIsWhenAuthenticationManagerRejectsAuthentication() throws Exception {
+        final TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password");
         SecurityContextHolder.getContext().setAuthentication(token);
 
-        ITargetObject target = makeInterceptedTarget();
+        jmock.checking(mdsWillReturnROLE_USERFromGetAttributes);
+        jmock.checking(new Expectations() {{
+            oneOf(authman).authenticate(token); will(throwException(new BadCredentialsException("rejected")));
+        }});
 
-        try {
-            target.makeUpperCase("HELLO");
-            fail("Should have thrown AccessDeniedException");
-        } catch (AccessDeniedException expected) {
-            assertTrue(true);
-        }
+        advisedTarget.makeLowerCase("HELLO");
     }
 
-    public void testGetters() {
-        MockAccessDecisionManager accessDecision = new MockAccessDecisionManager();
-        MockRunAsManager runAs = new MockRunAsManager();
-        MockAuthenticationManager authManager = new MockAuthenticationManager();
-        MockMethodDefinitionSource methodSource = new MockMethodDefinitionSource(false, true);
-        MockAfterInvocationManager afterInvocation = new MockAfterInvocationManager();
-
-        MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setAccessDecisionManager(accessDecision);
-        si.setRunAsManager(runAs);
-        si.setAuthenticationManager(authManager);
-        si.setObjectDefinitionSource(methodSource);
-        si.setAfterInvocationManager(afterInvocation);
-
-        assertEquals(accessDecision, si.getAccessDecisionManager());
-        assertEquals(runAs, si.getRunAsManager());
-        assertEquals(authManager, si.getAuthenticationManager());
-        assertEquals(methodSource, si.getObjectDefinitionSource());
-        assertEquals(afterInvocation, si.getAfterInvocationManager());
-    }
-
-    public void testMethodCallWithRunAsReplacement() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_UPPER")});
+    @Test
+    public void callSucceedsIfAccessDecisionManagerGrantsAccess() throws Exception {
+        token.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(token);
+        jmock.checking(mdsWillReturnROLE_USERFromGetAttributes);
+        jmock.checking(new Expectations() {{
+           oneOf(adm).decide(with(token), with(aNonNull(MethodInvocation.class)), with(aNonNull(List.class)));
+        }});
 
-        ITargetObject target = makeInterceptedTarget();
-        String result = target.makeUpperCase("hello");
-        assertEquals("HELLO org.springframework.security.MockRunAsAuthenticationToken true", result);
-    }
-
-    public void testMethodCallWithoutRunAsReplacement()
-        throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
-        assertTrue(token.isAuthenticated());
-        SecurityContextHolder.getContext().setAuthentication(token);
-
-        ITargetObject target = makeInterceptedTargetWithoutAnAfterInvocationManager();
-        String result = target.makeLowerCase("HELLO");
+        String result = advisedTarget.makeLowerCase("HELLO");
 
         // Note we check the isAuthenticated remained true in following line
-        assertEquals("hello org.springframework.security.providers.UsernamePasswordAuthenticationToken true", result);
+        assertEquals("hello org.springframework.security.providers.TestingAuthenticationToken true", result);
     }
 
-    public void testRejectionOfEmptySecurityContext() throws Exception {
-        ITargetObject target = makeInterceptedTarget();
-
-        try {
-            target.makeUpperCase("hello");
-            fail("Should have thrown AuthenticationCredentialsNotFoundException");
-        } catch (AuthenticationCredentialsNotFoundException expected) {
-            assertTrue(true);
-        }
-    }
-
-    public void testRejectsAccessDecisionManagersThatDoNotSupportMethodInvocation()
-        throws Exception {
-        MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setAccessDecisionManager(new MockAccessDecisionManagerWhichOnlySupportsStrings());
-        si.setAuthenticationManager(new MockAuthenticationManager());
-        si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
-        si.setRunAsManager(new MockRunAsManager());
-
-        try {
-            si.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("AccessDecisionManager does not support secure object class: interface org.aopalliance.intercept.MethodInvocation",
-                expected.getMessage());
-        }
-    }
-
-    public void testRejectsCallsWhenAuthenticationIsIncorrect()
-        throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password");
-        assertTrue(!token.isAuthenticated());
+    @Test(expected=AccessDeniedException.class)
+    public void callIsntMadeWhenAccessDecisionManagerRejectsAccess() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(token);
+        // Use mocked target to make sure invocation doesn't happen (not in expectations so test would fail)
+        createTarget(true);
+        jmock.checking(mdsWillReturnROLE_USERFromGetAttributes);
+        jmock.checking(new Expectations() {{
+            oneOf(authman).authenticate(token); will(returnValue(token));
+            oneOf(adm).decide(with(token), with(aNonNull(MethodInvocation.class)), with(aNonNull(List.class)));
+            will(throwException(new AccessDeniedException("rejected")));
+        }});
 
-        // NB: The associated MockAuthenticationManager WILL reject the above UsernamePasswordAuthenticationToken
-        ITargetObject target = makeInterceptedTargetRejectsAuthentication();
-
-        try {
-            target.makeLowerCase("HELLO");
-            fail("Should have thrown AuthenticationException");
-        } catch (AuthenticationException expected) {
-            assertTrue(true);
-        }
+        advisedTarget.makeUpperCase("HELLO");
     }
 
-    public void testRejectsCallsWhenObjectDefinitionSourceDoesNotSupportObject()
-        throws Throwable {
-        MethodSecurityInterceptor interceptor = new MethodSecurityInterceptor();
-        interceptor.setObjectDefinitionSource(new MockObjectDefinitionSourceWhichOnlySupportsStrings());
-        interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
-        interceptor.setAuthenticationManager(new MockAuthenticationManager());
-        interceptor.setRunAsManager(new MockRunAsManager());
-
-        try {
-            interceptor.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("ObjectDefinitionSource does not support secure object class: interface org.aopalliance.intercept.MethodInvocation",
-                expected.getMessage());
-        }
+    @Test(expected=IllegalArgumentException.class)
+    public void rejectsNullSecuredObjects() throws Throwable {
+        interceptor.invoke(null);
     }
 
-    public void testRejectsCallsWhenObjectIsNull() throws Throwable {
-        MethodSecurityInterceptor interceptor = new MethodSecurityInterceptor();
+    @Test
+    public void runAsReplacementIsCorrectlySet() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(token);
+        token.setAuthenticated(true);
+        final RunAsManager runAs = jmock.mock(RunAsManager.class);
+        final RunAsUserToken runAsToken =
+            new RunAsUserToken("key", "someone", "creds", token.getAuthorities(), TestingAuthenticationToken.class);
+        interceptor.setRunAsManager(runAs);
+        jmock.checking(mdsWillReturnROLE_USERFromGetAttributes);
+        jmock.checking(new Expectations() {{
+            oneOf(runAs).buildRunAs(with(token), with(aNonNull(MethodInvocation.class)), with(aNonNull(List.class)));
+            will(returnValue(runAsToken));
+            ignoring(anything());
+        }});
 
-        try {
-            interceptor.invoke(null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("Object was null", expected.getMessage());
-        }
+        String result = advisedTarget.makeUpperCase("hello");
+        assertEquals("HELLO org.springframework.security.runas.RunAsUserToken true", result);
+        // Check we've changed back
+        assertEquals(token, SecurityContextHolder.getContext().getAuthentication());
     }
 
-    public void testRejectsRunAsManagersThatDoNotSupportMethodInvocation()
-        throws Exception {
-        MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setAuthenticationManager(new MockAuthenticationManager());
-        si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
-        si.setRunAsManager(new MockRunAsManagerWhichOnlySupportsStrings());
-        si.setAfterInvocationManager(new MockAfterInvocationManager());
-
-        try {
-            si.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("RunAsManager does not support secure object class: interface org.aopalliance.intercept.MethodInvocation",
-                expected.getMessage());
-        }
+    @Test(expected=AuthenticationCredentialsNotFoundException.class)
+    public void emptySecurityContextIsRejected() throws Exception {
+        jmock.checking(new Expectations() {{
+            ignoring(anything());
+        }});
+        advisedTarget.makeUpperCase("hello");
     }
 
-    public void testStartupCheckForAccessDecisionManager()
-        throws Exception {
-        MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setRunAsManager(new MockRunAsManager());
-        si.setAuthenticationManager(new MockAuthenticationManager());
-        si.setAfterInvocationManager(new MockAfterInvocationManager());
-
-        si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
-
-        try {
-            si.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("An AccessDecisionManager is required", expected.getMessage());
-        }
-    }
-
-    public void testStartupCheckForAuthenticationManager()
-        throws Exception {
-        MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setRunAsManager(new MockRunAsManager());
-        si.setAfterInvocationManager(new MockAfterInvocationManager());
-
-        si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
-
-        try {
-            si.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("An AuthenticationManager is required", expected.getMessage());
-        }
-    }
-
-    public void testStartupCheckForMethodDefinitionSource()
-        throws Exception {
-        MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setAuthenticationManager(new MockAuthenticationManager());
-
-        try {
-            si.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("An ObjectDefinitionSource is required", expected.getMessage());
-        }
-    }
-
-    public void testStartupCheckForRunAsManager() throws Exception {
-        MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setAuthenticationManager(new MockAuthenticationManager());
-        si.setRunAsManager(null); // Overriding the default
-
-        si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
-
-        try {
-            si.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("A RunAsManager is required", expected.getMessage());
-        }
-    }
-
-    public void testStartupCheckForValidAfterInvocationManager()
-        throws Exception {
-        MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setRunAsManager(new MockRunAsManager());
-        si.setAuthenticationManager(new MockAuthenticationManager());
-        si.setAfterInvocationManager(new MockAfterInvocationManagerWhichOnlySupportsStrings());
-        si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
-
-        try {
-            si.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage().startsWith("AfterInvocationManager does not support secure object class:"));
-        }
-    }
-
-    public void testValidationFailsIfInvalidAttributePresented() throws Exception {
-        MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setAuthenticationManager(new MockAuthenticationManager());
-        si.setRunAsManager(new RunAsManagerImpl());
-
-        assertTrue(si.isValidateConfigAttributes()); // check default
-        si.setObjectDefinitionSource(new MockMethodDefinitionSource(true, true));
-
-        try {
-            si.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("Unsupported configuration attributes: [ANOTHER_INVALID, INVALID_ATTRIBUTE]",
-                expected.getMessage());
-        }
-    }
-
-    public void testValidationNotAttemptedIfIsValidateConfigAttributesSetToFalse()
-        throws Exception {
-        MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setAuthenticationManager(new MockAuthenticationManager());
-
-        assertTrue(si.isValidateConfigAttributes()); // check default
-        si.setValidateConfigAttributes(false);
-        assertTrue(!si.isValidateConfigAttributes()); // check changed
-
-        si.setObjectDefinitionSource(new MockMethodDefinitionSource(true, true));
-        si.afterPropertiesSet();
-        assertTrue(true);
-    }
-
-    public void testValidationNotAttemptedIfMethodDefinitionSourceCannotReturnIterator()
-        throws Exception {
-        MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setRunAsManager(new MockRunAsManager());
-        si.setAuthenticationManager(new MockAuthenticationManager());
-
-        assertTrue(si.isValidateConfigAttributes()); // check default
-        si.setObjectDefinitionSource(new MockMethodDefinitionSource(true, false));
-        si.afterPropertiesSet();
-        assertTrue(true);
-    }
 
     //~ Inner Classes ==================================================================================================
 
+//    private static class MockMethodDefinitionSource() extends AbstractMethodDefinitionSource {
+//
+//    }
+
+    /*
     private class MockAccessDecisionManagerWhichOnlySupportsStrings implements AccessDecisionManager {
         public void decide(Authentication authentication, Object object, List<ConfigAttribute> configAttributes)
             throws AccessDeniedException {
@@ -477,5 +396,5 @@ public class MethodSecurityInterceptorTests extends TestCase {
         public boolean supports(ConfigAttribute attribute) {
             return true;
         }
-    }
+    }*/
 }
