@@ -36,7 +36,7 @@ import org.springframework.util.Assert;
  * Base implementation of <code>Acl</code>.
  *
  * @author Ben Alex
- * @version $Id
+ * @version $Id$
  */
 public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
     //~ Instance fields ================================================================================================
