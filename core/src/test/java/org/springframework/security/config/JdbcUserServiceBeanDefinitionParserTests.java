@@ -20,7 +20,7 @@ import org.springframework.security.util.InMemoryXmlApplicationContext;
  * @version $Id$
  */
 public class JdbcUserServiceBeanDefinitionParserTests {
-    private static String USER_CACHE_XML = "<b:bean id='userCache' class='org.springframework.security.providers.dao.MockUserCache'/>";	
+    private static String USER_CACHE_XML = "<b:bean id='userCache' class='org.springframework.security.providers.dao.MockUserCache'/>";
 
     private static String DATA_SOURCE =
             "    <b:bean id='populator' class='org.springframework.security.config.DataSourcePopulator'>" +
@@ -32,7 +32,7 @@ public class JdbcUserServiceBeanDefinitionParserTests {
             "    </b:bean>";
 
     private InMemoryXmlApplicationContext appContext;
-    
+
     @After
     public void closeAppContext() {
         if (appContext != null) {
@@ -44,7 +44,7 @@ public class JdbcUserServiceBeanDefinitionParserTests {
     public void validUsernameIsFound() {
         setContext("<jdbc-user-service data-source-ref='dataSource'/>" + DATA_SOURCE);
         JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext.getBean(BeanIds.USER_DETAILS_SERVICE);
-    	assertTrue(mgr.loadUserByUsername("rod") != null);
+        assertNotNull(mgr.loadUserByUsername("rod"));
     }
 
     @Test
@@ -55,12 +55,12 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 
     @Test
     public void usernameAndAuthorityQueriesAreParsedCorrectly() throws Exception {
-    	String userQuery = "select username, password, true from users where username = ?";
-    	String authoritiesQuery = "select username, authority from authorities where username = ? and 1 = 1";
+        String userQuery = "select username, password, true from users where username = ?";
+        String authoritiesQuery = "select username, authority from authorities where username = ? and 1 = 1";
         setContext("<jdbc-user-service id='myUserService' " +
-        		"data-source-ref='dataSource' " +
-        		"users-by-username-query='"+ userQuery +"' " +
-        		"authorities-by-username-query='" + authoritiesQuery + "'/>" + DATA_SOURCE);
+                "data-source-ref='dataSource' " +
+                "users-by-username-query='"+ userQuery +"' " +
+                "authorities-by-username-query='" + authoritiesQuery + "'/>" + DATA_SOURCE);
         JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext.getBean("myUserService");
         assertEquals(userQuery, FieldUtils.getFieldValue(mgr, "usersByUsernameQuery"));
         assertEquals(authoritiesQuery, FieldUtils.getFieldValue(mgr, "authoritiesByUsernameQuery"));
@@ -70,22 +70,24 @@ public class JdbcUserServiceBeanDefinitionParserTests {
     @Test
     public void groupQueryIsParsedCorrectly() throws Exception {
         setContext("<jdbc-user-service id='myUserService' " +
-        		"data-source-ref='dataSource' " +
-        		"group-authorities-by-username-query='blah blah'/>" + DATA_SOURCE);
+                "data-source-ref='dataSource' " +
+                "group-authorities-by-username-query='blah blah'/>" + DATA_SOURCE);
         JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext.getBean("myUserService");
         assertEquals("blah blah", FieldUtils.getFieldValue(mgr, "groupAuthoritiesByUsernameQuery"));
         assertTrue((Boolean)FieldUtils.getFieldValue(mgr, "enableGroups"));
-    }    
-    
+    }
+
     @Test
     public void cacheRefIsparsedCorrectly() {
-        setContext("<jdbc-user-service id='myUserService' cache-ref='userCache' data-source-ref='dataSource'/>" 
-        		+ DATA_SOURCE +USER_CACHE_XML);
-        CachingUserDetailsService cachingUserService = 
-        	(CachingUserDetailsService) appContext.getBean("myUserService" + AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX);
+        setContext("<jdbc-user-service id='myUserService' cache-ref='userCache' data-source-ref='dataSource'/>"
+                + DATA_SOURCE +USER_CACHE_XML);
+        CachingUserDetailsService cachingUserService =
+            (CachingUserDetailsService) appContext.getBean("myUserService" + AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX);
         assertSame(cachingUserService.getUserCache(), appContext.getBean("userCache"));
-    }    
-    
+        assertNotNull(cachingUserService.loadUserByUsername("rod"));
+        assertNotNull(cachingUserService.loadUserByUsername("rod"));
+    }
+
     @Test
     public void isSupportedByAuthenticationProviderElement() {
         setContext(
@@ -106,17 +108,17 @@ public class JdbcUserServiceBeanDefinitionParserTests {
         DaoAuthenticationProvider provider = (DaoAuthenticationProvider) mgr.getProviders().get(0);
         assertSame(provider.getUserCache(), appContext.getBean("userCache"));
         provider.authenticate(new UsernamePasswordAuthenticationToken("rod","koala"));
-        assertNotNull("Cache should contain user after authentication", provider.getUserCache().getUserFromCache("rod"));      
+        assertNotNull("Cache should contain user after authentication", provider.getUserCache().getUserFromCache("rod"));
     }
-    
+
     @Test
     public void rolePrefixIsUsedWhenSet() {
         setContext("<jdbc-user-service id='myUserService' role-prefix='PREFIX_' data-source-ref='dataSource'/>" + DATA_SOURCE);
         JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext.getBean("myUserService");
         UserDetails rod = mgr.loadUserByUsername("rod");
         assertTrue(AuthorityUtils.authorityArrayToSet(rod.getAuthorities()).contains("PREFIX_ROLE_SUPERVISOR"));
-    }    
-    
+    }
+
 
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
