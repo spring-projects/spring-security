@@ -1,7 +1,6 @@
 package org.springframework.security.ui;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 import org.springframework.security.ui.AuthenticationDetailsSource;
 import org.springframework.util.Assert;
@@ -26,20 +25,15 @@ public class AuthenticationDetailsSourceImpl implements AuthenticationDetailsSou
     //~ Methods ========================================================================================================
 
     public Object buildDetails(Object context) {
+        Object result = null;
         try {
             Constructor<?> constructor = getFirstMatchingConstructor(context);
-            return constructor.newInstance(new Object[] { context });
-        } catch (NoSuchMethodException ex) {
-            ReflectionUtils.handleReflectionException(ex);
-        } catch (InvocationTargetException ex) {
-            ReflectionUtils.handleReflectionException(ex);
-        } catch (InstantiationException ex) {
-            ReflectionUtils.handleReflectionException(ex);
-        } catch (IllegalAccessException ex) {
+            result = constructor.newInstance(new Object[] { context });
+        } catch (Exception ex) {
             ReflectionUtils.handleReflectionException(ex);
         }
 
-        return null;
+        return result;
     }
 
     /**

@@ -9,8 +9,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.InitializingBean;
-
 /**
  * Implementation of AuthenticationDetailsSource which converts the user's J2EE roles (as obtained by calling
  * {@link HttpServletRequest#isUserInRole(String)}) into GrantedAuthoritys and stores these in the authentication

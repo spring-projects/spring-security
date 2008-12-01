@@ -21,12 +21,8 @@ public class AuthenticationDetails implements Serializable {
     * @param context that the authentication request is initiated from
     */
    public AuthenticationDetails(Object context) {
-       this.context = context==null?"":context.toString();
+       this.context = context == null ? "" : context.toString();
        doPopulateAdditionalInformation(context);
-   }
-
-   protected AuthenticationDetails() {
-       throw new IllegalArgumentException("Cannot use default constructor");
    }
 
    //~ Methods ========================================================================================================
@@ -42,18 +38,9 @@ public class AuthenticationDetails implements Serializable {
        if (obj instanceof AuthenticationDetails) {
            AuthenticationDetails rhs = (AuthenticationDetails) obj;
 
-           if ((context == null) && (rhs.getContext() != null)) {
+           // this.context cannot be null
+           if (!context.equals(rhs.getContext())) {
                return false;
-           }
-
-           if ((context != null) && (rhs.getContext() == null)) {
-               return false;
-           }
-
-           if (context != null) {
-               if (!context.equals(rhs.getContext())) {
-                   return false;
-               }
            }
 
            return true;
@@ -65,7 +52,7 @@ public class AuthenticationDetails implements Serializable {
    /**
     * Indicates the context.
     *
-    * @return the address
+    * @return the context
     */
    public String getContext() {
        return context;
@@ -75,7 +62,7 @@ public class AuthenticationDetails implements Serializable {
        StringBuffer sb = new StringBuffer();
        sb.append(super.toString() + ": ");
        sb.append("Context: " + this.getContext());
-       
+
        return sb.toString();
    }
 }
