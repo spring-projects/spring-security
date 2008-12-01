@@ -17,15 +17,25 @@ package org.springframework.security.intercept.method;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.aopalliance.intercept.MethodInvocation;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.security.AccessDecisionManager;
+import org.springframework.security.AccessDeniedException;
+import org.springframework.security.AuthenticationManager;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ITargetObject;
 import org.springframework.security.OtherTargetObject;
+import org.springframework.security.SecurityConfig;
+import org.springframework.security.TargetObject;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.util.MethodInvocationUtils;
 
 
@@ -36,32 +46,39 @@ import org.springframework.security.util.MethodInvocationUtils;
  * @version $Id$
  */
 public class MethodInvocationPrivilegeEvaluatorTests {
+    private Mockery jmock = new JUnit4Mockery();
+    private TestingAuthenticationToken token;
+    private MethodSecurityInterceptor interceptor;
+    private AccessDecisionManager adm;
+    private MethodDefinitionSource mds;
+    private final List<ConfigAttribute> role = SecurityConfig.createList("ROLE_IGNORED");
 
     //~ Methods ========================================================================================================
 
-    private Object lookupTargetObject() {
-        ApplicationContext context = new ClassPathXmlApplicationContext(
-                "org/springframework/security/intercept/method/aopalliance/applicationContext.xml");
-
-        return context.getBean("target");
-    }
-
-    private MethodSecurityInterceptor makeSecurityInterceptor() {
-        ApplicationContext context = new ClassPathXmlApplicationContext(
-                "org/springframework/security/intercept/method/aopalliance/applicationContext.xml");
-
-        return (MethodSecurityInterceptor) context.getBean("securityInterceptor");
+    @Before
+    public final void setUp() throws Exception {
+        SecurityContextHolder.clearContext();
+        interceptor = new MethodSecurityInterceptor();
+        token = new TestingAuthenticationToken("Test", "Password", "ROLE_SOMETHING");
+        adm = jmock.mock(AccessDecisionManager.class);
+        AuthenticationManager authman = jmock.mock(AuthenticationManager.class);
+        mds = jmock.mock(MethodDefinitionSource.class);
+        interceptor.setAccessDecisionManager(adm);
+        interceptor.setAuthenticationManager(authman);
+        interceptor.setObjectDefinitionSource(mds);
     }
 
     @Test
     public void allowsAccessUsingCreate() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                AuthorityUtils.createAuthorityList("MOCK_LOWER"));
-        Object object = lookupTargetObject();
-        MethodInvocation mi = MethodInvocationUtils.create(object, "makeLowerCase", "foobar");
-        MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
+        Object object = new TargetObject();
+        final MethodInvocation mi = MethodInvocationUtils.create(object, "makeLowerCase", "foobar");
 
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
+        jmock.checking(new Expectations() {{
+            oneOf(mds).getAttributes(mi); will(returnValue(role));
+            oneOf(adm).decide(token, mi, role);
+        }});
+
         mipe.setSecurityInterceptor(interceptor);
         mipe.afterPropertiesSet();
 
@@ -70,45 +87,43 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 
     @Test
     public void allowsAccessUsingCreateFromClass() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                AuthorityUtils.createAuthorityList("MOCK_LOWER"));
-        MethodInvocation mi = MethodInvocationUtils.createFromClass(new OtherTargetObject(), ITargetObject.class, "makeLowerCase",
+        final MethodInvocation mi = MethodInvocationUtils.createFromClass(new OtherTargetObject(), ITargetObject.class, "makeLowerCase",
                 new Class[] {String.class}, new Object[] {"Hello world"});
-        MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
-
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
         mipe.setSecurityInterceptor(interceptor);
-        mipe.afterPropertiesSet();
+        jmock.checking(new Expectations() {{
+            oneOf(mds).getAttributes(mi); will(returnValue(role));
+            oneOf(adm).decide(token, mi, role);
+        }});
 
         assertTrue(mipe.isAllowed(mi, token));
     }
 
     @Test
     public void declinesAccessUsingCreate() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_NOT_HELD"));
-        Object object = lookupTargetObject();
-        MethodInvocation mi = MethodInvocationUtils.create(object, "makeLowerCase", new Object[] {"foobar"});
-        MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
-
+        Object object = new TargetObject();
+        final MethodInvocation mi = MethodInvocationUtils.create(object, "makeLowerCase", new Object[] {"foobar"});
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
         mipe.setSecurityInterceptor(interceptor);
-        mipe.afterPropertiesSet();
+        jmock.checking(new Expectations() {{
+            oneOf(mds).getAttributes(mi); will(returnValue(role));
+            oneOf(adm).decide(token, mi, role); will(throwException(new AccessDeniedException("rejected")));
+        }});
 
         assertFalse(mipe.isAllowed(mi, token));
     }
 
     @Test
     public void declinesAccessUsingCreateFromClass() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_NOT_HELD"));
-        MethodInvocation mi = MethodInvocationUtils.createFromClass(new OtherTargetObject(), ITargetObject.class, "makeLowerCase",
+        final MethodInvocation mi = MethodInvocationUtils.createFromClass(new OtherTargetObject(), ITargetObject.class, "makeLowerCase",
                 new Class[] {String.class}, new Object[] {"helloWorld"});
-        MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
 
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
         mipe.setSecurityInterceptor(interceptor);
-        mipe.afterPropertiesSet();
+        jmock.checking(new Expectations() {{
+            oneOf(mds).getAttributes(mi); will(returnValue(role));
+            oneOf(adm).decide(token, mi, role); will(throwException(new AccessDeniedException("rejected")));
+        }});
 
         assertFalse(mipe.isAllowed(mi, token));
     }
