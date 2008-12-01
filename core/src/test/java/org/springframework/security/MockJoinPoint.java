@@ -34,20 +34,22 @@ public class MockJoinPoint implements JoinPoint {
 
     private Method beingInvoked;
     private Object object;
-    private Class declaringType;
+    private Class<?> declaringType;
+    private Object[] args;
 
     //~ Constructors ===================================================================================================
 
-    public MockJoinPoint(Object object, Method beingInvoked) {
+    public MockJoinPoint(Object object, Method beingInvoked, Object... args) {
         this.object = object;
         this.beingInvoked = beingInvoked;
         this.declaringType = object.getClass();
+        this.args = args;
     }
 
     //~ Methods ========================================================================================================
 
     public Object[] getArgs() {
-        throw new UnsupportedOperationException("mock not implemented");
+        return args;
     }
 
     public String getKind() {
@@ -133,7 +135,7 @@ public class MockJoinPoint implements JoinPoint {
     private class MockStaticPart implements StaticPart {
         private Method beingInvoked;
         private Class declaringType;
-        
+
         public MockStaticPart(Method beingInvoked, Class declaringType) {
             this.beingInvoked = beingInvoked;
             this.declaringType = declaringType;
