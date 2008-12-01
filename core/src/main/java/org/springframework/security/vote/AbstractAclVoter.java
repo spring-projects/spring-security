@@ -25,7 +25,8 @@ import org.springframework.util.Assert;
 
 
 /**
- * <p>Provides helper methods for writing domain object ACL voters. Is not bound to any particular ACL system.</p>
+ * Provides helper methods for writing domain object ACL voters.
+ * Not bound to any particular ACL system.
  *
  * @author Ben Alex
  * @version $Id$
