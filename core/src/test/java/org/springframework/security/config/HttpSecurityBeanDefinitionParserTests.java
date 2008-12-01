@@ -1,16 +1,13 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
 
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.servlet.Filter;
 
 import org.junit.After;
 import org.junit.Test;
@@ -27,7 +24,7 @@ import org.springframework.security.SecurityConfig;
 import org.springframework.security.concurrent.ConcurrentLoginException;
 import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.concurrent.ConcurrentSessionFilter;
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.context.SecurityContextPersistenceFilter;
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
@@ -80,7 +77,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void httpAutoConfigSetsUpCorrectFilterList() throws Exception {
         setContext("<http auto-config='true' />" + AUTH_PROVIDER_XML);
 
-        List filterList = getFilters("/anyurl");
+        List<Filter> filterList = getFilters("/anyurl");
 
         checkAutoConfigFilters(filterList);
 
@@ -93,12 +90,12 @@ public class HttpSecurityBeanDefinitionParserTests {
         setContext("<http auto-config='true' /><http auto-config='true' />" + AUTH_PROVIDER_XML);
     }
 
-    private void checkAutoConfigFilters(List filterList) throws Exception {
+    private void checkAutoConfigFilters(List<Filter> filterList) throws Exception {
         assertEquals("Expected 11 filters in chain", 11, filterList.size());
 
-        Iterator filters = filterList.iterator();
+        Iterator<Filter> filters = filterList.iterator();
 
-        assertTrue(filters.next() instanceof HttpSessionContextIntegrationFilter);
+        assertTrue(filters.next() instanceof SecurityContextPersistenceFilter);
         assertTrue(filters.next() instanceof LogoutFilter);
         Object authProcFilter = filters.next();
         assertTrue(authProcFilter instanceof AuthenticationProcessingFilter);
@@ -127,7 +124,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "        <intercept-url pattern='/unprotected' filters='none' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
 
-        List filters = getFilters("/unprotected");
+        List<Filter> filters = getFilters("/unprotected");
 
         assertTrue(filters.size() == 0);
     }
@@ -140,7 +137,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "    </http>" + AUTH_PROVIDER_XML);
         assertEquals(0, getFilters("/imlowercase").size());
         // This will be matched by the default pattern ".*"
-        List allFilters = getFilters("/ImCaughtByTheUniversalMatchPattern");
+        List<Filter> allFilters = getFilters("/ImCaughtByTheUniversalMatchPattern");
         checkAutoConfigFilters(allFilters);
         assertEquals(false, FieldUtils.getFieldValue(appContext.getBean("_filterChainProxy"), "stripQueryStringFromUrls"));
         assertEquals(false, FieldUtils.getFieldValue(allFilters.get(10), "objectDefinitionSource.stripQueryStringFromUrls"));
@@ -254,7 +251,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void oncePerRequestAttributeIsSupported() throws Exception {
         setContext("<http once-per-request='false'><http-basic /></http>" + AUTH_PROVIDER_XML);
-        List filters = getFilters("/someurl");
+        List<Filter> filters = getFilters("/someurl");
 
         FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) filters.get(filters.size() - 1);
 
@@ -264,7 +261,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void accessDeniedPageAttributeIsSupported() throws Exception {
         setContext("<http access-denied-page='/access-denied'><http-basic /></http>" + AUTH_PROVIDER_XML);
-        List filters = getFilters("/someurl");
+        List<Filter> filters = getFilters("/someurl");
 
         ExceptionTranslationFilter etf = (ExceptionTranslationFilter) filters.get(filters.size() - 3);
 
@@ -282,7 +279,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "    <http auto-config='true'>" +
                 "        <intercept-url pattern='/**' requires-channel='https' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
-        List filters = getFilters("/someurl");
+        List<Filter> filters = getFilters("/someurl");
 
         assertEquals("Expected 12 filters in chain", 12, filters.size());
 
@@ -349,7 +346,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='userFilter3' class='org.springframework.security.util.MockFilter'/>" +
                 "<b:bean id='userFilter4' class='org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter'/>"
                 );
-        List filters = getFilters("/someurl");
+        List<Filter> filters = getFilters("/someurl");
 
         assertEquals(14, filters.size());
         assertTrue(filters.get(0) instanceof MockFilter);
@@ -442,7 +439,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true'>" +
                 "    <x509 />" +
                 "</http>"  + AUTH_PROVIDER_XML);
-        List filters = getFilters("/someurl");
+        List<Filter> filters = getFilters("/someurl");
 
         assertTrue(filters.get(2) instanceof X509PreAuthenticatedProcessingFilter);
     }
@@ -453,7 +450,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true'>" +
                 "    <concurrent-session-control session-registry-alias='seshRegistry' expired-url='/expired'/>" +
                 "</http>" + AUTH_PROVIDER_XML);
-        List filters = getFilters("/someurl");
+        List<Filter> filters = getFilters("/someurl");
 
         assertTrue(filters.get(0) instanceof ConcurrentSessionFilter);
         assertNotNull(appContext.getBean("seshRegistry"));
@@ -568,7 +565,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void disablingSessionProtectionRemovesFilter() throws Exception {
         setContext(
                 "<http auto-config='true' session-fixation-protection='none'/>" + AUTH_PROVIDER_XML);
-        List filters = getFilters("/someurl");
+        List<Filter> filters = getFilters("/someurl");
 
         assertFalse(filters.get(1) instanceof SessionFixationProtectionFilter);
     }
@@ -638,15 +635,18 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void settingCreateSessionToAlwaysSetsFilterPropertiesCorrectly() throws Exception {
         setContext("<http auto-config='true' create-session='always'/>" + AUTH_PROVIDER_XML);
-        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "forceEagerSessionCreation"));
-        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "allowSessionCreation"));
+        Object filter = appContext.getBean(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER);
+
+        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "forceEagerSessionCreation"));
+        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "repo.allowSessionCreation"));
     }
 
     @Test
     public void settingCreateSessionToNeverSetsFilterPropertiesCorrectly() throws Exception {
         setContext("<http auto-config='true' create-session='never'/>" + AUTH_PROVIDER_XML);
-        assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "forceEagerSessionCreation"));
-        assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(appContext.getBean(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER), "allowSessionCreation"));
+        Object filter = appContext.getBean(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER);
+        assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(filter, "forceEagerSessionCreation"));
+        assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(filter, "repo.allowSessionCreation"));
     }
 
     /* SEC-934 */
@@ -669,11 +669,11 @@ public class HttpSecurityBeanDefinitionParserTests {
         appContext = new InMemoryXmlApplicationContext(context);
     }
 
-    private List getFilters(String url) throws Exception {
+    private List<Filter> getFilters(String url) throws Exception {
         FilterChainProxy fcp = (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
         Method getFilters = fcp.getClass().getDeclaredMethod("getFilters", String.class);
         getFilters.setAccessible(true);
-        return (List) ReflectionUtils.invokeMethod(getFilters, fcp, new Object[] {url});
+        return (List<Filter>) ReflectionUtils.invokeMethod(getFilters, fcp, new Object[] {url});
     }
 
     private FilterInvocation createFilterinvocation(String path, String method) {

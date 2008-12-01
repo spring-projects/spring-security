@@ -42,7 +42,7 @@ public abstract class BeanIds {
     public static final String OPEN_ID_PROVIDER = "_openIDAuthenticationProvider";
     public static final String MAIN_ENTRY_POINT = "_mainEntryPoint";
     public static final String FILTER_CHAIN_PROXY = "_filterChainProxy";
-    public static final String HTTP_SESSION_CONTEXT_INTEGRATION_FILTER = "_httpSessionContextIntegrationFilter";
+    public static final String SECURITY_CONTEXT_PERSISTENCE_FILTER = "_securityContextPersistenceFilter";
     public static final String LDAP_AUTHENTICATION_PROVIDER = "_ldapAuthenticationProvider";
     public static final String LOGOUT_FILTER = "_logoutFilter";
     public static final String EXCEPTION_TRANSLATION_FILTER = "_exceptionTranslationFilter";

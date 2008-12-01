@@ -19,7 +19,8 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeEditor;
 import org.springframework.security.SecurityConfig;
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.context.SecurityContextPersistenceFilter;
 import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.intercept.web.RequestKey;
@@ -121,7 +122,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         parseInterceptUrlsForChannelSecurityAndFilterChain(interceptUrlElts, filterChainMap, channelRequestMap,
                 convertPathsToLowerCase, parserContext);
 
-        boolean allowSessionCreation = registerHttpSessionIntegrationFilter(element, parserContext);
+        boolean allowSessionCreation = registerSecurityContextPersistenceFilter(element, parserContext);
 
         registerServletApiFilter(element, parserContext);
 
@@ -219,26 +220,29 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
     }
 
-    private boolean registerHttpSessionIntegrationFilter(Element element, ParserContext pc) {
-        RootBeanDefinition httpScif = new RootBeanDefinition(HttpSessionContextIntegrationFilter.class);
+    private boolean registerSecurityContextPersistenceFilter(Element element, ParserContext pc) {
+        BeanDefinitionBuilder scpf = BeanDefinitionBuilder.rootBeanDefinition(SecurityContextPersistenceFilter.class);
+        BeanDefinitionBuilder contextRepo = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionSecurityContextRepository.class);
         boolean sessionCreationAllowed = true;
 
         String createSession = element.getAttribute(ATT_CREATE_SESSION);
         if (OPT_CREATE_SESSION_ALWAYS.equals(createSession)) {
-            httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.TRUE);
-            httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
+            contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
+            scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
         } else if (OPT_CREATE_SESSION_NEVER.equals(createSession)) {
-            httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.FALSE);
-            httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
+            contextRepo.addPropertyValue("allowSessionCreation", Boolean.FALSE);
+            scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
             sessionCreationAllowed = false;
         } else {
             createSession = DEF_CREATE_SESSION_IF_REQUIRED;
-            httpScif.getPropertyValues().addPropertyValue("allowSessionCreation", Boolean.TRUE);
-            httpScif.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
+            contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
+            scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
         }
 
-        pc.getRegistry().registerBeanDefinition(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER, httpScif);
-        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER));
+        scpf.addPropertyValue("securityContextRepository", contextRepo.getBeanDefinition());
+
+        pc.getRegistry().registerBeanDefinition(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER, scpf.getBeanDefinition());
+        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER));
 
         return sessionCreationAllowed;
     }
@@ -265,7 +269,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         new ConcurrentSessionsBeanDefinitionParser().parse(sessionControlElt, parserContext);
         logger.info("Concurrent session filter in use, setting 'forceEagerSessionCreation' to true");
-        BeanDefinition sessionIntegrationFilter = parserContext.getRegistry().getBeanDefinition(BeanIds.HTTP_SESSION_CONTEXT_INTEGRATION_FILTER);
+        BeanDefinition sessionIntegrationFilter = parserContext.getRegistry().getBeanDefinition(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER);
         sessionIntegrationFilter.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
         return true;
     }

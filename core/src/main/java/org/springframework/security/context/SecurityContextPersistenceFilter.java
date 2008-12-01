@@ -85,7 +85,7 @@ public class SecurityContextPersistenceFilter extends SpringSecurityFilter {
         this.repo = repo;
     }
 
-    void setForceEagerSessionCreation(boolean forceEagerSessionCreation) {
+    public void setForceEagerSessionCreation(boolean forceEagerSessionCreation) {
         this.forceEagerSessionCreation = forceEagerSessionCreation;
     }
 

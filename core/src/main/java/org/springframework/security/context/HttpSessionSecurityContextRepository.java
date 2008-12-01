@@ -201,7 +201,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     }
 
     @SuppressWarnings("unchecked")
-    void setSecurityContextClass(Class contextClass) {
+    public void setSecurityContextClass(Class contextClass) {
         if (contextClass == null || (!SecurityContext.class.isAssignableFrom(contextClass))) {
             throw new IllegalArgumentException("securityContextClass must implement SecurityContext "
                     + "(typically use org.springframework.security.context.SecurityContextImpl; existing class is "
@@ -212,11 +212,11 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         contextObject = generateNewContext();
     }
 
-    void setCloneFromHttpSession(boolean cloneFromHttpSession) {
+    public void setCloneFromHttpSession(boolean cloneFromHttpSession) {
         this.cloneFromHttpSession = cloneFromHttpSession;
     }
 
-    void setAllowSessionCreation(boolean allowSessionCreation) {
+    public void setAllowSessionCreation(boolean allowSessionCreation) {
         this.allowSessionCreation = allowSessionCreation;
     }
 
