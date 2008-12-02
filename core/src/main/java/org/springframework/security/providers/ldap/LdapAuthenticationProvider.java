@@ -188,11 +188,22 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
         return authoritiesPopulator;
     }
 
+    /**
+     * Allows a custom strategy to be used for creating the <tt>UserDetails</tt> which will be stored as the principal
+     * in the <tt>Authentication</tt> returned by the
+     * {@link #createSuccessfulAuthentication(UsernamePasswordAuthenticationToken, UserDetails)} method.
+     *
+     * @param userDetailsContextMapper the strategy instance. If not set, defaults to a simple
+     * <tt>LdapUserDetailsMapper</tt>.
+     */
     public void setUserDetailsContextMapper(UserDetailsContextMapper userDetailsContextMapper) {
         Assert.notNull(userDetailsContextMapper, "UserDetailsContextMapper must not be null");
         this.userDetailsContextMapper = userDetailsContextMapper;
     }
 
+    /**
+     * Provides access to the injected <tt>UserDetailsContextMapper</tt> strategy for use by subclasses.
+     */
     protected UserDetailsContextMapper getUserDetailsContextMapper() {
         return userDetailsContextMapper;
     }
@@ -204,8 +215,8 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
     /**
      * Determines whether the supplied password will be used as the credentials in the successful authentication
      * token. If set to false, then the password will be obtained from the UserDetails object
-     * created by the configured mapper. Often it will not be possible to read the password from the directory, so
-     * defaults to true.
+     * created by the configured <tt>UserDetailsContextMapper</tt>.
+     * Often it will not be possible to read the password from the directory, so defaults to true.
      *
      * @param useAuthenticationRequestCredentials
      */
@@ -264,6 +275,13 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
         return getAuthoritiesPopulator().getGrantedAuthorities(userData, username);
     }
 
+    /**
+     * Creates the final <tt>Authentication</tt> object which will be returned from the <tt>authenticate</tt> method.
+     *
+     * @param authentication the original authentication request token
+     * @param user the <tt>UserDetails</tt> instance returned by the configured <tt>UserDetailsContextMapper</tt>.
+     * @return the Authentication object for the fully authenticated user.
+     */
     protected Authentication createSuccessfulAuthentication(UsernamePasswordAuthenticationToken authentication,
             UserDetails user) {
         Object password = useAuthenticationRequestCredentials ? authentication.getCredentials() : user.getPassword();
