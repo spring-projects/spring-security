@@ -15,23 +15,8 @@
 
 package org.springframework.security.ui;
 
-import junit.framework.TestCase;
-import org.springframework.security.AccountExpiredException;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.ui.rememberme.NullRememberMeServices;
-import org.springframework.security.ui.rememberme.TokenBasedRememberMeServices;
-import org.springframework.security.ui.savedrequest.SavedRequest;
-import org.springframework.security.util.PortResolverImpl;
-import org.springframework.mock.web.MockFilterConfig;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
+import java.io.IOException;
+import java.util.Properties;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -42,8 +27,24 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.Properties;
+
+import junit.framework.TestCase;
+
+import org.springframework.mock.web.MockFilterConfig;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.AccountExpiredException;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.MockAuthenticationManager;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.ui.rememberme.NullRememberMeServices;
+import org.springframework.security.ui.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.ui.savedrequest.SavedRequest;
+import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.util.PortResolverImpl;
 
 
 /**
@@ -93,7 +94,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         return new SavedRequest(request, new PortResolverImpl());
     }
-   
+
     private SavedRequest makePostSavedRequestForUrl() {
         MockHttpServletRequest request = createMockRequest();
         request.setServletPath("/some_protected_file.html");
@@ -104,7 +105,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         return new SavedRequest(request, new PortResolverImpl());
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp();
         SecurityContextHolder.clearContext();
@@ -400,25 +401,25 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our HTTP request with a POST method request
         MockHttpServletRequest request = createMockRequest();
         request.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY, makePostSavedRequestForUrl());
-    
+
        // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null, null);
-    
+
         // Setup our expectation that the filter chain will be invoked, as we want to go to the location requested in the session
         MockFilterChain chain = new MockFilterChain(true);
         MockHttpServletResponse response = new MockHttpServletResponse();
-   
+
         // Setup our test object, to grant access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
-        
+
         filter.setFilterProcessesUrl("/j_mock_post");
         filter.setDefaultTargetUrl("/foobar");
-        
+
         // Configure target resolver default implementation not to use POST SavedRequest
         TargetUrlResolverImpl targetUrlResolver = new TargetUrlResolverImpl();
         targetUrlResolver.setJustUseSavedRequestOnGet(true);
         filter.setTargetUrlResolver(targetUrlResolver);
-    
+
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals("/mycontext/foobar", response.getRedirectedUrl());
@@ -521,8 +522,8 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
-        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());       
-    }    
+        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+    }
 
     /**
      * SEC-462
@@ -541,9 +542,9 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
-        assertEquals("/error", response.getForwardedUrl());       
-    }    
-    
+        assertEquals("/error", response.getForwardedUrl());
+    }
+
     /**
      * SEC-213
      */
@@ -564,10 +565,10 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
-        assertEquals("/mycontext/target", response.getRedirectedUrl());       
-    }    
+        assertEquals("/mycontext/target", response.getRedirectedUrl());
+    }
 
-    
+
     //~ Inner Classes ==================================================================================================
 
     private class MockAbstractProcessingFilter extends AbstractProcessingFilter {
@@ -575,13 +576,13 @@ public class AbstractProcessingFilterTests extends TestCase {
         private boolean grantAccess;
 
         public MockAbstractProcessingFilter(boolean grantAccess) {
-        	setRememberMeServices(new NullRememberMeServices());
+            setRememberMeServices(new NullRememberMeServices());
             this.grantAccess = grantAccess;
             this.exceptionToThrow = new BadCredentialsException("Mock requested to do so");
         }
 
         public MockAbstractProcessingFilter(AuthenticationException exceptionToThrow) {
-        	setRememberMeServices(new NullRememberMeServices());        	
+            setRememberMeServices(new NullRememberMeServices());
             this.grantAccess = false;
             this.exceptionToThrow = exceptionToThrow;
         }
@@ -591,8 +592,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         public Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException {
             if (grantAccess) {
-                return new UsernamePasswordAuthenticationToken("test", "test",
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("TEST")});
+                return new UsernamePasswordAuthenticationToken("test", "test", AuthorityUtils.createAuthorityList("TEST"));
             } else {
                 throw exceptionToThrow;
             }
