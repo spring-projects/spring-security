@@ -24,13 +24,17 @@ import org.aspectj.lang.JoinPoint;
 
 
 /**
- * Provides security interception of AspectJ method invocations.<p>The <code>ObjectDefinitionSource</code> required
- * by this security interceptor is of type {@link MethodDefinitionSource}. This is shared with the AOP Alliance based
- * security interceptor (<code>MethodSecurityInterceptor</code>),  since both work with Java <code>Method</code>s.</p>
- *  <p>The secure object type is <code>org.aspectj.lang.JoinPoint</code>, which is passed from the relevant
+ * Provides security interception of AspectJ method invocations.
+ * <p>
+ * The <code>ObjectDefinitionSource</code> required by this security interceptor is of type
+ * {@link MethodDefinitionSource}. This is shared with the AOP Alliance based security interceptor
+ * (<code>MethodSecurityInterceptor</code>),  since both work with Java <code>Method</code>s.
+ * <p>
+ * The secure object type is <code>org.aspectj.lang.JoinPoint</code>, which is passed from the relevant
  * <code>around()</code> advice. The <code>around()</code> advice also passes an anonymous implementation of {@link
- * AspectJCallback} which contains the call for AspectJ to continue processing:  <code>return proceed();</code>.</p>
- *  <P>Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
+ * AspectJCallback} which contains the call for AspectJ to continue processing:  <code>return proceed();</code>.
+ * <p>
+ * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.
  *
  * @author Ben Alex
  * @version $Id$
@@ -41,10 +45,6 @@ public class AspectJSecurityInterceptor extends AbstractSecurityInterceptor {
     private MethodDefinitionSource objectDefinitionSource;
 
     //~ Methods ========================================================================================================
-
-    public MethodDefinitionSource getObjectDefinitionSource() {
-        return this.objectDefinitionSource;
-    }
 
     public Class<? extends Object> getSecureObjectClass() {
         return JoinPoint.class;
