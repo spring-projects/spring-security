@@ -24,7 +24,6 @@ import javax.servlet.ServletContext;
 
 
 /**
- * DOCUMENT ME!
  *
  * @author Ben Alex
  * @version $Id$
