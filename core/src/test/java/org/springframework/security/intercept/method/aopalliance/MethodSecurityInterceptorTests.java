@@ -17,7 +17,6 @@ package org.springframework.security.intercept.method.aopalliance;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -32,27 +31,18 @@ import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AfterInvocationManager;
-import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.ITargetObject;
-import org.springframework.security.MockAccessDecisionManager;
-import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.MockRunAsManager;
 import org.springframework.security.RunAsManager;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.TargetObject;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.intercept.method.MethodDefinitionSource;
-import org.springframework.security.intercept.method.MockMethodDefinitionSource;
 import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.runas.RunAsManagerImpl;
 import org.springframework.security.runas.RunAsUserToken;
 
 /**
