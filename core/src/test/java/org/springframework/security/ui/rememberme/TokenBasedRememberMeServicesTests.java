@@ -15,33 +15,30 @@
 
 package org.springframework.security.ui.rememberme;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
+import java.util.Date;
+import javax.servlet.http.Cookie;
+
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-
 import org.springframework.security.providers.TestingAuthenticationToken;
-
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.util.AuthorityUtils;
+import org.springframework.dao.DataAccessException;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.util.StringUtils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-
-import org.springframework.dao.DataAccessException;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
-import org.springframework.util.StringUtils;
-
-import java.util.Date;
-
-import javax.servlet.http.Cookie;
-
 
 /**
  * Tests {@link org.springframework.security.ui.rememberme.TokenBasedRememberMeServices}.
@@ -49,17 +46,32 @@ import javax.servlet.http.Cookie;
  * @author Ben Alex
  * @version $Id$
  */
-public class TokenBasedRememberMeServicesTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public TokenBasedRememberMeServicesTests() {
-    }
-
-    public TokenBasedRememberMeServicesTests(String arg0) {
-        super(arg0);
-    }
+public class TokenBasedRememberMeServicesTests {
+    private Mockery jmock = new JUnit4Mockery();
+    private UserDetailsService uds;
+    private UserDetails user = new User("someone", "password", true, true, true, true,
+            AuthorityUtils.createAuthorityList("ROLE_ABC"));
+    private TokenBasedRememberMeServices services;
+    private Expectations udsWillReturnUser;
+    private Expectations udsWillThrowNotFound;
 
     //~ Methods ========================================================================================================
+
+    @Before
+    public void createTokenBasedRememberMeServices() {
+        services = new TokenBasedRememberMeServices();
+        uds = jmock.mock(UserDetailsService.class);
+        services.setKey("key");
+        services.setUserDetailsService(uds);
+        udsWillReturnUser = new Expectations() {{
+            oneOf(uds).loadUserByUsername(with(aNonNull(String.class))); will(returnValue(user));
+        }};
+        udsWillThrowNotFound = new Expectations() {{
+            oneOf(uds).loadUserByUsername(with(aNonNull(String.class)));
+            will(throwException(new UsernameNotFoundException("")));
+        }};
+
+    }
 
     private long determineExpiryTimeFromBased64EncodedToken(String validToken) {
         String cookieAsPlainText = new String(Base64.decodeBase64(validToken.getBytes()));
@@ -84,54 +96,31 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         return tokenValueBase64;
     }
 
-    public void testAutoLoginIfDoesNotPresentAnyCookies() throws Exception {
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        services.setKey("key");
-        services.setUserDetailsService(new MockAuthenticationDao(null, true));
-        //services.afterPropertiesSet();
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("dc");
-
+    @Test
+    public void autoLoginReturnsNullIfNoCookiePresented() throws Exception {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        Authentication result = services.autoLogin(request, response);
-
+        Authentication result = services.autoLogin(new MockHttpServletRequest(), response);
         assertNull(result);
-
-        Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-        assertNull(returnedCookie); // shouldn't try to invalidate our cookie
+        // No cookie set
+        assertNull(response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY));
     }
 
-    public void testAutoLoginIfDoesNotPresentRequiredCookie() throws Exception {
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        services.setKey("key");
-        services.setUserDetailsService(new MockAuthenticationDao(null, true));
-        //services.afterPropertiesSet();
-
+    @Test
+    public void autoLoginIgnoresUnrelatedCookie() throws Exception {
         Cookie cookie = new Cookie("unrelated_cookie", "foobar");
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie[] {cookie});
-
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         Authentication result = services.autoLogin(request, response);
 
         assertNull(result);
-
-        Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-        assertNull(returnedCookie); // shouldn't try to invalidate our cookie
+        assertNull(response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY));
     }
 
-    public void testAutoLoginIfExpired() throws Exception {
-        UserDetails user = new User("someone", "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
-
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        services.setKey("key");
-        services.setUserDetailsService(new MockAuthenticationDao(user, false));
-       // services.afterPropertiesSet();
-
+    @Test
+    public void autoLoginReturnsNullForExpiredCookieAndClearsCookie() throws Exception {
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis() - 1000000, "someone", "password", "key"));
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -139,74 +128,45 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        Authentication result = services.autoLogin(request, response);
-
-        assertNull(result);
-
+        assertNull(services.autoLogin(request, response));
         Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
     }
 
-    public void testAutoLoginIfMissingThreeTokensInCookieValue() throws Exception {
-        UserDetails user = new User("someone", "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
-
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        services.setKey("key");
-        services.setUserDetailsService(new MockAuthenticationDao(user, false));
-        //services.afterPropertiesSet();
-
+    @Test
+    public void autoLoginReturnsNullAndClearsCookieIfMissingThreeTokensInCookieValue() throws Exception {
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 new String(Base64.encodeBase64("x".getBytes())));
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie[] {cookie});
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-
-        Authentication result = services.autoLogin(request, response);
-
-        assertNull(result);
+        assertNull(services.autoLogin(request, response));
 
         Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
     }
 
-    public void testAutoLoginIfNotBase64Encoded() throws Exception {
-        UserDetails user = new User("someone", "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
-
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        services.setKey("key");
-        services.setUserDetailsService(new MockAuthenticationDao(user, false));
-       //services.afterPropertiesSet();
-
+    @Test
+    public void autoLoginClearsNonBase64EncodedCookie() throws Exception {
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 "NOT_BASE_64_ENCODED");
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie[] {cookie});
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-
-        Authentication result = services.autoLogin(request, response);
-
-        assertNull(result);
+        assertNull(services.autoLogin(request, response));
 
         Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
     }
 
-    public void testAutoLoginIfSignatureBlocksDoesNotMatchExpectedValue() throws Exception {
-        UserDetails user = new User("someone", "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
-
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        services.setKey("key");
-        services.setUserDetailsService(new MockAuthenticationDao(user, false));
-        //services.afterPropertiesSet();
-
+    @Test
+    public void autoLoginClearsCookieIfSignatureBlocksDoesNotMatchExpectedValue() throws Exception {
+        jmock.checking(udsWillReturnUser);
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis() + 1000000, "someone", "password",
                     "WRONG_KEY"));
@@ -215,46 +175,31 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        Authentication result = services.autoLogin(request, response);
-
-        assertNull(result);
+        assertNull(services.autoLogin(request, response));
 
         Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
     }
 
-    public void testAutoLoginIfTokenDoesNotContainANumberInCookieValue() throws Exception {
-        UserDetails user = new User("someone", "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
-
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        services.setKey("key");
-        services.setUserDetailsService(new MockAuthenticationDao(user, false));
-        //services.afterPropertiesSet();
-
+    @Test
+    public void autoLoginClearsCookieIfTokenDoesNotContainANumberInCookieValue() throws Exception {
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 new String(Base64.encodeBase64("username:NOT_A_NUMBER:signature".getBytes())));
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie[] {cookie});
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-
-        Authentication result = services.autoLogin(request, response);
-
-        assertNull(result);
+        assertNull(services.autoLogin(request, response));
 
         Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
     }
 
-    public void testAutoLoginIfUserNotFound() throws Exception {
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        services.setKey("key");
-        services.setUserDetailsService(new MockAuthenticationDao(null, true));
-        //services.afterPropertiesSet();
-
+    @Test
+    public void autoLoginClearsCookieIfUserNotFound() throws Exception {
+        jmock.checking(udsWillThrowNotFound);
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis() + 1000000, "someone", "password", "key"));
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -262,24 +207,16 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        Authentication result = services.autoLogin(request, response);
-
-        assertNull(result);
+        assertNull(services.autoLogin(request, response));
 
         Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
     }
 
-    public void testAutoLoginWithValidToken() throws Exception {
-        UserDetails user = new User("someone", "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
-
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        services.setKey("key");
-        services.setUserDetailsService(new MockAuthenticationDao(user, false));
-       // services.afterPropertiesSet();
-
+    @Test
+    public void autoLoginWithValidTokenAndUserSucceeds() throws Exception {
+        jmock.checking(udsWillReturnUser);
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis() + 1000000, "someone", "password", "key"));
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -290,16 +227,12 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         Authentication result = services.autoLogin(request, response);
 
         assertNotNull(result);
-
-        UserDetails resultingUserDetails = (UserDetails) result.getPrincipal();
-
-        assertEquals(user, resultingUserDetails);
+        assertEquals(user, result.getPrincipal());
     }
 
+    @Test
     public void testGettersSetters() {
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        services.setUserDetailsService(new MockAuthenticationDao(null, false));
-        assertTrue(services.getUserDetailsService() != null);
+        assertEquals(uds, services.getUserDetailsService());
 
         services.setKey("d");
         assertEquals("d", services.getKey());
@@ -312,11 +245,9 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         assertEquals(12, services.getTokenValiditySeconds());
     }
 
-    public void testLoginFail() {
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
+    @Test
+    public void loginFailClearsCookie() {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("fv");
-
         MockHttpServletResponse response = new MockHttpServletResponse();
         services.loginFail(request, response);
 
@@ -325,10 +256,10 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         assertEquals(0, cookie.getMaxAge());
     }
 
-    public void testLoginSuccessIgnoredIfParameterNotSetOrFalse() {
+    @Test
+    public void loginSuccessIgnoredIfParameterNotSetOrFalse() {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("d");
         request.addParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER, "false");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -338,12 +269,11 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         assertNull(cookie);
     }
 
-    public void testLoginSuccessNormalWithNonUserDetailsBasedPrincipal() {
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
+    @Test
+    public void loginSuccessNormalWithNonUserDetailsBasedPrincipalSetsExpectedCookie() {
         // SEC-822
         services.setTokenValiditySeconds(500000000);
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("d");
         request.addParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER, "true");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -360,15 +290,12 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         assertTrue(new Date().before(new Date(determineExpiryTimeFromBased64EncodedToken(cookie.getValue()))));
     }
 
-    public void testLoginSuccessNormalWithUserDetailsBasedPrincipal() {
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
+    @Test
+    public void loginSuccessNormalWithUserDetailsBasedPrincipalSetsExpectedCookie() {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("d");
         request.addParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER, "true");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        UserDetails user = new User("someone", "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
         services.loginSuccess(request, response, new TestingAuthenticationToken("someone", "password","ROLE_ABC"));
 
         Cookie cookie = response.getCookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
