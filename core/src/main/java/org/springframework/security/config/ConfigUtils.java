@@ -31,6 +31,7 @@ import org.w3c.dom.Element;
  */
 abstract class ConfigUtils {
 
+    @SuppressWarnings("unchecked")
     static void registerDefaultWebAccessManagerIfNecessary(ParserContext parserContext) {
         if (!parserContext.getRegistry().containsBeanDefinition(BeanIds.WEB_ACCESS_MANAGER)) {
             parserContext.getRegistry().registerBeanDefinition(BeanIds.WEB_ACCESS_MANAGER,
@@ -38,6 +39,7 @@ abstract class ConfigUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
     static void registerDefaultMethodAccessManagerIfNecessary(ParserContext parserContext) {
         if (!parserContext.getRegistry().containsBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER)) {
             parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER,
@@ -45,6 +47,7 @@ abstract class ConfigUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static BeanDefinition createAccessManagerBean(Class<? extends AccessDecisionVoter>... voters) {
         ManagedList defaultVoters = new ManagedList(voters.length);
 
@@ -122,6 +125,7 @@ abstract class ConfigUtils {
         pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_LIST, filterList);
     }
 
+    @SuppressWarnings("unchecked")
     static void addHttpFilter(ParserContext pc, BeanMetadataElement filter) {
         registerFilterChainPostProcessorIfNecessary(pc);
 

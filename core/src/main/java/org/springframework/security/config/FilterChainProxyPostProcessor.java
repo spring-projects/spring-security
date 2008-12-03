@@ -18,7 +18,7 @@ import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.config.ConfigUtils.FilterChainList;
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.context.SecurityContextPersistenceFilter;
 import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
@@ -98,7 +98,7 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
      * Checks the filter list for possible errors and logs them
      */
     private void checkFilterStack(List<Filter> filters) {
-        checkForDuplicates(HttpSessionContextIntegrationFilter.class, filters);
+        checkForDuplicates(SecurityContextPersistenceFilter.class, filters);
         checkForDuplicates(AuthenticationProcessingFilter.class, filters);
         checkForDuplicates(SessionFixationProtectionFilter.class, filters);
         checkForDuplicates(BasicProcessingFilter.class, filters);

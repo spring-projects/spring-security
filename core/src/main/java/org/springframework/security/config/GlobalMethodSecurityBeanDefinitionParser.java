@@ -1,7 +1,6 @@
 package org.springframework.security.config;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,6 @@ import org.springframework.security.intercept.method.aopalliance.MethodSecurityI
 import org.springframework.security.vote.AffirmativeBased;
 import org.springframework.security.vote.AuthenticatedVoter;
 import org.springframework.security.vote.RoleVoter;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -67,6 +65,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_USE_SECURED = "secured-annotations";
     private static final String ATT_USE_EXPRESSIONS = "expression-annotations";
 
+    @SuppressWarnings("unchecked")
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         Object source = parserContext.extractSource(element);
         // The list of method metadata delegates
@@ -92,7 +91,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         delegates.add(mapBasedMethodDefinitionSource);
 
         // Now create a Map<String, ConfigAttribute> for each <protect-pointcut> sub-element
-        Map pointcutMap = parseProtectPointcuts(parserContext,
+        Map<String, List<ConfigAttribute>> pointcutMap = parseProtectPointcuts(parserContext,
                 DomUtils.getChildElementsByTagName(element, Elements.PROTECT_POINTCUT));
 
         if (pointcutMap.size() > 0) {
@@ -122,6 +121,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
      * expression voter if expression-based access control is enabled. If expressions are in use, a after-invocation
      * provider will also be registered to handle post-invocation filtering and authorization expression annotations.
      */
+    @SuppressWarnings("unchecked")
     private void registerAccessManager(Element element, ParserContext pc, boolean jsr250Enabled, boolean expressionsEnabled) {
         Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
         BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
@@ -170,7 +170,8 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         parserContext.getRegistry().registerBeanDefinition(DELEGATING_METHOD_DEFINITION_SOURCE_ID, delegatingMethodDefinitionSource);
     }
 
-    private void registerProtectPointcutPostProcessor(ParserContext parserContext, Map pointcutMap,
+    private void registerProtectPointcutPostProcessor(ParserContext parserContext,
+            Map<String, List<ConfigAttribute>> pointcutMap,
             MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource, Object source) {
         RootBeanDefinition ppbp = new RootBeanDefinition(ProtectPointcutPostProcessor.class);
         ppbp.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -180,11 +181,10 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         parserContext.getRegistry().registerBeanDefinition(BeanIds.PROTECT_POINTCUT_POST_PROCESSOR, ppbp);
     }
 
-    private Map parseProtectPointcuts(ParserContext parserContext, List protectPointcutElts) {
-        Map pointcutMap = new LinkedHashMap();
+    private Map<String, List<ConfigAttribute>> parseProtectPointcuts(ParserContext parserContext, List<Element> protectPointcutElts) {
+        Map<String, List<ConfigAttribute>> pointcutMap = new LinkedHashMap<String, List<ConfigAttribute>>();
 
-        for (Iterator i = protectPointcutElts.iterator(); i.hasNext();) {
-            Element childElt = (Element) i.next();
+        for (Element childElt : protectPointcutElts) {
             String accessConfig = childElt.getAttribute(ATT_ACCESS);
             String expression = childElt.getAttribute(ATT_EXPRESSION);
 

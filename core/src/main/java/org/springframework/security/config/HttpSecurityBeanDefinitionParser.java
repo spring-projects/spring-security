@@ -1,7 +1,6 @@
 package org.springframework.security.config;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,6 +102,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_USE_EXPRESSIONS = "use-expressions";
     static final String DEF_USE_EXPRESSIONS = "false";
 
+    static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
+
+    @SuppressWarnings("unchecked")
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         final BeanDefinitionRegistry registry = parserContext.getRegistry();
@@ -206,6 +208,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void registerFilterChainProxy(ParserContext pc, Map filterChainMap, UrlMatcher matcher, Object source) {
         if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
             pc.getReaderContext().error("Duplicate <http> element detected", source);
@@ -222,24 +225,37 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private boolean registerSecurityContextPersistenceFilter(Element element, ParserContext pc) {
         BeanDefinitionBuilder scpf = BeanDefinitionBuilder.rootBeanDefinition(SecurityContextPersistenceFilter.class);
-        BeanDefinitionBuilder contextRepo = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionSecurityContextRepository.class);
         boolean sessionCreationAllowed = true;
 
+        String repoRef = element.getAttribute(ATT_SECURITY_CONTEXT_REPOSITORY);
         String createSession = element.getAttribute(ATT_CREATE_SESSION);
-        if (OPT_CREATE_SESSION_ALWAYS.equals(createSession)) {
-            contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
-            scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
-        } else if (OPT_CREATE_SESSION_NEVER.equals(createSession)) {
-            contextRepo.addPropertyValue("allowSessionCreation", Boolean.FALSE);
-            scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
-            sessionCreationAllowed = false;
-        } else {
-            createSession = DEF_CREATE_SESSION_IF_REQUIRED;
-            contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
-            scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
-        }
 
-        scpf.addPropertyValue("securityContextRepository", contextRepo.getBeanDefinition());
+        if (StringUtils.hasText(repoRef)) {
+            scpf.addPropertyReference("securityContextRepository", repoRef);
+
+            if (OPT_CREATE_SESSION_ALWAYS.equals(createSession)) {
+                scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
+            } else if (StringUtils.hasText(createSession)) {
+                pc.getReaderContext().error("If using security-context-repository-ref, the only value you can set for " +
+                        "'create-session' is 'always'. Other session creation logic should be handled by the " +
+                        "SecurityContextRepository", element);
+            }
+        } else {
+            BeanDefinitionBuilder contextRepo = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionSecurityContextRepository.class);
+            if (OPT_CREATE_SESSION_ALWAYS.equals(createSession)) {
+                contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
+                scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
+            } else if (OPT_CREATE_SESSION_NEVER.equals(createSession)) {
+                contextRepo.addPropertyValue("allowSessionCreation", Boolean.FALSE);
+                scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
+                sessionCreationAllowed = false;
+            } else {
+                createSession = DEF_CREATE_SESSION_IF_REQUIRED;
+                contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
+                scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
+            }
+            scpf.addPropertyValue("securityContextRepository", contextRepo.getBeanDefinition());
+        }
 
         pc.getRegistry().registerBeanDefinition(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER, scpf.getBeanDefinition());
         ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER));
@@ -292,7 +308,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private void registerFilterSecurityInterceptor(Element element, ParserContext pc, UrlMatcher matcher,
-            String accessManagerId, LinkedHashMap filterInvocationDefinitionMap) {
+            String accessManagerId, LinkedHashMap<RequestKey, List<ConfigAttribute>> filterInvocationDefinitionMap) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(FilterSecurityInterceptor.class);
 
         builder.addPropertyReference("accessDecisionManager", accessManagerId);
@@ -311,6 +327,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.FILTER_SECURITY_INTERCEPTOR));
     }
 
+    @SuppressWarnings("unchecked")
     private void registerChannelProcessingBeans(ParserContext pc, UrlMatcher matcher, LinkedHashMap channelRequestMap) {
         RootBeanDefinition channelFilter = new RootBeanDefinition(ChannelProcessingFilter.class);
         channelFilter.getPropertyValues().addPropertyValue("channelDecisionManager",
@@ -535,15 +552,13 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
      * Parses the intercept-url elements and populates the FilterChainProxy's filter chain Map and the
      * map used to create the FilterInvocationDefintionSource for the FilterSecurityInterceptor.
      */
-    void parseInterceptUrlsForChannelSecurityAndFilterChain(List urlElts, Map filterChainMap,  Map channelRequestMap,
+    @SuppressWarnings("unchecked")
+    void parseInterceptUrlsForChannelSecurityAndFilterChain(List<Element> urlElts, Map filterChainMap,  Map channelRequestMap,
             boolean useLowerCasePaths, ParserContext parserContext) {
 
-        Iterator urlEltsIterator = urlElts.iterator();
         ConfigAttributeEditor editor = new ConfigAttributeEditor();
 
-        while (urlEltsIterator.hasNext()) {
-            Element urlElt = (Element) urlEltsIterator.next();
-
+        for (Element urlElt : urlElts) {
             String path = urlElt.getAttribute(ATT_PATH_PATTERN);
 
             if(!StringUtils.hasText(path)) {

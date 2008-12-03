@@ -11,7 +11,6 @@ import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 import java.util.List;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -26,21 +25,20 @@ public class PortMappingsBeanDefinitionParser implements BeanDefinitionParser {
     public static final String ATT_HTTP_PORT = "http";
     public static final String ATT_HTTPS_PORT = "https";
 
+    @SuppressWarnings("unchecked")
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         RootBeanDefinition portMapper = new RootBeanDefinition(PortMapperImpl.class);
         portMapper.setSource(parserContext.extractSource(element));
 
         if (element != null) {
-            List mappingElts = DomUtils.getChildElementsByTagName(element, Elements.PORT_MAPPING);
+            List<Element> mappingElts = DomUtils.getChildElementsByTagName(element, Elements.PORT_MAPPING);
             if(mappingElts.isEmpty()) {
                 parserContext.getReaderContext().error("No port-mapping child elements specified", element);
             }
 
             Map mappings = new HashMap();
 
-            Iterator iterator = mappingElts.iterator();
-            while (iterator.hasNext()) {
-                Element elt = (Element) iterator.next();
+            for (Element elt : mappingElts) {
                 String httpPort = elt.getAttribute(ATT_HTTP_PORT);
                 String httpsPort = elt.getAttribute(ATT_HTTPS_PORT);
 

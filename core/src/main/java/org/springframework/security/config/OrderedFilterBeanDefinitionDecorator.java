@@ -40,8 +40,8 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
         String order = getOrder(elt, parserContext);
 
         BeanDefinitionBuilder wrapper = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.config.OrderedFilterBeanDefinitionDecorator$OrderedFilterDecorator");
-        wrapper.addConstructorArg(holder.getBeanName());
-        wrapper.addConstructorArg(new RuntimeBeanReference(holder.getBeanName()));
+        wrapper.addConstructorArgValue(holder.getBeanName());
+        wrapper.addConstructorArgValue(new RuntimeBeanReference(holder.getBeanName()));
 
         if (StringUtils.hasText(order)) {
             wrapper.addPropertyValue("order", order);

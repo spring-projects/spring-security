@@ -2,6 +2,7 @@ package org.springframework.security.config;
 
 import org.springframework.security.providers.encoding.Md4PasswordEncoder;
 import org.springframework.security.providers.encoding.Md5PasswordEncoder;
+import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.providers.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.providers.encoding.ShaPasswordEncoder;
 import org.springframework.security.providers.encoding.BaseDigestPasswordEncoder;
@@ -33,17 +34,17 @@ public class PasswordEncoderParser {
     static final String ATT_REF = "ref";
     static final String ATT_HASH = "hash";
     static final String ATT_BASE_64 = "base64";
-    static final String OPT_HASH_PLAINTEXT = "plaintext";    
+    static final String OPT_HASH_PLAINTEXT = "plaintext";
     static final String OPT_HASH_SHA = "sha";
-    static final String OPT_HASH_SHA256 = "sha-256";    
+    static final String OPT_HASH_SHA256 = "sha-256";
     static final String OPT_HASH_MD4 = "md4";
     static final String OPT_HASH_MD5 = "md5";
     static final String OPT_HASH_LDAP_SHA = "{sha}";
 
-    static final Map ENCODER_CLASSES;
+    static final Map<String, Class<? extends PasswordEncoder>> ENCODER_CLASSES;
 
     static {
-        ENCODER_CLASSES = new HashMap();
+        ENCODER_CLASSES = new HashMap<String, Class<? extends PasswordEncoder>>(6);
         ENCODER_CLASSES.put(OPT_HASH_PLAINTEXT, PlaintextPasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_SHA, ShaPasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_SHA256, ShaPasswordEncoder.class);
@@ -64,7 +65,7 @@ public class PasswordEncoderParser {
     private void parse(Element element, ParserContext parserContext) {
         String hash = element.getAttribute(ATT_HASH);
         boolean useBase64 = false;
-        
+
         if (StringUtils.hasText(element.getAttribute(ATT_BASE_64))) {
             useBase64 = new Boolean(element.getAttribute(ATT_BASE_64)).booleanValue();
         }
@@ -74,13 +75,13 @@ public class PasswordEncoderParser {
         if (StringUtils.hasText(ref)) {
             passwordEncoder = new RuntimeBeanReference(ref);
         } else {
-            Class beanClass = (Class) ENCODER_CLASSES.get(hash);
+            Class<? extends PasswordEncoder> beanClass = ENCODER_CLASSES.get(hash);
             RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
-            
+
             if (OPT_HASH_SHA256.equals(hash)) {
-            	beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, new Integer(256));
+                beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, new Integer(256));
             }
-            
+
             beanDefinition.setSource(parserContext.extractSource(element));
             if (useBase64) {
                 if (BaseDigestPasswordEncoder.class.isAssignableFrom(beanClass)) {

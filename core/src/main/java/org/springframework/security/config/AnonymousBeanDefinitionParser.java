@@ -5,7 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
-import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -22,13 +21,13 @@ public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_KEY = "key";
     static final String DEF_KEY = "doesNotMatter";
 
-	static final String ATT_USERNAME = "username";
-	static final String DEF_USERNAME = "roleAnonymous";
+    static final String ATT_USERNAME = "username";
+    static final String DEF_USERNAME = "roleAnonymous";
 
-	static final String ATT_GRANTED_AUTHORITY = "granted-authority";
-	static final String DEF_GRANTED_AUTHORITY = "ROLE_ANONYMOUS";
+    static final String ATT_GRANTED_AUTHORITY = "granted-authority";
+    static final String DEF_GRANTED_AUTHORITY = "ROLE_ANONYMOUS";
 
-	protected final Log logger = LogFactory.getLog(getClass());
+    protected final Log logger = LogFactory.getLog(getClass());
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         String grantedAuthority = null;
@@ -44,15 +43,15 @@ public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         if (!StringUtils.hasText(grantedAuthority)) {
-        	grantedAuthority = DEF_GRANTED_AUTHORITY;
+            grantedAuthority = DEF_GRANTED_AUTHORITY;
         }
 
         if (!StringUtils.hasText(username)) {
-        	username = DEF_USERNAME;
+            username = DEF_USERNAME;
         }
 
         if (!StringUtils.hasText(key)) {
-        	key = DEF_KEY;
+            key = DEF_KEY;
         }
 
         RootBeanDefinition filter = new RootBeanDefinition(AnonymousProcessingFilter.class);
@@ -65,14 +64,14 @@ public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
         provider.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         provider.setSource(source);
         provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
-        
+
         parserContext.getRegistry().registerBeanDefinition(BeanIds.ANONYMOUS_AUTHENTICATION_PROVIDER, provider);
         ConfigUtils.addAuthenticationProvider(parserContext, BeanIds.ANONYMOUS_AUTHENTICATION_PROVIDER);
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.ANONYMOUS_PROCESSING_FILTER, filter);
         ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.ANONYMOUS_PROCESSING_FILTER));
         parserContext.registerComponent(new BeanComponentDefinition(filter, BeanIds.ANONYMOUS_PROCESSING_FILTER));
-        
+
         return null;
     }
 }

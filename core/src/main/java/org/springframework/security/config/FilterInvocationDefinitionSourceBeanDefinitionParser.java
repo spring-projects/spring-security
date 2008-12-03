@@ -27,6 +27,7 @@ public class FilterInvocationDefinitionSourceBeanDefinitionParser extends Abstra
         return "org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource";
     }
 
+    @SuppressWarnings("unchecked")
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         List<Element> interceptUrls = DomUtils.getChildElementsByTagName(element, "intercept-url");
 

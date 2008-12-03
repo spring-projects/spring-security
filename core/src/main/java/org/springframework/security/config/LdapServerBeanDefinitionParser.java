@@ -23,8 +23,8 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  */
 public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
-	private static final String CONTEXT_SOURCE_CLASS="org.springframework.security.ldap.DefaultSpringSecurityContextSource";
-	
+    private static final String CONTEXT_SOURCE_CLASS="org.springframework.security.ldap.DefaultSpringSecurityContextSource";
+
     private final Log logger = LogFactory.getLog(getClass());
 
     /** Defines the Url of the ldap server to use. If not specified, an embedded apache DS instance will be created */
@@ -96,15 +96,16 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
      *
      * @see ApacheDSContainer
      */
+    @SuppressWarnings("unchecked")
     private RootBeanDefinition createEmbeddedServer(Element element, ParserContext parserContext) {
         Object source = parserContext.extractSource(element);
-        BeanDefinitionBuilder configuration = 
-        	BeanDefinitionBuilder.rootBeanDefinition("org.apache.directory.server.configuration.MutableServerStartupConfiguration");
-        BeanDefinitionBuilder partition = 
-        	BeanDefinitionBuilder.rootBeanDefinition("org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration");
-        configuration.setSource(source);
-        partition.setSource(source);
-        
+        BeanDefinitionBuilder configuration =
+            BeanDefinitionBuilder.rootBeanDefinition("org.apache.directory.server.configuration.MutableServerStartupConfiguration");
+        BeanDefinitionBuilder partition =
+            BeanDefinitionBuilder.rootBeanDefinition("org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration");
+        configuration.getRawBeanDefinition().setSource(source);
+        partition.getRawBeanDefinition().setSource(source);
+
         Attributes rootAttributes = new BasicAttributes("dc", "springsecurity");
         Attribute a = new BasicAttribute("objectClass");
         a.add("top");
@@ -143,7 +144,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
         String url = "ldap://127.0.0.1:" + port + "/" + suffix;
 
         BeanDefinitionBuilder contextSource = BeanDefinitionBuilder.rootBeanDefinition(CONTEXT_SOURCE_CLASS);
-        contextSource.addConstructorArg(url);
+        contextSource.addConstructorArgValue(url);
         contextSource.addPropertyValue("userDn", "uid=admin,ou=system");
         contextSource.addPropertyValue("password", "secret");
 

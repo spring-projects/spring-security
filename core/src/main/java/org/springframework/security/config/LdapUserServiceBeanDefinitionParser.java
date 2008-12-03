@@ -46,8 +46,8 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
             parserContext.getReaderContext().error("User search filter must be supplied", elt);
         }
 
-        builder.addConstructorArg(parseSearchBean(elt, parserContext));
-        builder.addConstructorArg(parseAuthoritiesPopulator(elt, parserContext));
+        builder.addConstructorArgValue(parseSearchBean(elt, parserContext));
+        builder.addConstructorArgValue(parseAuthoritiesPopulator(elt, parserContext));
         builder.addPropertyValue("userDetailsMapper", parseUserDetailsClass(elt, parserContext));
     }
 
@@ -69,10 +69,10 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
         }
 
         BeanDefinitionBuilder searchBuilder = BeanDefinitionBuilder.rootBeanDefinition(LDAP_SEARCH_CLASS);
-        searchBuilder.setSource(source);
-        searchBuilder.addConstructorArg(userSearchBase);
-        searchBuilder.addConstructorArg(userSearchFilter);
-        searchBuilder.addConstructorArg(parseServerReference(elt, parserContext));
+        searchBuilder.getRawBeanDefinition().setSource(source);
+        searchBuilder.addConstructorArgValue(userSearchBase);
+        searchBuilder.addConstructorArgValue(userSearchFilter);
+        searchBuilder.addConstructorArgValue(parseServerReference(elt, parserContext));
 
         return (RootBeanDefinition) searchBuilder.getBeanDefinition();
     }
@@ -119,9 +119,9 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
         }
 
         BeanDefinitionBuilder populator = BeanDefinitionBuilder.rootBeanDefinition(LDAP_AUTHORITIES_POPULATOR_CLASS);
-        populator.setSource(parserContext.extractSource(elt));
-        populator.addConstructorArg(parseServerReference(elt, parserContext));
-        populator.addConstructorArg(groupSearchBase);
+        populator.getRawBeanDefinition().setSource(parserContext.extractSource(elt));
+        populator.addConstructorArgValue(parseServerReference(elt, parserContext));
+        populator.addConstructorArgValue(groupSearchBase);
         populator.addPropertyValue("groupSearchFilter", groupSearchFilter);
         populator.addPropertyValue("searchSubtree", Boolean.TRUE);
 

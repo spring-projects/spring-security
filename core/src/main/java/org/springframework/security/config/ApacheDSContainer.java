@@ -112,7 +112,7 @@ class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, 
         configuration.setWorkingDirectory(workingDir);
     }
 
-
+    @SuppressWarnings("unchecked")
     public void start() {
         if (isRunning()) {
             return;
@@ -171,6 +171,7 @@ class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, 
 
     }
 
+    @SuppressWarnings("unchecked")
     public void stop() {
         Properties env = new Properties();
         env.setProperty(Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName());

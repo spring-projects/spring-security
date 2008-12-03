@@ -1,10 +1,7 @@
 package org.springframework.security.config;
 
-import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.config.AbstractInterceptorDrivenBeanDefinitionDecorator;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -45,8 +42,7 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
     static final String ATT_ACCESS = "access";
     private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
 
-    private Log logger = LogFactory.getLog(getClass());
-
+    @SuppressWarnings("unchecked")
     protected BeanDefinition createInterceptorDefinition(Node node) {
         Element interceptMethodsElt = (Element)node;
         BeanDefinitionBuilder interceptor = BeanDefinitionBuilder.rootBeanDefinition(MethodSecurityInterceptor.class);
@@ -66,16 +62,14 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
         // Lookup parent bean information
         Element parent = (Element) node.getParentNode();
         String parentBeanClass = parent.getAttribute("class");
-        String parentBeanId = parent.getAttribute("id");
         parent = null;
 
         // Parse the included methods
-        List methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);
+        List<Element> methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);
 
         StringBuffer sb = new StringBuffer();
 
-        for (Iterator i = methods.iterator(); i.hasNext();) {
-            Element protectmethodElt = (Element) i.next();
+        for (Element protectmethodElt : methods) {
             String accessConfig = protectmethodElt.getAttribute(ATT_ACCESS);
 
             // Support inference of class names
