@@ -49,85 +49,85 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
 
         // We need to register the provider to access it in the post processor to check if it has a cache
         final String id = parserContext.getReaderContext().generateBeanName(authProvider);
-        parserContext.getRegistry().registerBeanDefinition(id, authProvider);                    
+        parserContext.getRegistry().registerBeanDefinition(id, authProvider);
         parserContext.registerComponent(new BeanComponentDefinition(authProvider, id));
-        
-        String ref = element.getAttribute(ATT_USER_DETAILS_REF);        
-        
-        if (StringUtils.hasText(ref)) {        	
+
+        String ref = element.getAttribute(ATT_USER_DETAILS_REF);
+
+        if (StringUtils.hasText(ref)) {
             if (userServiceElt != null || jdbcUserServiceElt != null || ldapUserServiceElt != null) {
                 parserContext.getReaderContext().error("The " + ATT_USER_DETAILS_REF + " attribute cannot be used in combination with child" +
                         "elements '" + Elements.USER_SERVICE + "', '" + Elements.JDBC_USER_SERVICE + "' or '" +
                         Elements.LDAP_USER_SERVICE + "'", element);
             }
         } else {
-	        // Use the child elements to create the UserDetailsService
-	        AbstractUserDetailsServiceBeanDefinitionParser parser = null;
-	        Element elt = null;
-	
-	        if (userServiceElt != null) {
-	        	elt = userServiceElt;
-	        	parser = new UserServiceBeanDefinitionParser();
-	        } else if (jdbcUserServiceElt != null) {
-	        	elt = jdbcUserServiceElt;
-	        	parser = new JdbcUserServiceBeanDefinitionParser();
-	        } else if (ldapUserServiceElt != null) {
-	        	elt = ldapUserServiceElt;
-	        	parser = new LdapUserServiceBeanDefinitionParser();
-	        } else {
-	            parserContext.getReaderContext().error("A user-service is required", element);
-	        }
-	        
-	        parser.parse(elt, parserContext);
-	        ref = parser.getId();
-        }
-        
-        authProvider.getPropertyValues().addPropertyValue("userDetailsService", new RuntimeBeanReference(ref));        
+            // Use the child elements to create the UserDetailsService
+            AbstractUserDetailsServiceBeanDefinitionParser parser = null;
+            Element elt = null;
 
-        BeanDefinitionBuilder cacheResolverBldr = BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProviderCacheResolver.class);        
-        cacheResolverBldr.addConstructorArg(id);
-        cacheResolverBldr.addConstructorArg(ref);        
+            if (userServiceElt != null) {
+                elt = userServiceElt;
+                parser = new UserServiceBeanDefinitionParser();
+            } else if (jdbcUserServiceElt != null) {
+                elt = jdbcUserServiceElt;
+                parser = new JdbcUserServiceBeanDefinitionParser();
+            } else if (ldapUserServiceElt != null) {
+                elt = ldapUserServiceElt;
+                parser = new LdapUserServiceBeanDefinitionParser();
+            } else {
+                parserContext.getReaderContext().error("A user-service is required", element);
+            }
+
+            parser.parse(elt, parserContext);
+            ref = parser.getId();
+        }
+
+        authProvider.getPropertyValues().addPropertyValue("userDetailsService", new RuntimeBeanReference(ref));
+
+        BeanDefinitionBuilder cacheResolverBldr = BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProviderCacheResolver.class);
+        cacheResolverBldr.addConstructorArgValue(id);
+        cacheResolverBldr.addConstructorArgValue(ref);
         cacheResolverBldr.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         BeanDefinition cacheResolver = cacheResolverBldr.getBeanDefinition();
-        
+
         String name = parserContext.getReaderContext().generateBeanName(cacheResolver);
         parserContext.getRegistry().registerBeanDefinition(name , cacheResolver);
         parserContext.registerComponent(new BeanComponentDefinition(cacheResolver, name));
-        
-        ConfigUtils.addAuthenticationProvider(parserContext, id);        
-        
+
+        ConfigUtils.addAuthenticationProvider(parserContext, id);
+
         return null;
     }
-    
+
     /**
-     * Checks whether the registered user service bean has an associated cache and, if so, sets it on the 
+     * Checks whether the registered user service bean has an associated cache and, if so, sets it on the
      * authentication provider.
      */
     static class AuthenticationProviderCacheResolver implements BeanFactoryPostProcessor, Ordered {
-    	private String providerId;
-    	private String userServiceId;
-    	
-		public AuthenticationProviderCacheResolver(String providerId, String userServiceId) {
-			this.providerId = providerId;
-			this.userServiceId = userServiceId;
-		}
+        private String providerId;
+        private String userServiceId;
 
-		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-			RootBeanDefinition provider = (RootBeanDefinition) beanFactory.getBeanDefinition(providerId);
-			
-			String cachingId = userServiceId + AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX;
-			
-			if (beanFactory.containsBeanDefinition(cachingId)) {
-				RootBeanDefinition cachingUserService = (RootBeanDefinition) beanFactory.getBeanDefinition(cachingId);
-			
-				PropertyValue userCacheProperty = cachingUserService.getPropertyValues().getPropertyValue("userCache");
-				
-				provider.getPropertyValues().addPropertyValue(userCacheProperty);
-			}
-		}
+        public AuthenticationProviderCacheResolver(String providerId, String userServiceId) {
+            this.providerId = providerId;
+            this.userServiceId = userServiceId;
+        }
 
-		public int getOrder() {
-			return HIGHEST_PRECEDENCE;
-		}
+        public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+            RootBeanDefinition provider = (RootBeanDefinition) beanFactory.getBeanDefinition(providerId);
+
+            String cachingId = userServiceId + AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX;
+
+            if (beanFactory.containsBeanDefinition(cachingId)) {
+                RootBeanDefinition cachingUserService = (RootBeanDefinition) beanFactory.getBeanDefinition(cachingId);
+
+                PropertyValue userCacheProperty = cachingUserService.getPropertyValues().getPropertyValue("userCache");
+
+                provider.getPropertyValues().addPropertyValue(userCacheProperty);
+            }
+        }
+
+        public int getOrder() {
+            return HIGHEST_PRECEDENCE;
+        }
     }
 }
