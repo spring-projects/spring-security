@@ -547,8 +547,18 @@
           You can find an example in the <link xlink:href="#ns-protect-pointcut">namespace introduction</link>.
         </para>
       </section>
+      <section xml:id="nsa-custom-after-invocation">
+        <title>The <literal>&lt;custom-after-invocation-provider&gt;</literal> Element</title>
+        <para>
+          This element can be used to decorate an <interfacename>AfterInvocationProvider</interfacename>
+          for use by the security interceptor maintained by the <literal>&lt;global-method-security&gt;</literal>
+          namespace.
+        </para>
+        <para>
+          The syntax is the same as for <literal>&lt;custom-authentication-provider&gt;</literal>.
+        </para>
+      </section>
     </section>
-
     <section>
       <title>LDAP Namespace Options</title>
       <para>
