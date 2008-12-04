@@ -24,6 +24,7 @@ import org.springframework.security.SecurityConfig;
 import org.springframework.security.concurrent.ConcurrentLoginException;
 import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.concurrent.ConcurrentSessionFilter;
+import org.springframework.security.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.context.SecurityContextPersistenceFilter;
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
@@ -663,6 +664,37 @@ public class HttpSecurityBeanDefinitionParserTests {
         List<? extends ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/someurl", null));
         assertEquals(1, attrDef.size());
         assertTrue(attrDef.contains(new SecurityConfig("ROLE_B")));
+    }
+
+    @Test
+    public void supportsExternallyDefinedSecurityContextRepository() throws Exception {
+        setContext(
+                "<b:bean id='repo' class='org.springframework.security.context.HttpSessionSecurityContextRepository'/>" +
+                "<http create-session='always' security-context-repository-ref='repo'>" +
+                "    <http-basic />" +
+                "</http>" + AUTH_PROVIDER_XML);
+        SecurityContextPersistenceFilter filter = (SecurityContextPersistenceFilter) appContext.getBean(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER);
+        HttpSessionSecurityContextRepository repo = (HttpSessionSecurityContextRepository) appContext.getBean("repo");
+        assertSame(repo, FieldUtils.getFieldValue(filter, "repo"));
+        assertTrue((Boolean)FieldUtils.getFieldValue(filter, "forceEagerSessionCreation"));
+    }
+
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void cantUseUnsupportedSessionCreationAttributeWithExternallyDefinedSecurityContextRepository() throws Exception {
+        setContext(
+                "<b:bean id='repo' class='org.springframework.security.context.HttpSessionSecurityContextRepository'/>" +
+                "<http create-session='never' security-context-repository-ref='repo'>" +
+                "    <http-basic />" +
+                "</http>" + AUTH_PROVIDER_XML);
+    }
+
+    @Test
+    public void createDefinedSecurityContextRepository() throws Exception {
+        setContext(
+                "<b:bean id='repo' class='org.springframework.security.context.HttpSessionSecurityContextRepository'/>" +
+                "<http security-context-repository-ref='repo'>" +
+                "    <http-basic />" +
+                "</http>" + AUTH_PROVIDER_XML);
     }
 
     private void setContext(String context) {
