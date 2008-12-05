@@ -1,11 +1,14 @@
 package org.springframework.security.ldap;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.ldap.core.support.DirContextAuthenticationStrategy;
 import org.springframework.ldap.core.support.LdapContextSource;
+import org.springframework.ldap.core.support.SimpleDirContextAuthenticationStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -15,6 +18,11 @@ import org.springframework.util.Assert;
  * From Spring Security 2.5, Spring LDAP 1.3 is used and the <tt>ContextSource</tt> interface
  * provides support for binding with a username and password. As a result, Spring LDAP <tt>ContextSource</tt>
  * implementations such as <tt>LdapContextSource</tt> may be used directly with Spring Security.
+ * <p>
+ * Spring LDAP 1.3 doesn't have JVM-level LDAP connection pooling enabled by default. This class sets the
+ * <tt>pooled</tt> property to true, but customizes the {@link DirContextAuthenticationStrategy} used to disable
+ * pooling when the <tt>DN</tt> doesn't match the <tt>userDn</tt> property. This prevents pooling for calls
+ * to {@link #getContext(String, String)} to authenticate as specific users.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -53,7 +61,20 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
             }
         }
 
-        super.setUrls(urls.toArray(new String[urls.size()]));
-        super.setBase(rootDn);
+        setUrls(urls.toArray(new String[urls.size()]));
+        setBase(rootDn);
+        setPooled(true);
+        setAuthenticationStrategy(new SimpleDirContextAuthenticationStrategy() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void setupEnvironment(Hashtable env, String dn, String password) {
+                super.setupEnvironment(env, dn, password);
+                // Remove the pooling flag unless we are authenticating as the 'manager' user.
+                if (!userDn.equals(dn) && env.containsKey(SUN_LDAP_POOLING_FLAG)) {
+                    logger.debug("Removing pooling flag for user " + dn);
+                    env.remove(SUN_LDAP_POOLING_FLAG);
+                }
+            }
+        });
     }
 }
