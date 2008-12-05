@@ -96,6 +96,12 @@
             <name>Spring Portfolio Milestone Repository</name>
             <url>http://s3.amazonaws.com/maven.springframework.org/milestone</url>
         </repository>
+		<repository>
+		    <!-- needed for jets3t-0.5.1-20080115 -->
+			<id>springExternal</id>
+			<name>Spring external dependencies</name>
+			<url>http://maven.springframework.org/external/</url>
+		</repository>        
     </repositories>
 
     <mailingLists>
