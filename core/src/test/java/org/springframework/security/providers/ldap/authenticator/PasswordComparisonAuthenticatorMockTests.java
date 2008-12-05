@@ -15,18 +15,18 @@
 
 package org.springframework.security.providers.ldap.authenticator;
 
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
-import org.springframework.security.ldap.MockSpringSecurityContextSource;
+import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.SearchControls;
 
 
 /**
@@ -35,23 +35,24 @@ import javax.naming.directory.SearchControls;
  * @version $Id$
  */
 public class PasswordComparisonAuthenticatorMockTests {
-    Mockery context = new JUnit4Mockery();
+    Mockery jmock = new JUnit4Mockery();
 
     //~ Methods ========================================================================================================
 
     @Test
     public void ldapCompareOperationIsUsedWhenPasswordIsNotRetrieved() throws Exception {
-        final DirContext dirCtx = context.mock(DirContext.class);
+        final DirContext dirCtx = jmock.mock(DirContext.class);
+        final BaseLdapPathContextSource source = jmock.mock(BaseLdapPathContextSource.class);
         final BasicAttributes attrs = new BasicAttributes();
         attrs.put(new BasicAttribute("uid", "bob"));
 
-        PasswordComparisonAuthenticator authenticator =
-            new PasswordComparisonAuthenticator(new MockSpringSecurityContextSource(dirCtx, ""));
+        PasswordComparisonAuthenticator authenticator = new PasswordComparisonAuthenticator(source);
 
         authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
 
         // Get the mock to return an empty attribute set
-        context.checking(new Expectations() {{
+        jmock.checking(new Expectations() {{
+            allowing(source).getReadOnlyContext(); will(returnValue(dirCtx));
             oneOf(dirCtx).getAttributes(with(equal("cn=Bob,ou=people")), with(aNull(String[].class))); will(returnValue(attrs));
             oneOf(dirCtx).getNameInNamespace(); will(returnValue("dc=springframework,dc=org"));
         }});
@@ -59,7 +60,7 @@ public class PasswordComparisonAuthenticatorMockTests {
         // Setup a single return value (i.e. success)
         final Attributes searchResults = new BasicAttributes("", null);
 
-        context.checking(new Expectations() {{
+        jmock.checking(new Expectations() {{
             oneOf(dirCtx).search(with(equal("cn=Bob,ou=people")),
                             with(equal("(userPassword={0})")),
                             with(aNonNull(Object[].class)),
@@ -70,6 +71,6 @@ public class PasswordComparisonAuthenticatorMockTests {
 
         authenticator.authenticate(new UsernamePasswordAuthenticationToken("Bob","bobspassword"));
 
-        context.assertIsSatisfied();
+        jmock.assertIsSatisfied();
     }
 }
