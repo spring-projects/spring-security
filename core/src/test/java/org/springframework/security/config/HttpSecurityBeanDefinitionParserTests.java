@@ -1,6 +1,11 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
 
 import java.lang.reflect.Method;
@@ -39,10 +44,7 @@ import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
 import org.springframework.security.ui.logout.LogoutHandler;
 import org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter;
-import org.springframework.security.ui.rememberme.NullRememberMeServices;
 import org.springframework.security.ui.rememberme.PersistentTokenBasedRememberMeServices;
-import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
-import org.springframework.security.ui.rememberme.RememberMeServices;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FieldUtils;
@@ -58,8 +60,8 @@ import org.springframework.util.ReflectionUtils;
  * @version $Id$
  */
 public class HttpSecurityBeanDefinitionParserTests {
+    private static final int AUTO_CONFIG_FILTERS = 10;
     private AbstractXmlApplicationContext appContext;
-
 
     @After
     public void closeAppContext() {
@@ -83,7 +85,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         checkAutoConfigFilters(filterList);
 
         assertEquals(true, FieldUtils.getFieldValue(appContext.getBean("_filterChainProxy"), "stripQueryStringFromUrls"));
-        assertEquals(true, FieldUtils.getFieldValue(filterList.get(10), "objectDefinitionSource.stripQueryStringFromUrls"));
+        assertEquals(true, FieldUtils.getFieldValue(filterList.get(AUTO_CONFIG_FILTERS-1), "objectDefinitionSource.stripQueryStringFromUrls"));
     }
 
     @Test(expected=BeanDefinitionParsingException.class)
@@ -92,7 +94,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     private void checkAutoConfigFilters(List<Filter> filterList) throws Exception {
-        assertEquals("Expected 11 filters in chain", 11, filterList.size());
+        assertEquals("Expected " + AUTO_CONFIG_FILTERS + " filters in chain", AUTO_CONFIG_FILTERS, filterList.size());
 
         Iterator<Filter> filters = filterList.iterator();
 
@@ -101,14 +103,14 @@ public class HttpSecurityBeanDefinitionParserTests {
         Object authProcFilter = filters.next();
         assertTrue(authProcFilter instanceof AuthenticationProcessingFilter);
         // Check RememberMeServices has been set on AuthenticationProcessingFilter
-        Object rms = FieldUtils.getFieldValue(authProcFilter, "rememberMeServices");
-        assertNotNull(rms);
-        assertTrue(rms instanceof RememberMeServices);
-        assertFalse(rms instanceof NullRememberMeServices);
+        //Object rms = FieldUtils.getFieldValue(authProcFilter, "rememberMeServices");
+        //assertNotNull(rms);
+        //assertTrue(rms instanceof RememberMeServices);
+        //assertFalse(rms instanceof NullRememberMeServices);
         assertTrue(filters.next() instanceof DefaultLoginPageGeneratingFilter);
         assertTrue(filters.next() instanceof BasicProcessingFilter);
         assertTrue(filters.next() instanceof SecurityContextHolderAwareRequestFilter);
-        assertTrue(filters.next() instanceof RememberMeProcessingFilter);
+        //assertTrue(filters.next() instanceof RememberMeProcessingFilter);
         assertTrue(filters.next() instanceof AnonymousProcessingFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
         assertTrue(filters.next() instanceof SessionFixationProtectionFilter);
@@ -141,7 +143,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         List<Filter> allFilters = getFilters("/ImCaughtByTheUniversalMatchPattern");
         checkAutoConfigFilters(allFilters);
         assertEquals(false, FieldUtils.getFieldValue(appContext.getBean("_filterChainProxy"), "stripQueryStringFromUrls"));
-        assertEquals(false, FieldUtils.getFieldValue(allFilters.get(10), "objectDefinitionSource.stripQueryStringFromUrls"));
+        assertEquals(false, FieldUtils.getFieldValue(allFilters.get(AUTO_CONFIG_FILTERS-1), "objectDefinitionSource.stripQueryStringFromUrls"));
     }
 
     @Test
@@ -282,7 +284,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "    </http>" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
 
-        assertEquals("Expected 12 filters in chain", 12, filters.size());
+        assertEquals("Expected " + (AUTO_CONFIG_FILTERS + 1) +"  filters in chain", AUTO_CONFIG_FILTERS + 1, filters.size());
 
         assertTrue(filters.get(0) instanceof ChannelProcessingFilter);
     }
@@ -349,7 +351,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 );
         List<Filter> filters = getFilters("/someurl");
 
-        assertEquals(14, filters.size());
+        assertEquals(AUTO_CONFIG_FILTERS + 3, filters.size());
         assertTrue(filters.get(0) instanceof MockFilter);
         assertTrue(filters.get(1) instanceof SecurityContextHolderAwareRequestFilter);
         assertTrue(filters.get(4) instanceof SecurityContextHolderAwareRequestFilter);
@@ -545,7 +547,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='entryPoint' class='org.springframework.security.MockAuthenticationEntryPoint'>" +
                 "    <b:constructor-arg value='/customlogin'/>" +
                 "</b:bean>" + AUTH_PROVIDER_XML);
-        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilters("/someurl").get(8);
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilters("/someurl").get(AUTO_CONFIG_FILTERS-3);
         assertTrue("ExceptionTranslationFilter should be configured with custom entry point",
                 etf.getAuthenticationEntryPoint() instanceof MockAuthenticationEntryPoint);
     }

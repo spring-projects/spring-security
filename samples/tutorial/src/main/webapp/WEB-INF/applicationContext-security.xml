@@ -26,6 +26,7 @@
         <intercept-url pattern="/post.html" access="ROLE_TELLER" />
         -->
         <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <remember-me />
 <!--
     Uncomment to enable X509 client authentication support
         <x509 />

@@ -192,7 +192,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         Element rememberMeElt = DomUtils.getChildElementByTagName(elt, Elements.REMEMBER_ME);
         String rememberMeServices = null;
 
-        if (rememberMeElt != null || autoConfig) {
+        if (rememberMeElt != null) {
             RememberMeBeanDefinitionParser rmbdp = new RememberMeBeanDefinitionParser();
             rmbdp.parse(rememberMeElt, pc);
             rememberMeServices = rmbdp.getServicesName();
