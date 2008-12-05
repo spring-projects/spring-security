@@ -21,7 +21,7 @@ import org.springframework.util.ReflectionUtils;
  * method (using the key {@link #SPRING_SECURITY_CONTEXT_KEY}). If a valid <code>SecurityContext</code> cannot be
  * obtained from the <code>HttpSession</code> for whatever reason, a fresh <code>SecurityContext</code> will be created
  * and returned instead. The created object will be an instance of the class set using the
- * {@link #setContextClass(Class)} method. If this hasn't been set, a {@link SecurityContextImpl} will be returned.
+ * {@link #setSecurityContextClass(Class)} method. If this hasn't been set, a {@link SecurityContextImpl} will be returned.
  * <p>
  * When <tt>saveContext</tt> is called, the context will be stored under the same key, provided
  * <ol>
@@ -64,6 +64,16 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
+    /**
+     * Gets the security context from the session (if available) and returns it.
+     * <p>
+     * If the session is null, the context object is null or the context object stored in the session
+     * is not an instance of <tt>SecurityContext</tt>, a new context object will be generated and
+     * returned.
+     * <p>
+     * If <tt>cloneFromHttpSession</tt> is set to true, it will attempt to clone the context object first
+     * and return the cloned instance.
+     */
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
         HttpServletRequest request = requestResponseHolder.getRequest();
         HttpServletResponse response = requestResponseHolder.getResponse();
@@ -96,16 +106,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         }
     }
 
-
-
     /**
-     * Gets the security context from the session (if available) and returns it.
-     * <p>
-     * If the session is null, the context object is null or the context object stored in the session
-     * is not an instance of SecurityContext it will return null.
-     * <p>
-     * If <tt>cloneFromHttpSession</tt> is set to true, it will attempt to clone the context object
-     * and return the cloned instance.
      *
      * @param httpSession the session obtained from the request.
      */
@@ -216,6 +217,12 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         this.cloneFromHttpSession = cloneFromHttpSession;
     }
 
+    /**
+     * If set to true (the default), a new session will be created if to store the security context if it is determined
+     * that it's contents are different from the default.
+     *
+     * @param allowSessionCreation
+     */
     public void setAllowSessionCreation(boolean allowSessionCreation) {
         this.allowSessionCreation = allowSessionCreation;
     }
@@ -272,46 +279,14 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
             HttpSession httpSession = request.getSession(false);
 
             if (httpSession == null) {
-                if (httpSessionExistedAtStartOfRequest) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("HttpSession is now null, but was not null at start of request; "
-                                + "session was invalidated, so do not create a new session");
-                    }
-                } else {
-                    // Generate a HttpSession only if we need to
-
-                    if (!allowSessionCreation) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("The HttpSession is currently null, and the "
-                                            + "HttpSessionContextIntegrationFilter is prohibited from creating an HttpSession "
-                                            + "(because the allowSessionCreation property is false) - SecurityContext thus not "
-                                            + "stored for next request");
-                        }
-                    } else if (!contextObject.equals(context)) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("HttpSession being created as SecurityContextHolder contents are non-default");
-                        }
-
-                        try {
-                            httpSession = request.getSession(true);
-                        } catch (IllegalStateException e) {
-                            // Response must already be committed, therefore can't create a new session
-                        }
-
-                    } else {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("HttpSession is null, but SecurityContextHolder has not changed from default: ' "
-                                    + context
-                                    + "'; not creating HttpSession or storing SecurityContextHolder contents");
-                        }
-                    }
-                }
+                httpSession = createNewSessionIfAllowed(context);
             }
 
             // If HttpSession exists, store current SecurityContextHolder contents but only if
             // the SecurityContext has actually changed (see JIRA SEC-37)
             if (httpSession != null && context.hashCode() != contextHashBeforeChainExecution) {
-                // See SEC-766
+                // See SEC-776
+                // TODO: Move this so that a session isn't created if user is anonymous
                 if (authenticationTrustResolver.isAnonymous(context.getAuthentication())) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("SecurityContext contents are anonymous - context will not be stored in HttpSession. ");
@@ -324,6 +299,53 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
                     }
                 }
             }
+        }
+
+        private HttpSession createNewSessionIfAllowed(SecurityContext context) {
+            if (httpSessionExistedAtStartOfRequest) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("HttpSession is now null, but was not null at start of request; "
+                            + "session was invalidated, so do not create a new session");
+                }
+
+                return null;
+            }
+
+            if (!allowSessionCreation) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("The HttpSession is currently null, and the "
+                                    + "HttpSessionContextIntegrationFilter is prohibited from creating an HttpSession "
+                                    + "(because the allowSessionCreation property is false) - SecurityContext thus not "
+                                    + "stored for next request");
+                }
+
+                return null;
+            }
+            // Generate a HttpSession only if we need to
+
+            if (contextObject.equals(context)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("HttpSession is null, but SecurityContext has not changed from default: ' "
+                            + context
+                            + "'; not creating HttpSession or storing SecurityContext");
+                }
+
+                return null;
+            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("HttpSession being created as SecurityContext is non-default");
+            }
+
+            try {
+                return request.getSession(true);
+            } catch (IllegalStateException e) {
+                // Response must already be committed, therefore can't create a new session
+                logger.warn("Failed to create a session, as response has been committed. Unable to store" +
+                        " SecurityContext.");
+            }
+
+            return null;
         }
     }
 }
