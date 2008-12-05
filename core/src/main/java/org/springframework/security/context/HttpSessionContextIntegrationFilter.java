@@ -88,10 +88,7 @@ import org.springframework.security.ui.FilterChainOrder;
  */
 public class HttpSessionContextIntegrationFilter extends SecurityContextPersistenceFilter implements InitializingBean {
     //~ Static fields/initializers =====================================================================================
-
-//    static final String FILTER_APPLIED = "__spring_security_session_integration_filter_applied";
-//
-    public static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
+    public static final String SPRING_SECURITY_CONTEXT_KEY = HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
     //~ Instance fields ================================================================================================
 
