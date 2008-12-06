@@ -15,19 +15,17 @@
 
 package org.springframework.security.wrapper;
 
-import junit.framework.TestCase;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.MockFilterConfig;
-
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import org.springframework.security.util.PortResolverImpl;
 
 
 /**
@@ -36,51 +34,30 @@ import javax.servlet.ServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class SecurityContextHolderAwareRequestFilterTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public SecurityContextHolderAwareRequestFilterTests() {
-    }
-
-    public SecurityContextHolderAwareRequestFilterTests(String arg0) {
-        super(arg0);
-    }
+public class SecurityContextHolderAwareRequestFilterTests {
+    Mockery jmock = new JUnit4Mockery();
 
     //~ Methods ========================================================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void testCorrectOperation() throws Exception {
+    @Test
+    public void expectedRequestWrapperClassIsUsed() throws Exception {
         SecurityContextHolderAwareRequestFilter filter = new SecurityContextHolderAwareRequestFilter();
-        filter.init(new MockFilterConfig());
-        filter.doFilter(new MockHttpServletRequest(null, null), new MockHttpServletResponse(),
-            new MockFilterChain(SavedRequestAwareWrapper.class));
+        filter.setPortResolver(new PortResolverImpl());
+        filter.setWrapperClass(SavedRequestAwareWrapper.class);
+        filter.setRolePrefix("ROLE_");
+        filter.init(jmock.mock(FilterConfig.class));
+        final FilterChain filterChain = jmock.mock(FilterChain.class);
+
+        jmock.checking(new Expectations() {{
+            exactly(2).of(filterChain).doFilter(
+                    with(aNonNull(SavedRequestAwareWrapper.class)), with(aNonNull(HttpServletResponse.class)));
+        }});
+
+        filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain);
 
         // Now re-execute the filter, ensuring our replacement wrapper is still used
-        filter.doFilter(new MockHttpServletRequest(null, null), new MockHttpServletResponse(),
-            new MockFilterChain(SavedRequestAwareWrapper.class));
+        filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain);
 
         filter.destroy();
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    private class MockFilterChain implements FilterChain {
-        private Class expectedServletRequest;
-
-        public MockFilterChain(Class expectedServletRequest) {
-            this.expectedServletRequest = expectedServletRequest;
-        }
-
-        public void doFilter(ServletRequest request, ServletResponse response)
-            throws IOException, ServletException {
-            if (request.getClass().isAssignableFrom(expectedServletRequest)) {
-                assertTrue(true);
-            } else {
-                fail("Expected class to be of type " + expectedServletRequest + " but was: " + request.getClass());
-            }
-        }
     }
 }
