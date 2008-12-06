@@ -28,7 +28,7 @@ public class AuthenticationDetailsSourceImpl implements AuthenticationDetailsSou
         Object result = null;
         try {
             Constructor<?> constructor = getFirstMatchingConstructor(context);
-            result = constructor.newInstance(new Object[] { context });
+            result = constructor.newInstance(context);
         } catch (Exception ex) {
             ReflectionUtils.handleReflectionException(ex);
         }

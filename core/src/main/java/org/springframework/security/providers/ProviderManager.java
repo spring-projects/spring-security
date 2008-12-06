@@ -221,7 +221,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
                 Constructor<?> constructor = clazz.getConstructor(new Class[] {
                             Authentication.class, AuthenticationException.class
                         });
-                Object obj = constructor.newInstance(new Object[] {authentication, exception});
+                Object obj = constructor.newInstance(authentication, exception);
                 Assert.isInstanceOf(AbstractAuthenticationEvent.class, obj, "Must be an AbstractAuthenticationEvent");
                 event = (AbstractAuthenticationEvent) obj;
             } catch (ClassNotFoundException ignored) {}

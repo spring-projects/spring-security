@@ -47,9 +47,9 @@ public class WebAuthenticationDetailsSource implements AuthenticationDetailsSour
     public Object buildDetails(Object context) {
         Assert.isInstanceOf(HttpServletRequest.class, context);
         try {
-            Constructor<?> constructor = clazz.getConstructor(new Class[] {HttpServletRequest.class});
+            Constructor<?> constructor = clazz.getConstructor(HttpServletRequest.class);
 
-            return constructor.newInstance(new Object[] {context});
+            return constructor.newInstance(context);
         } catch (NoSuchMethodException ex) {
             ReflectionUtils.handleReflectionException(ex);
         } catch (InvocationTargetException ex) {
