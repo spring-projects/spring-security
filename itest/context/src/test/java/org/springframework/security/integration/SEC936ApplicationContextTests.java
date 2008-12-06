@@ -10,6 +10,11 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+/**
+ * @author Luke Taylor
+ * @version $Id$
+ * @since 2.0
+ */
 @ContextConfiguration(locations={"/sec-936-app-context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SEC936ApplicationContextTests {
