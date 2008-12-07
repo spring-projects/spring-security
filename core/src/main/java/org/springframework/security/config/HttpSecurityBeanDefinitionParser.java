@@ -51,58 +51,55 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
-    static final Log logger = LogFactory.getLog(HttpSecurityBeanDefinitionParser.class);
-
-    static final String ATT_REALM = "realm";
-    static final String DEF_REALM = "Spring Security Application";
+    private static final Log logger = LogFactory.getLog(HttpSecurityBeanDefinitionParser.class);
 
     static final String ATT_PATH_PATTERN = "pattern";
-
-    static final String ATT_SESSION_FIXATION_PROTECTION = "session-fixation-protection";
-    static final String OPT_SESSION_FIXATION_NO_PROTECTION = "none";
-    static final String OPT_SESSION_FIXATION_CLEAN_SESSION = "newSession";
-    static final String OPT_SESSION_FIXATION_MIGRATE_SESSION = "migrateSession";
-
     static final String ATT_PATH_TYPE = "path-type";
-    static final String DEF_PATH_TYPE_ANT = "ant";
     static final String OPT_PATH_TYPE_REGEX = "regex";
+    private static final String DEF_PATH_TYPE_ANT = "ant";
 
     static final String ATT_FILTERS = "filters";
     static final String OPT_FILTERS_NONE = "none";
 
-    static final String ATT_ACCESS_CONFIG = "access";
+    private static final String ATT_REALM = "realm";
+    private static final String DEF_REALM = "Spring Security Application";
+
+    private static final String ATT_SESSION_FIXATION_PROTECTION = "session-fixation-protection";
+    private static final String OPT_SESSION_FIXATION_NO_PROTECTION = "none";
+    private static final String OPT_SESSION_FIXATION_CLEAN_SESSION = "newSession";
+    private static final String OPT_SESSION_FIXATION_MIGRATE_SESSION = "migrateSession";
+
+    private static final String ATT_ACCESS_CONFIG = "access";
     static final String ATT_REQUIRES_CHANNEL = "requires-channel";
-    static final String OPT_REQUIRES_HTTP = "http";
-    static final String OPT_REQUIRES_HTTPS = "https";
-    static final String OPT_ANY_CHANNEL = "any";
+    private static final String OPT_REQUIRES_HTTP = "http";
+    private static final String OPT_REQUIRES_HTTPS = "https";
+    private static final String OPT_ANY_CHANNEL = "any";
 
-    static final String ATT_HTTP_METHOD = "method";
+    private static final String ATT_HTTP_METHOD = "method";
 
-    static final String ATT_CREATE_SESSION = "create-session";
-    static final String DEF_CREATE_SESSION_IF_REQUIRED = "ifRequired";
-    static final String OPT_CREATE_SESSION_ALWAYS = "always";
-    static final String OPT_CREATE_SESSION_NEVER = "never";
+    private static final String ATT_CREATE_SESSION = "create-session";
+    private static final String DEF_CREATE_SESSION_IF_REQUIRED = "ifRequired";
+    private static final String OPT_CREATE_SESSION_ALWAYS = "always";
+    private static final String OPT_CREATE_SESSION_NEVER = "never";
 
-    static final String ATT_LOWERCASE_COMPARISONS = "lowercase-comparisons";
-    static final String DEF_LOWERCASE_COMPARISONS = "true";
+    private static final String ATT_LOWERCASE_COMPARISONS = "lowercase-comparisons";
 
-    static final String ATT_AUTO_CONFIG = "auto-config";
-    static final String DEF_AUTO_CONFIG = "false";
+    private static final String ATT_AUTO_CONFIG = "auto-config";
 
-    static final String ATT_SERVLET_API_PROVISION = "servlet-api-provision";
-    static final String DEF_SERVLET_API_PROVISION = "true";
+    private static final String ATT_SERVLET_API_PROVISION = "servlet-api-provision";
+    private static final String DEF_SERVLET_API_PROVISION = "true";
 
-    static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
-    static final String ATT_USER_SERVICE_REF = "user-service-ref";
+    private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
+    private static final String ATT_USER_SERVICE_REF = "user-service-ref";
 
-    static final String ATT_ENTRY_POINT_REF = "entry-point-ref";
-    static final String ATT_ONCE_PER_REQUEST = "once-per-request";
-    static final String ATT_ACCESS_DENIED_PAGE = "access-denied-page";
+    private static final String ATT_ENTRY_POINT_REF = "entry-point-ref";
+    private static final String ATT_ONCE_PER_REQUEST = "once-per-request";
+    private static final String ATT_ACCESS_DENIED_PAGE = "access-denied-page";
 
-    static final String ATT_USE_EXPRESSIONS = "use-expressions";
-    static final String DEF_USE_EXPRESSIONS = "false";
+    private static final String ATT_USE_EXPRESSIONS = "use-expressions";
+    private static final String DEF_USE_EXPRESSIONS = "false";
 
-    static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
+    private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
 
     @SuppressWarnings("unchecked")
     public BeanDefinition parse(Element element, ParserContext parserContext) {
@@ -149,18 +146,17 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             registerChannelProcessingBeans(parserContext, matcher, channelRequestMap);
         }
 
+        boolean useExpressions = "true".equals(element.getAttribute(ATT_USE_EXPRESSIONS));
+
         registerFilterSecurityInterceptor(element, parserContext, matcher, accessManagerId,
-                parseInterceptUrlsForFilterInvocationRequestMap(interceptUrlElts, convertPathsToLowerCase, false, parserContext));
+                parseInterceptUrlsForFilterInvocationRequestMap(interceptUrlElts, convertPathsToLowerCase, useExpressions, parserContext));
 
         boolean sessionControlEnabled = registerConcurrentSessionControlBeansIfRequired(element, parserContext);
 
         registerSessionFixationProtectionFilter(parserContext, element.getAttribute(ATT_SESSION_FIXATION_PROTECTION),
                 sessionControlEnabled);
 
-        boolean autoConfig = false;
-        if ("true".equals(element.getAttribute(ATT_AUTO_CONFIG))) {
-            autoConfig = true;
-        }
+        boolean autoConfig = "true".equals(element.getAttribute(ATT_AUTO_CONFIG));
 
         Element anonymousElt = DomUtils.getChildElementByTagName(element, Elements.ANONYMOUS);
         if (anonymousElt != null || autoConfig) {
@@ -639,6 +635,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
             if (useExpressions) {
                 logger.info("Creating access control expression attribute '" + access + "' for " + key);
+
 
             } else {
                 attributes = SecurityConfig.createList(StringUtils.commaDelimitedListToStringArray(access));
