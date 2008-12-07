@@ -57,12 +57,8 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    /**
-     * Non method-specific map of URL patterns to <tt>List<ConfiAttribute></tt>s
-     * TODO: Store in the httpMethod map with null key.
-     */
-    private Map<Object, List<ConfigAttribute>> requestMap = new LinkedHashMap<Object, List<ConfigAttribute>>();
-    /** Stores request maps keyed by specific HTTP methods */
+    //private Map<Object, List<ConfigAttribute>> requestMap = new LinkedHashMap<Object, List<ConfigAttribute>>();
+    /** Stores request maps keyed by specific HTTP methods. A null key matches any method */
     private Map<String, Map<Object, List<ConfigAttribute>>> httpMethodMap =
         new HashMap<String, Map<Object, List<ConfigAttribute>>>();
 
@@ -70,13 +66,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
 
     private boolean stripQueryStringFromUrls;
 
-    /**
-     * Creates a FilterInvocationDefinitionSource with the supplied URL matching strategy.
-     * @param urlMatcher
-     */
-    DefaultFilterInvocationDefinitionSource(UrlMatcher urlMatcher) {
-        this.urlMatcher = urlMatcher;
-    }
+    //~ Constructors ===================================================================================================
 
     /**
      * Builds the internal request map from the supplied map. The key elements should be of type {@link RequestKey},
@@ -97,17 +87,13 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
 
     //~ Methods ========================================================================================================
 
-    void addSecureUrl(String pattern, List<ConfigAttribute> attr) {
-        addSecureUrl(pattern, null, attr);
-    }
-
     /**
      * Adds a URL,attribute-list pair to the request map, first allowing the <tt>UrlMatcher</tt> to
      * process the pattern if required, using its <tt>compile</tt> method. The returned object will be used as the key
      * to the request map and will be passed back to the <tt>UrlMatcher</tt> when iterating through the map to find
      * a match for a particular URL.
      */
-    void addSecureUrl(String pattern, String method, List<ConfigAttribute> attr) {
+    private void addSecureUrl(String pattern, String method, List<ConfigAttribute> attr) {
         Map<Object, List<ConfigAttribute>> mapToUse = getRequestMapForHttpMethod(method);
 
         mapToUse.put(urlMatcher.compile(pattern), attr);
@@ -124,28 +110,27 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
      * @return map of URL patterns to <tt>ConfigAttribute</tt>s for this method.
      */
     private Map<Object, List<ConfigAttribute>> getRequestMapForHttpMethod(String method) {
-        if (method == null) {
-            return requestMap;
-        }
-        if (!HTTP_METHODS.contains(method)) {
+        if (method != null && !HTTP_METHODS.contains(method)) {
             throw new IllegalArgumentException("Unrecognised HTTP method: '" + method + "'");
         }
 
-        Map<Object, List<ConfigAttribute>> methodRequestmap = httpMethodMap.get(method);
+        Map<Object, List<ConfigAttribute>> methodRequestMap = httpMethodMap.get(method);
 
-        if (methodRequestmap == null) {
-            methodRequestmap = new LinkedHashMap<Object, List<ConfigAttribute>>();
-            httpMethodMap.put(method, methodRequestmap);
+        if (methodRequestMap == null) {
+            methodRequestMap = new LinkedHashMap<Object, List<ConfigAttribute>>();
+            httpMethodMap.put(method, methodRequestMap);
         }
 
-        return methodRequestmap;
+        return methodRequestMap;
     }
 
     public Collection<ConfigAttribute> getAllConfigAttributes() {
         Set<ConfigAttribute> allAttributes = new HashSet<ConfigAttribute>();
 
-        for(List<ConfigAttribute> attrs : requestMap.values()) {
-            allAttributes.addAll(attrs);
+        for (Map.Entry<String, Map<Object, List<ConfigAttribute>>> entry : httpMethodMap.entrySet()) {
+            for (List<ConfigAttribute> attrs : entry.getValue().values()) {
+                allAttributes.addAll(attrs);
+            }
         }
 
         return allAttributes;
@@ -163,10 +148,6 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
         return lookupAttributes(url, method);
     }
 
-    protected List<? extends ConfigAttribute> lookupAttributes(String url) {
-        return lookupAttributes(url, null);
-    }
-
     /**
      * Performs the actual lookup of the relevant <tt>ConfigAttribute</tt>s for the given <code>FilterInvocation</code>.
      * <p>
@@ -179,9 +160,9 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
      * @param method the HTTP method (GET, POST, DELETE...).
      *
      * @return the <code>ConfigAttribute</code>s that apply to the specified <code>FilterInvocation</code>
-     * or null if no match is foud
+     * or null if no match is found
      */
-    public List<ConfigAttribute> lookupAttributes(String url, String method) {
+    public final List<ConfigAttribute> lookupAttributes(String url, String method) {
         if (stripQueryStringFromUrls) {
             // Strip anything after a question mark symbol, as per SEC-161. See also SEC-321
             int firstQuestionMarkIndex = url.indexOf("?");
@@ -199,33 +180,26 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
             }
         }
 
-        List<ConfigAttribute> attributes = null;
+        // Obtain the map of request patterns to attributes for this method and lookup the url.
+        Map<Object, List<ConfigAttribute>> requestMap = httpMethodMap.get(method);
 
-        Map<Object, List<ConfigAttribute>> methodSpecificMap = httpMethodMap.get(method);
-
-        if (methodSpecificMap != null) {
-            attributes = lookupUrlInMap(methodSpecificMap, url);
+        // If no method-specific map, use the general one stored under the null key
+        if (requestMap == null) {
+            requestMap = httpMethodMap.get(null);
         }
 
-        if (attributes == null) {
-            attributes = lookupUrlInMap(requestMap, url);
-        }
+        if (requestMap != null) {
+            for (Map.Entry<Object, List<ConfigAttribute>> entry : requestMap.entrySet()) {
+                Object p = entry.getKey();
+                boolean matched = urlMatcher.pathMatchesUrl(entry.getKey(), url);
 
-        return attributes;
-    }
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Candidate is: '" + url + "'; pattern is " + p + "; matched=" + matched);
+                }
 
-    private List<ConfigAttribute> lookupUrlInMap(Map<Object, List<ConfigAttribute>> requestMap, String url) {
-
-        for (Map.Entry<Object, List<ConfigAttribute>> entry : requestMap.entrySet()) {
-            Object p = entry.getKey();
-            boolean matched = urlMatcher.pathMatchesUrl(entry.getKey(), url);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Candidate is: '" + url + "'; pattern is " + p + "; matched=" + matched);
-            }
-
-            if (matched) {
-                return entry.getValue();
+                if (matched) {
+                    return entry.getValue();
+                }
             }
         }
 

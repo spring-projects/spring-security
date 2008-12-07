@@ -1,6 +1,6 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.List;
 
@@ -44,6 +44,7 @@ public class FilterInvocationDefinitionSourceParserTests {
                 "</filter-invocation-definition-source>");
         DefaultFilterInvocationDefinitionSource fids = (DefaultFilterInvocationDefinitionSource) appContext.getBean("fids");
         List<? extends ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
+        assertNotNull(cad);
         assertTrue(cad.contains(new SecurityConfig("ROLE_A")));
     }
 
