@@ -1,8 +1,6 @@
 package org.springframework.security.expression.web;
 
 import org.springframework.expression.Expression;
-import org.springframework.expression.ParseException;
-import org.springframework.expression.spel.SpelExpressionParser;
 import org.springframework.security.ConfigAttribute;
 
 /**
@@ -14,10 +12,6 @@ import org.springframework.security.ConfigAttribute;
  */
 class WebExpressionConfigAttribute implements ConfigAttribute {
     private final Expression authorizeExpression;
-
-    public WebExpressionConfigAttribute(String authorizeExpression) throws ParseException {
-        this.authorizeExpression = new SpelExpressionParser().parseExpression(authorizeExpression);
-    }
 
     public WebExpressionConfigAttribute(Expression authorizeExpression) {
         this.authorizeExpression = authorizeExpression;

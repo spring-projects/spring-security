@@ -1,5 +1,6 @@
 package org.springframework.security.config;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.springframework.security.ConfigAttributeEditor;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.context.SecurityContextPersistenceFilter;
+import org.springframework.security.expression.web.WebExpressionVoter;
 import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.intercept.web.RequestKey;
@@ -37,6 +39,9 @@ import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.util.UrlMatcher;
+import org.springframework.security.vote.AccessDecisionVoter;
+import org.springframework.security.vote.AuthenticatedVoter;
+import org.springframework.security.vote.RoleVoter;
 import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -101,6 +106,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
 
+    private static final String EXPRESSION_FIDS_CLASS = "org.springframework.security.expression.web.ExpressionBasedFilterInvocationDefinitionSource";
+    private static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.expression.support.DefaultSecurityExpressionHandler";
+    private static final String EXPRESSION_HANDLER_ID = "_webExpressionHandler";
+
     @SuppressWarnings("unchecked")
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         ConfigUtils.registerProviderManagerIfNecessary(parserContext);
@@ -125,21 +134,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         registerServletApiFilter(element, parserContext);
 
-        // Set up the access manager reference for http
-        String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
-
-        if (!StringUtils.hasText(accessManagerId)) {
-            ConfigUtils.registerDefaultWebAccessManagerIfNecessary(parserContext);
-            accessManagerId = BeanIds.WEB_ACCESS_MANAGER;
-        }
-
         // Register the portMapper. A default will always be created, even if no element exists.
         BeanDefinition portMapper = new PortMappingsBeanDefinitionParser().parse(
                 DomUtils.getChildElementByTagName(element, Elements.PORT_MAPPINGS), parserContext);
         registry.registerBeanDefinition(BeanIds.PORT_MAPPER, portMapper);
 
         registerExceptionTranslationFilter(element, parserContext, allowSessionCreation);
-
 
         if (channelRequestMap.size() > 0) {
             // At least one channel requirement has been specified
@@ -148,8 +148,47 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         boolean useExpressions = "true".equals(element.getAttribute(ATT_USE_EXPRESSIONS));
 
-        registerFilterSecurityInterceptor(element, parserContext, matcher, accessManagerId,
-                parseInterceptUrlsForFilterInvocationRequestMap(interceptUrlElts, convertPathsToLowerCase, useExpressions, parserContext));
+        LinkedHashMap<RequestKey, List<ConfigAttribute>> requestToAttributesMap =
+            parseInterceptUrlsForFilterInvocationRequestMap(interceptUrlElts, convertPathsToLowerCase, useExpressions, parserContext);
+
+        BeanDefinitionBuilder fidsBuilder;
+        Class<? extends AccessDecisionVoter>[] voters;
+
+        if (useExpressions) {
+            Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
+            String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
+
+            if (StringUtils.hasText(expressionHandlerRef)) {
+                logger.info("Using bean '" + expressionHandlerRef + "' as web SecurityExpressionHandler implementation");
+            } else {
+                parserContext.getRegistry().registerBeanDefinition(EXPRESSION_HANDLER_ID,
+                        BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_HANDLER_CLASS).getBeanDefinition());
+                expressionHandlerRef = EXPRESSION_HANDLER_ID;
+            }
+
+            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_FIDS_CLASS);
+            fidsBuilder.addConstructorArgValue(matcher);
+            fidsBuilder.addConstructorArgValue(requestToAttributesMap);
+            fidsBuilder.addConstructorArgReference(expressionHandlerRef);
+            voters = new Class[] {WebExpressionVoter.class};
+        } else {
+            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(DefaultFilterInvocationDefinitionSource.class);
+            fidsBuilder.addConstructorArgValue(matcher);
+            fidsBuilder.addConstructorArgValue(requestToAttributesMap);
+            voters = new Class[] {RoleVoter.class, AuthenticatedVoter.class};
+        }
+        fidsBuilder.addPropertyValue("stripQueryStringFromUrls", matcher instanceof AntUrlPathMatcher);
+
+        // Set up the access manager reference for http
+        String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
+
+        if (!StringUtils.hasText(accessManagerId)) {
+            parserContext.getRegistry().registerBeanDefinition(BeanIds.WEB_ACCESS_MANAGER,
+                        ConfigUtils.createAccessManagerBean(voters));
+            accessManagerId = BeanIds.WEB_ACCESS_MANAGER;
+        }
+
+        registerFilterSecurityInterceptor(element, parserContext, accessManagerId, fidsBuilder.getBeanDefinition());
 
         boolean sessionControlEnabled = registerConcurrentSessionControlBeansIfRequired(element, parserContext);
 
@@ -303,8 +342,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.EXCEPTION_TRANSLATION_FILTER));
     }
 
-    private void registerFilterSecurityInterceptor(Element element, ParserContext pc, UrlMatcher matcher,
-            String accessManagerId, LinkedHashMap<RequestKey, List<ConfigAttribute>> filterInvocationDefinitionMap) {
+    private void registerFilterSecurityInterceptor(Element element, ParserContext pc, String accessManagerId,
+            BeanDefinition fids) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(FilterSecurityInterceptor.class);
 
         builder.addPropertyReference("accessDecisionManager", accessManagerId);
@@ -313,10 +352,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if ("false".equals(element.getAttribute(ATT_ONCE_PER_REQUEST))) {
             builder.addPropertyValue("observeOncePerRequest", Boolean.FALSE);
         }
-
-        DefaultFilterInvocationDefinitionSource fids =
-            new DefaultFilterInvocationDefinitionSource(matcher, filterInvocationDefinitionMap);
-        fids.setStripQueryStringFromUrls(matcher instanceof AntUrlPathMatcher);
 
         builder.addPropertyValue("objectDefinitionSource", fids);
         pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR, builder.getBeanDefinition());
@@ -635,7 +670,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
             if (useExpressions) {
                 logger.info("Creating access control expression attribute '" + access + "' for " + key);
-
+                attributes = new ArrayList<ConfigAttribute>(1);
+                // The expression will be parsed later by the ExpressionFilterInvocationDefinitionSource
+                attributes.add(new SecurityConfig(access));
 
             } else {
                 attributes = SecurityConfig.createList(StringUtils.commaDelimitedListToStringArray(access));

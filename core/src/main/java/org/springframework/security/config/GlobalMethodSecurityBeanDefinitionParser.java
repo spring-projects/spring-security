@@ -37,17 +37,18 @@ import org.w3c.dom.Element;
  * Processes the top-level "global-method-security" element.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  * @version $Id$
+ * @since 2.0
  */
 class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    static final String SECURED_DEPENDENCY_CLASS = "org.springframework.security.annotation.Secured";
-    static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.SecuredMethodDefinitionSource";
-    static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.expression.method.ExpressionAnnotationMethodDefinitionSource";
-    static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.Jsr250MethodDefinitionSource";
-    static final String JSR_250_VOTER_CLASS = "org.springframework.security.annotation.Jsr250Voter";
+    private static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.SecuredMethodDefinitionSource";
+    private static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.expression.method.ExpressionAnnotationMethodDefinitionSource";
+    private static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.Jsr250MethodDefinitionSource";
+    private static final String JSR_250_VOTER_CLASS = "org.springframework.security.annotation.Jsr250Voter";
 
     /*
      * Internal Bean IDs which are only used within this class
@@ -56,7 +57,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String INTERCEPTOR_POST_PROCESSOR_ID = "_globalMethodSecurityInterceptorPostProcessor";
     static final String ACCESS_MANAGER_ID = "_globalMethodSecurityAccessManager";
     private static final String DELEGATING_METHOD_DEFINITION_SOURCE_ID = "_delegatingMethodDefinitionSource";
-    private static final String EXPRESSION_HANDLER_ID = "_expressionHandler";
+    private static final String EXPRESSION_HANDLER_ID = "_methodExpressionHandler";
 
     private static final String ATT_ACCESS = "access";
     private static final String ATT_EXPRESSION = "expression";
@@ -74,9 +75,33 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         boolean jsr250Enabled = "enabled".equals(element.getAttribute(ATT_USE_JSR250));
         boolean useSecured = "enabled".equals(element.getAttribute(ATT_USE_SECURED));
         boolean expressionsEnabled = "enabled".equals(element.getAttribute(ATT_USE_EXPRESSIONS));
+        BeanDefinition expressionVoter = null;
 
         if (expressionsEnabled) {
-            delegates.add(BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
+            Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
+            String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
+
+            if (StringUtils.hasText(expressionHandlerRef)) {
+                logger.info("Using bean '" + expressionHandlerRef + "' as method SecurityExpressionHandler implementation");
+            } else {
+                parserContext.getRegistry().registerBeanDefinition(EXPRESSION_HANDLER_ID, new RootBeanDefinition(DefaultSecurityExpressionHandler.class));
+                logger.warn("Expressions were enabled for method security but no SecurityExpressionHandler was configured. " +
+                        "All hasPermision() expressions will evaluate to false.");
+                expressionHandlerRef = EXPRESSION_HANDLER_ID;
+            }
+            BeanDefinitionBuilder expressionVoterBldr = BeanDefinitionBuilder.rootBeanDefinition(MethodExpressionVoter.class);
+            BeanDefinitionBuilder afterInvocationProvider = BeanDefinitionBuilder.rootBeanDefinition(MethodExpressionAfterInvocationProvider.class);
+            expressionVoterBldr.addPropertyReference("expressionHandler", expressionHandlerRef);
+            expressionVoter = expressionVoterBldr.getBeanDefinition();
+            // After-invocation provider to handle post-invocation filtering and authorization expression annotations.
+            afterInvocationProvider.addPropertyReference("expressionHandler", expressionHandlerRef);
+            ConfigUtils.getRegisteredAfterInvocationProviders(parserContext).add(afterInvocationProvider.getBeanDefinition());
+            // Add the expression method definition source, which will obtain its parser from the registered expression
+            // handler
+            BeanDefinitionBuilder mds = BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS);
+            mds.addConstructorArgReference(expressionHandlerRef);
+
+            delegates.add(mds.getBeanDefinition());
         }
 
         if (useSecured) {
@@ -103,7 +128,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
         if (!StringUtils.hasText(accessManagerId)) {
-            registerAccessManager(element, parserContext, jsr250Enabled, expressionsEnabled);
+            registerAccessManager(parserContext, jsr250Enabled, expressionVoter);
             accessManagerId = ACCESS_MANAGER_ID;
         }
 
@@ -118,35 +143,17 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     /**
      * Register the default AccessDecisionManager. Adds the special JSR 250 voter jsr-250 is enabled and an
-     * expression voter if expression-based access control is enabled. If expressions are in use, a after-invocation
-     * provider will also be registered to handle post-invocation filtering and authorization expression annotations.
+     * expression voter if expression-based access control is enabled.
      */
     @SuppressWarnings("unchecked")
-    private void registerAccessManager(Element element, ParserContext pc, boolean jsr250Enabled, boolean expressionsEnabled) {
-        Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
+    private void registerAccessManager(ParserContext pc, boolean jsr250Enabled, BeanDefinition expressionVoter) {
+
         BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
         ManagedList voters = new ManagedList(4);
 
-        if (expressionsEnabled) {
-            BeanDefinitionBuilder expressionVoter = BeanDefinitionBuilder.rootBeanDefinition(MethodExpressionVoter.class);
-            BeanDefinitionBuilder afterInvocationProvider = BeanDefinitionBuilder.rootBeanDefinition(MethodExpressionAfterInvocationProvider.class);
-            String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
-
-            if (StringUtils.hasText(expressionHandlerRef)) {
-                logger.info("Using bean '" + expressionHandlerRef + "' as SecurityExpressionHandler implementation");
-            } else {
-                pc.getRegistry().registerBeanDefinition(EXPRESSION_HANDLER_ID, new RootBeanDefinition(DefaultSecurityExpressionHandler.class));
-                logger.warn("Expressions were enabled but no SecurityExpressionHandler was configured. " +
-                        "All hasPermision() expressions will evaluate to false.");
-                expressionHandlerRef = EXPRESSION_HANDLER_ID;
-            }
-
-            expressionVoter.addPropertyReference("expressionHandler", expressionHandlerRef);
-            afterInvocationProvider.addPropertyReference("expressionHandler", expressionHandlerRef);
-            ConfigUtils.getRegisteredAfterInvocationProviders(pc).add(afterInvocationProvider.getBeanDefinition());
-            voters.add(expressionVoter.getBeanDefinition());
+        if (expressionVoter != null) {
+            voters.add(expressionVoter);
         }
-
         voters.add(new RootBeanDefinition(RoleVoter.class));
         voters.add(new RootBeanDefinition(AuthenticatedVoter.class));
 

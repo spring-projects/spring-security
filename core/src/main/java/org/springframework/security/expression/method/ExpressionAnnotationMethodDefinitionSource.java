@@ -13,6 +13,7 @@ import org.springframework.expression.ParseException;
 import org.springframework.expression.spel.SpelExpressionParser;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.config.SecurityConfigurationException;
+import org.springframework.security.expression.SecurityExpressionHandler;
 import org.springframework.security.expression.annotation.PostAuthorize;
 import org.springframework.security.expression.annotation.PostFilter;
 import org.springframework.security.expression.annotation.PreAuthorize;
@@ -38,7 +39,19 @@ import org.springframework.util.ClassUtils;
  * @version $Id$
  */
 public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDefinitionSource {
-    private ExpressionParser parser = new SpelExpressionParser();
+    private ExpressionParser parser;
+
+    public ExpressionAnnotationMethodDefinitionSource() {
+        parser = new SpelExpressionParser();
+    }
+
+    /**
+     * Constructor which obtains the expression parser from the {@link SecurityExpressionHandler#getExpressionParser() }
+     * method on the supplied <tt>SecurityExpressionHandler</tt>.
+     */
+    public ExpressionAnnotationMethodDefinitionSource(SecurityExpressionHandler handler) {
+        parser = handler.getExpressionParser();
+    }
 
     public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
         if (method.getDeclaringClass() == Object.class) {
@@ -67,7 +80,7 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDe
      * for the logic of this method. The ordering here is slightly different in that we consider method-specific
      * annotations on an interface before class-level ones.
      */
-    private <A  extends Annotation> A findAnnotation(Method method, Class targetClass, Class<A> annotationClass) {
+    private <A  extends Annotation> A findAnnotation(Method method, Class<?> targetClass, Class<A> annotationClass) {
         // The method may be on an interface, but we need attributes from the target class.
         // If the target class is null, the method will be unchanged.
         Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);

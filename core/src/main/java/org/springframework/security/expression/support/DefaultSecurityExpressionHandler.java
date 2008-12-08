@@ -12,6 +12,8 @@ import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.SpelExpressionParser;
 import org.springframework.expression.spel.standard.StandardEvaluationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
@@ -24,7 +26,7 @@ import org.springframework.security.intercept.web.FilterInvocation;
 /**
  * The standard implementation of <tt>SecurityExpressionHandler</tt>.
  * <p>
- * A single instance should usually be shared.
+ * A single instance should usually be shared amongst the beans that require expression support.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -37,6 +39,7 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
     private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
     private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+    private ExpressionParser expressionParser = new SpelExpressionParser();
 
     public DefaultSecurityExpressionHandler() {
     }
@@ -57,6 +60,8 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
 
     public EvaluationContext createEvaluationContext(Authentication authentication, FilterInvocation fi) {
         StandardEvaluationContext ctx = new StandardEvaluationContext();
+        SecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, fi);
+        ctx.setRootObject(root);
 
         return ctx;
     }
@@ -125,6 +130,10 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
         }
 
         throw new IllegalArgumentException("Filter target must be a collection or array type, but was " + filterTarget);
+    }
+
+    public ExpressionParser getExpressionParser() {
+        return expressionParser;
     }
 
     public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {

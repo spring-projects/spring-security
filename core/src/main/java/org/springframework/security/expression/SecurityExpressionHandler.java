@@ -3,6 +3,7 @@ package org.springframework.security.expression;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
 import org.springframework.security.Authentication;
 import org.springframework.security.intercept.web.FilterInvocation;
 
@@ -15,14 +16,18 @@ import org.springframework.security.intercept.web.FilterInvocation;
  * @since 2.5
  */
 public interface SecurityExpressionHandler {
+    /**
+     * @return an expression parser for the expressions used by the implementation.
+     */
+    ExpressionParser getExpressionParser();
 
     /**
-     * Provides a evaluation context in which to evaluate security expressions for a method invocation.
+     * Provides an evaluation context in which to evaluate security expressions for a method invocation.
      */
     EvaluationContext createEvaluationContext(Authentication authentication, MethodInvocation mi);
 
     /**
-     * Provides a evaluation context in which to evaluate security expressions for a web invocation.
+     * Provides an evaluation context in which to evaluate security expressions for a web invocation.
      */
     EvaluationContext createEvaluationContext(Authentication authentication, FilterInvocation fi);
 

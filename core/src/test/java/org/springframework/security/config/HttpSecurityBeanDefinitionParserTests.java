@@ -1,11 +1,6 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
 
 import java.lang.reflect.Method;
@@ -19,21 +14,24 @@ import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.AccessDeniedException;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.MockAuthenticationEntryPoint;
-import org.springframework.security.MockFilterChain;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.concurrent.ConcurrentLoginException;
 import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.context.SecurityContextPersistenceFilter;
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
+import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.anonymous.AnonymousProcessingFilter;
 import org.springframework.security.securechannel.ChannelProcessingFilter;
@@ -69,6 +67,7 @@ public class HttpSecurityBeanDefinitionParserTests {
             appContext.close();
             appContext = null;
         }
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -691,18 +690,38 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void createDefinedSecurityContextRepository() throws Exception {
+    public void expressionBasedAccessAllowsAndDeniesAccessAsExpected() throws Exception {
         setContext(
-                "<b:bean id='repo' class='org.springframework.security.context.HttpSessionSecurityContextRepository'/>" +
-                "<http security-context-repository-ref='repo'>" +
-                "    <http-basic />" +
-                "</http>" + AUTH_PROVIDER_XML);
+                "    <http auto-config='true' use-expressions='true'>" +
+                "        <intercept-url pattern='/secure*' access=\"hasRole('ROLE_A')\" />" +
+                "        <intercept-url pattern='/**' access='permitAll()' />" +
+                "    </http>" + AUTH_PROVIDER_XML);
+
+        FilterSecurityInterceptor fis = (FilterSecurityInterceptor) appContext.getBean(BeanIds.FILTER_SECURITY_INTERCEPTOR);
+
+        FilterInvocationDefinitionSource fids = fis.getObjectDefinitionSource();
+        List<? extends ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/secure", null));
+        assertEquals(1, attrDef.size());
+
+        // Try an unprotected invocation
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("joe", "", "ROLE_A"));
+        fis.invoke(createFilterinvocation("/permitallurl", null));
+        // Try secure Url as a valid user
+        fis.invoke(createFilterinvocation("/securex", null));
+        // And as a user without the required role
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("joe", "", "ROLE_B"));
+        try {
+            fis.invoke(createFilterinvocation("/securex", null));
+            fail("Expected AccessDeniedInvocation");
+        } catch (AccessDeniedException expected) {
+        }
     }
 
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
     }
 
+    @SuppressWarnings("unchecked")
     private List<Filter> getFilters(String url) throws Exception {
         FilterChainProxy fcp = (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
         Method getFilters = fcp.getClass().getDeclaredMethod("getFilters", String.class);
