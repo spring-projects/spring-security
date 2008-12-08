@@ -22,8 +22,7 @@ import org.springframework.security.ConfigAttribute;
 
 
 /**
- * Implemented by classes that store and can identify the {@link
- * ConfigAttribute}s that applies to a given secure object
+ * Implemented by classes that store and can identify the {@link ConfigAttribute}s that applies to a given secure object
  * invocation.
  *
  * @author Ben Alex
@@ -34,11 +33,12 @@ public interface ObjectDefinitionSource {
 
     /**
      * Accesses the <code>ConfigAttribute</code>s that apply to a given secure object.
-     * <p>Returns <code>null</code> if no attributes apply.
+     * <p>
+     * Returns <code>null</code> if no attributes apply.
      *
      * @param object the object being secured
      *
-     * @return the attributes that apply to the passed in secured object
+     * @return the attributes that apply to the passed in secured object or null if there are no applicable attributes.
      *
      * @throws IllegalArgumentException if the passed object is not of a type supported by the
      *         <code>ObjectDefinitionSource</code> implementation
