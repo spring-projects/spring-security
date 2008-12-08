@@ -25,4 +25,8 @@ class WebExpressionConfigAttribute implements ConfigAttribute {
         return null;
     }
 
+    @Override
+    public String toString() {
+        return authorizeExpression.getExpressionString();
+    }
 }

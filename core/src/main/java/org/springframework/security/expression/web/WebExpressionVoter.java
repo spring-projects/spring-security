@@ -21,6 +21,10 @@ public class WebExpressionVoter implements AccessDecisionVoter {
     private SecurityExpressionHandler expressionHandler = new DefaultSecurityExpressionHandler();
 
     public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
+        assert authentication != null;
+        assert object != null;
+        assert attributes != null;
+
         WebExpressionConfigAttribute weca = findConfigAttribute(attributes);
 
         if (weca == null) {

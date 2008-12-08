@@ -61,6 +61,7 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
     public EvaluationContext createEvaluationContext(Authentication authentication, FilterInvocation fi) {
         StandardEvaluationContext ctx = new StandardEvaluationContext();
         SecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, fi);
+        root.setTrustResolver(trustResolver);
         ctx.setRootObject(root);
 
         return ctx;

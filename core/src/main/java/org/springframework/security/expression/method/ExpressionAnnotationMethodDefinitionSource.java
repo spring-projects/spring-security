@@ -58,7 +58,7 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDe
             return null;
         }
 
-        logger.debug("Looking for expression annotations for method '" +
+        logger.trace("Looking for expression annotations for method '" +
                 method.getName() + "' on target class '" + targetClass + "'");
         PreFilter preFilter = findAnnotation(method, targetClass, PreFilter.class);
         PreAuthorize preAuthorize = findAnnotation(method, targetClass, PreAuthorize.class);
@@ -68,7 +68,7 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDe
 
         if (preFilter == null && preAuthorize == null && postFilter == null && postAuthorize == null ) {
             // There is no meta-data so return
-            logger.debug("No expression annotations found");
+            logger.trace("No expression annotations found");
             return null;
         }
 

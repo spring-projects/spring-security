@@ -69,6 +69,10 @@ abstract class SecurityExpressionRoot {
         return trustResolver.isAnonymous(authentication);
     }
 
+    public final boolean isAuthenticated() {
+        return !isAnonymous();
+    }
+
     public final boolean isRememberMe() {
         return trustResolver.isRememberMe(authentication);
     }
