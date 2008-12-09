@@ -71,7 +71,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String ATT_SESSION_FIXATION_PROTECTION = "session-fixation-protection";
     private static final String OPT_SESSION_FIXATION_NO_PROTECTION = "none";
-    private static final String OPT_SESSION_FIXATION_CLEAN_SESSION = "newSession";
     private static final String OPT_SESSION_FIXATION_MIGRATE_SESSION = "migrateSession";
 
     private static final String ATT_ACCESS_CONFIG = "access";
@@ -102,7 +101,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_ACCESS_DENIED_PAGE = "access-denied-page";
 
     private static final String ATT_USE_EXPRESSIONS = "use-expressions";
-    private static final String DEF_USE_EXPRESSIONS = "false";
 
     private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
 
