@@ -40,7 +40,7 @@ class ArrayFilterer implements Filterer {
 
     //~ Instance fields ================================================================================================
 
-    private Set removeList;
+    private Set<Object> removeList;
     private Object[] list;
 
     //~ Constructors ===================================================================================================
@@ -51,7 +51,7 @@ class ArrayFilterer implements Filterer {
         // Collect the removed objects to a HashSet so that
         // it is fast to lookup them when a filtered array
         // is constructed.
-        removeList = new HashSet();
+        removeList = new HashSet<Object>();
     }
 
     //~ Methods ========================================================================================================
@@ -87,7 +87,7 @@ class ArrayFilterer implements Filterer {
      *
      * @see org.springframework.security.afterinvocation.Filterer#iterator()
      */
-    public Iterator iterator() {
+    public Iterator<?> iterator() {
         return new ArrayIterator(list);
     }
 

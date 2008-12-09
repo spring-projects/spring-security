@@ -38,16 +38,16 @@ class CollectionFilterer implements Filterer {
 
     //~ Instance fields ================================================================================================
 
-    private Collection collection;
+    private Collection<?> collection;
 
     // collectionIter offers significant performance optimisations (as
     // per security-developer mailing list conversation 19/5/05)
-    private Iterator collectionIter;
-    private Set removeList;
+    private Iterator<?> collectionIter;
+    private Set<Object> removeList;
 
     //~ Constructors ===================================================================================================
 
-    CollectionFilterer(Collection collection) {
+    CollectionFilterer(Collection<?> collection) {
         this.collection = collection;
 
         // We create a Set of objects to be removed from the Collection,
@@ -57,7 +57,7 @@ class CollectionFilterer implements Filterer {
         // to the method may not necessarily be re-constructable (as
         // the Collection(collection) constructor is not guaranteed and
         // manually adding may lose sort order or other capabilities)
-        removeList = new HashSet();
+        removeList = new HashSet<Object>();
     }
 
     //~ Methods ========================================================================================================
@@ -68,7 +68,7 @@ class CollectionFilterer implements Filterer {
      */
     public Object getFilteredObject() {
         // Now the Iterator has ended, remove Objects from Collection
-        Iterator removeIter = removeList.iterator();
+        Iterator<?> removeIter = removeList.iterator();
 
         int originalSize = collection.size();
 
@@ -88,7 +88,7 @@ class CollectionFilterer implements Filterer {
      *
      * @see org.springframework.security.afterinvocation.Filterer#iterator()
      */
-    public Iterator iterator() {
+    public Iterator<?> iterator() {
         collectionIter = collection.iterator();
 
         return collectionIter;

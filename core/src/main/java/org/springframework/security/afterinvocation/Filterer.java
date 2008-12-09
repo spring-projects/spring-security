@@ -40,7 +40,7 @@ interface Filterer {
      *
      * @return an Iterator
      */
-    Iterator iterator();
+    Iterator<?> iterator();
 
     /**
      * Removes the the given object from the resulting list.

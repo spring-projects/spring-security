@@ -15,28 +15,29 @@
 
 package org.springframework.security.afterinvocation;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AfterInvocationManager;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
-
-import java.util.Iterator;
-import java.util.List;
 
 
 /**
- * Provider-based implementation of {@link AfterInvocationManager}.<p>Handles configuration of a bean context
- * defined list of  {@link AfterInvocationProvider}s.</p>
- *  <p>Every <code>AfterInvocationProvider</code> will be polled when the {@link #decide(Authentication, Object,
+ * Provider-based implementation of {@link AfterInvocationManager}.
+ * <p>
+ * Handles configuration of a bean context defined list of  {@link AfterInvocationProvider}s.
+ * <p>
+ * Every <code>AfterInvocationProvider</code> will be polled when the {@link #decide(Authentication, Object,
  * List<ConfigAttribute>, Object)} method is called. The <code>Object</code> returned from each provider will be
  * presented to the successive provider for processing. This means each provider <b>must</b> ensure they return the
  * <code>Object</code>, even if they are not interested in the "after invocation" decision (perhaps as the secure
- * object invocation did not include a configuration attribute a given provider is configured to respond to).</p>
+ * object invocation did not include a configuration attribute a given provider is configured to respond to).
  *
  * @author Ben Alex
  * @version $Id$
@@ -48,7 +49,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 
     //~ Instance fields ================================================================================================
 
-    private List providers;
+    private List<AfterInvocationProvider> providers;
 
     //~ Methods ========================================================================================================
 
@@ -56,51 +57,41 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
         checkIfValidList(this.providers);
     }
 
-    private void checkIfValidList(List listToCheck) {
+    private void checkIfValidList(List<?> listToCheck) {
         if ((listToCheck == null) || (listToCheck.size() == 0)) {
             throw new IllegalArgumentException("A list of AfterInvocationProviders is required");
         }
     }
 
     public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
-        Object returnedObject) throws AccessDeniedException {
-        Iterator iter = this.providers.iterator();
+            Object returnedObject) throws AccessDeniedException {
 
         Object result = returnedObject;
 
-        while (iter.hasNext()) {
-            AfterInvocationProvider provider = (AfterInvocationProvider) iter.next();
+        for(AfterInvocationProvider provider : providers) {
             result = provider.decide(authentication, object, config, result);
         }
 
         return result;
     }
 
-    public List getProviders() {
+    public List<AfterInvocationProvider> getProviders() {
         return this.providers;
     }
 
-    public void setProviders(List newList) {
+    public void setProviders(List<?> newList) {
         checkIfValidList(newList);
+        providers = new ArrayList<AfterInvocationProvider>(newList.size());
 
-        Iterator iter = newList.iterator();
-
-        while (iter.hasNext()) {
-            Object currentObject = iter.next();
-
+        for(Object currentObject : newList) {
             Assert.isInstanceOf(AfterInvocationProvider.class, currentObject, "AfterInvocationProvider " +
                     currentObject.getClass().getName() + " must implement AfterInvocationProvider");
+            providers.add((AfterInvocationProvider) currentObject);
         }
-
-        this.providers = newList;
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        Iterator iter = this.providers.iterator();
-
-        while (iter.hasNext()) {
-            AfterInvocationProvider provider = (AfterInvocationProvider) iter.next();
-
+        for(AfterInvocationProvider provider : providers) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Evaluating " + attribute + " against " + provider);
             }
@@ -115,7 +106,9 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 
     /**
      * Iterates through all <code>AfterInvocationProvider</code>s and ensures each can support the presented
-     * class.<p>If one or more providers cannot support the presented class, <code>false</code> is returned.</p>
+     * class.
+     * <p>
+     * If one or more providers cannot support the presented class, <code>false</code> is returned.
      *
      * @param clazz the secure object class being queries
      *
@@ -123,11 +116,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
      *         every one of its <code>AfterInvocationProvider</code>s to support the secure object class
      */
     public boolean supports(Class<?> clazz) {
-        Iterator iter = this.providers.iterator();
-
-        while (iter.hasNext()) {
-            AfterInvocationProvider provider = (AfterInvocationProvider) iter.next();
-
+        for (AfterInvocationProvider provider : providers) {
             if (!provider.supports(clazz)) {
                 return false;
             }
