@@ -1,12 +1,11 @@
 package org.springframework.security.annotation;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.Authentication;
-import org.springframework.security.vote.AccessDecisionVoter;
-
-import java.util.Iterator;
 import java.util.List;
+
+import org.springframework.security.Authentication;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.vote.AccessDecisionVoter;
 
 /**
  * Voter on JSR-250 configuration attributes.
@@ -45,12 +44,7 @@ public class Jsr250Voter implements AccessDecisionVoter {
      * @return The vote.
      */
     public int vote(Authentication authentication, Object object, List<ConfigAttribute> definition) {
-        int result = ACCESS_ABSTAIN;
-        Iterator iter = definition.iterator();
-
-        while (iter.hasNext()) {
-            ConfigAttribute attribute = (ConfigAttribute) iter.next();
-
+        for (ConfigAttribute attribute : definition) {
             if (Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE.equals(attribute)) {
                 return ACCESS_GRANTED;
             }
@@ -60,18 +54,18 @@ public class Jsr250Voter implements AccessDecisionVoter {
             }
 
             if (supports(attribute)) {
-                result = ACCESS_DENIED;
-
                 // Attempt to find a matching granted authority
                 for (GrantedAuthority authority : authentication.getAuthorities()) {
                     if (attribute.getAttribute().equals(authority.getAuthority())) {
                         return ACCESS_GRANTED;
                     }
                 }
+                // No match - deny access
+                return ACCESS_DENIED;
             }
         }
 
-        return result;
+        return ACCESS_ABSTAIN;
     }
 }
 
