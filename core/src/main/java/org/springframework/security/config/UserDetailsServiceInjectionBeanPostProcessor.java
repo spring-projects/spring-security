@@ -98,7 +98,7 @@ public class UserDetailsServiceInjectionBeanPostProcessor implements BeanPostPro
      * if available so should not be used for beans which need to separate the two.
      */
     UserDetailsService getUserDetailsService() {
-        Map beans = beanFactory.getBeansOfType(CachingUserDetailsService.class);
+        Map<?,?> beans = beanFactory.getBeansOfType(CachingUserDetailsService.class);
 
         if (beans.size() == 0) {
             beans = beanFactory.getBeansOfType(UserDetailsService.class);

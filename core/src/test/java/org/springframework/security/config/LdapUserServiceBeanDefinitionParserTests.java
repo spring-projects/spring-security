@@ -41,7 +41,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails ben = uds.loadUserByUsername("ben");
 
-        Set authorities = AuthorityUtils.authorityArrayToSet(ben.getAuthorities());
+        Set authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
         assertEquals(3, authorities.size());
         assertTrue(authorities.contains("ROLE_DEVELOPERS"));
     }
@@ -71,11 +71,11 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails ben = uds.loadUserByUsername("ben");
-        assertTrue(AuthorityUtils.authorityArrayToSet(ben.getAuthorities()).contains("PREFIX_DEVELOPERS"));
+        assertTrue(AuthorityUtils.authorityListToSet(ben.getAuthorities()).contains("PREFIX_DEVELOPERS"));
         
         uds = (UserDetailsService) appCtx.getBean("ldapUDSNoPrefix");
         ben = uds.loadUserByUsername("ben");
-        assertTrue(AuthorityUtils.authorityArrayToSet(ben.getAuthorities()).contains("DEVELOPERS"));        
+        assertTrue(AuthorityUtils.authorityListToSet(ben.getAuthorities()).contains("DEVELOPERS"));        
     }
     
     
@@ -87,7 +87,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails ben = uds.loadUserByUsername("ben");
 
-        Set authorities = AuthorityUtils.authorityArrayToSet(ben.getAuthorities());
+        Set authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
         assertEquals(3, authorities.size());
         assertTrue(authorities.contains(new GrantedAuthorityImpl("ROLE_DEVELOPER")));
         

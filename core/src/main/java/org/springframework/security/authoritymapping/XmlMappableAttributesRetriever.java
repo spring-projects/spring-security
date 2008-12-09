@@ -4,7 +4,6 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -114,11 +113,11 @@ public abstract class XmlMappableAttributesRetriever implements MappableAttribut
     }
 
     /**
-     * @param doc
-     *            The Document from which to read the list of roles
+     * @param doc The Document from which to read the list of roles
      * @return String[] the list of roles.
      * @throws JaxenException
      */
+    @SuppressWarnings("unchecked")
     private Set<String> getMappableAttributes(Document doc) {
         try {
             DOMXPath xpath = new DOMXPath(xpathExpression);

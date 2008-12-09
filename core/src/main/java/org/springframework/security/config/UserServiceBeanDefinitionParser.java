@@ -25,20 +25,21 @@ import java.util.Iterator;
 public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
 
     static final String ATT_PASSWORD = "password";
-	static final String ATT_NAME = "name";
-	static final String ELT_USER = "user";
-	static final String ATT_AUTHORITIES = "authorities";
-	static final String ATT_PROPERTIES = "properties";
-	static final String ATT_DISABLED = "disabled";
+    static final String ATT_NAME = "name";
+    static final String ELT_USER = "user";
+    static final String ATT_AUTHORITIES = "authorities";
+    static final String ATT_PROPERTIES = "properties";
+    static final String ATT_DISABLED = "disabled";
     static final String ATT_LOCKED = "locked";
 
     protected String getBeanClassName(Element element) {
         return "org.springframework.security.userdetails.memory.InMemoryDaoImpl";
     }
 
+    @SuppressWarnings("unchecked")
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         String userProperties = element.getAttribute(ATT_PROPERTIES);
-        List userElts = DomUtils.getChildElementsByTagName(element, ELT_USER);
+        List<Element> userElts = DomUtils.getChildElementsByTagName(element, ELT_USER);
 
         if (StringUtils.hasText(userProperties)) {
 
@@ -57,7 +58,7 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
             throw new BeanDefinitionStoreException("You must supply user definitions, either with <" + ELT_USER + "> child elements or a " +
                 "properties file (using the '" + ATT_PROPERTIES + "' attribute)" );
         }
-        
+
         UserMap users = new UserMap();
 
         for (Iterator i = userElts.iterator(); i.hasNext();) {
@@ -68,7 +69,7 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
             boolean disabled = "true".equals(userElt.getAttribute(ATT_DISABLED));
 
             users.addUser(new User(userName, password, !disabled, true, true, !locked,
-                    AuthorityUtils.commaSeparatedStringToAuthorityArray(userElt.getAttribute(ATT_AUTHORITIES))));
+                    AuthorityUtils.commaSeparatedStringToAuthorityList(userElt.getAttribute(ATT_AUTHORITIES))));
         }
 
         builder.addPropertyValue("userMap", users);

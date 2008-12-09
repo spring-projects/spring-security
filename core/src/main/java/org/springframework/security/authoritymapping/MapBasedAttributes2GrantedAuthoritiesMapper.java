@@ -57,7 +57,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements Attributes2G
     /**
      * @param attributes2grantedAuthoritiesMap The attributes2grantedAuthoritiesMap to set.
      */
-    public void setAttributes2grantedAuthoritiesMap(final Map attributes2grantedAuthoritiesMap) {
+    public void setAttributes2grantedAuthoritiesMap(final Map<?,?> attributes2grantedAuthoritiesMap) {
         Assert.notEmpty(attributes2grantedAuthoritiesMap,"A non-empty attributes2grantedAuthoritiesMap must be supplied");
         this.attributes2grantedAuthoritiesMap = preProcessMap(attributes2grantedAuthoritiesMap);
 

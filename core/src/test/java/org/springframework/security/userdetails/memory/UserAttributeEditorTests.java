@@ -28,25 +28,6 @@ import org.springframework.security.userdetails.memory.UserAttributeEditor;
  * @version $Id$
  */
 public class UserAttributeEditorTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public UserAttributeEditorTests() {
-        super();
-    }
-
-    public UserAttributeEditorTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(UserAttributeEditorTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testCorrectOperationWithTrailingSpaces() {
         UserAttributeEditor editor = new UserAttributeEditor();
@@ -54,9 +35,9 @@ public class UserAttributeEditorTests extends TestCase {
 
         UserAttribute user = (UserAttribute) editor.getValue();
         assertEquals("password", user.getPassword());
-        assertEquals(2, user.getAuthorities().length);
-        assertEquals("ROLE_ONE", user.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", user.getAuthorities()[1].getAuthority());
+        assertEquals(2, user.getAuthorities().size());
+        assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_TWO", user.getAuthorities().get(1).getAuthority());
     }
 
     public void testCorrectOperationWithoutEnabledDisabledKeyword() {
@@ -67,9 +48,9 @@ public class UserAttributeEditorTests extends TestCase {
         assertTrue(user.isValid());
         assertTrue(user.isEnabled()); // default
         assertEquals("password", user.getPassword());
-        assertEquals(2, user.getAuthorities().length);
-        assertEquals("ROLE_ONE", user.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", user.getAuthorities()[1].getAuthority());
+        assertEquals(2, user.getAuthorities().size());
+        assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_TWO", user.getAuthorities().get(1).getAuthority());
     }
 
     public void testDisabledKeyword() {
@@ -80,9 +61,9 @@ public class UserAttributeEditorTests extends TestCase {
         assertTrue(user.isValid());
         assertTrue(!user.isEnabled());
         assertEquals("password", user.getPassword());
-        assertEquals(2, user.getAuthorities().length);
-        assertEquals("ROLE_ONE", user.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", user.getAuthorities()[1].getAuthority());
+        assertEquals(2, user.getAuthorities().size());
+        assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_TWO", user.getAuthorities().get(1).getAuthority());
     }
 
     public void testEmptyStringReturnsNull() {
@@ -101,9 +82,9 @@ public class UserAttributeEditorTests extends TestCase {
         assertTrue(user.isValid());
         assertTrue(user.isEnabled());
         assertEquals("password", user.getPassword());
-        assertEquals(2, user.getAuthorities().length);
-        assertEquals("ROLE_ONE", user.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", user.getAuthorities()[1].getAuthority());
+        assertEquals(2, user.getAuthorities().size());
+        assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
+        assertEquals("ROLE_TWO", user.getAuthorities().get(1).getAuthority());
     }
 
     public void testMalformedStringReturnsNull() {

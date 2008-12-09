@@ -1,17 +1,16 @@
 package org.springframework.security.util;
 
+import static org.junit.Assert.*;
+
+import java.util.List;
+import java.util.Set;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
-import org.junit.After;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.Set;
 
 /**
  * @author Luke Taylor
@@ -48,10 +47,10 @@ public class AuthorityUtilsTests {
 
     @Test
     public void commaSeparatedStringIsParsedCorrectly() {
-        GrantedAuthority[] authorityArray =
-                AuthorityUtils.commaSeparatedStringToAuthorityArray(" ROLE_A, B, C, ROLE_D, E ");
+        List<GrantedAuthority> authorityArray =
+                AuthorityUtils.commaSeparatedStringToAuthorityList(" ROLE_A, B, C, ROLE_D, E ");
 
-        Set authorities = AuthorityUtils.authorityArrayToSet(Arrays.asList(authorityArray));
+        Set<String> authorities = AuthorityUtils.authorityListToSet(authorityArray);
 
         assertTrue(authorities.contains("B"));
         assertTrue(authorities.contains("C"));
@@ -59,6 +58,4 @@ public class AuthorityUtilsTests {
         assertTrue(authorities.contains("ROLE_A"));
         assertTrue(authorities.contains("ROLE_D"));
     }
-
-
 }

@@ -61,22 +61,15 @@ public abstract class AuthorityUtils {
      * @param authorityString the comma-separated string
      * @return the authorities created by tokenizing the string
      */
-    public static GrantedAuthority[] commaSeparatedStringToAuthorityArray(String authorityString) {
-        String[] authorityStrings = StringUtils.tokenizeToStringArray(authorityString, ",");
-        GrantedAuthority[] authorities = new GrantedAuthority[authorityStrings.length];
-
-        for (int i=0; i < authorityStrings.length; i++) {
-            authorities[i] = new GrantedAuthorityImpl(authorityStrings[i]);
-        }
-
-        return authorities;
+    public static List<GrantedAuthority> commaSeparatedStringToAuthorityList(String authorityString) {
+        return createAuthorityList(StringUtils.tokenizeToStringArray(authorityString, ","));
     }
 
     /**
      * Converts an array of GrantedAuthority objects to a Set.
      * @return a Set of the Strings obtained from each call to GrantedAuthority.getAuthority()
      */
-    public static Set<String> authorityArrayToSet(List<GrantedAuthority> authorities) {
+    public static Set<String> authorityListToSet(List<GrantedAuthority> authorities) {
         Set<String> set = new HashSet<String>(authorities.size());
 
         for (GrantedAuthority authority: authorities) {

@@ -15,13 +15,12 @@
 
 package org.springframework.security.userdetails.memory;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 
 
 /**
@@ -37,21 +36,14 @@ public class UserAttribute {
     private String password;
     private boolean enabled = true;
 
-    //~ Constructors ===================================================================================================
-
-    public UserAttribute() {
-    }
-
     //~ Methods ========================================================================================================
 
     public void addAuthority(GrantedAuthority newAuthority) {
         this.authorities.add(newAuthority);
     }
 
-    public GrantedAuthority[] getAuthorities() {
-        GrantedAuthority[] toReturn = {new GrantedAuthorityImpl("demo")};
-
-        return this.authorities.toArray(toReturn);
+    public List<GrantedAuthority> getAuthorities() {
+        return this.authorities;
     }
 
     /**

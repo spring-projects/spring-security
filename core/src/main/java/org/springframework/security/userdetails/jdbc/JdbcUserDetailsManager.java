@@ -243,7 +243,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         Assert.notNull(authorities);
 
         logger.debug("Creating new group '" + groupName + "' with authorities " +
-                AuthorityUtils.authorityArrayToSet(authorities));
+                AuthorityUtils.authorityListToSet(authorities));
 
         getJdbcTemplate().update(insertGroupSql, new String[] {groupName});
 

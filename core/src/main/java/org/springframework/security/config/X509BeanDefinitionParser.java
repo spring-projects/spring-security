@@ -29,10 +29,10 @@ public class X509BeanDefinitionParser implements BeanDefinitionParser {
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(X509PreAuthenticatedProcessingFilter.class);
-	    RootBeanDefinition entryPoint = new RootBeanDefinition(PreAuthenticatedProcessingFilterEntryPoint.class);
+        RootBeanDefinition entryPoint = new RootBeanDefinition(PreAuthenticatedProcessingFilterEntryPoint.class);
 
         Object source = parserContext.extractSource(element);
-        filterBuilder.setSource(source);
+        filterBuilder.getRawBeanDefinition().setSource(source);
         entryPoint.setSource(source);
 
         String regex = element.getAttribute(ATT_REGEX);
@@ -57,13 +57,13 @@ public class X509BeanDefinitionParser implements BeanDefinitionParser {
             provider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService", preAuthUserService);
         }
 
-	    parserContext.getRegistry().registerBeanDefinition(BeanIds.PRE_AUTH_ENTRY_POINT, entryPoint);
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.PRE_AUTH_ENTRY_POINT, entryPoint);
 
-	    filterBuilder.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
+        filterBuilder.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
 
-	    parserContext.getRegistry().registerBeanDefinition(BeanIds.X509_FILTER, filterBuilder.getBeanDefinition());
-	    ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.X509_FILTER));
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.X509_FILTER, filterBuilder.getBeanDefinition());
+        ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.X509_FILTER));
 
-	    return null;
+        return null;
     }
 }

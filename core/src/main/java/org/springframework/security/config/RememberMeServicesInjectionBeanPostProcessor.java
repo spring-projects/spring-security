@@ -15,20 +15,20 @@ import org.springframework.security.ui.rememberme.RememberMeServices;
 import org.springframework.util.Assert;
 
 /**
- * 
+ *
  * @author Luke Taylor
  * @version $Id$
  * @since 2.0
  */
 public class RememberMeServicesInjectionBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware {
     private Log logger = LogFactory.getLog(getClass());
-    
+
     private ListableBeanFactory beanFactory;
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         if (bean instanceof AbstractProcessingFilter) {
             AbstractProcessingFilter pf = (AbstractProcessingFilter) bean;
-            
+
             if (pf.getRememberMeServices() == null) {
                 logger.info("Setting RememberMeServices on bean " + beanName);
                 pf.setRememberMeServices(getRememberMeServices());
@@ -38,25 +38,25 @@ public class RememberMeServicesInjectionBeanPostProcessor implements BeanPostPro
             // Most of the time a user won't present such a parameter with their BASIC authentication request.
             // In the future we might support setting the AbstractRememberMeServices.alwaysRemember = true, but I am reluctant to
             // do so because it seems likely to lead to lower security for 99.99% of users if they set the property to true.
-            
+
             BasicProcessingFilter bf = (BasicProcessingFilter) bean;
-            logger.info("Setting RememberMeServices on bean " + beanName);            
+            logger.info("Setting RememberMeServices on bean " + beanName);
             bf.setRememberMeServices(getRememberMeServices());
         }
-        
+
         return bean;
     }
-    
+
     private RememberMeServices getRememberMeServices() {
-        Map beans = beanFactory.getBeansOfType(RememberMeServices.class);
-        
-        Assert.isTrue(beans.size() > 0, "No RememberMeServices configured"); 
+        Map<?,?> beans = beanFactory.getBeansOfType(RememberMeServices.class);
+
+        Assert.isTrue(beans.size() > 0, "No RememberMeServices configured");
         Assert.isTrue(beans.size() == 1, "Use of '<remember-me />' requires a single instance of RememberMeServices " +
-        		"in the application context, but more than one was found.");
+                "in the application context, but more than one was found.");
 
         return (RememberMeServices) beans.values().toArray()[0];
     }
-    
+
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         return bean;
     }

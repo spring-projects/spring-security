@@ -36,8 +36,7 @@ public class SpringSecurityAuthenticationSourceTests {
         AuthenticationSource source = new SpringSecurityAuthenticationSource();
 
         SecurityContextHolder.getContext().setAuthentication(
-                new AnonymousAuthenticationToken("key", "anonUser",
-                        AuthorityUtils.commaSeparatedStringToAuthorityArray("ignored")));
+                new AnonymousAuthenticationToken("key", "anonUser", AuthorityUtils.createAuthorityList("ignored")));
         assertEquals("", source.getPrincipal());
     }
 

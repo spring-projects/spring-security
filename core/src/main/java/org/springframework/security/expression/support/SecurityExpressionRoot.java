@@ -42,7 +42,7 @@ abstract class SecurityExpressionRoot {
     }
 
     public final boolean hasAnyRole(String... roles) {
-        Set<String> roleSet = AuthorityUtils.authorityArrayToSet(authentication.getAuthorities());
+        Set<String> roleSet = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 
         for (String role : roles) {
             if (roleSet.contains(role)) {

@@ -116,7 +116,7 @@ public class JdbcUserServiceBeanDefinitionParserTests {
         setContext("<jdbc-user-service id='myUserService' role-prefix='PREFIX_' data-source-ref='dataSource'/>" + DATA_SOURCE);
         JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext.getBean("myUserService");
         UserDetails rod = mgr.loadUserByUsername("rod");
-        assertTrue(AuthorityUtils.authorityArrayToSet(rod.getAuthorities()).contains("PREFIX_ROLE_SUPERVISOR"));
+        assertTrue(AuthorityUtils.authorityListToSet(rod.getAuthorities()).contains("PREFIX_ROLE_SUPERVISOR"));
     }
 
 

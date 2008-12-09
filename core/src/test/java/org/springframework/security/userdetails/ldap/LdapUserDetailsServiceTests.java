@@ -44,7 +44,7 @@ public class LdapUserDetailsServiceTests {
 
         UserDetails user = service.loadUserByUsername("doesntmatterwegetjoeanyway");
 
-        Set authorities = AuthorityUtils.authorityArrayToSet(user.getAuthorities());
+        Set authorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
         assertEquals(1, authorities.size());
         assertTrue(authorities.contains("ROLE_FROM_POPULATOR"));
     }

@@ -56,6 +56,7 @@ class SessionRegistryInjectionBeanPostProcessor implements BeanPostProcessor, Be
         return bean;
     }
 
+    @SuppressWarnings("unchecked")
     private SessionRegistry getSessionRegistry() {
         if (sessionRegistry != null) {
             return sessionRegistry;

@@ -39,6 +39,9 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 
     //~ Constructors ===================================================================================================
 
+    /**
+     * @deprecated use the second constructor
+     */
     public AnonymousAuthenticationToken(String key, Object principal, GrantedAuthority[] authorities) {
         this(key, principal, Arrays.asList(authorities));
     }
