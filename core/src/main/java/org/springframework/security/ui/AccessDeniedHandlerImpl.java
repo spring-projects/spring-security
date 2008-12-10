@@ -54,20 +54,23 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     //~ Methods ========================================================================================================
 
     public void handle(ServletRequest request, ServletResponse response, AccessDeniedException accessDeniedException)
-        	throws IOException, ServletException {
-        if (errorPage != null) {
-            // Put exception into request scope (perhaps of use to a view)
-            ((HttpServletRequest) request).setAttribute(SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY,
-                accessDeniedException);
-
-            // Perform RequestDispatcher "forward"
-            RequestDispatcher rd = request.getRequestDispatcher(errorPage);
-            rd.forward(request, response);
-        }
-
+            throws IOException, ServletException {
         if (!response.isCommitted()) {
-            // Send 403 (we do this after response has been written)
-            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN, accessDeniedException.getMessage());
+            if (errorPage != null) {
+                // Put exception into request scope (perhaps of use to a view)
+                request.setAttribute(SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY, accessDeniedException);
+
+                // Set the 403 status code.
+                HttpServletResponse resp = (HttpServletResponse) response;
+                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+                // forward to error page.
+                RequestDispatcher dispatcher = request.getRequestDispatcher(errorPage);
+                dispatcher.forward(request, response);
+            } else {
+                HttpServletResponse resp = (HttpServletResponse) response;
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN, accessDeniedException.getMessage());
+            }
         }
     }
 
