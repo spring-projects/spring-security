@@ -20,8 +20,8 @@ import org.springframework.security.AccessDeniedException;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -44,6 +44,6 @@ public interface AccessDeniedHandler {
      * @throws IOException in the event of an IOException
      * @throws ServletException in the event of a ServletException
      */
-    void handle(ServletRequest request, ServletResponse response, AccessDeniedException accessDeniedException)
+    void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException)
         throws IOException, ServletException;
 }

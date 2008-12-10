@@ -15,28 +15,27 @@
 
 package org.springframework.security.ui;
 
-import org.springframework.security.AccessDeniedException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.IOException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.security.AccessDeniedException;
+
 
 /**
- * Base implementation of {@link AccessDeniedHandler}.<p>This implementation sends a 403 (SC_FORBIDDEN) HTTP error
- * code. In addition, if a {@link #errorPage} is defined, the implementation will perform a request dispatcher
- * "forward" to the specified error page view. Being a "forward", the <code>SecurityContextHolder</code> will remain
+ * Base implementation of {@link AccessDeniedHandler}.
+ * <p>
+ * This implementation sends a 403 (SC_FORBIDDEN) HTTP error code. In addition, if an {@link #errorPage} is defined,
+ * the implementation will perform a request dispatcher "forward" to the specified error page view.
+ * Being a "forward", the <code>SecurityContextHolder</code> will remain
  * populated. This is of benefit if the view (or a tag library or macro) wishes to access the
  * <code>SecurityContextHolder</code>. The request scope will also be populated with the exception itself, available
- * from the key {@link #SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY}.</p>
+ * from the key {@link #SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -53,7 +52,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 
     //~ Methods ========================================================================================================
 
-    public void handle(ServletRequest request, ServletResponse response, AccessDeniedException accessDeniedException)
+    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException)
             throws IOException, ServletException {
         if (!response.isCommitted()) {
             if (errorPage != null) {
@@ -61,15 +60,13 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
                 request.setAttribute(SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY, accessDeniedException);
 
                 // Set the 403 status code.
-                HttpServletResponse resp = (HttpServletResponse) response;
-                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
                 // forward to error page.
                 RequestDispatcher dispatcher = request.getRequestDispatcher(errorPage);
                 dispatcher.forward(request, response);
             } else {
-                HttpServletResponse resp = (HttpServletResponse) response;
-                resp.sendError(HttpServletResponse.SC_FORBIDDEN, accessDeniedException.getMessage());
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, accessDeniedException.getMessage());
             }
         }
     }

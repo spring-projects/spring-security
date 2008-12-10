@@ -18,8 +18,7 @@ package org.springframework.security.ui.cas;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jasig.cas.client.util.CommonUtils;
@@ -66,7 +65,7 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, 
         Assert.notNull(this.serviceProperties, "serviceProperties must be specified");
     }
 
-    public void commence(final ServletRequest servletRequest, final ServletResponse servletResponse,
+    public void commence(final HttpServletRequest servletRequest, final HttpServletResponse servletResponse,
     		final AuthenticationException authenticationException) throws IOException, ServletException {
 
         final HttpServletResponse response = (HttpServletResponse) servletResponse;

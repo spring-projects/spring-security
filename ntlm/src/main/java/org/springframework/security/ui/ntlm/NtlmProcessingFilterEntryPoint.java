@@ -25,8 +25,6 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -83,7 +81,7 @@ public class NtlmProcessingFilterEntryPoint implements AuthenticationEntryPoint 
 	 * 						{@link NtlmType2MessageException}, or
 	 * 						{@link AuthenticationException}
 	 */
-	public void commence(final ServletRequest request, final ServletResponse response, final AuthenticationException authException) throws IOException, ServletException {
+	public void commence(final HttpServletRequest request, final HttpServletResponse response, final AuthenticationException authException) throws IOException, ServletException {
 		final HttpServletResponse resp = (HttpServletResponse) response;
 
 		if (authException instanceof NtlmBaseException) {

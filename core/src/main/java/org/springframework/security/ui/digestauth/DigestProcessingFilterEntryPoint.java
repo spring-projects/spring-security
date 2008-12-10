@@ -18,8 +18,7 @@ package org.springframework.security.ui.digestauth;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.AuthenticationException;
@@ -75,7 +74,7 @@ public class DigestProcessingFilterEntryPoint implements AuthenticationEntryPoin
         }
     }
 
-    public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
         throws IOException, ServletException {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 

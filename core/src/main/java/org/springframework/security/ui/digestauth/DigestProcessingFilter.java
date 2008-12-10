@@ -20,11 +20,9 @@ import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -43,6 +41,8 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.providers.dao.UserCache;
 import org.springframework.security.providers.dao.cache.NullUserCache;
 import org.springframework.security.ui.AuthenticationDetailsSource;
+import org.springframework.security.ui.FilterChainOrder;
+import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.security.ui.WebAuthenticationDetailsSource;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -78,7 +78,7 @@ import org.springframework.util.StringUtils;
  * than Basic authentication. Please see RFC 2617 section 4 for a full discussion on the advantages of Digest
  * authentication over Basic authentication, including commentary on the limitations that it still imposes.
  */
-public class DigestProcessingFilter implements Filter, InitializingBean, MessageSourceAware {
+public class DigestProcessingFilter extends SpringSecurityFilter implements Filter, InitializingBean, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(DigestProcessingFilter.class);
@@ -99,15 +99,9 @@ public class DigestProcessingFilter implements Filter, InitializingBean, Message
         Assert.notNull(authenticationEntryPoint, "A DigestProcessingFilterEntryPoint is required");
     }
 
-    public void destroy() {
-    }
-
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-
-        String header = httpRequest.getHeader("Authorization");
+        String header = request.getHeader("Authorization");
 
         if (logger.isDebugEnabled()) {
             logger.debug("Authorization header received from user agent: " + header);
@@ -322,7 +316,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean, Message
         return a1Md5;
     }
 
-    private void fail(ServletRequest request, ServletResponse response, AuthenticationException failed)
+    private void fail(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed)
             throws IOException, ServletException {
         SecurityContextHolder.getContext().setAuthentication(null);
 
@@ -394,9 +388,6 @@ public class DigestProcessingFilter implements Filter, InitializingBean, Message
         return userDetailsService;
     }
 
-    public void init(FilterConfig ignored) throws ServletException {
-    }
-
     public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
         Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
         this.authenticationDetailsSource = authenticationDetailsSource;
@@ -420,5 +411,9 @@ public class DigestProcessingFilter implements Filter, InitializingBean, Message
 
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
+    }
+
+    public int getOrder() {
+        return FilterChainOrder.DIGEST_PROCESSING_FILTER;
     }
 }

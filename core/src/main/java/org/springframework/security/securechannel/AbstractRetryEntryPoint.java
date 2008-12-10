@@ -9,8 +9,6 @@ import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,7 +40,7 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 
     //~ Methods ========================================================================================================
 
-    public void commence(ServletRequest req, ServletResponse res) throws IOException, ServletException {
+    public void commence(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
 
         String pathInfo = request.getPathInfo();

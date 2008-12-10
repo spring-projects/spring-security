@@ -6,8 +6,7 @@ import org.springframework.security.ui.AuthenticationEntryPoint;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
@@ -46,7 +45,7 @@ public class PreAuthenticatedProcessingFilterEntryPoint implements Authenticatio
 	/**
 	 * Always returns a 403 error code to the client.
 	 */
-	public void commence(ServletRequest request, ServletResponse response, AuthenticationException arg2) throws IOException,
+	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException arg2) throws IOException,
 			ServletException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Pre-authenticated entry point called. Rejecting access");

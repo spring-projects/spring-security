@@ -32,10 +32,12 @@ import javax.servlet.ServletResponse;
 
 
 /**
- * Performs security handling of HTTP resources via a filter implementation.<p>The
- * <code>ObjectDefinitionSource</code> required by this security interceptor is of type {@link
- * FilterInvocationDefinitionSource}.</p>
- *  <p>Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
+ * Performs security handling of HTTP resources via a filter implementation.
+ * <p>
+ * The <code>ObjectDefinitionSource</code> required by this security interceptor is of type {@link
+ * FilterInvocationDefinitionSource}.
+ * <p>
+ * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -78,7 +80,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
      * @throws ServletException if the filter chain fails
      */
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-        throws IOException, ServletException {
+            throws IOException, ServletException {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         invoke(fi);
     }
@@ -93,7 +95,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 
     public void invoke(FilterInvocation fi) throws IOException, ServletException {
         if ((fi.getRequest() != null) && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
-            && observeOncePerRequest) {
+                && observeOncePerRequest) {
             // filter already applied to this request and user wants us to observce
             // once-per-request handling, so don't re-do security checking
             fi.getChain().doFilter(fi.getRequest(), fi.getResponse());

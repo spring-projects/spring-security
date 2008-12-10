@@ -18,8 +18,6 @@ package org.springframework.security;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,15 +37,14 @@ public class MockAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     //~ Constructors ===================================================================================================
 
-	public MockAuthenticationEntryPoint(String url) {
+    public MockAuthenticationEntryPoint(String url) {
         this.url = url;
     }
 
     //~ Methods ========================================================================================================
 
-    public void commence(ServletRequest request, ServletResponse response,
-        AuthenticationException authenticationException)
-        throws IOException, ServletException {
-        ((HttpServletResponse) response).sendRedirect(((HttpServletRequest) request).getContextPath() + url);
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException authenticationException) throws IOException, ServletException {
+        response.sendRedirect(request.getContextPath() + url);
     }
 }

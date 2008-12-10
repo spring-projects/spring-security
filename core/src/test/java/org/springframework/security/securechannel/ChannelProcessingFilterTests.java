@@ -157,26 +157,6 @@ public class ChannelProcessingFilterTests extends TestCase {
         assertTrue(true);
     }
 
-    public void testDoFilterWithNonHttpServletRequestDetected() throws Exception {
-        ChannelProcessingFilter filter = new ChannelProcessingFilter();
-
-        try {
-            filter.doFilter(null, new MockHttpServletResponse(), new MockFilterChain());
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-        }
-    }
-
-    public void testDoFilterWithNonHttpServletResponseDetected() throws Exception {
-        ChannelProcessingFilter filter = new ChannelProcessingFilter();
-
-        try {
-            filter.doFilter(new MockHttpServletRequest(null, null), null, new MockFilterChain());
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-        }
-    }
-
     public void testGetterSetters() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "MOCK"));

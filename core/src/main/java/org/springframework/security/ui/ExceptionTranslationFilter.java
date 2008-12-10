@@ -35,8 +35,6 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -139,7 +137,7 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
         return portResolver;
     }
 
-    private void handleException(ServletRequest request, ServletResponse response, FilterChain chain,
+    private void handleException(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
             SpringSecurityException exception) throws IOException, ServletException {
         if (exception instanceof AuthenticationException) {
             if (logger.isDebugEnabled()) {
@@ -188,7 +186,7 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
         return createSessionAllowed;
     }
 
-    protected void sendStartAuthentication(ServletRequest request, ServletResponse response, FilterChain chain,
+    protected void sendStartAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
             AuthenticationException reason) throws ServletException, IOException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
 

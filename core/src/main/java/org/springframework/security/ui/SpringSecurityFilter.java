@@ -24,7 +24,7 @@ import java.io.IOException;
  */
 public abstract class SpringSecurityFilter implements Filter, Ordered {
     protected final Log logger = LogFactory.getLog(this.getClass());
-    
+
     /**
      * Does nothing. We use IoC container lifecycle services instead.
      *
@@ -41,15 +41,6 @@ public abstract class SpringSecurityFilter implements Filter, Ordered {
     }
 
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        // Do we really need the checks on the types in practice ?
-        if (!(request instanceof HttpServletRequest)) {
-            throw new ServletException("Can only process HttpServletRequest");
-        }
-
-        if (!(response instanceof HttpServletResponse)) {
-            throw new ServletException("Can only process HttpServletResponse");
-        }
-
         doFilterHttp((HttpServletRequest)request, (HttpServletResponse)response, chain);
     }
 

@@ -31,6 +31,7 @@ public abstract class FilterChainOrder {
     public static final int AUTHENTICATION_PROCESSING_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int OPENID_PROCESSING_FILTER    = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int LOGIN_PAGE_FILTER           = FILTER_CHAIN_FIRST + INTERVAL * i++;
+    public static final int DIGEST_PROCESSING_FILTER     = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int BASIC_PROCESSING_FILTER     = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int SERVLET_API_SUPPORT_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int REMEMBER_ME_FILTER          = FILTER_CHAIN_FIRST + INTERVAL * i++;

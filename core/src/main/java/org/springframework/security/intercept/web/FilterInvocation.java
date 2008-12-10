@@ -27,9 +27,10 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Holds objects associated with a HTTP filter.<P>Guarantees the request and response are instances of
  * <code>HttpServletRequest</code> and <code>HttpServletResponse</code>, and that there are no <code>null</code>
- * objects.</p>
- *  <P>Required so that security system classes can obtain access to the filter environment, as well as the request
- * and response.</p>
+ * objects.
+ * <p>
+ * Required so that security system classes can obtain access to the filter environment, as well as the request
+ * and response.
  *
  * @author Ben Alex
  * @author colin sampaleanu
@@ -39,8 +40,8 @@ public class FilterInvocation {
     //~ Instance fields ================================================================================================
 
     private FilterChain chain;
-    private ServletRequest request;
-    private ServletResponse response;
+    private HttpServletRequest request;
+    private HttpServletResponse response;
 
     //~ Constructors ===================================================================================================
 
@@ -49,16 +50,8 @@ public class FilterInvocation {
             throw new IllegalArgumentException("Cannot pass null values to constructor");
         }
 
-        if (!(request instanceof HttpServletRequest)) {
-            throw new IllegalArgumentException("Can only process HttpServletRequest");
-        }
-
-        if (!(response instanceof HttpServletResponse)) {
-            throw new IllegalArgumentException("Can only process HttpServletResponse");
-        }
-
-        this.request = request;
-        this.response = response;
+        this.request = (HttpServletRequest) request;
+        this.response = (HttpServletResponse) response;
         this.chain = chain;
     }
 
@@ -69,8 +62,10 @@ public class FilterInvocation {
     }
 
     /**
-     * Indicates the URL that the user agent used for this request.<P>The returned URL does <b>not</b> reflect
-     * the port number determined from a {@link org.springframework.security.util.PortResolver}.</p>
+     * Indicates the URL that the user agent used for this request.
+     * <p>
+     * The returned URL does <b>not</b> reflect the port number determined from a
+     * {@link org.springframework.security.util.PortResolver}.
      *
      * @return the full URL of this request
      */
@@ -79,15 +74,11 @@ public class FilterInvocation {
     }
 
     public HttpServletRequest getHttpRequest() {
-        return (HttpServletRequest) request;
+        return request;
     }
 
     public HttpServletResponse getHttpResponse() {
         return (HttpServletResponse) response;
-    }
-
-    public ServletRequest getRequest() {
-        return request;
     }
 
     /**
@@ -99,8 +90,12 @@ public class FilterInvocation {
         return UrlUtils.getRequestUrl(this);
     }
 
-    public ServletResponse getResponse() {
-        return response;
+    public HttpServletRequest getRequest() {
+        return getHttpRequest();
+    }
+
+    public HttpServletResponse getResponse() {
+        return getHttpResponse();
     }
 
     public String toString() {
