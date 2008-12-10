@@ -99,7 +99,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
         MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
-    protected static final Log logger = LogFactory.getLog(AbstractSecurityInterceptor.class);
+    protected final Log logger = LogFactory.getLog(getClass());
 
     //~ Instance fields ================================================================================================
 
@@ -175,10 +175,10 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
         if (attributes == null) {
             if (rejectPublicInvocations) {
-                throw new IllegalArgumentException(
-                        "No public invocations are allowed via this AbstractSecurityInterceptor. "
+                throw new IllegalArgumentException("Secure object invocation " + object +
+                        " was denied as public invocations are not allowed via this interceptor. "
                                 + "This indicates a configuration error because the "
-                                + "AbstractSecurityInterceptor.rejectPublicInvocations property is set to 'true'");
+                                + "rejectPublicInvocations property is set to 'true'");
             }
 
             if (logger.isDebugEnabled()) {
