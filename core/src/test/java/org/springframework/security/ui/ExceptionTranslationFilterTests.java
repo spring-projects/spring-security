@@ -27,6 +27,7 @@ import org.springframework.security.MockPortResolver;
 import org.springframework.security.context.SecurityContextHolder;
 
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
+import org.springframework.security.ui.savedrequest.SavedRequest;
 import org.springframework.security.util.AuthorityUtils;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -38,6 +39,8 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * Tests {@link ExceptionTranslationFilter}.
@@ -52,6 +55,18 @@ public class ExceptionTranslationFilterTests extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         SecurityContextHolder.clearContext();
+    }
+
+    private static String getSavedRequestUrl(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        if (session == null) {
+            return null;
+        }
+
+        SavedRequest savedRequest = (SavedRequest) session.getAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
+
+        return savedRequest.getFullRequestUrl();
     }
 
     public void testAccessDeniedWhenAnonymous() throws Exception {
@@ -79,8 +94,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
         assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
-        assertEquals("http://www.example.com/mycontext/secure/page.html", AbstractProcessingFilter
-                .obtainFullSavedRequestUrl(request));
+        assertEquals("http://www.example.com/mycontext/secure/page.html", getSavedRequestUrl(request));
     }
 
     public void testAccessDeniedWhenNonAnonymous() throws Exception {
@@ -148,8 +162,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
         assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
-        assertEquals("http://www.example.com/mycontext/secure/page.html", AbstractProcessingFilter
-                .obtainFullSavedRequestUrl(request));
+        assertEquals("http://www.example.com/mycontext/secure/page.html", getSavedRequestUrl(request));
     }
 
     public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWithExoticPortWhenAuthenticationException()
@@ -180,8 +193,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
         assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
-        assertEquals("http://www.example.com:8080/mycontext/secure/page.html", AbstractProcessingFilter
-                .obtainFullSavedRequestUrl(request));
+        assertEquals("http://www.example.com:8080/mycontext/secure/page.html", getSavedRequestUrl(request));
     }
 
     public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {

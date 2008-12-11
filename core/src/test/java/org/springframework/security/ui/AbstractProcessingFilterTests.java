@@ -352,7 +352,7 @@ public class AbstractProcessingFilterTests extends TestCase {
             throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
-        request.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
+        request.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null, null);
@@ -378,7 +378,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     public void testSuccessfulAuthenticationCausesRedirectToSessionSpecifiedUrl() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
-        request.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
+        request.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null, null);
@@ -400,7 +400,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     public void testSuccessfulAuthenticationCausesRedirectToDefaultTargetUrlOnPOSTSavedRequest() throws Exception {
         // Setup our HTTP request with a POST method request
         MockHttpServletRequest request = createMockRequest();
-        request.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY, makePostSavedRequestForUrl());
+        request.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, makePostSavedRequestForUrl());
 
        // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null, null);

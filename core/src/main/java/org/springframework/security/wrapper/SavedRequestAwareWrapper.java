@@ -34,7 +34,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.savedrequest.Enumerator;
 import org.springframework.security.ui.savedrequest.FastHttpDateFormat;
 import org.springframework.security.ui.savedrequest.SavedRequest;
@@ -91,7 +90,7 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
             return;
         }
 
-        SavedRequest saved = (SavedRequest) session.getAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY);
+        SavedRequest saved = (SavedRequest) session.getAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
 
         if ((saved != null) && saved.doesRequestMatch(request, portResolver)) {
             if (logger.isDebugEnabled()) {
@@ -99,7 +98,7 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
             }
 
             savedRequest = saved;
-            session.removeAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY);
+            session.removeAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
 
             formats[0] = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
             formats[1] = new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US);

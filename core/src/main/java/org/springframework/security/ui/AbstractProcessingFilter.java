@@ -68,7 +68,7 @@ import javax.servlet.http.HttpSession;
  * <ul>
  * <li><code>defaultTargetUrl</code> indicates the URL that should be used
  * for redirection if the <code>HttpSession</code> attribute named
- * {@link #SPRING_SECURITY_SAVED_REQUEST_KEY} does not indicate the target URL once
+ * {@link SavedRequest#SPRING_SECURITY_SAVED_REQUEST_KEY} does not indicate the target URL once
  * authentication is completed successfully. eg: <code>/</code>. The
  * <code>defaultTargetUrl</code> will be treated as relative to the web-app's
  * context path, and should include the leading <code>/</code>.
@@ -84,7 +84,7 @@ import javax.servlet.http.HttpSession;
  * <li><code>alwaysUseDefaultTargetUrl</code> causes successful
  * authentication to always redirect to the <code>defaultTargetUrl</code>,
  * even if the <code>HttpSession</code> attribute named {@link
- * # SPRING_SECURITY_SAVED_REQUEST_KEY} defines the intended target URL.</li>
+ * SavedRequest# SPRING_SECURITY_SAVED_REQUEST_KEY} defines the intended target URL.</li>
  * </ul>
  * <p>
  * To configure this filter to redirect to specific pages as the result of
@@ -132,8 +132,6 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         ApplicationEventPublisherAware, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
-    public static final String SPRING_SECURITY_SAVED_REQUEST_KEY = "SPRING_SECURITY_SAVED_REQUEST_KEY";
-
     public static final String SPRING_SECURITY_LAST_EXCEPTION_KEY = "SPRING_SECURITY_LAST_EXCEPTION";
 
     //~ Instance fields ================================================================================================
@@ -160,8 +158,8 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     private String authenticationFailureUrl;
 
     /**
-     * Where to redirect the browser to if authentication is successful but
-     * SPRING_SECURITY_SAVED_REQUEST_KEY is <code>null</code>
+     * Where to redirect the browser to if authentication is successful and no saved request is stored
+     * in the session.
      */
     private String defaultTargetUrl;
 
@@ -278,24 +276,6 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         chain.doFilter(request, response);
     }
 
-    public static String obtainFullSavedRequestUrl(HttpServletRequest request) {
-        SavedRequest savedRequest = getSavedRequest(request);
-
-        return savedRequest == null ? null : savedRequest.getFullRequestUrl();
-    }
-
-    private static SavedRequest getSavedRequest(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-
-        if (session == null) {
-            return null;
-        }
-
-        SavedRequest savedRequest = (SavedRequest) session.getAttribute(SPRING_SECURITY_SAVED_REQUEST_KEY);
-
-        return savedRequest;
-     }
-
     protected void onPreAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException {
     }
@@ -389,7 +369,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     protected String determineTargetUrl(HttpServletRequest request) {
         // Don't attempt to obtain the url from the saved request if alwaysUsedefaultTargetUrl is set
         String targetUrl = alwaysUseDefaultTargetUrl ? null :
-            targetUrlResolver.determineTargetUrl(getSavedRequest(request), request, SecurityContextHolder.getContext().getAuthentication());
+            targetUrlResolver.determineTargetUrl(request, SecurityContextHolder.getContext().getAuthentication());
 
         if (targetUrl == null) {
             targetUrl = getDefaultTargetUrl();

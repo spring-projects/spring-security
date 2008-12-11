@@ -69,6 +69,8 @@ public class SavedRequest implements java.io.Serializable {
     private String servletPath;
     private int serverPort;
 
+    public static final String SPRING_SECURITY_SAVED_REQUEST_KEY = "SPRING_SECURITY_SAVED_REQUEST_KEY";
+
     //~ Constructors ===================================================================================================
 
     @SuppressWarnings("unchecked")

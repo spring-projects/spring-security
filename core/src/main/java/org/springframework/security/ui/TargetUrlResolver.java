@@ -18,7 +18,6 @@ package org.springframework.security.ui;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.Authentication;
-import org.springframework.security.ui.savedrequest.SavedRequest;
 
 /**
  * Used by {@link AbstractProcessingFilter} to determine target URL in case of
@@ -32,11 +31,10 @@ import org.springframework.security.ui.savedrequest.SavedRequest;
 public interface TargetUrlResolver {
 	
 	/**
-	 * @param savedRequest The request that initiated the authentication process
 	 * @param currentRequest the current request
 	 * @param auth The authentication token generated after successful authentication
 	 * @return The URL to be used 
 	 */
-	public String determineTargetUrl(SavedRequest savedRequest, HttpServletRequest currentRequest, Authentication auth);
+	public String determineTargetUrl(HttpServletRequest currentRequest, Authentication auth);
 
 }

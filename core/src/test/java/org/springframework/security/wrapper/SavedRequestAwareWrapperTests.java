@@ -11,7 +11,6 @@ import javax.servlet.http.Cookie;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.savedrequest.FastHttpDateFormat;
 import org.springframework.security.ui.savedrequest.SavedRequest;
 import org.springframework.security.util.PortResolverImpl;
@@ -21,7 +20,7 @@ public class SavedRequestAwareWrapperTests {
     private SavedRequestAwareWrapper createWrapper(MockHttpServletRequest requestToSave, MockHttpServletRequest requestToWrap) {
         if (requestToSave != null) {
             SavedRequest savedRequest = new SavedRequest(requestToSave, new PortResolverImpl());
-            requestToWrap.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY, savedRequest);
+            requestToWrap.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, savedRequest);
         }
         return new SavedRequestAwareWrapper(requestToWrap, new PortResolverImpl(),"ROLE_");
     }
