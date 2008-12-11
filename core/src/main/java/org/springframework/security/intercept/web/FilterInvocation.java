@@ -78,7 +78,7 @@ public class FilterInvocation {
     }
 
     public HttpServletResponse getHttpResponse() {
-        return (HttpServletResponse) response;
+        return response;
     }
 
     /**
