@@ -26,6 +26,7 @@ import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.openid.consumers.OpenID4JavaConsumer;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
+import org.springframework.security.util.RedirectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -225,7 +226,7 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
 
         super.getRememberMeServices().loginFail(request, response);
 
-        sendRedirect(request, response, failureUrl);
+        RedirectUtils.sendRedirect(request, response, failureUrl, useRelativeContext);
     }
 
     public int getOrder() {

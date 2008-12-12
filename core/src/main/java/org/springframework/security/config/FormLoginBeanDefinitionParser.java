@@ -7,6 +7,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.ui.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.util.StringUtils;
@@ -23,24 +24,26 @@ import org.apache.commons.logging.LogFactory;
 public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
     protected final Log logger = LogFactory.getLog(getClass());
 
-    static final String ATT_LOGIN_URL = "login-processing-url";
+    private static final String ATT_LOGIN_URL = "login-processing-url";
 
     static final String ATT_LOGIN_PAGE = "login-page";
-    static final String DEF_LOGIN_PAGE = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL;
+    private static final String DEF_LOGIN_PAGE = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL;
 
-    static final String ATT_FORM_LOGIN_TARGET_URL = "default-target-url";
-    static final String ATT_ALWAYS_USE_DEFAULT_TARGET_URL = "always-use-default-target";
-    static final String DEF_FORM_LOGIN_TARGET_URL = "/";
+    private static final String ATT_FORM_LOGIN_TARGET_URL = "default-target-url";
+    private static final String ATT_ALWAYS_USE_DEFAULT_TARGET_URL = "always-use-default-target";
+    private static final String DEF_FORM_LOGIN_TARGET_URL = "/";
 
-    static final String ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = "authentication-failure-url";
-    static final String DEF_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL + "?" + DefaultLoginPageGeneratingFilter.ERROR_PARAMETER_NAME;
+    private static final String ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = "authentication-failure-url";
+    private static final String DEF_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL + "?" + DefaultLoginPageGeneratingFilter.ERROR_PARAMETER_NAME;
 
-    String defaultLoginProcessingUrl;
-    String filterClassName;
+    private static final String ATT_SUCCESS_HANDLER_REF = "authentication-success-handler-ref";
 
-    RootBeanDefinition filterBean;
-    RootBeanDefinition entryPointBean;
-    String loginPage;
+    private String defaultLoginProcessingUrl;
+    private String filterClassName;
+
+    private RootBeanDefinition filterBean;
+    private RootBeanDefinition entryPointBean;
+    private String loginPage;
 
     FormLoginBeanDefinitionParser(String defaultLoginProcessingUrl, String filterClassName) {
         this.defaultLoginProcessingUrl = defaultLoginProcessingUrl;
@@ -52,6 +55,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         String defaultTargetUrl = null;
         String authenticationFailureUrl = null;
         String alwaysUseDefault = null;
+        String successHandlerRef = null;
 
         Object source = null;
 
@@ -77,6 +81,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
             ConfigUtils.validateHttpRedirect(authenticationFailureUrl, pc, source);
             alwaysUseDefault = elt.getAttribute(ATT_ALWAYS_USE_DEFAULT_TARGET_URL);
             loginPage = elt.getAttribute(ATT_LOGIN_PAGE);
+            successHandlerRef = elt.getAttribute(ATT_SUCCESS_HANDLER_REF);
 
             if (!StringUtils.hasText(loginPage)) {
                 loginPage = null;
@@ -87,7 +92,8 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
 
         ConfigUtils.registerProviderManagerIfNecessary(pc);
 
-        filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault, loginPage, authenticationFailureUrl);
+        filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault, loginPage, authenticationFailureUrl,
+                successHandlerRef);
         filterBean.setSource(source);
         filterBean.getPropertyValues().addPropertyValue("authenticationManager",
                 new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
@@ -117,7 +123,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private RootBeanDefinition createFilterBean(String loginUrl, String defaultTargetUrl, String alwaysUseDefault,
-            String loginPage, String authenticationFailureUrl) {
+            String loginPage, String authenticationFailureUrl, String successHandlerRef) {
 
         BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(filterClassName);
 
@@ -125,17 +131,18 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
             loginUrl = defaultLoginProcessingUrl;
         }
 
-        if ("true".equals(alwaysUseDefault)) {
-            filterBuilder.addPropertyValue("alwaysUseDefaultTargetUrl", Boolean.TRUE);
-        }
-
         filterBuilder.addPropertyValue("filterProcessesUrl", loginUrl);
 
-        if (!StringUtils.hasText(defaultTargetUrl)) {
-            defaultTargetUrl = DEF_FORM_LOGIN_TARGET_URL;
+        if (StringUtils.hasText(successHandlerRef)) {
+            filterBuilder.addPropertyReference("successHandler", successHandlerRef);
+        } else {
+            BeanDefinitionBuilder successHandler = BeanDefinitionBuilder.rootBeanDefinition(SavedRequestAwareAuthenticationSuccessHandler.class);
+            if ("true".equals(alwaysUseDefault)) {
+                successHandler.addPropertyValue("alwaysUseDefaultTargetUrl", Boolean.TRUE);
+            }
+            successHandler.addPropertyValue("defaultTargetUrl", StringUtils.hasText(defaultTargetUrl) ? defaultTargetUrl : DEF_FORM_LOGIN_TARGET_URL);
+            filterBuilder.addPropertyValue("successHandler", successHandler.getBeanDefinition());
         }
-
-        filterBuilder.addPropertyValue("defaultTargetUrl", defaultTargetUrl);
 
         if (!StringUtils.hasText(authenticationFailureUrl)) {
             // Fallback to redisplaying the custom login page, if one was specified

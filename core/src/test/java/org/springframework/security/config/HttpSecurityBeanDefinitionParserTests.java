@@ -175,8 +175,8 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>" + AUTH_PROVIDER_XML);
         // These will be matched by the default pattern "/**"
         AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) getFilters("/anything").get(1);
-        assertEquals("/default", filter.getDefaultTargetUrl());
-        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "alwaysUseDefaultTargetUrl"));
+        assertEquals("/default", FieldUtils.getFieldValue(filter, "successHandler.defaultTargetUrl"));
+        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "successHandler.alwaysUseDefaultTargetUrl"));
     }
 
     @Test(expected=BeanCreationException.class)

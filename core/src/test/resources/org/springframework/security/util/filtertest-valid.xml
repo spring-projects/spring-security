@@ -28,11 +28,10 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <bean id="mockFilter2" class="org.springframework.security.util.MockFilter"/>
 
-    <!-- These are just here so we have filters of a specfic type to check the ordering is as expected -->
+    <!-- These are just here so we have filters of a specific type to check the ordering is as expected -->
     <bean id="sif" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
 
     <bean id="apf" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
-        <property name="defaultTargetUrl" value="/whocares"/>
         <property name="authenticationFailureUrl" value="/whocares2"/>
        <property name="authenticationManager">
            <bean class="org.springframework.security.MockAuthenticationManager"/>

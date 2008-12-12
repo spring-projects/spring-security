@@ -54,15 +54,7 @@ import org.springframework.security.util.PortResolverImpl;
  * @version $Id$
  */
 public class AbstractProcessingFilterTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AbstractProcessingFilterTests() {
-    }
-
-    public AbstractProcessingFilterTests(String arg0) {
-        super(arg0);
-    }
-
+    SavedRequestAwareAuthenticationSuccessHandler successHandler;
     //~ Methods ========================================================================================================
 
     private MockHttpServletRequest createMockRequest() {
@@ -108,6 +100,8 @@ public class AbstractProcessingFilterTests extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+        successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+        successHandler.setDefaultTargetUrl("/logged_in.jsp");
         SecurityContextHolder.clearContext();
     }
 
@@ -179,7 +173,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our test object, to grant access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
         filter.setFilterProcessesUrl("/j_OTHER_LOCATION");
-        filter.setDefaultTargetUrl("/logged_in.jsp");
+        filter.setSuccessHandler(successHandler);
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
@@ -191,7 +185,6 @@ public class AbstractProcessingFilterTests extends TestCase {
     public void testGettersSetters() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationManager(new MockAuthenticationManager());
-        filter.setDefaultTargetUrl("/default");
         filter.setFilterProcessesUrl("/p");
         filter.setAuthenticationFailureUrl("/fail");
         filter.afterPropertiesSet();
@@ -200,22 +193,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.setRememberMeServices(new TokenBasedRememberMeServices());
         assertEquals(TokenBasedRememberMeServices.class, filter.getRememberMeServices().getClass());
         assertTrue(filter.getAuthenticationManager() != null);
-        assertEquals("/default", filter.getDefaultTargetUrl());
         assertEquals("/p", filter.getFilterProcessesUrl());
         assertEquals("/fail", filter.getAuthenticationFailureUrl());
-    }
-
-    public void testDefaultUrlMuststartWithSlashOrHttpScheme() {
-        AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
-
-        filter.setDefaultTargetUrl("/acceptableRelativeUrl");
-        filter.setDefaultTargetUrl("http://some.site.org/index.html");
-        filter.setDefaultTargetUrl("https://some.site.org/index.html");
-
-        try {
-            filter.setDefaultTargetUrl("missingSlash");
-            fail("Shouldn't accept default target without leading slash");
-        } catch (IllegalArgumentException expected) {}
     }
 
     public void testIgnoresAnyServletPathOtherThanFilterProcessesUrl() throws Exception {
@@ -252,8 +231,9 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         // Setup our test object, to grant access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+
         filter.setFilterProcessesUrl("/j_mock_post");
-        filter.setDefaultTargetUrl("/logged_in.jsp");
+        filter.setSuccessHandler(successHandler);
         filter.setAuthenticationFailureUrl("/failure.jsp");
         filter.setAuthenticationManager(new MockAuthenticationManager(true));
         filter.afterPropertiesSet();
@@ -270,7 +250,8 @@ public class AbstractProcessingFilterTests extends TestCase {
     public void testStartupDetectsInvalidAuthenticationManager() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationFailureUrl("/failed.jsp");
-        filter.setDefaultTargetUrl("/");
+        successHandler.setDefaultTargetUrl("/");
+        filter.setSuccessHandler(successHandler);
         filter.setFilterProcessesUrl("/j_spring_security_check");
 
         try {
@@ -281,25 +262,11 @@ public class AbstractProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testStartupDetectsInvalidDefaultTargetUrl() throws Exception {
-        AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
-        filter.setAuthenticationFailureUrl("/failed.jsp");
-        filter.setAuthenticationManager(new MockAuthenticationManager());
-        filter.setFilterProcessesUrl("/j_spring_security_check");
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("defaultTargetUrl must be specified", expected.getMessage());
-        }
-    }
-
     public void testStartupDetectsInvalidFilterProcessesUrl() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationFailureUrl("/failed.jsp");
         filter.setAuthenticationManager(new MockAuthenticationManager());
-        filter.setDefaultTargetUrl("/");
+        filter.setSuccessHandler(successHandler);
         filter.setFilterProcessesUrl(null);
 
         try {
@@ -324,7 +291,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our test object, to grant access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
         filter.setFilterProcessesUrl("/j_mock_post");
-        filter.setDefaultTargetUrl("/logged_in.jsp");
+        filter.setSuccessHandler(successHandler);
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
@@ -364,10 +331,11 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our test object, to grant access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
         filter.setFilterProcessesUrl("/j_mock_post");
-        filter.setDefaultTargetUrl("/foobar");
-        assertFalse(filter.isAlwaysUseDefaultTargetUrl()); // check default
-        filter.setAlwaysUseDefaultTargetUrl(true);
-        assertTrue(filter.isAlwaysUseDefaultTargetUrl()); // check changed
+        successHandler.setDefaultTargetUrl("/foobar");
+        assertFalse(successHandler.isAlwaysUseDefaultTargetUrl()); // check default
+        successHandler.setAlwaysUseDefaultTargetUrl(true);
+        assertTrue(successHandler.isAlwaysUseDefaultTargetUrl()); // check changed
+        filter.setSuccessHandler(successHandler);
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
@@ -413,12 +381,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
 
         filter.setFilterProcessesUrl("/j_mock_post");
-        filter.setDefaultTargetUrl("/foobar");
-
-        // Configure target resolver default implementation not to use POST SavedRequest
-        TargetUrlResolverImpl targetUrlResolver = new TargetUrlResolverImpl();
-        targetUrlResolver.setJustUseSavedRequestOnGet(true);
-        filter.setTargetUrlResolver(targetUrlResolver);
+        filter.setSuccessHandler(successHandler);
+        successHandler.setDefaultTargetUrl("/foobar");
+        // Configure not to use POST SavedRequest
+        successHandler.setJustUseSavedRequestOnGet(true);
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
@@ -438,8 +404,9 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         // Setup our test object, to grant access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
-        filter.setDefaultTargetUrl("https://monkeymachine.co.uk/");
-        filter.setAlwaysUseDefaultTargetUrl(true);
+        successHandler.setDefaultTargetUrl("https://monkeymachine.co.uk/");
+        successHandler.setAlwaysUseDefaultTargetUrl(true);
+        filter.setSuccessHandler(successHandler);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals("https://monkeymachine.co.uk/", response.getRedirectedUrl());
@@ -458,7 +425,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our test object, to grant access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
         filter.setInvalidateSessionOnSuccessfulAuthentication(true);
-        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        filter.setSuccessHandler(successHandler);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
@@ -477,7 +445,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
         filter.setInvalidateSessionOnSuccessfulAuthentication(true);
         filter.setMigrateInvalidatedSessionAttributes(false);
-        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        filter.setSuccessHandler(successHandler);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
@@ -500,7 +469,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
         filter.setAllowSessionCreation(false);
         filter.setAuthenticationFailureUrl("/");
-        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        filter.setSuccessHandler(successHandler);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
@@ -518,7 +488,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
-        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        filter.setSuccessHandler(successHandler);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
@@ -536,7 +507,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
-        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        filter.setSuccessHandler(successHandler);
         filter.setAuthenticationFailureUrl("/error");
         filter.setServerSideRedirect(true);
 
@@ -557,10 +529,9 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
-        TargetUrlResolverImpl targetUrlResolver = new TargetUrlResolverImpl();
-        targetUrlResolver.setTargetUrlParameter("targetUrl");
-        filter.setTargetUrlResolver(targetUrlResolver);
-        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        filter.setSuccessHandler(successHandler);
+        successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        successHandler.setTargetUrlParameter("targetUrl");
         filter.setAuthenticationFailureUrl("/error");
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);

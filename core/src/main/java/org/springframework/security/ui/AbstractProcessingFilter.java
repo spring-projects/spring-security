@@ -66,15 +66,6 @@ import javax.servlet.http.HttpSession;
  * <p>
  * To use this filter, it is necessary to specify the following properties:
  * <ul>
- * <li><code>defaultTargetUrl</code> indicates the URL that should be used
- * for redirection if the <code>HttpSession</code> attribute named
- * {@link SavedRequest#SPRING_SECURITY_SAVED_REQUEST_KEY} does not indicate the target URL once
- * authentication is completed successfully. eg: <code>/</code>. The
- * <code>defaultTargetUrl</code> will be treated as relative to the web-app's
- * context path, and should include the leading <code>/</code>.
- * Alternatively, inclusion of a scheme name (eg http:// or https://) as the
- * prefix will denote a fully-qualified URL and this is also supported. More
- * complex behaviour can be implemented by using a customised {@link TargetUrlResolver}.</li>
  * <li><code>authenticationFailureUrl</code> (optional) indicates the URL that should be
  * used for redirection if the authentication request fails. eg:
  * <code>/login.jsp?login_error=1</code>. If not configured, <tt>sendError</tt> will be
@@ -152,30 +143,14 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
      */
     private RememberMeServices rememberMeServices = null;
 
-    private TargetUrlResolver targetUrlResolver = new TargetUrlResolverImpl();
-
     /** Where to redirect the browser to if authentication fails */
     private String authenticationFailureUrl;
-
-    /**
-     * Where to redirect the browser to if authentication is successful and no saved request is stored
-     * in the session.
-     */
-    private String defaultTargetUrl;
 
     /**
      * The URL destination that this filter intercepts and processes (usually
      * something like <code>/j_spring_security_check</code>)
      */
     private String filterProcessesUrl = getDefaultFilterProcessesUrl();
-
-    /**
-     * If <code>true</code>, will always redirect to the value of
-     * {@link #getDefaultTargetUrl} upon successful authentication, irrespective
-     * of the page that caused the authentication request (defaults to
-     * <code>false</code>).
-     */
-    private boolean alwaysUseDefaultTargetUrl = false;
 
     /**
      * Indicates if the filter chain should be continued prior to delegation to
@@ -189,7 +164,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
      * If true, causes any redirection URLs to be calculated minus the protocol
      * and context path (defaults to false).
      */
-    private boolean useRelativeContext = false;
+    protected boolean useRelativeContext = false;
 
 
     /**
@@ -203,7 +178,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
      * If {@link #invalidateSessionOnSuccessfulAuthentication} is true, this
      * flag indicates that the session attributes of the session to be invalidated
      * are to be migrated to the new session. Defaults to <code>true</code> since
-     * nothing will happpen unless {@link #invalidateSessionOnSuccessfulAuthentication}
+     * nothing will happen unless {@link #invalidateSessionOnSuccessfulAuthentication}
      * is true.
      */
     private boolean migrateInvalidatedSessionAttributes = true;
@@ -214,16 +189,16 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     private SessionRegistry sessionRegistry;
 
+    private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+    private AuthenticationFailureHandler failureHandler = null;
+
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
         Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");
-        Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
-        Assert.isTrue(UrlUtils.isValidRedirectUrl(defaultTargetUrl), defaultTargetUrl + " isn't a valid redirect URL");
         Assert.isTrue(UrlUtils.isValidRedirectUrl(authenticationFailureUrl), authenticationFailureUrl + " isn't a valid redirect URL");
         Assert.notNull(authenticationManager, "authenticationManager must be specified");
-        Assert.notNull(targetUrlResolver, "targetUrlResolver cannot be null");
 
         if (rememberMeServices == null) {
             rememberMeServices = new NullRememberMeServices();
@@ -245,43 +220,39 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException,
             ServletException {
 
-        if (requiresAuthentication(request, response)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Request is to process authentication");
-            }
-
-            Authentication authResult;
-
-            try {
-                onPreAuthentication(request, response);
-                authResult = attemptAuthentication(request);
-            }
-            catch (AuthenticationException failed) {
-                // Authentication failed
-                unsuccessfulAuthentication(request, response, failed);
-
-                return;
-            }
-
-            // Authentication success
-            if (continueChainBeforeSuccessfulAuthentication) {
-                chain.doFilter(request, response);
-            }
-
-            successfulAuthentication(request, response, authResult);
+        if (!requiresAuthentication(request, response)) {
+            chain.doFilter(request, response);
 
             return;
         }
 
-        chain.doFilter(request, response);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Request is to process authentication");
+        }
+
+        Authentication authResult;
+
+        try {
+            onPreAuthentication(request, response);
+            authResult = attemptAuthentication(request);
+        }
+        catch (AuthenticationException failed) {
+            // Authentication failed
+            unsuccessfulAuthentication(request, response, failed);
+
+            return;
+        }
+
+        // Authentication success
+        if (continueChainBeforeSuccessfulAuthentication) {
+            chain.doFilter(request, response);
+        }
+
+        successfulAuthentication(request, response, authResult);
     }
 
     protected void onPreAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException {
-    }
-
-    protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-            Authentication authResult) throws IOException {
     }
 
     protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
@@ -326,35 +297,20 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         return uri.endsWith(request.getContextPath() + filterProcessesUrl);
     }
 
-    protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
-            throws IOException {
-
-        RedirectUtils.sendRedirect(request, response, url, useRelativeContext);
-    }
-
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
             Authentication authResult) throws IOException, ServletException {
+
         if (logger.isDebugEnabled()) {
-            logger.debug("Authentication success: " + authResult.toString());
+            logger.debug("Authentication success. Updating SecurityContextHolder to contain: " + authResult);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authResult);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Updated SecurityContextHolder to contain the following Authentication: '" + authResult + "'");
-        }
 
         if (invalidateSessionOnSuccessfulAuthentication) {
             SessionUtils.startNewSessionIfRequired(request, migrateInvalidatedSessionAttributes, sessionRegistry);
         }
 
-        String targetUrl = determineTargetUrl(request);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Redirecting to target URL from HTTP Session (or default): " + targetUrl);
-        }
-
-        onSuccessfulAuthentication(request, response, authResult);
+        successHandler.onAuthenticationSuccess(request, response, authResult);
 
         rememberMeServices.loginSuccess(request, response, authResult);
 
@@ -362,20 +318,6 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         if (this.eventPublisher != null) {
             eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
         }
-
-        sendRedirect(request, response, targetUrl);
-    }
-
-    protected String determineTargetUrl(HttpServletRequest request) {
-        // Don't attempt to obtain the url from the saved request if alwaysUsedefaultTargetUrl is set
-        String targetUrl = alwaysUseDefaultTargetUrl ? null :
-            targetUrlResolver.determineTargetUrl(request, SecurityContextHolder.getContext().getAuthentication());
-
-        if (targetUrl == null) {
-            targetUrl = getDefaultTargetUrl();
-        }
-
-        return targetUrl;
     }
 
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
@@ -411,7 +353,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         } else if (serverSideRedirect){
             request.getRequestDispatcher(failureUrl).forward(request, response);
         } else {
-            sendRedirect(request, response, failureUrl);
+            RedirectUtils.sendRedirect(request, response, failureUrl, useRelativeContext);
         }
     }
 
@@ -443,25 +385,6 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
      */
     public abstract String getDefaultFilterProcessesUrl();
 
-    /**
-     * Supplies the default target Url that will be used if no saved request is
-     * found or the <tt>alwaysUseDefaultTargetUrl</tt> propert is set to true.
-     * Override this method of you want to provide a customized default Url (for
-     * example if you want different Urls depending on the authorities of the
-     * user who has just logged in).
-     *
-     * @return the defaultTargetUrl property
-     */
-    public String getDefaultTargetUrl() {
-        return defaultTargetUrl;
-    }
-
-    public void setDefaultTargetUrl(String defaultTargetUrl) {
-        Assert.isTrue(defaultTargetUrl.startsWith("/") | defaultTargetUrl.startsWith("http"),
-                "defaultTarget must start with '/' or with 'http(s)'");
-        this.defaultTargetUrl = defaultTargetUrl;
-    }
-
     protected Properties getExceptionMappings() {
         return new Properties(exceptionMappings);
     }
@@ -484,14 +407,6 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     public void setRememberMeServices(RememberMeServices rememberMeServices) {
         this.rememberMeServices = rememberMeServices;
-    }
-
-    boolean isAlwaysUseDefaultTargetUrl() {
-        return alwaysUseDefaultTargetUrl;
-    }
-
-    public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
-        this.alwaysUseDefaultTargetUrl = alwaysUseDefaultTargetUrl;
     }
 
     public void setContinueChainBeforeSuccessfulAuthentication(boolean continueChainBeforeSuccessfulAuthentication) {
@@ -537,20 +452,6 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     }
 
     /**
-     * @return the targetUrlResolver
-     */
-    protected TargetUrlResolver getTargetUrlResolver() {
-        return targetUrlResolver;
-    }
-
-    /**
-     * @param targetUrlResolver the targetUrlResolver to set
-     */
-    public void setTargetUrlResolver(TargetUrlResolver targetUrlResolver) {
-        this.targetUrlResolver = targetUrlResolver;
-    }
-
-    /**
      * Tells if we are to do a server side include of the error URL instead of a 302 redirect.
      *
      * @param serverSideRedirect
@@ -565,5 +466,13 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
      */
     public void setSessionRegistry(SessionRegistry sessionRegistry) {
         this.sessionRegistry = sessionRegistry;
+    }
+
+    public void setSuccessHandler(AuthenticationSuccessHandler successHandler) {
+        this.successHandler = successHandler;
+    }
+
+    public void setFailureHandler(AuthenticationFailureHandler failureHandler) {
+        this.failureHandler = failureHandler;
     }
 }

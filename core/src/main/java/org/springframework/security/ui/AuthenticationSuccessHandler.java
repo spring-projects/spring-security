@@ -1,5 +1,8 @@
 package org.springframework.security.ui;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,6 +30,7 @@ public interface AuthenticationSuccessHandler {
      * @param response the response
      * @param authentication the <tt>Authentication</tt> object which was created during the authentication process.
      */
-    void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication);
+    void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException;
 
 }
