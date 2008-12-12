@@ -19,14 +19,13 @@ import org.springframework.util.Assert;
 
 
 /**
- * A <code>ThreadLocal</code>-based implementation of {@link
- * org.springframework.security.context.SecurityContextHolderStrategy}.
+ * A <code>ThreadLocal</code>-based implementation of {@link SecurityContextHolderStrategy}.
  *
  * @author Ben Alex
  * @version $Id$
  *
  * @see java.lang.ThreadLocal
- * @see org.springframework.security.context.HttpSessionContextIntegrationFilter
+ * @see org.springframework.security.context.SecurityContextPersistenceFilter
  */
 public class ThreadLocalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
     //~ Static fields/initializers =====================================================================================
@@ -50,5 +49,9 @@ public class ThreadLocalSecurityContextHolderStrategy implements SecurityContext
     public void setContext(SecurityContext context) {
         Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
         contextHolder.set(context);
+    }
+
+    public SecurityContext createEmptyContext() {
+        return new SecurityContextImpl();
     }
 }

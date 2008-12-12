@@ -61,9 +61,9 @@ public class SecurityContextPersistenceFilter extends SpringSecurityFilter {
         }
 
         HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        SecurityContext contextBeforeChainExecution = repo.loadContext(holder);
 
         try {
-            SecurityContext contextBeforeChainExecution = repo.loadContext(holder);
             SecurityContextHolder.setContext(contextBeforeChainExecution);
 
             chain.doFilter(holder.getRequest(), holder.getResponse());

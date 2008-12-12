@@ -19,9 +19,7 @@ package org.springframework.security.context;
  * A strategy for storing security context information against a thread.
  *
  * <p>
- * The preferred strategy is loaded by {@link
- * org.springframework.security.context.SecurityContextHolder}.
- * </p>
+ * The preferred strategy is loaded by {@link SecurityContextHolder}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -48,4 +46,12 @@ public interface SecurityContextHolderStrategy {
      *        <code>null</code> has been passed and throw an <code>IllegalArgumentException</code> in such cases)
      */
     void setContext(SecurityContext context);
+
+    /**
+     * Creates a new, empty context implementation, for use by <tt>SecurityContextRepository</tt> implementations,
+     * when creating a new context for the first time.
+     *
+     * @return the empty context.
+     */
+    SecurityContext createEmptyContext();
 }

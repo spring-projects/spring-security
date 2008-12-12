@@ -180,19 +180,26 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     }
 
     /**
-     * By default, returns an instance of {@link SecurityContextImpl}.
-     * If a custom <tt>SecurityContext</tt> implementation is in use (i.e. the <tt>securityContextClass</tt> property
-     * is set), it will attempt to invoke the no-args constructor on the supplied class instead and return the created
-     * instance.
+     * By default, calls {@link SecurityContextHolder#createEmptyContext()} to obtain a new context (there should be
+     * no context present in the holder when this method is called). Using this approach the context creation
+     * strategy is decided by the {@link SecurityContextHolderStrategy} in use. The default implementations
+     * will return a new <tt>SecurityContextImpl</tt>.
+     * <p>
+     * An alternative way of customizing the <tt>SecurityContext</tt> implementation is by setting the
+     * <tt>securityContextClass</tt> property. In this case, the method will attempt to invoke the no-args
+     * constructor on the supplied class instead and return the created instance.
      *
      * @return a new SecurityContext instance. Never null.
      */
     SecurityContext generateNewContext() {
+        SecurityContext context = null;
+
         if (securityContextClass == null) {
-            return new SecurityContextImpl();
+            context = SecurityContextHolder.createEmptyContext();
+
+            return context;
         }
 
-        SecurityContext context = null;
         try {
             context = securityContextClass.newInstance();
         } catch (Exception e) {

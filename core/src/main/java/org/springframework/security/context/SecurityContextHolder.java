@@ -135,6 +135,13 @@ public class SecurityContextHolder {
         initialize();
     }
 
+    /**
+     * Delegates the creation of a new, empty context to the configured strategy.
+     */
+    static SecurityContext createEmptyContext() {
+        return strategy.createEmptyContext();
+    }
+
     public String toString() {
         return "SecurityContextHolder[strategy='" + strategyName + "'; initializeCount=" + initializeCount + "]";
     }

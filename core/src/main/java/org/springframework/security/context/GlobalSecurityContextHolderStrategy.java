@@ -19,9 +19,10 @@ import org.springframework.util.Assert;
 
 
 /**
- * A <code>static</code> field-based implementation of {@link
- * org.springframework.security.context.SecurityContextHolderStrategy}.<p>This means that all instances in the JVM share the
- * same <code>SecurityContext</code>. This is generally useful with rich clients, such as Swing.</p>
+ * A <code>static</code> field-based implementation of {@link SecurityContextHolderStrategy}.
+ * <p>
+ * This means that all instances in the JVM share the
+ * same <code>SecurityContext</code>. This is generally useful with rich clients, such as Swing.
  *
  * @author Ben Alex
  * @version $Id$
@@ -48,5 +49,9 @@ public class GlobalSecurityContextHolderStrategy implements SecurityContextHolde
     public void setContext(SecurityContext context) {
         Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
         contextHolder = context;
+    }
+
+    public SecurityContext createEmptyContext() {
+        return new SecurityContextImpl();
     }
 }
