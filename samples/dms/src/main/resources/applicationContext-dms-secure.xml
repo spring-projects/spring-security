@@ -15,34 +15,34 @@
         <property name="username" value="sa"/>
         <property name="password" value=""/>
     </bean>
-	
-	<bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
-		<property name="transactionAttributeSource">
-			<value>
-				sample.dms.secured.SecureDocumentDao.*=PROPAGATION_REQUIRED
-				sample.dms.DocumentDao.*=PROPAGATION_REQUIRED
+
+    <bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+        <property name="transactionAttributeSource">
+            <value>
+                sample.dms.secured.SecureDocumentDao.*=PROPAGATION_REQUIRED
+                sample.dms.DocumentDao.*=PROPAGATION_REQUIRED
                 org.springframework.security.acls.AclService.*=PROPAGATION_REQUIRED
                 org.springframework.security.acls.MutableAclService.*=PROPAGATION_REQUIRED
                 org.springframework.security.acls.jdbc.JdbcMutableAclService.*=PROPAGATION_REQUIRED
                 org.springframework.security.acls.jdbc.JdbcAclService.*=PROPAGATION_REQUIRED
             </value>
-		</property>
-		<property name="transactionManager" ref="transactionManager" />
-	</bean>
+        </property>
+        <property name="transactionManager" ref="transactionManager" />
+    </bean>
 
-	<bean id="documentDao" class="sample.dms.secured.SecureDocumentDaoImpl">
-		<constructor-arg ref="aclService"/>
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
+    <bean id="documentDao" class="sample.dms.secured.SecureDocumentDaoImpl">
+        <constructor-arg ref="aclService"/>
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
-	<bean id="dataSourcePopulator" class="sample.dms.secured.SecureDataSourcePopulator">
-		<constructor-arg ref="dataSource"/>
-		<constructor-arg ref="documentDao"/>
-		<constructor-arg ref="transactionManager"/>
-		<constructor-arg ref="aclService"/>
-	</bean>
+    <bean id="dataSourcePopulator" class="sample.dms.secured.SecureDataSourcePopulator">
+        <constructor-arg ref="dataSource"/>
+        <constructor-arg ref="documentDao"/>
+        <constructor-arg ref="transactionManager"/>
+        <constructor-arg ref="aclService"/>
+    </bean>
 
-	<!-- ===================================  SECURITY DEFINITION BEANS ======================================== -->
+    <!-- ===================================  SECURITY DEFINITION BEANS ======================================== -->
 
    <!-- ======================== AUTHENTICATION (note there is no UI and this is for integration tests only) ======================= -->
 
@@ -64,7 +64,7 @@
       <property name="userDetailsService" ref="jdbcDaoImpl"/>
       <property name="userCache" ref="userCache"/>
       <property name="passwordEncoder">
-		<bean class="org.springframework.security.providers.encoding.Md5PasswordEncoder"/>
+        <bean class="org.springframework.security.providers.encoding.Md5PasswordEncoder"/>
       </property>
    </bean>
 
@@ -115,28 +115,28 @@
    <bean id="roleVoter" class="org.springframework.security.vote.RoleVoter"/>
 
    <!-- An access decision voter that reads ACL_ABSTRACT_ELEMENT_WRITE_PARENT configuration settings -->
-   <bean id="aclAbstractElementWriteParentVoter" class="org.springframework.security.vote.AclEntryVoter">
+   <bean id="aclAbstractElementWriteParentVoter" class="org.springframework.security.acls.vote.AclEntryVoter">
       <constructor-arg ref="aclService"/>
       <constructor-arg value="ACL_ABSTRACT_ELEMENT_WRITE_PARENT"/>
       <constructor-arg>
-      	<list>
+          <list>
           <ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
           <ref local="org.springframework.security.acls.domain.BasePermission.WRITE"/>
-      	</list>
+          </list>
       </constructor-arg>
-      <property name="processDomainObjectClass"><value>sample.dms.AbstractElement</value></property>
+      <property name="processDomainObjectClass" value="sample.dms.AbstractElement"/>
       <property name="internalMethod" value="getParent"/>
    </bean>
 
    <!-- An access decision voter that reads ACL_ABSTRACT_ELEMENT_WRITE configuration settings -->
-   <bean id="aclAbstractElementWriteVoter" class="org.springframework.security.vote.AclEntryVoter">
+   <bean id="aclAbstractElementWriteVoter" class="org.springframework.security.acls.vote.AclEntryVoter">
       <constructor-arg ref="aclService"/>
       <constructor-arg value="ACL_ABSTRACT_ELEMENT_WRITE"/>
       <constructor-arg>
-      	<list>
+          <list>
           <ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
           <ref local="org.springframework.security.acls.domain.BasePermission.WRITE"/>
-      	</list>
+          </list>
       </constructor-arg>
       <property name="processDomainObjectClass"><value>sample.dms.AbstractElement</value></property>
    </bean>
@@ -155,47 +155,47 @@
 
    <!-- ========= ACCESS CONTROL LIST LOOKUP MANAGER DEFINITIONS ========= -->
 
-	<bean id="aclCache" class="org.springframework.security.acls.jdbc.EhCacheBasedAclCache">
-		<constructor-arg>
-		   <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-		      <property name="cacheManager">
-				<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
-		      </property>
-		      <property name="cacheName" value="aclCache"/>
-		   </bean>
-		</constructor-arg>
-	</bean>
+    <bean id="aclCache" class="org.springframework.security.acls.jdbc.EhCacheBasedAclCache">
+        <constructor-arg>
+           <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+              <property name="cacheManager">
+                <bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+              </property>
+              <property name="cacheName" value="aclCache"/>
+           </bean>
+        </constructor-arg>
+    </bean>
 
-	<bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
-		<constructor-arg ref="dataSource"/>
-		<constructor-arg ref="aclCache"/>
-		<constructor-arg ref="aclAuthorizationStrategy"/>
-		<constructor-arg>
-			<bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
-		</constructor-arg>
-	</bean>
+    <bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
+        <constructor-arg ref="dataSource"/>
+        <constructor-arg ref="aclCache"/>
+        <constructor-arg ref="aclAuthorizationStrategy"/>
+        <constructor-arg>
+            <bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
+        </constructor-arg>
+    </bean>
 
-	<bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
-		<constructor-arg>
-			<list>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="ROLE_ADMINISTRATOR"/>
-				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="ROLE_ADMINISTRATOR"/>
-				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="ROLE_ADMINISTRATOR"/>
-				</bean>
-			</list>
-		</constructor-arg>
-	</bean>
+    <bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+        <constructor-arg>
+            <list>
+                <bean class="org.springframework.security.GrantedAuthorityImpl">
+                    <constructor-arg value="ROLE_ADMINISTRATOR"/>
+                </bean>
+                <bean class="org.springframework.security.GrantedAuthorityImpl">
+                    <constructor-arg value="ROLE_ADMINISTRATOR"/>
+                </bean>
+                <bean class="org.springframework.security.GrantedAuthorityImpl">
+                    <constructor-arg value="ROLE_ADMINISTRATOR"/>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
 
-	<bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
-		<constructor-arg ref="dataSource"/>
-		<constructor-arg ref="lookupStrategy"/>
-		<constructor-arg ref="aclCache"/>
-	</bean>
+    <bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
+        <constructor-arg ref="dataSource"/>
+        <constructor-arg ref="lookupStrategy"/>
+        <constructor-arg ref="aclCache"/>
+    </bean>
 
    <!-- ============== "AFTER INTERCEPTION" AUTHORIZATION DEFINITIONS =========== -->
 
@@ -208,19 +208,19 @@
    </bean>
 
    <!-- Processes AFTER_ACL_COLLECTION_READ configuration settings -->
-   <bean id="afterAclCollectionRead" class="org.springframework.security.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider">
+   <bean id="afterAclCollectionRead" class="org.springframework.security.acls.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider">
       <constructor-arg ref="aclService"/>
       <constructor-arg>
-      	<list>
+          <list>
           <ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
           <ref local="org.springframework.security.acls.domain.BasePermission.READ"/>
-      	</list>
+          </list>
       </constructor-arg>
    </bean>
 
    <!-- ================= METHOD INVOCATION AUTHORIZATION ==================== -->
 
-	<bean id="methodSecurityAdvisor" class="org.springframework.security.intercept.method.aopalliance.MethodDefinitionSourceAdvisor" autowire="constructor"/>
+    <bean id="methodSecurityAdvisor" class="org.springframework.security.intercept.method.aopalliance.MethodDefinitionSourceAdvisor" autowire="constructor"/>
 
    <bean id="methodSecurityInterceptor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
       <property name="authenticationManager"><ref bean="authenticationManager"/></property>
