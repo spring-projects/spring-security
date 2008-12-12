@@ -165,7 +165,6 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope(searchControls.getSearchScope());
         ctls.setReturningAttributes(new String[] {attributeName});
-        ctls.setReturningObjFlag(false);
 
         search(base, formattedFilter, ctls, roleMapper);
 
