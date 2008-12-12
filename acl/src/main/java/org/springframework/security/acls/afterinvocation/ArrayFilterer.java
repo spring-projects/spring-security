@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.afterinvocation;
+package org.springframework.security.acls.afterinvocation;
 
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.logging.Log;
@@ -33,41 +33,41 @@ import java.util.Set;
  * @author Paulo Neves
  * @version $Id$
  */
-class ArrayFilterer implements Filterer {
+class ArrayFilterer<T> implements Filterer<T> {
     //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(ArrayFilterer.class);
 
     //~ Instance fields ================================================================================================
 
-    private Set<Object> removeList;
-    private Object[] list;
+    private Set<T> removeList;
+    private T[] list;
 
     //~ Constructors ===================================================================================================
 
-    ArrayFilterer(Object[] list) {
+    ArrayFilterer(T[] list) {
         this.list = list;
 
         // Collect the removed objects to a HashSet so that
         // it is fast to lookup them when a filtered array
         // is constructed.
-        removeList = new HashSet<Object>();
+        removeList = new HashSet<T>();
     }
 
     //~ Methods ========================================================================================================
 
     /**
      *
-     * @see org.springframework.security.afterinvocation.Filterer#getFilteredObject()
+     * @see org.springframework.security.acls.afterinvocation.Filterer#getFilteredObject()
      */
-    public Object getFilteredObject() {
+    public T[] getFilteredObject() {
         // Recreate an array of same type and filter the removed objects.
         int originalSize = list.length;
         int sizeOfResultingList = originalSize - removeList.size();
-        Object[] filtered = (Object[]) Array.newInstance(list.getClass().getComponentType(), sizeOfResultingList);
+        T[] filtered = (T[]) Array.newInstance(list.getClass().getComponentType(), sizeOfResultingList);
 
         for (int i = 0, j = 0; i < list.length; i++) {
-            Object object = list[i];
+            T object = list[i];
 
             if (!removeList.contains(object)) {
                 filtered[j] = object;
@@ -85,17 +85,17 @@ class ArrayFilterer implements Filterer {
 
     /**
      *
-     * @see org.springframework.security.afterinvocation.Filterer#iterator()
+     * @see org.springframework.security.acls.afterinvocation.Filterer#iterator()
      */
-    public Iterator<?> iterator() {
+    public Iterator<T> iterator() {
         return new ArrayIterator(list);
     }
 
     /**
      *
-     * @see org.springframework.security.afterinvocation.Filterer#remove(java.lang.Object)
+     * @see org.springframework.security.acls.afterinvocation.Filterer#remove(java.lang.Object)
      */
-    public void remove(Object object) {
+    public void remove(T object) {
         removeList.add(object);
     }
 }

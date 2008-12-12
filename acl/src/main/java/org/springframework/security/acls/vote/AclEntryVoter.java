@@ -12,13 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.vote;
+package org.springframework.security.acls.vote;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthorizationServiceException;
 import org.springframework.security.ConfigAttribute;
@@ -32,8 +33,7 @@ import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalS
 import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.acls.sid.SidRetrievalStrategy;
 import org.springframework.security.acls.sid.SidRetrievalStrategyImpl;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.springframework.security.vote.AbstractAclVoter;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -167,7 +167,7 @@ public class AclEntryVoter extends AbstractAclVoter {
                     logger.debug("Voting to abstain - domainObject is null");
                 }
 
-                return AccessDecisionVoter.ACCESS_ABSTAIN;
+                return ACCESS_ABSTAIN;
             }
 
             // Evaluate if we are required to use an inner domain object
@@ -208,7 +208,7 @@ public class AclEntryVoter extends AbstractAclVoter {
                     logger.debug("Voting to deny access - no ACLs apply for this principal");
                 }
 
-                return AccessDecisionVoter.ACCESS_DENIED;
+                return ACCESS_DENIED;
             }
 
             try {
@@ -217,25 +217,25 @@ public class AclEntryVoter extends AbstractAclVoter {
                         logger.debug("Voting to grant access");
                     }
 
-                    return AccessDecisionVoter.ACCESS_GRANTED;
+                    return ACCESS_GRANTED;
                 } else {
                     if (logger.isDebugEnabled()) {
                         logger.debug(
                             "Voting to deny access - ACLs returned, but insufficient permissions for this principal");
                     }
 
-                    return AccessDecisionVoter.ACCESS_DENIED;
+                    return ACCESS_DENIED;
                 }
             } catch (NotFoundException nfe) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Voting to deny access - no ACLs apply for this principal");
                 }
 
-                return AccessDecisionVoter.ACCESS_DENIED;
+                return ACCESS_DENIED;
             }
         }
 
         // No configuration attribute matched, so abstain
-        return AccessDecisionVoter.ACCESS_ABSTAIN;
+        return ACCESS_ABSTAIN;
     }
 }

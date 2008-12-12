@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.MockJoinPoint;
-import org.springframework.security.TargetObject;
 import org.springframework.security.util.MethodInvocationUtils;
 
 /**

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.afterinvocation;
+package org.springframework.security.acls.afterinvocation;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -84,11 +84,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
             return null;
         }
 
-        Iterator iter = config.iterator();
-
-        while (iter.hasNext()) {
-            ConfigAttribute attr = (ConfigAttribute) iter.next();
-
+        for (ConfigAttribute attr : config) {
             if (!this.supports(attr)) {
                 continue;
             }
@@ -97,7 +93,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
             Filterer filterer;
 
             if (returnedObject instanceof Collection) {
-                filterer = new CollectionFilterer((Collection) returnedObject);
+                filterer = new CollectionFilterer((Collection<?>) returnedObject);
             } else if (returnedObject.getClass().isArray()) {
                 filterer = new ArrayFilterer((Object[]) returnedObject);
             } else {
@@ -108,8 +104,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
             // Locate unauthorised Collection elements
             Iterator collectionIter = filterer.iterator();
 
-            while (collectionIter.hasNext()) {
-                Object domainObject = collectionIter.next();
+            for (Object domainObject : filterer) {
 
                 // Ignore nulls or entries which aren't instances of the configured domain object class
                 if (domainObject == null || !getProcessDomainObjectClass().isAssignableFrom(domainObject.getClass())) {

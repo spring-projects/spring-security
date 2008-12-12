@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.afterinvocation;
+package org.springframework.security.acls.afterinvocation;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
@@ -29,6 +29,7 @@ import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalS
 import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.acls.sid.SidRetrievalStrategy;
 import org.springframework.security.acls.sid.SidRetrievalStrategyImpl;
+import org.springframework.security.afterinvocation.AfterInvocationProvider;
 
 import org.springframework.util.Assert;
 

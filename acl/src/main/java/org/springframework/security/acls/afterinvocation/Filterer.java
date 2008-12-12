@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.afterinvocation;
+package org.springframework.security.acls.afterinvocation;
 
 import java.util.Iterator;
 
@@ -25,7 +25,7 @@ import java.util.Iterator;
  * @author Paulo Neves
  * @version $Id$
  */
-interface Filterer {
+interface Filterer<T> extends Iterable<T> {
     //~ Methods ========================================================================================================
 
     /**
@@ -40,12 +40,12 @@ interface Filterer {
      *
      * @return an Iterator
      */
-    Iterator<?> iterator();
+    Iterator<T> iterator();
 
     /**
      * Removes the the given object from the resulting list.
      *
      * @param object the object to be removed
      */
-    void remove(Object object);
+    void remove(T object);
 }
