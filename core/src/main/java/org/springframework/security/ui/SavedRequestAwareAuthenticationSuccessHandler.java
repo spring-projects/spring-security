@@ -74,10 +74,6 @@ public class SavedRequestAwareAuthenticationSuccessHandler implements Authentica
      */
     private boolean alwaysUseDefaultTargetUrl = false;
 
-    /**
-     * If true, causes any redirection URLs to be calculated minus the protocol
-     * and context path (defaults to false).
-     */
     private boolean useRelativeContext = false;
 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -213,7 +209,11 @@ public class SavedRequestAwareAuthenticationSuccessHandler implements Authentica
         this.targetUrlParameter = targetUrlParameter;
     }
 
-    void setUseRelativeContext(boolean useRelativeContext) {
+    /**
+     * If <tt>true</tt>, causes any redirection URLs to be calculated minus the protocol
+     * and context path (defaults to <tt>false</tt>).
+     */
+    public void setUseRelativeContext(boolean useRelativeContext) {
         this.useRelativeContext = useRelativeContext;
     }
 }

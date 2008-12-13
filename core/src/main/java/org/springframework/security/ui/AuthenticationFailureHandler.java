@@ -1,5 +1,8 @@
 package org.springframework.security.ui;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,5 +29,6 @@ public interface AuthenticationFailureHandler {
      * @param response the response.
      * @param exception the exception which was thrown to reject the authentication request.
      */
-    void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception);
+    void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException exception) throws IOException, ServletException;
 }
