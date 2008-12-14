@@ -18,6 +18,7 @@ package org.springframework.security.ui.webapp;
 import org.springframework.security.AuthenticationException;
 
 import org.springframework.security.ui.AuthenticationEntryPoint;
+import org.springframework.security.ui.ExceptionTranslationFilter;
 
 import org.springframework.security.util.PortMapper;
 import org.springframework.security.util.PortMapperImpl;
@@ -42,8 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * <p>
- * Used by the <code>SecurityEnforcementFilter</code> to commence
+ * Used by the {@link ExceptionTranslationFilter} to commence a form login
  * authentication via the {@link AuthenticationProcessingFilter}. This object
  * holds the location of the login form, relative to the web app context path,
  * and is used to commence a redirect to that form.
@@ -76,7 +76,7 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
 
     private boolean forceHttps = false;
 
-    private boolean serverSideRedirect = false;
+    private boolean useForward = false;
 
     //~ Methods ========================================================================================================
 
@@ -112,7 +112,7 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
 
         String redirectUrl = null;
 
-        if (serverSideRedirect) {
+        if (useForward) {
 
             if (forceHttps && "http".equals(request.getScheme())) {
                 redirectUrl = buildHttpsRedirectUrlForRequest(httpRequest);
@@ -243,15 +243,16 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
     }
 
     /**
-     * Tells if we are to do a server side include of the <code>loginFormUrl</code> instead of a 302 redirect.
+     * Tells if we are to do a forward to the <code>loginFormUrl</code> using the <tt>RequestDispatcher</tt>,
+     * instead of a 302 redirect.
      *
-     * @param serverSideRedirect
+     * @param useForward
      */
-    public void setServerSideRedirect(boolean serverSideRedirect) {
-        this.serverSideRedirect = serverSideRedirect;
+    public void setUseForward(boolean useForward) {
+        this.useForward = useForward;
     }
 
-    protected boolean isServerSideRedirect() {
-        return serverSideRedirect;
+    protected boolean isUseForward() {
+        return useForward;
     }
 }

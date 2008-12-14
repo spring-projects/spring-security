@@ -215,7 +215,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     public void testServerSideRedirectWithoutForceHttpsForwardsToLoginPage() throws Exception {
         AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
         ep.setLoginFormUrl("/hello");
-        ep.setServerSideRedirect(true);
+        ep.setUseForward(true);
         ep.afterPropertiesSet();
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/bigWebApp/some_path");
@@ -235,7 +235,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     public void testServerSideRedirectWithForceHttpsRedirectsCurrentRequest() throws Exception {
         AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
         ep.setLoginFormUrl("/hello");
-        ep.setServerSideRedirect(true);
+        ep.setUseForward(true);
         ep.setForceHttps(true);
         ep.afterPropertiesSet();
         MockHttpServletRequest request = new MockHttpServletRequest();
