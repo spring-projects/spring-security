@@ -511,7 +511,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
         filter.setSuccessHandler(successHandler);
         filter.setFailureHandler(failureHandler);
-        failureHandler.setForwardToDestination(true);
+        failureHandler.setUseForward(true);
         failureHandler.setDefaultFailureUrl("/error");
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);

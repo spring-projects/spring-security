@@ -27,10 +27,6 @@ import org.springframework.util.Assert;
 public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFailureHandler {
     private String defaultFailureUrl;
     private boolean forwardToDestination = false;
-    /**
-     * If true, causes any redirection URLs to be calculated minus the protocol
-     * and context path (defaults to false).
-     */
     private boolean useRelativeContext = false;
 
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
@@ -56,7 +52,7 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
         this.defaultFailureUrl = defaultFailureUrl;
     }
 
-    protected boolean isForwardToDestination() {
+    protected boolean isUseForward() {
         return forwardToDestination;
     }
 
@@ -64,7 +60,7 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
      * If set to <tt>true</tt>, performs a forward to the failure destination URL instead of a redirect. Defaults to
      * <tt>false</tt>.
      */
-    public void setForwardToDestination(boolean forwardToDestination) {
+    public void setUseForward(boolean forwardToDestination) {
         this.forwardToDestination = forwardToDestination;
     }
 
