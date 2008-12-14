@@ -24,6 +24,7 @@ import org.springframework.security.util.PortMapperImpl;
 import org.springframework.security.util.PortResolver;
 import org.springframework.security.util.PortResolverImpl;
 import org.springframework.security.util.RedirectUrlBuilder;
+import org.springframework.security.util.UrlUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
@@ -79,7 +81,8 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(loginFormUrl, "loginFormUrl must be specified");
+        Assert.isTrue(StringUtils.hasText(loginFormUrl) && UrlUtils.isValidRedirectUrl(loginFormUrl),
+                "loginFormUrl must be specified and must be a valid redirect URL");
         Assert.notNull(portMapper, "portMapper must be specified");
         Assert.notNull(portResolver, "portResolver must be specified");
     }
@@ -117,7 +120,7 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
 
             if (redirectUrl == null) {
                 String loginForm = determineUrlToUseForThisRequest(httpRequest, httpResponse, authException);
-                
+
                 if (logger.isDebugEnabled()) {
                     logger.debug("Server side forward to: " + loginForm);
                 }
@@ -246,7 +249,7 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
      */
     public void setServerSideRedirect(boolean serverSideRedirect) {
         this.serverSideRedirect = serverSideRedirect;
-	}
+    }
 
     protected boolean isServerSideRedirect() {
         return serverSideRedirect;

@@ -29,16 +29,6 @@ public class OpenIDAuthenticationProcessingFilterTests extends TestCase {
         filter.afterPropertiesSet();
     }
 
-    public void testNoIdentityCausesException() throws Exception {
-        try {
-            MockHttpServletRequest req = new MockHttpServletRequest();
-            filter.attemptAuthentication(req);
-            fail("OpenIDAuthenticationRequiredException expected, no openid.identity parameter");
-        } catch (OpenIDAuthenticationRequiredException e) {
-            //cool
-        }
-    }
-
     public void testFilterOperation() throws Exception {
         MockHttpServletRequest req = new MockHttpServletRequest("GET", REQUEST_PATH);
         MockHttpServletResponse response = new MockHttpServletResponse();

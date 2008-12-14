@@ -2,11 +2,14 @@ package org.springframework.security.ui;
 
 import java.io.IOException;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.util.RedirectUtils;
+import org.springframework.security.util.UrlUtils;
+import org.springframework.util.Assert;
 
 /**
  * <tt>AuthenticationFailureHandler</tt> which performs a redirect to the value of the {@link #setDefaultFailureUrl
@@ -31,11 +34,15 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
     private boolean useRelativeContext = false;
 
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException exception) throws IOException {
+            AuthenticationException exception) throws IOException, ServletException {
         if (defaultFailureUrl == null) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication Failed:" + exception.getMessage());
         } else {
-            RedirectUtils.sendRedirect(request, response, defaultFailureUrl, useRelativeContext);
+            if (forwardToDestination) {
+                request.getRequestDispatcher(defaultFailureUrl).forward(request, response);
+            } else {
+                RedirectUtils.sendRedirect(request, response, defaultFailureUrl, useRelativeContext);
+            }
         }
     }
 
@@ -44,7 +51,8 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
      *
      * @param defaultFailureUrl the failure URL, for example "/loginFailed.jsp".
      */
-    public void setDefaultTargetUrl(String defaultFailureUrl) {
+    public void setDefaultFailureUrl(String defaultFailureUrl) {
+        Assert.isTrue(UrlUtils.isValidRedirectUrl(defaultFailureUrl));
         this.defaultFailureUrl = defaultFailureUrl;
     }
 

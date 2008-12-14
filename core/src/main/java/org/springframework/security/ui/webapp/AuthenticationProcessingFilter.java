@@ -26,6 +26,7 @@ import org.springframework.security.util.TextUtils;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 
@@ -53,7 +54,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
 
     //~ Methods ========================================================================================================
 
-    public Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String username = obtainUsername(request);
         String password = obtainPassword(request);
 

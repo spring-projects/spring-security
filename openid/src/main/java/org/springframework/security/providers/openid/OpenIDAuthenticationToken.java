@@ -15,18 +15,16 @@
 package org.springframework.security.providers.openid;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.security.GrantedAuthority;
-
 import org.springframework.security.providers.AbstractAuthenticationToken;
-
 
 /**
  * OpenID Authentication Token
  *
- * @author Robin Bramley, Opsera Ltd
+ * @author Robin Bramley
+ * @version $Id$
  */
 public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================
@@ -60,7 +58,8 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 
     //~ Methods ========================================================================================================
 
-    /* (non-Javadoc)
+    /**
+     * Returns 'null' always, as no credentials are processed by the OpenID provider.
      * @see org.springframework.security.Authentication#getCredentials()
      */
     public Object getCredentials() {
@@ -75,7 +74,8 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
         return message;
     }
 
-    /* (non-Javadoc)
+    /**
+     * Returns the <tt>identityUrl</tt> value.
      * @see org.springframework.security.Authentication#getPrincipal()
      */
     public Object getPrincipal() {

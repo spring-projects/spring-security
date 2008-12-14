@@ -15,12 +15,10 @@
 
 package org.springframework.security.util;
 
-import org.springframework.security.intercept.web.FilterInvocation;
-
-import org.springframework.security.ui.savedrequest.SavedRequest;
-import org.springframework.util.StringUtils;
-
 import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.security.intercept.web.FilterInvocation;
+import org.springframework.security.ui.savedrequest.SavedRequest;
 
 
 /**
@@ -102,8 +100,11 @@ public final class UrlUtils {
         return buildRequestUrl(sr.getServletPath(), sr.getRequestURI(), sr.getContextPath(), sr.getPathInfo(),
             sr.getQueryString());
     }
-    
+
+    /**
+     * Returns true if the supplied URL starts with a "/" or "http".
+     */
     public static boolean isValidRedirectUrl(String url) {
-    	return !StringUtils.hasText(url) || url.startsWith("/") || url.toLowerCase().startsWith("http");
+        return url.startsWith("/") || url.toLowerCase().startsWith("http");
     }
 }

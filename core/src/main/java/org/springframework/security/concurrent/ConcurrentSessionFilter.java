@@ -24,6 +24,7 @@ import org.springframework.security.ui.logout.SecurityContextLogoutHandler;
 import org.springframework.security.util.UrlUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -61,7 +62,8 @@ public class ConcurrentSessionFilter extends SpringSecurityFilter implements Ini
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(sessionRegistry, "SessionRegistry required");
-        Assert.isTrue(UrlUtils.isValidRedirectUrl(expiredUrl), expiredUrl + " isn't a valid redirect URL");
+        Assert.isTrue(expiredUrl == null || UrlUtils.isValidRedirectUrl(expiredUrl),
+                expiredUrl + " isn't a valid redirect URL");
     }
 
     public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -120,7 +122,7 @@ public class ConcurrentSessionFilter extends SpringSecurityFilter implements Ini
     }
 
     public void setLogoutHandlers(LogoutHandler[] handlers) {
-        Assert.notNull(handlers);        
+        Assert.notNull(handlers);
         this.handlers = handlers;
     }
 

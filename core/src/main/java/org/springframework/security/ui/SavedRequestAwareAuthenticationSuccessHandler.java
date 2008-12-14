@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.ui.savedrequest.SavedRequest;
 import org.springframework.security.util.RedirectUtils;
+import org.springframework.security.util.UrlUtils;
 import org.springframework.security.wrapper.SavedRequestAwareWrapper;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -163,7 +164,7 @@ public class SavedRequestAwareAuthenticationSuccessHandler implements Authentica
      * @param defaultTargetUrl
      */
     public void setDefaultTargetUrl(String defaultTargetUrl) {
-        Assert.isTrue(defaultTargetUrl.startsWith("/") | defaultTargetUrl.startsWith("http"),
+        Assert.isTrue(UrlUtils.isValidRedirectUrl(defaultTargetUrl),
                 "defaultTarget must start with '/' or with 'http(s)'");
         this.defaultTargetUrl = defaultTargetUrl;
     }

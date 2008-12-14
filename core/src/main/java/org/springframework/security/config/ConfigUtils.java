@@ -157,7 +157,7 @@ abstract class ConfigUtils {
      * If not empty or starting with "$" (potential placeholder), "/" or "http" it will raise an error.
      */
     static void validateHttpRedirect(String url, ParserContext pc, Object source) {
-        if (UrlUtils.isValidRedirectUrl(url) || url.startsWith("$")) {
+        if (!StringUtils.hasText(url) || UrlUtils.isValidRedirectUrl(url) || url.startsWith("$")) {
             return;
         }
         pc.getReaderContext().warning(url + " is not a valid redirect URL (must start with '/' or http(s))", source);

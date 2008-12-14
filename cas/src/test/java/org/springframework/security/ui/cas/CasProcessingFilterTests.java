@@ -22,6 +22,7 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.MockAuthenticationManager;
 
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -31,25 +32,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * @version $Id$
  */
 public class CasProcessingFilterTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public CasProcessingFilterTests() {
-        super();
-    }
-
-    public CasProcessingFilterTests(String arg0) {
-        super(arg0);
-    }
-
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CasProcessingFilterTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testGetters() {
         CasProcessingFilter filter = new CasProcessingFilter();
@@ -66,7 +49,7 @@ public class CasProcessingFilterTests extends TestCase {
         filter.setAuthenticationManager(authMgr);
         filter.init(null);
 
-        Authentication result = filter.attemptAuthentication(request);
+        Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
         assertTrue(result != null);
     }
 
@@ -81,7 +64,7 @@ public class CasProcessingFilterTests extends TestCase {
         filter.init(null);
 
         try {
-            filter.attemptAuthentication(request);
+            filter.attemptAuthentication(request, new MockHttpServletResponse());
             fail("Should have thrown AuthenticationException");
         } catch (AuthenticationException expected) {
             assertTrue(true);

@@ -78,7 +78,7 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
     private ProxyGrantingTicketStorage proxyGrantingTicketStorage;
 
     //~ Methods ========================================================================================================  
-    public Authentication attemptAuthentication(final HttpServletRequest request)
+    public Authentication attemptAuthentication(final HttpServletRequest request, HttpServletResponse response)
         throws AuthenticationException {
         final String username = CAS_STATEFUL_IDENTIFIER;
         String password = request.getParameter("ticket");

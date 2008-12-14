@@ -3,6 +3,7 @@ package org.springframework.security.ui.webapp;
 import static org.junit.Assert.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -38,7 +39,7 @@ public class DefaultLoginPageGeneratingFilterTests {
     private static class MockProcessingFilter extends AbstractProcessingFilter {
 
         @Override
-        public Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException {
+        public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
             return null;
         }
 

@@ -47,7 +47,6 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
             ep.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("loginFormUrl must be specified", expected.getMessage());
         }
     }
 
@@ -60,7 +59,6 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
             ep.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("portMapper must be specified", expected.getMessage());
         }
     }
 
@@ -73,7 +71,6 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
             ep.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("portResolver must be specified", expected.getMessage());
         }
     }
 
@@ -126,7 +123,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         assertEquals("https://www.example.com:8443/bigWebApp/hello", response.getRedirectedUrl());
 
         PortMapperImpl portMapper = new PortMapperImpl();
-        Map map = new HashMap();
+        Map<String,String> map = new HashMap<String,String>();
         map.put("8888", "9999");
         portMapper.setPortMappings(map);
         response = new MockHttpServletResponse();

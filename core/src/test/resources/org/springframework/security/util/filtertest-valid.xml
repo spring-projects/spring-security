@@ -32,7 +32,6 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     <bean id="sif" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
 
     <bean id="apf" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
-        <property name="authenticationFailureUrl" value="/whocares2"/>
        <property name="authenticationManager">
            <bean class="org.springframework.security.MockAuthenticationManager"/>
        </property>

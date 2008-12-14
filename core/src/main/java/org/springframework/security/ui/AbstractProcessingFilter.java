@@ -19,7 +19,6 @@ import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
-import org.springframework.security.util.RedirectUtils;
 import org.springframework.security.util.SessionUtils;
 import org.springframework.security.util.UrlUtils;
 
@@ -43,8 +42,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
-
-import java.util.Properties;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -128,23 +125,15 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     //~ Instance fields ================================================================================================
 
     protected ApplicationEventPublisher eventPublisher;
-
     protected AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
-
     private AuthenticationManager authenticationManager;
-
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-    private Properties exceptionMappings = new Properties();
-
-    /**
+    /*
      * Delay use of NullRememberMeServices until initialization so that namespace has a chance to inject
      * the RememberMeServices implementation into custom implementations.
      */
     private RememberMeServices rememberMeServices = null;
-
-    /** Where to redirect the browser to if authentication fails */
-    private String authenticationFailureUrl;
 
     /**
      * The URL destination that this filter intercepts and processes (usually
@@ -152,20 +141,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
      */
     private String filterProcessesUrl = getDefaultFilterProcessesUrl();
 
-    /**
-     * Indicates if the filter chain should be continued prior to delegation to
-     * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse,
-     * Authentication)}, which may be useful in certain environment (eg
-     * Tapestry). Defaults to <code>false</code>.
-     */
     private boolean continueChainBeforeSuccessfulAuthentication = false;
-
-    /**
-     * If true, causes any redirection URLs to be calculated minus the protocol
-     * and context path (defaults to false).
-     */
-    protected boolean useRelativeContext = false;
-
 
     /**
      * Tells if we on successful authentication should invalidate the
@@ -185,19 +161,16 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     private boolean allowSessionCreation = true;
 
-    private boolean serverSideRedirect = false;
-
     private SessionRegistry sessionRegistry;
 
     private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-    private AuthenticationFailureHandler failureHandler = null;
+    private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
         Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");
-        Assert.isTrue(UrlUtils.isValidRedirectUrl(authenticationFailureUrl), authenticationFailureUrl + " isn't a valid redirect URL");
         Assert.notNull(authenticationManager, "authenticationManager must be specified");
 
         if (rememberMeServices == null) {
@@ -206,19 +179,26 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     }
 
     /**
-     * Performs actual authentication.
-     *
-     * @param request from which to extract parameters and perform the
-     * authentication
-     *
-     * @return the authenticated user
-     *
-     * @throws AuthenticationException if authentication fails
+     * Invokes the {@link #requiresAuthentication(HttpServletRequest, HttpServletResponse) requiresAuthentication}
+     * method to determine whether the request is for authentication and should be handled by this filter.
+     * If it is an authentication request, the
+     * {@link #attemptAuthentication(HttpServletRequest, HttpServletResponse) attemptAuthentication} will be invoked
+     * to perform the authentication. There are then three possible outcomes:
+     * <ol>
+     * <li>An <tt>Authentication</tt> object is returned.
+     * The {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, Authentication)
+     * successfulAuthentication} method will be invoked</li>
+     * <li>An <tt>AuthenticationException</tt> occurs during authentication.
+     * The {@link #unSuccessfulAuthentication(HttpServletRequest, HttpServletResponse, Authentication)
+     * unSuccessfulAuthentication} method will be invoked</li>
+     * <li>Null is returned, indicating that the authentication process is incomplete.
+     * The method will then return immediately, assuming that the subclass has done any necessary work (such as
+     * redirects) to continue the authentication process. The assumption is that a later request will be received
+     * by this method where the returned <tt>Authentication</tt> object is not null.
+     * </ol>
      */
-    public abstract Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException;
-
-    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException,
-            ServletException {
+    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
 
         if (!requiresAuthentication(request, response)) {
             chain.doFilter(request, response);
@@ -233,8 +213,11 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         Authentication authResult;
 
         try {
-            onPreAuthentication(request, response);
-            authResult = attemptAuthentication(request);
+            authResult = attemptAuthentication(request, response);
+            if (authResult == null) {
+                // return immediately as subclass has indicated that it hasn't completed authentication
+                return;
+            }
         }
         catch (AuthenticationException failed) {
             // Authentication failed
@@ -251,35 +234,17 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         successfulAuthentication(request, response, authResult);
     }
 
-    protected void onPreAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException, IOException {
-    }
-
-    protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException failed) throws IOException {
-    }
-
     /**
-     * <p>
-     * Indicates whether this filter should attempt to process a login request
-     * for the current invocation.
-     * </p>
+     * Indicates whether this filter should attempt to process a login request for the current invocation.
      * <p>
      * It strips any parameters from the "path" section of the request URL (such
      * as the jsessionid parameter in
      * <em>http://host/myapp/index.html;jsessionid=blah</em>) before matching
      * against the <code>filterProcessesUrl</code> property.
-     * </p>
      * <p>
-     * Subclasses may override for special requirements, such as Tapestry
-     * integration.
-     * </p>
+     * Subclasses may override for special requirements, such as Tapestry integration.
      *
-     * @param request as received from the filter chain
-     * @param response as received from the filter chain
-     *
-     * @return <code>true</code> if the filter should attempt authentication,
-     * <code>false</code> otherwise
+     * @return <code>true</code> if the filter should attempt authentication, <code>false</code> otherwise.
      */
     protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
         String uri = request.getRequestURI();
@@ -297,6 +262,41 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         return uri.endsWith(request.getContextPath() + filterProcessesUrl);
     }
 
+    /**
+     * Performs actual authentication.
+     * <p>
+     * The implementation should do one of the following:
+     * <ol>
+     * <li>Return a populated authentication token for the authenticated user, indicating successful authentication</li>
+     * <li>Return null, indicating that the authentication process is still in progress. Before returning, the
+     * implementation should perform any additional work required to complete the process.</li>
+     * <li>Throw an <tt>AuthenticationException</tt> if the authentication process fails</li>
+     * </ol>
+     *
+     * @param request   from which to extract parameters and perform the authentication
+     * @param response  the response, which may be needed if the implementation has to do a redirect as part of a
+     *                  multi-stage authentication process (such as OpenID).
+     *
+     * @return the authenticated user token, or null if authentication is incomplete.
+     *
+     * @throws AuthenticationException if authentication fails.
+     */
+    public abstract Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException, IOException, ServletException;
+
+    /**
+     * Default behaviour for successful authentication.
+     * <ol>
+     * <li>Sets the successful <tt>Authentication</tt> object on the {@link SecurityContextHolder}</li>
+     * <li>Performs any configured session migration behaviour</li>
+     * <li>Informs the configured <tt>RememberMeServices</tt> of the successul login</li>
+     * <li>Fires an {@link InteractiveAuthenticationSuccessEvent} via the configured
+     * <tt>ApplicationEventPublisher</tt></li>
+     * <li>Delegates additional behaviour to the {@link AuthenticationSuccessHandler}.</li>
+     * </ol>
+     *
+     * @param authResult the object returned from the <tt>attemptAuthentication</tt> method.
+     */
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
             Authentication authResult) throws IOException, ServletException {
 
@@ -310,14 +310,14 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
             SessionUtils.startNewSessionIfRequired(request, migrateInvalidatedSessionAttributes, sessionRegistry);
         }
 
-        successHandler.onAuthenticationSuccess(request, response, authResult);
-
         rememberMeServices.loginSuccess(request, response, authResult);
 
         // Fire event
         if (this.eventPublisher != null) {
             eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
         }
+
+        successHandler.onAuthenticationSuccess(request, response, authResult);
     }
 
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
@@ -325,13 +325,9 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         SecurityContextHolder.getContext().setAuthentication(null);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Updated SecurityContextHolder to contain null Authentication");
-        }
-
-        String failureUrl = determineFailureUrl(request, failed);
-
-        if (logger.isDebugEnabled()) {
             logger.debug("Authentication request failed: " + failed.toString());
+            logger.debug("Updated SecurityContextHolder to contain null Authentication");
+            logger.debug("Delegating to authentication failure handler" + failureHandler);
         }
 
         try {
@@ -344,29 +340,9 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         catch (Exception ignored) {
         }
 
-        onUnsuccessfulAuthentication(request, response, failed);
-
         rememberMeServices.loginFail(request, response);
 
-        if (failureUrl == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication Failed:" + failed.getMessage());
-        } else if (serverSideRedirect){
-            request.getRequestDispatcher(failureUrl).forward(request, response);
-        } else {
-            RedirectUtils.sendRedirect(request, response, failureUrl, useRelativeContext);
-        }
-    }
-
-    protected String determineFailureUrl(HttpServletRequest request, AuthenticationException failed) {
-        return exceptionMappings.getProperty(failed.getClass().getName(), authenticationFailureUrl);
-    }
-
-    public String getAuthenticationFailureUrl() {
-        return authenticationFailureUrl;
-    }
-
-    public void setAuthenticationFailureUrl(String authenticationFailureUrl) {
-        this.authenticationFailureUrl = authenticationFailureUrl;
+        failureHandler.onAuthenticationFailure(request, response, failed);
     }
 
     protected AuthenticationManager getAuthenticationManager() {
@@ -378,20 +354,11 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     }
 
     /**
-     * Specifies the default <code>filterProcessesUrl</code> for the
-     * implementation.
+     * Specifies the default <code>filterProcessesUrl</code> for the implementation.
      *
      * @return the default <code>filterProcessesUrl</code>
      */
     public abstract String getDefaultFilterProcessesUrl();
-
-    protected Properties getExceptionMappings() {
-        return new Properties(exceptionMappings);
-    }
-
-    public void setExceptionMappings(Properties exceptionMappings) {
-        this.exceptionMappings = exceptionMappings;
-    }
 
     public String getFilterProcessesUrl() {
         return filterProcessesUrl;
@@ -409,6 +376,12 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         this.rememberMeServices = rememberMeServices;
     }
 
+    /**
+     * Indicates if the filter chain should be continued prior to delegation to
+     * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse,
+     * Authentication)}, which may be useful in certain environment (such as
+     * Tapestry applications). Defaults to <code>false</code>.
+     */
     public void setContinueChainBeforeSuccessfulAuthentication(boolean continueChainBeforeSuccessfulAuthentication) {
         this.continueChainBeforeSuccessfulAuthentication = continueChainBeforeSuccessfulAuthentication;
     }
@@ -439,25 +412,12 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         return authenticationDetailsSource;
     }
 
-    public void setUseRelativeContext(boolean useRelativeContext) {
-        this.useRelativeContext = useRelativeContext;
-    }
-
     protected boolean getAllowSessionCreation() {
         return allowSessionCreation;
     }
 
     public void setAllowSessionCreation(boolean allowSessionCreation) {
         this.allowSessionCreation = allowSessionCreation;
-    }
-
-    /**
-     * Tells if we are to do a server side include of the error URL instead of a 302 redirect.
-     *
-     * @param serverSideRedirect
-     */
-    public void setServerSideRedirect(boolean serverSideRedirect) {
-        this.serverSideRedirect = serverSideRedirect;
     }
 
     /**

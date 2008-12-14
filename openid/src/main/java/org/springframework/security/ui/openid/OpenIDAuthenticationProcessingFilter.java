@@ -15,47 +15,67 @@
 
 package org.springframework.security.ui.openid;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.openid.OpenIDAuthenticationProvider;
 import org.springframework.security.providers.openid.OpenIDAuthenticationToken;
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.openid.consumers.OpenID4JavaConsumer;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
-import org.springframework.security.util.RedirectUtils;
 import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
- * @author Robin Bramley, Opsera Ltd
+ * Filter which processes OpenID authentication requests.
+ * <p>
+ * The OpenID authentication involves two stages.
+ *
+ * <h2>Submission of OpenID identity</h2>
+ *
+ * The user's OpenID identity is submitted via a login form, just as it would be for a normal form login. At this stage
+ * the filter will extract the identity from the submitted request (by default, the parameter is called
+ * <tt>j_username</tt>, as it is for form login. It then passes the identity to the configured <tt>OpenIDConsumer</tt>,
+ * which returns the URL to which the request should be redirected for authentication. A "return_to" URL is also supplied,
+ * which matches the URL processed by this filter, to allow the filter to handle the request once the user has
+ * been successfully authenticated. The OpenID server will then authenticate the user and redirect back to the
+ * application.
+ *
+ * <h2>Processing the Redirect from the OpenID Server</h2>
+ *
+ * Once the user has been authenticated externally, the redirected request will be passed to the <tt>OpenIDConsumer</tt>
+ * again for validation. The returned <tt>OpenIDAuthentication</tt> will be passed to the <tt>AuthenticationManager</tt>
+ * where it should (normally) be processed by an <tt>OpenIDAuthenticationProvider</tt> in order to load the authorities
+ * for the user.
+ *
+ * @author Robin Bramley
  * @author Ray Krueger
+ * @author Luke Taylor
  * @version $Id$
  * @since 2.0
+ * @see OpenIDAuthenticationProvider
  */
 public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilter {
     //~ Static fields/initializers =====================================================================================
 
-    private static final Log log = LogFactory.getLog(OpenIDAuthenticationProcessingFilter.class);
     public static final String DEFAULT_CLAIMED_IDENTITY_FIELD = "j_username";
 
     //~ Instance fields ================================================================================================
 
     private OpenIDConsumer consumer;
     private String claimedIdentityFieldName = DEFAULT_CLAIMED_IDENTITY_FIELD;
-    private Map realmMapping = new HashMap();
+    private Map<String,String> realmMapping = Collections.emptyMap();
 
     //~ Methods ========================================================================================================
 
@@ -66,31 +86,65 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
         }
     }
 
-    public Authentication attemptAuthentication(HttpServletRequest req) throws AuthenticationException {
+    public String getDefaultFilterProcessesUrl() {
+        return "/j_spring_openid_security_check";
+    }
+
+    /**
+     * Authentication has two phases.
+     * <ol>
+     * <li>The initial submission of the claimed OpenID. A redirect to the URL returned from the consumer
+     * will be performed and null will be returned.</li>
+     * <li>The redirection from the OpenID server to the return_to URL, once it has authenticated the user</li>
+     * </ol>
+     */
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException, IOException {
         OpenIDAuthenticationToken token;
 
-        String identity = req.getParameter("openid.identity");
+        String identity = request.getParameter("openid.identity");
 
         if (!StringUtils.hasText(identity)) {
+            String claimedIdentity = obtainUsername(request);
             // Make the username available to the view
-            String username = obtainUsername(req);
-            setLastUsername(username, req);
-            throw new OpenIDAuthenticationRequiredException("External Authentication Required", username);
+            setLastUsername(claimedIdentity, request);
+
+            try {
+                String returnToUrl = buildReturnToUrl(request);
+                String realm = lookupRealm(returnToUrl);
+                String openIdUrl = consumer.beginConsumption(request, claimedIdentity, returnToUrl, realm);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("return_to is '" + returnToUrl + "', realm is '" + realm + "'");
+                    logger.debug("Redirecting to " + openIdUrl);
+                }
+                response.sendRedirect(openIdUrl);
+
+                // Indicate to parent class that authentication is continuing.
+                return null;
+            } catch (OpenIDConsumerException e) {
+                logger.debug("Failed to consume claimedIdentity: " + claimedIdentity, e);
+                throw new AuthenticationServiceException("Unable to process claimed identity '" + claimedIdentity + "'");
+            }
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Supplied OpenID identity is " + identity);
         }
 
         try {
-            token = consumer.endConsumption(req);
+            token = consumer.endConsumption(request);
         } catch (OpenIDConsumerException oice) {
             throw new AuthenticationServiceException("Consumer error", oice);
         }
 
-        token.setDetails(authenticationDetailsSource.buildDetails(req));
+        token.setDetails(authenticationDetailsSource.buildDetails(request));
 
-        // delegate to the auth provider
+        // delegate to the authentication provider
         Authentication authentication = this.getAuthenticationManager().authenticate(token);
 
         if (authentication.isAuthenticated()) {
-            setLastUsername(token.getIdentityUrl(), req);
+            setLastUsername(token.getIdentityUrl(), request);
         }
 
         return authentication;
@@ -104,28 +158,8 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
         }
     }
 
-    protected String determineFailureUrl(HttpServletRequest request, AuthenticationException failed) {
-        if (failed instanceof OpenIDAuthenticationRequiredException) {
-            OpenIDAuthenticationRequiredException openIdRequiredException = (OpenIDAuthenticationRequiredException) failed;
-            String claimedIdentity = openIdRequiredException.getClaimedIdentity();
-
-            if (StringUtils.hasText(claimedIdentity)) {
-                try {
-                    String returnToUrl = buildReturnToUrl(request);
-                    String realm = lookupRealm(returnToUrl);
-                    return consumer.beginConsumption(request, claimedIdentity, returnToUrl, realm);
-                } catch (OpenIDConsumerException e) {
-                    log.error("Unable to consume claimedIdentity [" + claimedIdentity + "]", e);
-                }
-            }
-        }
-
-        return super.determineFailureUrl(request, failed);
-    }
-
     protected String lookupRealm(String returnToUrl) {
-
-        String mapping = (String) realmMapping.get(returnToUrl);
+        String mapping = realmMapping.get(returnToUrl);
 
         if (mapping == null) {
             try {
@@ -140,61 +174,52 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
                         .append("/");
                 mapping = realmBuffer.toString();
             } catch (MalformedURLException e) {
-                log.warn("returnToUrl was not a valid URL: [" + returnToUrl + "]", e);
+                logger.warn("returnToUrl was not a valid URL: [" + returnToUrl + "]", e);
             }
         }
 
         return mapping;
     }
 
+    /**
+     * Builds the <tt>return_to</tt> URL that will be sent to the OpenID service provider.
+     * By default returns the URL of the current request.
+     *
+     * @param request the current request which is being processed by this filter
+     * @return The <tt>return_to</tt> URL.
+     */
     protected String buildReturnToUrl(HttpServletRequest request) {
         return request.getRequestURL().toString();
     }
 
-    public String getClaimedIdentityFieldName() {
-        return claimedIdentityFieldName;
-    }
-
-    public OpenIDConsumer getConsumer() {
-        return consumer;
-    }
-
-    public String getDefaultFilterProcessesUrl() {
-        return "/j_spring_openid_security_check";
-    }
-
-    protected boolean isAuthenticated(HttpServletRequest request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        return (auth != null) && auth.isAuthenticated();
-    }
-
     /**
-     * The OpenIdAuthenticationProcessingFilter will ignore the request coming in if this method returns false.
-     * The default functionality checks if the request scheme starts with http. <br/
-     * > This method should be overridden in subclasses that wish to consider a different strategy
-     *
-     * @param request HttpServletRequest we're processing
-     * @return true if this request is determined to be an OpenID request.
+     * Reads the <tt>claimedIdentityFieldName</tt> from the submitted request.
      */
-    protected boolean isOpenIdRequest(HttpServletRequest request) {
-        String username = obtainUsername(request);
-        return (StringUtils.hasText(username)) && username.toLowerCase().startsWith("http");
-    }
-
     protected String obtainUsername(HttpServletRequest req) {
         return req.getParameter(claimedIdentityFieldName);
     }
 
-    protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-                                                AuthenticationException failed) throws IOException {
-        if (failed instanceof OpenIDAuthenticationRequiredException) {
-            OpenIDAuthenticationRequiredException openIdAuthenticationRequiredException = (OpenIDAuthenticationRequiredException) failed;
-            request.setAttribute(OpenIDAuthenticationRequiredException.class.getName(),
-                    openIdAuthenticationRequiredException.getClaimedIdentity());
-        }
+    /**
+     * Maps the <tt>return_to url</tt> to a realm, for example:
+     * <pre>
+     * http://www.example.com/j_spring_openid_security_check -> http://www.example.com/realm</tt>
+     * </pre>
+     * If no mapping is provided then the returnToUrl will be parsed to extract the protocol, hostname and port followed
+     * by a trailing slash.
+     * This means that <tt>http://www.example.com/j_spring_openid_security_check</tt> will automatically become
+     * <tt>http://www.example.com:80/</tt>
+     *
+     * @param realmMapping containing returnToUrl -> realm mappings
+     */
+    public void setRealmMapping(Map<String,String> realmMapping) {
+        this.realmMapping = realmMapping;
     }
 
+    /**
+     * The name of the request parameter containing the OpenID identity, as submitted from the initial login form.
+     *
+     * @param claimedIdentityFieldName defaults to "j_username"
+     */
     public void setClaimedIdentityFieldName(String claimedIdentityFieldName) {
         this.claimedIdentityFieldName = claimedIdentityFieldName;
     }
@@ -203,61 +228,7 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
         this.consumer = consumer;
     }
 
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-                                              AuthenticationException failed) throws IOException {
-        SecurityContextHolder.getContext().setAuthentication(null);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Updated SecurityContextHolder to contain null Authentication");
-        }
-
-        String failureUrl = determineFailureUrl(request, failed);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Authentication request failed: " + failed.toString());
-        }
-
-        if (getAllowSessionCreation()) {
-            try {
-                request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
-            } catch (Exception ignored) {
-            }
-        }
-
-        super.getRememberMeServices().loginFail(request, response);
-
-        RedirectUtils.sendRedirect(request, response, failureUrl, useRelativeContext);
-    }
-
     public int getOrder() {
         return FilterChainOrder.OPENID_PROCESSING_FILTER;
-    }
-
-    /**
-     * Maps the return_to url to a realm.<br/>
-     * For example http://www.example.com/j_spring_openid_security_check -> http://www.example.com/realm<br/>
-     * If no mapping is provided then the returnToUrl will be parsed to extract the protocol, hostname and port followed
-     * by a trailing slash.<br/>
-     * This means that http://www.example.com/j_spring_openid_security_check will automatically
-     * become http://www.example.com:80/
-     *
-     * @return Map containing returnToUrl -> realm mappings
-     */
-    public Map getRealmMapping() {
-        return realmMapping;
-    }
-
-    /**
-     * Maps the return_to url to a realm.<br/>
-     * For example http://www.example.com/j_spring_openid_security_check -> http://www.example.com/realm<br/>
-     * If no mapping is provided then the returnToUrl will be parsed to extract the protocol, hostname and port followed
-     * by a trailing slash.<br/>
-     * This means that http://www.example.com/j_spring_openid_security_check will automatically
-     * become http://www.example.com:80/
-     *
-     * @param realmMapping containing returnToUrl -> realm mappings
-     */
-    public void setRealmMapping(Map realmMapping) {
-        this.realmMapping = realmMapping;
     }
 }
