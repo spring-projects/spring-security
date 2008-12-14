@@ -15,32 +15,6 @@
 
 package org.springframework.security.ui;
 
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.util.SessionUtils;
-import org.springframework.security.util.UrlUtils;
-
-import org.springframework.security.concurrent.SessionRegistry;
-import org.springframework.security.context.SecurityContextHolder;
-
-import org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent;
-
-import org.springframework.security.ui.rememberme.NullRememberMeServices;
-import org.springframework.security.ui.rememberme.RememberMeServices;
-import org.springframework.security.ui.savedrequest.SavedRequest;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
-
-import org.springframework.util.Assert;
-
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
@@ -49,60 +23,70 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationManager;
+import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.concurrent.SessionRegistry;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent;
+import org.springframework.security.ui.rememberme.NullRememberMeServices;
+import org.springframework.security.ui.rememberme.RememberMeServices;
+import org.springframework.security.util.SessionUtils;
+import org.springframework.security.util.UrlUtils;
+import org.springframework.util.Assert;
+
 /**
  * Abstract processor of browser-based HTTP-based authentication requests.
- * <p>
- * This filter is responsible for processing authentication requests. If
- * authentication is successful, the resulting {@link Authentication} object
- * will be placed into the <code>SecurityContext</code>, which is guaranteed
- * to have already been created by an earlier filter.
- * <p>
- * If authentication fails, the <code>AuthenticationException</code> will be
- * placed into the <code>HttpSession</code> with the attribute defined by
- * {@link #SPRING_SECURITY_LAST_EXCEPTION_KEY}.
- * <p>
- * To use this filter, it is necessary to specify the following properties:
- * <ul>
- * <li><code>authenticationFailureUrl</code> (optional) indicates the URL that should be
- * used for redirection if the authentication request fails. eg:
- * <code>/login.jsp?login_error=1</code>. If not configured, <tt>sendError</tt> will be
- * called on the response, with the error code SC_UNAUTHORIZED.</li>
- * <li><code>filterProcessesUrl</code> indicates the URL that this filter
- * will respond to. This parameter varies by subclass.</li>
- * <li><code>alwaysUseDefaultTargetUrl</code> causes successful
- * authentication to always redirect to the <code>defaultTargetUrl</code>,
- * even if the <code>HttpSession</code> attribute named {@link
- * SavedRequest# SPRING_SECURITY_SAVED_REQUEST_KEY} defines the intended target URL.</li>
- * </ul>
- * <p>
- * To configure this filter to redirect to specific pages as the result of
- * specific {@link AuthenticationException}s you can do the following.
- * Configure the <code>exceptionMappings</code> property in your application
- * xml. This property is a java.util.Properties object that maps a
- * fully-qualified exception class name to a redirection url target. For
- * example:
  *
- * <pre>
- *  &lt;property name=&quot;exceptionMappings&quot;&gt;
- *    &lt;props&gt;
- *      &lt;prop&gt; key=&quot;org.springframework.security.BadCredentialsException&quot;&gt;/bad_credentials.jsp&lt;/prop&gt;
- *    &lt;/props&gt;
- *  &lt;/property&gt;
- * </pre>
+ * <h3>Authentication Process</h3>
  *
- * The example above would redirect all
- * {@link org.springframework.security.BadCredentialsException}s thrown, to a page in the
- * web-application called /bad_credentials.jsp.
+ * The filter requires that you set the <tt>authenticationManager</tt> property. An <tt>AuthenticationManager</tt> is
+ * required to process the authentication request tokens created by implementing classes.
  * <p>
- * Any {@link AuthenticationException} thrown that cannot be matched in the
- * <code>exceptionMappings</code> will be redirected to the
- * <code>authenticationFailureUrl</code>
+ * This filter will intercept a request and attempt to perform authentication from that request if
+ * the request URL matches the value of the <tt>filterProcessesUrl</tt> property. This behaviour can modified by
+ * overriding the  method {@link #requiresAuthentication(HttpServletRequest, HttpServletResponse) requiresAuthentication}.
  * <p>
- * If authentication is successful, an {@link
- * org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent}
- * will be published to the application context. No events will be published if
- * authentication was unsuccessful, because this would generally be recorded via
- * an <code>AuthenticationManager</code>-specific application event.
+ * Authentication is performed by the {@link #attemptAuthentication(HttpServletRequest, HttpServletResponse)
+ * attemptAuthentication} method, which must be implemented by subclasses.
+ *
+ * <h4>Authentication Success</h4>
+ *
+ * If authentication is successful, the resulting {@link Authentication} object will be placed into the
+ * <code>SecurityContext</code> for the current thread, which is guaranteed to have already been created by an earlier
+ * filter. The configured {@link #setSuccessHandler(AuthenticationSuccessHandler) AuthenticationSuccessHandler} will
+ * then be called to take the redirect to the appropriate destination after a successful login. The default behaviour
+ * is implemented in a {@link SavedRequestAwareAuthenticationSuccessHandler} which will make use of any
+ * <tt>SavedRequest</tt> set by the <tt>ExceptionTranslationFilter</tt> and redirect the user to the URL contained
+ * therein. Otherwise it will redirect to the webapp root "/". You can customize this behaviour by injecting a
+ * differently configured instance of this class, or by using a different implementation.
+ * <p>
+ * See the {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, Authentication)
+ * successfulAuthentication} method for more information.
+ *
+ * <h4>Authentication Failure</h4>
+ *
+ * If authentication fails, the resulting <tt>AuthenticationException</tt> will be placed into the <tt>HttpSession</tt>
+ * with the attribute defined by {@link #SPRING_SECURITY_LAST_EXCEPTION_KEY}. It will then delegate to the configured
+ * {@link AuthenticationFailureHandler} to allow the failure information to be conveyed to the client.
+ * The default implementation is {@link SimpleUrlAuthenticationFailureHandler}, which sends a 401 error code to the
+ * client. It may also be configured with a failure URL as an alternative. Again you can inject whatever
+ * behaviour you require here.
+ *
+ * <h4>Event Pulication</h4>
+ *
+ * If authentication is successful, an
+ * {@link org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent
+ * InteractiveAuthenticationSuccessEvent} will be published via the application context. No events will be published if
+ * authentication was unsuccessful, because this would generally be recorded via an
+ * <tt>AuthenticationManager</tt>-specific application event.
  * <p>
  * The filter has an optional attribute <tt>invalidateSessionOnSuccessfulAuthentication</tt> that will invalidate
  * the current session on successful authentication. This is to protect against session fixation attacks (see
@@ -320,9 +304,18 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         successHandler.onAuthenticationSuccess(request, response, authResult);
     }
 
+    /**
+     * Default behaviour for unsuccessful authentication.
+     * <ol>
+     * <li>Clears the {@link SecurityContextHolder}</li>
+     * <li>Stores the exception in the session (if it exists or <tt>allowSesssionCreation</tt> is set to <tt>true</tt>)</li>
+     * <li>Informs the configured <tt>RememberMeServices</tt> of the failed login</li>
+     * <li>Delegates additional behaviour to the {@link AuthenticationFailureHandler}.</li>
+     * </ol>
+     */
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException failed) throws IOException, ServletException {
-        SecurityContextHolder.getContext().setAuthentication(null);
+        SecurityContextHolder.clearContext();
 
         if (logger.isDebugEnabled()) {
             logger.debug("Authentication request failed: " + failed.toString());
@@ -428,11 +421,17 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
         this.sessionRegistry = sessionRegistry;
     }
 
+    /**
+     * Sets the strategy used to handle a successful authentication.
+     * By default a {@link SavedRequestAwareAuthenticationSuccessHandler} is used.
+     */
     public void setSuccessHandler(AuthenticationSuccessHandler successHandler) {
+        Assert.notNull(successHandler, "successHandler cannot be null");
         this.successHandler = successHandler;
     }
 
     public void setFailureHandler(AuthenticationFailureHandler failureHandler) {
+        Assert.notNull(failureHandler, "failureHandler cannot be null");
         this.failureHandler = failureHandler;
     }
 }

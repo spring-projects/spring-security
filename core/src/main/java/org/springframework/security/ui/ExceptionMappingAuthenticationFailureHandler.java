@@ -19,6 +19,8 @@ import org.springframework.util.Assert;
  * <p>
  * If a match isn't found, falls back to the behaviour of the parent class,
  * {@link SimpleUrlAuthenticationFailureHandler}.
+ * <p>
+ * The map of exception names to URLs should be injected by setting the <tt>exceptionMappings</tt> property.
  *
  * @author Luke Taylor
  * @version $Id$
