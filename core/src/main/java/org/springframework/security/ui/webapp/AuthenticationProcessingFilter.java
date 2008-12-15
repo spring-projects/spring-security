@@ -17,6 +17,7 @@ package org.springframework.security.ui.webapp;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationServiceException;
 
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
@@ -54,6 +55,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
 
     private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
+    private boolean postOnly = true;
 
     //~ Constructors ===================================================================================================
 
@@ -64,6 +66,10 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
     //~ Methods ========================================================================================================
 
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        if (postOnly && !request.getMethod().equals("POST")) {
+            throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
+        }
+
         String username = obtainUsername(request);
         String password = obtainPassword(request);
 
@@ -149,6 +155,18 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
     public void setPasswordParameter(String passwordParameter) {
         Assert.hasText(passwordParameter, "Password parameter must not be empty or null");
         this.passwordParameter = passwordParameter;
+    }
+
+    /**
+     * Defines whether only HTTP POST requests will be allowed by this filter.
+     * If set to true, and an authentication request is received which is not a POST request, an exception will
+     * be raised immediately and authentication will not be attempted. The <tt>unsuccessfulAuthentication()</tt> method
+     * will be called as if handling a failed authentication.
+     * <p>
+     * Defaults to <tt>true</tt> but may be overridden by subclasses.
+     */
+    public void setPostOnly(boolean postOnly) {
+        this.postOnly = postOnly;
     }
 
     public int getOrder() {
