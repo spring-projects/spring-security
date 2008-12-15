@@ -36,7 +36,7 @@ public class CasProcessingFilterTests extends TestCase {
 
     public void testGetters() {
         CasProcessingFilter filter = new CasProcessingFilter();
-        assertEquals("/j_spring_cas_security_check", filter.getDefaultFilterProcessesUrl());
+        assertEquals("/j_spring_cas_security_check", filter.getFilterProcessesUrl());
     }
 
     public void testNormalOperation() throws Exception {

@@ -549,18 +549,21 @@ public class AbstractProcessingFilterTests extends TestCase {
         private boolean grantAccess;
 
         public MockAbstractProcessingFilter(boolean grantAccess) {
+            this();
             setRememberMeServices(new NullRememberMeServices());
             this.grantAccess = grantAccess;
             this.exceptionToThrow = new BadCredentialsException("Mock requested to do so");
         }
 
         public MockAbstractProcessingFilter(AuthenticationException exceptionToThrow) {
+            this();
             setRememberMeServices(new NullRememberMeServices());
             this.grantAccess = false;
             this.exceptionToThrow = exceptionToThrow;
         }
 
         private MockAbstractProcessingFilter() {
+            super("/j_mock_post");
         }
 
         public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -569,10 +572,6 @@ public class AbstractProcessingFilterTests extends TestCase {
             } else {
                 throw exceptionToThrow;
             }
-        }
-
-        public String getDefaultFilterProcessesUrl() {
-            return "/j_mock_post";
         }
 
         public boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {

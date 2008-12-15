@@ -77,6 +77,12 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
     private String claimedIdentityFieldName = DEFAULT_CLAIMED_IDENTITY_FIELD;
     private Map<String,String> realmMapping = Collections.emptyMap();
 
+    //~ Constructors ===================================================================================================
+
+    public OpenIDAuthenticationProcessingFilter() {
+        super("/j_spring_openid_security_check");
+    }
+
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
@@ -84,10 +90,6 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
         if (consumer == null) {
             consumer = new OpenID4JavaConsumer();
         }
-    }
-
-    public String getDefaultFilterProcessesUrl() {
-        return "/j_spring_openid_security_check";
     }
 
     /**

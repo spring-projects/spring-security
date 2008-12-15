@@ -15,19 +15,16 @@
 
 package org.springframework.security.ui.webapp;
 
+import javax.servlet.ServletException;
+
 import junit.framework.TestCase;
-
-import org.springframework.security.Authentication;
-import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.AuthenticationException;
-
-import org.springframework.security.ui.WebAuthenticationDetails;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.MockAuthenticationManager;
+import org.springframework.security.ui.WebAuthenticationDetails;
 
 
 /**
@@ -37,20 +34,11 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class AuthenticationProcessingFilterTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AuthenticationProcessingFilterTests() {
-    }
-
-    public AuthenticationProcessingFilterTests(String arg0) {
-        super(arg0);
-    }
-
     //~ Methods ========================================================================================================
 
     public void testGetters() {
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-        assertEquals("/j_spring_security_check", filter.getDefaultFilterProcessesUrl());
+        assertEquals("/j_spring_security_check", filter.getFilterProcessesUrl());
     }
 
     public void testNormalOperation() throws Exception {

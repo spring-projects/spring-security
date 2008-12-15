@@ -80,7 +80,7 @@ import org.springframework.util.Assert;
  * client. It may also be configured with a failure URL as an alternative. Again you can inject whatever
  * behaviour you require here.
  *
- * <h4>Event Pulication</h4>
+ * <h4>Event Publication</h4>
  *
  * If authentication is successful, an
  * {@link org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent
@@ -123,7 +123,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
      * The URL destination that this filter intercepts and processes (usually
      * something like <code>/j_spring_security_check</code>)
      */
-    private String filterProcessesUrl = getDefaultFilterProcessesUrl();
+    private String filterProcessesUrl;
 
     private boolean continueChainBeforeSuccessfulAuthentication = false;
 
@@ -149,6 +149,15 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
 
     private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
     private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
+
+    //~ Constructors ===================================================================================================
+
+    /**
+     * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
+     */
+    protected AbstractProcessingFilter(String defaultFilterProcessesUrl) {
+        this.filterProcessesUrl = defaultFilterProcessesUrl;
+    }
 
     //~ Methods ========================================================================================================
 
@@ -273,7 +282,7 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
      * <ol>
      * <li>Sets the successful <tt>Authentication</tt> object on the {@link SecurityContextHolder}</li>
      * <li>Performs any configured session migration behaviour</li>
-     * <li>Informs the configured <tt>RememberMeServices</tt> of the successul login</li>
+     * <li>Informs the configured <tt>RememberMeServices</tt> of the successful login</li>
      * <li>Fires an {@link InteractiveAuthenticationSuccessEvent} via the configured
      * <tt>ApplicationEventPublisher</tt></li>
      * <li>Delegates additional behaviour to the {@link AuthenticationSuccessHandler}.</li>
@@ -345,13 +354,6 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
-
-    /**
-     * Specifies the default <code>filterProcessesUrl</code> for the implementation.
-     *
-     * @return the default <code>filterProcessesUrl</code>
-     */
-    public abstract String getDefaultFilterProcessesUrl();
 
     public String getFilterProcessesUrl() {
         return filterProcessesUrl;

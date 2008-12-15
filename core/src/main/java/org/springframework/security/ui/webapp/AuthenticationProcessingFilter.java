@@ -32,11 +32,14 @@ import javax.servlet.http.HttpSession;
 
 /**
  * Processes an authentication form.
- * <p>Login forms must present two parameters to this filter: a username and
+ * <p>
+ * Login forms must present two parameters to this filter: a username and
  * password. The default parameter names to use are contained in the
  * static fields {@link #SPRING_SECURITY_FORM_USERNAME_KEY} and {@link #SPRING_SECURITY_FORM_PASSWORD_KEY}.
  * The parameter names can also be changed by setting the <tt>usernameParameter</tt> and <tt>passwordParameter</tt>
  * properties.
+ * <p>
+ * This filter by default responds to the URL <tt>/j_spring_security_check</tt>.
  *
  * @author Ben Alex
  * @author Colin Sampaleanu
@@ -51,6 +54,12 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
 
     private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
+
+    //~ Constructors ===================================================================================================
+
+    public AuthenticationProcessingFilter() {
+        super("/j_spring_security_check");
+    }
 
     //~ Methods ========================================================================================================
 
@@ -81,15 +90,6 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
         setDetails(request, authRequest);
 
         return this.getAuthenticationManager().authenticate(authRequest);
-    }
-
-    /**
-     * This filter by default responds to <code>/j_spring_security_check</code>.
-     *
-     * @return the default
-     */
-    public String getDefaultFilterProcessesUrl() {
-        return "/j_spring_security_check";
     }
 
     /**
