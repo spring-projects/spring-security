@@ -25,6 +25,13 @@ public class SimpleUrlAuthenticationSuccessHandler implements AuthenticationSucc
     protected boolean alwaysUseDefaultTargetUrl = false;
     protected boolean useRelativeContext = false;
 
+    public SimpleUrlAuthenticationSuccessHandler() {
+    }
+
+    public SimpleUrlAuthenticationSuccessHandler(String defaultTargetUrl) {
+        setDefaultTargetUrl(defaultTargetUrl);
+    }
+
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
@@ -103,7 +110,7 @@ public class SimpleUrlAuthenticationSuccessHandler implements AuthenticationSucc
      *  to "redirect".
      */
     public void setTargetUrlParameter(String targetUrlParameter) {
-        Assert.hasText("targetUrlParamete canot be null or empty");
+        Assert.hasText("targetUrlParameter canot be null or empty");
         this.targetUrlParameter = targetUrlParameter;
     }
 

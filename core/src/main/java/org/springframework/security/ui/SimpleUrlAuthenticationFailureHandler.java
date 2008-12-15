@@ -29,10 +29,17 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
     private boolean forwardToDestination = false;
     private boolean useRelativeContext = false;
 
+    public SimpleUrlAuthenticationFailureHandler() {
+    }
+
+    public SimpleUrlAuthenticationFailureHandler(String defaultFailureUrl) {
+        setDefaultFailureUrl(defaultFailureUrl);
+    }
+
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException exception) throws IOException, ServletException {
         if (defaultFailureUrl == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication Failed:" + exception.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication Failed: " + exception.getMessage());
         } else {
             if (forwardToDestination) {
                 request.getRequestDispatcher(defaultFailureUrl).forward(request, response);

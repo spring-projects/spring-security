@@ -36,6 +36,8 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.ui.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.ui.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -151,17 +153,23 @@ public class SwitchUserProcessingFilterTests {
         request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "mcgarrett");
         MockHttpServletResponse response = new MockHttpServletResponse();
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        filter.setTargetUrl("/target");
         filter.setUserDetailsService(new MockUserDetailsService());
+        filter.afterPropertiesSet();
 
         // Check it with no url set (should get a text response)
         filter.doFilterHttp(request, response, new MockFilterChain(false));
 
-        assertEquals("Switch user failed: User is disabled", response.getContentAsString());
+        assertEquals("Authentication Failed: User is disabled", response.getErrorMessage());
 
         // Now check for the redirect
         request.setContextPath("/mywebapp");
         request.setRequestURI("/mywebapp/j_spring_security_switch_user");
+        filter = new SwitchUserProcessingFilter();
+        filter.setTargetUrl("/target");
+        filter.setUserDetailsService(new MockUserDetailsService());
         filter.setSwitchFailureUrl("/switchfailed");
+        filter.afterPropertiesSet();
         response = new MockHttpServletResponse();
 
         filter.doFilterHttp(request, response, new MockFilterChain(true));
@@ -219,7 +227,7 @@ public class SwitchUserProcessingFilterTests {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.setExitUserUrl("/j_spring_security_exit_user");
-        filter.setTargetUrl("/webapp/someOtherUrl");
+        filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/webapp/someOtherUrl"));
 
         // run 'exit'
         filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain(false));
@@ -258,7 +266,7 @@ public class SwitchUserProcessingFilterTests {
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
-        filter.setTargetUrl("/someOtherUrl");
+        filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/someOtherUrl"));
         filter.setUserDetailsService(new MockUserDetailsService());
 
         filter.doFilter(request, response, new MockFilterChain(false));
@@ -281,9 +289,11 @@ public class SwitchUserProcessingFilterTests {
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
-        filter.setTargetUrl("/someOtherUrl");
+        SimpleUrlAuthenticationSuccessHandler switchSuccessHandler =
+            new SimpleUrlAuthenticationSuccessHandler("/someOtherUrl");
+        switchSuccessHandler.setUseRelativeContext(true);
+        filter.setSuccessHandler(switchSuccessHandler);
         filter.setUserDetailsService(new MockUserDetailsService());
-        filter.setUseRelativeContext(true);
 
         filter.doFilter(request, response, new MockFilterChain(false));
 
@@ -308,7 +318,7 @@ public class SwitchUserProcessingFilterTests {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
-        filter.setTargetUrl("/webapp/someOtherUrl");
+        filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/webapp/someOtherUrl"));
 
         MockFilterChain chain = new MockFilterChain(true);
 

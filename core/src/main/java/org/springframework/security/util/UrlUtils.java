@@ -105,6 +105,6 @@ public final class UrlUtils {
      * Returns true if the supplied URL starts with a "/" or "http".
      */
     public static boolean isValidRedirectUrl(String url) {
-        return url.startsWith("/") || url.toLowerCase().startsWith("http");
+        return url != null && url.startsWith("/") || url.toLowerCase().startsWith("http");
     }
 }
