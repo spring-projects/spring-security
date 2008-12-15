@@ -65,7 +65,7 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
     public static final String CAS_STATEFUL_IDENTIFIER = "_cas_stateful_";
 
     /**
-     * Used to identify a CAS request for a stateless user agent, such as a remoting protocol client (eg
+     * Used to identify a CAS request for a stateless user agent, such as a remoting protocol client (e.g.
      * Hessian, Burlap, SOAP etc). Results in a more aggressive caching strategy being used, as the absence of a
      * <code>HttpSession</code> will result in a new authentication attempt on every request.
      */
@@ -88,8 +88,9 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
     }
 
     //~ Methods ========================================================================================================
+
     public Authentication attemptAuthentication(final HttpServletRequest request, HttpServletResponse response)
-        throws AuthenticationException {
+            throws AuthenticationException {
         final String username = CAS_STATEFUL_IDENTIFIER;
         String password = request.getParameter("ticket");
 
@@ -107,8 +108,7 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
     /**
      * Overridden to provide proxying capabilities.
      */
-    protected boolean requiresAuthentication(final HttpServletRequest request,
-            final HttpServletResponse response) {
+    protected boolean requiresAuthentication(final HttpServletRequest request, final HttpServletResponse response) {
         final String requestUri = request.getRequestURI();
 
         if (CommonUtils.isEmpty(this.proxyReceptorUrl) || !requestUri.endsWith(this.proxyReceptorUrl) || this.proxyGrantingTicketStorage == null) {
