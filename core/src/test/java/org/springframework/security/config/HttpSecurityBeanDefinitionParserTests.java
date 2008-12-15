@@ -35,6 +35,8 @@ import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.anonymous.AnonymousProcessingFilter;
 import org.springframework.security.securechannel.ChannelProcessingFilter;
+import org.springframework.security.ui.AuthenticationFailureHandler;
+import org.springframework.security.ui.AuthenticationSuccessHandler;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.ui.SessionFixationProtectionFilter;
 import org.springframework.security.ui.WebAuthenticationDetails;
@@ -715,6 +717,22 @@ public class HttpSecurityBeanDefinitionParserTests {
             fail("Expected AccessDeniedInvocation");
         } catch (AccessDeniedException expected) {
         }
+    }
+
+    @Test
+    public void customSuccessAndFailureHandlersCanBeSetThroughTheNamespace() throws Exception {
+        setContext(
+                "<http>" +
+                "   <form-login authentication-success-handler-ref='sh' authentication-failure-handler-ref='fh'/>" +
+                "</http>" +
+                "<b:bean id='sh' class='org.springframework.security.ui.SavedRequestAwareAuthenticationSuccessHandler'/>" +
+                "<b:bean id='fh' class='org.springframework.security.ui.SimpleUrlAuthenticationFailureHandler'/>" +
+                AUTH_PROVIDER_XML);
+        AuthenticationProcessingFilter apf = (AuthenticationProcessingFilter) appContext.getBean(BeanIds.FORM_LOGIN_FILTER);
+        AuthenticationSuccessHandler sh = (AuthenticationSuccessHandler) appContext.getBean("sh");
+        AuthenticationFailureHandler fh = (AuthenticationFailureHandler) appContext.getBean("fh");
+        assertSame(sh, FieldUtils.getFieldValue(apf, "successHandler"));
+        assertSame(fh, FieldUtils.getFieldValue(apf, "failureHandler"));
     }
 
     private void setContext(String context) {

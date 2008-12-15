@@ -310,6 +310,13 @@ form-login.attlist &=
 form-login.attlist &=
     ## The URL for the login failure page. If no login failure URL is specified, Spring Security will automatically create a failure login URL at /spring_security_login?login_error and a corresponding filter to render that login failure URL when requested.
     attribute authentication-failure-url {xsd:string}?
+form-login.attlist &=
+    ## Reference to an AuthenticationSuccessHandler bean which should be used to handle a successful authentication request. Should not be used in combination with default-target-url (or always-use-default-target-url) as the implementation should always deal with navigation to the subsequent destination
+    attribute authentication-success-handler-ref {xsd:string}?
+form-login.attlist &=
+    ## Reference to an AuthenticationFailureHandler bean which should be used to handle a failed authentication request. Should not be used in combination with authentication-failure-url as the implementation should always deal with navigation to the subsequent destination
+    attribute authentication-failure-handler-ref {xsd:string}?
+
 
 openid-login = 
     ## Sets up form login for authentication with an Open ID identity
