@@ -78,6 +78,7 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
     private PortResolver portResolver = new PortResolverImpl();
     private ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
     private boolean createSessionAllowed = true;
+    private boolean justUseSavedRequestOnGet;
 
     //~ Methods ========================================================================================================
 
@@ -169,7 +170,7 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
 
     /**
      * If <code>true</code>, indicates that <code>ExceptionTranslationFilter</code> is permitted to store the target
-     * URL and exception information in the <code>HttpSession</code> (the default).
+     * URL and exception information in a new <code>HttpSession</code> (the default).
      * In situations where you do not wish to unnecessarily create <code>HttpSession</code>s - because the user agent
      * will know the failed URL, such as with BASIC or Digest authentication - you may wish to set this property to
      * <code>false</code>.
@@ -188,25 +189,25 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
 
     protected void sendStartAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
             AuthenticationException reason) throws ServletException, IOException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-
-        SavedRequest savedRequest = new SavedRequest(httpRequest, portResolver);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Authentication entry point being called; SavedRequest added to Session: " + savedRequest);
-        }
-
-        if (createSessionAllowed) {
-            // Store the HTTP request itself. Used by AbstractProcessingFilter
-            // for redirection after successful authentication (SEC-29)
-            httpRequest.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, savedRequest);
-        }
-
         // SEC-112: Clear the SecurityContextHolder's Authentication, as the
         // existing Authentication is no longer considered valid
         SecurityContextHolder.getContext().setAuthentication(null);
+        saveRequestIfAllowed(request);
+        logger.debug("Calling Authentication entry point.");
+        authenticationEntryPoint.commence(request, response, reason);
+    }
 
-        authenticationEntryPoint.commence(httpRequest, response, reason);
+    private void saveRequestIfAllowed(HttpServletRequest request) {
+        if (!justUseSavedRequestOnGet || "GET".equals(request.getMethod())) {
+            SavedRequest savedRequest = new SavedRequest(request, portResolver);
+
+            if (createSessionAllowed || request.getSession(false) != null) {
+                // Store the HTTP request itself. Used by AbstractProcessingFilter
+                // for redirection after successful authentication (SEC-29)
+                request.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, savedRequest);
+                logger.debug("SavedRequest added to Session: " + savedRequest);
+            }
+        }
     }
 
     public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
@@ -232,6 +233,14 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
 
     public void setThrowableAnalyzer(ThrowableAnalyzer throwableAnalyzer) {
         this.throwableAnalyzer = throwableAnalyzer;
+    }
+
+    /**
+     * If <code>true</code>, will only use <code>SavedRequest</code> to determine the target URL on successful
+     * authentication if the request that caused the authentication request was a GET. Defaults to false.
+     */
+    public void setJustUseSavedRequestOnGet(boolean justUseSavedRequestOnGet) {
+        this.justUseSavedRequestOnGet = justUseSavedRequestOnGet;
     }
 
     public int getOrder() {

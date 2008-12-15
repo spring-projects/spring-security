@@ -196,6 +196,18 @@ public class ExceptionTranslationFilterTests extends TestCase {
         assertEquals("http://www.example.com:8080/mycontext/secure/page.html", getSavedRequestUrl(request));
     }
 
+    public void testSavedRequestIsNotStoredForPostIfJustUseSaveRequestOnGetIsSet() throws Exception {
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
+        filter.setJustUseSavedRequestOnGet(true);
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
+        filter.setPortResolver(new MockPortResolver(8080, 8443));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockFilterChain chain = new MockFilterChain(false, true, false, false);
+        request.setMethod("POST");
+        filter.doFilter(request, new MockHttpServletResponse(), chain);
+        assertTrue(request.getSession().getAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY) == null);
+    }
+
     public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 

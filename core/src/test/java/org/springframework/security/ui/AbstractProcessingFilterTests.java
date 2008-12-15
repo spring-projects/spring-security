@@ -366,33 +366,6 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
-    public void testSuccessfulAuthenticationCausesRedirectToDefaultTargetUrlOnPOSTSavedRequest() throws Exception {
-        // Setup our HTTP request with a POST method request
-        MockHttpServletRequest request = createMockRequest();
-        request.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, makePostSavedRequestForUrl());
-
-       // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig(null, null);
-
-        // Setup our expectation that the filter chain will be invoked, as we want to go to the location requested in the session
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Setup our test object, to grant access
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
-
-        filter.setFilterProcessesUrl("/j_mock_post");
-        filter.setSuccessHandler(successHandler);
-        successHandler.setDefaultTargetUrl("/foobar");
-        // Configure not to use POST SavedRequest
-        successHandler.setJustUseSavedRequestOnGet(true);
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
-        assertEquals("/mycontext/foobar", response.getRedirectedUrl());
-        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-    }
-
     /**
      * SEC-297 fix.
      */
