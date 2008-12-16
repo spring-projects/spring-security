@@ -59,8 +59,10 @@ import javax.servlet.jsp.tagext.TagSupport;
  * The {@link Sid} presented is determined by the {@link SidRetrievalStrategy}.
  * <p>
  * For this class to operate it must be able to access the application context via the
- * <code>WebApplicationContextUtils</code> and locate an {@link AclService} and {@link SidRetrievalStrategy}.
- * Application contexts must provide one and only one of these Java types.
+ * <code>WebApplicationContextUtils</code> and attempt to locate an {@link AclService} and {@link SidRetrievalStrategy}.
+ * There cannot be more than one of these present. The <tt>AclService</tt> must be provided, but a
+ * {@link SidRetrievalStrategyImpl} instance will be created as the default retrieval strategy if no implementation
+ * is supplied by the application context.
  *
  * @author Ben Alex
  * @version $Id$
