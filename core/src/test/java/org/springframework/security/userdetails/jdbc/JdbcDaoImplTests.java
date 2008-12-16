@@ -37,14 +37,6 @@ import java.util.HashSet;
  * @version $Id$
  */
 public class JdbcDaoImplTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public JdbcDaoImplTests() {
-    }
-
-    public JdbcDaoImplTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
 

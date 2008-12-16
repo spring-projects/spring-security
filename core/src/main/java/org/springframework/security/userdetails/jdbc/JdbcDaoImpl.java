@@ -15,36 +15,27 @@
 
 package org.springframework.security.userdetails.jdbc;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.context.ApplicationContextException;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.SpringSecurityMessageSource;
-
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.util.AuthorityUtils;
-
-import org.springframework.context.ApplicationContextException;
-import org.springframework.context.support.MessageSourceAccessor;
-
-import org.springframework.dao.DataAccessException;
-
-import org.springframework.jdbc.core.SqlParameter;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
-import org.springframework.jdbc.object.MappingSqlQuery;
 import org.springframework.util.Assert;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
-
-import javax.sql.DataSource;
 
 
 /**
@@ -105,26 +96,23 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     //~ Static fields/initializers =====================================================================================
 
     public static final String DEF_USERS_BY_USERNAME_QUERY =
-            "SELECT username,password,enabled " +
-            "FROM users " +
-            "WHERE username = ?";
+            "select username,password,enabled " +
+            "from users " +
+            "where username = ?";
     public static final String DEF_AUTHORITIES_BY_USERNAME_QUERY =
-            "SELECT username,authority " +
-            "FROM authorities " +
-            "WHERE username = ?";
+            "select username,authority " +
+            "from authorities " +
+            "where username = ?";
     public static final String DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY =
-            "SELECT g.id, g.group_name, ga.authority " +
-            "FROM groups g, group_members gm, group_authorities ga " +
-            "WHERE gm.username = ? " +
-            "AND g.id = ga.group_id " +
-            "AND g.id = gm.group_id";
+            "select g.id, g.group_name, ga.authority " +
+            "from groups g, group_members gm, group_authorities ga " +
+            "where gm.username = ? " +
+            "and g.id = ga.group_id " +
+            "and g.id = gm.group_id";
 
     //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-    private MappingSqlQuery authoritiesByUsernameMapping;
-    private MappingSqlQuery groupAuthoritiesByUsernameMapping;
-    private MappingSqlQuery usersByUsernameMapping;
 
     private String authoritiesByUsernameQuery;
     private String groupAuthoritiesByUsernameQuery;
@@ -145,8 +133,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     //~ Methods ========================================================================================================
 
     /**
-     * Allows subclasses to add their own granted authorities to the list to be returned in the
-     * <code>User</code>.
+     * Allows subclasses to add their own granted authorities to the list to be returned in the <tt>UserDetails</tt>.
      *
      * @param username the username, for use by finder methods
      * @param authorities the current granted authorities, as populated from the <code>authoritiesByUsername</code>
@@ -160,16 +147,6 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 
     protected void initDao() throws ApplicationContextException {
         Assert.isTrue(enableAuthorities || enableGroups, "Use of either authorities or groups must be enabled");
-        initMappingSqlQueries();
-    }
-
-    /**
-     * Extension point to allow other MappingSqlQuery objects to be substituted in a subclass
-     */
-    private void initMappingSqlQueries() {
-        this.usersByUsernameMapping = new UsersByUsernameMapping(getDataSource());
-        this.authoritiesByUsernameMapping = new AuthoritiesByUsernameMapping(getDataSource());
-        this.groupAuthoritiesByUsernameMapping = new GroupAuthoritiesByUsernameMapping(getDataSource());
     }
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
@@ -180,7 +157,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
                     messages.getMessage("JdbcDaoImpl.notFound", new Object[]{username}, "Username {0} not found"), username);
         }
 
-        UserDetails user = (UserDetails) users.get(0); // contains no GrantedAuthority[]
+        UserDetails user = users.get(0); // contains no GrantedAuthority[]
 
         Set<GrantedAuthority> dbAuthsSet = new HashSet<GrantedAuthority>();
 
@@ -206,24 +183,51 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     }
 
     /**
-     * Executes the <tt>usersByUsernameQuery</tt> and returns a list of UserDetails objects (there should normally
-     * only be one matching user).
+     * Executes the SQL <tt>usersByUsernameQuery</tt> and returns a list of UserDetails objects.
+     * There should normally only be one matching user.
      */
     protected List<UserDetails> loadUsersByUsername(String username) {
-        return usersByUsernameMapping.execute(username);
+        return getJdbcTemplate().query(usersByUsernameQuery, new String[] {username}, new RowMapper() {
+            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+                String username = rs.getString(1);
+                String password = rs.getString(2);
+                boolean enabled = rs.getBoolean(3);
+                return new User(username, password, enabled, true, true, true, AuthorityUtils.NO_AUTHORITIES);
+            }
+
+        });
     }
 
     /**
-     * Loads authorities by executing the authoritiesByUsernameQuery.
+     * Loads authorities by executing the SQL from <tt>authoritiesByUsernameQuery</tt>.
      *
      * @return a list of GrantedAuthority objects for the user
      */
     protected List<GrantedAuthority> loadUserAuthorities(String username) {
-        return authoritiesByUsernameMapping.execute(username);
+        return getJdbcTemplate().query(authoritiesByUsernameQuery, new String[] {username}, new RowMapper() {
+            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+                String roleName = rolePrefix + rs.getString(2);
+                GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
+
+                 return authority;
+            }
+        });
     }
 
+    /**
+     * Loads authorities by executing the SQL from <tt>groupAuthoritiesByUsernameQuery</tt>.
+     *
+     * @return a list of GrantedAuthority objects for the user
+     */
     protected List<GrantedAuthority> loadGroupAuthorities(String username) {
-        return groupAuthoritiesByUsernameMapping.execute(username);
+        return getJdbcTemplate().query(groupAuthoritiesByUsernameQuery, new String[] {username}, new RowMapper() {
+            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+                 String roleName = getRolePrefix() + rs.getString(3);
+                 GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
+
+                 return authority;
+            }
+        });
     }
 
     /**
@@ -247,12 +251,12 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     }
 
     /**
-     * Allows the default query string used to retrieve authorities based on username to be overriden, if
+     * Allows the default query string used to retrieve authorities based on username to be overridden, if
      * default table or column names need to be changed. The default query is {@link
      * #DEF_AUTHORITIES_BY_USERNAME_QUERY}; when modifying this query, ensure that all returned columns are mapped
      * back to the same column names as in the default query.
      *
-     * @param queryString The query string to set
+     * @param queryString The SQL query string to set
      */
     public void setAuthoritiesByUsernameQuery(String queryString) {
         authoritiesByUsernameQuery = queryString;
@@ -263,12 +267,12 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     }
 
     /**
-     * Allows the default query string used to retrieve group authorities based on username to be overriden, if
+     * Allows the default query string used to retrieve group authorities based on username to be overridden, if
      * default table or column names need to be changed. The default query is {@link
      * #DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY}; when modifying this query, ensure that all returned columns are mapped
      * back to the same column names as in the default query.
      *
-     * @param queryString The query string to set
+     * @param queryString The SQL query string to set
      */
     public void setGroupAuthoritiesByUsernameQuery(String queryString) {
         groupAuthoritiesByUsernameQuery = queryString;
@@ -309,12 +313,14 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     }
 
     /**
-     * Allows the default query string used to retrieve users based on username to be overriden, if default
+     * Allows the default query string used to retrieve users based on username to be overridden, if default
      * table or column names need to be changed. The default query is {@link #DEF_USERS_BY_USERNAME_QUERY}; when
      * modifying this query, ensure that all returned columns are mapped back to the same column names as in the
-     * default query. If the 'enabled' column does not exist in the source db, a permanent true value for this column
-     * may be returned by using a query similar to <br><pre>
-     * "SELECT username,password,'true' as enabled FROM users WHERE username = ?"</pre>
+     * default query. If the 'enabled' column does not exist in the source database, a permanent true value for this
+     * column may be returned by using a query similar to
+     * <pre>
+     * "select username,password,'true' as enabled from users where username = ?"
+     * </pre>
      *
      * @param usersByUsernameQueryString The query string to set
      */
@@ -343,60 +349,5 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
      */
     public void setEnableGroups(boolean enableGroups) {
         this.enableGroups = enableGroups;
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    /**
-     * Query object to look up a user's authorities.
-     */
-    private class AuthoritiesByUsernameMapping extends MappingSqlQuery {
-        protected AuthoritiesByUsernameMapping(DataSource ds) {
-            super(ds, authoritiesByUsernameQuery);
-            declareParameter(new SqlParameter(Types.VARCHAR));
-            compile();
-        }
-
-        protected Object mapRow(ResultSet rs, int rownum) throws SQLException {
-            String roleName = rolePrefix + rs.getString(2);
-            GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
-
-            return authority;
-        }
-    }
-
-    private class GroupAuthoritiesByUsernameMapping extends MappingSqlQuery {
-        protected GroupAuthoritiesByUsernameMapping(DataSource ds) {
-            super(ds, groupAuthoritiesByUsernameQuery);
-            declareParameter(new SqlParameter(Types.VARCHAR));
-            compile();
-        }
-
-        protected Object mapRow(ResultSet rs, int rownum) throws SQLException {
-            String roleName = rolePrefix + rs.getString(3);
-            GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
-
-            return authority;
-        }
-    }
-
-    /**
-     * Query object to look up a user.
-     */
-    private class UsersByUsernameMapping extends MappingSqlQuery {
-        protected UsersByUsernameMapping(DataSource ds) {
-            super(ds, usersByUsernameQuery);
-            declareParameter(new SqlParameter(Types.VARCHAR));
-            compile();
-        }
-
-        protected Object mapRow(ResultSet rs, int rownum) throws SQLException {
-            String username = rs.getString(1);
-            String password = rs.getString(2);
-            boolean enabled = rs.getBoolean(3);
-            UserDetails user = new User(username, password, enabled, true, true, true, AuthorityUtils.NO_AUTHORITIES);
-
-            return user;
-        }
     }
 }
