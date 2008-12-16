@@ -22,6 +22,11 @@
         </param-value>
     </context-param>
 
+    <context-param>
+        <param-name>webAppRootKey</param-name>
+        <param-value>ldap.root</param-value>
+    </context-param>
+
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
