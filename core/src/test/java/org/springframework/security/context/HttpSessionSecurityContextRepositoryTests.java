@@ -161,6 +161,49 @@ public class HttpSessionSecurityContextRepositoryTests {
         assertTrue(repo.generateNewContext() instanceof MockContext);
     }
 
+    @Test
+    @SuppressWarnings("deprecation")
+    public void sessionDisableUrlRewritingPreventsSessionIdBeingWrittenToUrl() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        final String sessionId = ";jsessionid=id";
+        MockHttpServletResponse response = new MockHttpServletResponse() {
+            @Override
+            public String encodeRedirectUrl(String url) {
+                return url + sessionId;
+            }
+
+            @Override
+            public String encodeRedirectURL(String url) {
+                return url + sessionId;
+            }
+
+            @Override
+            public String encodeUrl(String url) {
+                return url + sessionId;
+            }
+
+            @Override
+            public String encodeURL(String url) {
+                return url + sessionId;
+            }
+        };
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        repo.loadContext(holder);
+        String url = "/aUrl";
+        assertEquals(url + sessionId, holder.getResponse().encodeRedirectUrl(url));
+        assertEquals(url + sessionId, holder.getResponse().encodeRedirectURL(url));
+        assertEquals(url + sessionId, holder.getResponse().encodeUrl(url));
+        assertEquals(url + sessionId, holder.getResponse().encodeURL(url));
+        repo.setDisableUrlRewriting(true);
+        holder = new HttpRequestResponseHolder(request, response);
+        repo.loadContext(holder);
+        assertEquals(url, holder.getResponse().encodeRedirectUrl(url));
+        assertEquals(url, holder.getResponse().encodeRedirectURL(url));
+        assertEquals(url, holder.getResponse().encodeUrl(url));
+        assertEquals(url, holder.getResponse().encodeURL(url));
+    }
+
     static class MockContext implements Cloneable, SecurityContext {
         Authentication a;
 

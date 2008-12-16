@@ -61,6 +61,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     private Object contextObject = new SecurityContextImpl();
     private boolean cloneFromHttpSession = false;
     private boolean allowSessionCreation = true;
+    private boolean disableUrlRewriting = false;
 
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
@@ -234,6 +235,16 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         this.allowSessionCreation = allowSessionCreation;
     }
 
+    /**
+     * Allows the use of session identifiers in URLs to be disabled. Off by default.
+     *
+     * @param disableUrlRewriting set to <tt>true</tt> to disable URL encoding methods in the response wrapper
+     *                            and prevent the use of <tt>jsessionid</tt> parameters.
+     */
+    public void setDisableUrlRewriting(boolean disableUrlRewriting) {
+        this.disableUrlRewriting = disableUrlRewriting;
+    }
+
     //~ Inner Classes ==================================================================================================
 
     /**
@@ -265,7 +276,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         SaveToSessionResponseWrapper(HttpServletResponse response, HttpServletRequest request,
                                                       boolean httpSessionExistedAtStartOfRequest,
                                                       int contextHashBeforeChainExecution) {
-            super(response);
+            super(response, disableUrlRewriting);
             this.request = request;
             this.httpSessionExistedAtStartOfRequest = httpSessionExistedAtStartOfRequest;
             this.contextHashBeforeChainExecution = contextHashBeforeChainExecution;

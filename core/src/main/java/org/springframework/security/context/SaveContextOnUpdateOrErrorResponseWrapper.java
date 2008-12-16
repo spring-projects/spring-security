@@ -8,21 +8,31 @@ import javax.servlet.http.HttpServletResponseWrapper;
 /**
  * Base class for response wrappers which encapsulate the logic for storing a security context and which
  * store the with the <code>SecurityContext</code> when a <code>sendError()</code> or <code>sendRedirect</code>
- * happens. See SEC-398.
+ * happens. See issue SEC-398.
  * <p>
  * Sub-classes should implement the {@link #saveContext(SecurityContext context)} method.
+ * <p>
+ * Support is also provided for disabling URL rewriting
  *
  * @author Luke Taylor
  * @author Marten Algesten
  * @version $Id$
  * @since 2.5
  */
-abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServletResponseWrapper {
+public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServletResponseWrapper {
 
-    boolean contextSaved = false;
+    private boolean contextSaved = false;
+    /* See SEC-1052 */
+    private boolean disableUrlRewriting;
 
-    SaveContextOnUpdateOrErrorResponseWrapper(HttpServletResponse response) {
+    /**
+     * @param response              the response to be wrapped
+     * @param disableUrlRewriting   turns the URL encoding methods into null operations, preventing the use
+     *                              of URL rewriting to add the session identifier as a URL parameter.
+     */
+    public SaveContextOnUpdateOrErrorResponseWrapper(HttpServletResponse response, boolean disableUrlRewriting) {
         super(response);
+        this.disableUrlRewriting = disableUrlRewriting;
     }
 
     /**
@@ -36,7 +46,8 @@ abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServletResp
      * Makes sure the session is updated before calling the
      * superclass <code>sendError()</code>
      */
-    public void sendError(int sc) throws IOException {
+    @Override
+    public final void sendError(int sc) throws IOException {
         doSaveContext();
         super.sendError(sc);
     }
@@ -45,7 +56,8 @@ abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServletResp
      * Makes sure the session is updated before calling the
      * superclass <code>sendError()</code>
      */
-    public void sendError(int sc, String msg) throws IOException {
+    @Override
+    public final void sendError(int sc, String msg) throws IOException {
         doSaveContext();
         super.sendError(sc, msg);
     }
@@ -54,7 +66,8 @@ abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServletResp
      * Makes sure the context is stored before calling the
      * superclass <code>sendRedirect()</code>
      */
-    public void sendRedirect(String location) throws IOException {
+    @Override
+    public final void sendRedirect(String location) throws IOException {
         doSaveContext();
         super.sendRedirect(location);
     }
@@ -67,10 +80,42 @@ abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServletResp
         contextSaved = true;
     }
 
+    @Override
+    public final String encodeRedirectUrl(String url) {
+        if (disableUrlRewriting) {
+            return url;
+        }
+        return super.encodeRedirectUrl(url);
+    }
+
+    @Override
+    public final String encodeRedirectURL(String url) {
+        if (disableUrlRewriting) {
+            return url;
+        }
+        return super.encodeRedirectURL(url);
+    }
+
+    @Override
+    public final String encodeUrl(String url) {
+        if (disableUrlRewriting) {
+            return url;
+        }
+        return super.encodeUrl(url);
+    }
+
+    @Override
+    public final String encodeURL(String url) {
+        if (disableUrlRewriting) {
+            return url;
+        }
+        return super.encodeURL(url);
+    }
+
     /**
      * Tells if the response wrapper has called <code>saveContext()</code> because of an error or redirect.
      */
-    public boolean isContextSaved() {
+    public final boolean isContextSaved() {
         return contextSaved;
     }
 

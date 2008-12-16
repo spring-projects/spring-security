@@ -1,10 +1,11 @@
 <html>
 <body>
-Provides a "request context".
+Classes related to the establishment of a security context for the duration of a request (such as
+an HTTP or RMI invocation) and for the maintenance of the context between requests (by storing it in an HTTP sessio, for
+example).
 <p>
-A request context is associated with the current execution thread. It holds
-objects that would otherwise need to be included in many method signatures, 
-such as for authentication.</p>
+A security context is associated with the current execution thread for the duration of the request, making the
+authentication information it contains available throughout all the layers of an application.
 </body>
 </html>
 
