@@ -107,19 +107,16 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
         logger.debug("Remember-me cookie accepted");
 
-        RememberMeAuthenticationToken auth = new RememberMeAuthenticationToken(key, user, user.getAuthorities());
-        auth.setDetails(authenticationDetailsSource.buildDetails(request));
-
-        return auth;
+        return createSuccessfulAuthentication(request, user);
     }
 
     /**
-     * Locates the Spring Security remember me cookie in the request.
+     * Locates the Spring Security remember me cookie in the request and returns its value.
      *
      * @param request the submitted request which is to be authenticated
      * @return the cookie value (if present), null otherwise.
      */
-    private String extractRememberMeCookie(HttpServletRequest request) {
+    protected String extractRememberMeCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
         if ((cookies == null) || (cookies.length == 0)) {
@@ -133,6 +130,24 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         }
 
         return null;
+    }
+
+    /**
+     * Creates the final <tt>Authentication</tt> object returned from the <tt>autoLogin</tt> method.
+     * <p>
+     * By default it will create a <tt>RememberMeAuthenticationToken</tt> instance.
+     *
+     * @param request       the original request. The configured <tt>AuthenticationDetailsSource</tt> will
+     *                      use this to build the details property of the returned object.
+     * @param user          the <tt>UserDetails</tt> loaded from the <tt>UserDetailsService</tt>. This will be
+     *                      stored as the principal.
+     *
+     * @return the <tt>Authentication</tt> for the remember-me authenticated user
+     */
+    protected Authentication createSuccessfulAuthentication(HttpServletRequest request, UserDetails user) {
+        RememberMeAuthenticationToken auth = new RememberMeAuthenticationToken(key, user, user.getAuthorities());
+        auth.setDetails(authenticationDetailsSource.buildDetails(request));
+        return auth;
     }
 
     /**
