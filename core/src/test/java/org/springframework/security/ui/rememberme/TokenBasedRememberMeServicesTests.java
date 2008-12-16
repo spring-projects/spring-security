@@ -18,13 +18,18 @@ package org.springframework.security.ui.rememberme;
 import static org.junit.Assert.*;
 
 import java.util.Date;
+
 import javax.servlet.http.Cookie;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.Authentication;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.userdetails.User;
@@ -32,13 +37,7 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.util.AuthorityUtils;
-import org.springframework.dao.DataAccessException;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.StringUtils;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  * Tests {@link org.springframework.security.ui.rememberme.TokenBasedRememberMeServices}.
@@ -304,25 +303,11 @@ public class TokenBasedRememberMeServicesTests {
         assertTrue(Base64.isArrayByteBase64(cookie.getValue().getBytes()));
         assertTrue(new Date().before(new Date(determineExpiryTimeFromBased64EncodedToken(cookie.getValue()))));
     }
-
-    //~ Inner Classes ==================================================================================================
-
-    private class MockAuthenticationDao implements UserDetailsService {
-        private UserDetails toReturn;
-        private boolean throwException;
-
-        public MockAuthenticationDao(UserDetails toReturn, boolean throwException) {
-            this.toReturn = toReturn;
-            this.throwException = throwException;
-        }
-
-        public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
-            if (throwException) {
-                throw new UsernameNotFoundException("as requested by mock");
-            }
-
-            return toReturn;
-        }
+    
+    // SEC-933
+    @Test
+    public void obtainPasswordReturnsNullForTokenWithNullCredentials() throws Exception {
+        TestingAuthenticationToken token = new TestingAuthenticationToken("username", null);
+        assertNull(services.retrievePassword(token));
     }
 }

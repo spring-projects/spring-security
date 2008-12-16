@@ -39,13 +39,11 @@ import java.util.Date;
  * credentials - not the time period they last logged in via remember-me. The
  * implementation will only send a remember-me token if the parameter defined by
  * {@link #setParameter(String)} is present.
- *
  * <p>
  * An {@link org.springframework.security.userdetails.UserDetailsService} is required by
  * this implementation, so that it can construct a valid
  * <code>Authentication</code> from the returned {@link org.springframework.security.userdetails.UserDetails}.
  * This is also necessary so that the user's password is available and can be checked as part of the encoded cookie.
- *
  * <p>
  * The cookie encoded by this implementation adopts the following form:
  *
@@ -58,32 +56,29 @@ import java.util.Date;
  * invalidated. Equally, the system administrator may invalidate every
  * remember-me token on issue by changing the key. This provides some reasonable
  * approaches to recovering from a remember-me token being left on a public
- * machine (eg kiosk system, Internet cafe etc). Most importantly, at no time is
+ * machine (e.g. kiosk system, Internet cafe etc). Most importantly, at no time is
  * the user's password ever sent to the user agent, providing an important
  * security safeguard. Unfortunately the username is necessary in this
  * implementation (as we do not want to rely on a database for remember-me
- * services) and as such high security applications should be aware of this
- * occasionally undesired disclosure of a valid username.
- *
+ * services). High security applications should be aware of this occasionally undesired
+ * disclosure of a valid username.
  * <p>
  * This is a basic remember-me implementation which is suitable for many
  * applications. However, we recommend a database-based implementation if you
  * require a more secure remember-me approach (see {@link PersistentTokenBasedRememberMeServices}).
- *
  * <p>
- * By default the tokens will be valid for 14 days from the last successful
- * authentication attempt. This can be changed using
- * {@link #setTokenValiditySeconds(int)}.
- * 
+ * By default the tokens will be valid for 14 days from the last successful authentication attempt. This can be changed
+ * using {@link #setTokenValiditySeconds(int)}.
+ *
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
-	//~ Methods ========================================================================================================
+    //~ Methods ========================================================================================================
 
-    public UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
+    protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
             HttpServletResponse response) {
 
         if (cookieTokens.length != 3) {
@@ -132,37 +127,37 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
      * MD5 ("username:tokenExpiryTime:password:key")
      */
     protected String makeTokenSignature(long tokenExpiryTime, String username, String password) {
-		return DigestUtils.md5Hex(username + ":" + tokenExpiryTime + ":" + password + ":" + getKey());
-	}
+        return DigestUtils.md5Hex(username + ":" + tokenExpiryTime + ":" + password + ":" + getKey());
+    }
 
-	protected boolean isTokenExpired(long tokenExpiryTime) {
-		return tokenExpiryTime < System.currentTimeMillis();
-	}
+    protected boolean isTokenExpired(long tokenExpiryTime) {
+        return tokenExpiryTime < System.currentTimeMillis();
+    }
 
-	public void onLoginSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication successfulAuthentication) {
+    public void onLoginSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication successfulAuthentication) {
 
-		String username = retrieveUserName(successfulAuthentication);
-		String password = retrievePassword(successfulAuthentication);
+        String username = retrieveUserName(successfulAuthentication);
+        String password = retrievePassword(successfulAuthentication);
 
-		// If unable to find a username and password, just abort as TokenBasedRememberMeServices is
+        // If unable to find a username and password, just abort as TokenBasedRememberMeServices is
         // unable to construct a valid token in this case.
-		if (!StringUtils.hasLength(username) || !StringUtils.hasLength(password)) {
-			return;
-		}
+        if (!StringUtils.hasLength(username) || !StringUtils.hasLength(password)) {
+            return;
+        }
 
-		int tokenLifetime = calculateLoginLifetime(request, successfulAuthentication);
+        int tokenLifetime = calculateLoginLifetime(request, successfulAuthentication);
         long expiryTime = System.currentTimeMillis() + 1000L*tokenLifetime;
 
         String signatureValue = makeTokenSignature(expiryTime, username, password);
 
         setCookie(new String[] {username, Long.toString(expiryTime), signatureValue}, tokenLifetime, request, response);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Added remember-me cookie for user '" + username + "', expiry: '"
+        if (logger.isDebugEnabled()) {
+            logger.debug("Added remember-me cookie for user '" + username + "', expiry: '"
                     + new Date(expiryTime) + "'");
-		}
-	}
+        }
+    }
 
     /**
      * Calculates the validity period in seconds for a newly generated remember-me login.
@@ -173,7 +168,6 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
      * <p>
      * The returned value will be used to work out the expiry time of the token and will also be
      * used to set the <tt>maxAge</tt> property of the cookie.
-     * </p>
      *
      * See SEC-485.
      *
@@ -186,24 +180,27 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
     }
 
     protected String retrieveUserName(Authentication authentication) {
-		if (isInstanceOfUserDetails(authentication)) {
-			return ((UserDetails) authentication.getPrincipal()).getUsername();
-		}
-		else {
-			return authentication.getPrincipal().toString();
-		}
-	}
+        if (isInstanceOfUserDetails(authentication)) {
+            return ((UserDetails) authentication.getPrincipal()).getUsername();
+        }
+        else {
+            return authentication.getPrincipal().toString();
+        }
+    }
 
-	protected String retrievePassword(Authentication authentication) {
-		if (isInstanceOfUserDetails(authentication)) {
-			return ((UserDetails) authentication.getPrincipal()).getPassword();
-		}
-		else {
-			return authentication.getCredentials().toString();
-		}
-	}
+    protected String retrievePassword(Authentication authentication) {
+        if (isInstanceOfUserDetails(authentication)) {
+            return ((UserDetails) authentication.getPrincipal()).getPassword();
+        }
+        else {
+            if (authentication.getCredentials() == null) {
+                return null;
+            }
+            return authentication.getCredentials().toString();
+        }
+    }
 
-	private boolean isInstanceOfUserDetails(Authentication authentication) {
-		return authentication.getPrincipal() instanceof UserDetails;
-	}
+    private boolean isInstanceOfUserDetails(Authentication authentication) {
+        return authentication.getPrincipal() instanceof UserDetails;
+    }
 }
