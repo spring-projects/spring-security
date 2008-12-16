@@ -16,7 +16,7 @@
 package org.springframework.security;
 
 /**
- * Abstract superclass for all exceptions related an {@link Authentication} object being invalid for whatever
+ * Abstract superclass for all exceptions related to an {@link Authentication} object being invalid for whatever
  * reason.
  *
  * @author Ben Alex
@@ -31,8 +31,7 @@ public abstract class AuthenticationException extends SpringSecurityException {
     //~ Constructors ===================================================================================================
 
     /**
-     * Constructs an <code>AuthenticationException</code> with the specified
-     * message and root cause.
+     * Constructs an <code>AuthenticationException</code> with the specified message and root cause.
      *
      * @param msg the detail message
      * @param t the root cause
@@ -42,8 +41,7 @@ public abstract class AuthenticationException extends SpringSecurityException {
     }
 
     /**
-     * Constructs an <code>AuthenticationException</code> with the specified
-     * message and no root cause.
+     * Constructs an <code>AuthenticationException</code> with the specified message and no root cause.
      *
      * @param msg the detail message
      */
