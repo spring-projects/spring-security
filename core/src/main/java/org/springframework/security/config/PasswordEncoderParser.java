@@ -1,26 +1,24 @@
 package org.springframework.security.config;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanMetadataElement;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.providers.encoding.BaseDigestPasswordEncoder;
 import org.springframework.security.providers.encoding.Md4PasswordEncoder;
 import org.springframework.security.providers.encoding.Md5PasswordEncoder;
 import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.providers.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.providers.encoding.ShaPasswordEncoder;
-import org.springframework.security.providers.encoding.BaseDigestPasswordEncoder;
 import org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder;
-import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.beans.BeanMetadataElement;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-
 import org.w3c.dom.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Map;
-import java.util.HashMap;
 
 /**
  * Stateful parser for the <password-encoder> element.
@@ -30,7 +28,7 @@ import java.util.HashMap;
  * @author Luke Taylor
  * @version $Id$
  */
-public class PasswordEncoderParser {
+class PasswordEncoderParser {
     static final String ATT_REF = "ref";
     static final String ATT_HASH = "hash";
     static final String ATT_BASE_64 = "base64";
@@ -56,7 +54,7 @@ public class PasswordEncoderParser {
     private Log logger = LogFactory.getLog(getClass());
 
     private BeanMetadataElement passwordEncoder;
-    private BeanDefinition saltSource;
+    private BeanMetadataElement saltSource;
 
     public PasswordEncoderParser(Element element, ParserContext parserContext) {
         parse(element, parserContext);
@@ -104,7 +102,7 @@ public class PasswordEncoderParser {
         return passwordEncoder;
     }
 
-    public BeanDefinition getSaltSource() {
+    public BeanMetadataElement getSaltSource() {
         return saltSource;
     }
 }

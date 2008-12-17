@@ -47,7 +47,7 @@ password-encoder.attlist &=
     
 salt-source =
     ## Password salting strategy. A system-wide constant or a property from the UserDetails object can be used.
-    element salt-source {user-property | system-wide}
+    element salt-source {user-property | system-wide | ref}
 user-property =
     ## A property of the UserDetails object which will be used as salt by a password encoder. Typically something like "username" might be used. 
     attribute user-property {xsd:string}

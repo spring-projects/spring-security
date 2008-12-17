@@ -419,6 +419,12 @@
                                              salt for a password encoder. </xs:documentation>
                                        </xs:annotation>
                                     </xs:attribute>
+                                    <xs:attribute name="ref" type="xs:string">
+                                       <xs:annotation>
+                                          <xs:documentation>Defines a reference to a Spring bean
+                                             Id.</xs:documentation>
+                                       </xs:annotation>
+                                    </xs:attribute>
                                  </xs:complexType>
                               </xs:element>
                            </xs:sequence>
@@ -1329,6 +1335,12 @@
                               <xs:annotation>
                                  <xs:documentation>A single value that will be used as the salt for
                                     a password encoder. </xs:documentation>
+                              </xs:annotation>
+                           </xs:attribute>
+                           <xs:attribute name="ref" type="xs:string">
+                              <xs:annotation>
+                                 <xs:documentation>Defines a reference to a Spring bean
+                                    Id.</xs:documentation>
                               </xs:annotation>
                            </xs:attribute>
                         </xs:complexType>

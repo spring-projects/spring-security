@@ -87,7 +87,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
         ShaPasswordEncoder encoder = (ShaPasswordEncoder) FieldUtils.getFieldValue(getProvider(), "passwordEncoder");
         assertEquals("SHA-256", encoder.getAlgorithm());
     }
-    
+
     @Test
     public void passwordIsBase64EncodedWhenBase64IsEnabled() throws Exception {
         setContext(" <authentication-provider>" +
@@ -99,18 +99,21 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 
         getProvider().authenticate(bob);
     }
-    
+
     @Test
-    public void externalUserServiceAndPasswordEncoderWork() throws Exception {
+    public void externalUserServicePasswordEncoderAndSaltSourceWork() throws Exception {
         setContext(" <authentication-provider user-service-ref='customUserService'>" +
                 "        <password-encoder ref='customPasswordEncoder'>" +
-                "            <salt-source user-property='username'/>" +
+                "            <salt-source ref='saltSource'/>" +
                 "        </password-encoder>" +
                 "    </authentication-provider>" +
 
                 "    <b:bean id='customPasswordEncoder' " +
                             "class='org.springframework.security.providers.encoding.Md5PasswordEncoder'/>" +
-
+                "    <b:bean id='saltSource' " +
+                "           class='org.springframework.security.providers.dao.salt.ReflectionSaltSource'>" +
+                "         <b:property name='userPropertyToUse' value='username'/>" +
+                "    </b:bean>" +
                 "    <b:bean id='customUserService' " +
                 "           class='org.springframework.security.userdetails.memory.InMemoryDaoImpl'>" +
                 "        <b:property name='userMap' value='bob=f117f0862384e9497ff4f470e3522606,ROLE_A'/>" +
