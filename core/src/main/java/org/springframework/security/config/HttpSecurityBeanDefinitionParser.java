@@ -104,6 +104,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
 
+    private static final String ATT_DISABLE_URL_REWRITING = "disable-url-rewriting";
+
     private static final String EXPRESSION_FIDS_CLASS = "org.springframework.security.expression.web.ExpressionBasedFilterInvocationDefinitionSource";
     private static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.expression.support.DefaultSecurityExpressionHandler";
     private static final String EXPRESSION_HANDLER_ID = "_webExpressionHandler";
@@ -262,6 +264,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         String repoRef = element.getAttribute(ATT_SECURITY_CONTEXT_REPOSITORY);
         String createSession = element.getAttribute(ATT_CREATE_SESSION);
+        String disableUrlRewriting = element.getAttribute(ATT_DISABLE_URL_REWRITING);
 
         if (StringUtils.hasText(repoRef)) {
             scpf.addPropertyReference("securityContextRepository", repoRef);
@@ -287,6 +290,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
                 scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
             }
+
+            if ("true".equals(disableUrlRewriting)) {
+                contextRepo.addPropertyValue("disableUrlRewriting", Boolean.TRUE);
+            }
+
             scpf.addPropertyValue("securityContextRepository", contextRepo.getBeanDefinition());
         }
 

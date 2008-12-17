@@ -662,6 +662,8 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "forceEagerSessionCreation"));
         assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "repo.allowSessionCreation"));
+        // Just check that the repo has url rewriting enabled by default
+        assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(filter, "repo.disableUrlRewriting"));
     }
 
     @Test
@@ -752,6 +754,13 @@ public class HttpSecurityBeanDefinitionParserTests {
         AuthenticationFailureHandler fh = (AuthenticationFailureHandler) appContext.getBean("fh");
         assertSame(sh, FieldUtils.getFieldValue(apf, "successHandler"));
         assertSame(fh, FieldUtils.getFieldValue(apf, "failureHandler"));
+    }
+
+    @Test
+    public void disablingUrlRewritingThroughTheNamespaceSetsCorrectPropertyOnContextRepo() throws Exception {
+        setContext("<http auto-config='true' disable-url-rewriting='true'/>" + AUTH_PROVIDER_XML);
+        Object filter = appContext.getBean(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER);
+        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "repo.disableUrlRewriting"));
     }
 
     private void setContext(String context) {
