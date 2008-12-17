@@ -23,24 +23,14 @@ import org.springframework.security.TargetObject;
 import org.springframework.security.intercept.method.MapBasedMethodDefinitionSource;
 import org.springframework.security.intercept.method.MethodDefinitionSourceEditor;
 
-
 /**
  * Tests {@link MethodDefinitionSourceAdvisor}.
  *
  * @author Ben Alex
  * @version $Id$
  */
+@SuppressWarnings("deprecation")
 public class MethodDefinitionSourceAdvisorTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public MethodDefinitionSourceAdvisorTests() {
-        super();
-    }
-
-    public MethodDefinitionSourceAdvisorTests(String arg0) {
-        super(arg0);
-    }
-
     //~ Methods ========================================================================================================
 
     private MethodSecurityInterceptor getInterceptor() {
@@ -65,7 +55,7 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
 
     public void testAdvisorReturnsFalseWhenMethodInvocationNotDefined()
         throws Exception {
-        Class clazz = TargetObject.class;
+        Class<TargetObject> clazz = TargetObject.class;
         Method method = clazz.getMethod("makeLowerCase", new Class[] {String.class});
 
         MethodDefinitionSourceAdvisor advisor = new MethodDefinitionSourceAdvisor(getInterceptor());
@@ -74,7 +64,7 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
 
     public void testAdvisorReturnsTrueWhenMethodInvocationIsDefined()
         throws Exception {
-        Class clazz = TargetObject.class;
+        Class<TargetObject> clazz = TargetObject.class;
         Method method = clazz.getMethod("countLength", new Class[] {String.class});
 
         MethodDefinitionSourceAdvisor advisor = new MethodDefinitionSourceAdvisor(getInterceptor());
@@ -93,7 +83,7 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
     }
 
     public void testUnsupportedOperations() throws Throwable {
-        Class clazz = TargetObject.class;
+        Class<TargetObject> clazz = TargetObject.class;
         Method method = clazz.getMethod("countLength", new Class[] {String.class});
 
         MethodDefinitionSourceAdvisor.InternalMethodInvocation imi = new MethodDefinitionSourceAdvisor(getInterceptor()).new InternalMethodInvocation(method, clazz);
