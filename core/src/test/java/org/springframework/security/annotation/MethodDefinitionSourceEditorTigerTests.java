@@ -15,11 +15,9 @@
 
 package org.springframework.security.annotation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +37,7 @@ import org.springframework.security.intercept.method.MockMethodInvocation;
  * @author Ben Alex
  * @version $Id$
  */
+@SuppressWarnings("deprecation")
 public class MethodDefinitionSourceEditorTigerTests {
     private MockMethodInvocation makeUpper;
     private MockMethodInvocation makeLower;
