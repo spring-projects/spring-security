@@ -16,7 +16,7 @@ path-type =
     attribute path-type {"ant" | "regex"}
 port =
     ## Specifies an IP port number. Used to configure an embedded LDAP server, for example.
-    attribute port { xsd:integer }
+    attribute port { xsd:positiveInteger }
 url =
     ## Specifies a URL.
     attribute url { xsd:string }
@@ -258,6 +258,10 @@ http.attlist &=
 http.attlist &=
     ## Allows the access denied page to be set (the user will be redirected here if an AccessDeniedException is raised).
     attribute access-denied-page {xsd:string}?
+http.attlist &=
+    ##  
+    attribute disable-url-rewriting {boolean}?
+
 
 intercept-url =
     ## Specifies the access attributes and/or filter list for a particular set of URLs.
@@ -389,8 +393,8 @@ remember-me.attlist &=
     user-service-ref?
     
 remember-me.attlist &=
-    ## The period (in seconds) for which the remember-me cookie should be valid. 
-    attribute token-validity-seconds {xsd:positiveInteger}?
+    ## The period (in seconds) for which the remember-me cookie should be valid. If set to a negative value
+    attribute token-validity-seconds {xsd:integer}?
     
 token-repository-ref =
     ## Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation. 

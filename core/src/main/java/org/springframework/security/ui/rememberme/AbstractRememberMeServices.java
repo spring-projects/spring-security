@@ -36,6 +36,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
     public static final String SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
     public static final String DEFAULT_PARAMETER = "_spring_security_remember_me";
+    public static final int TWO_WEEKS_S = 1209600;
 
     private static final String DELIMITER = ":";
 
@@ -52,7 +53,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     private String parameter = DEFAULT_PARAMETER;
     private boolean alwaysRemember;
     private String key;
-    private int tokenValiditySeconds = 1209600; // 14 days
+    private int tokenValiditySeconds = TWO_WEEKS_S;
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key);

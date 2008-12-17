@@ -98,7 +98,12 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             }
 
             if (tokenValiditySet) {
-                services.getPropertyValues().addPropertyValue("tokenValiditySeconds", new Integer(tokenValiditySeconds));
+                Integer tokenValidity = new Integer(tokenValiditySeconds);
+                if (tokenValidity.intValue() < 0 && isPersistent) {
+                    parserContext.getReaderContext().error(ATT_TOKEN_VALIDITY + " cannot be negative if using" +
+                            " a persistent remember-me token repository", source);
+                }
+                services.getPropertyValues().addPropertyValue("tokenValiditySeconds", tokenValidity);
             }
             services.setSource(source);
             services.getPropertyValues().addPropertyValue(ATT_KEY, key);

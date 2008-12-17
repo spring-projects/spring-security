@@ -68,7 +68,9 @@ import java.util.Date;
  * require a more secure remember-me approach (see {@link PersistentTokenBasedRememberMeServices}).
  * <p>
  * By default the tokens will be valid for 14 days from the last successful authentication attempt. This can be changed
- * using {@link #setTokenValiditySeconds(int)}.
+ * using {@link #setTokenValiditySeconds(int)}. If this value is less than zero, the <tt>expiryTime</tt> will remain at
+ * 14 days, but the negative value will be used for the <tt>maxAge</tt> property of the cookie, meaning that it will
+ * not be stored when the browser is closed.
  *
  *
  * @author Ben Alex
@@ -147,7 +149,9 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
         }
 
         int tokenLifetime = calculateLoginLifetime(request, successfulAuthentication);
-        long expiryTime = System.currentTimeMillis() + 1000L*tokenLifetime;
+        long expiryTime = System.currentTimeMillis();
+        // SEC-949
+        expiryTime += 1000L* (tokenLifetime < 0 ? TWO_WEEKS_S : tokenLifetime);
 
         String signatureValue = makeTokenSignature(expiryTime, username, password);
 

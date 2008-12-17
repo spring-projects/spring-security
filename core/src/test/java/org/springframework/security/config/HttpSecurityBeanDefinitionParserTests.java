@@ -370,11 +370,11 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void rememberMeServiceWorksWithTokenRepoRef() {
         setContext(
-                "<http auto-config='true'>" +
-                "    <remember-me token-repository-ref='tokenRepo'/>" +
-                "</http>" +
-                "<b:bean id='tokenRepo' " +
-                        "class='org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl'/> " + AUTH_PROVIDER_XML);
+            "<http auto-config='true'>" +
+            "    <remember-me token-repository-ref='tokenRepo'/>" +
+            "</http>" +
+            "<b:bean id='tokenRepo' " +
+                    "class='org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl'/> " + AUTH_PROVIDER_XML);
         Object rememberMeServices = appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
 
         assertTrue(rememberMeServices instanceof PersistentTokenBasedRememberMeServices);
@@ -393,7 +393,6 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         assertTrue(rememberMeServices instanceof PersistentTokenBasedRememberMeServices);
     }
-
 
     @Test
     public void rememberMeServiceWorksWithExternalServicesImpl() throws Exception {
@@ -424,6 +423,26 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>" + AUTH_PROVIDER_XML);
         assertEquals(10000, FieldUtils.getFieldValue(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES),
                 "tokenValiditySeconds"));
+    }
+
+    @Test
+    public void rememberMeTokenValidityAllowsNegativeValueForNonPersistentImplementation() throws Exception {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <remember-me key='ourkey' token-validity-seconds='-1' />" +
+                "</http>" + AUTH_PROVIDER_XML);
+        assertEquals(-1, FieldUtils.getFieldValue(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES),
+                "tokenValiditySeconds"));
+    }
+
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void rememberMeTokenValidityRejectsNegativeValueForPersistentImplementation() throws Exception {
+        setContext(
+            "<http auto-config='true'>" +
+            "    <remember-me token-validity-seconds='-1' token-repository-ref='tokenRepo'/>" +
+            "</http>" +
+            "<b:bean id='tokenRepo' class='org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl'/> " +
+                    AUTH_PROVIDER_XML);
     }
 
     @Test

@@ -1,16 +1,17 @@
 package org.springframework.security.ui.rememberme;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.dao.DataAccessException;
-
-import org.apache.commons.codec.binary.Base64;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Date;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.Authentication;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.util.Assert;
 
 /**
  * {@link RememberMeServices} implementation based on Barry Jaspan's
@@ -163,5 +164,11 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 
     public void setTokenLength(int tokenLength) {
         this.tokenLength = tokenLength;
+    }
+
+    @Override
+    public void setTokenValiditySeconds(int tokenValiditySeconds) {
+        Assert.isTrue(tokenValiditySeconds > 0, "tokenValiditySeconds must be positive for this implementation");
+        super.setTokenValiditySeconds(tokenValiditySeconds);
     }
 }

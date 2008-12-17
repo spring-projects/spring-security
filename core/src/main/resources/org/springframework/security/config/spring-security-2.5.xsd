@@ -51,7 +51,7 @@
       </xs:attribute>
    </xs:attributeGroup>
    <xs:attributeGroup name="port">
-      <xs:attribute name="port" use="required" type="xs:integer">
+      <xs:attribute name="port" use="required" type="xs:positiveInteger">
          <xs:annotation>
             <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP
                server, for example.</xs:documentation>
@@ -206,7 +206,7 @@
             <xs:documentation>Specifies a URL.</xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="port" type="xs:integer">
+      <xs:attribute name="port" type="xs:positiveInteger">
          <xs:annotation>
             <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP
                server, for example.</xs:documentation>
@@ -890,6 +890,11 @@
                here if an AccessDeniedException is raised).</xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="disable-url-rewriting" type="security:boolean">
+         <xs:annotation>
+            <xs:documentation> </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
    </xs:attributeGroup>
    <xs:attributeGroup name="intercept-url.attlist">
       <xs:attribute name="pattern" use="required" type="xs:string">
@@ -1187,10 +1192,10 @@
                Id</xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="token-validity-seconds" type="xs:positiveInteger">
+      <xs:attribute name="token-validity-seconds" type="xs:integer">
          <xs:annotation>
             <xs:documentation>The period (in seconds) for which the remember-me cookie should be
-               valid. </xs:documentation>
+               valid. If set to a negative value</xs:documentation>
          </xs:annotation>
       </xs:attribute>
    </xs:attributeGroup>
