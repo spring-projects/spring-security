@@ -32,7 +32,7 @@ public final class DelegatingMethodDefinitionSource extends AbstractMethodDefini
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notEmpty(methodDefinitionSources, "A list of MethodDefinitionSources is required");
+        Assert.notNull(methodDefinitionSources, "A list of MethodDefinitionSources is required");
     }
 
     public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
@@ -86,7 +86,6 @@ public final class DelegatingMethodDefinitionSource extends AbstractMethodDefini
 
     @SuppressWarnings("unchecked")
     public void setMethodDefinitionSources(List methodDefinitionSources) {
-        Assert.notEmpty(methodDefinitionSources, "A list of MethodDefinitionSources is required");
         this.methodDefinitionSources = methodDefinitionSources;
     }
 
@@ -94,9 +93,9 @@ public final class DelegatingMethodDefinitionSource extends AbstractMethodDefini
 
     private static class DefaultCacheKey {
         private final Method method;
-        private final Class targetClass;
+        private final Class<?> targetClass;
 
-        public DefaultCacheKey(Method method, Class targetClass) {
+        public DefaultCacheKey(Method method, Class<?> targetClass) {
             this.method = method;
             this.targetClass = targetClass;
         }

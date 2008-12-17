@@ -77,6 +77,17 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         boolean expressionsEnabled = "enabled".equals(element.getAttribute(ATT_USE_EXPRESSIONS));
         BeanDefinition expressionVoter = null;
 
+        // Now create a Map<String, ConfigAttribute> for each <protect-pointcut> sub-element
+        Map<String, List<ConfigAttribute>> pointcutMap = parseProtectPointcuts(parserContext,
+                DomUtils.getChildElementsByTagName(element, Elements.PROTECT_POINTCUT));
+
+        if (pointcutMap.size() > 0) {
+            // SEC-1016: Put the pointcut MDS first, but only add it if there are actually any pointcuts defined.
+            MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource = new MapBasedMethodDefinitionSource();
+            delegates.add(mapBasedMethodDefinitionSource);
+            registerProtectPointcutPostProcessor(parserContext, pointcutMap, mapBasedMethodDefinitionSource, source);
+        }
+
         if (expressionsEnabled) {
             Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
             String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
@@ -110,17 +121,6 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         if (jsr250Enabled) {
             delegates.add(BeanDefinitionBuilder.rootBeanDefinition(JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
-        }
-
-        MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource = new MapBasedMethodDefinitionSource();
-        delegates.add(mapBasedMethodDefinitionSource);
-
-        // Now create a Map<String, ConfigAttribute> for each <protect-pointcut> sub-element
-        Map<String, List<ConfigAttribute>> pointcutMap = parseProtectPointcuts(parserContext,
-                DomUtils.getChildElementsByTagName(element, Elements.PROTECT_POINTCUT));
-
-        if (pointcutMap.size() > 0) {
-            registerProtectPointcutPostProcessor(parserContext, pointcutMap, mapBasedMethodDefinitionSource, source);
         }
 
         registerDelegatingMethodDefinitionSource(parserContext, delegates, source);
