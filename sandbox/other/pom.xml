@@ -19,7 +19,7 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
+      <artifactId>org.springframework.test</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>

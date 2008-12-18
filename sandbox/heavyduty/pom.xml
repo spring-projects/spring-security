@@ -18,27 +18,27 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
+            <artifactId>org.springframework.core</artifactId>
             <version>${spring.version}</version>
         </dependency>                
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <artifactId>org.springframework.context</artifactId>
             <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
+            <artifactId>org.springframework.web</artifactId>
             <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
+            <artifactId>org.springframework.web.servlet</artifactId>
             <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
+            <artifactId>org.springframework.jdbc</artifactId>
             <scope>runtime</scope>
             <version>${spring.version}</version>    
         </dependency>
@@ -49,7 +49,7 @@
         </dependency>        
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
+            <artifactId>org.springframework.aop</artifactId>
             <scope>runtime</scope>
             <version>${spring.version}</version>
         </dependency>

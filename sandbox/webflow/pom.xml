@@ -35,22 +35,22 @@
         </dependency>        
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
+            <artifactId>org.springframework.web</artifactId>
             <version>2.5.5</version>            
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
+            <artifactId>org.springframework.core</artifactId>
             <version>2.5.5</version>            
         </dependency>                
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <artifactId>org.springframework.context</artifactId>
             <version>2.5.5</version>            
         </dependency>        
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
+            <artifactId>org.springframework.web.servlet</artifactId>
             <version>2.5.5</version>            
         </dependency>
         <dependency>

@@ -15,25 +15,26 @@
 
 package org.springframework.security.taglibs.authz;
 
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.el.ExpressionEvaluator;
+import javax.servlet.jsp.el.VariableResolver;
+import javax.servlet.jsp.tagext.Tag;
+
 import junit.framework.TestCase;
 
+import org.jmock.Mockery;
+import org.springframework.mock.web.MockPageContext;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-
 import org.springframework.security.context.SecurityContextHolder;
-
 import org.springframework.security.providers.TestingAuthenticationToken;
-
-import org.springframework.mock.web.MockPageContext;
-
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.Tag;
 
 
 /**
  * Test case to implement commons-el expression language expansion.
  */
 public class AuthorizeTagExpressionLanguageTests extends TestCase {
+    Mockery jmock = new Mockery();
     //~ Instance fields ================================================================================================
 
     private final AuthorizeTag authorizeTag = new AuthorizeTag();
@@ -43,7 +44,11 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
     //~ Methods ========================================================================================================
 
     protected void setUp() throws Exception {
-        pageContext = new MockPageContext();
+        pageContext = new MockPageContext() {
+            public VariableResolver getVariableResolver() {
+                return null;
+            }
+        };
         authorizeTag.setPageContext(pageContext);
 
         currentUser = new TestingAuthenticationToken("abc", "123",
