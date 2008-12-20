@@ -11,7 +11,7 @@ public class InMemoryProviderWebAppTests extends AbstractWebServerIntegrationTes
     protected String getContextConfigLocations() {
         return "/WEB-INF/http-security.xml /WEB-INF/in-memory-provider.xml";
     }
-    
+
     @Test
     public void loginFailsWithinvalidPassword() {
         beginAt("secure/index.html");
@@ -22,11 +22,11 @@ public class InMemoryProviderWebAppTests extends AbstractWebServerIntegrationTes
     @Test
     public void loginSucceedsWithCorrectPassword() {
         beginAt("secure/index.html");
-        login("jimi", "jimispassword");        
+        login("jimi", "jimispassword");
         assertTextPresent("A Secure Page");
         tester.gotoPage("/logout");
     }
-    
+
     /*
      * Checks use of <jsp:include> with parameters in the secured page.
      */

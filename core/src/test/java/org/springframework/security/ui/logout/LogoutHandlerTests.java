@@ -13,7 +13,7 @@ public class LogoutHandlerTests extends TestCase {
     LogoutFilter filter;
 
     protected void setUp() throws Exception {
-        filter = new LogoutFilter("/success", new LogoutHandler[] {new SecurityContextLogoutHandler()});
+        filter = new LogoutFilter("/success", new SecurityContextLogoutHandler());
     }
 
     public void testRequiresLogoutUrlWorksWithPathParams() {

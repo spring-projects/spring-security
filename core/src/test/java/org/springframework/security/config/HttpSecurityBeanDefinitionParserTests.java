@@ -395,6 +395,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void rememberMeServiceWorksWithExternalServicesImpl() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
@@ -410,9 +411,9 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals(5000, FieldUtils.getFieldValue(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES),
                 "tokenValiditySeconds"));
         // SEC-909
-        LogoutHandler[] logoutHandlers = (LogoutHandler[]) FieldUtils.getFieldValue(appContext.getBean(BeanIds.LOGOUT_FILTER), "handlers");
-        assertEquals(2, logoutHandlers.length);
-        assertEquals(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES), logoutHandlers[1]);
+        List<LogoutHandler> logoutHandlers = (List<LogoutHandler>) FieldUtils.getFieldValue(appContext.getBean(BeanIds.LOGOUT_FILTER), "handlers");
+        assertEquals(2, logoutHandlers.size());
+        assertEquals(appContext.getBean(BeanIds.REMEMBER_ME_SERVICES), logoutHandlers.get(1));
     }
 
     @Test

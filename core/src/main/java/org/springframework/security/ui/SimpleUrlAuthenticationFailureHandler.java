@@ -18,7 +18,7 @@ import org.springframework.util.Assert;
  * <tt>AuthenticationException</tt> which caused the failure.
  * <p>
  * If the <tt>forwardToDestination</tt> parameter is set, a <tt>RequestDispatcher.forward</tt> call will be made to
- * the destination instead of
+ * the destination instead of a redirect.
  *
  * @author Luke Taylor
  * @version $Id$
