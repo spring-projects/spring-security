@@ -15,10 +15,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * WebSphere Security helper class to allow retrieval of the current username and groups. 
+ * WebSphere Security helper class to allow retrieval of the current username and groups.
  * <p>
- * See Spring Security JIRA SEC-477.
- * 
+ * See Spring Security Jira SEC-477.
+ *
  * @author Ruud Senden
  * @author Stephane Manciot
  * @since 2.0
@@ -35,11 +35,11 @@ final class WASSecurityHelper {
     private static Method getSecurityName = null;
 
     // SEC-803
-    private static Class wsCredentialClass = null;
-    
+    private static Class<?> wsCredentialClass = null;
+
     /**
      * Get the security name for the given subject.
-     * 
+     *
      * @param subject
      *            The subject for which to retrieve the security name
      * @return String the security name for the given subject
@@ -64,7 +64,7 @@ final class WASSecurityHelper {
 
     /**
      * Get the current RunAs subject.
-     * 
+     *
      * @return Subject the current RunAs subject
      */
     private static final Subject getRunAsSubject() {
@@ -75,7 +75,7 @@ final class WASSecurityHelper {
 
     /**
      * Get the WebSphere group names for the given subject.
-     * 
+     *
      * @param subject
      *            The subject for which to retrieve the WebSphere group names
      * @return the WebSphere group names for the given subject
@@ -86,11 +86,12 @@ final class WASSecurityHelper {
 
     /**
      * Get the WebSphere group names for the given security name.
-     * 
+     *
      * @param securityName
      *            The securityname for which to retrieve the WebSphere group names
      * @return the WebSphere group names for the given security name
      */
+    @SuppressWarnings("unchecked")
     private static final String[] getWebSphereGroups(final String securityName) {
         Context ic = null;
         try {
@@ -129,7 +130,7 @@ final class WASSecurityHelper {
     public static final String getCurrentUserName() {
         return getSecurityName(getRunAsSubject());
     }
-    
+
     private static final Object invokeMethod(Method method, Object instance, Object[] args)
     {
         try {
@@ -148,9 +149,9 @@ final class WASSecurityHelper {
 
     private static final Method getMethod(String className, String methodName, String[] parameterTypeNames) {
         try {
-            Class c = Class.forName(className);
+            Class<?> c = Class.forName(className);
             final int len = parameterTypeNames.length;
-            Class[] parameterTypes = new Class[len];
+            Class<?>[] parameterTypes = new Class[len];
             for (int i = 0; i < len; i++) {
                 parameterTypes[i] = Class.forName(parameterTypeNames[i]);
             }
@@ -162,7 +163,7 @@ final class WASSecurityHelper {
             logger.error("Required method "+methodName+" with parameter types ("+ Arrays.asList(parameterTypeNames) +") not found on class "+className);
             throw new RuntimeException("Required class"+className+" not found",e);
         }
-    }    
+    }
 
     private static final Method getRunAsSubjectMethod() {
         if (getRunAsSubject == null) {
@@ -184,22 +185,22 @@ final class WASSecurityHelper {
         }
         return getSecurityName;
     }
-    
+
     // SEC-803
-    private static final Class getWSCredentialClass() {
+    private static final Class<?> getWSCredentialClass() {
         if (wsCredentialClass == null) {
             wsCredentialClass = getClass("com.ibm.websphere.security.cred.WSCredential");
         }
         return wsCredentialClass;
     }
-    
-    private static final Class getClass(String className) {
+
+    private static final Class<?> getClass(String className) {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
             logger.error("Required class " + className + " not found");
             throw new RuntimeException("Required class " + className + " not found",e);
         }
-    }    
+    }
 
 }

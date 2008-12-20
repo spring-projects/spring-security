@@ -51,6 +51,7 @@ import org.springframework.security.runas.RunAsUserToken;
  * @author Ben Alex
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class MethodSecurityInterceptorTests {
     private Mockery jmock = new JUnit4Mockery();
     private TestingAuthenticationToken token;

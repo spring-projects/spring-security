@@ -44,7 +44,6 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         super.onSetUp();
 
         populator = new DefaultLdapAuthoritiesPopulator(getContextSource(), "ou=groups");
-
     }
 
     @Test
@@ -74,7 +73,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 
         assertEquals("Should have 2 roles", 2, authorities.size());
 
-        Set roles = new HashSet();
+        Set<String> roles = new HashSet<String>();
         roles.add(authorities.get(0).toString());
         roles.add(authorities.get(1).toString());
         assertTrue(roles.contains("ROLE_DEVELOPER"));
@@ -105,7 +104,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         List<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "manager");
 
         assertEquals("Should have 2 roles", 2, authorities.size());
-        Set roles = new HashSet(2);
+        Set<String> roles = new HashSet<String>(2);
         roles.add(authorities.get(0).getAuthority());
         roles.add(authorities.get(1).getAuthority());
         assertTrue(roles.contains("ROLE_MANAGER"));
@@ -123,7 +122,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         List<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "manager");
 
         assertEquals("Should have 3 roles", 3, authorities.size());
-        Set roles = new HashSet(3);
+        Set<String> roles = new HashSet<String>(3);
         roles.add(authorities.get(0).getAuthority());
         roles.add(authorities.get(1).getAuthority());
         roles.add(authorities.get(2).getAuthority());

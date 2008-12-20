@@ -18,32 +18,23 @@ package org.springframework.security.providers.cas;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.TicketValidationException;
 import org.jasig.cas.client.validation.TicketValidator;
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.BadCredentialsException;
-
-import org.springframework.security.providers.AuthenticationProvider;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.cas.cache.NullStatelessTicketCache;
-
-import org.springframework.security.ui.cas.CasProcessingFilter;
-import org.springframework.security.ui.cas.ServiceProperties;
-
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.UserDetailsChecker;
-import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.cas.cache.NullStatelessTicketCache;
+import org.springframework.security.ui.cas.CasProcessingFilter;
+import org.springframework.security.ui.cas.ServiceProperties;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsChecker;
+import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
 import org.springframework.util.Assert;
 
 
@@ -60,9 +51,6 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class CasAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final Log logger = LogFactory.getLog(CasAuthenticationProvider.class);
 
     //~ Instance fields ================================================================================================
 
@@ -144,17 +132,17 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         try {
             final Assertion assertion = this.ticketValidator.validate(authentication.getCredentials().toString(), serviceProperties.getService());
             final UserDetails userDetails = loadUserByAssertion(assertion);
-            userDetailsChecker.check(userDetails);        
+            userDetailsChecker.check(userDetails);
             return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(), userDetails.getAuthorities(), userDetails, assertion);
         } catch (final TicketValidationException e) {
             throw new BadCredentialsException(e.getMessage(), e);
         }
     }
-    
+
     /**
      * Template method for retrieving the UserDetails based on the assertion.  Default is to call configured userDetailsService and pass the username.  Deployers
      * can override this method and retrieve the user based on any criteria they desire.
-     * 
+     *
      * @param assertion The CAS Assertion.
      * @returns the UserDetails.
      */
@@ -169,7 +157,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     public void setUserDetailsService(final UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
-    
+
     public void setServiceProperties(final ServiceProperties serviceProperties) {
         this.serviceProperties = serviceProperties;
     }

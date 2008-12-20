@@ -15,6 +15,8 @@
 
 package org.springframework.security.providers.jaas;
 
+import java.util.List;
+
 import org.springframework.security.GrantedAuthority;
 
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
@@ -40,8 +42,8 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
         this.loginContext = loginContext;
     }
 
-    public JaasAuthenticationToken(Object principal, Object credentials, GrantedAuthority[] authorities,
-        LoginContext loginContext) {
+    public JaasAuthenticationToken(Object principal, Object credentials, List<GrantedAuthority> authorities,
+            LoginContext loginContext) {
         super(principal, credentials, authorities);
         this.loginContext = loginContext;
     }

@@ -15,19 +15,13 @@
 
 package org.springframework.security.userdetails.jdbc;
 
+import java.util.HashSet;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.PopulatedDatabase;
-
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-
-import org.springframework.jdbc.object.MappingSqlQuery;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import java.util.HashSet;
 
 
 /**
@@ -64,7 +58,7 @@ public class JdbcDaoImplTests extends TestCase {
         assertEquals("koala", user.getPassword());
         assertTrue(user.isEnabled());
 
-        HashSet authorities = new HashSet(2);
+        HashSet<String> authorities = new HashSet<String>(2);
         authorities.add(user.getAuthorities().get(0).getAuthority());
         authorities.add(user.getAuthorities().get(1).getAuthority());
         assertTrue(authorities.contains("ROLE_TELLER"));
@@ -129,7 +123,7 @@ public class JdbcDaoImplTests extends TestCase {
         assertEquals("rod", user.getUsername());
         assertEquals(2, user.getAuthorities().size());
 
-        HashSet authorities = new HashSet(2);
+        HashSet<String> authorities = new HashSet<String>(2);
         authorities.add(user.getAuthorities().get(0).getAuthority());
         authorities.add(user.getAuthorities().get(1).getAuthority());
         assertTrue(authorities.contains("ARBITRARY_PREFIX_ROLE_TELLER"));

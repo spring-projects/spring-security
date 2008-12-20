@@ -9,19 +9,19 @@ import sample.domain.User;
  */
 @Repository
 public class UserDAOImpl extends GenericDAOImpl<User, Long> implements
-		sample.dao.UserDAO {
+        sample.dao.UserDAO {
 
-	/**
-	 * Required constructor
-	 */
-	public UserDAOImpl() {
-		super(User.class);
-	}
+    /**
+     * Required constructor
+     */
+    public UserDAOImpl() {
+        super(User.class);
+    }
 
-	public User findByUsername(String username) {
-		return (User) getEntityManager().createNamedQuery("User.findByUsername")
-				.setParameter("username", username).getSingleResult();
-	}
-	
+    public User findByUsername(String username) {
+        return (User) getEntityManager().createNamedQuery("User.findByUsername")
+                .setParameter("username", username).getSingleResult();
+    }
+    
 
 }

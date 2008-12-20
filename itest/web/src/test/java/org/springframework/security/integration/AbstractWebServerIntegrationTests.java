@@ -26,9 +26,9 @@ public abstract class AbstractWebServerIntegrationTests {
     protected final WebTester tester = new WebTester();
 
     /** 
-	 * Override to set the application context files that should be loaded or return null
-	 * to use web.xml.
-	 */
+     * Override to set the application context files that should be loaded or return null
+     * to use web.xml.
+     */
     protected abstract String getContextConfigLocations();
 
     protected String getContextPath() {
@@ -37,43 +37,43 @@ public abstract class AbstractWebServerIntegrationTests {
 
     @BeforeClass
     public void startServer() throws Exception {
-    	synchronized(SERVER_LOCK) {
-		    if (server == null) {
-				//System.setProperty("DEBUG", "true");
-				//System.setProperty("VERBOSE", "true");
-				//System.setProperty("IGNORED", "true");
-		        server = new Server(0);
-		        server.addHandler(createWebContext());
-		        server.start();
-		        tester.getTestContext().setBaseUrl(getBaseUrl());
-	    	}
-    	}
+        synchronized(SERVER_LOCK) {
+            if (server == null) {
+                //System.setProperty("DEBUG", "true");
+                //System.setProperty("VERBOSE", "true");
+                //System.setProperty("IGNORED", "true");
+                server = new Server(0);
+                server.addHandler(createWebContext());
+                server.start();
+                tester.getTestContext().setBaseUrl(getBaseUrl());
+            }
+        }
     }
     
     protected WebAppContext createWebContext() {
         WebAppContext webCtx = new WebAppContext("src/main/webapp", getContextPath());
-    	
-		if (StringUtils.hasText(getContextConfigLocations())) {
-			webCtx.addEventListener(new ContextLoaderListener());
-			webCtx.getInitParams().put("contextConfigLocation", getContextConfigLocations());
-		}
-		
-		return webCtx;
+        
+        if (StringUtils.hasText(getContextConfigLocations())) {
+            webCtx.addEventListener(new ContextLoaderListener());
+            webCtx.getInitParams().put("contextConfigLocation", getContextConfigLocations());
+        }
+        
+        return webCtx;
     }
 
     @AfterClass
     public void stopServer() throws Exception {
-    	synchronized(SERVER_LOCK) {
-	        if (server != null) {
-	            server.stop();
-	        }
-	        server = null;
-    	}
+        synchronized(SERVER_LOCK) {
+            if (server != null) {
+                server.stop();
+            }
+            server = null;
+        }
     }
         
     @AfterMethod
     public void resetWebConversation() {
-    	tester.getTestContext().setWebClient(new WebConversation());
+        tester.getTestContext().setWebClient(new WebConversation());
     }
     
     private final String getBaseUrl() {
@@ -93,7 +93,7 @@ public abstract class AbstractWebServerIntegrationTests {
     }
 
 //    protected final HttpUnitDialog getDialog() {
-//    	return tester.getDialog();
+//        return tester.getDialog();
 //    }
 
     protected final void submit() {
@@ -120,10 +120,10 @@ public abstract class AbstractWebServerIntegrationTests {
     
     // Security-specific utility methods 
     
-	protected void login(String username, String password) {
-	    assertFormPresent();
-	    setFormElement("j_username", username);
-	    setFormElement("j_password", password);
-	    submit();    	
-	}
+    protected void login(String username, String password) {
+        assertFormPresent();
+        setFormElement("j_username", username);
+        setFormElement("j_password", password);
+        submit();        
+    }
 }

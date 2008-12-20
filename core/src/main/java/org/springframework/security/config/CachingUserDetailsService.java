@@ -12,33 +12,33 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 class CachingUserDetailsService implements UserDetailsService {
-	private UserCache userCache = new NullUserCache();
-	private UserDetailsService delegate;
+    private UserCache userCache = new NullUserCache();
+    private UserDetailsService delegate;
 
-	CachingUserDetailsService(UserDetailsService delegate) {
-		this.delegate = delegate;
-	}
+    CachingUserDetailsService(UserDetailsService delegate) {
+        this.delegate = delegate;
+    }
 
-	public UserCache getUserCache() {
-		return userCache;
-	}
+    public UserCache getUserCache() {
+        return userCache;
+    }
 
-	public void setUserCache(UserCache userCache) {
-		this.userCache = userCache;
-	}
+    public void setUserCache(UserCache userCache) {
+        this.userCache = userCache;
+    }
 
-	public UserDetails loadUserByUsername(String username) {
-		UserDetails user = userCache.getUserFromCache(username);
-		
-		if (user == null) {
-			user = delegate.loadUserByUsername(username);
-		}
-		
-		Assert.notNull(user, "UserDetailsService " + delegate + " returned null for username " + username + ". " +
-				"This is an interface contract violation");
-		
-		userCache.putUserInCache(user);
-		
-		return user;
-	}
+    public UserDetails loadUserByUsername(String username) {
+        UserDetails user = userCache.getUserFromCache(username);
+        
+        if (user == null) {
+            user = delegate.loadUserByUsername(username);
+        }
+        
+        Assert.notNull(user, "UserDetailsService " + delegate + " returned null for username " + username + ". " +
+                "This is an interface contract violation");
+        
+        userCache.putUserInCache(user);
+        
+        return user;
+    }
 }

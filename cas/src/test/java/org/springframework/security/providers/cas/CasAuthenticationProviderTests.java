@@ -30,6 +30,7 @@ import org.springframework.security.ui.cas.ServiceProperties;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.util.AuthorityUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,12 +55,12 @@ public class CasAuthenticationProviderTests {
 
     private UserDetails makeUserDetails() {
         return new User("user", "password", true, true, true, true,
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
     }
 
     private UserDetails makeUserDetailsFromAuthoritiesPopulator() {
         return new User("user", "password", true, true, true, true,
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B")});
+                AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B"));
     }
 
     private ServiceProperties makeServiceProperties() {
@@ -83,8 +84,8 @@ public class CasAuthenticationProviderTests {
         cap.setTicketValidator(new MockTicketValidator(true));
         cap.afterPropertiesSet();
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(CasProcessingFilter.CAS_STATEFUL_IDENTIFIER,
-                "ST-123");
+        UsernamePasswordAuthenticationToken token =
+            new UsernamePasswordAuthenticationToken(CasProcessingFilter.CAS_STATEFUL_IDENTIFIER, "ST-123");
         token.setDetails("details");
 
         Authentication result = cap.authenticate(token);
@@ -124,8 +125,8 @@ public class CasAuthenticationProviderTests {
         cap.setServiceProperties(makeServiceProperties());
         cap.afterPropertiesSet();
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(CasProcessingFilter.CAS_STATELESS_IDENTIFIER,
-                "ST-456");
+        UsernamePasswordAuthenticationToken token =
+            new UsernamePasswordAuthenticationToken(CasProcessingFilter.CAS_STATELESS_IDENTIFIER, "ST-456");
         token.setDetails("details");
 
         Authentication result = cap.authenticate(token);
@@ -183,7 +184,7 @@ public class CasAuthenticationProviderTests {
         cap.afterPropertiesSet();
 
         CasAuthenticationToken token = new CasAuthenticationToken("WRONG_KEY", makeUserDetails(), "credentials",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("XX")}, makeUserDetails(), assertion);
+                AuthorityUtils.createAuthorityList("XX"), makeUserDetails(), assertion);
 
         cap.authenticate(token);
     }
@@ -275,7 +276,7 @@ public class CasAuthenticationProviderTests {
         cap.afterPropertiesSet();
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("some_normal_user",
-                "password", new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
+                "password", AuthorityUtils.createAuthorityList("ROLE_A"));
         assertEquals(null, cap.authenticate(token));
     }
 
@@ -295,10 +296,10 @@ public class CasAuthenticationProviderTests {
     }
 
     private class MockStatelessTicketCache implements StatelessTicketCache {
-        private Map cache = new HashMap();
+        private Map<String, CasAuthenticationToken> cache = new HashMap<String, CasAuthenticationToken>();
 
         public CasAuthenticationToken getByTicketId(String serviceTicket) {
-            return (CasAuthenticationToken) cache.get(serviceTicket);
+            return cache.get(serviceTicket);
         }
 
         public void putTicketInCache(CasAuthenticationToken token) {

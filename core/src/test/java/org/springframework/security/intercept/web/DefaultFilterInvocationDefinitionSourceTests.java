@@ -24,9 +24,9 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.MockFilterChain;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.util.AntUrlPathMatcher;
+import org.springframework.security.util.MockFilterChain;
 
 /**
  * Tests parts of {@link DefaultFilterInvocationDefinitionSource} not tested by {@link
@@ -137,7 +137,7 @@ public class DefaultFilterInvocationDefinitionSourceTests {
         List<? extends ConfigAttribute> attrs = fids.getAttributes(fi);
         assertEquals(def, attrs);
     }
-    
+
     @Test
     public void requestWithDifferentHttpMethodDoesntMatch() {
         createFids("/somepage**", "GET");

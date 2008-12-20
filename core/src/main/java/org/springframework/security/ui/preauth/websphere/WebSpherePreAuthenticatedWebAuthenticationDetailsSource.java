@@ -13,12 +13,12 @@ import org.springframework.security.ui.preauth.PreAuthenticatedGrantedAuthoritie
  * @author Ruud Senden
  */
 public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource extends WebSpherePreAuthenticatedAuthenticationDetailsSource {
-	/**
-	 * Public constructor which overrides the default AuthenticationDetails
-	 * class to be used.
-	 */
-	public WebSpherePreAuthenticatedWebAuthenticationDetailsSource() {
-		super();
-		super.setClazz(PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails.class);
-	}
+    /**
+     * Public constructor which overrides the default AuthenticationDetails
+     * class to be used.
+     */
+    public WebSpherePreAuthenticatedWebAuthenticationDetailsSource() {
+        super();
+        super.setClazz(PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails.class);
+    }
 }

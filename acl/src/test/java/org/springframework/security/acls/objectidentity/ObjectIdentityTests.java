@@ -163,6 +163,7 @@ public class ObjectIdentityTests {
         }
     }
 
+    @SuppressWarnings("unused")
     private class MockOtherIdDomainObject {
         private Object id;
 

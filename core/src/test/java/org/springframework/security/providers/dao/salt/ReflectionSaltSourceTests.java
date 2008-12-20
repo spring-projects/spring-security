@@ -15,15 +15,13 @@
 
 package org.springframework.security.providers.dao.salt;
 
-import org.springframework.security.AuthenticationServiceException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
+import static junit.framework.Assert.assertEquals;
 
 import org.junit.Test;
-import static junit.framework.Assert.*;
+import org.springframework.security.AuthenticationServiceException;
+import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  * Tests {@link ReflectionSaltSource}.
@@ -33,7 +31,7 @@ import static junit.framework.Assert.*;
  */
 public class ReflectionSaltSourceTests {
     private UserDetails user = new User("scott", "wombat", true, true, true, true,
-            new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
+            AuthorityUtils.createAuthorityList("HOLDER"));
 
     //~ Methods ========================================================================================================
 

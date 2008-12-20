@@ -28,7 +28,6 @@ import javax.servlet.jsp.tagext.Tag;
 
 
 /**
- * DOCUMENT ME!
  *
  * @author Francois Beausoleil
  * @version $Id$
@@ -81,10 +80,10 @@ public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
         private final String authority;
 
         public int compareTo(Object o) {
-			return 0;
-		}
+            return 0;
+        }
 
-		public CustomGrantedAuthority(String authority) {
+        public CustomGrantedAuthority(String authority) {
             this.authority = authority;
         }
 

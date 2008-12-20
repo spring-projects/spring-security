@@ -21,6 +21,7 @@ import org.springframework.security.context.SecurityContextHolder;
 
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class SecurityContextLoginModuleTests extends TestCase {
     //~ Instance fields ================================================================================================
 
     private SecurityContextLoginModule module = null;
-    private Subject subject = new Subject(false, new HashSet(), new HashSet(), new HashSet());
+    private Subject subject = new Subject(false, new HashSet<Principal>(), new HashSet<Object>(), new HashSet<Object>());
     private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("principal",
             "credentials");
 
@@ -87,8 +88,7 @@ public class SecurityContextLoginModuleTests extends TestCase {
             subject.getPrincipals().contains(auth));
     }
 
-    public void testNullAuthenticationInSecurityContext()
-        throws Exception {
+    public void testNullAuthenticationInSecurityContext() throws Exception {
         try {
             SecurityContextHolder.getContext().setAuthentication(null);
             module.login();
@@ -96,11 +96,10 @@ public class SecurityContextLoginModuleTests extends TestCase {
         } catch (Exception e) {}
     }
 
-    public void testNullAuthenticationInSecurityContextIgnored()
-        throws Exception {
+    public void testNullAuthenticationInSecurityContextIgnored() throws Exception {
         module = new SecurityContextLoginModule();
 
-        Map options = new HashMap();
+        Map<String, String> options = new HashMap<String, String>();
         options.put("ignoreMissingAuthentication", "true");
 
         module.initialize(subject, null, null, options);

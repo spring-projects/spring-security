@@ -34,8 +34,8 @@ public class PermissionTests {
 
     @Test
     public void basePermissionTest() {
-    	Permission p = BasePermission.buildFromName("WRITE");
-    	assertNotNull(p);
+        Permission p = BasePermission.buildFromName("WRITE");
+        assertNotNull(p);
     }
 
     @Test

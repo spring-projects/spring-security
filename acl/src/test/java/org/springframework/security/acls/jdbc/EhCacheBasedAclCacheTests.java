@@ -68,11 +68,10 @@ public class EhCacheBasedAclCacheTests {
 
         return cache;
     }
-    
+
     @Test(expected=IllegalArgumentException.class)
     public void constructorRejectsNullParameters() throws Exception {
-        AclCache aclCache = new EhCacheBasedAclCache(null);
-        fail("It should have thrown IllegalArgumentException");
+        new EhCacheBasedAclCache(null);
     }
 
     @Test
@@ -125,7 +124,7 @@ public class EhCacheBasedAclCacheTests {
             assertTrue(true);
         }
     }
-    
+
     // SEC-527
     @Test
     public void testDiskSerializationOfMutableAclObjectInstance() throws Exception {
@@ -138,20 +137,20 @@ public class EhCacheBasedAclCacheTests {
         // Serialization test
         File file = File.createTempFile("SEC_TEST", ".object");
         FileOutputStream fos = new FileOutputStream(file);
-    	ObjectOutputStream oos = new ObjectOutputStream(fos);
-    	oos.writeObject(acl);
-    	oos.close();
-        
-    	FileInputStream fis = new FileInputStream(file);
-    	ObjectInputStream ois = new ObjectInputStream(fis);
-    	MutableAcl retrieved = (MutableAcl) ois.readObject();
-    	ois.close();
-    	
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(acl);
+        oos.close();
+
+        FileInputStream fis = new FileInputStream(file);
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        MutableAcl retrieved = (MutableAcl) ois.readObject();
+        ois.close();
+
         assertEquals(acl, retrieved);
-        
+
         Object retrieved1 = FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy", retrieved);
         assertEquals(null, retrieved1);
-        
+
         Object retrieved2 = FieldUtils.getProtectedFieldValue("auditLogger", retrieved);
         assertEquals(null, retrieved2);
     }
@@ -173,7 +172,7 @@ public class EhCacheBasedAclCacheTests {
         assertEquals(2, cache.getDiskStoreSize());
         assertTrue(cache.isElementOnDisk(acl.getObjectIdentity()));
         assertFalse(cache.isElementInMemory(acl.getObjectIdentity()));
-        
+
         // Check we can get from cache the same objects we put in
         assertEquals(myCache.getFromCache(new Long(1)), acl);
         assertEquals(myCache.getFromCache(identity), acl);
@@ -208,7 +207,7 @@ public class EhCacheBasedAclCacheTests {
     public void cacheOperationsAclWithParent() throws Exception {
         Ehcache cache = getCache();
         EhCacheBasedAclCache myCache = new EhCacheBasedAclCache(cache);
-        
+
         Authentication auth = new TestingAuthenticationToken("user", "password", new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_GENERAL") });
         auth.setAuthenticated(true);
@@ -221,7 +220,7 @@ public class EhCacheBasedAclCacheTests {
                 new GrantedAuthorityImpl("ROLE_GENERAL") });
         MutableAcl acl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
         MutableAcl parentAcl = new AclImpl(identityParent, new Long(2), aclAuthorizationStrategy, new ConsoleAuditLogger());
-        
+
         acl.setParent(parentAcl);
 
         assertEquals(0, cache.getDiskStoreSize());

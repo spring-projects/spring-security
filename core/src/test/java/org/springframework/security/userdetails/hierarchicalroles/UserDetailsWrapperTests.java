@@ -5,7 +5,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.util.AuthorityUtils;
@@ -15,9 +14,10 @@ import org.springframework.security.util.AuthorityUtils;
  *
  * @author Michael Mayr
  */
+@SuppressWarnings("deprecation")
 public class UserDetailsWrapperTests extends TestCase {
 
-    private GrantedAuthority[] authorities = null;
+    private List<GrantedAuthority> authorities = null;
     private UserDetails userDetails1 = null;
     private UserDetails userDetails2 = null;
     private UserDetailsWrapper userDetailsWrapper1 = null;
@@ -33,7 +33,7 @@ public class UserDetailsWrapperTests extends TestCase {
     protected void setUp() throws Exception {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
         roleHierarchy.setHierarchy("ROLE_A > ROLE_B");
-        authorities = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A") };
+        authorities = AuthorityUtils.createAuthorityList("ROLE_A");
         userDetails1 = new User("TestUser1", "TestPassword1", true, true, true, true, authorities);
         userDetails2 = new User("TestUser2", "TestPassword2", false, false, false, false, authorities);
         userDetailsWrapper1 = new UserDetailsWrapper(userDetails1, roleHierarchy);

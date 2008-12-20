@@ -17,7 +17,6 @@ package org.springframework.security.providers.rcp;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.GrantedAuthority;
 import org.springframework.security.MockAuthenticationManager;
 
 
@@ -29,14 +28,6 @@ import org.springframework.security.MockAuthenticationManager;
  */
 public class RemoteAuthenticationManagerImplTests extends TestCase {
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(RemoteAuthenticationManagerImplTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testFailedAuthenticationReturnsRemoteAuthenticationException() {
         RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
@@ -75,7 +66,6 @@ public class RemoteAuthenticationManagerImplTests extends TestCase {
         RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
         manager.setAuthenticationManager(new MockAuthenticationManager(true));
 
-        GrantedAuthority[] result = manager.attemptAuthentication("rod", "password");
-        assertTrue(true);
+        manager.attemptAuthentication("rod", "password");
     }
 }

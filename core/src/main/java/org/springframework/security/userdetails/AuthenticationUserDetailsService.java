@@ -12,13 +12,13 @@ import org.springframework.security.Authentication;
  */
 public interface AuthenticationUserDetailsService {
 
-	/**
-	 *
-	 * @param token The pre-authenticated authentication token
-	 * @return UserDetails for the given authentication token, never null.
-	 * @throws UsernameNotFoundException
-	 *             if no user details can be found for the given authentication
-	 *             token
-	 */
-	UserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException;
+    /**
+     *
+     * @param token The pre-authenticated authentication token
+     * @return UserDetails for the given authentication token, never null.
+     * @throws UsernameNotFoundException
+     *             if no user details can be found for the given authentication
+     *             token
+     */
+    UserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException;
 }

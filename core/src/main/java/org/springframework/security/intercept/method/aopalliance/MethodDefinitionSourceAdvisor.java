@@ -115,6 +115,7 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor imple
     //~ Inner Classes ==================================================================================================
 
     class MethodDefinitionSourcePointcut extends StaticMethodMatcherPointcut {
+        @SuppressWarnings("unchecked")
         public boolean matches(Method m, Class targetClass) {
             return attributeSource.getAttributes(m, targetClass) != null;
         }

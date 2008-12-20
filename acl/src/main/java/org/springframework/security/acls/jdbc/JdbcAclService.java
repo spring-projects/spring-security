@@ -89,7 +89,7 @@ public class JdbcAclService implements AclService {
                 });
 
         if (objects.size() == 0) {
-        	return null;
+            return null;
         }
         
         return (ObjectIdentityImpl[]) objects.toArray(new ObjectIdentityImpl[objects.size()]);

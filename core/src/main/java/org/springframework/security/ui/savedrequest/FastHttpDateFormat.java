@@ -26,8 +26,9 @@ import java.util.TimeZone;
 
 
 /**
- * <p>Utility class to generate HTTP dates.</p>
- * <p>This class is based on code in Apache Tomcat.</p>
+ * Utility class to generate HTTP dates.
+ * <p>
+ * This class is based on code in Apache Tomcat.
  *
  * @author Remy Maucherat
  * @author Andrey Grebnev
@@ -46,7 +47,7 @@ public class FastHttpDateFormat {
             new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US)
         };
 
-    /** GMT timezone - all HTTP dates are on GMT */
+    /** GMT time zone - all HTTP dates are on GMT */
     protected static final TimeZone gmtZone = TimeZone.getTimeZone("GMT");
 
     static {
@@ -64,10 +65,10 @@ public class FastHttpDateFormat {
     protected static String currentDate = null;
 
     /** Formatter cache. */
-    protected static final HashMap formatCache = new HashMap();
+    protected static final HashMap<Long,String> formatCache = new HashMap<Long,String>();
 
     /** Parser cache. */
-    protected static final HashMap parseCache = new HashMap();
+    protected static final HashMap<String,Long> parseCache = new HashMap<String,Long>();
 
     //~ Methods ========================================================================================================
 
@@ -84,7 +85,7 @@ public class FastHttpDateFormat {
         Long longValue = new Long(value);
 
         try {
-            cachedDate = (String) formatCache.get(longValue);
+            cachedDate = formatCache.get(longValue);
         } catch (Exception e) {}
 
         if (cachedDate != null) {
@@ -163,7 +164,7 @@ public class FastHttpDateFormat {
      * @param value The string to parse
      * @param threadLocalformats Array of formats to use for parsing. If <code>null</code>, HTTP formats are used.
      *
-     * @return Parsed date (or -1 if error occured)
+     * @return Parsed date (or -1 if error occurred)
      */
     public static final long parseDate(String value, DateFormat[] threadLocalformats) {
         Long cachedDate = null;
@@ -205,6 +206,7 @@ public class FastHttpDateFormat {
      * @param key Key to be updated
      * @param value New value
      */
+    @SuppressWarnings("unchecked")
     private static void updateCache(HashMap cache, Object key, Object value) {
         if (value == null) {
             return;

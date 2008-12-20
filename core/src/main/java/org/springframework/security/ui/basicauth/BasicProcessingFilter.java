@@ -174,7 +174,7 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
         chain.doFilter(request, response);
     }
 
-	private boolean authenticationIsRequired(String username) {
+    private boolean authenticationIsRequired(String username) {
         // Only reauthenticate if username doesn't match SecurityContextHolder and user isn't authenticated
         // (see SEC-53)
         Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
@@ -198,12 +198,12 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
         // both of which force re-authentication if the respective header is detected (and in doing so replace
         // any existing AnonymousAuthenticationToken). See SEC-610.
         if (existingAuth instanceof AnonymousAuthenticationToken) {
-        	return true;
+            return true;
         }
 
         return false;
     }
-	
+    
     protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
             Authentication authResult) throws IOException {
     }
@@ -242,20 +242,20 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
     }
 
     public void setRememberMeServices(RememberMeServices rememberMeServices) {
-    	Assert.notNull(rememberMeServices, "rememberMeServices cannot be null");
+        Assert.notNull(rememberMeServices, "rememberMeServices cannot be null");
         this.rememberMeServices = rememberMeServices;
     }
 
     public void setCredentialsCharset(String credentialsCharset) {
-    	Assert.hasText(credentialsCharset, "credentialsCharset cannot be null or empty");
-		this.credentialsCharset = credentialsCharset;
-	}
+        Assert.hasText(credentialsCharset, "credentialsCharset cannot be null or empty");
+        this.credentialsCharset = credentialsCharset;
+    }
     
     protected String getCredentialsCharset(HttpServletRequest httpRequest) {
-		return credentialsCharset;
-	}    
+        return credentialsCharset;
+    }    
     
-	public int getOrder() {
+    public int getOrder() {
         return FilterChainOrder.BASIC_PROCESSING_FILTER;
     }
 }

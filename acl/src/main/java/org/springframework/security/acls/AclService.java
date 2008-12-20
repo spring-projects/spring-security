@@ -39,9 +39,10 @@ public interface AclService {
     ObjectIdentity[] findChildren(ObjectIdentity parentIdentity);
 
     /**
-     * Same as {@link #readAclsById(ObjectIdentity[])} except it returns only a single Acl.<p>This method
-     * should not be called as it does not leverage the underlaying implementation's potential ability to filter
-     * <tt>Acl</tt> entries based on a {@link Sid} parameter.</p>
+     * Same as {@link #readAclsById(ObjectIdentity[])} except it returns only a single Acl.
+     * <p>
+     * This method should not be called as it does not leverage the underlying implementation's potential ability to
+     * filter <tt>Acl</tt> entries based on a {@link Sid} parameter.</p>
      *
      * @param object to locate an {@link Acl} for
      *
@@ -55,7 +56,7 @@ public interface AclService {
      * Same as {@link #readAclsById(ObjectIdentity[], Sid[])} except it returns only a single Acl.
      *
      * @param object to locate an {@link Acl} for
-     * @param sids the security identities for which  {@link Acl} information is required 
+     * @param sids the security identities for which  {@link Acl} information is required
      *        (may be <tt>null</tt> to denote all entries)
      *
      * @return the {@link Acl} for the requested {@link ObjectIdentity} (never <tt>null</tt>)
@@ -89,7 +90,7 @@ public interface AclService {
      * not have a map key.</p>
      *
      * @param objects the objects to find {@link Acl} information for
-     * @param sids the security identities for which  {@link Acl} information is required 
+     * @param sids the security identities for which  {@link Acl} information is required
      *        (may be <tt>null</tt> to denote all entries)
      *
      * @return a map with exactly one element for each {@link ObjectIdentity} passed as an argument (never <tt>null</tt>)

@@ -17,45 +17,45 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 public abstract class AbstractUserDetailsServiceBeanDefinitionParser implements BeanDefinitionParser {
-	private static final String CACHE_REF = "cache-ref";
-	public static final String CACHING_SUFFIX = ".caching";
-	
-	/**  UserDetailsService bean Id. For use in a stateful context (i.e. in AuthenticationProviderBDP) */
-	private String id;
-	
-	protected abstract String getBeanClassName(Element element);
-	
-    protected abstract void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder);	
-	
-	public BeanDefinition parse(Element element, ParserContext parserContext) {
-		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(getBeanClassName(element)); 
-		
-		doParse(element, parserContext, builder);
-		
-		RootBeanDefinition userService = (RootBeanDefinition) builder.getBeanDefinition();
-		String beanId = resolveId(element, userService, parserContext);
-		
-		parserContext.getRegistry().registerBeanDefinition(beanId, userService);
-		
-		String cacheRef = element.getAttribute(CACHE_REF);
-		
-		// Register a caching version of the user service if there's a cache-ref
-		if (StringUtils.hasText(cacheRef)) {
-			BeanDefinitionBuilder cachingUSBuilder = BeanDefinitionBuilder.rootBeanDefinition(CachingUserDetailsService.class);
-			cachingUSBuilder.addConstructorArgReference(beanId);
-			
-			cachingUSBuilder.addPropertyValue("userCache", new RuntimeBeanReference(cacheRef));
-			BeanDefinition cachingUserService = cachingUSBuilder.getBeanDefinition();
-			parserContext.getRegistry().registerBeanDefinition(beanId + CACHING_SUFFIX, cachingUserService);			
-		}
+    private static final String CACHE_REF = "cache-ref";
+    public static final String CACHING_SUFFIX = ".caching";
+    
+    /**  UserDetailsService bean Id. For use in a stateful context (i.e. in AuthenticationProviderBDP) */
+    private String id;
+    
+    protected abstract String getBeanClassName(Element element);
+    
+    protected abstract void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder);    
+    
+    public BeanDefinition parse(Element element, ParserContext parserContext) {
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(getBeanClassName(element)); 
+        
+        doParse(element, parserContext, builder);
+        
+        RootBeanDefinition userService = (RootBeanDefinition) builder.getBeanDefinition();
+        String beanId = resolveId(element, userService, parserContext);
+        
+        parserContext.getRegistry().registerBeanDefinition(beanId, userService);
+        
+        String cacheRef = element.getAttribute(CACHE_REF);
+        
+        // Register a caching version of the user service if there's a cache-ref
+        if (StringUtils.hasText(cacheRef)) {
+            BeanDefinitionBuilder cachingUSBuilder = BeanDefinitionBuilder.rootBeanDefinition(CachingUserDetailsService.class);
+            cachingUSBuilder.addConstructorArgReference(beanId);
+            
+            cachingUSBuilder.addPropertyValue("userCache", new RuntimeBeanReference(cacheRef));
+            BeanDefinition cachingUserService = cachingUSBuilder.getBeanDefinition();
+            parserContext.getRegistry().registerBeanDefinition(beanId + CACHING_SUFFIX, cachingUserService);            
+        }
 
-		id = beanId;
-		
-		return null;
-	}
+        id = beanId;
+        
+        return null;
+    }
 
     private String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) 
-    		throws BeanDefinitionStoreException {
+            throws BeanDefinitionStoreException {
 
         String id = element.getAttribute("id");
 
@@ -76,7 +76,7 @@ public abstract class AbstractUserDetailsServiceBeanDefinitionParser implements 
         return BeanIds.USER_DETAILS_SERVICE;
     }
 
-	String getId() {
-		return id;
-	}
+    String getId() {
+        return id;
+    }
 }

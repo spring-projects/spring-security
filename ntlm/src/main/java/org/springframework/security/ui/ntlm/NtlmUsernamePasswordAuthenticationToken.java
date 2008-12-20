@@ -49,9 +49,9 @@ public class NtlmUsernamePasswordAuthenticationToken extends UsernamePasswordAut
      * Create an NTLM {@link UsernamePasswordAuthenticationToken} using the
      * JCIFS {@link NtlmPasswordAuthentication} object.
      *
-     * @param ntlmAuth		The {@link NtlmPasswordAuthentication} object.
-     * @param stripDomain	Uses just the username if <code>true</code>,
-     * 						otherwise use the username and domain name.
+     * @param ntlmAuth        The {@link NtlmPasswordAuthentication} object.
+     * @param stripDomain    Uses just the username if <code>true</code>,
+     *                         otherwise use the username and domain name.
      */
     public NtlmUsernamePasswordAuthenticationToken(NtlmPasswordAuthentication ntlmAuth, boolean stripDomain) {
         super((stripDomain) ? ntlmAuth.getUsername() : ntlmAuth.getName(), DEFAULT_PASSWORD, NTLM_AUTHENTICATED);

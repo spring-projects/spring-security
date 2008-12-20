@@ -1,10 +1,7 @@
 package org.springframework.security.providers.preauth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
@@ -67,11 +64,8 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
         // PreAuthenticatedGrantedAuthoritiesUserDetailsService
         //assertEquals(ud.getPassword(),password);
 
-        Collection expectedColl = Arrays.asList(gas);
-        Collection resultColl = Arrays.asList(ud.getAuthorities());
-        assertTrue("GrantedAuthority collections do not match; result: " + resultColl + ", expected: " + expectedColl, expectedColl
-                .containsAll(resultColl)
-                && resultColl.containsAll(expectedColl));
+        assertTrue("GrantedAuthority collections do not match; result: " + ud.getAuthorities() + ", expected: " + gas,
+                gas.containsAll(ud.getAuthorities()) && ud.getAuthorities().containsAll(gas));
     }
 
 }

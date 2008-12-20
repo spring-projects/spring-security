@@ -9,7 +9,6 @@ import org.springframework.security.Authentication;
 public class AuthenticationMatcher extends TypeSafeMatcher<Authentication> {
     private String username;
     private String password;
-    private String[] authorities;
 
     @Override
     public boolean matchesSafely(Authentication auth) {
@@ -46,6 +45,4 @@ public class AuthenticationMatcher extends TypeSafeMatcher<Authentication> {
         return matcher;
 
     }
-
-
 }

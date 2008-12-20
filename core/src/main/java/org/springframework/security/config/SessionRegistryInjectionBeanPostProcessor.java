@@ -56,7 +56,6 @@ class SessionRegistryInjectionBeanPostProcessor implements BeanPostProcessor, Be
         return bean;
     }
 
-    @SuppressWarnings("unchecked")
     private SessionRegistry getSessionRegistry() {
         if (sessionRegistry != null) {
             return sessionRegistry;
@@ -84,7 +83,7 @@ class SessionRegistryInjectionBeanPostProcessor implements BeanPostProcessor, Be
             logger.warn("More than one SessionRegistry instance in application context. Possible configuration errors may result.");
         }
 
-        sessionRegistry = (SessionRegistry) sessionRegs.get(0);
+        sessionRegistry = sessionRegs.get(0);
 
         return sessionRegistry;
     }

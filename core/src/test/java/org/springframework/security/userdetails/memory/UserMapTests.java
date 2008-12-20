@@ -17,13 +17,10 @@ package org.springframework.security.userdetails.memory;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.userdetails.memory.UserMap;
+import org.springframework.security.util.AuthorityUtils;
 
 
 /**
@@ -33,33 +30,15 @@ import org.springframework.security.userdetails.memory.UserMap;
  * @version $Id$
  */
 public class UserMapTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public UserMapTests() {
-        super();
-    }
-
-    public UserMapTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(UserMapTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testAddAndRetrieveUser() {
         UserDetails rod = new User("rod", "koala", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO"));
         UserDetails scott = new User("scott", "wombat", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_THREE")});
+                AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_THREE"));
         UserDetails peter = new User("peter", "opal", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_FOUR")});
+                AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_FOUR"));
         UserMap map = new UserMap();
         map.addUser(rod);
         map.addUser(scott);
@@ -85,7 +64,7 @@ public class UserMapTests extends TestCase {
 
     public void testUnknownUserIsNotRetrieved() {
         UserDetails rod = new User("rod", "koala", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO"));
         UserMap map = new UserMap();
         assertEquals(0, map.getUserCount());
         map.addUser(rod);

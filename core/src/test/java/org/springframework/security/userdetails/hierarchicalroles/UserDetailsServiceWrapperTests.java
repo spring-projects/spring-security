@@ -9,16 +9,16 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.util.AuthorityUtils;
 
 @RunWith(JMock.class)
+@SuppressWarnings("deprecation")
 public class UserDetailsServiceWrapperTests {
 
     private UserDetailsService wrappedUserDetailsService = null;
@@ -29,8 +29,8 @@ public class UserDetailsServiceWrapperTests {
     public void setUp() throws Exception {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
         roleHierarchy.setHierarchy("ROLE_A > ROLE_B");
-        GrantedAuthority[] authorities = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A") };
-        final UserDetails user = new User("EXISTING_USER", "PASSWORD", true, true, true, true, authorities);
+        final UserDetails user = new User("EXISTING_USER", "PASSWORD", true, true, true, true,
+                AuthorityUtils.createAuthorityList("ROLE_A"));
         final UserDetailsService wrappedUserDetailsService = jmockContext.mock(UserDetailsService.class);
 
         jmockContext.checking( new Expectations() {{
@@ -46,8 +46,8 @@ public class UserDetailsServiceWrapperTests {
 
     @Test
     public void testLoadUserByUsername() {
-        GrantedAuthority[] authorities = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B") };
-        UserDetails expectedUserDetails = new User("EXISTING_USER", "PASSWORD", true, true, true, true, authorities);
+        UserDetails expectedUserDetails = new User("EXISTING_USER", "PASSWORD", true, true, true, true,
+                AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B"));
         UserDetails userDetails = userDetailsServiceWrapper.loadUserByUsername("EXISTING_USER");
         assertEquals(expectedUserDetails.getPassword(), userDetails.getPassword());
         assertEquals(expectedUserDetails.getUsername(), userDetails.getUsername());

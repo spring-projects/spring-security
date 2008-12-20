@@ -74,6 +74,7 @@ public class WebInvocationPrivilegeEvaluatorTests {
         SecurityContextHolder.clearContext();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void allowsAccessIfAccessDecisionMangerDoes() throws Exception {
         Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
@@ -92,6 +93,7 @@ public class WebInvocationPrivilegeEvaluatorTests {
         jmock.assertIsSatisfied();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void deniesAccessIfAccessDecisionMangerDoes() throws Exception {
         Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");

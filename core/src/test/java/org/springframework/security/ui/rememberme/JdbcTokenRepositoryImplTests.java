@@ -19,6 +19,7 @@ import java.util.Map;
  * @author Luke Taylor
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class JdbcTokenRepositoryImplTests {
     private static TestDataSource dataSource;
     private JdbcTokenRepositoryImpl repo;
@@ -56,7 +57,7 @@ public class JdbcTokenRepositoryImplTests {
         PersistentRememberMeToken token = new PersistentRememberMeToken("joeuser", "joesseries", "atoken", currentDate);
         repo.createNewToken(token);
 
-        Map results = template.queryForMap("select * from persistent_logins");
+        Map<String,Object> results = template.queryForMap("select * from persistent_logins");
 
         assertEquals(currentDate, results.get("last_used"));
         assertEquals("joeuser", results.get("username"));

@@ -20,9 +20,9 @@ public class DmsIntegrationTests extends AbstractTransactionalDataSourceSpringCo
         return new String[] {"classpath:applicationContext-dms-shared.xml", "classpath:applicationContext-dms-insecure.xml"};
     }
 
-	protected void onTearDown() throws Exception {
+    protected void onTearDown() throws Exception {
         SecurityContextHolder.clearContext();
-	}
+    }
 
     public void setDocumentDao(DocumentDao documentDao) {
         this.documentDao = documentDao;

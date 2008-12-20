@@ -41,7 +41,7 @@ public class MethodSecurityInterceptorWithAopConfigTests {
     @After
     public void closeAppContext() {
         SecurityContextHolder.clearContext();
-    	if (appContext != null) {
+        if (appContext != null) {
             appContext.close();
             appContext = null;
         }
@@ -51,20 +51,20 @@ public class MethodSecurityInterceptorWithAopConfigTests {
     public void securityInterceptorIsAppliedWhenUsedWithAopConfig() {
         setContext(
                 "<aop:config proxy-target-class=\"true\">" +
-        		"     <aop:pointcut id='targetMethods' expression='execution(* org.springframework.security.TargetObject.*(..))'/>" +
-        		"     <aop:advisor advice-ref='securityInterceptor' pointcut-ref='targetMethods' />" +
-        		"</aop:config>" +
-        		"<b:bean id='target' class='org.springframework.security.TargetObject'/>" +
-        		"<b:bean id='securityInterceptor' class='org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor' autowire='byType' >" +
-        		"     <b:property name='objectDefinitionSource'>" +
+                "     <aop:pointcut id='targetMethods' expression='execution(* org.springframework.security.TargetObject.*(..))'/>" +
+                "     <aop:advisor advice-ref='securityInterceptor' pointcut-ref='targetMethods' />" +
+                "</aop:config>" +
+                "<b:bean id='target' class='org.springframework.security.TargetObject'/>" +
+                "<b:bean id='securityInterceptor' class='org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor' autowire='byType' >" +
+                "     <b:property name='objectDefinitionSource'>" +
                 "       <b:value>" +
                             "org.springframework.security.TargetObject.makeLower*=ROLE_A\n" +
                             "org.springframework.security.TargetObject.makeUpper*=ROLE_A\n" +
                             "org.springframework.security.TargetObject.computeHashCode*=ROLE_B\n" +
                 "       </b:value>" +
                 "     </b:property>" +
-        		"</b:bean>" +
-        		AUTH_PROVIDER_XML + ACCESS_MANAGER_XML);
+                "</b:bean>" +
+                AUTH_PROVIDER_XML + ACCESS_MANAGER_XML);
         
         ITargetObject target = (ITargetObject) appContext.getBean("target");
         target.makeLowerCase("TEST");

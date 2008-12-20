@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -52,35 +53,26 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
 
     //~ Instance fields ================================================================================================
 
-    private List channelProcessors;
+    private List<ChannelProcessor> channelProcessors;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        checkIfValidList(this.channelProcessors);
+        Assert.notEmpty(channelProcessors, "A list of ChannelProcessors is required");
     }
 
-    private void checkIfValidList(List listToCheck) {
-        Assert.notEmpty(listToCheck, "A list of ChannelProcessors is required");
-    }
+    public void decide(FilterInvocation invocation, List<ConfigAttribute> config) throws IOException, ServletException {
 
-    public void decide(FilterInvocation invocation, List<ConfigAttribute> config)
-            throws IOException, ServletException {
-
-        Iterator attrs = config.iterator();
+        Iterator<ConfigAttribute> attrs = config.iterator();
 
         while (attrs.hasNext()) {
-            ConfigAttribute attribute = (ConfigAttribute) attrs.next();
+            ConfigAttribute attribute = attrs.next();
             if (ANY_CHANNEL.equals(attribute.getAttribute())) {
                 return;
             }
         }
 
-        Iterator iter = this.channelProcessors.iterator();
-
-        while (iter.hasNext()) {
-            ChannelProcessor processor = (ChannelProcessor) iter.next();
-
+        for (ChannelProcessor processor : channelProcessors) {
             processor.decide(invocation, config);
 
             if (invocation.getResponse().isCommitted()) {
@@ -89,22 +81,20 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
         }
     }
 
-    protected List getChannelProcessors() {
+    protected List<ChannelProcessor> getChannelProcessors() {
         return this.channelProcessors;
     }
 
-    public void setChannelProcessors(List newList) {
-        checkIfValidList(newList);
+    @SuppressWarnings("cast")
+    public void setChannelProcessors(List<?> newList) {
+        Assert.notEmpty(newList, "A list of ChannelProcessors is required");
+        channelProcessors = new ArrayList<ChannelProcessor>(newList.size());
 
-        Iterator iter = newList.iterator();
-
-        while (iter.hasNext()) {
-            Object currentObject = iter.next();
+        for (Object currentObject : newList) {
             Assert.isInstanceOf(ChannelProcessor.class, currentObject, "ChannelProcessor " +
                     currentObject.getClass().getName() + " must implement ChannelProcessor");
+            channelProcessors.add((ChannelProcessor)currentObject);
         }
-
-        this.channelProcessors = newList;
     }
 
     public boolean supports(ConfigAttribute attribute) {
@@ -112,11 +102,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
             return true;
         }
 
-        Iterator iter = this.channelProcessors.iterator();
-
-        while (iter.hasNext()) {
-            ChannelProcessor processor = (ChannelProcessor) iter.next();
-
+        for (ChannelProcessor processor : channelProcessors) {
             if (processor.supports(attribute)) {
                 return true;
             }

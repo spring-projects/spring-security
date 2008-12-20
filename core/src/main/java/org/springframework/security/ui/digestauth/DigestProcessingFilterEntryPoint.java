@@ -57,14 +57,14 @@ public class DigestProcessingFilterEntryPoint implements AuthenticationEntryPoin
     //~ Methods ========================================================================================================
 
     public int getOrder() {
-		return order;
-	}
+        return order;
+    }
 
-	public void setOrder(int order) {
-		this.order = order;
-	}
+    public void setOrder(int order) {
+        this.order = order;
+    }
 
-	public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() throws Exception {
         if ((realmName == null) || "".equals(realmName)) {
             throw new IllegalArgumentException("realmName must be specified");
         }

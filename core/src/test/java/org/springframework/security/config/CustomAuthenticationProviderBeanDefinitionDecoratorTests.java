@@ -23,8 +23,8 @@ public class CustomAuthenticationProviderBeanDefinitionDecoratorTests {
         ProviderManager authMgr = (ProviderManager) ctx.getBean(BeanIds.AUTHENTICATION_MANAGER);
         assertEquals(1, authMgr.getProviders().size());        
     }
-	
-	
+    
+    
     @Test
     public void decoratedBeanAndRegisteredProviderAreTheSameObject() {
         InMemoryXmlApplicationContext ctx = new InMemoryXmlApplicationContext(

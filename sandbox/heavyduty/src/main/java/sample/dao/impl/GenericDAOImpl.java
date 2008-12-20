@@ -12,115 +12,115 @@ import sample.dao.GenericDAO;
 
 
 public class GenericDAOImpl<T extends Serializable, PK extends Serializable>
-		implements GenericDAO<T, PK> {
-	/** type */
-	private Class<T> type;
+        implements GenericDAO<T, PK> {
+    /** type */
+    private Class<T> type;
 
-	/** the logger */
-	private static final Log LOG = LogFactory.getLog(GenericDAOImpl.class);
+    /** the logger */
+    private static final Log LOG = LogFactory.getLog(GenericDAOImpl.class);
 
-	@PersistenceContext
-	private EntityManager entityManager;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-	/**
-	 * Minimal constructor
-	 * 
-	 * @param t
-	 *            type POJO hibernate
-	 */
-	public GenericDAOImpl(Class<T> t) {
-		this.type = t;
-	}
+    /**
+     * Minimal constructor
+     * 
+     * @param t
+     *            type POJO hibernate
+     */
+    public GenericDAOImpl(Class<T> t) {
+        this.type = t;
+    }
 
-	/**
-	 * read data
-	 * 
-	 * @param id
-	 *            data id
-	 * @return data
-	 */
-	@SuppressWarnings("unchecked")
-	public T read(PK id) {
-		if (id == null) {
-			throw new IllegalArgumentException("Id cannot be null or empty");
-		}
+    /**
+     * read data
+     * 
+     * @param id
+     *            data id
+     * @return data
+     */
+    @SuppressWarnings("unchecked")
+    public T read(PK id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null or empty");
+        }
 
-		// find() au lieu de getReference() pour forcer l'initialisation de
-		// l'objet, sinon on ne recupère
-		// qu'un proxy non-initialisé !
-		return entityManager.find(type, id);
+        // find() au lieu de getReference() pour forcer l'initialisation de
+        // l'objet, sinon on ne recupère
+        // qu'un proxy non-initialisé !
+        return entityManager.find(type, id);
 
-	}
+    }
 
-	/**
-	 * persist data
-	 * 
-	 * @param transientInstance
-	 *            data to persist
-	 * @see sido.common.dao.GenericDAO#persist(T)
-	 */
-	public void persist(T transientInstance) {
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("Persisting instance of "
-					+ transientInstance.getClass().getSimpleName());
-		}
-		entityManager.persist(transientInstance);
-	}
+    /**
+     * persist data
+     * 
+     * @param transientInstance
+     *            data to persist
+     * @see sido.common.dao.GenericDAO#persist(T)
+     */
+    public void persist(T transientInstance) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Persisting instance of "
+                    + transientInstance.getClass().getSimpleName());
+        }
+        entityManager.persist(transientInstance);
+    }
 
-	/**
-	 * 
-	 * attach clean
-	 * 
-	 * @param instance
-	 *            data to attach
-	 * @see sido.common.dao.GenericDAO#refresh(T)
-	 */
-	public void refresh(T instance) {
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("refreshing instance of "
-					+ instance.getClass().getSimpleName());
-		}
-		entityManager.refresh(instance);
-	}
+    /**
+     * 
+     * attach clean
+     * 
+     * @param instance
+     *            data to attach
+     * @see sido.common.dao.GenericDAO#refresh(T)
+     */
+    public void refresh(T instance) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("refreshing instance of "
+                    + instance.getClass().getSimpleName());
+        }
+        entityManager.refresh(instance);
+    }
 
-	/**
-	 * delete
-	 * 
-	 * @param persistentInstance
-	 *            data to delete
-	 * @see sido.common.dao.GenericDAO#delete(T)
-	 */
-	public void delete(T persistentInstance) {
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("deleting instance of "
-					+ persistentInstance.getClass().getSimpleName());
-		}
-		entityManager.remove(persistentInstance);
-	}
+    /**
+     * delete
+     * 
+     * @param persistentInstance
+     *            data to delete
+     * @see sido.common.dao.GenericDAO#delete(T)
+     */
+    public void delete(T persistentInstance) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleting instance of "
+                    + persistentInstance.getClass().getSimpleName());
+        }
+        entityManager.remove(persistentInstance);
+    }
 
-	/**
-	 * merge
-	 * 
-	 * @param detachedInstance
-	 *            data to merge
-	 * @return the merged data
-	 * @see sido.common.dao.GenericDAO#merge(T)
-	 */
-	@SuppressWarnings("unchecked")
-	public T merge(T detachedInstance) {
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("merging instance of "
-					+ detachedInstance.getClass().getSimpleName());
-		}
-		return entityManager.merge(detachedInstance);
-	}
+    /**
+     * merge
+     * 
+     * @param detachedInstance
+     *            data to merge
+     * @return the merged data
+     * @see sido.common.dao.GenericDAO#merge(T)
+     */
+    @SuppressWarnings("unchecked")
+    public T merge(T detachedInstance) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("merging instance of "
+                    + detachedInstance.getClass().getSimpleName());
+        }
+        return entityManager.merge(detachedInstance);
+    }
 
-	/**
-	 * @return the entityManager
-	 */
-	public EntityManager getEntityManager() {
-		return entityManager;
-	}
+    /**
+     * @return the entityManager
+     */
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
 
 
 }

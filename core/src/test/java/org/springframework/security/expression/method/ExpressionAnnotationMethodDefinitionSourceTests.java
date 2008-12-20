@@ -116,40 +116,40 @@ public class ExpressionAnnotationMethodDefinitionSourceTests {
     //~ Inner Classes ==================================================================================================
 
     public static interface ReturnVoid {
-        public void doSomething(List param);
+        public void doSomething(List<?> param);
     }
 
     public static interface ReturnAList {
-        public List doSomething(List param);
+        public List<?> doSomething(List<?> param);
     }
 
     @PreAuthorize("interfaceAuthzExpression")
     public static interface ReturnAnotherList {
         @PreAuthorize("interfaceMethodAuthzExpression")
         @PreFilter(filterTarget="param", value="interfacePreFilterExpression")
-        public List doSomething(List param);
+        public List<?> doSomething(List<?> param);
     }
 
 
     @PreAuthorize("someExpression")
     public static class ReturnVoidImpl1 implements ReturnVoid {
-        public void doSomething(List param) {}
+        public void doSomething(List<?> param) {}
     }
 
     @PreAuthorize("someExpression")
     public static class ReturnVoidImpl2 implements ReturnVoid {
         @PreFilter(filterTarget="param", value="somePreFilterExpression")
-        public void doSomething(List param) {}
+        public void doSomething(List<?> param) {}
     }
 
     public static class ReturnVoidImpl3 implements ReturnVoid {
         @PreFilter(filterTarget="param", value="somePreFilterExpression")
-        public void doSomething(List param) {}
+        public void doSomething(List<?> param) {}
     }
 
     public static class ReturnAListImpl1 implements ReturnAList {
         @PostFilter("somePostFilterExpression")
-        public List doSomething(List param) {return param;}
+        public List<?> doSomething(List<?> param) {return param;}
     }
 
     public static class ReturnAListImpl2 implements ReturnAList {
@@ -157,16 +157,16 @@ public class ExpressionAnnotationMethodDefinitionSourceTests {
         @PreFilter(filterTarget="param", value="somePreFilterExpression")
         @PostFilter("somePostFilterExpression")
         @PostAuthorize("somePostAuthorizeExpression")
-        public List doSomething(List param) {return param;}
+        public List<?> doSomething(List<?> param) {return param;}
     }
 
     public static class ReturnAnotherListImpl1 implements ReturnAnotherList {
-        public List doSomething(List param) {return param;}
+        public List<?> doSomething(List<?> param) {return param;}
     }
 
     public static class ReturnAnotherListImpl2 implements ReturnAnotherList {
         @PreFilter(filterTarget="param", value="classMethodPreFilterExpression")
-        public List doSomething(List param) {return param;}
+        public List<?> doSomething(List<?> param) {return param;}
     }
 
 }

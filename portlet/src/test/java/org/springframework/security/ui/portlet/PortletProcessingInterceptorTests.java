@@ -250,9 +250,9 @@ public class PortletProcessingInterceptorTests {
             }
 
             // Make sure the token details are the PortletRequest
-//			if (!(token.getDetails() instanceof PortletRequest)) {
-//				TestCase.fail("Expected Authentication.getDetails to be a PortletRequest object -- got: " + token.getDetails());
-//			}
+//            if (!(token.getDetails() instanceof PortletRequest)) {
+//                TestCase.fail("Expected Authentication.getDetails to be a PortletRequest object -- got: " + token.getDetails());
+//            }
 
             // Make sure it's got a principal
             if (token.getPrincipal() == null) {

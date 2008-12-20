@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,7 +87,7 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
         return findAttributesSpecifiedAgainst(method, targetClass);
     }
 
-    private List<ConfigAttribute> findAttributesSpecifiedAgainst(Method method, Class clazz) {
+    private List<ConfigAttribute> findAttributesSpecifiedAgainst(Method method, Class<?> clazz) {
         RegisteredMethod registeredMethod = new RegisteredMethod(method, clazz);
         if (methodMap.containsKey(registeredMethod)) {
             return (List<ConfigAttribute>) methodMap.get(registeredMethod);
@@ -118,7 +117,7 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
         Assert.hasText(methodName, "Method not found for '" + name + "'");
 
         String typeName = name.substring(0, lastDotIndex);
-        Class type = ClassUtils.resolveClassName(typeName, this.beanClassLoader);
+        Class<?> type = ClassUtils.resolveClassName(typeName, this.beanClassLoader);
 
         addSecureMethod(type, methodName, attr);
     }
@@ -131,7 +130,7 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
      * @param mappedName mapped method name, which the javaType has declared or inherited
      * @param attr required authorities associated with the method
      */
-    public void addSecureMethod(Class javaType, String mappedName, List<ConfigAttribute> attr) {
+    public void addSecureMethod(Class<?> javaType, String mappedName, List<ConfigAttribute> attr) {
         String name = javaType.getName() + '.' + mappedName;
 
         if (logger.isDebugEnabled()) {
@@ -179,7 +178,7 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
      * the existing match will be retained, so that if this method is called for a more general pointcut
      * it will not override a more specific one which has already been added. This
      */
-    public void addSecureMethod(Class javaType, Method method, List<ConfigAttribute> attr) {
+    public void addSecureMethod(Class<?> javaType, Method method, List<ConfigAttribute> attr) {
         RegisteredMethod key = new RegisteredMethod(method, javaType);
 
         if (methodMap.containsKey(key)) {
@@ -255,9 +254,9 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
      */
     private class RegisteredMethod {
         private Method method;
-        private Class registeredJavaType;
+        private Class<?> registeredJavaType;
 
-        public RegisteredMethod(Method method, Class registeredJavaType) {
+        public RegisteredMethod(Method method, Class<?> registeredJavaType) {
             Assert.notNull(method, "Method required");
             Assert.notNull(registeredJavaType, "Registered Java Type required");
             this.method = method;

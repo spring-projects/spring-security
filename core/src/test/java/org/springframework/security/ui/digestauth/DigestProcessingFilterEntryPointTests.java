@@ -39,16 +39,6 @@ import java.util.Map;
  * @version $Id$
  */
 public class DigestProcessingFilterEntryPointTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public DigestProcessingFilterEntryPointTests() {
-        super();
-    }
-
-    public DigestProcessingFilterEntryPointTests(String arg0) {
-        super(arg0);
-    }
-
     //~ Methods ========================================================================================================
 
     private void checkNonceValid(String nonce) {
@@ -63,14 +53,6 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
 
         String expectedNonceSignature = DigestUtils.md5Hex(nonceTokens[0] + ":" + "key");
         assertEquals(expectedNonceSignature, nonceTokens[1]);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(DigestProcessingFilterEntryPointTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
     }
 
     public void testDetectsMissingKey() throws Exception {
@@ -130,7 +112,7 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
         // Break up response header
         String header = response.getHeader("WWW-Authenticate").toString().substring(7);
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
-        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+        Map<String,String> headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
         assertEquals("hello", headerMap.get("realm"));
         assertEquals("auth", headerMap.get("qop"));
@@ -160,7 +142,7 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
         // Break up response header
         String header = response.getHeader("WWW-Authenticate").toString().substring(7);
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
-        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+        Map<String,String> headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
         assertEquals("hello", headerMap.get("realm"));
         assertEquals("auth", headerMap.get("qop"));

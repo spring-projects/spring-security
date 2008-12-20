@@ -186,6 +186,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
      * Executes the SQL <tt>usersByUsernameQuery</tt> and returns a list of UserDetails objects.
      * There should normally only be one matching user.
      */
+    @SuppressWarnings("unchecked")
     protected List<UserDetails> loadUsersByUsername(String username) {
         return getJdbcTemplate().query(usersByUsernameQuery, new String[] {username}, new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -203,6 +204,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
      *
      * @return a list of GrantedAuthority objects for the user
      */
+    @SuppressWarnings("unchecked")
     protected List<GrantedAuthority> loadUserAuthorities(String username) {
         return getJdbcTemplate().query(authoritiesByUsernameQuery, new String[] {username}, new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -219,6 +221,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
      *
      * @return a list of GrantedAuthority objects for the user
      */
+    @SuppressWarnings("unchecked")
     protected List<GrantedAuthority> loadGroupAuthorities(String username) {
         return getJdbcTemplate().query(groupAuthoritiesByUsernameQuery, new String[] {username}, new RowMapper() {
             public Object mapRow(ResultSet rs, int rowNum) throws SQLException {

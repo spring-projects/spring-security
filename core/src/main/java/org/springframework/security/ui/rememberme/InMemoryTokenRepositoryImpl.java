@@ -8,16 +8,16 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Simple <tt>PersistentTokenRepository</tt> implementation backed by a Map. Intended for testing only. 
+ * Simple <tt>PersistentTokenRepository</tt> implementation backed by a Map. Intended for testing only.
  *
  * @author Luke Taylor
  * @version $Id$
  */
 public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
-    private Map seriesTokens = new HashMap();
+    private Map<String, PersistentRememberMeToken> seriesTokens = new HashMap<String, PersistentRememberMeToken>();
 
     public synchronized void createNewToken(PersistentRememberMeToken token) {
-        PersistentRememberMeToken current = (PersistentRememberMeToken) seriesTokens.get(token.getSeries());
+        PersistentRememberMeToken current = seriesTokens.get(token.getSeries());
 
         if (current != null) {
             throw new DataIntegrityViolationException("Series Id '"+ token.getSeries() +"' already exists!");
@@ -41,7 +41,7 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
     }
 
     public synchronized void removeUserTokens(String username) {
-        Iterator series = seriesTokens.keySet().iterator();
+        Iterator<String> series = seriesTokens.keySet().iterator();
 
         while (series.hasNext()) {
             Object seriesId = series.next();

@@ -62,7 +62,7 @@ public class PortletTestUtils {
         request.setUserPrincipal(new TestingAuthenticationToken(TESTUSER, TESTCRED));
         request.addUserRole(PORTALROLE1);
         request.addUserRole(PORTALROLE2);
-//		request.setAuthType(PortletRequest.FORM_AUTH);
+//        request.setAuthType(PortletRequest.FORM_AUTH);
     }
 
     public static MockRenderRequest createRenderRequest() {

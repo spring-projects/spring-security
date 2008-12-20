@@ -11,18 +11,18 @@ import bigbank.BankService;
 
 public class ListAccounts implements Controller {
 
-	private BankService bankService;
-	
-	public ListAccounts(BankService bankService) {
-		Assert.notNull(bankService);
-		this.bankService = bankService;
-	}
+    private BankService bankService;
+    
+    public ListAccounts(BankService bankService) {
+        Assert.notNull(bankService);
+        this.bankService = bankService;
+    }
 
-	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		// Actual business logic
-		ModelAndView mav = new ModelAndView("listAccounts");
-		mav.addObject("accounts", bankService.findAccounts());
-		return mav;
-	}
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {        
+        // Actual business logic
+        ModelAndView mav = new ModelAndView("listAccounts");
+        mav.addObject("accounts", bankService.findAccounts());
+        return mav;
+    }
 
 }

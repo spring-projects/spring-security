@@ -62,7 +62,7 @@ public class LabelBasedAclVoterTests extends AbstractDependencyInjectionSpringCo
     public void testDoingSomethingForBlueUser() {
         setupContext("blueuser", "password");
 
-        List dataList = sampleService.getTheSampleData();
+        List<SampleBlockOfData> dataList = sampleService.getTheSampleData();
         assertNotNull(dataList);
 
         SampleBlockOfData block1 = (SampleBlockOfData) dataList.get(0);
@@ -101,7 +101,7 @@ public class LabelBasedAclVoterTests extends AbstractDependencyInjectionSpringCo
     public void testDoingSomethingForMultiUser() {
         setupContext("multiuser", "password4");
 
-        List dataList = sampleService.getTheSampleData();
+        List<SampleBlockOfData> dataList = sampleService.getTheSampleData();
         assertNotNull(dataList);
 
         SampleBlockOfData block1 = (SampleBlockOfData) dataList.get(0);
@@ -118,7 +118,7 @@ public class LabelBasedAclVoterTests extends AbstractDependencyInjectionSpringCo
     public void testDoingSomethingForOrangeUser() {
         setupContext("orangeuser", "password3");
 
-        List dataList = sampleService.getTheSampleData();
+        List<SampleBlockOfData> dataList = sampleService.getTheSampleData();
         assertNotNull(dataList);
 
         SampleBlockOfData block1 = (SampleBlockOfData) dataList.get(0);
@@ -157,7 +157,7 @@ public class LabelBasedAclVoterTests extends AbstractDependencyInjectionSpringCo
     public void testDoingSomethingForSuperUser() {
         setupContext("superuser", "password2");
 
-        List dataList = sampleService.getTheSampleData();
+        List<SampleBlockOfData> dataList = sampleService.getTheSampleData();
         assertNotNull(dataList);
 
         SampleBlockOfData block1 = (SampleBlockOfData) dataList.get(0);

@@ -113,7 +113,7 @@ public class ConsensusBasedTests {
         RoleVoter roleVoter = new RoleVoter();
         DenyVoter denyForSureVoter = new DenyVoter();
         DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
-        List voters = new Vector();
+        List<AccessDecisionVoter> voters = new Vector<AccessDecisionVoter>();
         voters.add(roleVoter);
         voters.add(denyForSureVoter);
         voters.add(denyAgainForSureVoter);

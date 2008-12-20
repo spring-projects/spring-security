@@ -81,7 +81,7 @@ public class AnonymousProcessingFilter  extends SpringSecurityFilter  implements
         return auth;
     }
 
-	protected void doFilterHttp(HttpServletRequest request,HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    protected void doFilterHttp(HttpServletRequest request,HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         boolean addedToken = false;
 
         if (applyAnonymousForThisRequest(request)) {
@@ -109,11 +109,11 @@ public class AnonymousProcessingFilter  extends SpringSecurityFilter  implements
                 SecurityContextHolder.getContext().setAuthentication(null);
             }
         }
-	}
+    }
 
-	public int getOrder() {
+    public int getOrder() {
         return FilterChainOrder.ANONYMOUS_FILTER;
-	}
+    }
 
     public String getKey() {
         return key;

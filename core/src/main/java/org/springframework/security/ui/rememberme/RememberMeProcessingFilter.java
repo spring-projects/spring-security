@@ -63,9 +63,9 @@ public class RememberMeProcessingFilter extends SpringSecurityFilter implements 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-		Assert.notNull(authenticationManager, "authenticationManager must be specified");
-		Assert.notNull(rememberMeServices, "rememberMeServices must be specified");
-	}
+        Assert.notNull(authenticationManager, "authenticationManager must be specified");
+        Assert.notNull(rememberMeServices, "rememberMeServices must be specified");
+    }
 
     public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws IOException, ServletException {
@@ -76,7 +76,7 @@ public class RememberMeProcessingFilter extends SpringSecurityFilter implements 
             if (rememberMeAuth != null) {
                 // Attempt authenticaton via AuthenticationManager
                 try {
-                	rememberMeAuth = authenticationManager.authenticate(rememberMeAuth);
+                    rememberMeAuth = authenticationManager.authenticate(rememberMeAuth);
 
                     // Store to SecurityContextHolder
                     SecurityContextHolder.getContext().setAuthentication(rememberMeAuth);
@@ -122,7 +122,7 @@ public class RememberMeProcessingFilter extends SpringSecurityFilter implements 
      * <tt>autoLogin</tt> method and the <tt>AuthenticationManager</tt>.
      */
     protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-			Authentication authResult) {
+            Authentication authResult) {
     }
 
     /**
@@ -131,7 +131,7 @@ public class RememberMeProcessingFilter extends SpringSecurityFilter implements 
      * token is present in the request and <tt>autoLogin</tt> returns null.
      */
     protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException failed) {
+            AuthenticationException failed) {
     }
 
     public RememberMeServices getRememberMeServices() {

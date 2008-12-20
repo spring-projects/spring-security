@@ -49,13 +49,13 @@ public class SampleServiceImpl implements SampleService {
         }
     }
 
-    public List getTheSampleData() {
+    public List<SampleBlockOfData> getTheSampleData() {
         if (logger.isDebugEnabled()) {
             logger.debug(SecurityContextHolder.getContext().getAuthentication().getName()
                 + " is requesting some sample data.");
         }
 
-        List dataList = new Vector();
+        List<SampleBlockOfData> dataList = new Vector<SampleBlockOfData>();
         SampleBlockOfData block;
 
         block = new SampleBlockOfData();

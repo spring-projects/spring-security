@@ -49,7 +49,7 @@ public class UserMapEditor extends PropertyEditorSupport {
         // Now we have properties, process each one individually
         UserAttributeEditor configAttribEd = new UserAttributeEditor();
 
-        for (Iterator iter = props.keySet().iterator(); iter.hasNext();) {
+        for (Iterator<?> iter = props.keySet().iterator(); iter.hasNext();) {
             String username = (String) iter.next();
             String value = props.getProperty(username);
 

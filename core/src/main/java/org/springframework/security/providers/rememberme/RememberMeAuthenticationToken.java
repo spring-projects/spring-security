@@ -39,6 +39,9 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken i
 
     //~ Constructors ===================================================================================================
 
+    /**
+     * @deprecated
+     */
     public RememberMeAuthenticationToken(String key, Object principal, GrantedAuthority[] authorities) {
         this(key, principal, Arrays.asList(authorities));
     }

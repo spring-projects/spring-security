@@ -48,10 +48,10 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
     private String removeUserTokensSql = DEF_REMOVE_USER_TOKENS_SQL;
     private boolean createTableOnStartup;
 
-    protected MappingSqlQuery tokensBySeriesMapping;
-    protected SqlUpdate insertToken;
-    protected SqlUpdate updateToken;
-    protected SqlUpdate removeUserTokens;
+    private MappingSqlQuery<PersistentRememberMeToken> tokensBySeriesMapping;
+    private SqlUpdate insertToken;
+    private SqlUpdate updateToken;
+    private SqlUpdate removeUserTokens;
 
     protected void initDao() {
         tokensBySeriesMapping = new TokensBySeriesMapping(getDataSource());
@@ -111,14 +111,14 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 
     //~ Inner Classes ==================================================================================================
 
-    protected class TokensBySeriesMapping extends MappingSqlQuery {
+    private class TokensBySeriesMapping extends MappingSqlQuery<PersistentRememberMeToken> {
         protected TokensBySeriesMapping(DataSource ds) {
             super(ds, tokensBySeriesSql);
             declareParameter(new SqlParameter(Types.VARCHAR));
             compile();
         }
 
-        protected Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+        protected PersistentRememberMeToken mapRow(ResultSet rs, int rowNum) throws SQLException {
             PersistentRememberMeToken token =
                     new PersistentRememberMeToken(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4));
 
@@ -126,7 +126,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
         }
     }
 
-    protected class UpdateToken extends SqlUpdate {
+    private class UpdateToken extends SqlUpdate {
 
         public UpdateToken(DataSource ds) {
             super(ds, updateTokenSql);
@@ -138,7 +138,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
         }
     }
 
-    protected class InsertToken extends SqlUpdate {
+    private class InsertToken extends SqlUpdate {
 
         public InsertToken(DataSource ds) {
             super(ds, insertTokenSql);
@@ -150,7 +150,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
         }
     }
 
-    protected class RemoveUserTokens extends SqlUpdate {
+    private class RemoveUserTokens extends SqlUpdate {
         public RemoveUserTokens(DataSource ds) {
             super(ds, removeUserTokensSql);
             declareParameter(new SqlParameter(Types.VARCHAR));

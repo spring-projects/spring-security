@@ -15,23 +15,18 @@
 
 package org.springframework.security.intercept.method;
 
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.SecurityConfig;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.propertyeditors.PropertiesEditor;
-import org.springframework.util.StringUtils;
-
 import java.beans.PropertyEditorSupport;
-
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import org.springframework.beans.propertyeditors.PropertiesEditor;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.SecurityConfig;
+import org.springframework.util.StringUtils;
 
 
 /**
@@ -44,12 +39,9 @@ import java.util.LinkedHashMap;
  * @version $Id$
  */
 public class MethodDefinitionSourceEditor extends PropertyEditorSupport {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final Log logger = LogFactory.getLog(MethodDefinitionSourceEditor.class);
-
     //~ Methods ========================================================================================================
 
+    @SuppressWarnings("unchecked")
     public void setAsText(String s) throws IllegalArgumentException {
         if ((s == null) || "".equals(s)) {
             setValue(new MapBasedMethodDefinitionSource());
@@ -63,7 +55,7 @@ public class MethodDefinitionSourceEditor extends PropertyEditorSupport {
         Properties props = (Properties) propertiesEditor.getValue();
 
         // Now we have properties, process each one individually
-        Map mappings = new LinkedHashMap();
+        Map<String, List<ConfigAttribute>> mappings = new LinkedHashMap<String, List<ConfigAttribute>>();
 
         for (Iterator iter = props.keySet().iterator(); iter.hasNext();) {
             String name = (String) iter.next();

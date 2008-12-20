@@ -166,6 +166,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         pc.getRegistry().registerBeanDefinition(ACCESS_MANAGER_ID, accessMgrBuilder.getBeanDefinition());
     }
 
+    @SuppressWarnings("unchecked")
     private void registerDelegatingMethodDefinitionSource(ParserContext parserContext, ManagedList delegates, Object source) {
         if (parserContext.getRegistry().containsBeanDefinition(DELEGATING_METHOD_DEFINITION_SOURCE_ID)) {
             parserContext.getReaderContext().error("Duplicate <global-method-security> detected.", source);

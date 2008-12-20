@@ -29,8 +29,8 @@ import org.apache.commons.logging.LogFactory;
 import javax.naming.directory.SearchControls;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -181,7 +181,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
         Set<GrantedAuthority> roles = getGroupMembershipRoles(userDn, username);
 
-        Set extraRoles = getAdditionalRoles(user, username);
+        Set<GrantedAuthority> extraRoles = getAdditionalRoles(user, username);
 
         if (extraRoles != null) {
             roles.addAll(extraRoles);
@@ -198,28 +198,25 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     }
 
     public Set<GrantedAuthority> getGroupMembershipRoles(String userDn, String username) {
-        Set authorities = new HashSet();
-
         if (getGroupSearchBase() == null) {
-            return authorities;
+            return Collections.emptySet();
         }
+
+        Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
 
         if (logger.isDebugEnabled()) {
             logger.debug("Searching for roles for user '" + username + "', DN = " + "'" + userDn + "', with filter "
                     + groupSearchFilter + " in search base '" + getGroupSearchBase() + "'");
         }
 
-        Set userRoles = ldapTemplate.searchForSingleAttributeValues(getGroupSearchBase(), groupSearchFilter,
+        Set<String> userRoles = ldapTemplate.searchForSingleAttributeValues(getGroupSearchBase(), groupSearchFilter,
                 new String[]{userDn, username}, groupRoleAttribute);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Roles from search: " + userRoles);
         }
 
-        Iterator it = userRoles.iterator();
-
-        while (it.hasNext()) {
-            String role = (String) it.next();
+        for (String role : userRoles) {
 
             if (convertToUpperCase) {
                 role = role.toUpperCase();

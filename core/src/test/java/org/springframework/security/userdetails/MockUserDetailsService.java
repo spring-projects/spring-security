@@ -1,11 +1,12 @@
 package org.springframework.security.userdetails;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.dao.DataAccessException;
-
-import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  * A test UserDetailsService containing a set of standard usernames corresponding to their account status:
@@ -15,8 +16,8 @@ import java.util.HashMap;
  * @version $Id$
  */
 public class MockUserDetailsService implements UserDetailsService {
-    private Map users = new HashMap();
-    private GrantedAuthority[] auths = new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_USER")};
+    private Map<String, User> users = new HashMap<String, User>();
+    private List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_USER");
 
     public MockUserDetailsService() {
         users.put("valid", new User("valid", "",true,true,true,true,auths));
@@ -31,6 +32,6 @@ public class MockUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found: " + username);
         }
 
-        return (UserDetails) users.get(username);
+        return users.get(username);
     }
 }

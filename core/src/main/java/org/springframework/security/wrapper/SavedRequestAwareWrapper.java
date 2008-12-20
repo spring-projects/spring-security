@@ -168,6 +168,7 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Enumeration getHeaderNames() {
         if (savedRequest == null) {
             return super.getHeaderNames();
@@ -177,6 +178,7 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Enumeration getHeaders(String name) {
         if (savedRequest == null) {
             return super.getHeaders(name);
@@ -223,6 +225,7 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Enumeration getLocales() {
         if (savedRequest == null) {
             return super.getLocales();
@@ -278,6 +281,7 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map getParameterMap() {
         if (savedRequest == null) {
             return super.getParameterMap();
@@ -293,6 +297,7 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
         return parameterMap;
     }
 
+    @SuppressWarnings("unchecked")
     private Set<String> getCombinedParameterNames() {
         Set<String> names = new HashSet<String>();
         names.addAll(super.getParameterMap().keySet());
@@ -305,6 +310,7 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Enumeration getParameterNames() {
         return new Enumerator(getCombinedParameterNames());
     }

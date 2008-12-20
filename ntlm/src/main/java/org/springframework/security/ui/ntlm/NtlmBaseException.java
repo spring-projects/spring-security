@@ -27,8 +27,8 @@ import org.springframework.security.AuthenticationException;
  */
 public abstract class NtlmBaseException extends AuthenticationException {
 
-	public NtlmBaseException(final String msg) {
-		super(msg);
-	}
+    public NtlmBaseException(final String msg) {
+        super(msg);
+    }
 
 }

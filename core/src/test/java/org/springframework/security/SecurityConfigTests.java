@@ -30,28 +30,28 @@ public class SecurityConfigTests {
 
     //~ Methods ========================================================================================================
 
-	@Test
+    @Test
     public void testHashCode() {
         SecurityConfig config = new SecurityConfig("TEST");
         Assert.assertEquals("TEST".hashCode(), config.hashCode());
     }
     
     @Test(expected=IllegalArgumentException.class)
-	public void testCannotConstructWithNullAttribute() {
-   		new SecurityConfig(null); // SEC-727
+    public void testCannotConstructWithNullAttribute() {
+           new SecurityConfig(null); // SEC-727
     }
 
     @Test(expected=IllegalArgumentException.class)
-	public void testCannotConstructWithEmptyAttribute() {
-   		new SecurityConfig(""); // SEC-727
+    public void testCannotConstructWithEmptyAttribute() {
+           new SecurityConfig(""); // SEC-727
     }
 
     @Test(expected=NoSuchMethodException.class)
     public void testNoArgConstructorDoesntExist() throws Exception {
-    	SecurityConfig.class.getDeclaredConstructor((Class[]) null);
+        SecurityConfig.class.getDeclaredConstructor((Class[]) null);
     }
 
-	@Test
+    @Test
     public void testObjectEquals() throws Exception {
         SecurityConfig security1 = new SecurityConfig("TEST");
         SecurityConfig security2 = new SecurityConfig("TEST");
@@ -77,12 +77,12 @@ public class SecurityConfigTests {
         Assert.assertTrue(!security1.equals(int1));
     }
 
-	@Test
+    @Test
     public void testToString() {
         SecurityConfig config = new SecurityConfig("TEST");
         Assert.assertEquals("TEST", config.toString());
-	}
-	
+    }
+    
     //~ Inner Classes ==================================================================================================
 
     private class MockConfigAttribute implements ConfigAttribute {

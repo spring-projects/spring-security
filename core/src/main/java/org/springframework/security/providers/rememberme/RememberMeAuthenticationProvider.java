@@ -15,36 +15,25 @@
 
 package org.springframework.security.providers.rememberme;
 
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.BadCredentialsException;
-
-import org.springframework.security.providers.AuthenticationProvider;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.util.Assert;
 
 
 /**
- * An {@link AuthenticationProvider} implementation that validates {@link
- * org.springframework.security.providers.rememberme.RememberMeAuthenticationToken}s.<p>To be successfully validated, the
- * {@link org.springframework.security.providers.rememberme.RememberMeAuthenticationToken#getKeyHash()} must match this class'
- * {@link #getKey()}.</p>
+ * An {@link AuthenticationProvider} implementation that validates {@link RememberMeAuthenticationToken}s.
+ * <p>
+ * To be successfully validated, the {@link RememberMeAuthenticationToken#getKeyHash()} must match this class'
+ * {@link #getKey()}.
  */
 public class RememberMeAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final Log logger = LogFactory.getLog(RememberMeAuthenticationProvider.class);
-
     //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
@@ -52,13 +41,12 @@ public class RememberMeAuthenticationProvider implements AuthenticationProvider,
 
     //~ Methods ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key);
         Assert.notNull(this.messages, "A message source must be set");
     }
 
-    public Authentication authenticate(Authentication authentication)
-        throws AuthenticationException {
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         if (!supports(authentication.getClass())) {
             return null;
         }

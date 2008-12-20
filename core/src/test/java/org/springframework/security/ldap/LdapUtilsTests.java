@@ -15,7 +15,10 @@
 
 package org.springframework.security.ldap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -23,10 +26,6 @@ import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
 
 
 /**

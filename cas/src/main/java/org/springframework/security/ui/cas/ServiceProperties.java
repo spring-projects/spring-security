@@ -38,7 +38,7 @@ public class ServiceProperties implements InitializingBean {
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-    	Assert.hasLength(this.service, "service must be specified.");
+        Assert.hasLength(this.service, "service must be specified.");
     }
 
     /**

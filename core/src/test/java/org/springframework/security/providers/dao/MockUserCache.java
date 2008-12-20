@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.springframework.security.providers.dao;
 
@@ -10,7 +10,7 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 
 public class MockUserCache implements UserCache {
-    private Map cache = new HashMap();
+    private Map<String, UserDetails> cache = new HashMap<String, UserDetails>();
 
     public UserDetails getUserFromCache(String username) {
         return (User) cache.get(username);
@@ -21,6 +21,6 @@ public class MockUserCache implements UserCache {
     }
 
     public void removeUserFromCache(String username) {
-    	cache.remove(username);
+        cache.remove(username);
     }
 }

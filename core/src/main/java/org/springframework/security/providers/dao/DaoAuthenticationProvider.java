@@ -50,7 +50,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
     protected void additionalAuthenticationChecks(UserDetails userDetails,
             UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-		Object salt = null;
+        Object salt = null;
 
         if (this.saltSource != null) {
             salt = this.saltSource.getSalt(userDetails);
@@ -143,6 +143,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
      */
     public void setIncludeDetailsObject(boolean includeDetailsObject) {
         this.includeDetailsObject = includeDetailsObject;
-	}
+    }
 
 }

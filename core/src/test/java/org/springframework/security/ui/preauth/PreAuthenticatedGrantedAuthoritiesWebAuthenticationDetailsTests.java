@@ -3,7 +3,6 @@ package org.springframework.security.ui.preauth;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,25 +34,22 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests {
     public void testGetSetPreAuthenticatedGrantedAuthorities() {
         PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
                 getRequest("testUser", new String[] {}));
-
-        Collection expectedGas = Arrays.asList(gas);
-
         details.setGrantedAuthorities(gas);
-        Collection returnedGas = Arrays.asList(details.getGrantedAuthorities());
-        assertTrue("Collections do not contain same elements; expected: " + expectedGas + ", returned: " + returnedGas,
-                expectedGas.containsAll(returnedGas) && returnedGas.containsAll(expectedGas));
+        List<GrantedAuthority> returnedGas = details.getGrantedAuthorities();
+        assertTrue("Collections do not contain same elements; expected: " + gas + ", returned: " + returnedGas,
+                gas.containsAll(returnedGas) && returnedGas.containsAll(gas));
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testGetWithoutSetPreAuthenticatedGrantedAuthorities() {
         PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
                 getRequest("testUser", new String[] {}));
-        List<GrantedAuthority> gas = details.getGrantedAuthorities();
+        details.getGrantedAuthorities();
     }
 
     private HttpServletRequest getRequest(final String userName,final String[] aRoles) {
         MockHttpServletRequest req = new MockHttpServletRequest() {
-            private Set roles = new HashSet(Arrays.asList(aRoles));
+            private Set<String> roles = new HashSet<String>(Arrays.asList(aRoles));
             public boolean isUserInRole(String arg0) {
                 return roles.contains(arg0);
             }

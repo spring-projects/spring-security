@@ -1,12 +1,11 @@
 package org.springframework.security.providers.preauth;
 
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.GrantedAuthority;
-
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 
 import junit.framework.TestCase;
+
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  *
@@ -40,16 +39,16 @@ public class PreAuthenticatedAuthenticationTokenTests extends TestCase {
     public void testPreAuthenticatedAuthenticationTokenResponse() {
         Object principal = "dummyUser";
         Object credentials = "dummyCredentials";
-        GrantedAuthority[] gas = new GrantedAuthority[] { new GrantedAuthorityImpl("Role1") };
-        PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(principal, credentials, gas);
+        List<GrantedAuthority> gas = AuthorityUtils.createAuthorityList("Role1");
+        PreAuthenticatedAuthenticationToken token =
+            new PreAuthenticatedAuthenticationToken(principal, credentials, gas);
         assertEquals(principal, token.getPrincipal());
         assertEquals(credentials, token.getCredentials());
         assertNull(token.getDetails());
         assertNotNull(token.getAuthorities());
-        Collection expectedColl = Arrays.asList(gas);
-        Collection resultColl = token.getAuthorities();
-        assertTrue("GrantedAuthority collections do not match; result: " + resultColl + ", expected: " + expectedColl,
-                expectedColl.containsAll(resultColl) && resultColl.containsAll(expectedColl));
+        List<GrantedAuthority> resultColl = token.getAuthorities();
+        assertTrue("GrantedAuthority collections do not match; result: " + resultColl + ", expected: " + gas,
+                gas.containsAll(resultColl) && resultColl.containsAll(gas));
 
     }
 

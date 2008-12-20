@@ -26,21 +26,21 @@ package org.springframework.security.token;
  *
  */
 public interface TokenService {
-	/**
-	 * Forces the allocation of a new {@link Token}.
-	 * 
-	 * @param the extended information desired in the token (cannot be <code>null</code>, but can be empty)
-	 * @return a new token that has not been issued previously, and is guaranteed to be recognised
-	 * by this implementation's {@link #verifyToken(String)} at any future time.
-	 */
-	Token allocateToken(String extendedInformation);
-	
-	/**
-	 * Permits verification the <{@link Token#getKey()} was issued by this <code>TokenService</code> and
-	 * reconstructs the corresponding <code>Token</code>.
-	 * 
-	 * @param key as obtained from {@link Token#getKey()} and created by this implementation
-	 * @return the token, or <code>null</code> if the token was not issued by this <code>TokenService</code>
-	 */
-	Token verifyToken(String key);
+    /**
+     * Forces the allocation of a new {@link Token}.
+     * 
+     * @param the extended information desired in the token (cannot be <code>null</code>, but can be empty)
+     * @return a new token that has not been issued previously, and is guaranteed to be recognised
+     * by this implementation's {@link #verifyToken(String)} at any future time.
+     */
+    Token allocateToken(String extendedInformation);
+    
+    /**
+     * Permits verification the <{@link Token#getKey()} was issued by this <code>TokenService</code> and
+     * reconstructs the corresponding <code>Token</code>.
+     * 
+     * @param key as obtained from {@link Token#getKey()} and created by this implementation
+     * @return the token, or <code>null</code> if the token was not issued by this <code>TokenService</code>
+     */
+    Token verifyToken(String key);
 }

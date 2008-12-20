@@ -189,7 +189,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
         String username = currentUser.getName();
 
-        // If an authentication manager has been set, reauthenticate the user with the supplied password.
+        // If an authentication manager has been set, re-authenticate the user with the supplied password.
         if (authenticationManager != null) {
             logger.debug("Reauthenticating user '"+ username + "' for password change request.");
 
@@ -200,7 +200,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
         logger.debug("Changing password for user '"+ username + "'");
 
-        getJdbcTemplate().update(changePasswordSql, new String[] {newPassword, username});
+        getJdbcTemplate().update(changePasswordSql, newPassword, username);
 
         SecurityContextHolder.getContext().setAuthentication(createNewAuthentication(currentUser, newPassword));
 
@@ -218,7 +218,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     }
 
     public boolean userExists(String username) {
-        List users = getJdbcTemplate().queryForList(userExistsSql, new Object[] {username});
+        List<String> users = getJdbcTemplate().queryForList(userExistsSql, new String[] {username}, String.class);
 
         if (users.size() > 1) {
             throw new IncorrectResultSizeDataAccessException("More than one user found with name '" + username + "'", 1);
@@ -245,7 +245,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         logger.debug("Creating new group '" + groupName + "' with authorities " +
                 AuthorityUtils.authorityListToSet(authorities));
 
-        getJdbcTemplate().update(insertGroupSql, new String[] {groupName});
+        getJdbcTemplate().update(insertGroupSql, new Object[] {groupName});
 
         final int groupId = findGroupId(groupName);
 
@@ -280,7 +280,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         Assert.hasText(oldName);
         Assert.hasText(newName);
 
-        getJdbcTemplate().update(renameGroupSql, new String[] {newName, oldName});
+        getJdbcTemplate().update(renameGroupSql, new Object[] {newName, oldName});
     }
 
     public void addUserToGroup(final String username, final String groupName) {
@@ -316,6 +316,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         userCache.removeUserFromCache(username);
     }
 
+    @SuppressWarnings("unchecked")
     public List<GrantedAuthority> findGroupAuthorities(String groupName) {
         logger.debug("Loading authorities for group '" + groupName + "'");
         Assert.hasText(groupName);

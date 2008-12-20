@@ -15,24 +15,6 @@
 
 package org.springframework.security.ui;
 
-import junit.framework.TestCase;
-
-import org.springframework.security.AccessDeniedException;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.MockAuthenticationEntryPoint;
-import org.springframework.security.MockPortResolver;
-
-import org.springframework.security.context.SecurityContextHolder;
-
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.ui.savedrequest.SavedRequest;
-import org.springframework.security.util.AuthorityUtils;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
@@ -42,12 +24,24 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import junit.framework.TestCase;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.AccessDeniedException;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.MockAuthenticationEntryPoint;
+import org.springframework.security.MockPortResolver;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
+import org.springframework.security.ui.savedrequest.SavedRequest;
+import org.springframework.security.util.AuthorityUtils;
+
 /**
  * Tests {@link ExceptionTranslationFilter}.
  *
  * @author Ben Alex
- * @version $Id: ExceptionTranslationFilterTests.java 1496 2006-05-23 13:38:33Z
- * benalex $
+ * @version $Id$
  */
 public class ExceptionTranslationFilterTests extends TestCase {
     //~ Methods ========================================================================================================

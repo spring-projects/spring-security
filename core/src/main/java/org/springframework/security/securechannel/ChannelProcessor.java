@@ -26,17 +26,12 @@ import javax.servlet.ServletException;
 
 /**
  * Decides whether a web channel meets a specific security condition.
- *
- * <P>
- * <code>ChannelProcessor</code> implementations are iterated by the {@link
- * ChannelDecisionManagerImpl}.
- * </p>
- *
- * <P>
+ * <p>
+ * <code>ChannelProcessor</code> implementations are iterated by the {@link ChannelDecisionManagerImpl}.
+ * <p>
  * If an implementation has an issue with the channel security, they should
  * take action themselves. The callers of the implementation do not take any
  * action.
- * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -49,16 +44,16 @@ public interface ChannelProcessor {
      * security based on the requested list of <tt>ConfigAttribute</tt>s.
      *
      */
-    void decide(FilterInvocation invocation, List<ConfigAttribute> config)
-        throws IOException, ServletException;
+    void decide(FilterInvocation invocation, List<ConfigAttribute> config) throws IOException, ServletException;
 
     /**
      * Indicates whether this <code>ChannelProcessor</code> is able to process the passed
-     * <code>ConfigAttribute</code>.<p>This allows the <code>ChannelProcessingFilter</code> to check every
-     * configuration attribute can be consumed by the configured <code>ChannelDecisionManager</code>.</p>
+     * <code>ConfigAttribute</code>.
+     * <p>
+     * This allows the <code>ChannelProcessingFilter</code> to check every configuration attribute can be consumed
+     * by the configured <code>ChannelDecisionManager</code>.
      *
-     * @param attribute a configuration attribute that has been configured against the
-     *        <code>ChannelProcessingFilter</code>
+     * @param attribute a configuration attribute that has been configured against the <tt>ChannelProcessingFilter</tt>.
      *
      * @return true if this <code>ChannelProcessor</code> can support the passed configuration attribute
      */

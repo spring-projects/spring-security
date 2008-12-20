@@ -32,16 +32,18 @@ import javax.security.auth.spi.LoginModule;
 
 /**
  * An implementation of {@link LoginModule} that uses a Spring Security {@link
- * org.springframework.security.context.SecurityContext SecurityContext} to provide authentication.<p>This LoginModule
- * provides opposite functionality to the {@link JaasAuthenticationProvider} API, and should not really be used in
- * conjunction with it.</p>
- *  <p>The {@link JaasAuthenticationProvider} allows Spring Security to authenticate against Jaas.</p>
- *  <p>The SecurityContextLoginModule allows a Jaas based application to authenticate against Spring Security.
+ * org.springframework.security.context.SecurityContext SecurityContext} to provide authentication.
+ * <p>
+ * This LoginModule provides opposite functionality to the {@link JaasAuthenticationProvider} API, and should not
+ * really be used in conjunction with it.
+ * <p>
+ * The {@link JaasAuthenticationProvider} allows Spring Security to authenticate against Jaas.
+ * <p>
+ * The SecurityContextLoginModule allows a Jaas based application to authenticate against Spring Security.
  * If there is no Authentication in the  {@link SecurityContextHolder} the login() method will throw a LoginException
- * by default.
- * This functionality can be changed with the <tt>ignoreMissingAuthentication</tt> option by setting it to "true".
- * Setting ignoreMissingAuthentication=true will tell the SecurityContextLoginModule to simply return false and be
- * ignored if the authentication is null.</p>
+ * by default. This functionality can be changed with the <tt>ignoreMissingAuthentication</tt> option by setting it
+ * to "true". Setting ignoreMissingAuthentication=true will tell the SecurityContextLoginModule to simply return false
+ * and be ignored if the authentication is null.
  *
  * @author Brian Moseley
  * @author Ray Krueger
@@ -107,11 +109,12 @@ public class SecurityContextLoginModule implements LoginModule {
      * <code>LoginContext</code> likely won't provide one that understands Spring Security. Also ignores the
      * <code>sharedState</code> and <code>options</code> parameters, since none are recognized.
      *
-     * @param subject the <code>Subject</code> to be authenticated. <p>
+     * @param subject the <code>Subject</code> to be authenticated.
      * @param callbackHandler is ignored
      * @param sharedState is ignored
      * @param options are ignored
      */
+    @SuppressWarnings("unchecked")
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
 

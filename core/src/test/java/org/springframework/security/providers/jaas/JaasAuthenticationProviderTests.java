@@ -33,7 +33,7 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.LockedException;
 import org.springframework.security.SpringSecurityException;
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.context.SecurityContextImpl;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
@@ -136,11 +136,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
     }
 
     public void testFull() throws Exception {
-        GrantedAuthorityImpl role1 = new GrantedAuthorityImpl("ROLE_1");
-        GrantedAuthorityImpl role2 = new GrantedAuthorityImpl("ROLE_2");
-
-        GrantedAuthority[] defaultAuths = new GrantedAuthority[] {role1, role2,};
-
+        List<GrantedAuthority> defaultAuths = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password",
                 defaultAuths);
 
@@ -153,12 +149,12 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertNotNull(jaasProvider.getLoginConfig());
         assertNotNull(jaasProvider.getLoginContextName());
 
-        List list = auth.getAuthorities();
+        List<GrantedAuthority> list = auth.getAuthorities();
 
         assertTrue("GrantedAuthorities should contain ROLE_TEST1", list.contains(new GrantedAuthorityImpl("ROLE_TEST1")));
         assertTrue("GrantedAuthorities should contain ROLE_TEST2", list.contains(new GrantedAuthorityImpl("ROLE_TEST2")));
-        assertTrue("GrantedAuthorities should contain ROLE_1", list.contains(role1));
-        assertTrue("GrantedAuthorities should contain ROLE_2", list.contains(role2));
+        assertTrue("GrantedAuthorities should contain ROLE_1", list.contains(defaultAuths.get(0)));
+        assertTrue("GrantedAuthorities should contain ROLE_2", list.contains(defaultAuths.get(1)));
 
         boolean foundit = false;
 
@@ -209,7 +205,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
         context.setAuthentication(token);
 
         MockHttpSession mockSession = new MockHttpSession();
-        mockSession.setAttribute(HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY, context);
+        mockSession.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
 
         jaasProvider.onApplicationEvent(new HttpSessionDestroyedEvent(mockSession));
 

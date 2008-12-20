@@ -41,7 +41,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails ben = uds.loadUserByUsername("ben");
 
-        Set authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
+        Set<String> authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
         assertEquals(3, authorities.size());
         assertTrue(authorities.contains("ROLE_DEVELOPERS"));
     }
@@ -66,20 +66,20 @@ public class LdapUserServiceBeanDefinitionParserTests {
                 "     user-search-filter='(uid={0})' " +
                 "     group-search-filter='member={0}' role-prefix='PREFIX_'/>" +
                 "<ldap-user-service id='ldapUDSNoPrefix' " +
-        		"     user-search-filter='(uid={0})' " +
-        		"     group-search-filter='member={0}' role-prefix='none'/><ldap-server />");
+                "     user-search-filter='(uid={0})' " +
+                "     group-search-filter='member={0}' role-prefix='none'/><ldap-server />");
 
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails ben = uds.loadUserByUsername("ben");
         assertTrue(AuthorityUtils.authorityListToSet(ben.getAuthorities()).contains("PREFIX_DEVELOPERS"));
-        
+
         uds = (UserDetailsService) appCtx.getBean("ldapUDSNoPrefix");
         ben = uds.loadUserByUsername("ben");
-        assertTrue(AuthorityUtils.authorityListToSet(ben.getAuthorities()).contains("DEVELOPERS"));        
+        assertTrue(AuthorityUtils.authorityListToSet(ben.getAuthorities()).contains("DEVELOPERS"));
     }
-    
-    
-    
+
+
+
     @Test
     public void differentGroupRoleAttributeWorksAsExpected() throws Exception {
         setContext("<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' group-role-attribute='ou' group-search-filter='member={0}' /><ldap-server />");
@@ -87,12 +87,12 @@ public class LdapUserServiceBeanDefinitionParserTests {
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails ben = uds.loadUserByUsername("ben");
 
-        Set authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
+        Set<String> authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
         assertEquals(3, authorities.size());
         assertTrue(authorities.contains(new GrantedAuthorityImpl("ROLE_DEVELOPER")));
-        
+
     }
-        
+
     @Test
     public void isSupportedByAuthenticationProviderElement() {
         setContext(
@@ -101,7 +101,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
                 "    <ldap-user-service user-search-filter='(uid={0})' />" +
                 "</authentication-provider>");
     }
-    
+
     @Test
     public void personContextMapperIsSupported() {
         setContext(
@@ -111,7 +111,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
         UserDetails ben = uds.loadUserByUsername("ben");
         assertTrue(ben instanceof Person);
     }
-    
+
     @Test
     public void inetOrgContextMapperIsSupported() {
         setContext(
@@ -121,8 +121,8 @@ public class LdapUserServiceBeanDefinitionParserTests {
         UserDetails ben = uds.loadUserByUsername("ben");
         assertTrue(ben instanceof InetOrgPerson);
     }
-    
-    
+
+
     private void setContext(String context) {
         appCtx = new InMemoryXmlApplicationContext(context);
     }

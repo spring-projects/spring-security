@@ -53,7 +53,7 @@ public abstract class AbstractPermission implements Permission {
         return this.getClass().getSimpleName() + "[" + getPattern() + "=" + mask + "]";
     }
 
-	public final int hashCode() {
-		return this.mask;
-	}
+    public final int hashCode() {
+        return this.mask;
+    }
 }

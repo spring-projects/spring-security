@@ -72,8 +72,8 @@ public class NtlmProcessingFilterEntryPoint implements AuthenticationEntryPoint 
      * @param request The {@link HttpServletRequest} object.
      * @param response Then {@link HttpServletResponse} object.
      * @param authException Either {@link NtlmBeginHandshakeException},
-     * 						{@link NtlmType2MessageException}, or
-     * 						{@link AuthenticationException}
+     *                         {@link NtlmType2MessageException}, or
+     *                         {@link AuthenticationException}
      */
     public void commence(final HttpServletRequest request, final HttpServletResponse response, final AuthenticationException authException) throws IOException, ServletException {
         final HttpServletResponse resp = (HttpServletResponse) response;

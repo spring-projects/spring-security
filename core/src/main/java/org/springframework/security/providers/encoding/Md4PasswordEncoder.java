@@ -36,52 +36,52 @@ public class Md4PasswordEncoder extends BaseDigestPasswordEncoder {
     //~ Methods ========================================================================================================
 
     /**
-	 * Encodes the rawPass using an MD4 message digest. If a salt is specified it will be merged with the password
+     * Encodes the rawPass using an MD4 message digest. If a salt is specified it will be merged with the password
      * before encoding.
-	 *
-	 * @param rawPass The plain text password
-	 * @param salt The salt to sprinkle
-	 * @return Hex string of password digest (or base64 encoded string if encodeHashAsBase64 is enabled.
-	 */
-	public String encodePassword(String rawPass, Object salt) {
-		String saltedPass = mergePasswordAndSalt(rawPass, salt, false);
-		
-		byte[] passBytes;
+     *
+     * @param rawPass The plain text password
+     * @param salt The salt to sprinkle
+     * @return Hex string of password digest (or base64 encoded string if encodeHashAsBase64 is enabled.
+     */
+    public String encodePassword(String rawPass, Object salt) {
+        String saltedPass = mergePasswordAndSalt(rawPass, salt, false);
+        
+        byte[] passBytes;
 
-		try {
-			passBytes = saltedPass.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalStateException("UTF-8 not supported!");
-		}
-		
-		Md4 md4 = new Md4();
-		md4.update(passBytes, 0, passBytes.length);
-		
-		byte[] resBuf = md4.digest();
+        try {
+            passBytes = saltedPass.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("UTF-8 not supported!");
+        }
+        
+        Md4 md4 = new Md4();
+        md4.update(passBytes, 0, passBytes.length);
+        
+        byte[] resBuf = md4.digest();
 
-		if (getEncodeHashAsBase64()) {
-			return new String(Base64.encodeBase64(resBuf));
-		} else {
-			return new String(Hex.encodeHex(resBuf));
-		}
-	}
+        if (getEncodeHashAsBase64()) {
+            return new String(Base64.encodeBase64(resBuf));
+        } else {
+            return new String(Hex.encodeHex(resBuf));
+        }
+    }
 
-	/**
-	 * Takes a previously encoded password and compares it with a raw password after mixing in the salt and
+    /**
+     * Takes a previously encoded password and compares it with a raw password after mixing in the salt and
      * encoding that value.
-	 *
-	 * @param encPass previously encoded password
-	 * @param rawPass plain text password
-	 * @param salt salt to mix into password
-	 * @return true or false
-	 */
-	public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-		String pass1 = "" + encPass;
-		String pass2 = encodePassword(rawPass, salt);
-		return pass1.equals(pass2);
-	}
+     *
+     * @param encPass previously encoded password
+     * @param rawPass plain text password
+     * @param salt salt to mix into password
+     * @return true or false
+     */
+    public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
+        String pass1 = "" + encPass;
+        String pass2 = encodePassword(rawPass, salt);
+        return pass1.equals(pass2);
+    }
 
-	public String getAlgorithm() {
-		return "MD4";
-	}
+    public String getAlgorithm() {
+        return "MD4";
+    }
 }

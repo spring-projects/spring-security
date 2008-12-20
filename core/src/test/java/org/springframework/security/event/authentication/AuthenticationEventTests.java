@@ -67,7 +67,7 @@ public class AuthenticationEventTests extends TestCase {
         AuthenticationException exception = new DisabledException("TEST");
 
         try {
-            AuthenticationFailureDisabledEvent event = new AuthenticationFailureDisabledEvent(null, exception);
+            new AuthenticationFailureDisabledEvent(null, exception);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);

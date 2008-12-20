@@ -83,228 +83,228 @@ import org.springframework.web.portlet.ModelAndView;
  */
 public class PortletProcessingInterceptor implements HandlerInterceptor, InitializingBean {
 
-	//~ Static fields/initializers =====================================================================================
+    //~ Static fields/initializers =====================================================================================
 
-	private static final Log logger = LogFactory.getLog(PortletProcessingInterceptor.class);
+    private static final Log logger = LogFactory.getLog(PortletProcessingInterceptor.class);
 
-	//~ Instance fields ================================================================================================
+    //~ Instance fields ================================================================================================
 
-	private AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
-	private List userNameAttributes;
-	
-	private AuthenticationDetailsSource authenticationDetailsSource;
-	
-	private boolean useAuthTypeAsCredentials = false;
+    private List userNameAttributes;
 
-	public PortletProcessingInterceptor() {
-	    authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
-	    ((AuthenticationDetailsSourceImpl)authenticationDetailsSource).setClazz(PortletAuthenticationDetails.class);
+    private AuthenticationDetailsSource authenticationDetailsSource;
+
+    private boolean useAuthTypeAsCredentials = false;
+
+    public PortletProcessingInterceptor() {
+        authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+        ((AuthenticationDetailsSourceImpl)authenticationDetailsSource).setClazz(PortletAuthenticationDetails.class);
     }
 
-	//~ Methods ========================================================================================================
+    //~ Methods ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
-		Assert.notNull(authenticationManager, "An AuthenticationManager must be set");
-	}
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(authenticationManager, "An AuthenticationManager must be set");
+    }
 
-	public boolean preHandleAction(ActionRequest request, ActionResponse response,
-			Object handler) throws Exception {
-		return preHandle(request, response, handler);
-	}
+    public boolean preHandleAction(ActionRequest request, ActionResponse response,
+            Object handler) throws Exception {
+        return preHandle(request, response, handler);
+    }
 
-	public boolean preHandleRender(RenderRequest request,
-			RenderResponse response, Object handler) throws Exception {
-		return preHandle(request, response, handler);
-	}
+    public boolean preHandleRender(RenderRequest request,
+            RenderResponse response, Object handler) throws Exception {
+        return preHandle(request, response, handler);
+    }
 
-	public void postHandleRender(RenderRequest request, RenderResponse response,
-			Object handler, ModelAndView modelAndView) throws Exception {
-	}
+    public void postHandleRender(RenderRequest request, RenderResponse response,
+            Object handler, ModelAndView modelAndView) throws Exception {
+    }
 
-	public void afterActionCompletion(ActionRequest request, ActionResponse response,
-			Object handler, Exception ex) throws Exception {
-	}
+    public void afterActionCompletion(ActionRequest request, ActionResponse response,
+            Object handler, Exception ex) throws Exception {
+    }
 
-	public void afterRenderCompletion(RenderRequest request, RenderResponse response,
-			Object handler, Exception ex) throws Exception {
-	}
+    public void afterRenderCompletion(RenderRequest request, RenderResponse response,
+            Object handler, Exception ex) throws Exception {
+    }
 
-	/**
-	 * Common preHandle method for both the action and render phases of the interceptor.
-	 */
-	private boolean preHandle(PortletRequest request, PortletResponse response,
-			Object handler) throws Exception {
+    /**
+     * Common preHandle method for both the action and render phases of the interceptor.
+     */
+    private boolean preHandle(PortletRequest request, PortletResponse response,
+            Object handler) throws Exception {
 
-		// get the SecurityContext
-		SecurityContext ctx = SecurityContextHolder.getContext();
+        // get the SecurityContext
+        SecurityContext ctx = SecurityContextHolder.getContext();
 
-		if (logger.isDebugEnabled())
-			logger.debug("Checking secure context token: " + ctx.getAuthentication());
+        if (logger.isDebugEnabled())
+            logger.debug("Checking secure context token: " + ctx.getAuthentication());
 
-		// if there is no existing Authentication object, then lets create one
-		if (ctx.getAuthentication() == null) {
+        // if there is no existing Authentication object, then lets create one
+        if (ctx.getAuthentication() == null) {
 
-			try {
+            try {
 
-				// build the authentication request from the PortletRequest
-			    PreAuthenticatedAuthenticationToken authRequest = new PreAuthenticatedAuthenticationToken(
-						getPrincipalFromRequest(request),
-						getCredentialsFromRequest(request));
+                // build the authentication request from the PortletRequest
+                PreAuthenticatedAuthenticationToken authRequest = new PreAuthenticatedAuthenticationToken(
+                        getPrincipalFromRequest(request),
+                        getCredentialsFromRequest(request));
 
-				// put the PortletRequest into the authentication request as the "details"
-				authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
+                // put the PortletRequest into the authentication request as the "details"
+                authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
 
-				if (logger.isDebugEnabled())
-					logger.debug("Beginning authentication request for user '" + authRequest.getName() + "'");
+                if (logger.isDebugEnabled())
+                    logger.debug("Beginning authentication request for user '" + authRequest.getName() + "'");
 
-				onPreAuthentication(request, response);
+                onPreAuthentication(request, response);
 
-				// ask the authentication manager to authenticate the request
-				// it will throw an AuthenticationException if it fails, otherwise it succeeded
-				Authentication authResult = authenticationManager.authenticate(authRequest);
+                // ask the authentication manager to authenticate the request
+                // it will throw an AuthenticationException if it fails, otherwise it succeeded
+                Authentication authResult = authenticationManager.authenticate(authRequest);
 
-				// process a successful authentication
-				if (logger.isDebugEnabled()) {
-					logger.debug("Authentication success: " + authResult);
-				}
-				
-				ctx.setAuthentication(authResult);
-				onSuccessfulAuthentication(request, response, authResult);
+                // process a successful authentication
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Authentication success: " + authResult);
+                }
 
-			} catch (AuthenticationException failed) {
-				// process an unsuccessful authentication
-				if (logger.isDebugEnabled()) {
-					logger.debug("Authentication failed - updating ContextHolder to contain null Authentication", failed);
-				}
-				ctx.setAuthentication(null);
-				request.getPortletSession().setAttribute(
-						AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY,
-						failed, PortletSession.APPLICATION_SCOPE);
-				onUnsuccessfulAuthentication(request, response, failed);
-			}
-		}
+                ctx.setAuthentication(authResult);
+                onSuccessfulAuthentication(request, response, authResult);
 
-		return true;
-	}
+            } catch (AuthenticationException failed) {
+                // process an unsuccessful authentication
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Authentication failed - updating ContextHolder to contain null Authentication", failed);
+                }
+                ctx.setAuthentication(null);
+                request.getPortletSession().setAttribute(
+                        AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY,
+                        failed, PortletSession.APPLICATION_SCOPE);
+                onUnsuccessfulAuthentication(request, response, failed);
+            }
+        }
 
-	/**
-	 * This method attempts to extract a principal from the portlet request.
-	 * According to the JSR 168 spec, the <code>PortletRequest<code> should return the name
-	 * of the user in the <code>getRemoteUser()</code> method.  It should also provide a
-	 * <code>java.security.Principal</code> object from the <code>getUserPrincipal()</code>
-	 * method.  We will first try these to come up with a valid username.
-	 * <p>Unfortunately, some portals do not properly return these values for authenticated
-	 * users.  So, if neither of those succeeds and if the <code>userNameAttributes</code>
-	 * property has been populated, then we will search through the <code>USER_INFO<code>
-	 * map from the request to see if we can find a valid username.
-	 * <p>This method can be overridden by subclasses to provide special handling
-	 * for portals with weak support for the JSR 168 spec.</p>
-	 * @param request the portlet request object
-	 * @return the determined principal object, or null if none found
-	 */
-	protected Object getPrincipalFromRequest(PortletRequest request) {
+        return true;
+    }
 
-		// first try getRemoteUser()
-		String remoteUser = request.getRemoteUser();
-		if (remoteUser != null) {
-			return remoteUser;
-		}
+    /**
+     * This method attempts to extract a principal from the portlet request.
+     * According to the JSR 168 spec, the <code>PortletRequest<code> should return the name
+     * of the user in the <code>getRemoteUser()</code> method.  It should also provide a
+     * <code>java.security.Principal</code> object from the <code>getUserPrincipal()</code>
+     * method.  We will first try these to come up with a valid username.
+     * <p>Unfortunately, some portals do not properly return these values for authenticated
+     * users.  So, if neither of those succeeds and if the <code>userNameAttributes</code>
+     * property has been populated, then we will search through the <code>USER_INFO<code>
+     * map from the request to see if we can find a valid username.
+     * <p>This method can be overridden by subclasses to provide special handling
+     * for portals with weak support for the JSR 168 spec.</p>
+     * @param request the portlet request object
+     * @return the determined principal object, or null if none found
+     */
+    protected Object getPrincipalFromRequest(PortletRequest request) {
 
-		// next try getUserPrincipal()
-		Principal userPrincipal = request.getUserPrincipal();
-		if (userPrincipal != null) {
-			String userPrincipalName = userPrincipal.getName();
-			if (userPrincipalName != null) {
-				return userPrincipalName;
-			}
-		}
+        // first try getRemoteUser()
+        String remoteUser = request.getRemoteUser();
+        if (remoteUser != null) {
+            return remoteUser;
+        }
 
-		// last try entries in USER_INFO if any attributes were defined
-		if (this.userNameAttributes != null) {
-			Map userInfo = null;
-			try {
-				userInfo = (Map)request.getAttribute(PortletRequest.USER_INFO);
-			} catch (Exception e) {
-				logger.warn("unable to retrieve USER_INFO map from portlet request", e);
-			}
-			if (userInfo != null) {
-				Iterator i = this.userNameAttributes.iterator();
-				while(i.hasNext()) {
-					Object principal = (String)userInfo.get(i.next());
-					if (principal != null) {
-						return principal;
-					}
-				}
-			}
-		}
+        // next try getUserPrincipal()
+        Principal userPrincipal = request.getUserPrincipal();
+        if (userPrincipal != null) {
+            String userPrincipalName = userPrincipal.getName();
+            if (userPrincipalName != null) {
+                return userPrincipalName;
+            }
+        }
 
-		// none found so return null
-		return null;
-	}
+        // last try entries in USER_INFO if any attributes were defined
+        if (this.userNameAttributes != null) {
+            Map userInfo = null;
+            try {
+                userInfo = (Map)request.getAttribute(PortletRequest.USER_INFO);
+            } catch (Exception e) {
+                logger.warn("unable to retrieve USER_INFO map from portlet request", e);
+            }
+            if (userInfo != null) {
+                Iterator i = this.userNameAttributes.iterator();
+                while(i.hasNext()) {
+                    Object principal = (String)userInfo.get(i.next());
+                    if (principal != null) {
+                        return principal;
+                    }
+                }
+            }
+        }
 
-	/**
-	 * This method attempts to extract a credentials from the portlet request.
-	 * We are trusting the portal framework to authenticate the user, so all
-	 * we are really doing is trying to put something intelligent in here to
-	 * indicate the user is authenticated.  According to the JSR 168 spec,
-	 * PortletRequest.getAuthType() should return a non-null value if the
-	 * user is authenticated and should be null if not authenticated. So we
-	 * will use this as the credentials and the token will be trusted as
-	 * authenticated if the credentials are not null.
-	 * <p>This method can be overridden by subclasses to provide special handling
-	 * for portals with weak support for the JSR 168 spec.  If that is done,
-	 * be sure the value is non-null for authenticated users and null for
-	 * non-authenticated users.</p>
-	 * @param request the portlet request object
-	 * @return the determined credentials object, or null if none found
-	 */
-	protected Object getCredentialsFromRequest(PortletRequest request) {
-		if (useAuthTypeAsCredentials) {
-			return request.getAuthType();
-		}
-		
-		return "dummy";
-	}
+        // none found so return null
+        return null;
+    }
 
-	/**
-	 * Callback for custom processing prior to the authentication attempt.
-	 * @param request the portlet request to be authenticated
-	 * @param response the portlet response to be authenticated
-	 * @throws AuthenticationException to indicate that authentication attempt is not valid and should be terminated
-	 * @throws IOException
-	 */
-	protected void onPreAuthentication(PortletRequest request, PortletResponse response)
-		throws AuthenticationException, IOException {}
+    /**
+     * This method attempts to extract a credentials from the portlet request.
+     * We are trusting the portal framework to authenticate the user, so all
+     * we are really doing is trying to put something intelligent in here to
+     * indicate the user is authenticated.  According to the JSR 168 spec,
+     * PortletRequest.getAuthType() should return a non-null value if the
+     * user is authenticated and should be null if not authenticated. So we
+     * will use this as the credentials and the token will be trusted as
+     * authenticated if the credentials are not null.
+     * <p>This method can be overridden by subclasses to provide special handling
+     * for portals with weak support for the JSR 168 spec.  If that is done,
+     * be sure the value is non-null for authenticated users and null for
+     * non-authenticated users.</p>
+     * @param request the portlet request object
+     * @return the determined credentials object, or null if none found
+     */
+    protected Object getCredentialsFromRequest(PortletRequest request) {
+        if (useAuthTypeAsCredentials) {
+            return request.getAuthType();
+        }
 
-	/**
-	 * Callback for custom processing after a successful authentication attempt.
-	 * @param request the portlet request that was authenticated
-	 * @param response the portlet response that was authenticated
-	 * @param authResult the resulting Authentication object
-	 * @throws IOException
-	 */
-	protected void onSuccessfulAuthentication(PortletRequest request, PortletResponse response, Authentication authResult)
-		throws IOException {}
+        return "dummy";
+    }
 
-	/**
-	 * Callback for custom processing after an unsuccessful authentication attempt.
-	 * @param request the portlet request that failed authentication
-	 * @param response the portlet response that failed authentication
-	 * @param failed the AuthenticationException that occurred
-	 * @throws IOException
-	 */
-	protected void onUnsuccessfulAuthentication(PortletRequest request, PortletResponse response, AuthenticationException failed)
-		throws IOException {}
+    /**
+     * Callback for custom processing prior to the authentication attempt.
+     * @param request the portlet request to be authenticated
+     * @param response the portlet response to be authenticated
+     * @throws AuthenticationException to indicate that authentication attempt is not valid and should be terminated
+     * @throws IOException
+     */
+    protected void onPreAuthentication(PortletRequest request, PortletResponse response)
+        throws AuthenticationException, IOException {}
+
+    /**
+     * Callback for custom processing after a successful authentication attempt.
+     * @param request the portlet request that was authenticated
+     * @param response the portlet response that was authenticated
+     * @param authResult the resulting Authentication object
+     * @throws IOException
+     */
+    protected void onSuccessfulAuthentication(PortletRequest request, PortletResponse response, Authentication authResult)
+        throws IOException {}
+
+    /**
+     * Callback for custom processing after an unsuccessful authentication attempt.
+     * @param request the portlet request that failed authentication
+     * @param response the portlet response that failed authentication
+     * @param failed the AuthenticationException that occurred
+     * @throws IOException
+     */
+    protected void onUnsuccessfulAuthentication(PortletRequest request, PortletResponse response, AuthenticationException failed)
+        throws IOException {}
 
 
-	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-		this.authenticationManager = authenticationManager;
-	}
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
 
-	public void setUserNameAttributes(List userNameAttributes) {
-		this.userNameAttributes = userNameAttributes;
-	}
+    public void setUserNameAttributes(List userNameAttributes) {
+        this.userNameAttributes = userNameAttributes;
+    }
 
     public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
         this.authenticationDetailsSource = authenticationDetailsSource;
@@ -313,10 +313,10 @@ public class PortletProcessingInterceptor implements HandlerInterceptor, Initial
     /**
      * It true, the "authType" proerty of the <tt>PortletRequest</tt> will be used as the credentials.
      * Defaults to false.
-     * 
+     *
      * @param useAuthTypeAsCredentials
      */
-	public void setUseAuthTypeAsCredentials(boolean useAuthTypeAsCredentials) {
-		this.useAuthTypeAsCredentials = useAuthTypeAsCredentials;
-	}
+    public void setUseAuthTypeAsCredentials(boolean useAuthTypeAsCredentials) {
+        this.useAuthTypeAsCredentials = useAuthTypeAsCredentials;
+    }
 }

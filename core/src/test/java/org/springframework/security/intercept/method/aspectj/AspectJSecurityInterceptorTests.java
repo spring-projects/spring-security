@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AuthenticationManager;
-import org.springframework.security.ITargetObject;
 import org.springframework.security.MockJoinPoint;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.TargetObject;
@@ -77,6 +76,7 @@ public class AspectJSecurityInterceptorTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void callbackIsInvokedWhenPermissionGranted() throws Exception {
         jmock.checking(new Expectations() {{
             oneOf(mds).getAttributes(with(any(JoinPoint.class))); will (returnValue(SecurityConfig.createList("ROLE_USER")));
@@ -90,6 +90,7 @@ public class AspectJSecurityInterceptorTests {
         jmock.assertIsSatisfied();
     }
 
+    @SuppressWarnings("unchecked")
     @Test(expected=AccessDeniedException.class)
     public void callbackIsNotInvokedWhenPermissionDenied() throws Exception {
         jmock.checking(new Expectations() {{

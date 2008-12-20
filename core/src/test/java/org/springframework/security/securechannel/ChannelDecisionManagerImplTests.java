@@ -18,10 +18,10 @@ package org.springframework.security.securechannel;
 import junit.framework.TestCase;
 
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.MockFilterChain;
 import org.springframework.security.SecurityConfig;
 
 import org.springframework.security.intercept.web.FilterInvocation;
+import org.springframework.security.util.MockFilterChain;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -50,6 +50,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 
         try {
             cdm.setChannelProcessors(new Vector());
+            cdm.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertEquals("A list of ChannelProcessors is required", expected.getMessage());
@@ -74,6 +75,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 
         try {
             cdm.setChannelProcessors(null);
+            cdm.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertEquals("A list of ChannelProcessors is required", expected.getMessage());

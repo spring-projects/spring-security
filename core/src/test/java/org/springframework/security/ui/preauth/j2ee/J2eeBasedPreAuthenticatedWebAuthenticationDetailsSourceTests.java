@@ -96,8 +96,8 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
         assertNotNull("Granted authorities should not be null", gas);
         assertEquals(expectedRoles.length, gas.size());
 
-        Collection expectedRolesColl = Arrays.asList(expectedRoles);
-        Collection gasRolesSet = new HashSet();
+        Collection<String> expectedRolesColl = Arrays.asList(expectedRoles);
+        Collection<String> gasRolesSet = new HashSet<String>();
         for (int i = 0; i < gas.size(); i++) {
             gasRolesSet.add(gas.get(i).getAuthority());
         }
@@ -138,7 +138,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
     private final HttpServletRequest getRequest(final String userName,final String[] aRoles)
     {
         MockHttpServletRequest req = new MockHttpServletRequest() {
-            private Set roles = new HashSet(Arrays.asList(aRoles));
+            private Set<String> roles = new HashSet<String>(Arrays.asList(aRoles));
             public boolean isUserInRole(String arg0) {
                 return roles.contains(arg0);
             }

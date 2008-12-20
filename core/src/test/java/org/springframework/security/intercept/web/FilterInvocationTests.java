@@ -17,12 +17,11 @@ package org.springframework.security.intercept.web;
 
 import static org.junit.Assert.*;
 
-import org.springframework.security.MockFilterChain;
-
 import org.junit.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.util.MockFilterChain;
 
 /**
  * Tests {@link FilterInvocation}.

@@ -26,8 +26,6 @@ import javax.security.auth.spi.LoginModule;
 
 
 /**
- * DOCUMENT ME!
- *
  * @author Ray Krueger
  * @version $Id$
  */
@@ -48,6 +46,7 @@ public class TestLoginModule implements LoginModule {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
 

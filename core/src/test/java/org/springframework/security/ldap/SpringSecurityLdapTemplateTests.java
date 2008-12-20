@@ -15,12 +15,6 @@
 
 package org.springframework.security.ldap;
 
-import org.springframework.ldap.UncategorizedLdapException;
-import org.springframework.ldap.core.ContextExecutor;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.ldap.core.LdapEncoder;
-import org.junit.Test;
 import static org.junit.Assert.*;
 
 import java.util.Set;
@@ -29,7 +23,11 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
-import javax.naming.ldap.LdapName;
+import javax.naming.directory.SearchResult;
+
+import org.junit.Test;
+import org.springframework.ldap.UncategorizedLdapException;
+import org.springframework.ldap.core.ContextExecutor;
 
 /**
  * @author Luke Taylor
@@ -94,7 +92,7 @@ public class SpringSecurityLdapTemplateTests extends AbstractLdapIntegrationTest
     public void roleSearchReturnsCorrectNumberOfRoles() {
         String param = "uid=ben,ou=people,dc=springframework,dc=org";
 
-        Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "ou");
+        Set<String> values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "ou");
 
         assertEquals("Expected 3 results from search", 3, values.size());
         assertTrue(values.contains("developer"));
@@ -106,48 +104,48 @@ public class SpringSecurityLdapTemplateTests extends AbstractLdapIntegrationTest
     public void testRoleSearchForMissingAttributeFailsGracefully() {
         String param = "uid=ben,ou=people,dc=springframework,dc=org";
 
-        Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "mail");
+        Set<String> values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "mail");
 
         assertEquals(0, values.size());
     }
 
     @Test
     public void roleSearchWithEscapedCharacterSucceeds() throws Exception {
-    	String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
-    	
-        Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "cn");
+        String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
+
+        Set<String> values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "cn");
 
         assertEquals(1, values.size());
     }
-    
+
     @Test
     public void nonSpringLdapSearchCodeTestMethod() throws Exception {
-    	java.util.Hashtable env = new java.util.Hashtable();
-    	env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-    	env.put(Context.PROVIDER_URL, "ldap://localhost:53389");
-    	env.put(Context.SECURITY_PRINCIPAL, "");
-    	env.put(Context.SECURITY_CREDENTIALS, "");
+        java.util.Hashtable<String, String> env = new java.util.Hashtable<String, String>();
+        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        env.put(Context.PROVIDER_URL, "ldap://localhost:53389");
+        env.put(Context.SECURITY_PRINCIPAL, "");
+        env.put(Context.SECURITY_CREDENTIALS, "");
 
-    	DirContext ctx = new javax.naming.directory.InitialDirContext(env);
-    	SearchControls controls = new SearchControls();
-    	controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-    	controls.setReturningObjFlag(true);
-    	controls.setReturningAttributes(null);
-    	String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";   	
-    	
-    	javax.naming.NamingEnumeration results = 
-    		ctx.search("ou=groups,dc=springframework,dc=org", 
-    				"(member={0})", new String[] {param}, 
-    				controls);
-    	
-    	assertTrue("Expected a result", results.hasMore());    	
+        DirContext ctx = new javax.naming.directory.InitialDirContext(env);
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        controls.setReturningObjFlag(true);
+        controls.setReturningAttributes(null);
+        String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
+
+        javax.naming.NamingEnumeration<SearchResult> results =
+            ctx.search("ou=groups,dc=springframework,dc=org",
+                    "(member={0})", new String[] {param},
+                    controls);
+
+        assertTrue("Expected a result", results.hasMore());
     }
 
     @Test
     public void searchForSingleEntryWithEscapedCharsInDnSucceeds() {
         String param = "mouse, jerry";
 
-        DirContextOperations jerry = template.searchForSingleEntry("ou=people", "(cn={0})", new String[] {param});
+        template.searchForSingleEntry("ou=people", "(cn={0})", new String[] {param});
     }
-    
+
 }

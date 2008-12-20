@@ -191,6 +191,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
     // Expression configuration tests
 
+    @SuppressWarnings("unchecked")
     @Test
     public void expressionVoterAndAfterInvocationProviderUseSameExpressionHandlerInstance() throws Exception {
         setContext("<global-method-security expression-annotations='enabled'/>" + AUTH_PROVIDER_XML);

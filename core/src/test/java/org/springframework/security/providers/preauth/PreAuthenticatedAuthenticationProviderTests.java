@@ -21,7 +21,6 @@ import org.springframework.security.util.AuthorityUtils;
  * @since 18-okt-2007
  */
 public class PreAuthenticatedAuthenticationProviderTests {
-    private static final String SUPPORTED_USERNAME = "dummyUser";
 
     @Test(expected = IllegalArgumentException.class)
     public final void afterPropertiesSet() {

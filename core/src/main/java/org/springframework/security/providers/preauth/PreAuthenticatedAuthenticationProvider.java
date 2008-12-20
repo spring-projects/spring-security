@@ -1,21 +1,17 @@
 package org.springframework.security.providers.preauth;
 
-import java.util.Arrays;
-
-import org.springframework.security.providers.AuthenticationProvider;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.userdetails.AuthenticationUserDetailsService;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsChecker;
-import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.Ordered;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.userdetails.AuthenticationUserDetailsService;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsChecker;
+import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
 import org.springframework.util.Assert;
 
 /**
@@ -87,8 +83,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
         userDetailsChecker.check(ud);
 
         PreAuthenticatedAuthenticationToken result =
-                new PreAuthenticatedAuthenticationToken(ud, authentication.getCredentials(),
-                        ud.getAuthorities().toArray(new GrantedAuthority[0]));
+                new PreAuthenticatedAuthenticationToken(ud, authentication.getCredentials(), ud.getAuthorities());
         result.setDetails(authentication.getDetails());
 
         return result;

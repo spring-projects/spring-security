@@ -15,9 +15,7 @@
 
 package org.springframework.security.ui.switchuser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +34,6 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.ui.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.ui.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;

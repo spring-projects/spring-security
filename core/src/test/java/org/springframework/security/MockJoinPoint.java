@@ -29,6 +29,7 @@ import java.lang.reflect.Method;
  * @author Ben Alex
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class MockJoinPoint implements JoinPoint {
     //~ Instance fields ================================================================================================
 

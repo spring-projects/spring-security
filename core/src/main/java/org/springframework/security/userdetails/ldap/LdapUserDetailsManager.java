@@ -49,6 +49,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -107,7 +108,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         public Object mapFromAttributes(Attributes attributes) throws NamingException {
             Attribute roleAttr = attributes.get(groupRoleAttributeName);
 
-            NamingEnumeration ne = roleAttr.getAll();
+            NamingEnumeration<?> ne = roleAttr.getAll();
             // assert ne.hasMore();
             Object group = ne.next();
             String role = group.toString();
@@ -204,9 +205,10 @@ public class LdapUserDetailsManager implements UserDetailsManager {
      * @param username the user whose roles are required.
      * @return the granted authorities returned by the group search
      */
+    @SuppressWarnings("unchecked")
     List<GrantedAuthority> getUserAuthorities(final DistinguishedName dn, final String username) {
         SearchExecutor se = new SearchExecutor() {
-            public NamingEnumeration executeSearch(DirContext ctx) throws NamingException {
+            public NamingEnumeration<SearchResult> executeSearch(DirContext ctx) throws NamingException {
                 DistinguishedName fullDn = LdapUtils.getFullDn(dn, ctx);
                 SearchControls ctrls = new SearchControls();
                 ctrls.setReturningAttributes(new String[] {groupRoleAttributeName});
@@ -257,9 +259,9 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         copyToContext(user, ctx);
 
         // Remove the objectclass attribute from the list of mods (if present).
-        List mods = new LinkedList(Arrays.asList(ctx.getModificationItems()));
+        List<ModificationItem> mods = new LinkedList<ModificationItem>(Arrays.asList(ctx.getModificationItems()));
+        ListIterator<ModificationItem> modIt = mods.listIterator();
 
-        ListIterator modIt = mods.listIterator();
         while(modIt.hasNext()) {
             ModificationItem mod = (ModificationItem) modIt.next();
             Attribute a = mod.getAttribute();
@@ -268,7 +270,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
             }
         }
 
-        template.modifyAttributes(dn, (ModificationItem[]) mods.toArray(new ModificationItem[mods.size()]));
+        template.modifyAttributes(dn, mods.toArray(new ModificationItem[mods.size()]));
 
 //        template.rebind(dn, ctx, null);
         // Remove the old authorities and replace them with the new one

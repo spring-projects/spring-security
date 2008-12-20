@@ -146,7 +146,7 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         PortMapperImpl portMapper = new PortMapperImpl();
-        Map map = new HashMap();
+        Map<String, String> map = new HashMap<String, String>();
         map.put("8888", "9999");
         portMapper.setPortMappings(map);
 

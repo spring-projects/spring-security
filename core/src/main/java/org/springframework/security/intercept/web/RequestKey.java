@@ -49,21 +49,21 @@ public class RequestKey {
         }
         
         if (method == null) {
-        	return key.method == null;
+            return key.method == null;
         }
 
         return method.equals(key.method);        
     }
 
-	public String toString() {
-		StringBuffer sb = new StringBuffer(url.length() + 7);
-		sb.append("[");
-		if (method != null) {
-			sb.append(method).append(",");
-		}
-		sb.append(url);
-		sb.append("]");
-		
-		return sb.toString();
-	}
+    public String toString() {
+        StringBuffer sb = new StringBuffer(url.length() + 7);
+        sb.append("[");
+        if (method != null) {
+            sb.append(method).append(",");
+        }
+        sb.append(url);
+        sb.append("]");
+        
+        return sb.toString();
+    }
 }

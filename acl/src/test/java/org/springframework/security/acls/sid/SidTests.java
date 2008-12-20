@@ -19,7 +19,7 @@ public class SidTests extends TestCase {
         // Check one String-argument constructor
         try {
             String string = null;
-            Sid principalSid = new PrincipalSid(string);
+            new PrincipalSid(string);
             Assert.fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
@@ -27,7 +27,7 @@ public class SidTests extends TestCase {
         }
 
         try {
-            Sid principalSid = new PrincipalSid("");
+            new PrincipalSid("");
             Assert.fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
@@ -35,7 +35,7 @@ public class SidTests extends TestCase {
         }
 
         try {
-            Sid principalSid = new PrincipalSid("johndoe");
+            new PrincipalSid("johndoe");
             Assert.assertTrue(true);
         }
         catch (IllegalArgumentException notExpected) {
@@ -45,7 +45,7 @@ public class SidTests extends TestCase {
         // Check one Authentication-argument constructor
         try {
             Authentication authentication = null;
-            Sid principalSid = new PrincipalSid(authentication);
+            new PrincipalSid(authentication);
             Assert.fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
@@ -54,7 +54,7 @@ public class SidTests extends TestCase {
 
         try {
             Authentication authentication = new TestingAuthenticationToken(null, "password");
-            Sid principalSid = new PrincipalSid(authentication);
+            new PrincipalSid(authentication);
             Assert.fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
@@ -63,7 +63,7 @@ public class SidTests extends TestCase {
 
         try {
             Authentication authentication = new TestingAuthenticationToken("johndoe", "password");
-            Sid principalSid = new PrincipalSid(authentication);
+            new PrincipalSid(authentication);
             Assert.assertTrue(true);
         }
         catch (IllegalArgumentException notExpected) {
@@ -75,7 +75,7 @@ public class SidTests extends TestCase {
         // Check one String-argument constructor
         try {
             String string = null;
-            Sid gaSid = new GrantedAuthoritySid(string);
+            new GrantedAuthoritySid(string);
             Assert.fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
@@ -83,7 +83,7 @@ public class SidTests extends TestCase {
         }
 
         try {
-            Sid gaSid = new GrantedAuthoritySid("");
+            new GrantedAuthoritySid("");
             Assert.fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
@@ -91,7 +91,7 @@ public class SidTests extends TestCase {
         }
 
         try {
-            Sid gaSid = new GrantedAuthoritySid("ROLE_TEST");
+            new GrantedAuthoritySid("ROLE_TEST");
             Assert.assertTrue(true);
         }
         catch (IllegalArgumentException notExpected) {
@@ -101,7 +101,7 @@ public class SidTests extends TestCase {
         // Check one GrantedAuthority-argument constructor
         try {
             GrantedAuthority ga = null;
-            Sid gaSid = new GrantedAuthoritySid(ga);
+            new GrantedAuthoritySid(ga);
             Assert.fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
@@ -110,7 +110,7 @@ public class SidTests extends TestCase {
 
         try {
             GrantedAuthority ga = new GrantedAuthorityImpl(null);
-            Sid gaSid = new GrantedAuthoritySid(ga);
+            new GrantedAuthoritySid(ga);
             Assert.fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
@@ -119,7 +119,7 @@ public class SidTests extends TestCase {
 
         try {
             GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
-            Sid gaSid = new GrantedAuthoritySid(ga);
+            new GrantedAuthoritySid(ga);
             Assert.assertTrue(true);
         }
         catch (IllegalArgumentException notExpected) {

@@ -19,7 +19,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Vector;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
@@ -28,7 +27,6 @@ import org.springframework.security.SecurityConfig;
 
 
 /**
- *
  * @author Ben Alex
  * @version $Id$
  */

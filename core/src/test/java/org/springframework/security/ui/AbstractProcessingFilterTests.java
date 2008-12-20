@@ -88,16 +88,16 @@ public class AbstractProcessingFilterTests extends TestCase {
         return new SavedRequest(request, new PortResolverImpl());
     }
 
-    private SavedRequest makePostSavedRequestForUrl() {
-        MockHttpServletRequest request = createMockRequest();
-        request.setServletPath("/some_protected_file.html");
-        request.setScheme("http");
-        request.setServerName("www.example.com");
-        request.setRequestURI("/mycontext/post/some_protected_file.html");
-        request.setMethod("POST");
-
-        return new SavedRequest(request, new PortResolverImpl());
-    }
+//    private SavedRequest makePostSavedRequestForUrl() {
+//        MockHttpServletRequest request = createMockRequest();
+//        request.setServletPath("/some_protected_file.html");
+//        request.setScheme("http");
+//        request.setServerName("www.example.com");
+//        request.setRequestURI("/mycontext/post/some_protected_file.html");
+//        request.setMethod("POST");
+//
+//        return new SavedRequest(request, new PortResolverImpl());
+//    }
 
     protected void setUp() throws Exception {
         super.setUp();

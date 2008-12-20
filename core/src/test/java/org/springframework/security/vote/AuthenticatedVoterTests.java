@@ -21,12 +21,11 @@ import junit.framework.TestCase;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import org.springframework.security.providers.rememberme.RememberMeAuthenticationToken;
+import org.springframework.security.util.AuthorityUtils;
 
 
 /**
@@ -38,18 +37,15 @@ import org.springframework.security.providers.rememberme.RememberMeAuthenticatio
 public class AuthenticatedVoterTests extends TestCase {
 
     private Authentication createAnonymous() {
-        return new AnonymousAuthenticationToken("ignored", "ignored",
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ignored")});
+        return new AnonymousAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"));
     }
 
     private Authentication createFullyAuthenticated() {
-        return new UsernamePasswordAuthenticationToken("ignored", "ignored",
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ignored")});
+        return new UsernamePasswordAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"));
     }
 
     private Authentication createRememberMe() {
-        return new RememberMeAuthenticationToken("ignored", "ignored",
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ignored")});
+        return new RememberMeAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"));
     }
 
     public void testAnonymousWorks() {

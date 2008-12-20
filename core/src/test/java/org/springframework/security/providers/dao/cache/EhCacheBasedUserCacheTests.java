@@ -16,19 +16,16 @@
 package org.springframework.security.providers.dao.cache;
 
 
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Cache;
-
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-
-import org.springframework.security.userdetails.User;
-
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.security.userdetails.User;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  * Tests {@link EhCacheBasedUserCache}.
@@ -61,7 +58,7 @@ public class EhCacheBasedUserCacheTests {
 
     private User getUser() {
         return new User("john", "password", true, true, true, true,
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
     }
 
     @Test

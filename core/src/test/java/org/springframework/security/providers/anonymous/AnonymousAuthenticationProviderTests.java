@@ -23,6 +23,7 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 
 import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.util.AuthorityUtils;
 
 
 /**
@@ -32,14 +33,6 @@ import org.springframework.security.providers.TestingAuthenticationToken;
  * @version $Id$
  */
 public class AnonymousAuthenticationProviderTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AnonymousAuthenticationProviderTests() {
-    }
-
-    public AnonymousAuthenticationProviderTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
 
@@ -48,10 +41,10 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
         aap.setKey("qwerty");
 
         AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("WRONG_KEY", "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
         try {
-            Authentication result = aap.authenticate(token);
+            aap.authenticate(token);
             fail("Should have thrown BadCredentialsException");
         } catch (BadCredentialsException expected) {
         }
@@ -92,7 +85,7 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
         aap.setKey("qwerty");
 
         AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("qwerty", "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
         Authentication result = aap.authenticate(token);
 

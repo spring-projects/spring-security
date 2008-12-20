@@ -1,8 +1,5 @@
 package org.springframework.security.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.regex.Pattern;
 
 /**
@@ -10,8 +7,6 @@ import java.util.regex.Pattern;
  * @version $Id$
  */
 public class RegexUrlPathMatcher implements UrlMatcher {
-    private static final Log logger = LogFactory.getLog(RegexUrlPathMatcher.class);
-
     private boolean requiresLowerCaseUrl = false;
 
     public Object compile(String path) {

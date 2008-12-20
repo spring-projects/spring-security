@@ -5,11 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.annotation.BusinessService;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.util.AuthorityUtils;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
@@ -46,7 +45,7 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
     @Test
     public void permitAllShouldBeDefaultAttribute() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_USER")});
+                AuthorityUtils.createAuthorityList("ROLE_USER"));
         SecurityContextHolder.getContext().setAuthentication(token);
 
         target.someOther(0);
@@ -55,7 +54,7 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
     @Test
     public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_USER")});
+                AuthorityUtils.createAuthorityList("ROLE_USER"));
         SecurityContextHolder.getContext().setAuthentication(token);
 
         target.someUserMethod1();
@@ -64,7 +63,7 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
     @Test(expected=AccessDeniedException.class)
     public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SOMEOTHERROLE")});
+                AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
         SecurityContextHolder.getContext().setAuthentication(token);
 
         target.someAdminMethod();

@@ -14,8 +14,8 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
 
     public void init() {
         // Parsers
-    	registerBeanDefinitionParser(Elements.LDAP_PROVIDER, new LdapProviderBeanDefinitionParser());
-    	registerBeanDefinitionParser(Elements.LDAP_SERVER, new LdapServerBeanDefinitionParser());
+        registerBeanDefinitionParser(Elements.LDAP_PROVIDER, new LdapProviderBeanDefinitionParser());
+        registerBeanDefinitionParser(Elements.LDAP_SERVER, new LdapServerBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.LDAP_USER_SERVICE, new LdapUserServiceBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.USER_SERVICE, new UserServiceBeanDefinitionParser());

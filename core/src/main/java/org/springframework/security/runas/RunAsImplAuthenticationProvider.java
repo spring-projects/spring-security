@@ -46,7 +46,7 @@ public class RunAsImplAuthenticationProvider implements InitializingBean, Authen
 
     //~ Methods ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() throws Exception {
         Assert.notNull(key, "A Key is required and should match that configured for the RunAsManagerImpl");
     }
 

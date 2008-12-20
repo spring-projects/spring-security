@@ -18,11 +18,10 @@ package org.springframework.security.runas;
 import junit.framework.TestCase;
 
 import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.RunAsManager;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.util.AuthorityUtils;
 
 
 /**
@@ -39,7 +38,7 @@ public class RunAsManagerImplTests extends TestCase {
 
     public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting() throws Exception {
         UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
         RunAsManagerImpl runAs = new RunAsManagerImpl();
         runAs.setKey("my_password");
@@ -50,7 +49,7 @@ public class RunAsManagerImplTests extends TestCase {
 
     public void testRespectsRolePrefix() throws Exception {
         UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ONE"), new GrantedAuthorityImpl("TWO")});
+                AuthorityUtils.createAuthorityList("ONE", "TWO"));
 
         RunAsManagerImpl runAs = new RunAsManagerImpl();
         runAs.setKey("my_password");
@@ -58,10 +57,7 @@ public class RunAsManagerImplTests extends TestCase {
 
         Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), SecurityConfig.createList("RUN_AS_SOMETHING"));
 
-        if (!(resultingToken instanceof RunAsUserToken)) {
-            fail("Should have returned a RunAsUserToken");
-        }
-
+        assertTrue("Should have returned a RunAsUserToken", resultingToken instanceof RunAsUserToken);
         assertEquals(inputToken.getPrincipal(), resultingToken.getPrincipal());
         assertEquals(inputToken.getCredentials(), resultingToken.getCredentials());
         assertEquals("FOOBAR_RUN_AS_SOMETHING", resultingToken.getAuthorities().get(0).getAuthority());
@@ -74,7 +70,7 @@ public class RunAsManagerImplTests extends TestCase {
 
     public void testReturnsAdditionalGrantedAuthorities() throws Exception {
         UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
         RunAsManagerImpl runAs = new RunAsManagerImpl();
         runAs.setKey("my_password");

@@ -44,6 +44,7 @@ public class SavedRequestAwareWrapperTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void savedRequesthHeaderIsReturnedIfSavedRequestIsSet() throws Exception {
         MockHttpServletRequest savedRequest = new MockHttpServletRequest();
         savedRequest.addHeader("header", "savedheader");
@@ -63,6 +64,7 @@ public class SavedRequestAwareWrapperTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void wrappedRequestHeaderIsReturnedIfSavedRequestIsNotSet() throws Exception {
         MockHttpServletRequest wrappedRequest = new MockHttpServletRequest();
         wrappedRequest.addHeader("header", "wrappedheader");

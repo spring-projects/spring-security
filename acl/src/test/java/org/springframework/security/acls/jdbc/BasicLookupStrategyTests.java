@@ -35,12 +35,12 @@ import org.springframework.util.FileCopyUtils;
 
 /**
  * Tests {@link BasicLookupStrategy}
- * 
+ *
  * @author Andrei Stefan
  */
 public class BasicLookupStrategyTests {
     //~ Instance fields ================================================================================================
-    
+
     private static JdbcTemplate jdbcTemplate;
 
     private LookupStrategy strategy;
@@ -123,7 +123,7 @@ public class BasicLookupStrategyTests {
         // Deliberately use an integer for the child, to reproduce bug report in SEC-819
         ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(102));
 
-        Map map = this.strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
+        Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
         checkEntries(topParentOid, middleParentOid, childOid, map);
     }
 
@@ -138,7 +138,7 @@ public class BasicLookupStrategyTests {
 
         // Let's empty the database to force acls retrieval from cache
         emptyDatabase();
-        Map map = this.strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
+        Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
 
         checkEntries(topParentOid, middleParentOid, childOid, map);
     }
@@ -151,12 +151,12 @@ public class BasicLookupStrategyTests {
 
         // Set a batch size to allow multiple database queries in order to retrieve all acls
         ((BasicLookupStrategy) this.strategy).setBatchSize(1);
-        Map map = this.strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
+        Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
         checkEntries(topParentOid, middleParentOid, childOid, map);
     }
 
-    private void checkEntries(ObjectIdentity topParentOid, ObjectIdentity middleParentOid, ObjectIdentity childOid, Map map)
-            throws Exception {
+    private void checkEntries(ObjectIdentity topParentOid, ObjectIdentity middleParentOid, ObjectIdentity childOid,
+            Map<ObjectIdentity, Acl> map) throws Exception {
         Assert.assertEquals(3, map.size());
 
         MutableAcl topParent = (MutableAcl) map.get(topParentOid);
@@ -221,20 +221,20 @@ public class BasicLookupStrategyTests {
         Assert.assertFalse(((AuditableAccessControlEntry) child.getEntries()[0]).isAuditSuccess());
         Assert.assertFalse((child.getEntries()[0]).isGranting());
     }
-    
+
     @Test
     public void testAllParentsAreRetrievedWhenChildIsLoaded() throws Exception {
         String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (4,2,103,1,1,1);";
         jdbcTemplate.execute(query);
-        
+
         ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
         ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(101));
         ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
         ObjectIdentity middleParent2Oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(103));
-        
+
         // Retrieve the child
-        Map map = this.strategy.readAclsById(new ObjectIdentity[] { childOid }, null);
-        
+        Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(new ObjectIdentity[] { childOid }, null);
+
         // Check that the child and all its parents were retrieved
         Assert.assertNotNull(map.get(childOid));
         Assert.assertEquals(childOid, ((Acl) map.get(childOid)).getObjectIdentity());
@@ -242,7 +242,7 @@ public class BasicLookupStrategyTests {
         Assert.assertEquals(middleParentOid, ((Acl) map.get(middleParentOid)).getObjectIdentity());
         Assert.assertNotNull(map.get(topParentOid));
         Assert.assertEquals(topParentOid, ((Acl) map.get(topParentOid)).getObjectIdentity());
-        
+
         // The second parent shouldn't have been retrieved
         Assert.assertNull(map.get(middleParent2Oid));
     }
@@ -268,9 +268,9 @@ public class BasicLookupStrategyTests {
         Permission[] checkPermission = new Permission[] { BasePermission.READ };
         Sid[] sids = new Sid[] { new PrincipalSid("ben") };
         ObjectIdentity[] childOids = new ObjectIdentity[] { childOid };
-        
+
         ((BasicLookupStrategy) this.strategy).setBatchSize(6);
-        Map foundAcls = strategy.readAclsById(childOids, sids);
+        Map<ObjectIdentity, Acl> foundAcls = strategy.readAclsById(childOids, sids);
 
         Acl foundChildAcl = (Acl) foundAcls.get(childOid);
         Assert.assertNotNull(foundChildAcl);
@@ -290,5 +290,5 @@ public class BasicLookupStrategyTests {
         Assert.assertNotNull(foundParent2Acl);
         Assert.assertTrue(foundParent2Acl.isGranted(checkPermission, sids, false));
     }
-    
+
 }

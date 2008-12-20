@@ -19,10 +19,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 
 import junit.framework.TestCase;
 
@@ -32,6 +29,7 @@ import org.springframework.security.ConfigAttribute;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
+import org.springframework.security.util.MockFilterChain;
 
 
 /**
@@ -195,27 +193,6 @@ public class ChannelProcessingFilterTests extends TestCase {
                 return true;
             } else {
                 return false;
-            }
-        }
-    }
-
-    private class MockFilterChain implements FilterChain {
-        private boolean expectToProceed;
-
-        public MockFilterChain(boolean expectToProceed) {
-            this.expectToProceed = expectToProceed;
-        }
-
-        private MockFilterChain() {
-            super();
-        }
-
-        public void doFilter(ServletRequest request, ServletResponse response)
-            throws IOException, ServletException {
-            if (expectToProceed) {
-                assertTrue(true);
-            } else {
-                fail("Did not expect filter chain to proceed");
             }
         }
     }

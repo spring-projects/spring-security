@@ -62,7 +62,7 @@ public interface ObjectIdentity extends Serializable {
      *
      * @return the Java type of the domain object (never <tt>null</tt>)
      */
-    Class getJavaType();
+    Class<?> getJavaType();
 
     /**
      * @return a hash code representation of the <tt>ObjectIdentity</tt>

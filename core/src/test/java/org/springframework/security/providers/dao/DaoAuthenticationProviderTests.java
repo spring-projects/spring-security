@@ -15,6 +15,8 @@
 
 package org.springframework.security.providers.dao;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.AccountExpiredException;
@@ -24,7 +26,6 @@ import org.springframework.security.BadCredentialsException;
 import org.springframework.security.CredentialsExpiredException;
 import org.springframework.security.DisabledException;
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.LockedException;
 
 import org.springframework.security.providers.TestingAuthenticationToken;
@@ -38,10 +39,10 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.util.AuthorityUtils;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
-
 
 
 /**
@@ -51,6 +52,9 @@ import org.springframework.dao.DataRetrievalFailureException;
  * @version $Id$
  */
 public class DaoAuthenticationProviderTests extends TestCase {
+    private static final List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
+
+
     //~ Methods ========================================================================================================
 
     public void testAuthenticateFailsForIncorrectPasswordCase() {
@@ -458,8 +462,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("rod".equals(username)) {
-                return new User("rod", password, true, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                return new User("rod", password, true, true, true, true, ROLES_12);
             } else {
                 throw new UsernameNotFoundException("Could not find: " + username);
             }
@@ -474,8 +477,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("rod".equals(username)) {
-                return new User("rod", "koala{SYSTEM_SALT_VALUE}", true, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                return new User("rod", "koala{SYSTEM_SALT_VALUE}", true, true, true, true, ROLES_12);
             } else {
                 throw new UsernameNotFoundException("Could not find: " + username);
             }
@@ -486,8 +488,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("peter".equals(username)) {
-                return new User("peter", "opal", false, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                return new User("peter", "opal", false, true, true, true, ROLES_12);
             } else {
                 throw new UsernameNotFoundException("Could not find: " + username);
             }
@@ -498,8 +499,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("peter".equals(username)) {
-                return new User("peter", "opal", true, false, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                return new User("peter", "opal", true, false, true, true, ROLES_12);
             } else {
                 throw new UsernameNotFoundException("Could not find: " + username);
             }
@@ -510,8 +510,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("peter".equals(username)) {
-                return new User("peter", "opal", true, true, true, false,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                return new User("peter", "opal", true, true, true, false, ROLES_12);
             } else {
                 throw new UsernameNotFoundException("Could not find: " + username);
             }
@@ -522,8 +521,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("peter".equals(username)) {
-                return new User("peter", "opal", true, true, false, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+                return new User("peter", "opal", true, true, false, true, ROLES_12);
             } else {
                 throw new UsernameNotFoundException("Could not find: " + username);
             }

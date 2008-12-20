@@ -27,8 +27,8 @@ import org.junit.Test;
  * @version $Id$
  */
 public class GrantedAuthorityImplTests {
-	
-	@Test
+    
+    @Test
     public void equalsBehavesAsExpected() throws Exception {
         GrantedAuthorityImpl auth1 = new GrantedAuthorityImpl("TEST");
         GrantedAuthorityImpl auth2 = new GrantedAuthorityImpl("TEST");
@@ -53,28 +53,28 @@ public class GrantedAuthorityImplTests {
         assertTrue(!auth1.equals(int1));
     }
 
-	@Test
+    @Test
     public void toStringReturnsAuthorityValue() {
         GrantedAuthorityImpl auth = new GrantedAuthorityImpl("TEST");
         assertEquals("TEST", auth.toString());
     }
 
-	@Test
-	public void compareToGrantedAuthorityWithSameValueReturns0() {
-		assertEquals(0, new GrantedAuthorityImpl("TEST").compareTo(new MockGrantedAuthority("TEST")));
-	}		
+    @Test
+    public void compareToGrantedAuthorityWithSameValueReturns0() {
+        assertEquals(0, new GrantedAuthorityImpl("TEST").compareTo(new MockGrantedAuthority("TEST")));
+    }        
 
-	@Test
-	public void compareToNullReturnsNegativeOne() {
-		assertEquals(-1, new GrantedAuthorityImpl("TEST").compareTo(null));
-	}	
-	
-	/* SEC-899 */
-	@Test
-	public void compareToHandlesCustomAuthorityWhichReturnsNullFromGetAuthority() {
-		assertEquals(-1, new GrantedAuthorityImpl("TEST").compareTo(new MockGrantedAuthority()));
-	}	
-	
+    @Test
+    public void compareToNullReturnsNegativeOne() {
+        assertEquals(-1, new GrantedAuthorityImpl("TEST").compareTo(null));
+    }    
+    
+    /* SEC-899 */
+    @Test
+    public void compareToHandlesCustomAuthorityWhichReturnsNullFromGetAuthority() {
+        assertEquals(-1, new GrantedAuthorityImpl("TEST").compareTo(new MockGrantedAuthority()));
+    }    
+    
     //~ Inner Classes ==================================================================================================
 
     private class MockGrantedAuthority implements GrantedAuthority {
@@ -88,8 +88,8 @@ public class GrantedAuthorityImplTests {
         }
 
         public int compareTo(Object o) {
-			throw new UnsupportedOperationException();
-		}
+            throw new UnsupportedOperationException();
+        }
 
         public String getAuthority() {
             return this.role;

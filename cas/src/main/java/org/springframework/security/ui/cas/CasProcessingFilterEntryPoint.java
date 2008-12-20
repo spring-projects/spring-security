@@ -60,13 +60,13 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, 
 
     //~ Methods ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() throws Exception {
         Assert.hasLength(this.loginUrl, "loginUrl must be specified");
         Assert.notNull(this.serviceProperties, "serviceProperties must be specified");
     }
 
     public void commence(final HttpServletRequest servletRequest, final HttpServletResponse servletResponse,
-    		final AuthenticationException authenticationException) throws IOException, ServletException {
+            final AuthenticationException authenticationException) throws IOException, ServletException {
 
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
         final String urlEncodedService = CommonUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null, "ticket", this.encodeServiceUrlWithSessionId);
@@ -98,6 +98,6 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, 
     }
 
     public void setEncodeServiceUrlWithSessionId(final boolean encodeServiceUrlWithSessionId) {
-    	this.encodeServiceUrlWithSessionId = encodeServiceUrlWithSessionId;
+        this.encodeServiceUrlWithSessionId = encodeServiceUrlWithSessionId;
     }
 }

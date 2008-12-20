@@ -28,25 +28,7 @@ import java.util.Map;
  * @version $Id$
  */
 public class PortMapperImplTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public PortMapperImplTests() {
-        super();
-    }
-
-    public PortMapperImplTests(String arg0) {
-        super(arg0);
-    }
-
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(PortMapperImplTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testDefaultMappingsAreKnown() throws Exception {
         PortMapperImpl portMapper = new PortMapperImpl();
@@ -60,7 +42,7 @@ public class PortMapperImplTests extends TestCase {
         PortMapperImpl portMapper = new PortMapperImpl();
 
         try {
-            portMapper.setPortMappings(new HashMap());
+            portMapper.setPortMappings(new HashMap<String,String>());
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -85,7 +67,7 @@ public class PortMapperImplTests extends TestCase {
 
     public void testRejectsOutOfRangeMappings() {
         PortMapperImpl portMapper = new PortMapperImpl();
-        Map map = new HashMap();
+        Map<String, String> map = new HashMap<String, String>();
         map.put("79", "80559");
 
         try {
@@ -103,7 +85,7 @@ public class PortMapperImplTests extends TestCase {
 
     public void testSupportsCustomMappings() {
         PortMapperImpl portMapper = new PortMapperImpl();
-        Map map = new HashMap();
+        Map<String, String> map = new HashMap<String, String>();
         map.put("79", "442");
 
         portMapper.setPortMappings(map);

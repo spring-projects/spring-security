@@ -44,7 +44,7 @@ import java.io.Serializable;
  */
 public interface Acl extends Serializable {
 
-	/**
+    /**
      * Returns all of the entries represented by the present <tt>Acl</tt>. Entries associated with
      * the <tt>Acl</tt> parents are not returned.
      * 

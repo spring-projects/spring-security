@@ -2,7 +2,6 @@ package org.springframework.security.intercept.method;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,25 +28,18 @@ import org.springframework.util.StringUtils;
  * having every method of every bean defined in the Spring application context compared with
  * those pointcuts. Where a match is found, the matching method will be registered with the
  * {@link MapBasedMethodDefinitionSource}.
- * </p>
- *
  * <p>
  * It is very important to understand that only the <b>first</b> pointcut that matches a given
  * method will be taken as authoritative for that method. This is why pointcuts should be provided
  * as a <tt>LinkedHashMap</tt>, because their order is very important.
- * </p>
- *
  * <p>
  * Note also that only beans defined in the Spring application context will be examined by this
  * class.
- * </p>
- *
  * <p>
  * Because this class registers method security metadata with {@link MapBasedMethodDefinitionSource},
  * normal Spring Security capabilities such as {@link MethodDefinitionSourceAdvisor} can be used.
  * It does not matter the fact the method metadata was originally obtained from an AspectJ pointcut
  * expression evaluation.
- * </p>
  *
  * @author Ben Alex
  * @verion $Id$
@@ -58,7 +50,7 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
     private static final Log logger = LogFactory.getLog(ProtectPointcutPostProcessor.class);
 
-    private Map<String,List<ConfigAttribute>> pointcutMap = new LinkedHashMap();
+    private Map<String,List<ConfigAttribute>> pointcutMap = new LinkedHashMap<String,List<ConfigAttribute>>();
     private MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource;
     private PointcutParser parser;
 
@@ -66,18 +58,18 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
         Assert.notNull(mapBasedMethodDefinitionSource, "MapBasedMethodDefinitionSource to populate is required");
         this.mapBasedMethodDefinitionSource = mapBasedMethodDefinitionSource;
 
-        // Setup AspectJ pointcut expression parser
-        Set supportedPrimitives = new HashSet();
+        // Set up AspectJ pointcut expression parser
+        Set<PointcutPrimitive> supportedPrimitives = new HashSet<PointcutPrimitive>(3);
         supportedPrimitives.add(PointcutPrimitive.EXECUTION);
         supportedPrimitives.add(PointcutPrimitive.ARGS);
         supportedPrimitives.add(PointcutPrimitive.REFERENCE);
-//		supportedPrimitives.add(PointcutPrimitive.THIS);
-//		supportedPrimitives.add(PointcutPrimitive.TARGET);
-//		supportedPrimitives.add(PointcutPrimitive.WITHIN);
-//		supportedPrimitives.add(PointcutPrimitive.AT_ANNOTATION);
-//		supportedPrimitives.add(PointcutPrimitive.AT_WITHIN);
-//		supportedPrimitives.add(PointcutPrimitive.AT_ARGS);
-//		supportedPrimitives.add(PointcutPrimitive.AT_TARGET);
+//        supportedPrimitives.add(PointcutPrimitive.THIS);
+//        supportedPrimitives.add(PointcutPrimitive.TARGET);
+//        supportedPrimitives.add(PointcutPrimitive.WITHIN);
+//        supportedPrimitives.add(PointcutPrimitive.AT_ANNOTATION);
+//        supportedPrimitives.add(PointcutPrimitive.AT_WITHIN);
+//        supportedPrimitives.add(PointcutPrimitive.AT_ARGS);
+//        supportedPrimitives.add(PointcutPrimitive.AT_TARGET);
         parser = PointcutParser.getPointcutParserSupportingSpecifiedPrimitivesAndUsingContextClassloaderForResolution(supportedPrimitives);
     }
 
@@ -96,10 +88,7 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
         // Check to see if any of those methods are compatible with our pointcut expressions
         for (int i = 0; i < methods.length; i++) {
-            Iterator iter = pointcutMap.keySet().iterator();
-            while (iter.hasNext()) {
-                String ex = iter.next().toString();
-
+            for (String ex : pointcutMap.keySet()) {
                 // Parse the presented AspectJ pointcut expression
                 PointcutExpression expression = parser.parsePointcutExpression(ex);
 
@@ -114,7 +103,7 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
         return bean;
     }
 
-    private boolean attemptMatch(Class targetClass, Method method, PointcutExpression expression, String beanName) {
+    private boolean attemptMatch(Class<?> targetClass, Method method, PointcutExpression expression, String beanName) {
         // Determine if the presented AspectJ pointcut expression matches this method
         boolean matches = expression.matchesMethodExecution(method).alwaysMatches();
 
@@ -134,9 +123,7 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
     public void setPointcutMap(Map<String, List<ConfigAttribute>> map) {
         Assert.notEmpty(map);
-        Iterator i = map.keySet().iterator();
-        while (i.hasNext()) {
-            String expression = i.next().toString();
+        for (String expression : map.keySet()) {
             List<ConfigAttribute> value = map.get(expression);
             addPointcut(expression, value);
         }

@@ -40,6 +40,7 @@ import javax.servlet.ServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
+@SuppressWarnings("deprecation")
 public class HttpSessionContextIntegrationFilterTests extends TestCase {
     // Build an Authentication object we simulate came from HttpSession
     private UsernamePasswordAuthenticationToken sessionPrincipal = new UsernamePasswordAuthenticationToken(

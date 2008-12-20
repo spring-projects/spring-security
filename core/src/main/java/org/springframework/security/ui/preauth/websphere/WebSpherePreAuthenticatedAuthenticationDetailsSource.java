@@ -70,8 +70,7 @@ public class WebSpherePreAuthenticatedAuthenticationDetailsSource extends Authen
         List<String> webSphereGroups = Arrays.asList(WASSecurityHelper.getGroupsForCurrentUser());
         List<GrantedAuthority> userGas = webSphereGroups2GrantedAuthoritiesMapper.getGrantedAuthorities(webSphereGroups);
         if (logger.isDebugEnabled()) {
-            logger.debug("WebSphere groups: " + webSphereGroups + " mapped to Granted Authorities: "
-                    + Arrays.asList(userGas));
+            logger.debug("WebSphere groups: " + webSphereGroups + " mapped to Granted Authorities: " + userGas);
         }
         return userGas;
     }

@@ -11,14 +11,14 @@ import org.springframework.security.acls.Permission;
  */
 public interface PermissionFactory {
 
-	/**
-	 * Dynamically creates a <code>CumulativePermission</code> or <code>BasePermission</code> representing the
-	 * active bits in the passed mask.
-	 *
-	 * @param mask to build
-	 *
-	 * @return a Permission representing the requested object
-	 */
-	public abstract Permission buildFromMask(int mask);
+    /**
+     * Dynamically creates a <code>CumulativePermission</code> or <code>BasePermission</code> representing the
+     * active bits in the passed mask.
+     *
+     * @param mask to build
+     *
+     * @return a Permission representing the requested object
+     */
+    public abstract Permission buildFromMask(int mask);
 
 }

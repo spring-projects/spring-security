@@ -26,22 +26,22 @@ import org.springframework.security.context.SecurityContextHolder;
  */
 public class NtlmType2MessageException extends NtlmBaseException {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final Authentication auth;
+    private final Authentication auth;
 
-	public NtlmType2MessageException(final String type2Msg) {
-		super("NTLM " + type2Msg);
-		auth = SecurityContextHolder.getContext().getAuthentication();
-	}
+    public NtlmType2MessageException(final String type2Msg) {
+        super("NTLM " + type2Msg);
+        auth = SecurityContextHolder.getContext().getAuthentication();
+    }
 
-	/**
-	 * Preserve the existing <code>Authentication</code> object each time
-	 * Internet Explorer does a POST.
-	 */
-	public void preserveAuthentication() {
-		if (auth != null) {
-			SecurityContextHolder.getContext().setAuthentication(auth);
+    /**
+     * Preserve the existing <code>Authentication</code> object each time
+     * Internet Explorer does a POST.
+     */
+    public void preserveAuthentication() {
+        if (auth != null) {
+            SecurityContextHolder.getContext().setAuthentication(auth);
         }
     }
 

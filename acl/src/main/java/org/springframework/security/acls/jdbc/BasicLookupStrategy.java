@@ -290,7 +290,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
      * already, and adding the returned elements to the cache etc.</p>
      * <p>
      * This subclass is required to return fully valid <code>Acl</code>s, including properly-configured
-     * parent ACLs.</p>
+     * parent ACLs.
      *
      */
     private Map<ObjectIdentity, Acl> lookupObjectIdentities(final ObjectIdentity[] objectIdentities, Sid[] sids) {
@@ -349,7 +349,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
      *
      * @param acls the AclImpls (with StubAclParents)
      * @param findNow Long-based primary keys to retrieve
-     * @param sids DOCUMENT ME!
+     * @param sids
      */
     private void lookupPrimaryKeys(final Map acls, final Set findNow, final Sid[] sids) {
         Assert.notNull(acls, "ACLs are required");
@@ -378,11 +378,14 @@ public final class BasicLookupStrategy implements LookupStrategy {
     }
 
     /**
-     * The main method.<p>WARNING: This implementation completely disregards the "sids" argument! Every item
-     * in the cache is expected to contain all SIDs. If you have serious performance needs (eg a very large number of
+     * The main method.
+     * <p>
+     * WARNING: This implementation completely disregards the "sids" argument! Every item in the cache is expected to
+     * contain all SIDs. If you have serious performance needs (e.g. a very large number of
      * SIDs per object identity), you'll probably want to develop a custom {@link LookupStrategy} implementation
-     * instead.</p>
-     *  <p>The implementation works in batch sizes specfied by {@link #batchSize}.</p>
+     * instead.
+     * <p>
+     * The implementation works in batch sizes specified by {@link #batchSize}.
      *
      * @param objects the identities to lookup (required)
      * @param sids the SIDs for which identities are required (ignored by this implementation)

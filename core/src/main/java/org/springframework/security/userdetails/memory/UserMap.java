@@ -38,7 +38,7 @@ public class UserMap {
 
     //~ Instance fields ================================================================================================
 
-    private Map userMap = new HashMap();
+    private Map<String, UserDetails> userMap = new HashMap<String, UserDetails>();
 
     //~ Methods ========================================================================================================
 
@@ -66,7 +66,7 @@ public class UserMap {
      * @throws UsernameNotFoundException if the user could not be found
      */
     public UserDetails getUser(String username) throws UsernameNotFoundException {
-        UserDetails result = (UserDetails) this.userMap.get(username.toLowerCase());
+        UserDetails result = this.userMap.get(username.toLowerCase());
 
         if (result == null) {
             throw new UsernameNotFoundException("Could not find user: " + username, username);
@@ -90,7 +90,7 @@ public class UserMap {
      * @param users {@link Map} &lt;{@link String}, {@link UserDetails}> with pairs (username, userdetails)
      * @since 1.1
      */
-    public void setUsers(Map users) {
+    public void setUsers(Map<String, UserDetails> users) {
         this.userMap = users;
     }
 }

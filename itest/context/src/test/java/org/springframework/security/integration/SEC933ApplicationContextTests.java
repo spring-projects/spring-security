@@ -13,11 +13,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SEC933ApplicationContextTests {
 
-	@Autowired
-	private UserDetailsService userDetailsService;
-	
-	@Test
-	public void testSimpleApplicationContextBootstrap() throws Exception {
-		assertNotNull(userDetailsService);
-	}
+    @Autowired
+    private UserDetailsService userDetailsService;
+    
+    @Test
+    public void testSimpleApplicationContextBootstrap() throws Exception {
+        assertNotNull(userDetailsService);
+    }
 }

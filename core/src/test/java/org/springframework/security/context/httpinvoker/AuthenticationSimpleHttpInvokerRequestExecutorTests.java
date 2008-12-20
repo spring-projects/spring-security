@@ -40,18 +40,8 @@ import java.util.Map;
  * @version $Id$
  */
 public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AuthenticationSimpleHttpInvokerRequestExecutorTests() {
-        super();
-    }
-
-    public AuthenticationSimpleHttpInvokerRequestExecutorTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
-
 
     protected void tearDown() throws Exception {
         super.tearDown();
@@ -91,7 +81,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCas
     //~ Inner Classes ==================================================================================================
 
     private class MockHttpURLConnection extends HttpURLConnection {
-        private Map requestProperties = new HashMap();
+        private Map<String,String> requestProperties = new HashMap<String,String>();
 
         public MockHttpURLConnection(URL u) {
             super(u);
@@ -106,7 +96,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCas
         }
 
         public String getRequestProperty(String key) {
-            return (String) requestProperties.get(key);
+            return requestProperties.get(key);
         }
 
         public void setRequestProperty(String key, String value) {

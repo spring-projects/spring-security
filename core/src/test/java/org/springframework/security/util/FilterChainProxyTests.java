@@ -29,7 +29,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.MockFilterConfig;
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.context.SecurityContextPersistenceFilter;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 
 /**
@@ -131,7 +131,7 @@ public class FilterChainProxyTests {
         filters = filterChainProxy.getFilters("/some/other/path/blah");
         assertNotNull(filters);
         assertEquals(3, filters.size());
-        assertTrue(filters.get(0) instanceof HttpSessionContextIntegrationFilter);
+        assertTrue(filters.get(0) instanceof SecurityContextPersistenceFilter);
         assertTrue(filters.get(1) instanceof MockFilter);
         assertTrue(filters.get(2) instanceof MockFilter);
 
@@ -140,7 +140,7 @@ public class FilterChainProxyTests {
 
         filters = filterChainProxy.getFilters("/another/nonspecificmatch");
         assertEquals(3, filters.size());
-        assertTrue(filters.get(0) instanceof HttpSessionContextIntegrationFilter);
+        assertTrue(filters.get(0) instanceof SecurityContextPersistenceFilter);
         assertTrue(filters.get(1) instanceof AuthenticationProcessingFilter);
         assertTrue(filters.get(2) instanceof MockFilter);
     }

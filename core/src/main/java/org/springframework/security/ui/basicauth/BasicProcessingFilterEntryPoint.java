@@ -44,8 +44,8 @@ public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint
 
     //~ Methods ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
-		Assert.hasText(realmName, "realmName must be specified");
+    public void afterPropertiesSet() throws Exception {
+        Assert.hasText(realmName, "realmName must be specified");
     }
 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)

@@ -26,13 +26,10 @@ import org.springframework.security.userdetails.UserDetails;
  * A <code>GrantedAuthority</code> must either represent itself as a
  * <code>String</code> or be specifically supported by an  {@link
  * AccessDecisionManager}.
- * </p>
- * 
  * <p>
  * Implementations must implement {@link Comparable} in order to ensure that
  * array sorting logic guaranteed by {@link UserDetails#getAuthorities()} can
  * be reliably implemented.
- * </p>
  *
  * @author Ben Alex
  * @version $Id$

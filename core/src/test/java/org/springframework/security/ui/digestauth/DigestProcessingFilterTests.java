@@ -166,7 +166,7 @@ public class DigestProcessingFilterTests {
 
         String header = response.getHeader("WWW-Authenticate").toString().substring(7);
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
-        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+        Map<String,String> headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
         assertEquals("true", headerMap.get("stale"));
     }
 

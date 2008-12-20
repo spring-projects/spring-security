@@ -46,10 +46,10 @@ public class DenyVoter implements AccessDecisionVoter {
     }
 
     public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
-        Iterator iter = attributes.iterator();
+        Iterator<ConfigAttribute> iter = attributes.iterator();
 
         while (iter.hasNext()) {
-            ConfigAttribute attribute = (ConfigAttribute) iter.next();
+            ConfigAttribute attribute = iter.next();
 
             if (this.supports(attribute)) {
                 return ACCESS_DENIED;

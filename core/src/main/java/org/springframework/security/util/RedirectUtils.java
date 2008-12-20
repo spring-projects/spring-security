@@ -26,7 +26,7 @@ public abstract class RedirectUtils {
      * @param response the response to redirect
      * @param url the target url to redirect to
      * @param useRelativeContext if true, causes any redirection URLs to be calculated minus the protocol
-	 * and context path.
+     * and context path.
      *
      * @see AbstractProcessingFilter#setUseRelativeContext(boolean)
      */
@@ -34,29 +34,29 @@ public abstract class RedirectUtils {
                                           HttpServletResponse response,
                                           String url,
                                           boolean useRelativeContext) throws IOException {
-		String finalUrl;
-		if (!url.startsWith("http://") && !url.startsWith("https://")) {
-			if (useRelativeContext) {
-				finalUrl = url;
-			}
-			else {
-				finalUrl = request.getContextPath() + url;
-			}
-		}
+        String finalUrl;
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            if (useRelativeContext) {
+                finalUrl = url;
+            }
+            else {
+                finalUrl = request.getContextPath() + url;
+            }
+        }
         else if (useRelativeContext) {
-			// Calculate the relative URL from the fully qualifed URL, minus the protocol and base context.
-			int len = request.getContextPath().length();
-			int index = url.indexOf(request.getContextPath()) + len;
-			finalUrl = url.substring(index);
+            // Calculate the relative URL from the fully qualifed URL, minus the protocol and base context.
+            int len = request.getContextPath().length();
+            int index = url.indexOf(request.getContextPath()) + len;
+            finalUrl = url.substring(index);
 
             if (finalUrl.length() > 1 && finalUrl.charAt(0) == '/') {
-				finalUrl = finalUrl.substring(1);
-			}
-		}
-		else {
-			finalUrl = url;
-		}
+                finalUrl = finalUrl.substring(1);
+            }
+        }
+        else {
+            finalUrl = url;
+        }
 
-		response.sendRedirect(response.encodeRedirectURL(finalUrl));
+        response.sendRedirect(response.encodeRedirectURL(finalUrl));
     }
 }

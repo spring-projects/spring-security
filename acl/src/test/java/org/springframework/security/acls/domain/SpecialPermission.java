@@ -31,10 +31,10 @@ public class SpecialPermission extends BasePermission {
      * that the static methods will operate correctly.
      */
     static {
-    	registerPermissionsFor(SpecialPermission.class);
+        registerPermissionsFor(SpecialPermission.class);
     }
 
     protected SpecialPermission(int mask, char code) {
-    	super(mask, code);
+        super(mask, code);
     }
 }

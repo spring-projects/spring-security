@@ -54,117 +54,117 @@ import org.springframework.util.StringUtils;
  *
  */
 public class KeyBasedPersistenceTokenService implements TokenService, InitializingBean {
-	private int pseudoRandomNumberBits = 256;
-	private String serverSecret;
-	private Integer serverInteger;
-	private SecureRandom secureRandom;
-	
-	public Token allocateToken(String extendedInformation) {
-		Assert.notNull(extendedInformation, "Must provided non-null extendedInformation (but it can be empty)");
-		long creationTime = new Date().getTime();
-		String serverSecret = computeServerSecretApplicableAt(creationTime);
-		String pseudoRandomNumber = generatePseudoRandomNumber();
-		String content = new Long(creationTime).toString() + ":" + pseudoRandomNumber + ":" + extendedInformation;
+    private int pseudoRandomNumberBits = 256;
+    private String serverSecret;
+    private Integer serverInteger;
+    private SecureRandom secureRandom;
+    
+    public Token allocateToken(String extendedInformation) {
+        Assert.notNull(extendedInformation, "Must provided non-null extendedInformation (but it can be empty)");
+        long creationTime = new Date().getTime();
+        String serverSecret = computeServerSecretApplicableAt(creationTime);
+        String pseudoRandomNumber = generatePseudoRandomNumber();
+        String content = new Long(creationTime).toString() + ":" + pseudoRandomNumber + ":" + extendedInformation;
 
-		// Compute key
-		String sha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
-		String keyPayload = content + ":" + sha512Hex;
-		String key = convertToString(Base64.encodeBase64(convertToBytes(keyPayload)));
-		
-		return new DefaultToken(key, creationTime, extendedInformation);
-	}
+        // Compute key
+        String sha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
+        String keyPayload = content + ":" + sha512Hex;
+        String key = convertToString(Base64.encodeBase64(convertToBytes(keyPayload)));
+        
+        return new DefaultToken(key, creationTime, extendedInformation);
+    }
 
-	public Token verifyToken(String key) {
-		if (key == null || "".equals(key)) {
-			return null;
-		}
-		String[] tokens = StringUtils.delimitedListToStringArray(convertToString(Base64.decodeBase64(convertToBytes(key))), ":");
-		Assert.isTrue(tokens.length >= 4, "Expected 4 or more tokens but found " + tokens.length);
-		
-		long creationTime;
-		try {
-			creationTime = Long.decode(tokens[0]).longValue();
-		} catch (NumberFormatException nfe) {
-			throw new IllegalArgumentException("Expected number but found " + tokens[0]);
-		}
-		
-		String serverSecret = computeServerSecretApplicableAt(creationTime);
-		String pseudoRandomNumber = tokens[1];
-		
-		// Permit extendedInfo to itself contain ":" characters
-		StringBuffer extendedInfo = new StringBuffer();
-		for (int i = 2; i < tokens.length-1; i++) {
-			if (i > 2) {
-				extendedInfo.append(":");
-			}
-			extendedInfo.append(tokens[i]);
-		}
-		
-		String sha1Hex = tokens[tokens.length-1];
-		
-		// Verification
-		String content = new Long(creationTime).toString() + ":" + pseudoRandomNumber + ":" + extendedInfo.toString();
-		String expectedSha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
-		Assert.isTrue(expectedSha512Hex.equals(sha1Hex), "Key verification failure");
-		
-		return new DefaultToken(key, creationTime, extendedInfo.toString());
-	}
-	
-	private byte[] convertToBytes(String input) {
-		try {
-			return input.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	private String convertToString(byte[] bytes) {
-		try {
-			return new String(bytes, "UTF-8");
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	/**
-	 * @return a pseduo random number (hex encoded)
-	 */
-	private String generatePseudoRandomNumber() {
-		byte[] randomizedBits = new byte[pseudoRandomNumberBits];
-		secureRandom.nextBytes(randomizedBits);
-		return new String(Hex.encodeHex(randomizedBits));
-	}
-	
-	private String computeServerSecretApplicableAt(long time) {
-		return serverSecret + ":" + new Long(time % serverInteger.intValue()).intValue();
-	}
+    public Token verifyToken(String key) {
+        if (key == null || "".equals(key)) {
+            return null;
+        }
+        String[] tokens = StringUtils.delimitedListToStringArray(convertToString(Base64.decodeBase64(convertToBytes(key))), ":");
+        Assert.isTrue(tokens.length >= 4, "Expected 4 or more tokens but found " + tokens.length);
+        
+        long creationTime;
+        try {
+            creationTime = Long.decode(tokens[0]).longValue();
+        } catch (NumberFormatException nfe) {
+            throw new IllegalArgumentException("Expected number but found " + tokens[0]);
+        }
+        
+        String serverSecret = computeServerSecretApplicableAt(creationTime);
+        String pseudoRandomNumber = tokens[1];
+        
+        // Permit extendedInfo to itself contain ":" characters
+        StringBuffer extendedInfo = new StringBuffer();
+        for (int i = 2; i < tokens.length-1; i++) {
+            if (i > 2) {
+                extendedInfo.append(":");
+            }
+            extendedInfo.append(tokens[i]);
+        }
+        
+        String sha1Hex = tokens[tokens.length-1];
+        
+        // Verification
+        String content = new Long(creationTime).toString() + ":" + pseudoRandomNumber + ":" + extendedInfo.toString();
+        String expectedSha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
+        Assert.isTrue(expectedSha512Hex.equals(sha1Hex), "Key verification failure");
+        
+        return new DefaultToken(key, creationTime, extendedInfo.toString());
+    }
+    
+    private byte[] convertToBytes(String input) {
+        try {
+            return input.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    private String convertToString(byte[] bytes) {
+        try {
+            return new String(bytes, "UTF-8");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /**
+     * @return a pseduo random number (hex encoded)
+     */
+    private String generatePseudoRandomNumber() {
+        byte[] randomizedBits = new byte[pseudoRandomNumberBits];
+        secureRandom.nextBytes(randomizedBits);
+        return new String(Hex.encodeHex(randomizedBits));
+    }
+    
+    private String computeServerSecretApplicableAt(long time) {
+        return serverSecret + ":" + new Long(time % serverInteger.intValue()).intValue();
+    }
 
-	/**
-	 * @param serverSecret the new secret, which can contain a ":" if desired (never being sent to the client)
-	 */
-	public void setServerSecret(String serverSecret) {
-		this.serverSecret = serverSecret;
-	}
-	
-	public void setSecureRandom(SecureRandom secureRandom) {
-		this.secureRandom = secureRandom;
-	}
-	
-	/**
-	 * @param pseudoRandomNumberBits changes the number of bits issued (must be >= 0; defaults to 256)
-	 */
-	public void setPseudoRandomNumberBits(int pseudoRandomNumberBits) {
-		Assert.isTrue(pseudoRandomNumberBits >= 0, "Must have a positive pseudo random number bit size");
-		this.pseudoRandomNumberBits = pseudoRandomNumberBits;
-	}
+    /**
+     * @param serverSecret the new secret, which can contain a ":" if desired (never being sent to the client)
+     */
+    public void setServerSecret(String serverSecret) {
+        this.serverSecret = serverSecret;
+    }
+    
+    public void setSecureRandom(SecureRandom secureRandom) {
+        this.secureRandom = secureRandom;
+    }
+    
+    /**
+     * @param pseudoRandomNumberBits changes the number of bits issued (must be >= 0; defaults to 256)
+     */
+    public void setPseudoRandomNumberBits(int pseudoRandomNumberBits) {
+        Assert.isTrue(pseudoRandomNumberBits >= 0, "Must have a positive pseudo random number bit size");
+        this.pseudoRandomNumberBits = pseudoRandomNumberBits;
+    }
 
-	public void setServerInteger(Integer serverInteger) {
-		this.serverInteger = serverInteger;
-	}
+    public void setServerInteger(Integer serverInteger) {
+        this.serverInteger = serverInteger;
+    }
 
-	public void afterPropertiesSet() throws Exception {
-		Assert.hasText(serverSecret, "Server secret required");
-		Assert.notNull(serverInteger, "Server integer required");
-		Assert.notNull(secureRandom, "SecureRandom instance required");
-	}
+    public void afterPropertiesSet() throws Exception {
+        Assert.hasText(serverSecret, "Server secret required");
+        Assert.notNull(serverInteger, "Server integer required");
+        Assert.notNull(secureRandom, "SecureRandom instance required");
+    }
 }

@@ -20,7 +20,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.util.AuthorityUtils;
 
@@ -51,7 +50,7 @@ public class AnonymousAuthenticationTokenTests extends TestCase {
         }
 
         try {
-            new AnonymousAuthenticationToken("key", "Test", new GrantedAuthority[] {null});
+            new AnonymousAuthenticationToken("key", "Test", (List<GrantedAuthority>)null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
         }

@@ -19,24 +19,24 @@ import org.springframework.mock.web.MockHttpServletResponse;
  */
 public class PreAuthenticatedProcessingFilterEntryPointTests extends TestCase {
 
-	public void testGetSetOrder() {
-		PreAuthenticatedProcessingFilterEntryPoint fep = new PreAuthenticatedProcessingFilterEntryPoint();
-		fep.setOrder(333);
-		assertEquals(fep.getOrder(), 333);
-	}
+    public void testGetSetOrder() {
+        PreAuthenticatedProcessingFilterEntryPoint fep = new PreAuthenticatedProcessingFilterEntryPoint();
+        fep.setOrder(333);
+        assertEquals(fep.getOrder(), 333);
+    }
 
-	public void testCommence() {
-		MockHttpServletRequest req = new MockHttpServletRequest();
-		MockHttpServletResponse resp = new MockHttpServletResponse();
-		PreAuthenticatedProcessingFilterEntryPoint fep = new PreAuthenticatedProcessingFilterEntryPoint();
-		try {
-			fep.commence(req,resp,new AuthenticationCredentialsNotFoundException("test"));
-			assertEquals("Incorrect status",resp.getStatus(),HttpServletResponse.SC_FORBIDDEN);
-		} catch (IOException e) {
-			fail("Unexpected exception thrown: "+e);
-		} catch (ServletException e) {
-			fail("Unexpected exception thrown: "+e);
-		}
+    public void testCommence() {
+        MockHttpServletRequest req = new MockHttpServletRequest();
+        MockHttpServletResponse resp = new MockHttpServletResponse();
+        PreAuthenticatedProcessingFilterEntryPoint fep = new PreAuthenticatedProcessingFilterEntryPoint();
+        try {
+            fep.commence(req,resp,new AuthenticationCredentialsNotFoundException("test"));
+            assertEquals("Incorrect status",resp.getStatus(),HttpServletResponse.SC_FORBIDDEN);
+        } catch (IOException e) {
+            fail("Unexpected exception thrown: "+e);
+        } catch (ServletException e) {
+            fail("Unexpected exception thrown: "+e);
+        }
 
-	}
+    }
 }

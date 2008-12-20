@@ -41,11 +41,11 @@ public class Md5PasswordEncoderTests extends TestCase {
         assertEquals("MD5", pe.getAlgorithm());
     }
     
-	public void testNonAsciiPasswordHasCorrectHash() {
-		Md5PasswordEncoder md5 = new Md5PasswordEncoder();
-		String encodedPassword = md5.encodePassword("\u4F60\u597d", null);
-		assertEquals("7eca689f0d3389d9dea66ae112e5cfd7", encodedPassword);		
-	}    
+    public void testNonAsciiPasswordHasCorrectHash() {
+        Md5PasswordEncoder md5 = new Md5PasswordEncoder();
+        String encodedPassword = md5.encodePassword("\u4F60\u597d", null);
+        assertEquals("7eca689f0d3389d9dea66ae112e5cfd7", encodedPassword);        
+    }    
 
     public void testBase64() throws Exception {
         Md5PasswordEncoder pe = new Md5PasswordEncoder();

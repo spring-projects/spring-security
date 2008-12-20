@@ -29,23 +29,23 @@ import org.springframework.security.ConfigAttributeDefinition;
  */
 public class FirstDecisionBased extends AbstractAccessDecisionManager {
 
-	public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config ) throws AccessDeniedException {
-		Iterator voters = this.getDecisionVoters().iterator();
+    public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config ) throws AccessDeniedException {
+        Iterator voters = this.getDecisionVoters().iterator();
 
-		while (voters.hasNext()) {
-			AccessDecisionVoter voter = (AccessDecisionVoter) voters.next();
-			int result = voter.vote(authentication, object, config);
-			
-			switch (result) {
-				case AccessDecisionVoter.ACCESS_GRANTED:
-				return;
-				
-				case AccessDecisionVoter.ACCESS_DENIED:
-					throw new AccessDeniedException(messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
-			}
-		}
-		
-		// To get this far, every AccessDecisionVoter abstained
-		checkAllowIfAllAbstainDecisions();
-	}
+        while (voters.hasNext()) {
+            AccessDecisionVoter voter = (AccessDecisionVoter) voters.next();
+            int result = voter.vote(authentication, object, config);
+            
+            switch (result) {
+                case AccessDecisionVoter.ACCESS_GRANTED:
+                return;
+                
+                case AccessDecisionVoter.ACCESS_DENIED:
+                    throw new AccessDeniedException(messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
+            }
+        }
+        
+        // To get this far, every AccessDecisionVoter abstained
+        checkAllowIfAllAbstainDecisions();
+    }
 }

@@ -18,27 +18,27 @@ import org.springframework.security.MutableGrantedAuthoritiesContainer;
  * @since 2.0
  */
 public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends WebAuthenticationDetails implements
-		MutableGrantedAuthoritiesContainer {
-	public static final long serialVersionUID = 1L;
+        MutableGrantedAuthoritiesContainer {
+    public static final long serialVersionUID = 1L;
 
-	private MutableGrantedAuthoritiesContainer authoritiesContainer = new GrantedAuthoritiesContainerImpl();
+    private MutableGrantedAuthoritiesContainer authoritiesContainer = new GrantedAuthoritiesContainerImpl();
 
-	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(HttpServletRequest request) {
-		super(request);
-	}
+    public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(HttpServletRequest request) {
+        super(request);
+    }
 
-	public List<GrantedAuthority> getGrantedAuthorities() {
-		return authoritiesContainer.getGrantedAuthorities();
-	}
+    public List<GrantedAuthority> getGrantedAuthorities() {
+        return authoritiesContainer.getGrantedAuthorities();
+    }
 
-	public void setGrantedAuthorities(List<GrantedAuthority> authorities) {
-		this.authoritiesContainer.setGrantedAuthorities(authorities);
-	}
-	
+    public void setGrantedAuthorities(List<GrantedAuthority> authorities) {
+        this.authoritiesContainer.setGrantedAuthorities(authorities);
+    }
+    
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(super.toString() + "; ");
         sb.append(authoritiesContainer);
         return sb.toString();
-    }	
+    }    
 }

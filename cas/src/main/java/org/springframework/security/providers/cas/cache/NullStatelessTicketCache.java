@@ -33,31 +33,31 @@ import org.springframework.security.providers.cas.StatelessTicketCache;
  */
 public final class NullStatelessTicketCache implements StatelessTicketCache {
 
-	/**
-	 * @return null since we are not storing any tickets.
-	 */
-	public CasAuthenticationToken getByTicketId(final String serviceTicket) {
-		return null;
-	}
+    /**
+     * @return null since we are not storing any tickets.
+     */
+    public CasAuthenticationToken getByTicketId(final String serviceTicket) {
+        return null;
+    }
 
-	/**
-	 * This is a no-op since we are not storing tickets.
-	 */
-	public void putTicketInCache(final CasAuthenticationToken token) {
-		// nothing to do
-	}
+    /**
+     * This is a no-op since we are not storing tickets.
+     */
+    public void putTicketInCache(final CasAuthenticationToken token) {
+        // nothing to do
+    }
 
-	/**
-	 * This is a no-op since we are not storing tickets.
-	 */
-	public void removeTicketFromCache(final CasAuthenticationToken token) {
-		// nothing to do
-	}
+    /**
+     * This is a no-op since we are not storing tickets.
+     */
+    public void removeTicketFromCache(final CasAuthenticationToken token) {
+        // nothing to do
+    }
 
-	/**
-	 * This is a no-op since we are not storing tickets.
-	 */
-	public void removeTicketFromCache(final String serviceTicket) {
-		// nothing to do
-	}
+    /**
+     * This is a no-op since we are not storing tickets.
+     */
+    public void removeTicketFromCache(final String serviceTicket) {
+        // nothing to do
+    }
 }

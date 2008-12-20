@@ -26,10 +26,8 @@ import java.util.List;
  * <p>
  * If the {@link ConfigAttribute#getAttribute()} has a value of
  * <code>DENY_AGAIN_FOR_SURE</code>, the voter will vote to deny access.
- * </p>
  * <p>
  * All comparisons are case sensitive.
- * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -52,10 +50,10 @@ public class DenyAgainVoter implements AccessDecisionVoter {
     }
 
     public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
-        Iterator iter = attributes.iterator();
+        Iterator<ConfigAttribute> iter = attributes.iterator();
 
         while (iter.hasNext()) {
-            ConfigAttribute attribute = (ConfigAttribute) iter.next();
+            ConfigAttribute attribute = iter.next();
 
             if (this.supports(attribute)) {
                 return ACCESS_DENIED;

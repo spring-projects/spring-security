@@ -60,7 +60,7 @@ import javax.sql.DataSource;
 public class JdbcMutableAclService extends JdbcAclService implements MutableAclService {
     //~ Instance fields ================================================================================================
 
-	private boolean foreignKeysInDatabase = true;
+    private boolean foreignKeysInDatabase = true;
     private AclCache aclCache;
     private String deleteEntryByObjectIdentityForeignKey = "delete from acl_entry where acl_object_identity=?";
     private String deleteObjectIdentityByPrimaryKey = "delete from acl_object_identity where id=?";
@@ -237,22 +237,22 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         Assert.notNull(objectIdentity.getIdentifier(), "Object Identity doesn't provide an identifier");
 
         if (deleteChildren) {
-        	ObjectIdentity[] children = findChildren(objectIdentity);
-        	if (children != null) {
-            	for (int i = 0; i < children.length; i++) {
+            ObjectIdentity[] children = findChildren(objectIdentity);
+            if (children != null) {
+                for (int i = 0; i < children.length; i++) {
                     deleteAcl(children[i], true);
                 }
-        	}
+            }
         } else {
-        	if (!foreignKeysInDatabase) {
-        		// We need to perform a manual verification for what a FK would normally do
-        		// We generally don't do this, in the interests of deadlock management
-        		ObjectIdentity[] children = findChildren(objectIdentity);
-        		if (children != null) {
+            if (!foreignKeysInDatabase) {
+                // We need to perform a manual verification for what a FK would normally do
+                // We generally don't do this, in the interests of deadlock management
+                ObjectIdentity[] children = findChildren(objectIdentity);
+                if (children != null) {
                     throw new ChildrenExistException("Cannot delete '" + objectIdentity + "' (has " + children.length
                             + " children)");
-        		}
-        	}
+                }
+            }
         }
 
         Long oidPrimaryKey = retrieveObjectIdentityPrimaryKey(objectIdentity);
@@ -273,7 +273,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      * @param oidPrimaryKey the rows in acl_entry to delete
      */
     protected void deleteEntries(Long oidPrimaryKey) {
-    	jdbcTemplate.update(deleteEntryByObjectIdentityForeignKey,
+        jdbcTemplate.update(deleteEntryByObjectIdentityForeignKey,
                 new Object[] {oidPrimaryKey});
     }
 
@@ -341,12 +341,12 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     }
     
     private void clearCacheIncludingChildren(ObjectIdentity objectIdentity) {
-    	Assert.notNull(objectIdentity, "ObjectIdentity required");
+        Assert.notNull(objectIdentity, "ObjectIdentity required");
         ObjectIdentity[] children = findChildren(objectIdentity);
         if (children != null) {
-        	for (int i = 0; i < children.length; i++) {
-        		clearCacheIncludingChildren(children[i]);
-        	}
+            for (int i = 0; i < children.length; i++) {
+                clearCacheIncludingChildren(children[i]);
+            }
         }
         aclCache.evictFromCache(objectIdentity);
     }
@@ -381,20 +381,20 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         }
     }
 
-	public void setClassIdentityQuery(String identityQuery) {
-		Assert.hasText(identityQuery, "New identity query is required");
-		this.classIdentityQuery = identityQuery;
-	}
+    public void setClassIdentityQuery(String identityQuery) {
+        Assert.hasText(identityQuery, "New identity query is required");
+        this.classIdentityQuery = identityQuery;
+    }
 
-	public void setSidIdentityQuery(String identityQuery) {
-		Assert.hasText(identityQuery, "New identity query is required");
-		this.sidIdentityQuery = identityQuery;
-	}
-	/**
-	 * @param foreignKeysInDatabase if false this class will perform additional FK constrain checking, which may
-	 * cause deadlocks (the default is true, so deadlocks are avoided but the database is expected to enforce FKs)
-	 */
-	public void setForeignKeysInDatabase(boolean foreignKeysInDatabase) {
-		this.foreignKeysInDatabase = foreignKeysInDatabase;
-	}
+    public void setSidIdentityQuery(String identityQuery) {
+        Assert.hasText(identityQuery, "New identity query is required");
+        this.sidIdentityQuery = identityQuery;
+    }
+    /**
+     * @param foreignKeysInDatabase if false this class will perform additional FK constrain checking, which may
+     * cause deadlocks (the default is true, so deadlocks are avoided but the database is expected to enforce FKs)
+     */
+    public void setForeignKeysInDatabase(boolean foreignKeysInDatabase) {
+        this.foreignKeysInDatabase = foreignKeysInDatabase;
+    }
 }

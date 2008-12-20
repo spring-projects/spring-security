@@ -22,8 +22,8 @@ package org.springframework.security.ui.ntlm;
  */
 public class NtlmBeginHandshakeException extends NtlmBaseException {
 
-	public NtlmBeginHandshakeException() {
-		super("NTLM");
-	}
+    public NtlmBeginHandshakeException() {
+        super("NTLM");
+    }
 
 }

@@ -23,8 +23,9 @@ import org.springframework.util.ClassUtils;
 
 
 /**
- * Outputs authentication-related application events to Commons Logging.<P>All authentication events are logged at
- * the warning level.</p>
+ * Outputs authentication-related application events to Commons Logging.
+ * <p>
+ * All authentication events are logged at the warning level.
  *
  * @author Ben Alex
  * @version $Id$
@@ -44,7 +45,7 @@ public class LoggerListener implements ApplicationListener {
             AbstractAuthenticationEvent authEvent = (AbstractAuthenticationEvent) event;
 
             if (!logInteractiveAuthenticationSuccessEvents && authEvent instanceof InteractiveAuthenticationSuccessEvent) {
-            	return;
+                return;
             }
 
             if (logger.isWarnEnabled()) {
@@ -62,12 +63,12 @@ public class LoggerListener implements ApplicationListener {
         }
     }
 
-	public boolean isLogInteractiveAuthenticationSuccessEvents() {
-		return logInteractiveAuthenticationSuccessEvents;
-	}
+    public boolean isLogInteractiveAuthenticationSuccessEvents() {
+        return logInteractiveAuthenticationSuccessEvents;
+    }
 
-	public void setLogInteractiveAuthenticationSuccessEvents(
-			boolean logInteractiveAuthenticationSuccessEvents) {
-		this.logInteractiveAuthenticationSuccessEvents = logInteractiveAuthenticationSuccessEvents;
-	}
+    public void setLogInteractiveAuthenticationSuccessEvents(
+            boolean logInteractiveAuthenticationSuccessEvents) {
+        this.logInteractiveAuthenticationSuccessEvents = logInteractiveAuthenticationSuccessEvents;
+    }
 }

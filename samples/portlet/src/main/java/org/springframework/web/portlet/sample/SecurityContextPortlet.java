@@ -30,12 +30,12 @@ public class SecurityContextPortlet extends GenericPortlet {
         out.println("<p>Current Session " + request.getPortletSession().getId() + "</p>");        
         out.println("</p>");
         out.println("<p>The security context contains: " +
-        		SecurityContextHolder.getContext().getAuthentication() +
-        		"</p>");
+                SecurityContextHolder.getContext().getAuthentication() +
+                "</p>");
         Object lastException = request.getPortletSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, PortletSession.APPLICATION_SCOPE);
         
         if (lastException != null) {
-        	out.println("Last Exception: " + lastException);
+            out.println("Last Exception: " + lastException);
         }
     }
 }

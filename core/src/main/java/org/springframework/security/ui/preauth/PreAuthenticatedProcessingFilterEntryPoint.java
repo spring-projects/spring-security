@@ -38,28 +38,28 @@ import org.springframework.core.Ordered;
  * @since 2.0
  */
 public class PreAuthenticatedProcessingFilterEntryPoint implements AuthenticationEntryPoint, Ordered {
-	private static final Log logger = LogFactory.getLog(PreAuthenticatedProcessingFilterEntryPoint.class);
+    private static final Log logger = LogFactory.getLog(PreAuthenticatedProcessingFilterEntryPoint.class);
 
-	private int order = Integer.MAX_VALUE;
+    private int order = Integer.MAX_VALUE;
 
-	/**
-	 * Always returns a 403 error code to the client.
-	 */
-	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException arg2) throws IOException,
-			ServletException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Pre-authenticated entry point called. Rejecting access");
-		}
-		HttpServletResponse httpResponse = (HttpServletResponse) response;
-		httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
-	}
+    /**
+     * Always returns a 403 error code to the client.
+     */
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException arg2) throws IOException,
+            ServletException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Pre-authenticated entry point called. Rejecting access");
+        }
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+    }
 
-	public int getOrder() {
-		return order;
-	}
+    public int getOrder() {
+        return order;
+    }
 
-	public void setOrder(int i) {
-		order = i;
-	}
+    public void setOrder(int i) {
+        order = i;
+    }
 
 }

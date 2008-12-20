@@ -15,14 +15,14 @@
 
 package org.springframework.security.util;
 
-import junit.framework.TestCase;
-
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import org.junit.Assert;
 
 
 /**
@@ -38,18 +38,19 @@ public class MockFilterChain implements FilterChain {
 
     //~ Constructors ===================================================================================================
 
+    public MockFilterChain() {
+        this(true);
+    }
+
     public MockFilterChain(boolean expectToProceed) {
         this.expectToProceed = expectToProceed;
     }
 
     //~ Methods ========================================================================================================
 
-    public void doFilter(ServletRequest request, ServletResponse response)
-        throws IOException, ServletException {
-        if (expectToProceed) {
-            TestCase.assertTrue(true);
-        } else {
-            TestCase.fail("Did not expect filter chain to proceed");
+    public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+        if (!expectToProceed) {
+            Assert.fail("Did not expect filter chain to proceed");
         }
     }
 }

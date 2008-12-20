@@ -84,10 +84,10 @@ import java.util.Properties;
 public class NtlmProcessingFilter extends SpringSecurityFilter implements InitializingBean {
     //~ Static fields/initializers =====================================================================================
 
-    private static Log	logger = LogFactory.getLog(NtlmProcessingFilter.class);
+    private static Log    logger = LogFactory.getLog(NtlmProcessingFilter.class);
 
-    private static final String	STATE_ATTR = "SpringSecurityNtlm";
-    private static final String	CHALLENGE_ATTR = "NtlmChal";
+    private static final String    STATE_ATTR = "SpringSecurityNtlm";
+    private static final String    CHALLENGE_ATTR = "NtlmChal";
     private static final Integer BEGIN = new Integer(0);
     private static final Integer NEGOTIATE = new Integer(1);
     private static final Integer COMPLETE = new Integer(2);
@@ -96,21 +96,21 @@ public class NtlmProcessingFilter extends SpringSecurityFilter implements Initia
     //~ Instance fields ================================================================================================
 
     /** Should the filter load balance among multiple domain controllers, default <code>false</code> */
-    private boolean	loadBalance;
+    private boolean    loadBalance;
 
     /** Should the domain name be stripped from the username, default <code>true</code> */
     private boolean stripDomain = true;
 
-    /** Should the filter initiate NTLM negotiations, default <code>true</code>	*/
+    /** Should the filter initiate NTLM negotiations, default <code>true</code>    */
     private boolean forceIdentification = true;
 
     /** Should the filter retry NTLM on authorization failure, default <code>false</code> */
     private boolean retryOnAuthFailure;
 
-    private String	soTimeout;
-    private String	cachePolicy;
-    private String	defaultDomain;
-    private String	domainController;
+    private String    soTimeout;
+    private String    cachePolicy;
+    private String    defaultDomain;
+    private String    domainController;
     private AuthenticationManager authenticationManager;
     private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
 

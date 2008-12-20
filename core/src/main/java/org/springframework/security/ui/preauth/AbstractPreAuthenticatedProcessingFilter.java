@@ -99,7 +99,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
             unsuccessfulAuthentication(request, response, failed);
             
             if (!continueFilterChainOnUnsuccessfulAuthentication) {
-            	throw failed;
+                throw failed;
             }
         }
     }
@@ -158,7 +158,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
     }
     
     public void setContinueFilterChainOnUnsuccessfulAuthentication(boolean shouldContinue) {
-    	continueFilterChainOnUnsuccessfulAuthentication = shouldContinue;
+        continueFilterChainOnUnsuccessfulAuthentication = shouldContinue;
     }
 
     /**

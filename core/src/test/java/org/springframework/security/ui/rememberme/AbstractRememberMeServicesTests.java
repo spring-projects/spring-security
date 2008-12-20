@@ -1,30 +1,29 @@
 package org.springframework.security.ui.rememberme;
 
+import static org.junit.Assert.*;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.util.AuthorityUtils;
 import org.springframework.util.StringUtils;
-
-import static org.junit.Assert.*;
-import org.junit.Test;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Luke Taylor
  * @version $Id$
  */
 public class AbstractRememberMeServicesTests {
-    static User joe = new User("joe", "password", true, true,true,true, new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
+    static User joe = new User("joe", "password", true, true,true,true, AuthorityUtils.createAuthorityList("ROLE_A"));
 
     @Test(expected = InvalidCookieException.class)
     public void nonBase64CookieShouldBeDetected() {

@@ -1,15 +1,16 @@
 package org.springframework.security.config;
 
+import static org.junit.Assert.fail;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.security.AccessDeniedException;
+import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.AccessDeniedException;
-
-import static org.junit.Assert.*;
-import org.junit.*;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  * @author Luke Taylor
@@ -51,7 +52,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests {
     @Test
     public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_USER")});
+                AuthorityUtils.createAuthorityList("ROLE_USER"));
         SecurityContextHolder.getContext().setAuthentication(token);
 
 
@@ -61,7 +62,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests {
     @Test
     public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_SOMEOTHERROLE")});
+                AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
         SecurityContextHolder.getContext().setAuthentication(token);
 
         try {

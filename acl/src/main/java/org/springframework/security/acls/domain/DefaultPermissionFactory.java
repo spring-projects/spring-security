@@ -36,7 +36,7 @@ public class DefaultPermissionFactory implements PermissionFactory {
         Assert.notNull(clazz, "Class required");
         Assert.isAssignable(Permission.class, clazz);
         
-    	Field[] fields = clazz.getFields();
+        Field[] fields = clazz.getFields();
 
         for (int i = 0; i < fields.length; i++) {
             try {
@@ -53,20 +53,20 @@ public class DefaultPermissionFactory implements PermissionFactory {
         }
     }
 
-	public void registerPermission(Permission perm, String permissionName) {
-		Assert.notNull(perm, "Permission required");
-		Assert.hasText(permissionName, "Permission name required");
-		
-		Integer mask = new Integer(perm.getMask());
+    public void registerPermission(Permission perm, String permissionName) {
+        Assert.notNull(perm, "Permission required");
+        Assert.hasText(permissionName, "Permission name required");
+        
+        Integer mask = new Integer(perm.getMask());
 
-		// Ensure no existing Permission uses this integer or code
-		Assert.isTrue(!registeredPermissionsByInteger.containsKey(mask), "An existing Permission already provides mask " + mask);
-		Assert.isTrue(!registeredPermissionsByName.containsKey(permissionName), "An existing Permission already provides name '" + permissionName + "'");
-		
-		// Register the new Permission
-		registeredPermissionsByInteger.put(mask, perm);
-		registeredPermissionsByName.put(permissionName, perm);
-	}
+        // Ensure no existing Permission uses this integer or code
+        Assert.isTrue(!registeredPermissionsByInteger.containsKey(mask), "An existing Permission already provides mask " + mask);
+        Assert.isTrue(!registeredPermissionsByName.containsKey(permissionName), "An existing Permission already provides name '" + permissionName + "'");
+        
+        // Register the new Permission
+        registeredPermissionsByInteger.put(mask, perm);
+        registeredPermissionsByName.put(permissionName, perm);
+    }
     
     public Permission buildFromMask(int mask) {
         if (registeredPermissionsByInteger.containsKey(new Integer(mask))) {

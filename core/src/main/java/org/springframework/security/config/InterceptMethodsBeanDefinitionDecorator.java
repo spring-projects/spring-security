@@ -42,7 +42,6 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
     static final String ATT_ACCESS = "access";
     private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
 
-    @SuppressWarnings("unchecked")
     protected BeanDefinition createInterceptorDefinition(Node node) {
         Element interceptMethodsElt = (Element)node;
         BeanDefinitionBuilder interceptor = BeanDefinitionBuilder.rootBeanDefinition(MethodSecurityInterceptor.class);

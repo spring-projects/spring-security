@@ -94,7 +94,7 @@ public class EhCacheBasedAclCache implements AclCache {
         return initializeTransientFields((MutableAcl)element.getValue());
     }
 
-	public MutableAcl getFromCache(Serializable pk) {
+    public MutableAcl getFromCache(Serializable pk) {
         Assert.notNull(pk, "Primary key (identifier) required");
 
         Element element = null;
@@ -117,8 +117,8 @@ public class EhCacheBasedAclCache implements AclCache {
 
         if (this.aclAuthorizationStrategy == null) {
             if (acl instanceof AclImpl) {
-            	this.aclAuthorizationStrategy = (AclAuthorizationStrategy) FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy", acl);
-            	this.auditLogger = (AuditLogger) FieldUtils.getProtectedFieldValue("auditLogger", acl);
+                this.aclAuthorizationStrategy = (AclAuthorizationStrategy) FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy", acl);
+                this.auditLogger = (AuditLogger) FieldUtils.getProtectedFieldValue("auditLogger", acl);
             }
         }
         
@@ -131,10 +131,10 @@ public class EhCacheBasedAclCache implements AclCache {
     }
 
     private MutableAcl initializeTransientFields(MutableAcl value) {
-    	if (value instanceof AclImpl) {
-    		FieldUtils.setProtectedFieldValue("aclAuthorizationStrategy", value, this.aclAuthorizationStrategy);
-    		FieldUtils.setProtectedFieldValue("auditLogger", value, this.auditLogger);
-    	}
-    	return value;
-	}
+        if (value instanceof AclImpl) {
+            FieldUtils.setProtectedFieldValue("aclAuthorizationStrategy", value, this.aclAuthorizationStrategy);
+            FieldUtils.setProtectedFieldValue("auditLogger", value, this.auditLogger);
+        }
+        return value;
+    }
 }

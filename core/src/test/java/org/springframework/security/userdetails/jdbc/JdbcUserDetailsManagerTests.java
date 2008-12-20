@@ -213,6 +213,7 @@ public class JdbcUserDetailsManagerTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void createGroupInsertsCorrectData() {
         manager.createGroup("TEST_GROUP", AuthorityUtils.createAuthorityList("ROLE_X", "ROLE_Y"));
 

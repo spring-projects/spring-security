@@ -19,11 +19,11 @@ import org.w3c.dom.Element;
  */
 public class AuthenticationManagerBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_SESSION_CONTROLLER_REF = "session-controller-ref";
-	private static final String ATT_ALIAS = "alias";
+    private static final String ATT_ALIAS = "alias";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-    	ConfigUtils.registerProviderManagerIfNecessary(parserContext);
-    	
+        ConfigUtils.registerProviderManagerIfNecessary(parserContext);
+        
         String alias = element.getAttribute(ATT_ALIAS);
 
         if (!StringUtils.hasText(alias)) {
@@ -33,16 +33,16 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
         String sessionControllerRef = element.getAttribute(ATT_SESSION_CONTROLLER_REF);
         
         if (StringUtils.hasText(sessionControllerRef)) {
-        	BeanDefinition authManager = parserContext.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
+            BeanDefinition authManager = parserContext.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
             ConfigUtils.setSessionControllerOnAuthenticationManager(parserContext, 
-            		BeanIds.CONCURRENT_SESSION_CONTROLLER, element);
-        	authManager.getPropertyValues().addPropertyValue("sessionController", 
-        			new RuntimeBeanReference(sessionControllerRef));
+                    BeanIds.CONCURRENT_SESSION_CONTROLLER, element);
+            authManager.getPropertyValues().addPropertyValue("sessionController", 
+                    new RuntimeBeanReference(sessionControllerRef));
             RootBeanDefinition sessionRegistryInjector = new RootBeanDefinition(SessionRegistryInjectionBeanPostProcessor.class);
             sessionRegistryInjector.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
             sessionRegistryInjector.getConstructorArgumentValues().addGenericArgumentValue(sessionControllerRef);
-        	
-        	parserContext.getRegistry().registerBeanDefinition(BeanIds.SESSION_REGISTRY_INJECTION_POST_PROCESSOR, sessionRegistryInjector);
+            
+            parserContext.getRegistry().registerBeanDefinition(BeanIds.SESSION_REGISTRY_INJECTION_POST_PROCESSOR, sessionRegistryInjector);
         }
 
         parserContext.getRegistry().registerAlias(BeanIds.AUTHENTICATION_MANAGER, alias);

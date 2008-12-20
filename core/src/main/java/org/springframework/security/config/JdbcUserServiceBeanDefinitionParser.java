@@ -11,11 +11,11 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
-	static final String ATT_DATA_SOURCE = "data-source-ref";
-	static final String ATT_USERS_BY_USERNAME_QUERY = "users-by-username-query";
-	static final String ATT_AUTHORITIES_BY_USERNAME_QUERY = "authorities-by-username-query";
-	static final String ATT_GROUP_AUTHORITIES_QUERY = "group-authorities-by-username-query";
-	static final String ATT_ROLE_PREFIX = "role-prefix";
+    static final String ATT_DATA_SOURCE = "data-source-ref";
+    static final String ATT_USERS_BY_USERNAME_QUERY = "users-by-username-query";
+    static final String ATT_AUTHORITIES_BY_USERNAME_QUERY = "authorities-by-username-query";
+    static final String ATT_GROUP_AUTHORITIES_QUERY = "group-authorities-by-username-query";
+    static final String ATT_ROLE_PREFIX = "role-prefix";
 
     protected String getBeanClassName(Element element) {
         return "org.springframework.security.userdetails.jdbc.JdbcUserDetailsManager";

@@ -22,7 +22,6 @@ import java.util.Set;
 
 
 /**
- * DOCUMENT ME!
  *
  * @author Ray Krueger
  * @version $Id$
@@ -30,8 +29,8 @@ import java.util.Set;
 public class TestAuthorityGranter implements AuthorityGranter {
     //~ Methods ========================================================================================================
 
-    public Set grant(Principal principal) {
-        Set rtnSet = new HashSet();
+    public Set<String> grant(Principal principal) {
+        Set<String> rtnSet = new HashSet<String>();
 
         if (principal.getName().equals("TEST_PRINCIPAL")) {
             rtnSet.add("ROLE_TEST1");

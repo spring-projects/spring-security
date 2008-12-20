@@ -87,11 +87,13 @@ abstract class ConfigUtils {
         ((ArrayList) authManager.getPropertyValues().getPropertyValue("providerBeanNames").getValue()).add(beanName);
     }
 
+    @SuppressWarnings("unchecked")
     static ManagedList getRegisteredAfterInvocationProviders(ParserContext parserContext) {
         BeanDefinition manager = registerAfterInvocationProviderManagerIfNecessary(parserContext);
         return (ManagedList) manager.getPropertyValues().getPropertyValue("providers").getValue();
     }
 
+    @SuppressWarnings("unchecked")
     private static BeanDefinition registerAfterInvocationProviderManagerIfNecessary(ParserContext parserContext) {
         if(parserContext.getRegistry().containsBeanDefinition(BeanIds.AFTER_INVOCATION_MANAGER)) {
             return parserContext.getRegistry().getBeanDefinition(BeanIds.AFTER_INVOCATION_MANAGER);

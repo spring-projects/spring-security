@@ -4,6 +4,6 @@ import org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntr
 
 public class HeavyDutyEntryPoint extends AuthenticationProcessingFilterEntryPoint {
 
-	
-	
+    
+    
 }

@@ -29,7 +29,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     <bean id="mockFilter2" class="org.springframework.security.util.MockFilter"/>
 
     <!-- These are just here so we have filters of a specific type to check the ordering is as expected -->
-    <bean id="sif" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
+    <bean id="sif" class="org.springframework.security.context.SecurityContextPersistenceFilter"/>
 
     <bean id="apf" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
        <property name="authenticationManager">

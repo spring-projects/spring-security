@@ -6,22 +6,22 @@ import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 
 public class PostProcessedMockUserDetailsService implements UserDetailsService {
-	private String postProcessorWasHere;
+    private String postProcessorWasHere;
 
-	public PostProcessedMockUserDetailsService() {
+    public PostProcessedMockUserDetailsService() {
         this.postProcessorWasHere = "Post processor hasn't been yet";
     }
 
     public String getPostProcessorWasHere() {
-		return postProcessorWasHere;
-	}
+        return postProcessorWasHere;
+    }
 
-	public void setPostProcessorWasHere(String postProcessorWasHere) {
-		this.postProcessorWasHere = postProcessorWasHere;
-	}
+    public void setPostProcessorWasHere(String postProcessorWasHere) {
+        this.postProcessorWasHere = postProcessorWasHere;
+    }
 
-	public UserDetails loadUserByUsername(String username)
-			throws UsernameNotFoundException, DataAccessException {
-		throw new UnsupportedOperationException("Not for actual use");
-	}
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException, DataAccessException {
+        throw new UnsupportedOperationException("Not for actual use");
+    }
 }

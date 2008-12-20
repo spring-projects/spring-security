@@ -24,7 +24,6 @@ import org.springframework.security.ui.logout.SecurityContextLogoutHandler;
 import org.springframework.security.util.UrlUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

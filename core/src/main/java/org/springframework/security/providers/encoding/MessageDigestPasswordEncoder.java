@@ -74,12 +74,12 @@ public class MessageDigestPasswordEncoder extends BaseDigestPasswordEncoder {
         MessageDigest messageDigest = getMessageDigest();
 
         byte[] digest;
-		
+        
         try {
-			digest = messageDigest.digest(saltedPass.getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalStateException("UTF-8 not supported!");
-		}
+            digest = messageDigest.digest(saltedPass.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("UTF-8 not supported!");
+        }
 
         if (getEncodeHashAsBase64()) {
             return new String(Base64.encodeBase64(digest));

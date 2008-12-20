@@ -159,7 +159,7 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
         this.sessionRegistry = sessionRegistry;
     }
 
-	public SessionRegistry getSessionRegistry() {
-		return sessionRegistry;
-	}
+    public SessionRegistry getSessionRegistry() {
+        return sessionRegistry;
+    }
 }

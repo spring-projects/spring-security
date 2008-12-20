@@ -7,5 +7,5 @@ package org.springframework.security.annotation;
  *
  */
 public class Entity {
-	public Entity(String someParameter) {}
+    public Entity(String someParameter) {}
 }

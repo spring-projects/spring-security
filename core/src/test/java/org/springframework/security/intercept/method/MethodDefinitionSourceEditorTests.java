@@ -17,7 +17,6 @@ package org.springframework.security.intercept.method;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -37,16 +36,8 @@ import org.springframework.security.TargetObject;
  * @author Ben Alex
  * @version $Id$
  */
+@SuppressWarnings("deprecation")
 public class MethodDefinitionSourceEditorTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public MethodDefinitionSourceEditorTests() {
-    }
-
-    public MethodDefinitionSourceEditorTests(String arg0) {
-        super(arg0);
-    }
-
     //~ Methods ========================================================================================================
 
     public final void setUp() throws Exception {
@@ -59,7 +50,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
 
         MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
 
-        Class clazz = TargetObject.class;
+        Class<TargetObject> clazz = TargetObject.class;
         Method method = clazz.getMethod("countLength", new Class[] {String.class});
         MockJoinPoint joinPoint = new MockJoinPoint(new TargetObject(), method);
 
@@ -146,7 +137,6 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
             "org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY\r\norg.springframework.security.TargetObject.make*=ROLE_NINE,ROLE_SUPERVISOR");
 
         MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
-        Iterator iter = map.getAllConfigAttributes().iterator();
 
         assertEquals(5, map.getAllConfigAttributes().size());
     }
@@ -220,7 +210,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         private Method method;
         private Object targetObject;
 
-        public MockMethodInvocation(Class clazz, String methodName, Class[] parameterTypes, Object targetObject)
+        public MockMethodInvocation(Class<?> clazz, String methodName, Class<?>[] parameterTypes, Object targetObject)
             throws NoSuchMethodException {
             this.method = clazz.getMethod(methodName, parameterTypes);
             this.targetObject = targetObject;

@@ -30,18 +30,18 @@ import static org.junit.Assert.*;
  */
 public class NullStatelessTicketCacheTests extends AbstractStatelessTicketCacheTests {
 
-	private StatelessTicketCache cache = new NullStatelessTicketCache();
-	
-	@Test
-	public void testGetter() {
-		assertNull(cache.getByTicketId(null));
-		assertNull(cache.getByTicketId("test"));
-	}
-	
-	@Test
-	public void testInsertAndGet() {
-		final CasAuthenticationToken token = getToken();
-		cache.putTicketInCache(token);
-		assertNull(cache.getByTicketId((String) token.getCredentials()));
-	}
+    private StatelessTicketCache cache = new NullStatelessTicketCache();
+    
+    @Test
+    public void testGetter() {
+        assertNull(cache.getByTicketId(null));
+        assertNull(cache.getByTicketId("test"));
+    }
+    
+    @Test
+    public void testInsertAndGet() {
+        final CasAuthenticationToken token = getToken();
+        cache.putTicketInCache(token);
+        assertNull(cache.getByTicketId((String) token.getCredentials()));
+    }
 }

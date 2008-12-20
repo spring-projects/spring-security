@@ -73,16 +73,16 @@ public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
         return this.role;
     }
 
-	public int compareTo(Object o) {
-		if (o != null && o instanceof GrantedAuthority) {
-			String rhsRole = ((GrantedAuthority) o).getAuthority();
-			
-			if (rhsRole == null) {
-				return -1;
-			}
-			
-			return role.compareTo(rhsRole);
-		}
-		return -1;
-	}
+    public int compareTo(Object o) {
+        if (o != null && o instanceof GrantedAuthority) {
+            String rhsRole = ((GrantedAuthority) o).getAuthority();
+            
+            if (rhsRole == null) {
+                return -1;
+            }
+            
+            return role.compareTo(rhsRole);
+        }
+        return -1;
+    }
 }

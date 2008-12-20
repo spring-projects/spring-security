@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import org.springframework.security.providers.rememberme.RememberMeAuthenticationToken;
+import org.springframework.security.util.AuthorityUtils;
 
 
 /**
@@ -35,21 +36,17 @@ public class AuthenticationTrustResolverImplTests extends TestCase {
     public void testCorrectOperationIsAnonymous() {
         AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
         assertTrue(trustResolver.isAnonymous(
-                new AnonymousAuthenticationToken("ignored", "ignored",
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ignored")})));
+                new AnonymousAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))));
         assertFalse(trustResolver.isAnonymous(
-                new TestingAuthenticationToken("ignored", "ignored",
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ignored")})));
+                new TestingAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))));
     }
 
     public void testCorrectOperationIsRememberMe() {
         AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
         assertTrue(trustResolver.isRememberMe(
-                new RememberMeAuthenticationToken("ignored", "ignored",
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ignored")})));
+                new RememberMeAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))));
         assertFalse(trustResolver.isAnonymous(
-                new TestingAuthenticationToken("ignored", "ignored",
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ignored")})));
+                new TestingAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))));
     }
 
     public void testGettersSetters() {

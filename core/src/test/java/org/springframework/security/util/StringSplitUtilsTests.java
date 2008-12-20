@@ -31,29 +31,13 @@ import java.util.Map;
 public class StringSplitUtilsTests extends TestCase {
     //~ Constructors ===================================================================================================
 
-    // ===========================================================
-
-    public StringSplitUtilsTests() {
-        super();
-    }
-
-    public StringSplitUtilsTests(String arg0) {
-        super(arg0);
-    }
-
     //~ Methods ========================================================================================================
-
-    // ================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(StringSplitUtilsTests.class);
-    }
 
     public void testSplitEachArrayElementAndCreateMapNormalOperation() {
         // note it ignores malformed entries (ie those without an equals sign)
         String unsplit = "username=\"rod\", invalidEntryThatHasNoEqualsSign, realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
-        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+        Map<String, String> headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
         assertEquals("rod", headerMap.get("username"));
         assertEquals("Contacts Realm", headerMap.get("realm"));
@@ -70,7 +54,7 @@ public class StringSplitUtilsTests extends TestCase {
     public void testSplitEachArrayElementAndCreateMapRespectsInstructionNotToRemoveCharacters() {
         String unsplit = "username=\"rod\", realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
-        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", null);
+        Map<String, String> headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", null);
 
         assertEquals("\"rod\"", headerMap.get("username"));
         assertEquals("\"Contacts Realm\"", headerMap.get("realm"));

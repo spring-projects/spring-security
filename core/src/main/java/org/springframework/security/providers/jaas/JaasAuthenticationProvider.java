@@ -15,40 +15,11 @@
 
 package org.springframework.security.providers.jaas;
 
-import org.springframework.security.SpringSecurityException;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.GrantedAuthority;
-
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
-import org.springframework.security.context.SecurityContext;
-
-import org.springframework.security.providers.AuthenticationProvider;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.jaas.event.JaasAuthenticationFailedEvent;
-import org.springframework.security.providers.jaas.event.JaasAuthenticationSuccessEvent;
-
-import org.springframework.security.ui.session.HttpSessionDestroyedEvent;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.context.*;
-
-import org.springframework.core.io.Resource;
-
-import org.springframework.util.Assert;
-
 import java.io.IOException;
-
 import java.security.Principal;
 import java.security.Security;
-
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.security.auth.callback.Callback;
@@ -57,6 +28,27 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.core.io.Resource;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.SpringSecurityException;
+import org.springframework.security.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.context.SecurityContext;
+import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.jaas.event.JaasAuthenticationFailedEvent;
+import org.springframework.security.providers.jaas.event.JaasAuthenticationSuccessEvent;
+import org.springframework.security.ui.session.HttpSessionDestroyedEvent;
+import org.springframework.util.Assert;
 
 
 /**
@@ -177,64 +169,61 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      *         only throws a AuthenticationServiceException, with the message of the LoginException that will be
      *         thrown, should the loginContext.login() method fail.
      */
-    public Authentication authenticate(Authentication auth)
-        throws AuthenticationException {
-        if (auth instanceof UsernamePasswordAuthenticationToken) {
-            UsernamePasswordAuthenticationToken request = (UsernamePasswordAuthenticationToken) auth;
+    public Authentication authenticate(Authentication auth) throws AuthenticationException {
+        if (!(auth instanceof UsernamePasswordAuthenticationToken)) {
+            return null;
+        }
 
-            try {
-                //Create the LoginContext object, and pass our InternallCallbackHandler
-                LoginContext loginContext = new LoginContext(loginContextName, new InternalCallbackHandler(auth));
+        UsernamePasswordAuthenticationToken request = (UsernamePasswordAuthenticationToken) auth;
+        Set<GrantedAuthority> authorities;
 
-                //Attempt to login the user, the LoginContext will call our InternalCallbackHandler at this point.
-                loginContext.login();
+        try {
+            // Create the LoginContext object, and pass our InternallCallbackHandler
+            LoginContext loginContext = new LoginContext(loginContextName, new InternalCallbackHandler(auth));
 
-                //create a set to hold the authorities, and add any that have already been applied.
-                Set<GrantedAuthority> authorities = new HashSet();
+            // Attempt to login the user, the LoginContext will call our InternalCallbackHandler at this point.
+            loginContext.login();
 
-                if (request.getAuthorities() != null) {
-                    authorities.addAll(request.getAuthorities());
-                }
+            // Create a set to hold the authorities, and add any that have already been applied.
+            authorities = new HashSet<GrantedAuthority>();
 
-                //get the subject principals and pass them to each of the AuthorityGranters
-                Set principals = loginContext.getSubject().getPrincipals();
+            if (request.getAuthorities() != null) {
+                authorities.addAll(request.getAuthorities());
+            }
 
-                for (Iterator iterator = principals.iterator(); iterator.hasNext();) {
-                    Principal principal = (Principal) iterator.next();
+            // Get the subject principals and pass them to each of the AuthorityGranters
+            Set<Principal> principals = loginContext.getSubject().getPrincipals();
 
-                    for (int i = 0; i < authorityGranters.length; i++) {
-                        AuthorityGranter granter = authorityGranters[i];
-                        Set roles = granter.grant(principal);
+            for (Principal principal : principals) {
+                for (int i = 0; i < authorityGranters.length; i++) {
+                    AuthorityGranter granter = authorityGranters[i];
+                    Set<String> roles = granter.grant(principal);
 
-                        //If the granter doesn't wish to grant any authorities, it should return null.
-                        if ((roles != null) && !roles.isEmpty()) {
-                            for (Iterator roleIterator = roles.iterator(); roleIterator.hasNext();) {
-                                String role = roleIterator.next().toString();
-                                authorities.add(new JaasGrantedAuthority(role, principal));
-                            }
+                    // If the granter doesn't wish to grant any authorities, it should return null.
+                    if ((roles != null) && !roles.isEmpty()) {
+                        for (String role : roles) {
+                            authorities.add(new JaasGrantedAuthority(role, principal));
                         }
                     }
                 }
-
-                //Convert the authorities set back to an array and apply it to the token.
-                JaasAuthenticationToken result = new JaasAuthenticationToken(request.getPrincipal(),
-                        request.getCredentials(),
-                        (GrantedAuthority[]) authorities.toArray(new GrantedAuthority[0]), loginContext);
-
-                //Publish the success event
-                publishSuccessEvent(result);
-
-                //we're done, return the token.
-                return result;
-            } catch (LoginException loginException) {
-                SpringSecurityException ase = loginExceptionResolver.resolveException(loginException);
-
-                publishFailureEvent(request, ase);
-                throw ase;
             }
-        }
 
-        return null;
+            //Convert the authorities set back to an array and apply it to the token.
+            JaasAuthenticationToken result = new JaasAuthenticationToken(request.getPrincipal(),
+                    request.getCredentials(), new ArrayList<GrantedAuthority>(authorities), loginContext);
+
+            //Publish the success event
+            publishSuccessEvent(result);
+
+            //we're done, return the token.
+            return result;
+
+        } catch (LoginException loginException) {
+            SpringSecurityException ase = loginExceptionResolver.resolveException(loginException);
+
+            publishFailureEvent(request, ase);
+            throw ase;
+        }
     }
 
     /**
@@ -318,13 +307,13 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
 
     /**
      * Handles the logout by getting the SecurityContext for the session that was destroyed. <b>MUST NOT use
-     * SecurityContextHolder we are logging out a session that is not related to the current user.</b>
+     * SecurityContextHolder as we are logging out a session that is not related to the current user.</b>
      *
      * @param event
      */
     protected void handleLogout(HttpSessionDestroyedEvent event) {
         SecurityContext context = (SecurityContext)
-                event.getSession().getAttribute(HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY);
+                event.getSession().getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
 
         if (context == null) {
             log.debug("The destroyed session has no SecurityContext");

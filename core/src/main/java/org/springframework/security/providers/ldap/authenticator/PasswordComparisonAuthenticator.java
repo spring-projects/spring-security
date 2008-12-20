@@ -15,6 +15,11 @@
 
 package org.springframework.security.providers.ldap.authenticator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.ldap.NameNotFoundException;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.ldap.LdapUtils;
@@ -22,15 +27,7 @@ import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.ldap.NameNotFoundException;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.util.Assert;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Iterator;
 
 
 /**
@@ -71,16 +68,15 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
         String username = authentication.getName();
         String password = (String)authentication.getCredentials();
 
-        Iterator dns = getUserDns(username).iterator();
-
         SpringSecurityLdapTemplate ldapTemplate = new SpringSecurityLdapTemplate(getContextSource());
 
-        while (dns.hasNext() && user == null) {
-            final String userDn = (String) dns.next();
-
+        for (String userDn : getUserDns(username)) {
             try {
                 user = ldapTemplate.retrieveEntry(userDn, getUserAttributes());
             } catch (NameNotFoundException ignore) {
+            }
+            if (user != null) {
+                break;
             }
         }
 

@@ -27,5 +27,5 @@ public interface SampleService {
 
     public void doSomethingOnThis(SampleBlockOfData block1, SampleBlockOfData block2);
 
-    public List getTheSampleData();
+    public List<SampleBlockOfData> getTheSampleData();
 }

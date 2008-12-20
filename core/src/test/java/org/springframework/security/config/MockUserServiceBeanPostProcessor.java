@@ -11,15 +11,15 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  */
 public class MockUserServiceBeanPostProcessor implements BeanPostProcessor {
 
-	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {		
-		return bean;
-	}
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {        
+        return bean;
+    }
 
-	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         if (bean instanceof PostProcessedMockUserDetailsService) {
             ((PostProcessedMockUserDetailsService)bean).setPostProcessorWasHere("Hello from the post processor!");
         }
-	    
-		return bean;
-	}
+        
+        return bean;
+    }
 }

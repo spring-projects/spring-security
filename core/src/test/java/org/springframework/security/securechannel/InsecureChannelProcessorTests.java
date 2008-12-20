@@ -19,9 +19,9 @@ import junit.framework.TestCase;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.MockFilterChain;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.intercept.web.FilterInvocation;
+import org.springframework.security.util.MockFilterChain;
 
 
 /**

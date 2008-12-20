@@ -27,50 +27,50 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 public class RequestHeaderPreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
-	private String principalRequestHeader = "SM_USER"; 
-	private String credentialsRequestHeader;
+    private String principalRequestHeader = "SM_USER"; 
+    private String credentialsRequestHeader;
 
-	/**
-	 * Read and returns the header named by <tt>principalRequestHeader</tt> from the request.
-	 * 
-	 * @throws PreAuthenticatedCredentialsNotFoundException if the header is missing 
-	 */
-	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-		String principal = request.getHeader(principalRequestHeader);
-		
-		if (principal == null) {
-			throw new PreAuthenticatedCredentialsNotFoundException(principalRequestHeader 
-					+ " header not found in request.");
-		}
+    /**
+     * Read and returns the header named by <tt>principalRequestHeader</tt> from the request.
+     * 
+     * @throws PreAuthenticatedCredentialsNotFoundException if the header is missing 
+     */
+    protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
+        String principal = request.getHeader(principalRequestHeader);
+        
+        if (principal == null) {
+            throw new PreAuthenticatedCredentialsNotFoundException(principalRequestHeader 
+                    + " header not found in request.");
+        }
 
-		return principal;
-	}	
-	
-	/**
-	 * Credentials aren't usually applicable, but if a <tt>credentialsRequestHeader</tt> is set, this
-	 * will be read and used as the credentials value. Otherwise a dummy value will be used. 
-	 */
-	protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
-		if (credentialsRequestHeader != null) {
-			String credentials = request.getHeader(credentialsRequestHeader);
-			
-			return credentials;
-		}
+        return principal;
+    }    
+    
+    /**
+     * Credentials aren't usually applicable, but if a <tt>credentialsRequestHeader</tt> is set, this
+     * will be read and used as the credentials value. Otherwise a dummy value will be used. 
+     */
+    protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
+        if (credentialsRequestHeader != null) {
+            String credentials = request.getHeader(credentialsRequestHeader);
+            
+            return credentials;
+        }
 
-		return "N/A";
-	}
-	
-	public void setPrincipalRequestHeader(String principalRequestHeader) {
-		Assert.hasText(principalRequestHeader, "principalRequestHeader must not be empty or null");
-		this.principalRequestHeader = principalRequestHeader;
-	}
+        return "N/A";
+    }
+    
+    public void setPrincipalRequestHeader(String principalRequestHeader) {
+        Assert.hasText(principalRequestHeader, "principalRequestHeader must not be empty or null");
+        this.principalRequestHeader = principalRequestHeader;
+    }
 
-	public void setCredentialsRequestHeader(String credentialsRequestHeader) {
-		Assert.hasText(credentialsRequestHeader, "credentialsRequestHeader must not be empty or null");		
-		this.credentialsRequestHeader = credentialsRequestHeader;
-	}
+    public void setCredentialsRequestHeader(String credentialsRequestHeader) {
+        Assert.hasText(credentialsRequestHeader, "credentialsRequestHeader must not be empty or null");        
+        this.credentialsRequestHeader = credentialsRequestHeader;
+    }
 
-	public int getOrder() {
-		return FilterChainOrder.PRE_AUTH_FILTER;
-	}
+    public int getOrder() {
+        return FilterChainOrder.PRE_AUTH_FILTER;
+    }
 }

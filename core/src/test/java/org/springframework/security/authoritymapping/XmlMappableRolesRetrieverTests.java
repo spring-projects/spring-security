@@ -14,6 +14,7 @@ import junit.framework.TestCase;
  * @author TSARDD
  * @since 18-okt-2007
  */
+@SuppressWarnings("unchecked")
 public class XmlMappableRolesRetrieverTests extends TestCase {
     private static final String DEFAULT_XML = "<roles><role>Role1</role><role>Role2</role></roles>";
 

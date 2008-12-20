@@ -31,7 +31,7 @@ public class CumulativePermission extends AbstractPermission {
     private String pattern = THIRTY_TWO_RESERVED_OFF;
 
     public CumulativePermission() {
-    	super(0, ' ');
+        super(0, ' ');
     }
     
     public CumulativePermission clear(Permission permission) {

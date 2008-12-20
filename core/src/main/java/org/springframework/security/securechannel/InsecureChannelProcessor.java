@@ -15,29 +15,26 @@
 
 package org.springframework.security.securechannel;
 
-import org.springframework.security.ConfigAttribute;
-
-import org.springframework.security.intercept.web.FilterInvocation;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.util.Assert;
-
 import java.io.IOException;
-
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.ServletException;
 
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.ConfigAttribute;
+import org.springframework.security.intercept.web.FilterInvocation;
+import org.springframework.util.Assert;
+
 
 /**
- * <p>Ensures channel security is inactive by review of <code>HttpServletRequest.isSecure()</code> responses.</p>
- *  <P>The class responds to one case-sensitive keyword, {@link #getInsecureKeyword}. If this keyword is detected,
+ * Ensures channel security is inactive by review of <code>HttpServletRequest.isSecure()</code> responses.
+ * <p>
+ * The class responds to one case-sensitive keyword, {@link #getInsecureKeyword}. If this keyword is detected,
  * <code>HttpServletRequest.isSecure()</code> is used to determine the channel security offered. If channel security
  * is present, the configured <code>ChannelEntryPoint</code> is called. By default the entry point is {@link
- * RetryWithHttpEntryPoint}.</p>
- *  <P>The default <code>insecureKeyword</code> is <code>REQUIRES_INSECURE_CHANNEL</code>.</p>
+ * RetryWithHttpEntryPoint}.
+ * <p>
+ * The default <code>insecureKeyword</code> is <code>REQUIRES_INSECURE_CHANNEL</code>.
  *
  * @author Ben Alex
  * @version $Id$
@@ -55,17 +52,12 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
         Assert.notNull(entryPoint, "entryPoint required");
     }
 
-    public void decide(FilterInvocation invocation, List<ConfigAttribute> config)
-        throws IOException, ServletException {
+    public void decide(FilterInvocation invocation, List<ConfigAttribute> config) throws IOException, ServletException {
         if ((invocation == null) || (config == null)) {
             throw new IllegalArgumentException("Nulls cannot be provided");
         }
 
-        Iterator iter = config.iterator();
-
-        while (iter.hasNext()) {
-            ConfigAttribute attribute = (ConfigAttribute) iter.next();
-
+        for (ConfigAttribute attribute : config) {
             if (supports(attribute)) {
                 if (invocation.getHttpRequest().isSecure()) {
                     entryPoint.commence(invocation.getRequest(), invocation.getResponse());

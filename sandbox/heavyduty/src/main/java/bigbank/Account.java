@@ -10,42 +10,42 @@ package bigbank;
  * @version $Id$
  */
 public class Account {
-	private long id = -1;
-	private String holder;
-	private double balance;
-	
-	public Account(String holder) {
-		super();
-		this.holder = holder;
-	}
+    private long id = -1;
+    private String holder;
+    private double balance;
+    
+    public Account(String holder) {
+        super();
+        this.holder = holder;
+    }
 
-	public long getId() {
-		return id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public String getHolder() {
-		return holder;
-	}
+    public String getHolder() {
+        return holder;
+    }
 
-	public void setHolder(String holder) {
-		this.holder = holder;
-	}
+    public void setHolder(String holder) {
+        this.holder = holder;
+    }
 
-	public double getBalance() {
-		return balance;
-	}
+    public double getBalance() {
+        return balance;
+    }
 
-	public void setBalance(double balance) {
-		this.balance = balance;
-	}
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
 
-	public String toString() {
-		return "Account[id=" + id + ",balance=" + balance +",holder=" + holder + "]";
-	}
+    public String toString() {
+        return "Account[id=" + id + ",balance=" + balance +",holder=" + holder + "]";
+    }
 
-	
+    
 }

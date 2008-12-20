@@ -68,45 +68,45 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
         AccessControlEntryImpl rhs = (AccessControlEntryImpl) arg0;
 
         if (this.acl == null) {
-        	if (rhs.getAcl() != null) {
-        		return false;
-        	}
-        	// Both this.acl and rhs.acl are null and thus equal
+            if (rhs.getAcl() != null) {
+                return false;
+            }
+            // Both this.acl and rhs.acl are null and thus equal
         } else {
-        	// this.acl is non-null
-        	if (rhs.getAcl() == null) {
-        		return false;
-        	}
-        	
-        	// Both this.acl and rhs.acl are non-null, so do a comparison
-        	if (this.acl.getObjectIdentity() == null) {
-        		if (rhs.acl.getObjectIdentity() != null) {
-        			return false;
-        		}
-        		// Both this.acl and rhs.acl are null and thus equal
-        	} else {
-        		// Both this.acl.objectIdentity and rhs.acl.objectIdentity are non-null
-            	if (!this.acl.getObjectIdentity().equals(rhs.getAcl().getObjectIdentity())) {
-            		return false;
-            	}
-        	}
+            // this.acl is non-null
+            if (rhs.getAcl() == null) {
+                return false;
+            }
+            
+            // Both this.acl and rhs.acl are non-null, so do a comparison
+            if (this.acl.getObjectIdentity() == null) {
+                if (rhs.acl.getObjectIdentity() != null) {
+                    return false;
+                }
+                // Both this.acl and rhs.acl are null and thus equal
+            } else {
+                // Both this.acl.objectIdentity and rhs.acl.objectIdentity are non-null
+                if (!this.acl.getObjectIdentity().equals(rhs.getAcl().getObjectIdentity())) {
+                    return false;
+                }
+            }
         }
         
         if (this.id == null) {
-        	if (rhs.id != null) {
-        		return false;
-        	}
-        	// Both this.id and rhs.id are null and thus equal
+            if (rhs.id != null) {
+                return false;
+            }
+            // Both this.id and rhs.id are null and thus equal
         } else {
-        	// this.id is non-null
-        	if (rhs.id == null) {
-        		return false;
-        	}
+            // this.id is non-null
+            if (rhs.id == null) {
+                return false;
+            }
 
-        	// Both this.id and rhs.id are non-null
-        	if (!this.id.equals(rhs.id)) {
-        		return false;
-        	}
+            // Both this.id and rhs.id are non-null
+            if (!this.id.equals(rhs.id)) {
+                return false;
+            }
         }
         
         if ((this.auditFailure != rhs.isAuditFailure()) || (this.auditSuccess != rhs.isAuditSuccess())

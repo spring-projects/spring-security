@@ -29,19 +29,19 @@ import org.springframework.ldap.core.DirContextOperations;
  * @version $Id$
  */
 public class InetOrgPerson extends Person {    
-	private String carLicense;
-	// Person.cn
+    private String carLicense;
+    // Person.cn
     private String destinationIndicator;
-	private String departmentNumber;
-	// Person.description
-	private String displayName;
-	private String employeeNumber;
-	private String homePhone;
-	private String homePostalAddress;
-	private String initials;
-	private String mail;
-	private String mobile;
-	private String o;
+    private String departmentNumber;
+    // Person.description
+    private String displayName;
+    private String employeeNumber;
+    private String homePhone;
+    private String homePostalAddress;
+    private String initials;
+    private String mail;
+    private String mobile;
+    private String o;
     private String ou;
     private String postalAddress;
     private String postalCode;
@@ -49,7 +49,7 @@ public class InetOrgPerson extends Person {
     private String street;
     // Person.sn
     // Person.telephoneNumber
-	private String title;
+    private String title;
     private String uid;
 
     public String getUid() {
@@ -65,7 +65,7 @@ public class InetOrgPerson extends Person {
     }
     
     public String getInitials() {
-    	return initials;
+        return initials;
     }
 
     public String getDestinationIndicator() {
@@ -73,58 +73,58 @@ public class InetOrgPerson extends Person {
     }
     
     public String getO() {
-		return o;
-	}    
+        return o;
+    }    
 
     public String getOu() {
-		return ou;
-	}
+        return ou;
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public String getCarLicense() {
-		return carLicense;
-	}
+    public String getCarLicense() {
+        return carLicense;
+    }
 
-	public String getDepartmentNumber() {
-		return departmentNumber;
-	}
+    public String getDepartmentNumber() {
+        return departmentNumber;
+    }
 
-	public String getDisplayName() {
-		return displayName;
-	}
-	
-	public String getHomePhone() {
-		return homePhone;
-	}
-	
-	public String getRoomNumber() {
-		return roomNumber;
-	}
+    public String getDisplayName() {
+        return displayName;
+    }
+    
+    public String getHomePhone() {
+        return homePhone;
+    }
+    
+    public String getRoomNumber() {
+        return roomNumber;
+    }
 
-	public String getHomePostalAddress() {
-		return homePostalAddress;
-	}
+    public String getHomePostalAddress() {
+        return homePostalAddress;
+    }
 
-	public String getMobile() {
-		return mobile;
-	}
+    public String getMobile() {
+        return mobile;
+    }
 
-	public String getPostalAddress() {
-		return postalAddress;
-	}
+    public String getPostalAddress() {
+        return postalAddress;
+    }
 
-	public String getPostalCode() {
-		return postalCode;
-	}
+    public String getPostalCode() {
+        return postalCode;
+    }
 
-	public String getStreet() {
-		return street;
-	}
+    public String getStreet() {
+        return street;
+    }
 
-	protected void populateContext(DirContextAdapter adapter) {
+    protected void populateContext(DirContextAdapter adapter) {
         super.populateContext(adapter);
         adapter.setAttributeValue("carLicense", carLicense);
         adapter.setAttributeValue("departmentNumber", departmentNumber);
@@ -172,7 +172,7 @@ public class InetOrgPerson extends Person {
             setUid(copyMe.getUid());
         }
 
-		public Essence(DirContextOperations ctx) {
+        public Essence(DirContextOperations ctx) {
             super(ctx);
             setCarLicense(ctx.getStringAttribute("carLicense"));
             setDepartmentNumber(ctx.getStringAttribute("departmentNumber"));
@@ -235,8 +235,8 @@ public class InetOrgPerson extends Person {
         }
         
         public void setDepartmentNumber(String departmentNumber) {
-        	((InetOrgPerson) instance).departmentNumber = departmentNumber;
-		}
+            ((InetOrgPerson) instance).departmentNumber = departmentNumber;
+        }
         
         public void setDisplayName(String displayName) {
             ((InetOrgPerson) instance).displayName = displayName;
@@ -255,23 +255,23 @@ public class InetOrgPerson extends Person {
         }  
 
         public void setStreet(String street) {
-        	((InetOrgPerson) instance).street = street;
-		}
+            ((InetOrgPerson) instance).street = street;
+        }
 
         public void setPostalCode(String postalCode) {
-        	((InetOrgPerson) instance).postalCode = postalCode;
-		}
+            ((InetOrgPerson) instance).postalCode = postalCode;
+        }
 
         public void setPostalAddress(String postalAddress) {
-        	((InetOrgPerson) instance).postalAddress = postalAddress;
-		}
+            ((InetOrgPerson) instance).postalAddress = postalAddress;
+        }
 
         public void setMobile(String mobile) {
-        	((InetOrgPerson) instance).mobile = mobile;
-		}
+            ((InetOrgPerson) instance).mobile = mobile;
+        }
 
         public void setHomePostalAddress(String homePostalAddress) {
-        	((InetOrgPerson) instance).homePostalAddress = homePostalAddress;
-		}
+            ((InetOrgPerson) instance).homePostalAddress = homePostalAddress;
+        }
     }
 }

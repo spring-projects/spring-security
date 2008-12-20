@@ -17,10 +17,8 @@ package org.springframework.security.providers.dao.cache;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-
 import org.springframework.security.userdetails.User;
+import org.springframework.security.util.AuthorityUtils;
 
 
 /**
@@ -30,29 +28,12 @@ import org.springframework.security.userdetails.User;
  * @version $Id$
  */
 public class NullUserCacheTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public NullUserCacheTests() {
-        super();
-    }
-
-    public NullUserCacheTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
 
     private User getUser() {
         return new User("john", "password", true, true, true, true,
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(NullUserCacheTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
     }
 
     public void testCacheOperation() throws Exception {
