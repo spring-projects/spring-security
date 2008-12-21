@@ -15,21 +15,18 @@
 
 package org.springframework.security.acls.domain;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
-
 import org.springframework.security.acls.Acl;
-import org.springframework.security.acls.Permission;
 import org.springframework.security.acls.sid.PrincipalSid;
 import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.acls.sid.SidRetrievalStrategy;
 import org.springframework.security.acls.sid.SidRetrievalStrategyImpl;
-
 import org.springframework.security.context.SecurityContextHolder;
-
 import org.springframework.util.Assert;
 
 
@@ -112,14 +109,14 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
         }
 
         // Try to get permission via ACEs within the ACL
-        Sid[] sids = sidRetrievalStrategy.getSids(authentication);
+        List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
 
-        if (acl.isGranted(new Permission[] {BasePermission.ADMINISTRATION}, sids, false)) {
+        if (acl.isGranted(Arrays.asList(BasePermission.ADMINISTRATION), sids, false)) {
             return;
         }
 
         throw new AccessDeniedException(
-            "Principal does not have required ACL permissions to perform requested operation");
+                "Principal does not have required ACL permissions to perform requested operation");
     }
 
     public void setSidRetrievalStrategy(SidRetrievalStrategy sidRetrievalStrategy) {

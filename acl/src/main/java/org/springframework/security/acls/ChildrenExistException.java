@@ -26,7 +26,7 @@ import org.springframework.security.SpringSecurityException;
 public class ChildrenExistException extends SpringSecurityException {
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs an <code>ChildrenExistException</code> with the specified
      * message.
      *
@@ -36,7 +36,7 @@ public class ChildrenExistException extends SpringSecurityException {
         super(msg);
     }
 
-/**
+    /**
      * Constructs an <code>ChildrenExistException</code> with the specified
      * message and root cause.
      *

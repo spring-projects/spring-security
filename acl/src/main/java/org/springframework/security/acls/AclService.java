@@ -17,6 +17,7 @@ package org.springframework.security.acls;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.sid.Sid;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -36,10 +37,10 @@ public interface AclService {
      *
      * @return the children (or <tt>null</tt> if none were found)
      */
-    ObjectIdentity[] findChildren(ObjectIdentity parentIdentity);
+    List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity);
 
     /**
-     * Same as {@link #readAclsById(ObjectIdentity[])} except it returns only a single Acl.
+     * Same as {@link #readAclsById(Java.util.List<ObjectIdentity>)} except it returns only a single Acl.
      * <p>
      * This method should not be called as it does not leverage the underlying implementation's potential ability to
      * filter <tt>Acl</tt> entries based on a {@link Sid} parameter.</p>
@@ -53,7 +54,7 @@ public interface AclService {
     Acl readAclById(ObjectIdentity object) throws NotFoundException;
 
     /**
-     * Same as {@link #readAclsById(ObjectIdentity[], Sid[])} except it returns only a single Acl.
+     * Same as {@link #readAclsById(List, List)} except it returns only a single Acl.
      *
      * @param object to locate an {@link Acl} for
      * @param sids the security identities for which  {@link Acl} information is required
@@ -63,8 +64,7 @@ public interface AclService {
      *
      * @throws NotFoundException if an {@link Acl} was not found for the requested {@link ObjectIdentity}
      */
-    Acl readAclById(ObjectIdentity object, Sid[] sids)
-        throws NotFoundException;
+    Acl readAclById(ObjectIdentity object, List<Sid> sids) throws NotFoundException;
 
     /**
      * Obtains all the <tt>Acl</tt>s that apply for the passed <tt>Object</tt>s.<p>The returned map is
@@ -77,7 +77,7 @@ public interface AclService {
      *
      * @throws NotFoundException if an {@link Acl} was not found for each requested {@link ObjectIdentity}
      */
-    Map readAclsById(ObjectIdentity[] objects) throws NotFoundException;
+    Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects) throws NotFoundException;
 
     /**
      * Obtains all the <tt>Acl</tt>s that apply for the passed <tt>Object</tt>s, but only for the
@@ -97,6 +97,5 @@ public interface AclService {
      *
      * @throws NotFoundException if an {@link Acl} was not found for each requested {@link ObjectIdentity}
      */
-    Map readAclsById(ObjectIdentity[] objects, Sid[] sids)
-        throws NotFoundException;
+    Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids) throws NotFoundException;
 }

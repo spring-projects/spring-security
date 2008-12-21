@@ -26,7 +26,7 @@ import org.springframework.security.SpringSecurityException;
 public class AlreadyExistsException extends SpringSecurityException {
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs an <code>AlreadyExistsException</code> with the specified message.
      *
      * @param msg the detail message
@@ -35,7 +35,7 @@ public class AlreadyExistsException extends SpringSecurityException {
         super(msg);
     }
 
-/**
+    /**
      * Constructs an <code>AlreadyExistsException</code> with the specified message
      * and root cause.
      *

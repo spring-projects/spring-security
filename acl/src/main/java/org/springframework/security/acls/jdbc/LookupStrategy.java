@@ -19,6 +19,7 @@ import org.springframework.security.acls.NotFoundException;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.sid.Sid;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -43,5 +44,5 @@ public interface LookupStrategy {
      *         should not throw {@link NotFoundException}, as a chain of {@link LookupStrategy}s may be used
      *         to automatically create entries if required)
      */
-    Map<ObjectIdentity, Acl> readAclsById(ObjectIdentity[] objects, Sid[] sids);
+    Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids);
 }

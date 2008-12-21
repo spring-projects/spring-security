@@ -33,6 +33,7 @@ import org.springframework.util.StringUtils;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,7 @@ import javax.sql.DataSource;
 /**
  * Simple JDBC-based implementation of <code>AclService</code>.
  * <p>
- * Requires the "dirty" flags in {@link org.springframework.security.acls.domain.AclImpl} and 
+ * Requires the "dirty" flags in {@link org.springframework.security.acls.domain.AclImpl} and
  * {@link org.springframework.security.acls.domain.AccessControlEntryImpl} to be set, so that the implementation can
  * detect changed parameters easily.
  *
@@ -75,7 +76,7 @@ public class JdbcAclService implements AclService {
 
     //~ Methods ========================================================================================================
 
-    public ObjectIdentity[] findChildren(ObjectIdentity parentIdentity) {
+    public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
         Object[] args = {parentIdentity.getIdentifier(), parentIdentity.getJavaType().getName()};
         List objects = jdbcTemplate.query(selectAclObjectWithParent, args,
                 new RowMapper() {
@@ -91,12 +92,12 @@ public class JdbcAclService implements AclService {
         if (objects.size() == 0) {
             return null;
         }
-        
-        return (ObjectIdentityImpl[]) objects.toArray(new ObjectIdentityImpl[objects.size()]);
+
+        return objects;
     }
 
-    public Acl readAclById(ObjectIdentity object, Sid[] sids) throws NotFoundException {
-        Map map = readAclsById(new ObjectIdentity[] {object}, sids);
+    public Acl readAclById(ObjectIdentity object, List<Sid> sids) throws NotFoundException {
+        Map<ObjectIdentity, Acl> map = readAclsById(Arrays.asList(object), sids);
         Assert.isTrue(map.containsKey(object), "There should have been an Acl entry for ObjectIdentity " + object);
 
         return (Acl) map.get(object);
@@ -106,21 +107,21 @@ public class JdbcAclService implements AclService {
         return readAclById(object, null);
     }
 
-    public Map readAclsById(ObjectIdentity[] objects) throws NotFoundException {
+    public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects) throws NotFoundException {
         return readAclsById(objects, null);
     }
 
-    public Map readAclsById(ObjectIdentity[] objects, Sid[] sids) throws NotFoundException {
-        Map result = lookupStrategy.readAclsById(objects, sids);
-        
+    public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids) throws NotFoundException {
+        Map<ObjectIdentity, Acl> result = lookupStrategy.readAclsById(objects, sids);
+
         // Check every requested object identity was found (throw NotFoundException if needed)
-        for (int i = 0; i < objects.length; i++) {
-            if (!result.containsKey(objects[i])) {
+        for (int i = 0; i < objects.size(); i++) {
+            if (!result.containsKey(objects.get(i))) {
                 throw new NotFoundException("Unable to find ACL information for object identity '"
-                    + objects[i].toString() + "'");
+                    + objects.get(i).toString() + "'");
             }
         }
-        
+
         return result;
     }
 }

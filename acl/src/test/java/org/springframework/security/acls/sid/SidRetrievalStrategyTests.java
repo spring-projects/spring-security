@@ -1,5 +1,7 @@
 package org.springframework.security.acls.sid;
 
+import java.util.List;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -18,20 +20,20 @@ public class SidRetrievalStrategyTests extends TestCase {
     public void testSidsRetrieval() throws Exception {
         Authentication authentication = new TestingAuthenticationToken("scott", "password", "ROLE_1", "ROLE_2", "ROLE_3");
         SidRetrievalStrategy retrStrategy = new SidRetrievalStrategyImpl();
-        Sid[] sids = retrStrategy.getSids(authentication);
+        List<Sid> sids = retrStrategy.getSids(authentication);
 
         assertNotNull(sids);
-        assertEquals(4, sids.length);
-        assertNotNull(sids[0]);
-        assertTrue(sids[0] instanceof PrincipalSid);
+        assertEquals(4, sids.size());
+        assertNotNull(sids.get(0));
+        assertTrue(sids.get(0) instanceof PrincipalSid);
 
-        for (int i = 1; i < sids.length; i++) {
-            assertTrue(sids[i] instanceof GrantedAuthoritySid);
+        for (int i = 1; i < sids.size(); i++) {
+            assertTrue(sids.get(i) instanceof GrantedAuthoritySid);
         }
 
-        Assert.assertEquals("scott", ((PrincipalSid) sids[0]).getPrincipal());
-        Assert.assertEquals("ROLE_1", ((GrantedAuthoritySid) sids[1]).getGrantedAuthority());
-        Assert.assertEquals("ROLE_2", ((GrantedAuthoritySid) sids[2]).getGrantedAuthority());
-        Assert.assertEquals("ROLE_3", ((GrantedAuthoritySid) sids[3]).getGrantedAuthority());
+        Assert.assertEquals("scott", ((PrincipalSid) sids.get(0)).getPrincipal());
+        Assert.assertEquals("ROLE_1", ((GrantedAuthoritySid) sids.get(1)).getGrantedAuthority());
+        Assert.assertEquals("ROLE_2", ((GrantedAuthoritySid) sids.get(2)).getGrantedAuthority());
+        Assert.assertEquals("ROLE_3", ((GrantedAuthoritySid) sids.get(3)).getGrantedAuthority());
     }
 }

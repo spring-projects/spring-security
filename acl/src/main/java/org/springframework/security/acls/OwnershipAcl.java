@@ -23,7 +23,6 @@ import org.springframework.security.acls.sid.Sid;
  * <p>
  * Generally the owner of an ACL is able to call any ACL mutator method, as
  * well as assign a new owner.
- * </p>
  *
  * @author Ben Alex
  * @version $Id$

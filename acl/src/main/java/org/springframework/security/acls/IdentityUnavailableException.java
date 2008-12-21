@@ -26,7 +26,7 @@ import org.springframework.security.SpringSecurityException;
 public class IdentityUnavailableException extends SpringSecurityException {
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs an <code>IdentityUnavailableException</code> with the specified message.
      *
      * @param msg the detail message
@@ -35,7 +35,7 @@ public class IdentityUnavailableException extends SpringSecurityException {
         super(msg);
     }
 
-/**
+    /**
      * Constructs an <code>IdentityUnavailableException</code> with the specified message
      * and root cause.
      *

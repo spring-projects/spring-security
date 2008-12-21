@@ -15,6 +15,9 @@
 
 package org.springframework.security.acls.afterinvocation;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 
@@ -48,15 +51,15 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
     protected ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
     protected SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
     protected String processConfigAttribute;
-    protected Permission[] requirePermission = {BasePermission.READ};
+    protected List<Permission> requirePermission = Arrays.asList(BasePermission.READ);
 
     //~ Constructors ===================================================================================================
 
-    public AbstractAclProvider(AclService aclService, String processConfigAttribute, Permission[] requirePermission) {
+    public AbstractAclProvider(AclService aclService, String processConfigAttribute, List<Permission> requirePermission) {
         Assert.hasText(processConfigAttribute, "A processConfigAttribute is mandatory");
         Assert.notNull(aclService, "An AclService is mandatory");
 
-        if ((requirePermission == null) || (requirePermission.length == 0)) {
+        if (requirePermission == null || requirePermission.isEmpty()) {
             throw new IllegalArgumentException("One or more requirePermission entries is mandatory");
         }
 
@@ -76,7 +79,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
         ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
 
         // Obtain the SIDs applicable to the principal
-        Sid[] sids = sidRetrievalStrategy.getSids(authentication);
+        List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
 
         Acl acl = null;
 

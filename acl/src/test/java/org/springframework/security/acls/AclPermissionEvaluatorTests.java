@@ -1,6 +1,8 @@
 package org.springframework.security.acls;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -10,7 +12,6 @@ import org.junit.Test;
 import org.springframework.security.Authentication;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalStrategy;
-import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.acls.sid.SidRetrievalStrategy;
 
 /**
@@ -45,9 +46,9 @@ public class AclPermissionEvaluatorTests {
             ignoring(user);
             ignoring(oidStrategy);
             ignoring(sidStrategy);
-            oneOf(service).readAclById(with(any(ObjectIdentity.class)), with(any(Sid[].class)));
+            oneOf(service).readAclById(with(any(ObjectIdentity.class)), with(any(List.class)));
                 will(returnValue(acl));
-            oneOf(acl).isGranted(with(any(Permission[].class)), with(any(Sid[].class)), with(equal(false)));
+            oneOf(acl).isGranted(with(any(List.class)), with(any(List.class)), with(equal(false)));
                 will(returnValue(true));
         }});
 

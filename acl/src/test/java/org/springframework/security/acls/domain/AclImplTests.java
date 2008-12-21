@@ -3,6 +3,8 @@ package org.springframework.security.acls.domain;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +43,13 @@ import org.springframework.security.util.FieldUtils;
  * @author Andrei Stefan
  */
 public class AclImplTests {
+    private static final List<Permission> READ = Arrays.asList(BasePermission.READ );
+    private static final List<Permission> WRITE = Arrays.asList(BasePermission.WRITE);
+    private static final List<Permission> CREATE = Arrays.asList(BasePermission.CREATE );
+    private static final List<Permission> DELETE = Arrays.asList(BasePermission.DELETE );
+    private static final List<Sid> SCOTT = Arrays.asList((Sid)new PrincipalSid("scott"));
+    private static final List<Sid> BEN = Arrays.asList((Sid)new PrincipalSid("ben"));
+
     Authentication auth = new TestingAuthenticationToken("johndoe", "ignored", "ROLE_ADMINISTRATOR");
     Mockery jmockCtx = new Mockery();
     AclAuthorizationStrategy mockAuthzStrategy;
@@ -137,31 +146,31 @@ public class AclImplTests {
         acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST1"), true);
         service.updateAcl(acl);
         // Check it was successfully added
-        assertEquals(1, acl.getEntries().length);
-        assertEquals(acl.getEntries()[0].getAcl(), acl);
-        assertEquals(acl.getEntries()[0].getPermission(), BasePermission.READ);
-        assertEquals(acl.getEntries()[0].getSid(), new GrantedAuthoritySid("ROLE_TEST1"));
+        assertEquals(1, acl.getEntries().size());
+        assertEquals(acl.getEntries().get(0).getAcl(), acl);
+        assertEquals(acl.getEntries().get(0).getPermission(), BasePermission.READ);
+        assertEquals(acl.getEntries().get(0).getSid(), new GrantedAuthoritySid("ROLE_TEST1"));
 
         // Add a second permission
         acl.insertAce(1, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true);
         service.updateAcl(acl);
         // Check it was added on the last position
-        assertEquals(2, acl.getEntries().length);
-        assertEquals(acl.getEntries()[1].getAcl(), acl);
-        assertEquals(acl.getEntries()[1].getPermission(), BasePermission.READ);
-        assertEquals(acl.getEntries()[1].getSid(), new GrantedAuthoritySid("ROLE_TEST2"));
+        assertEquals(2, acl.getEntries().size());
+        assertEquals(acl.getEntries().get(1).getAcl(), acl);
+        assertEquals(acl.getEntries().get(1).getPermission(), BasePermission.READ);
+        assertEquals(acl.getEntries().get(1).getSid(), new GrantedAuthoritySid("ROLE_TEST2"));
 
         // Add a third permission, after the first one
         acl.insertAce(1, BasePermission.WRITE, new GrantedAuthoritySid("ROLE_TEST3"), false);
         service.updateAcl(acl);
-        assertEquals(3, acl.getEntries().length);
+        assertEquals(3, acl.getEntries().size());
         // Check the third entry was added between the two existent ones
-        assertEquals(acl.getEntries()[0].getPermission(), BasePermission.READ);
-        assertEquals(acl.getEntries()[0].getSid(), new GrantedAuthoritySid("ROLE_TEST1"));
-        assertEquals(acl.getEntries()[1].getPermission(), BasePermission.WRITE);
-        assertEquals(acl.getEntries()[1].getSid(), new GrantedAuthoritySid("ROLE_TEST3"));
-        assertEquals(acl.getEntries()[2].getPermission(), BasePermission.READ);
-        assertEquals(acl.getEntries()[2].getSid(), new GrantedAuthoritySid("ROLE_TEST2"));
+        assertEquals(acl.getEntries().get(0).getPermission(), BasePermission.READ);
+        assertEquals(acl.getEntries().get(0).getSid(), new GrantedAuthoritySid("ROLE_TEST1"));
+        assertEquals(acl.getEntries().get(1).getPermission(), BasePermission.WRITE);
+        assertEquals(acl.getEntries().get(1).getSid(), new GrantedAuthoritySid("ROLE_TEST3"));
+        assertEquals(acl.getEntries().get(2).getPermission(), BasePermission.READ);
+        assertEquals(acl.getEntries().get(2).getSid(), new GrantedAuthoritySid("ROLE_TEST2"));
     }
 
     @Test(expected=NotFoundException.class)
@@ -191,22 +200,22 @@ public class AclImplTests {
 
         // Delete first permission and check the order of the remaining permissions is kept
         acl.deleteAce(0);
-        assertEquals(2, acl.getEntries().length);
-        assertEquals(acl.getEntries()[0].getSid(), new GrantedAuthoritySid("ROLE_TEST2"));
-        assertEquals(acl.getEntries()[1].getSid(), new GrantedAuthoritySid("ROLE_TEST3"));
+        assertEquals(2, acl.getEntries().size());
+        assertEquals(acl.getEntries().get(0).getSid(), new GrantedAuthoritySid("ROLE_TEST2"));
+        assertEquals(acl.getEntries().get(1).getSid(), new GrantedAuthoritySid("ROLE_TEST3"));
 
         // Add one more permission and remove the permission in the middle
         acl.insertAce(2, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST4"), true);
         service.updateAcl(acl);
         acl.deleteAce(1);
-        assertEquals(2, acl.getEntries().length);
-        assertEquals(acl.getEntries()[0].getSid(), new GrantedAuthoritySid("ROLE_TEST2"));
-        assertEquals(acl.getEntries()[1].getSid(), new GrantedAuthoritySid("ROLE_TEST4"));
+        assertEquals(2, acl.getEntries().size());
+        assertEquals(acl.getEntries().get(0).getSid(), new GrantedAuthoritySid("ROLE_TEST2"));
+        assertEquals(acl.getEntries().get(1).getSid(), new GrantedAuthoritySid("ROLE_TEST4"));
 
         // Remove remaining permissions
         acl.deleteAce(1);
         acl.deleteAce(0);
-        assertEquals(0, acl.getEntries().length);
+        assertEquals(0, acl.getEntries().size());
     }
 
     @Test
@@ -229,14 +238,15 @@ public class AclImplTests {
     public void testIsGrantingRejectsEmptyParameters() throws Exception {
         MutableAcl acl = new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(
                 "johndoe"));
+        Sid ben = new PrincipalSid("ben");
         try {
-            acl.isGranted(new Permission[] {}, new Sid[] { new PrincipalSid("ben") }, false);
+            acl.isGranted(new ArrayList<Permission>(0), Arrays.asList(ben) , false);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
         }
         try {
-            acl.isGranted(new Permission[] { BasePermission.READ }, new Sid[] {}, false);
+            acl.isGranted(READ, new ArrayList<Sid>(0), false);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
@@ -261,25 +271,22 @@ public class AclImplTests {
         rootAcl.insertAce(3, BasePermission.WRITE, new GrantedAuthoritySid("WRITE_ACCESS_ROLE"), true);
 
         // Check permissions granting
-        Permission[] permissions = new Permission[] { BasePermission.READ, BasePermission.CREATE };
-        Sid[] sids = new Sid[] { new PrincipalSid("ben"), new GrantedAuthoritySid("ROLE_GUEST") };
+        List<Permission> permissions = Arrays.asList(BasePermission.READ, BasePermission.CREATE);
+        List<Sid> sids = Arrays.asList(new PrincipalSid("ben"), new GrantedAuthoritySid("ROLE_GUEST"));
         assertFalse(rootAcl.isGranted(permissions, sids, false));
         try {
-            rootAcl.isGranted(permissions, new Sid[] { new PrincipalSid("scott") }, false);
+            rootAcl.isGranted(permissions, SCOTT, false);
             fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
         }
-        assertTrue(rootAcl.isGranted(new Permission[] { BasePermission.WRITE }, new Sid[] { new PrincipalSid("scott") },
-                false));
-        assertFalse(rootAcl.isGranted(new Permission[] { BasePermission.WRITE }, new Sid[] { new PrincipalSid("rod"),
-                new GrantedAuthoritySid("WRITE_ACCESS_ROLE") }, false));
-        assertTrue(rootAcl.isGranted(new Permission[] { BasePermission.WRITE }, new Sid[] {
-                new GrantedAuthoritySid("WRITE_ACCESS_ROLE"), new PrincipalSid("rod") }, false));
+        assertTrue(rootAcl.isGranted(WRITE, SCOTT, false));
+        assertFalse(rootAcl.isGranted(WRITE,
+                Arrays.asList(new PrincipalSid("rod"), new GrantedAuthoritySid("WRITE_ACCESS_ROLE")), false));
+        assertTrue(rootAcl.isGranted(WRITE, Arrays.asList(new GrantedAuthoritySid("WRITE_ACCESS_ROLE"), new PrincipalSid("rod")), false));
         try {
             // Change the type of the Sid and check the granting process
-            rootAcl.isGranted(new Permission[] { BasePermission.WRITE }, new Sid[] { new GrantedAuthoritySid("rod"),
-                    new PrincipalSid("WRITE_ACCESS_ROLE") }, false);
+            rootAcl.isGranted(WRITE, Arrays.asList(new GrantedAuthoritySid("rod"), new PrincipalSid("WRITE_ACCESS_ROLE")), false);
             fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
@@ -326,45 +333,33 @@ public class AclImplTests {
         childAcl1.insertAce(0, BasePermission.CREATE, new PrincipalSid("scott"), true);
 
         // Check granting process for parent1
-        assertTrue(parentAcl1.isGranted(new Permission[] { BasePermission.READ }, new Sid[] { new PrincipalSid("scott") },
-                false));
-        assertTrue(parentAcl1.isGranted(new Permission[] { BasePermission.READ }, new Sid[] { new GrantedAuthoritySid(
-                "ROLE_USER_READ") }, false));
-        assertTrue(parentAcl1.isGranted(new Permission[] { BasePermission.WRITE }, new Sid[] { new PrincipalSid("ben") },
-                false));
-        assertFalse(parentAcl1.isGranted(new Permission[] { BasePermission.DELETE }, new Sid[] { new PrincipalSid("ben") },
-                false));
-        assertFalse(parentAcl1.isGranted(new Permission[] { BasePermission.DELETE },
-                new Sid[] { new PrincipalSid("scott") }, false));
+        assertTrue(parentAcl1.isGranted(READ, SCOTT, false));
+        assertTrue(parentAcl1.isGranted(READ, Arrays.asList((Sid)new GrantedAuthoritySid("ROLE_USER_READ")), false));
+        assertTrue(parentAcl1.isGranted(WRITE, BEN, false));
+        assertFalse(parentAcl1.isGranted(DELETE, BEN, false));
+        assertFalse(parentAcl1.isGranted(DELETE, SCOTT, false));
 
         // Check granting process for parent2
-        assertTrue(parentAcl2.isGranted(new Permission[] { BasePermission.CREATE }, new Sid[] { new PrincipalSid("ben") },
-                false));
-        assertTrue(parentAcl2.isGranted(new Permission[] { BasePermission.WRITE }, new Sid[] { new PrincipalSid("ben") },
-                false));
-        assertFalse(parentAcl2.isGranted(new Permission[] { BasePermission.DELETE }, new Sid[] { new PrincipalSid("ben") },
-                false));
+        assertTrue(parentAcl2.isGranted(CREATE, BEN, false));
+        assertTrue(parentAcl2.isGranted(WRITE, BEN, false));
+        assertFalse(parentAcl2.isGranted(DELETE, BEN, false));
 
         // Check granting process for child1
-        assertTrue(childAcl1.isGranted(new Permission[] { BasePermission.CREATE }, new Sid[] { new PrincipalSid("scott") },
+        assertTrue(childAcl1.isGranted(CREATE, SCOTT,
                 false));
-        assertTrue(childAcl1.isGranted(new Permission[] { BasePermission.READ }, new Sid[] { new GrantedAuthoritySid(
-                "ROLE_USER_READ") }, false));
-        assertFalse(childAcl1.isGranted(new Permission[] { BasePermission.DELETE }, new Sid[] { new PrincipalSid("ben") },
-                false));
+        assertTrue(childAcl1.isGranted(READ, Arrays.asList((Sid)new GrantedAuthoritySid("ROLE_USER_READ")), false));
+        assertFalse(childAcl1.isGranted(DELETE, BEN, false));
 
         // Check granting process for child2 (doesn't inherit the permissions from its parent)
         try {
-            assertTrue(childAcl2.isGranted(new Permission[] { BasePermission.CREATE },
-                    new Sid[] { new PrincipalSid("scott") }, false));
+            assertTrue(childAcl2.isGranted(CREATE, SCOTT, false));
             fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
             assertTrue(true);
         }
         try {
-            assertTrue(childAcl2.isGranted(new Permission[] { BasePermission.CREATE }, new Sid[] { new PrincipalSid(
-                    "johndoe") }, false));
+            assertTrue(childAcl2.isGranted(CREATE, Arrays.asList((Sid)new PrincipalSid("johndoe")), false));
             fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
@@ -386,9 +381,9 @@ public class AclImplTests {
         acl.insertAce(2, BasePermission.CREATE, new PrincipalSid("ben"), true);
         service.updateAcl(acl);
 
-        assertEquals(acl.getEntries()[0].getPermission(), BasePermission.READ);
-        assertEquals(acl.getEntries()[1].getPermission(), BasePermission.WRITE);
-        assertEquals(acl.getEntries()[2].getPermission(), BasePermission.CREATE);
+        assertEquals(acl.getEntries().get(0).getPermission(), BasePermission.READ);
+        assertEquals(acl.getEntries().get(1).getPermission(), BasePermission.WRITE);
+        assertEquals(acl.getEntries().get(2).getPermission(), BasePermission.CREATE);
 
         // Change each permission
         acl.updateAce(0, BasePermission.CREATE);
@@ -396,9 +391,9 @@ public class AclImplTests {
         acl.updateAce(2, BasePermission.READ);
 
         // Check the change was successfuly made
-        assertEquals(acl.getEntries()[0].getPermission(), BasePermission.CREATE);
-        assertEquals(acl.getEntries()[1].getPermission(), BasePermission.DELETE);
-        assertEquals(acl.getEntries()[2].getPermission(), BasePermission.READ);
+        assertEquals(acl.getEntries().get(0).getPermission(), BasePermission.CREATE);
+        assertEquals(acl.getEntries().get(1).getPermission(), BasePermission.DELETE);
+        assertEquals(acl.getEntries().get(2).getPermission(), BasePermission.READ);
     }
 
     @Test
@@ -414,20 +409,20 @@ public class AclImplTests {
         acl.insertAce(1, BasePermission.WRITE, new GrantedAuthoritySid("ROLE_USER_READ"), true);
         service.updateAcl(acl);
 
-        assertFalse(((AuditableAccessControlEntry) acl.getEntries()[0]).isAuditFailure());
-        assertFalse(((AuditableAccessControlEntry) acl.getEntries()[1]).isAuditFailure());
-        assertFalse(((AuditableAccessControlEntry) acl.getEntries()[0]).isAuditSuccess());
-        assertFalse(((AuditableAccessControlEntry) acl.getEntries()[1]).isAuditSuccess());
+        assertFalse(((AuditableAccessControlEntry) acl.getEntries().get(0)).isAuditFailure());
+        assertFalse(((AuditableAccessControlEntry) acl.getEntries().get(1)).isAuditFailure());
+        assertFalse(((AuditableAccessControlEntry) acl.getEntries().get(0)).isAuditSuccess());
+        assertFalse(((AuditableAccessControlEntry) acl.getEntries().get(1)).isAuditSuccess());
 
         // Change each permission
         ((AuditableAcl) acl).updateAuditing(0, true, true);
         ((AuditableAcl) acl).updateAuditing(1, true, true);
 
         // Check the change was successfuly made
-        assertTrue(((AuditableAccessControlEntry) acl.getEntries()[0]).isAuditFailure());
-        assertTrue(((AuditableAccessControlEntry) acl.getEntries()[1]).isAuditFailure());
-        assertTrue(((AuditableAccessControlEntry) acl.getEntries()[0]).isAuditSuccess());
-        assertTrue(((AuditableAccessControlEntry) acl.getEntries()[1]).isAuditSuccess());
+        assertTrue(((AuditableAccessControlEntry) acl.getEntries().get(0)).isAuditFailure());
+        assertTrue(((AuditableAccessControlEntry) acl.getEntries().get(1)).isAuditFailure());
+        assertTrue(((AuditableAccessControlEntry) acl.getEntries().get(0)).isAuditSuccess());
+        assertTrue(((AuditableAccessControlEntry) acl.getEntries().get(1)).isAuditSuccess());
     }
 
     @Test
@@ -452,7 +447,7 @@ public class AclImplTests {
         assertEquals(acl.getOwner(), new PrincipalSid("johndoe"));
         assertNull(acl.getParentAcl());
         assertTrue(acl.isEntriesInheriting());
-        assertEquals(2, acl.getEntries().length);
+        assertEquals(2, acl.getEntries().size());
 
         acl.setParent(parentAcl);
         assertEquals(acl.getParentAcl(), parentAcl);
@@ -466,19 +461,19 @@ public class AclImplTests {
 
     @Test
     public void testIsSidLoaded() throws Exception {
-        Sid[] loadedSids = new Sid[] { new PrincipalSid("ben"), new GrantedAuthoritySid("ROLE_IGNORED") };
+        List<Sid> loadedSids = Arrays.asList(new PrincipalSid("ben"), new GrantedAuthoritySid("ROLE_IGNORED"));
         MutableAcl acl = new AclImpl(objectIdentity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, loadedSids, true, new PrincipalSid(
                 "johndoe"));
 
         assertTrue(acl.isSidLoaded(loadedSids));
-        assertTrue(acl.isSidLoaded(new Sid[] { new GrantedAuthoritySid("ROLE_IGNORED"), new PrincipalSid("ben") }));
-        assertTrue(acl.isSidLoaded(new Sid[] { new GrantedAuthoritySid("ROLE_IGNORED")}));
-        assertTrue(acl.isSidLoaded(new Sid[] { new PrincipalSid("ben") }));
+        assertTrue(acl.isSidLoaded(Arrays.asList(new GrantedAuthoritySid("ROLE_IGNORED"), new PrincipalSid("ben"))));
+        assertTrue(acl.isSidLoaded(Arrays.asList((Sid)new GrantedAuthoritySid("ROLE_IGNORED"))));
+        assertTrue(acl.isSidLoaded(BEN));
         assertTrue(acl.isSidLoaded(null));
-        assertTrue(acl.isSidLoaded(new Sid[] { }));
-        assertTrue(acl.isSidLoaded(new Sid[] { new GrantedAuthoritySid("ROLE_IGNORED"), new GrantedAuthoritySid("ROLE_IGNORED") }));
-        assertFalse(acl.isSidLoaded(new Sid[] { new GrantedAuthoritySid("ROLE_GENERAL"), new GrantedAuthoritySid("ROLE_IGNORED") }));
-        assertFalse(acl.isSidLoaded(new Sid[] { new GrantedAuthoritySid("ROLE_IGNORED"), new GrantedAuthoritySid("ROLE_GENERAL") }));
+        assertTrue(acl.isSidLoaded(new ArrayList<Sid>(0)));
+        assertTrue(acl.isSidLoaded(Arrays.asList((Sid)new GrantedAuthoritySid("ROLE_IGNORED"), new GrantedAuthoritySid("ROLE_IGNORED"))));
+        assertFalse(acl.isSidLoaded(Arrays.asList((Sid)new GrantedAuthoritySid("ROLE_GENERAL"), new GrantedAuthoritySid("ROLE_IGNORED"))));
+        assertFalse(acl.isSidLoaded(Arrays.asList((Sid)new GrantedAuthoritySid("ROLE_IGNORED"), new GrantedAuthoritySid("ROLE_GENERAL"))));
     }
 
     //~ Inner Classes ==================================================================================================
@@ -495,8 +490,9 @@ public class AclImplTests {
          * Mock implementation that populates the aces list with fully initialized AccessControlEntries
          * @see org.springframework.security.acls.MutableAclService#updateAcl(org.springframework.security.acls.MutableAcl)
          */
+        @SuppressWarnings("unchecked")
         public MutableAcl updateAcl(MutableAcl acl) throws NotFoundException {
-            AccessControlEntry[] oldAces = acl.getEntries();
+            List<AccessControlEntry> oldAces = acl.getEntries();
             Field acesField = FieldUtils.getField(AclImpl.class, "aces");
             acesField.setAccessible(true);
             List newAces;
@@ -504,8 +500,8 @@ public class AclImplTests {
                 newAces = (List) acesField.get(acl);
                 newAces.clear();
 
-                for (int i = 0; i < oldAces.length; i++) {
-                    AccessControlEntry ac = oldAces[i];
+                for (int i = 0; i < oldAces.size(); i++) {
+                    AccessControlEntry ac = oldAces.get(i);
                     // Just give an ID to all this acl's aces, rest of the fields are just copied
                     newAces.add(new AccessControlEntryImpl(new Long(i + 1), ac.getAcl(), ac.getSid(), ac.getPermission(), ac
                             .isGranting(), ((AuditableAccessControlEntry) ac).isAuditSuccess(),
@@ -519,7 +515,7 @@ public class AclImplTests {
             return acl;
         }
 
-        public ObjectIdentity[] findChildren(ObjectIdentity parentIdentity) {
+        public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
             return null;
         }
 
@@ -527,15 +523,15 @@ public class AclImplTests {
             return null;
         }
 
-        public Acl readAclById(ObjectIdentity object, Sid[] sids) throws NotFoundException {
+        public Acl readAclById(ObjectIdentity object, List<Sid> sids) throws NotFoundException {
             return null;
         }
 
-        public Map readAclsById(ObjectIdentity[] objects) throws NotFoundException {
+        public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects) throws NotFoundException {
             return null;
         }
 
-        public Map readAclsById(ObjectIdentity[] objects, Sid[] sids) throws NotFoundException {
+        public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids) throws NotFoundException {
             return null;
         }
     }

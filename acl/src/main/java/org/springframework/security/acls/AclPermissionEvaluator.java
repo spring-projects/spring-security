@@ -1,6 +1,8 @@
 package org.springframework.security.acls;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,8 +62,8 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 
     private boolean checkPermission(Authentication authentication, ObjectIdentity oid, Object permission) {
         // Obtain the SIDs applicable to the principal
-        Sid[] sids = sidRetrievalStrategy.getSids(authentication);
-        Permission[] requiredPermission = resolvePermission(permission);
+        List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
+        List<Permission> requiredPermission = resolvePermission(permission);
 
         try {
             // Lookup only ACLs for SIDs we're interested in
@@ -90,17 +92,17 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
     }
 
     // TODO: Add permission resolver/PermissionFactory rewrite
-    Permission[] resolvePermission(Object permission) {
+    List<Permission> resolvePermission(Object permission) {
         if (permission instanceof Integer) {
-            return new Permission[] {BasePermission.buildFromMask(((Integer)permission).intValue())};
+            return Arrays.asList(BasePermission.buildFromMask(((Integer)permission).intValue()));
         }
 
         if (permission instanceof Permission) {
-            return new Permission[] {(Permission)permission};
+            return Arrays.asList((Permission)permission);
         }
 
         if (permission instanceof Permission[]) {
-            return (Permission[]) permission;
+            return Arrays.asList((Permission[])permission);
         }
 
         if (permission instanceof String) {
@@ -114,7 +116,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
             }
 
             if (p != null) {
-                return new Permission[] {p};
+                return Arrays.asList(p);
             }
 
         }

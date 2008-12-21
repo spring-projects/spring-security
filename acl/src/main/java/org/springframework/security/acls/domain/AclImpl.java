@@ -15,9 +15,10 @@
 package org.springframework.security.acls.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import org.springframework.security.acls.AccessControlEntry;
 import org.springframework.security.acls.Acl;
@@ -44,11 +45,11 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
     private Acl parentAcl;
     private transient AclAuthorizationStrategy aclAuthorizationStrategy;
     private transient AuditLogger auditLogger;
-    private List aces = new Vector();
+    private List<AccessControlEntry> aces = new ArrayList<AccessControlEntry>();
     private ObjectIdentity objectIdentity;
     private Serializable id;
     private Sid owner; // OwnershipAcl
-    private Sid[] loadedSids = null; // includes all SIDs the WHERE clause covered, even if there was no ACE for a SID
+    private List<Sid> loadedSids = null; // includes all SIDs the WHERE clause covered, even if there was no ACE for a SID
     private boolean entriesInheriting = true;
 
     //~ Constructors ===================================================================================================
@@ -90,7 +91,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
      * @param owner the owner (required)
      */
     public AclImpl(ObjectIdentity objectIdentity, Serializable id, AclAuthorizationStrategy aclAuthorizationStrategy,
-                    AuditLogger auditLogger, Acl parentAcl, Sid[] loadedSids, boolean entriesInheriting, Sid owner) {
+                    AuditLogger auditLogger, Acl parentAcl, List<Sid> loadedSids, boolean entriesInheriting, Sid owner) {
         Assert.notNull(objectIdentity, "Object Identity required");
         Assert.notNull(id, "Id required");
         Assert.notNull(aclAuthorizationStrategy, "AclAuthorizationStrategy required");
@@ -110,18 +111,10 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
      * Private no-argument constructor for use by reflection-based persistence
      * tools along with field-level access.
      */
+    @SuppressWarnings("unused")
     private AclImpl() {}
 
     //~ Methods ========================================================================================================
-
-    private void verifyAceIndexExists(int aceIndex) {
-        if (aceIndex < 0) {
-            throw new NotFoundException("aceIndex must be greater than or equal to zero");
-        }
-        if (aceIndex > this.aces.size()) {
-            throw new NotFoundException("aceIndex must correctly refer to an index of the AccessControlEntry collection");
-        }
-    }
 
     public void deleteAce(int aceIndex) throws NotFoundException {
         aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
@@ -132,25 +125,13 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         }
     }
 
-    public AccessControlEntry[] getEntries() {
-        // Can safely return AccessControlEntry directly, as they're immutable outside the ACL package
-        return (AccessControlEntry[]) aces.toArray(new AccessControlEntry[] {});
-    }
-
-    public Serializable getId() {
-        return this.id;
-    }
-
-    public ObjectIdentity getObjectIdentity() {
-        return objectIdentity;
-    }
-
-    public Sid getOwner() {
-        return this.owner;
-    }
-
-    public Acl getParentAcl() {
-        return parentAcl;
+    private void verifyAceIndexExists(int aceIndex) {
+        if (aceIndex < 0) {
+            throw new NotFoundException("aceIndex must be greater than or equal to zero");
+        }
+        if (aceIndex > this.aces.size()) {
+            throw new NotFoundException("aceIndex must correctly refer to an index of the AccessControlEntry collection");
+        }
     }
 
     public void insertAce(int atIndexLocation, Permission permission, Sid sid, boolean granting) throws NotFoundException {
@@ -169,6 +150,19 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         synchronized (aces) {
             this.aces.add(atIndexLocation, ace);
         }
+    }
+
+    public List<AccessControlEntry> getEntries() {
+        // Can safely return AccessControlEntry directly, as they're immutable outside the ACL package
+        return new ArrayList<AccessControlEntry>(aces);
+    }
+
+    public Serializable getId() {
+        return this.id;
+    }
+
+    public ObjectIdentity getObjectIdentity() {
+        return objectIdentity;
     }
 
     public boolean isEntriesInheriting() {
@@ -206,7 +200,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
      * @throws UnloadedSidException if the passed SIDs are unknown to this ACL because the ACL was only loaded for a
      *         subset of SIDs
      */
-    public boolean isGranted(Permission[] permission, Sid[] sids, boolean administrativeMode)
+    public boolean isGranted(List<Permission> permission, List<Sid> sids, boolean administrativeMode)
             throws NotFoundException, UnloadedSidException {
         Assert.notEmpty(permission, "Permissions required");
         Assert.notEmpty(sids, "SIDs required");
@@ -217,16 +211,14 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
         AccessControlEntry firstRejection = null;
 
-        for (int i = 0; i < permission.length; i++) {
-            for (int x = 0; x < sids.length; x++) {
+        for (Permission p : permission) {
+            for (Sid sid: sids) {
                 // Attempt to find exact match for this permission mask and SID
-                Iterator acesIterator = aces.iterator();
                 boolean scanNextSid = true;
 
-                while (acesIterator.hasNext()) {
-                    AccessControlEntry ace = (AccessControlEntry) acesIterator.next();
+                for (AccessControlEntry ace : aces ) {
 
-                    if ((ace.getPermission().getMask() == permission[i].getMask()) && ace.getSid().equals(sids[x])) {
+                    if ((ace.getPermission().getMask() == p.getMask()) && ace.getSid().equals(sid)) {
                         // Found a matching ACE, so its authorization decision will prevail
                         if (ace.isGranting()) {
                             // Success
@@ -246,7 +238,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
                             scanNextSid = false; // helps break the loop
 
-                            break; // exit "aceIterator" while loop
+                            break; // exit aces loop
                         }
                     }
                 }
@@ -277,19 +269,19 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         }
     }
 
-    public boolean isSidLoaded(Sid[] sids) {
+    public boolean isSidLoaded(List<Sid> sids) {
         // If loadedSides is null, this indicates all SIDs were loaded
         // Also return true if the caller didn't specify a SID to find
-        if ((this.loadedSids == null) || (sids == null) || (sids.length == 0)) {
+        if ((this.loadedSids == null) || (sids == null) || (sids.size() == 0)) {
             return true;
         }
 
         // This ACL applies to a SID subset only. Iterate to check it applies.
-        for (int i = 0; i < sids.length; i++) {
+        for (Sid sid: sids) {
             boolean found = false;
 
-            for (int y = 0; y < this.loadedSids.length; y++) {
-                if (sids[i].equals(this.loadedSids[y])) {
+            for (Sid loadedSid : loadedSids) {
+                if (sid.equals(loadedSid)) {
                     // this SID is OK
                     found = true;
 
@@ -316,10 +308,18 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         this.owner = newOwner;
     }
 
+    public Sid getOwner() {
+        return this.owner;
+    }
+
     public void setParent(Acl newParent) {
         aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
         Assert.isTrue(newParent == null || !newParent.equals(this), "Cannot be the parent of yourself");
         this.parentAcl = newParent;
+    }
+
+    public Acl getParentAcl() {
+        return parentAcl;
     }
 
     public String toString() {
@@ -389,9 +389,9 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
                                     if ((this.loadedSids == null && rhs.loadedSids == null)) {
                                         return true;
                                     }
-                                    if (this.loadedSids.length == rhs.loadedSids.length) {
-                                        for (int i = 0; i < this.loadedSids.length; i++) {
-                                            if (!this.loadedSids[i].equals(rhs.loadedSids[i])) {
+                                    if (this.loadedSids.size() == rhs.loadedSids.size()) {
+                                        for (int i = 0; i < this.loadedSids.size(); i++) {
+                                            if (!this.loadedSids.get(i).equals(rhs.loadedSids.get(i))) {
                                                 return false;
                                             }
                                         }

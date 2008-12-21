@@ -21,11 +21,9 @@ import org.springframework.security.acls.sid.Sid;
 
 /**
  * A mutable <tt>Acl</tt>.
- *
  * <p>
  * A mutable ACL must ensure that appropriate security checks are performed
  * before allowing access to its methods.
- * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -47,7 +45,7 @@ public interface MutableAcl extends Acl {
 
     /**
      * Changes the present owner to a different owner.
-     * 
+     *
      * @param newOwner the new owner (mandatory; cannot be null)
      */
     void setOwner(Sid newOwner);

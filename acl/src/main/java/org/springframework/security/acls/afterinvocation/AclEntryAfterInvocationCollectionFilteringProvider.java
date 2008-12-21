@@ -15,7 +15,6 @@
 package org.springframework.security.acls.afterinvocation;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -39,8 +38,8 @@ import org.springframework.security.acls.Permission;
  * <p>
  * This after invocation provider will fire if any {@link ConfigAttribute#getAttribute()} matches the {@link
  * #processConfigAttribute}. The provider will then lookup the ACLs from the <code>AclService</code> and ensure the
- * principal is {@link org.springframework.security.acls.Acl#isGranted(org.springframework.security.acls.Permission[],
- * org.springframework.security.acls.sid.Sid[], boolean) Acl.isGranted(Permission[], Sid[], boolean)}
+ * principal is {@link org.springframework.security.acls.Acl#isGranted(List,
+ * List, boolean) Acl.isGranted(Permission[], Sid[], boolean)}
  * when presenting the {@link #requirePermission} array to that method.
  * <p>
  * If the principal does not have permission, that element will not be included in the returned
@@ -67,12 +66,13 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
 
     //~ Constructors ===================================================================================================
 
-    public AclEntryAfterInvocationCollectionFilteringProvider(AclService aclService, Permission[] requirePermission) {
+    public AclEntryAfterInvocationCollectionFilteringProvider(AclService aclService, List<Permission> requirePermission) {
         super(aclService, "AFTER_ACL_COLLECTION_READ", requirePermission);
     }
 
     //~ Methods ========================================================================================================
 
+    @SuppressWarnings("unchecked")
     public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
             Object returnedObject) throws AccessDeniedException {
 
@@ -93,7 +93,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
             Filterer filterer;
 
             if (returnedObject instanceof Collection) {
-                filterer = new CollectionFilterer((Collection<?>) returnedObject);
+                filterer = new CollectionFilterer((Collection) returnedObject);
             } else if (returnedObject.getClass().isArray()) {
                 filterer = new ArrayFilterer((Object[]) returnedObject);
             } else {
@@ -102,10 +102,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
             }
 
             // Locate unauthorised Collection elements
-            Iterator collectionIter = filterer.iterator();
-
             for (Object domainObject : filterer) {
-
                 // Ignore nulls or entries which aren't instances of the configured domain object class
                 if (domainObject == null || !getProcessDomainObjectClass().isAssignableFrom(domainObject.getClass())) {
                     continue;

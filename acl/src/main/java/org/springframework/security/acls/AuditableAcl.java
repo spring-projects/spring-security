@@ -14,8 +14,6 @@
  */
 package org.springframework.security.acls;
 
-
-
 /**
  * A mutable ACL that provides audit capabilities.
  *

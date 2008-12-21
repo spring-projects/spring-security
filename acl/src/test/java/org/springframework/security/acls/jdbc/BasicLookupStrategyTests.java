@@ -1,5 +1,7 @@
 package org.springframework.security.acls.jdbc;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
@@ -42,11 +44,8 @@ public class BasicLookupStrategyTests {
     //~ Instance fields ================================================================================================
 
     private static JdbcTemplate jdbcTemplate;
-
     private LookupStrategy strategy;
-
     private static TestDataSource dataSource;
-
     private static CacheManager cacheManager;
 
     //~ Methods ========================================================================================================
@@ -123,7 +122,7 @@ public class BasicLookupStrategyTests {
         // Deliberately use an integer for the child, to reproduce bug report in SEC-819
         ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(102));
 
-        Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
+        Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
         checkEntries(topParentOid, middleParentOid, childOid, map);
     }
 
@@ -134,11 +133,11 @@ public class BasicLookupStrategyTests {
         ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
 
         // Objects were put in cache
-        strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
+        strategy.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
 
         // Let's empty the database to force acls retrieval from cache
         emptyDatabase();
-        Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
+        Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
 
         checkEntries(topParentOid, middleParentOid, childOid, map);
     }
@@ -151,7 +150,7 @@ public class BasicLookupStrategyTests {
 
         // Set a batch size to allow multiple database queries in order to retrieve all acls
         ((BasicLookupStrategy) this.strategy).setBatchSize(1);
-        Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(new ObjectIdentity[] { topParentOid, middleParentOid, childOid }, null);
+        Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
         checkEntries(topParentOid, middleParentOid, childOid, map);
     }
 
@@ -174,9 +173,9 @@ public class BasicLookupStrategyTests {
         Assert.assertEquals(middleParentOid, child.getParentAcl().getObjectIdentity());
 
         // Check their ACEs were correctly retrieved
-        Assert.assertEquals(2, topParent.getEntries().length);
-        Assert.assertEquals(1, middleParent.getEntries().length);
-        Assert.assertEquals(1, child.getEntries().length);
+        Assert.assertEquals(2, topParent.getEntries().size());
+        Assert.assertEquals(1, middleParent.getEntries().size());
+        Assert.assertEquals(1, child.getEntries().size());
 
         // Check object identities were correctly retrieved
         Assert.assertEquals(topParentOid, topParent.getObjectIdentity());
@@ -187,39 +186,39 @@ public class BasicLookupStrategyTests {
         Assert.assertTrue(topParent.isEntriesInheriting());
         Assert.assertEquals(topParent.getId(), new Long(1));
         Assert.assertEquals(topParent.getOwner(), new PrincipalSid("ben"));
-        Assert.assertEquals(topParent.getEntries()[0].getId(), new Long(1));
-        Assert.assertEquals(topParent.getEntries()[0].getPermission(), BasePermission.READ);
-        Assert.assertEquals(topParent.getEntries()[0].getSid(), new PrincipalSid("ben"));
-        Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries()[0]).isAuditFailure());
-        Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries()[0]).isAuditSuccess());
-        Assert.assertTrue(((AuditableAccessControlEntry) topParent.getEntries()[0]).isGranting());
+        Assert.assertEquals(topParent.getEntries().get(0).getId(), new Long(1));
+        Assert.assertEquals(topParent.getEntries().get(0).getPermission(), BasePermission.READ);
+        Assert.assertEquals(topParent.getEntries().get(0).getSid(), new PrincipalSid("ben"));
+        Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(0)).isAuditFailure());
+        Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(0)).isAuditSuccess());
+        Assert.assertTrue(((AuditableAccessControlEntry) topParent.getEntries().get(0)).isGranting());
 
-        Assert.assertEquals(topParent.getEntries()[1].getId(), new Long(2));
-        Assert.assertEquals(topParent.getEntries()[1].getPermission(), BasePermission.WRITE);
-        Assert.assertEquals(topParent.getEntries()[1].getSid(), new PrincipalSid("ben"));
-        Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries()[1]).isAuditFailure());
-        Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries()[1]).isAuditSuccess());
-        Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries()[1]).isGranting());
+        Assert.assertEquals(topParent.getEntries().get(1).getId(), new Long(2));
+        Assert.assertEquals(topParent.getEntries().get(1).getPermission(), BasePermission.WRITE);
+        Assert.assertEquals(topParent.getEntries().get(1).getSid(), new PrincipalSid("ben"));
+        Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(1)).isAuditFailure());
+        Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(1)).isAuditSuccess());
+        Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(1)).isGranting());
 
         Assert.assertTrue(middleParent.isEntriesInheriting());
         Assert.assertEquals(middleParent.getId(), new Long(2));
         Assert.assertEquals(middleParent.getOwner(), new PrincipalSid("ben"));
-        Assert.assertEquals(middleParent.getEntries()[0].getId(), new Long(3));
-        Assert.assertEquals(middleParent.getEntries()[0].getPermission(), BasePermission.DELETE);
-        Assert.assertEquals(middleParent.getEntries()[0].getSid(), new PrincipalSid("ben"));
-        Assert.assertFalse(((AuditableAccessControlEntry) middleParent.getEntries()[0]).isAuditFailure());
-        Assert.assertFalse(((AuditableAccessControlEntry) middleParent.getEntries()[0]).isAuditSuccess());
-        Assert.assertTrue(((AuditableAccessControlEntry) middleParent.getEntries()[0]).isGranting());
+        Assert.assertEquals(middleParent.getEntries().get(0).getId(), new Long(3));
+        Assert.assertEquals(middleParent.getEntries().get(0).getPermission(), BasePermission.DELETE);
+        Assert.assertEquals(middleParent.getEntries().get(0).getSid(), new PrincipalSid("ben"));
+        Assert.assertFalse(((AuditableAccessControlEntry) middleParent.getEntries().get(0)).isAuditFailure());
+        Assert.assertFalse(((AuditableAccessControlEntry) middleParent.getEntries().get(0)).isAuditSuccess());
+        Assert.assertTrue(((AuditableAccessControlEntry) middleParent.getEntries().get(0)).isGranting());
 
         Assert.assertTrue(child.isEntriesInheriting());
         Assert.assertEquals(child.getId(), new Long(3));
         Assert.assertEquals(child.getOwner(), new PrincipalSid("ben"));
-        Assert.assertEquals(child.getEntries()[0].getId(), new Long(4));
-        Assert.assertEquals(child.getEntries()[0].getPermission(), BasePermission.DELETE);
-        Assert.assertEquals(child.getEntries()[0].getSid(), new PrincipalSid("ben"));
-        Assert.assertFalse(((AuditableAccessControlEntry) child.getEntries()[0]).isAuditFailure());
-        Assert.assertFalse(((AuditableAccessControlEntry) child.getEntries()[0]).isAuditSuccess());
-        Assert.assertFalse((child.getEntries()[0]).isGranting());
+        Assert.assertEquals(child.getEntries().get(0).getId(), new Long(4));
+        Assert.assertEquals(child.getEntries().get(0).getPermission(), BasePermission.DELETE);
+        Assert.assertEquals(child.getEntries().get(0).getSid(), new PrincipalSid("ben"));
+        Assert.assertFalse(((AuditableAccessControlEntry) child.getEntries().get(0)).isAuditFailure());
+        Assert.assertFalse(((AuditableAccessControlEntry) child.getEntries().get(0)).isAuditSuccess());
+        Assert.assertFalse((child.getEntries().get(0)).isGranting());
     }
 
     @Test
@@ -233,7 +232,7 @@ public class BasicLookupStrategyTests {
         ObjectIdentity middleParent2Oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(103));
 
         // Retrieve the child
-        Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(new ObjectIdentity[] { childOid }, null);
+        Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(Arrays.asList(childOid), null);
 
         // Check that the child and all its parents were retrieved
         Assert.assertNotNull(map.get(childOid));
@@ -265,9 +264,9 @@ public class BasicLookupStrategyTests {
         ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(107));
 
         // First lookup only child, thus populating the cache with grandParent, parent1 and child
-        Permission[] checkPermission = new Permission[] { BasePermission.READ };
-        Sid[] sids = new Sid[] { new PrincipalSid("ben") };
-        ObjectIdentity[] childOids = new ObjectIdentity[] { childOid };
+        List<Permission> checkPermission = Arrays.asList(BasePermission.READ);
+        List<Sid> sids = Arrays.asList((Sid)new PrincipalSid("ben"));
+        List<ObjectIdentity> childOids = Arrays.asList(childOid);
 
         ((BasicLookupStrategy) this.strategy).setBatchSize(6);
         Map<ObjectIdentity, Acl> foundAcls = strategy.readAclsById(childOids, sids);
@@ -278,7 +277,7 @@ public class BasicLookupStrategyTests {
 
         // Search for object identities has to be done in the following order: last element have to be one which
         // is already in cache and the element before it must not be stored in cache
-        ObjectIdentity[] allOids = new ObjectIdentity[] { grandParentOid, parent1Oid, parent2Oid, childOid };
+        List<ObjectIdentity> allOids = Arrays.asList(grandParentOid, parent1Oid, parent2Oid, childOid);
         try {
             foundAcls = strategy.readAclsById(allOids, sids);
             Assert.assertTrue(true);

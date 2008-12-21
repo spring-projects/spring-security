@@ -14,7 +14,6 @@
  */
 package org.springframework.security.acls.afterinvocation;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -39,8 +38,8 @@ import org.springframework.security.acls.Permission;
  * <p>
  * This after invocation provider will fire if any  {@link ConfigAttribute#getAttribute()} matches the {@link
  * #processConfigAttribute}. The provider will then lookup the ACLs from the <tt>AclService</tt> and ensure the
- * principal is {@link org.springframework.security.acls.Acl#isGranted(org.springframework.security.acls.Permission[],
-   org.springframework.security.acls.sid.Sid[], boolean) Acl.isGranted(Permission[], Sid[], boolean)}
+ * principal is {@link org.springframework.security.acls.Acl#isGranted(List,
+   List, boolean) Acl.isGranted(Permission[], Sid[], boolean)}
  * when presenting the {@link #requirePermission} array to that method.
  * <p>
  * Often users will setup an <code>AclEntryAfterInvocationProvider</code> with a {@link
@@ -65,7 +64,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 
     //~ Constructors ===================================================================================================
 
-    public AclEntryAfterInvocationProvider(AclService aclService, Permission[] requirePermission) {
+    public AclEntryAfterInvocationProvider(AclService aclService, List<Permission> requirePermission) {
         super(aclService, "AFTER_ACL_READ", requirePermission);
     }
 
@@ -73,8 +72,6 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 
     public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
             Object returnedObject) throws AccessDeniedException {
-
-        Iterator iter = config.iterator();
 
         if (returnedObject == null) {
             // AclManager interface contract prohibits nulls
@@ -94,9 +91,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
             return returnedObject;
         }
 
-        while (iter.hasNext()) {
-            ConfigAttribute attr = (ConfigAttribute) iter.next();
-
+        for (ConfigAttribute attr : config) {
             if (!this.supports(attr)) {
                 continue;
             }

@@ -14,8 +14,15 @@
  */
 package org.springframework.security.acls.jdbc;
 
-import org.springframework.security.Authentication;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 
+import javax.sql.DataSource;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.security.Authentication;
 import org.springframework.security.acls.AccessControlEntry;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AlreadyExistsException;
@@ -29,25 +36,9 @@ import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.acls.sid.GrantedAuthoritySid;
 import org.springframework.security.acls.sid.PrincipalSid;
 import org.springframework.security.acls.sid.Sid;
-
 import org.springframework.security.context.SecurityContextHolder;
-
-import org.springframework.dao.DataAccessException;
-
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 import org.springframework.util.Assert;
-
-import java.lang.reflect.Array;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-import java.util.List;
-
-import javax.sql.DataSource;
 
 
 /**
@@ -123,14 +114,13 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         jdbcTemplate.batchUpdate(insertEntry,
             new BatchPreparedStatementSetter() {
                 public int getBatchSize() {
-                    return acl.getEntries().length;
+                    return acl.getEntries().size();
                 }
 
                 public void setValues(PreparedStatement stmt, int i)
                         throws SQLException {
-                    AccessControlEntry entry_ = (AccessControlEntry) Array.get(acl.getEntries(), i);
+                    AccessControlEntry entry_ = acl.getEntries().get(i);
                     Assert.isTrue(entry_ instanceof AccessControlEntryImpl, "Unknown ACE class");
-
                     AccessControlEntryImpl entry = (AccessControlEntryImpl) entry_;
 
                     stmt.setLong(1, ((Long) acl.getId()).longValue());
@@ -167,23 +157,21 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      *
      * @return the primary key or null if not found
      */
-    protected Long createOrRetrieveClassPrimaryKey(Class clazz, boolean allowCreate) {
-        List classIds = jdbcTemplate.queryForList(selectClassPrimaryKey, new Object[] {clazz.getName()}, Long.class);
-        Long classId = null;
+    protected Long createOrRetrieveClassPrimaryKey(Class<?> clazz, boolean allowCreate) {
+        List<Long> classIds = jdbcTemplate.queryForList(selectClassPrimaryKey, new Object[] {clazz.getName()}, Long.class);
 
-        if (classIds.isEmpty()) {
-            if (allowCreate) {
-                classId = null;
-                jdbcTemplate.update(insertClass, new Object[] {clazz.getName()});
-                Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
-                        "Transaction must be running");
-                classId = new Long(jdbcTemplate.queryForLong(classIdentityQuery));
-            }
-        } else {
-            classId = (Long) classIds.iterator().next();
+        if (!classIds.isEmpty()) {
+            return classIds.get(0);
         }
 
-        return classId;
+        if (allowCreate) {
+            jdbcTemplate.update(insertClass, new Object[] {clazz.getName()});
+            Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
+                    "Transaction must be running");
+            return new Long(jdbcTemplate.queryForLong(classIdentityQuery));
+        }
+
+        return null;
     }
 
     /**
@@ -195,7 +183,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      *
      * @return the primary key or null if not found
      *
-     * @throws IllegalArgumentException DOCUMENT ME!
+     * @throws IllegalArgumentException if the <tt>Sid</tt> is not a recognized implementation.
      */
     protected Long createOrRetrieveSidPrimaryKey(Sid sid, boolean allowCreate) {
         Assert.notNull(sid, "Sid required");
@@ -212,23 +200,21 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
             throw new IllegalArgumentException("Unsupported implementation of Sid");
         }
 
-        List sidIds = jdbcTemplate.queryForList(selectSidPrimaryKey, new Object[] {new Boolean(principal), sidName},
-                Long.class);
-        Long sidId = null;
+        List<Long> sidIds = jdbcTemplate.queryForList(selectSidPrimaryKey,
+                new Object[] {new Boolean(principal), sidName},  Long.class);
 
-        if (sidIds.isEmpty()) {
-            if (allowCreate) {
-                sidId = null;
-                jdbcTemplate.update(insertSid, new Object[] {new Boolean(principal), sidName});
-                Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
-                        "Transaction must be running");
-                sidId = new Long(jdbcTemplate.queryForLong(sidIdentityQuery));
-            }
-        } else {
-            sidId = (Long) sidIds.iterator().next();
+        if (!sidIds.isEmpty()) {
+            return sidIds.get(0);
         }
 
-        return sidId;
+        if (allowCreate) {
+            jdbcTemplate.update(insertSid, new Object[] {new Boolean(principal), sidName});
+            Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
+                    "Transaction must be running");
+            return new Long(jdbcTemplate.queryForLong(sidIdentityQuery));
+        }
+
+        return null;
     }
 
     public void deleteAcl(ObjectIdentity objectIdentity, boolean deleteChildren)
@@ -237,26 +223,26 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         Assert.notNull(objectIdentity.getIdentifier(), "Object Identity doesn't provide an identifier");
 
         if (deleteChildren) {
-            ObjectIdentity[] children = findChildren(objectIdentity);
+            List<ObjectIdentity> children = findChildren(objectIdentity);
             if (children != null) {
-                for (int i = 0; i < children.length; i++) {
-                    deleteAcl(children[i], true);
+                for (int i = 0; i < children.size(); i++) {
+                    deleteAcl(children.get(i), true);
                 }
             }
         } else {
             if (!foreignKeysInDatabase) {
                 // We need to perform a manual verification for what a FK would normally do
                 // We generally don't do this, in the interests of deadlock management
-                ObjectIdentity[] children = findChildren(objectIdentity);
+                List<ObjectIdentity> children = findChildren(objectIdentity);
                 if (children != null) {
-                    throw new ChildrenExistException("Cannot delete '" + objectIdentity + "' (has " + children.length
+                    throw new ChildrenExistException("Cannot delete '" + objectIdentity + "' (has " + children.size()
                             + " children)");
                 }
             }
         }
 
         Long oidPrimaryKey = retrieveObjectIdentityPrimaryKey(objectIdentity);
-        
+
         // Delete this ACL's ACEs in the acl_entry table
         deleteEntries(oidPrimaryKey);
 
@@ -279,11 +265,9 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 
     /**
      * Deletes a single row from acl_object_identity that is associated with the presented ObjectIdentity primary key.
-     * 
      * <p>
      * We do not delete any entries from acl_class, even if no classes are using that class any longer. This is a
      * deadlock avoidance approach.
-     * </p>
      *
      * @param oidPrimaryKey to delete the acl_object_identity
      */
@@ -314,12 +298,6 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      * This implementation will simply delete all ACEs in the database and recreate them on each invocation of
      * this method. A more comprehensive implementation might use dirty state checking, or more likely use ORM
      * capabilities for create, update and delete operations of {@link MutableAcl}.
-     *
-     * @param acl DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws NotFoundException DOCUMENT ME!
      */
     public MutableAcl updateAcl(MutableAcl acl) throws NotFoundException {
         Assert.notNull(acl.getId(), "Object Identity doesn't provide an identifier");
@@ -339,13 +317,13 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         // Retrieve the ACL via superclass (ensures cache registration, proper retrieval etc)
         return (MutableAcl) super.readAclById(acl.getObjectIdentity());
     }
-    
+
     private void clearCacheIncludingChildren(ObjectIdentity objectIdentity) {
         Assert.notNull(objectIdentity, "ObjectIdentity required");
-        ObjectIdentity[] children = findChildren(objectIdentity);
+        List<ObjectIdentity> children = findChildren(objectIdentity);
         if (children != null) {
-            for (int i = 0; i < children.length; i++) {
-                clearCacheIncludingChildren(children[i]);
+            for (int i = 0; i < children.size(); i++) {
+                clearCacheIncludingChildren(children.get(i));
             }
         }
         aclCache.evictFromCache(objectIdentity);
@@ -357,7 +335,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      *
      * @param acl to modify (a row must already exist in acl_object_identity)
      *
-     * @throws NotFoundException DOCUMENT ME!
+     * @throws NotFoundException if the ACL could not be found to update.
      */
     protected void updateObjectIdentity(MutableAcl acl) {
         Long parentId = null;

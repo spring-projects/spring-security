@@ -178,15 +178,14 @@ public final class BasicLookupStrategy implements LookupStrategy {
             fieldAcl.setAccessible(true);
 
             // Obtain the "aces" from the input ACL
-            Iterator i = ((List) fieldAces.get(inputAcl)).iterator();
+            List<AccessControlEntryImpl> aces = (List<AccessControlEntryImpl>) fieldAces.get(inputAcl);
 
             // Create a list in which to store the "aces" for the "result" AclImpl instance
             List<AccessControlEntryImpl> acesNew = new ArrayList<AccessControlEntryImpl>();
 
             // Iterate over the "aces" input and replace each nested AccessControlEntryImpl.getAcl() with the new "result" AclImpl instance
             // This ensures StubAclParent instances are removed, as per SEC-951
-            while(i.hasNext()) {
-                AccessControlEntryImpl ace = (AccessControlEntryImpl) i.next();
+            for (AccessControlEntryImpl ace : aces) {
                 fieldAcl.set(ace, result);
                 acesNew.add(ace);
             }
@@ -285,15 +284,132 @@ public final class BasicLookupStrategy implements LookupStrategy {
     }
 
     /**
-     * Looks up a batch of <code>ObjectIdentity</code>s directly from the database.<p>The caller is responsible
-     * for optimization issues, such as selecting the identities to lookup, ensuring the cache doesn't contain them
-     * already, and adding the returned elements to the cache etc.</p>
+     * Locates the primary key IDs specified in "findNow", adding AclImpl instances with StubAclParents to the
+     * "acls" Map.
+     *
+     * @param acls the AclImpls (with StubAclParents)
+     * @param findNow Long-based primary keys to retrieve
+     * @param sids
+     */
+    private void lookupPrimaryKeys(final Map acls, final Set findNow, final List<Sid> sids) {
+        Assert.notNull(acls, "ACLs are required");
+        Assert.notEmpty(findNow, "Items to find now required");
+
+        String sql = computeRepeatingSql("(acl_object_identity.id = ?)", findNow.size());
+
+        Set parentsToLookup = (Set) jdbcTemplate.query(sql,
+            new PreparedStatementSetter() {
+                public void setValues(PreparedStatement ps)
+                    throws SQLException {
+                    Iterator iter = findNow.iterator();
+                    int i = 0;
+
+                    while (iter.hasNext()) {
+                        i++;
+                        ps.setLong(i, ((Long) iter.next()).longValue());
+                    }
+                }
+            }, new ProcessResultSet(acls, sids));
+
+        // Lookup the parents, now that our JdbcTemplate has released the database connection (SEC-547)
+        if (parentsToLookup.size() > 0) {
+            lookupPrimaryKeys(acls, parentsToLookup, sids);
+        }
+    }
+
+    /**
+     * The main method.
+     * <p>
+     * WARNING: This implementation completely disregards the "sids" argument! Every item in the cache is expected to
+     * contain all SIDs. If you have serious performance needs (e.g. a very large number of
+     * SIDs per object identity), you'll probably want to develop a custom {@link LookupStrategy} implementation
+     * instead.
+     * <p>
+     * The implementation works in batch sizes specified by {@link #batchSize}.
+     *
+     * @param objects the identities to lookup (required)
+     * @param sids the SIDs for which identities are required (ignored by this implementation)
+     *
+     * @return a <tt>Map</tt> where keys represent the {@link ObjectIdentity} of the located {@link Acl} and values
+     *         are the located {@link Acl} (never <tt>null</tt> although some entries may be missing; this method
+     *         should not throw {@link NotFoundException}, as a chain of {@link LookupStrategy}s may be used
+     *         to automatically create entries if required)
+     */
+    public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids) {
+        Assert.isTrue(batchSize >= 1, "BatchSize must be >= 1");
+        Assert.notEmpty(objects, "Objects to lookup required");
+
+        // Map<ObjectIdentity,Acl>
+        Map<ObjectIdentity, Acl> result = new HashMap<ObjectIdentity, Acl>(); // contains FULLY loaded Acl objects
+
+        Set<ObjectIdentity> currentBatchToLoad = new HashSet<ObjectIdentity>(); // contains ObjectIdentitys
+
+        for (int i = 0; i < objects.size(); i++) {
+            boolean aclFound = false;
+
+            // Check we don't already have this ACL in the results
+            if (result.containsKey(objects.get(i))) {
+                aclFound = true;
+            }
+
+            // Check cache for the present ACL entry
+            if (!aclFound) {
+                Acl acl = aclCache.getFromCache(objects.get(i));
+
+                // Ensure any cached element supports all the requested SIDs
+                // (they should always, as our base impl doesn't filter on SID)
+                if (acl != null) {
+                    if (acl.isSidLoaded(sids)) {
+                        result.put(acl.getObjectIdentity(), acl);
+                        aclFound = true;
+                    } else {
+                        throw new IllegalStateException(
+                            "Error: SID-filtered element detected when implementation does not perform SID filtering "
+                                    + "- have you added something to the cache manually?");
+                    }
+                }
+            }
+
+            // Load the ACL from the database
+            if (!aclFound) {
+                currentBatchToLoad.add(objects.get(i));
+            }
+
+            // Is it time to load from JDBC the currentBatchToLoad?
+            if ((currentBatchToLoad.size() == this.batchSize) || ((i + 1) == objects.size())) {
+                if (currentBatchToLoad.size() > 0) {
+                    Map<ObjectIdentity, Acl> loadedBatch = lookupObjectIdentities(currentBatchToLoad.toArray(new ObjectIdentity[] {}), sids);
+
+                    // Add loaded batch (all elements 100% initialized) to results
+                    result.putAll(loadedBatch);
+
+                    // Add the loaded batch to the cache
+                    Iterator<Acl> loadedAclIterator = loadedBatch.values().iterator();
+
+                    while (loadedAclIterator.hasNext()) {
+                        aclCache.putInCache((AclImpl) loadedAclIterator.next());
+                    }
+
+                    currentBatchToLoad.clear();
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Looks up a batch of <code>ObjectIdentity</code>s directly from the database.
+     * <p>
+     * The caller is responsible for optimization issues, such as selecting the identities to lookup, ensuring the
+     * cache doesn't contain them already, and adding the returned elements to the cache etc.
      * <p>
      * This subclass is required to return fully valid <code>Acl</code>s, including properly-configured
      * parent ACLs.
      *
      */
-    private Map<ObjectIdentity, Acl> lookupObjectIdentities(final ObjectIdentity[] objectIdentities, Sid[] sids) {
+    @SuppressWarnings("unchecked")
+    private Map<ObjectIdentity, Acl> lookupObjectIdentities(final ObjectIdentity[] objectIdentities, List<Sid> sids) {
         Assert.notEmpty(objectIdentities, "Must provide identities to lookup");
 
         final Map acls = new HashMap(); // contains Acls with StubAclParents
@@ -343,120 +459,6 @@ public final class BasicLookupStrategy implements LookupStrategy {
         return resultMap;
     }
 
-    /**
-     * Locates the primary key IDs specified in "findNow", adding AclImpl instances with StubAclParents to the
-     * "acls" Map.
-     *
-     * @param acls the AclImpls (with StubAclParents)
-     * @param findNow Long-based primary keys to retrieve
-     * @param sids
-     */
-    private void lookupPrimaryKeys(final Map acls, final Set findNow, final Sid[] sids) {
-        Assert.notNull(acls, "ACLs are required");
-        Assert.notEmpty(findNow, "Items to find now required");
-
-        String sql = computeRepeatingSql("(acl_object_identity.id = ?)", findNow.size());
-
-        Set parentsToLookup = (Set) jdbcTemplate.query(sql,
-            new PreparedStatementSetter() {
-                public void setValues(PreparedStatement ps)
-                    throws SQLException {
-                    Iterator iter = findNow.iterator();
-                    int i = 0;
-
-                    while (iter.hasNext()) {
-                        i++;
-                        ps.setLong(i, ((Long) iter.next()).longValue());
-                    }
-                }
-            }, new ProcessResultSet(acls, sids));
-
-        // Lookup the parents, now that our JdbcTemplate has released the database connection (SEC-547)
-        if (parentsToLookup.size() > 0) {
-            lookupPrimaryKeys(acls, parentsToLookup, sids);
-        }
-    }
-
-    /**
-     * The main method.
-     * <p>
-     * WARNING: This implementation completely disregards the "sids" argument! Every item in the cache is expected to
-     * contain all SIDs. If you have serious performance needs (e.g. a very large number of
-     * SIDs per object identity), you'll probably want to develop a custom {@link LookupStrategy} implementation
-     * instead.
-     * <p>
-     * The implementation works in batch sizes specified by {@link #batchSize}.
-     *
-     * @param objects the identities to lookup (required)
-     * @param sids the SIDs for which identities are required (ignored by this implementation)
-     *
-     * @return a <tt>Map</tt> where keys represent the {@link ObjectIdentity} of the located {@link Acl} and values
-     *         are the located {@link Acl} (never <tt>null</tt> although some entries may be missing; this method
-     *         should not throw {@link NotFoundException}, as a chain of {@link LookupStrategy}s may be used
-     *         to automatically create entries if required)
-     */
-    public Map<ObjectIdentity, Acl> readAclsById(ObjectIdentity[] objects, Sid[] sids) {
-        Assert.isTrue(batchSize >= 1, "BatchSize must be >= 1");
-        Assert.notEmpty(objects, "Objects to lookup required");
-
-        // Map<ObjectIdentity,Acl>
-        Map<ObjectIdentity, Acl> result = new HashMap<ObjectIdentity, Acl>(); // contains FULLY loaded Acl objects
-
-        Set<ObjectIdentity> currentBatchToLoad = new HashSet<ObjectIdentity>(); // contains ObjectIdentitys
-
-        for (int i = 0; i < objects.length; i++) {
-            boolean aclFound = false;
-
-            // Check we don't already have this ACL in the results
-            if (result.containsKey(objects[i])) {
-                aclFound = true;
-            }
-
-            // Check cache for the present ACL entry
-            if (!aclFound) {
-                Acl acl = aclCache.getFromCache(objects[i]);
-
-                // Ensure any cached element supports all the requested SIDs
-                // (they should always, as our base impl doesn't filter on SID)
-                if (acl != null) {
-                    if (acl.isSidLoaded(sids)) {
-                        result.put(acl.getObjectIdentity(), acl);
-                        aclFound = true;
-                    } else {
-                        throw new IllegalStateException(
-                            "Error: SID-filtered element detected when implementation does not perform SID filtering "
-                                    + "- have you added something to the cache manually?");
-                    }
-                }
-            }
-
-            // Load the ACL from the database
-            if (!aclFound) {
-                currentBatchToLoad.add(objects[i]);
-            }
-
-            // Is it time to load from JDBC the currentBatchToLoad?
-            if ((currentBatchToLoad.size() == this.batchSize) || ((i + 1) == objects.length)) {
-                if (currentBatchToLoad.size() > 0) {
-                    Map<ObjectIdentity, Acl> loadedBatch = lookupObjectIdentities(currentBatchToLoad.toArray(new ObjectIdentity[] {}), sids);
-
-                    // Add loaded batch (all elements 100% initialized) to results
-                    result.putAll(loadedBatch);
-
-                    // Add the loaded batch to the cache
-                    Iterator<Acl> loadedAclIterator = loadedBatch.values().iterator();
-
-                    while (loadedAclIterator.hasNext()) {
-                        aclCache.putInCache((AclImpl) loadedAclIterator.next());
-                    }
-
-                    currentBatchToLoad.clear();
-                }
-            }
-        }
-
-        return result;
-    }
 
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
@@ -466,9 +468,9 @@ public final class BasicLookupStrategy implements LookupStrategy {
 
     private class ProcessResultSet implements ResultSetExtractor {
         private Map acls;
-        private Sid[] sids;
+        private List<Sid> sids;
 
-        public ProcessResultSet(Map acls, Sid[] sids) {
+        public ProcessResultSet(Map acls, List<Sid> sids) {
             Assert.notNull(acls, "ACLs cannot be null");
             this.acls = acls;
             this.sids = sids; // can be null
@@ -526,7 +528,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
             this.id = id;
         }
 
-        public AccessControlEntry[] getEntries() {
+        public List<AccessControlEntry> getEntries() {
             throw new UnsupportedOperationException("Stub only");
         }
 
@@ -550,12 +552,12 @@ public final class BasicLookupStrategy implements LookupStrategy {
             throw new UnsupportedOperationException("Stub only");
         }
 
-        public boolean isGranted(Permission[] permission, Sid[] sids, boolean administrativeMode)
+        public boolean isGranted(List<Permission> permission, List<Sid> sids, boolean administrativeMode)
             throws NotFoundException, UnloadedSidException {
             throw new UnsupportedOperationException("Stub only");
         }
 
-        public boolean isSidLoaded(Sid[] sids) {
+        public boolean isSidLoaded(List<Sid> sids) {
             throw new UnsupportedOperationException("Stub only");
         }
     }

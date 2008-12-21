@@ -55,8 +55,6 @@ public interface MutableAclService extends AclService {
      *
      * @param acl to modify
      *
-     * @return DOCUMENT ME!
-     *
      * @throws NotFoundException if the relevant record could not be found (did you remember to use {@link
      *         #createAcl(ObjectIdentity)} to create the object, rather than creating it with the <code>new</code>
      *         keyword?)

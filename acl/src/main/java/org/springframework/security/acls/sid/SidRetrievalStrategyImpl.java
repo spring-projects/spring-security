@@ -15,6 +15,7 @@
 
 package org.springframework.security.acls.sid;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.security.Authentication;
@@ -32,14 +33,14 @@ import org.springframework.security.GrantedAuthority;
 public class SidRetrievalStrategyImpl implements SidRetrievalStrategy {
     //~ Methods ========================================================================================================
 
-    public Sid[] getSids(Authentication authentication) {
+    public List<Sid> getSids(Authentication authentication) {
         List<GrantedAuthority> authorities = authentication.getAuthorities();
-        Sid[] sids = new Sid[authorities.size() + 1];
+        List<Sid> sids = new ArrayList<Sid>(authorities.size() + 1);
 
-        sids[0] = new PrincipalSid(authentication);
+        sids.add(new PrincipalSid(authentication));
 
-        for (int i = 1; i <= authorities.size(); i++) {
-            sids[i] = new GrantedAuthoritySid(authorities.get(i - 1));
+        for (GrantedAuthority authority : authorities) {
+            sids.add(new GrantedAuthoritySid(authority));
         }
 
         return sids;

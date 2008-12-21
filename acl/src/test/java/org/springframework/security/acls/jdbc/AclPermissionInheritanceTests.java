@@ -89,12 +89,11 @@ public class AclPermissionInheritanceTests extends TestCase {
 
         parent = (MutableAcl) child.getParentAcl();
 
-        assertEquals("Fails because child has a stale reference to its parent",
-                2, parent.getEntries().length);
-        assertEquals(1, parent.getEntries()[0].getPermission().getMask());
-        assertEquals(new PrincipalSid("john"), parent.getEntries()[0].getSid());
-        assertEquals(1, parent.getEntries()[1].getPermission().getMask());
-        assertEquals(new PrincipalSid("joe"), parent.getEntries()[1].getSid());
+        assertEquals("Fails because child has a stale reference to its parent", 2, parent.getEntries().size());
+        assertEquals(1, parent.getEntries().get(0).getPermission().getMask());
+        assertEquals(new PrincipalSid("john"), parent.getEntries().get(0).getSid());
+        assertEquals(1, parent.getEntries().get(1).getPermission().getMask());
+        assertEquals(new PrincipalSid("joe"), parent.getEntries().get(1).getSid());
 
     }
     public void test2() throws Exception {
@@ -121,11 +120,11 @@ public class AclPermissionInheritanceTests extends TestCase {
 
         parent = (MutableAcl) child.getParentAcl();
 
-        assertEquals(2, parent.getEntries().length);
-        assertEquals(16, parent.getEntries()[0].getPermission().getMask());
-        assertEquals(new GrantedAuthoritySid("ROLE_ADMINISTRATOR"), parent.getEntries()[0].getSid());
-        assertEquals(8, parent.getEntries()[1].getPermission().getMask());
-        assertEquals(new PrincipalSid("terry"), parent.getEntries()[1].getSid());
+        assertEquals(2, parent.getEntries().size());
+        assertEquals(16, parent.getEntries().get(0).getPermission().getMask());
+        assertEquals(new GrantedAuthoritySid("ROLE_ADMINISTRATOR"), parent.getEntries().get(0).getSid());
+        assertEquals(8, parent.getEntries().get(1).getPermission().getMask());
+        assertEquals(new PrincipalSid("terry"), parent.getEntries().get(1).getSid());
 
     }
 

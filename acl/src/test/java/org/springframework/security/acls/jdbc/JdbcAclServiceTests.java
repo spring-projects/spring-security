@@ -14,6 +14,8 @@
  */
 package org.springframework.security.acls.jdbc;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.Authentication;
@@ -35,7 +37,6 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
 
-
 /**
  * Integration tests the ACL system using an in-memory database.
  *
@@ -45,23 +46,23 @@ import org.springframework.test.AbstractTransactionalDataSourceSpringContextTest
  */
 public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringContextTests {
     //~ Constant fields ================================================================================================
-    
+
     public static final String SELECT_ALL_CLASSES = "SELECT * FROM acl_class WHERE class = ?";
-    
+
     public static final String SELECT_ALL_OBJECT_IDENTITIES = "SELECT * FROM acl_object_identity";
-    
+
     public static final String SELECT_OBJECT_IDENTITY = "SELECT * FROM acl_object_identity WHERE object_id_identity = ?";
-    
+
     public static final String SELECT_ACL_ENTRY = "SELECT * FROM acl_entry, acl_object_identity WHERE " +
             "acl_object_identity.id = acl_entry.acl_object_identity " +
             "AND acl_object_identity.object_id_identity <= ?";
 
     //~ Instance fields ================================================================================================
-    
+
     private JdbcMutableAclService jdbcMutableAclService;
-    
+
     private AclCache aclCache;
-    
+
     private LookupStrategy lookupStrategy;
 
     //~ Methods ========================================================================================================
@@ -119,7 +120,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         jdbcMutableAclService.updateAcl(child);
 
         // Let's check if we can read them back correctly
-        Map map = jdbcMutableAclService.readAclsById(new ObjectIdentity[] {topParentOid, middleParentOid, childOid});
+        Map map = jdbcMutableAclService.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid));
         assertEquals(3, map.size());
 
         // Replace our current objects with their retrieved versions
@@ -138,27 +139,33 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         assertEquals(middleParentOid, child.getParentAcl().getObjectIdentity());
 
         // Check their ACEs were correctly persisted
-        assertEquals(2, topParent.getEntries().length);
-        assertEquals(1, middleParent.getEntries().length);
-        assertEquals(1, child.getEntries().length);
+        assertEquals(2, topParent.getEntries().size());
+        assertEquals(1, middleParent.getEntries().size());
+        assertEquals(1, child.getEntries().size());
 
         // Check the retrieved rights are correct
-        assertTrue(topParent.isGranted(new Permission[] {BasePermission.READ}, new Sid[] {new PrincipalSid(auth)}, false));
-        assertFalse(topParent.isGranted(new Permission[] {BasePermission.WRITE}, new Sid[] {new PrincipalSid(auth)}, false));
-        assertTrue(middleParent.isGranted(new Permission[] {BasePermission.DELETE}, new Sid[] {new PrincipalSid(auth)}, false));
-        assertFalse(child.isGranted(new Permission[] {BasePermission.DELETE}, new Sid[] {new PrincipalSid(auth)}, false));
+        List<Permission> read = Arrays.asList(BasePermission.READ);
+        List<Permission> write = Arrays.asList(BasePermission.WRITE);
+        List<Permission> delete = Arrays.asList(BasePermission.DELETE);
+        List<Sid> pSid = Arrays.asList((Sid)new PrincipalSid(auth));
+
+
+        assertTrue(topParent.isGranted(read, pSid, false));
+        assertFalse(topParent.isGranted(write, pSid, false));
+        assertTrue(middleParent.isGranted(delete, pSid, false));
+        assertFalse(child.isGranted(delete, pSid, false));
 
         try {
-            child.isGranted(new Permission[] {BasePermission.ADMINISTRATION}, new Sid[] {new PrincipalSid(auth)}, false);
+            child.isGranted(Arrays.asList(BasePermission.ADMINISTRATION), pSid, false);
             fail("Should have thrown NotFoundException");
         } catch (NotFoundException expected) {
             assertTrue(true);
         }
 
         // Now check the inherited rights (when not explicitly overridden) also look OK
-        assertTrue(child.isGranted(new Permission[] {BasePermission.READ}, new Sid[] {new PrincipalSid(auth)}, false));
-        assertFalse(child.isGranted(new Permission[] {BasePermission.WRITE}, new Sid[] {new PrincipalSid(auth)}, false));
-        assertFalse(child.isGranted(new Permission[] {BasePermission.DELETE}, new Sid[] {new PrincipalSid(auth)}, false));
+        assertTrue(child.isGranted(read, pSid, false));
+        assertFalse(child.isGranted(write, pSid, false));
+        assertFalse(child.isGranted(delete, pSid, false));
 
         // Next change the child so it doesn't inherit permissions from above
         child.setEntriesInheriting(false);
@@ -167,17 +174,17 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         assertFalse(child.isEntriesInheriting());
 
         // Check the child permissions no longer inherit
-        assertFalse(child.isGranted(new Permission[] {BasePermission.DELETE}, new Sid[] {new PrincipalSid(auth)}, true));
+        assertFalse(child.isGranted(delete, pSid, true));
 
         try {
-            child.isGranted(new Permission[] {BasePermission.READ}, new Sid[] {new PrincipalSid(auth)}, true);
+            child.isGranted(read, pSid, true);
             fail("Should have thrown NotFoundException");
         } catch (NotFoundException expected) {
             assertTrue(true);
         }
 
         try {
-            child.isGranted(new Permission[] {BasePermission.WRITE}, new Sid[] {new PrincipalSid(auth)}, true);
+            child.isGranted(write, pSid, true);
             fail("Should have thrown NotFoundException");
         } catch (NotFoundException expected) {
             assertTrue(true);
@@ -192,19 +199,19 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         // Save the changed child
         jdbcMutableAclService.updateAcl(child);
         child = (MutableAcl) jdbcMutableAclService.readAclById(childOid);
-        assertEquals(3, child.getEntries().length);
+        assertEquals(3, child.getEntries().size());
 
         // Output permissions
-        for (int i = 0; i < child.getEntries().length; i++) {
-            System.out.println(child.getEntries()[i]);
+        for (int i = 0; i < child.getEntries().size(); i++) {
+            System.out.println(child.getEntries().get(i));
         }
 
         // Check the permissions are as they should be
-        assertFalse(child.isGranted(new Permission[] {BasePermission.DELETE}, new Sid[] {new PrincipalSid(auth)}, true)); // as earlier permission overrode
-        assertTrue(child.isGranted(new Permission[] {BasePermission.CREATE}, new Sid[] {new PrincipalSid(auth)}, true));
+        assertFalse(child.isGranted(delete, pSid, true)); // as earlier permission overrode
+        assertTrue(child.isGranted(Arrays.asList(BasePermission.CREATE), pSid, true));
 
         // Now check the first ACE (index 0) really is DELETE for our Sid and is non-granting
-        AccessControlEntry entry = child.getEntries()[0];
+        AccessControlEntry entry = child.getEntries().get(0);
         assertEquals(BasePermission.DELETE.getMask(), entry.getPermission().getMask());
         assertEquals(new PrincipalSid(auth), entry.getSid());
         assertFalse(entry.isGranting());
@@ -215,12 +222,12 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
 
         // Save and check it worked
         child = jdbcMutableAclService.updateAcl(child);
-        assertEquals(2, child.getEntries().length);
-        assertTrue(child.isGranted(new Permission[] {BasePermission.DELETE}, new Sid[] {new PrincipalSid(auth)}, false));
+        assertEquals(2, child.getEntries().size());
+        assertTrue(child.isGranted(delete, pSid, false));
 
         SecurityContextHolder.clearContext();
     }
-    
+
     /**
      * Test method that demonstrates eviction failure from cache - SEC-676
      */
@@ -232,10 +239,10 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         // Check the childOid really is a child of middleParentOid
         Acl childAcl = jdbcMutableAclService.readAclById(childOid);
         assertEquals(middleParentOid, childAcl.getParentAcl().getObjectIdentity());
-        
+
         // Delete the mid-parent and test if the child was deleted, as well
         jdbcMutableAclService.deleteAcl(middleParentOid, true);
-        
+
         try {
             Acl acl = jdbcMutableAclService.readAclById(middleParentOid);
             fail("It should have thrown NotFoundException");
@@ -250,12 +257,12 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         catch (NotFoundException expected) {
             assertTrue(true);
         }
-        
+
         Acl acl = jdbcMutableAclService.readAclById(topParentOid);
         assertNotNull(acl);
         assertEquals(((MutableAcl) acl).getObjectIdentity(), topParentOid);
     }
-    
+
     public void testConstructorRejectsNullParameters() throws Exception {
         try {
             JdbcAclService service = new JdbcMutableAclService(null, lookupStrategy, aclCache);
@@ -264,7 +271,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
-        
+
         try {
             JdbcAclService service = new JdbcMutableAclService(this.getJdbcTemplate().getDataSource(), null, aclCache);
             fail("It should have thrown IllegalArgumentException");
@@ -272,7 +279,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
-        
+
         try {
             JdbcAclService service = new JdbcMutableAclService(this.getJdbcTemplate().getDataSource(), lookupStrategy, null);
             fail("It should have thrown IllegalArgumentException");
@@ -281,7 +288,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
             assertTrue(true);
         }
     }
-    
+
     public void testCreateAclRejectsNullParameter() throws Exception {
         try {
             jdbcMutableAclService.createAcl(null);
@@ -291,10 +298,10 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
             assertTrue(true);
         }
     }
-    
+
     public void testCreateAclForADuplicateDomainObject() throws Exception {
         ObjectIdentity duplicateOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        
+
         // Try to add the same object second time
         try {
             jdbcMutableAclService.createAcl(duplicateOid);
@@ -304,7 +311,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
             assertTrue(true);
         }
     }
-    
+
     public void testDeleteAclRejectsNullParameters() throws Exception {
         try {
             jdbcMutableAclService.deleteAcl(null, true);
@@ -314,7 +321,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
             assertTrue(true);
         }
     }
-    
+
     public void testDeleteAclWithChildrenThrowsException() throws Exception {
         try {
             ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
@@ -328,7 +335,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
             jdbcMutableAclService.setForeignKeysInDatabase(true); // restore to the default
         }
     }
-    
+
     public void testDeleteAclRemovesRowsFromDatabase() throws Exception {
         Authentication auth = new TestingAuthenticationToken("ben", "ignored",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ADMINISTRATOR")});
@@ -338,19 +345,19 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
         ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
         ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(102));
-        
+
         // Remove the child and check all related database rows were removed accordingly
         jdbcMutableAclService.deleteAcl(childOid, false);
         assertEquals(1, getJdbcTemplate().queryForList(SELECT_ALL_CLASSES, new Object[] {"org.springframework.security.TargetObject"} ).size());
         assertEquals(0, getJdbcTemplate().queryForList(SELECT_OBJECT_IDENTITY, new Object[] {new Long(102)}).size());
         assertEquals(2, getJdbcTemplate().queryForList(SELECT_ALL_OBJECT_IDENTITIES).size());
         assertEquals(3, getJdbcTemplate().queryForList(SELECT_ACL_ENTRY, new Object[] {new Long(103)} ).size());
-        
+
         // Check the cache
         assertNull(aclCache.getFromCache(childOid));
         assertNull(aclCache.getFromCache(new Long(102)));
     }
-    
+
     /**
      * SEC-655
      */
@@ -365,7 +372,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
 
         MutableAcl parent = jdbcMutableAclService.createAcl(parentOid);
         MutableAcl child = jdbcMutableAclService.createAcl(childOid);
-        
+
         child.setParent(parent);
         jdbcMutableAclService.updateAcl(child);
 
@@ -380,13 +387,13 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         child = (MutableAcl) jdbcMutableAclService.readAclById(childOid);
         parent = (MutableAcl) child.getParentAcl();
 
-        assertEquals("Fails because child has a stale reference to its parent", 2, parent.getEntries().length);
+        assertEquals("Fails because child has a stale reference to its parent", 2, parent.getEntries().size());
         assertEquals(1, parent.getEntries()[0].getPermission().getMask());
         assertEquals(new PrincipalSid("ben"), parent.getEntries()[0].getSid());
         assertEquals(1, parent.getEntries()[1].getPermission().getMask());
         assertEquals(new PrincipalSid("scott"), parent.getEntries()[1].getSid());
     }*/
-    
+
 /*    public void testCumulativePermissions() {
    setComplete();
    Authentication auth = new TestingAuthenticationToken("ben", "ignored", new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ADMINISTRATOR")});
@@ -400,14 +407,14 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
    CumulativePermission cm = new CumulativePermission().set(BasePermission.READ).set(BasePermission.ADMINISTRATION);
    assertEquals(17, cm.getMask());
        topParent.insertAce(null, cm, new PrincipalSid(auth), true);
-       assertEquals(1, topParent.getEntries().length);
+       assertEquals(1, topParent.getEntries().size());
 
        // Explictly save the changed ACL
        topParent = jdbcMutableAclService.updateAcl(topParent);
 
        // Check the mask was retrieved correctly
        assertEquals(17, topParent.getEntries()[0].getPermission().getMask());
-       assertTrue(topParent.isGranted(new Permission[] {cm}, new Sid[] {new PrincipalSid(auth)}, true));
+       assertTrue(topParent.isGranted(new Permission[] {cm}, pSid, true));
 
        SecurityContextHolder.clearContext();
    }

@@ -27,7 +27,7 @@ import org.springframework.security.SpringSecurityException;
 public class UnloadedSidException extends SpringSecurityException {
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs an <code>NotFoundException</code> with the specified message.
      *
      * @param msg the detail message
@@ -36,7 +36,7 @@ public class UnloadedSidException extends SpringSecurityException {
         super(msg);
     }
 
-/**
+    /**
      * Constructs an <code>NotFoundException</code> with the specified message
      * and root cause.
      *

@@ -18,6 +18,7 @@ import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.sid.Sid;
 
 import java.io.Serializable;
+import java.util.List;
 
 
 /**
@@ -55,7 +56,7 @@ public interface Acl extends Serializable {
      * part of advanced permission checking.</p>
      * 
      * <p>Do <em>NOT</em> use this method for making authorization decisions. Instead use {@link
-     * #isGranted(Permission[], Sid[], boolean)}.</p>
+     * #isGranted(List, List, boolean)}.</p>
      * 
      * <p>This method must operate correctly even if the <tt>Acl</tt> only represents a subset of
      * <tt>Sid</tt>s. The caller is responsible for correctly handling the result if only a subset of
@@ -64,7 +65,7 @@ public interface Acl extends Serializable {
      * @return the list of entries represented by the <tt>Acl</tt>, or <tt>null</tt> if there are
      * no entries presently associated with this <tt>Acl</tt>.
      */
-    AccessControlEntry[] getEntries();
+    List<AccessControlEntry> getEntries();
 
     /**
      * Obtains the domain object this <tt>Acl</tt> provides entries for. This is immutable once an
@@ -146,7 +147,7 @@ public interface Acl extends Serializable {
      * @throws UnloadedSidException thrown if the <tt>Acl</tt> does not have details for one or more of the
      *         <tt>Sid</tt>s passed as arguments
      */
-    boolean isGranted(Permission[] permission, Sid[] sids, boolean administrativeMode)
+    boolean isGranted(List<Permission> permission, List<Sid> sids, boolean administrativeMode)
         throws NotFoundException, UnloadedSidException;
 
     /**
@@ -166,5 +167,5 @@ public interface Acl extends Serializable {
      *
      * @return <tt>true</tt> if every passed <tt>Sid</tt> is represented by this <tt>Acl</tt> instance
      */
-    boolean isSidLoaded(Sid[] sids);
+    boolean isSidLoaded(List<Sid> sids);
 }

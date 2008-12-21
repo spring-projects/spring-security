@@ -16,6 +16,7 @@ package org.springframework.security.acls.vote;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -49,8 +50,8 @@ import org.springframework.util.StringUtils;
  * The voter will vote if any  {@link ConfigAttribute#getAttribute()} matches the {@link #processConfigAttribute}.
  * The provider will then locate the first method argument of type {@link #processDomainObjectClass}. Assuming that
  * method argument is non-null, the provider will then lookup the ACLs from the <code>AclManager</code> and ensure the
- * principal is {@link Acl#isGranted(org.springframework.security.acls.Permission[],
- * org.springframework.security.acls.sid.Sid[], boolean)} when presenting the {@link #requirePermission} array to that
+ * principal is {@link Acl#isGranted(List,
+ * List, boolean)} when presenting the {@link #requirePermission} array to that
  * method.
  * <p>
  * If the method argument is <tt>null</tt>, the voter will abstain from voting. If the method argument
@@ -91,7 +92,7 @@ public class AclEntryVoter extends AbstractAclVoter {
     private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
     private String internalMethod;
     private String processConfigAttribute;
-    private Permission[] requirePermission;
+    private List<Permission> requirePermission;
 
     //~ Constructors ===================================================================================================
 
@@ -105,7 +106,7 @@ public class AclEntryVoter extends AbstractAclVoter {
 
         this.aclService = aclService;
         this.processConfigAttribute = processConfigAttribute;
-        this.requirePermission = requirePermission;
+        this.requirePermission = Arrays.asList(requirePermission);
     }
 
     //~ Methods ========================================================================================================
@@ -196,7 +197,7 @@ public class AclEntryVoter extends AbstractAclVoter {
             ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
 
             // Obtain the SIDs applicable to the principal
-            Sid[] sids = sidRetrievalStrategy.getSids(authentication);
+            List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
 
             Acl acl;
 

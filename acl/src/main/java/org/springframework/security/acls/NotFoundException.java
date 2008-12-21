@@ -26,7 +26,7 @@ import org.springframework.security.SpringSecurityException;
 public class NotFoundException extends SpringSecurityException {
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs an <code>NotFoundException</code> with the specified message.
      *
      * @param msg the detail message
@@ -35,7 +35,7 @@ public class NotFoundException extends SpringSecurityException {
         super(msg);
     }
 
-/**
+    /**
      * Constructs an <code>NotFoundException</code> with the specified message
      * and root cause.
      *
