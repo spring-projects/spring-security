@@ -109,7 +109,7 @@ public class UserDetailsServiceInjectionBeanPostProcessor implements BeanPostPro
 
         } else if (beans.size() > 1) {
             throw new SecurityConfigurationException("More than one UserDetailsService registered. Please " +
-                    "use a specific Id in your configuration");
+                    "use a specific Id reference in <remember-me/> <openid-login/> or <x509 /> elements.");
         }
 
         return (UserDetailsService) beans.values().toArray()[0];
