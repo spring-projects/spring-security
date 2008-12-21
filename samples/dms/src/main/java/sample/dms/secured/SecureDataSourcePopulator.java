@@ -76,9 +76,9 @@ public class SecureDataSourcePopulator extends DataSourcePopulator {
 
         // Now we have an ACL, add another ACE to it
         if (level == LEVEL_NEGATE_READ) {
-            acl.insertAce(acl.getEntries().length, permission, sid, false); // not granting
+            acl.insertAce(acl.getEntries().size(), permission, sid, false); // not granting
         } else {
-            acl.insertAce(acl.getEntries().length, permission, sid, true); // granting
+            acl.insertAce(acl.getEntries().size(), permission, sid, true); // granting
         }
 
         // Finally, persist the modified ACL

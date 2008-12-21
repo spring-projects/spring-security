@@ -68,7 +68,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
             acl = mutableAclService.createAcl(oid);
         }
 
-        acl.insertAce(acl.getEntries().length, permission, recipient, true);
+        acl.insertAce(acl.getEntries().size(), permission, recipient, true);
         mutableAclService.updateAcl(acl);
 
         if (logger.isDebugEnabled()) {
@@ -111,10 +111,10 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
         MutableAcl acl = (MutableAcl) mutableAclService.readAclById(oid);
 
         // Remove all permissions associated with this particular recipient (string equality to KISS)
-        AccessControlEntry[] entries = acl.getEntries();
+        List<AccessControlEntry> entries = acl.getEntries();
 
-        for (int i = 0; i < entries.length; i++) {
-            if (entries[i].getSid().equals(recipient) && entries[i].getPermission().equals(permission)) {
+        for (int i = 0; i < entries.size(); i++) {
+            if (entries.get(i).getSid().equals(recipient) && entries.get(i).getPermission().equals(permission)) {
                 acl.deleteAce(i);
             }
         }

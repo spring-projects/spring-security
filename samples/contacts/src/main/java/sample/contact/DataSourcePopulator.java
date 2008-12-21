@@ -243,7 +243,7 @@ public class DataSourcePopulator implements InitializingBean {
     private void grantPermissions(int contactNumber, String recipientUsername, Permission permission) {
         AclImpl acl = (AclImpl) mutableAclService.readAclById(new ObjectIdentityImpl(Contact.class,
                     new Long(contactNumber)));
-        acl.insertAce(acl.getEntries().length, permission, new PrincipalSid(recipientUsername), true);
+        acl.insertAce(acl.getEntries().size(), permission, new PrincipalSid(recipientUsername), true);
         updateAclInTransaction(acl);
     }
 

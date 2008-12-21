@@ -36,7 +36,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.util.ExpressionEvaluationUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -93,7 +95,7 @@ public class AccessControlListTag extends TagSupport {
         final String evaledPermissionsString = ExpressionEvaluationUtils.evaluateString("hasPermission", hasPermission,
                 pageContext);
 
-        Permission[] requiredPermissions = null;
+        List<Permission> requiredPermissions = null;
 
         try {
             requiredPermissions = parsePermissionsString(evaledPermissionsString);
@@ -128,7 +130,7 @@ public class AccessControlListTag extends TagSupport {
             return Tag.SKIP_BODY;
         }
 
-        Sid[] sids = sidRetrievalStrategy.getSids(SecurityContextHolder.getContext().getAuthentication());
+        List<Sid> sids = sidRetrievalStrategy.getSids(SecurityContextHolder.getContext().getAuthentication());
         ObjectIdentity oid = objectIdentityRetrievalStrategy.getObjectIdentity(resolvedDomainObject);
 
         // Obtain aclEntrys applying to the current Authentication object
@@ -212,9 +214,9 @@ public class AccessControlListTag extends TagSupport {
         }
     }
 
-    private Permission[] parsePermissionsString(String integersString)
+    private List<Permission> parsePermissionsString(String integersString)
         throws NumberFormatException {
-        final Set permissions = new HashSet();
+        final Set<Permission> permissions = new HashSet<Permission>();
         final StringTokenizer tokenizer;
         tokenizer = new StringTokenizer(integersString, ",", false);
 
@@ -223,7 +225,7 @@ public class AccessControlListTag extends TagSupport {
             permissions.add(BasePermission.buildFromMask(new Integer(integer).intValue()));
         }
 
-        return (Permission[]) permissions.toArray(new Permission[permissions.size()]);
+        return new ArrayList<Permission>(permissions);
     }
 
     public void setDomainObject(Object domainObject) {
