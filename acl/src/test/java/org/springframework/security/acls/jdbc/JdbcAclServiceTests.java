@@ -14,13 +14,22 @@
  */
 package org.springframework.security.acls.jdbc;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.acls.AccessControlEntry;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AlreadyExistsException;
@@ -35,7 +44,10 @@ import org.springframework.security.acls.sid.PrincipalSid;
 import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Integration tests the ACL system using an in-memory database.
@@ -44,67 +56,58 @@ import org.springframework.test.AbstractTransactionalDataSourceSpringContextTest
  * @author Andrei Stefan
  * @version $Id:JdbcAclServiceTests.java 1754 2006-11-17 02:01:21Z benalex $
  */
-public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringContextTests {
+@ContextConfiguration(locations={"/org/springframework/security/acls/jdbc/applicationContext-test.xml"})
+public class JdbcAclServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
     //~ Constant fields ================================================================================================
+
+    private final Authentication auth = new TestingAuthenticationToken("ben", "ignored","ROLE_ADMINISTRATOR");
 
     public static final String SELECT_ALL_CLASSES = "SELECT * FROM acl_class WHERE class = ?";
 
-    public static final String SELECT_ALL_OBJECT_IDENTITIES = "SELECT * FROM acl_object_identity";
-
-    public static final String SELECT_OBJECT_IDENTITY = "SELECT * FROM acl_object_identity WHERE object_id_identity = ?";
-
-    public static final String SELECT_ACL_ENTRY = "SELECT * FROM acl_entry, acl_object_identity WHERE " +
-            "acl_object_identity.id = acl_entry.acl_object_identity " +
-            "AND acl_object_identity.object_id_identity <= ?";
-
     //~ Instance fields ================================================================================================
 
+    private final ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+    private final ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
+    private final ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
+
+    @Autowired
     private JdbcMutableAclService jdbcMutableAclService;
-
+    @Autowired
     private AclCache aclCache;
-
+    @Autowired
     private LookupStrategy lookupStrategy;
+    @Autowired
+    private DataSource dataSource;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     //~ Methods ========================================================================================================
 
-    protected String[] getConfigLocations() {
-        return new String[] {"classpath:org/springframework/security/acls/jdbc/applicationContext-test.xml"};
+    @Before
+    public void createTables() throws IOException {
+        new DatabaseSeeder(dataSource, new ClassPathResource("org/springframework/security/acls/jdbc/testData.sql"));
     }
 
-    public void setJdbcMutableAclService(JdbcMutableAclService jdbcAclService) {
-        this.jdbcMutableAclService = jdbcAclService;
-    }
-
-    public void setAclCache(AclCache aclCache) {
-        this.aclCache = aclCache;
-    }
-
-    public void setLookupStrategy(LookupStrategy lookupStrategy) {
-        this.lookupStrategy = lookupStrategy;
-    }
-
-    protected void onTearDown() throws Exception {
-        super.onTearDown();
+    @After
+    public void clearContextAndData() throws Exception {
         SecurityContextHolder.clearContext();
+        jdbcTemplate.execute("drop table acl_entry");
+        jdbcTemplate.execute("drop table acl_object_identity");
+        jdbcTemplate.execute("drop table acl_class");
+        jdbcTemplate.execute("drop table acl_sid");
     }
 
+    @Test
+    @Transactional
+    @Rollback
     public void testLifecycle() {
-        setComplete();
-
-        Authentication auth = new TestingAuthenticationToken("ben", "ignored",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ADMINISTRATOR")});
-        auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
-
-        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
-        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(102));
 
         MutableAcl topParent = jdbcMutableAclService.createAcl(topParentOid);
         MutableAcl middleParent = jdbcMutableAclService.createAcl(middleParentOid);
         MutableAcl child = jdbcMutableAclService.createAcl(childOid);
 
-        // Specify the inheritence hierarchy
+        // Specify the inheritance hierarchy
         middleParent.setParent(topParent);
         child.setParent(middleParent);
 
@@ -114,13 +117,13 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         middleParent.insertAce(0, BasePermission.DELETE, new PrincipalSid(auth), true);
         child.insertAce(0, BasePermission.DELETE, new PrincipalSid(auth), false);
 
-        // Explictly save the changed ACL
+        // Explicitly save the changed ACL
         jdbcMutableAclService.updateAcl(topParent);
         jdbcMutableAclService.updateAcl(middleParent);
         jdbcMutableAclService.updateAcl(child);
 
         // Let's check if we can read them back correctly
-        Map map = jdbcMutableAclService.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid));
+        Map<ObjectIdentity, Acl> map = jdbcMutableAclService.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid));
         assertEquals(3, map.size());
 
         // Replace our current objects with their retrieved versions
@@ -231,27 +234,35 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
     /**
      * Test method that demonstrates eviction failure from cache - SEC-676
      */
+    @Test
+    @Transactional
+    @Rollback
     public void testDeleteAclAlsoDeletesChildren() throws Exception {
-        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
-        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
+        jdbcMutableAclService.createAcl(topParentOid);
+        MutableAcl middleParent = jdbcMutableAclService.createAcl(middleParentOid);
+        MutableAcl child = jdbcMutableAclService.createAcl(childOid);
+        child.setParent(middleParent);
+        jdbcMutableAclService.updateAcl(middleParent);
+        jdbcMutableAclService.updateAcl(child);
         // Check the childOid really is a child of middleParentOid
         Acl childAcl = jdbcMutableAclService.readAclById(childOid);
+
         assertEquals(middleParentOid, childAcl.getParentAcl().getObjectIdentity());
 
         // Delete the mid-parent and test if the child was deleted, as well
         jdbcMutableAclService.deleteAcl(middleParentOid, true);
 
         try {
-            Acl acl = jdbcMutableAclService.readAclById(middleParentOid);
+            jdbcMutableAclService.readAclById(middleParentOid);
             fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
             assertTrue(true);
         }
         try {
-            Acl acl = jdbcMutableAclService.readAclById(childOid);
+            jdbcMutableAclService.readAclById(childOid);
             fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
@@ -263,95 +274,105 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         assertEquals(((MutableAcl) acl).getObjectIdentity(), topParentOid);
     }
 
+    @Test
     public void testConstructorRejectsNullParameters() throws Exception {
         try {
-            JdbcAclService service = new JdbcMutableAclService(null, lookupStrategy, aclCache);
+            new JdbcMutableAclService(null, lookupStrategy, aclCache);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
 
         try {
-            JdbcAclService service = new JdbcMutableAclService(this.getJdbcTemplate().getDataSource(), null, aclCache);
+            new JdbcMutableAclService(dataSource, null, aclCache);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
 
         try {
-            JdbcAclService service = new JdbcMutableAclService(this.getJdbcTemplate().getDataSource(), lookupStrategy, null);
+            new JdbcMutableAclService(dataSource, lookupStrategy, null);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
     }
 
+    @Test
     public void testCreateAclRejectsNullParameter() throws Exception {
         try {
             jdbcMutableAclService.createAcl(null);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
     }
 
+    @Test
+    @Transactional
+    @Rollback
     public void testCreateAclForADuplicateDomainObject() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(auth);
         ObjectIdentity duplicateOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-
+        jdbcMutableAclService.createAcl(duplicateOid);
         // Try to add the same object second time
         try {
             jdbcMutableAclService.createAcl(duplicateOid);
             fail("It should have thrown AlreadyExistsException");
         }
         catch (AlreadyExistsException expected) {
-            assertTrue(true);
         }
     }
 
+    @Test
+    @Transactional
+    @Rollback
     public void testDeleteAclRejectsNullParameters() throws Exception {
         try {
             jdbcMutableAclService.deleteAcl(null, true);
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
-            assertTrue(true);
         }
     }
 
+    @Test
+    @Transactional
+    @Rollback
     public void testDeleteAclWithChildrenThrowsException() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        MutableAcl parent = jdbcMutableAclService.createAcl(topParentOid);
+        MutableAcl child = jdbcMutableAclService.createAcl(middleParentOid);
+
+        // Specify the inheritance hierarchy
+        child.setParent(parent);
+        jdbcMutableAclService.updateAcl(child);
+
         try {
-            ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
             jdbcMutableAclService.setForeignKeysInDatabase(false); // switch on FK checking in the class, not database
             jdbcMutableAclService.deleteAcl(topParentOid, false);
             fail("It should have thrown ChildrenExistException");
         }
         catch (ChildrenExistException expected) {
-            assertTrue(true);
         } finally {
             jdbcMutableAclService.setForeignKeysInDatabase(true); // restore to the default
         }
     }
 
+    @Test
+    @Transactional
+    @Rollback
     public void testDeleteAclRemovesRowsFromDatabase() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("ben", "ignored",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ADMINISTRATOR")});
-        auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
-
-        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
-        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(102));
+        MutableAcl child = jdbcMutableAclService.createAcl(childOid);
+        child.insertAce(0, BasePermission.DELETE, new PrincipalSid(auth), false);
+        jdbcMutableAclService.updateAcl(child);
 
         // Remove the child and check all related database rows were removed accordingly
         jdbcMutableAclService.deleteAcl(childOid, false);
-        assertEquals(1, getJdbcTemplate().queryForList(SELECT_ALL_CLASSES, new Object[] {"org.springframework.security.TargetObject"} ).size());
-        assertEquals(0, getJdbcTemplate().queryForList(SELECT_OBJECT_IDENTITY, new Object[] {new Long(102)}).size());
-        assertEquals(2, getJdbcTemplate().queryForList(SELECT_ALL_OBJECT_IDENTITIES).size());
-        assertEquals(3, getJdbcTemplate().queryForList(SELECT_ACL_ENTRY, new Object[] {new Long(103)} ).size());
+        assertEquals(1, jdbcTemplate.queryForList(SELECT_ALL_CLASSES, new Object[] {"org.springframework.security.TargetObject"} ).size());
+        assertEquals(0, jdbcTemplate.queryForList("select * from acl_object_identity").size());
+        assertEquals(0, jdbcTemplate.queryForList("select * from acl_entry").size());
 
         // Check the cache
         assertNull(aclCache.getFromCache(childOid));
