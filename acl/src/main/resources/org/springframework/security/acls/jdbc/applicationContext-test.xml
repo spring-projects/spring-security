@@ -10,60 +10,58 @@
   -->
 
 <beans>
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
-	<bean id="databaseSeeder" class="org.springframework.security.acls.jdbc.DatabaseSeeder">
-		<constructor-arg ref="dataSource"/>
-		<constructor-arg value="classpath:org/springframework/security/acls/jdbc/testData.sql"/>
-	</bean>
+    <bean id="aclCache" class="org.springframework.security.acls.jdbc.EhCacheBasedAclCache">
+        <constructor-arg>
+           <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+              <property name="cacheManager">
+                <bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+              </property>
+              <property name="cacheName" value="aclCache"/>
+           </bean>
+        </constructor-arg>
+    </bean>
 
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
+    <bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
+        <constructor-arg ref="dataSource"/>
+        <constructor-arg ref="aclCache"/>
+        <constructor-arg ref="aclAuthorizationStrategy"/>
+        <constructor-arg>
+            <bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
+        </constructor-arg>
+    </bean>
 
-	<bean id="aclCache" class="org.springframework.security.acls.jdbc.EhCacheBasedAclCache">
-		<constructor-arg>
-		   <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-		      <property name="cacheManager">
-				<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
-		      </property>
-		      <property name="cacheName" value="aclCache"/>
-		   </bean>
-		</constructor-arg>
-	</bean>
+    <bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+        <constructor-arg>
+            <list>
+                <bean class="org.springframework.security.GrantedAuthorityImpl">
+                    <constructor-arg value="ROLE_ADMINISTRATOR"/>
+                </bean>
+                <bean class="org.springframework.security.GrantedAuthorityImpl">
+                    <constructor-arg value="ROLE_ADMINISTRATOR"/>
+                </bean>
+                <bean class="org.springframework.security.GrantedAuthorityImpl">
+                    <constructor-arg value="ROLE_ADMINISTRATOR"/>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
 
-	<bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
-		<constructor-arg ref="dataSource"/>
-		<constructor-arg ref="aclCache"/>
-		<constructor-arg ref="aclAuthorizationStrategy"/>
-		<constructor-arg>
-			<bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
-		</constructor-arg>
-	</bean>
-
-	<bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
-		<constructor-arg>
-			<list>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="ROLE_ADMINISTRATOR"/>
-				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="ROLE_ADMINISTRATOR"/>
-				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="ROLE_ADMINISTRATOR"/>
-				</bean>
-			</list>
-		</constructor-arg>
-	</bean>
-
-	<bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
-		<constructor-arg ref="dataSource"/>
-		<constructor-arg ref="lookupStrategy"/>
-		<constructor-arg ref="aclCache"/>
-	</bean>
+    <bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
+        <constructor-arg ref="dataSource"/>
+        <constructor-arg ref="lookupStrategy"/>
+        <constructor-arg ref="aclCache"/>
+    </bean>
 
     <bean id="dataSource" class="org.springframework.security.TestDataSource">
         <constructor-arg value="acltest" />
+    </bean>
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 
 </beans>

@@ -16,7 +16,6 @@
 package org.springframework.security.taglibs.authz;
 
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.el.ExpressionEvaluator;
 import javax.servlet.jsp.el.VariableResolver;
 import javax.servlet.jsp.tagext.Tag;
 

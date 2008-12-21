@@ -34,7 +34,7 @@ import org.springframework.security.userdetails.UserDetails;
  * @author Ben Alex
  * @version $Id$
  */
-public interface GrantedAuthority extends Serializable, Comparable {
+public interface GrantedAuthority extends Serializable, Comparable<GrantedAuthority> {
     //~ Methods ========================================================================================================
 
     /**

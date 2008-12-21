@@ -15,15 +15,13 @@
 
 package org.springframework.security.vote;
 
+import java.util.List;
+
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.AuthenticationTrustResolverImpl;
 import org.springframework.security.ConfigAttribute;
-
 import org.springframework.util.Assert;
-
-import java.util.Iterator;
-import java.util.List;
 
 
 /**

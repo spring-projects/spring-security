@@ -14,20 +14,16 @@
  */
 package org.springframework.security.vote;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttribute;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.aopalliance.intercept.MethodInvocation;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.springframework.security.Authentication;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.util.Assert;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-import java.util.Map;
 
 
 /**
@@ -57,7 +53,7 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
 
     //~ Instance fields ================================================================================================
 
-    private Map labelMap = null;
+    private Map<String, List<String>> labelMap = null;
     private String attributeIndicatingLabeledOperation = null;
     private boolean allowAccessIfNoAttributesAreLabeled = true;
 
@@ -136,17 +132,13 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
      * @param labelMap a map structured as in the above example.
      *
      */
-    public void setLabelMap(Map labelMap) {
+    public void setLabelMap(Map<String, List<String>> labelMap) {
         this.labelMap = labelMap;
     }
 
     /**
      * This acl voter will only evaluate labeled methods if they are marked in the security interceptor's
      * configuration with the attribute stored in attributeIndicatingLabeledOperation.
-     *
-     * @param attribute DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
      *
      * @see org.springframework.security.vote.AbstractAclVoter
      * @see org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor
@@ -166,8 +158,7 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
     }
 
     /**
-     * Vote on whether or not the user has all the labels necessary to match the method argument's labeled
-     * data.
+     * Vote on whether or not the user has all the labels necessary to match the method argument's labeled data.
      *
      * @return ACCESS_ABSTAIN, ACCESS_GRANTED, or ACCESS_DENIED.
      */
@@ -178,13 +169,13 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
             logger.debug("==========================================================");
         }
 
-        if (this.supports((ConfigAttribute) attributes.iterator().next())) {
+        if (this.supports(attributes.iterator().next())) {
             result = ACCESS_DENIED;
 
             /* Parse out the user's labels by examining the security context, and checking
              * for matches against the label map.
              */
-            List userLabels = new Vector();
+            List<String> userLabels = new ArrayList<String>();
 
             for (int i = 0; i < authentication.getAuthorities().size(); i++) {
                 String userLabel = authentication.getAuthorities().get(i).getAuthority();
@@ -211,19 +202,15 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
                     logger.debug("Argument[" + j + "/" + invocation.getArguments()[j].getClass().getName()
                         + "] has a data label of " + argumentDataLabel);
 
-                    List validDataLabels = new Vector();
+                    List<String> validDataLabels = new ArrayList<String>();
 
                     for (int i = 0; i < userLabels.size(); i++) {
-                        validDataLabels.addAll((List) labelMap.get(userLabels.get(i)));
+                        validDataLabels.addAll(labelMap.get(userLabels.get(i)));
                     }
 
                     logger.debug("The valid labels for user label " + userLabels + " are " + validDataLabels);
 
-                    Iterator dataLabelIter = validDataLabels.iterator();
-
-                    while (dataLabelIter.hasNext()) {
-                        String validDataLabel = (String) dataLabelIter.next();
-
+                    for (String validDataLabel : validDataLabels) {
                         if (argumentDataLabel.equals(validDataLabel)) {
                             logger.debug(userLabels + " maps to " + validDataLabel + " which matches the argument");
                             matched = true;

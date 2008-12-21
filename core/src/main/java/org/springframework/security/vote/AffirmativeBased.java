@@ -15,12 +15,11 @@
 
 package org.springframework.security.vote;
 
+import java.util.List;
+
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-
-import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -44,11 +43,9 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
      */
     public void decide(Authentication authentication, Object object, List<ConfigAttribute> configAttributes)
             throws AccessDeniedException {
-        Iterator iter = this.getDecisionVoters().iterator();
         int deny = 0;
 
-        while (iter.hasNext()) {
-            AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
+        for (AccessDecisionVoter voter : getDecisionVoters()) {
             int result = voter.vote(authentication, object, configAttributes);
 
             switch (result) {

@@ -28,7 +28,7 @@ public class AccessControlImplEntryTests {
     public void testConstructorRequiredFields() {
         // Check Acl field is present
         try {
-            AccessControlEntry ace = new AccessControlEntryImpl(null, null, new PrincipalSid("johndoe"),
+            new AccessControlEntryImpl(null, null, new PrincipalSid("johndoe"),
                     BasePermission.ADMINISTRATION, true, true, true);
             fail("It should have thrown IllegalArgumentException");
         }
@@ -37,7 +37,7 @@ public class AccessControlImplEntryTests {
 
         // Check Sid field is present
         try {
-            AccessControlEntry ace = new AccessControlEntryImpl(null, jmock.mock(Acl.class), null,
+            new AccessControlEntryImpl(null, jmock.mock(Acl.class), null,
                     BasePermission.ADMINISTRATION, true, true, true);
             fail("It should have thrown IllegalArgumentException");
         }
@@ -46,7 +46,7 @@ public class AccessControlImplEntryTests {
 
         // Check Permission field is present
         try {
-            AccessControlEntry ace = new AccessControlEntryImpl(null, jmock.mock(Acl.class), new PrincipalSid("johndoe"), null,
+            new AccessControlEntryImpl(null, jmock.mock(Acl.class), new PrincipalSid("johndoe"), null,
                     true, true, true);
             fail("It should have thrown IllegalArgumentException");
         }

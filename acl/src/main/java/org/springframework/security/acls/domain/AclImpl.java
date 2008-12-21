@@ -16,8 +16,6 @@ package org.springframework.security.acls.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.security.acls.AccessControlEntry;
@@ -329,17 +327,16 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         sb.append("objectIdentity: ").append(this.objectIdentity).append("; ");
         sb.append("owner: ").append(this.owner).append("; ");
 
-        Iterator iterator = this.aces.iterator();
         int count = 0;
 
-        while (iterator.hasNext()) {
+        for (AccessControlEntry ace : aces) {
             count++;
 
             if (count == 1) {
                 sb.append("\r\n");
             }
 
-            sb.append(iterator.next().toString()).append("\r\n");
+            sb.append(ace).append("\r\n");
         }
 
         if (count == 0) {

@@ -82,8 +82,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 
     //~ Methods ========================================================================================================
 
-    public MutableAcl createAcl(ObjectIdentity objectIdentity)
-        throws AlreadyExistsException {
+    public MutableAcl createAcl(ObjectIdentity objectIdentity) throws AlreadyExistsException {
         Assert.notNull(objectIdentity, "Object Identity required");
 
         // Check this object identity hasn't already been persisted
@@ -217,8 +216,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         return null;
     }
 
-    public void deleteAcl(ObjectIdentity objectIdentity, boolean deleteChildren)
-        throws ChildrenExistException {
+    public void deleteAcl(ObjectIdentity objectIdentity, boolean deleteChildren) throws ChildrenExistException {
         Assert.notNull(objectIdentity, "Object Identity required");
         Assert.notNull(objectIdentity.getIdentifier(), "Object Identity doesn't provide an identifier");
 

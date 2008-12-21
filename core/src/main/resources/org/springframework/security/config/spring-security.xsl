@@ -3,7 +3,7 @@
 <!--
     XSL to manipulate trang's output XSD file. Contributed by Brian Ewins.
 
-    $Id$ 
+    $Id$
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0">
@@ -20,19 +20,19 @@
                 <xsl:for-each select="/xs:schema/xs:element[@name=substring-after(current()/@ref, ':')]">
                     <xsl:copy>
                         <xsl:apply-templates select="$node/@*[local-name() != 'ref']"/>
-                        <xsl:apply-templates select="@*|*"/>                
+                        <xsl:apply-templates select="@*|*"/>
                     </xsl:copy>
-                </xsl:for-each>                
+                </xsl:for-each>
             </xsl:when>
             <!-- Ignore global elements which have been inlined -->
             <xsl:when test="contains($elts-to-inline, concat(',',@name,','))">
             </xsl:when>
-            
+
             <xsl:otherwise>
                 <xsl:copy>
                     <xsl:apply-templates select="@*|*"/>
                 </xsl:copy>
-            </xsl:otherwise>            
+            </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
 
@@ -42,5 +42,5 @@
             <xsl:apply-templates select="text()|@*|*"/>
         </xsl:copy>
     </xsl:template>
- 
+
 </xsl:stylesheet>

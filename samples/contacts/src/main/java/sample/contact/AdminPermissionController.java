@@ -14,26 +14,22 @@
  */
 package sample.contact;
 
-import org.springframework.security.acls.Acl;
-import org.springframework.security.acls.AclService;
-import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.util.Assert;
-
-import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
-
 import java.io.IOException;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.acls.Acl;
+import org.springframework.security.acls.AclService;
+import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.ServletRequestUtils;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
 
 
 /**
@@ -62,7 +58,7 @@ public class AdminPermissionController implements Controller, InitializingBean {
         Contact contact = contactManager.getById(new Long(id));
         Acl acl = aclService.readAclById(new ObjectIdentityImpl(contact));
 
-        Map model = new HashMap();
+        Map<String, Object> model = new HashMap<String, Object>(2);
         model.put("contact", contact);
         model.put("acl", acl);
 

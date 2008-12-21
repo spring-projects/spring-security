@@ -22,11 +22,11 @@ import org.springframework.util.Assert;
 
 /**
  * Basic concrete implementation of a {@link GrantedAuthority}.
- * 
+ *
  * <p>
  * Stores a <code>String</code> representation of an authority granted to  the {@link Authentication} object.
  * <p>
- * If compared to a custom authority which returns null from {@link #getAuthority}, the <tt>compareTo</tt> 
+ * If compared to a custom authority which returns null from {@link #getAuthority}, the <tt>compareTo</tt>
  * method will return -1, so the custom authority will take precedence.
  *
  * @author Ben Alex
@@ -73,14 +73,14 @@ public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
         return this.role;
     }
 
-    public int compareTo(Object o) {
-        if (o != null && o instanceof GrantedAuthority) {
-            String rhsRole = ((GrantedAuthority) o).getAuthority();
-            
+    public int compareTo(GrantedAuthority ga) {
+        if (ga != null) {
+            String rhsRole = ga.getAuthority();
+
             if (rhsRole == null) {
                 return -1;
             }
-            
+
             return role.compareTo(rhsRole);
         }
         return -1;

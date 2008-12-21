@@ -14,10 +14,13 @@
  */
 package sample.contact;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import java.util.Random;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.Authentication;
 import org.springframework.security.acls.MutableAcl;
 import org.springframework.security.acls.MutableAclService;
 import org.springframework.security.acls.Permission;
@@ -26,25 +29,14 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.acls.sid.PrincipalSid;
-
 import org.springframework.security.context.SecurityContextHolder;
-
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.jdbc.core.JdbcTemplate;
-
+import org.springframework.security.util.AuthorityUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
-
 import org.springframework.util.Assert;
-
-import java.util.Random;
-
-import javax.sql.DataSource;
 
 
 /**
@@ -81,7 +73,7 @@ public class DataSourcePopulator implements InitializingBean {
 
         // Set a user account that will initially own all the created data
         Authentication authRequest = new UsernamePasswordAuthenticationToken("rod", "koala",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_IGNORED")});
+                AuthorityUtils.createAuthorityList("ROLE_IGNORED"));
         SecurityContextHolder.getContext().setAuthentication(authRequest);
 
         template.execute(
@@ -173,7 +165,7 @@ public class DataSourcePopulator implements InitializingBean {
             final ObjectIdentity objectIdentity = new ObjectIdentityImpl(Contact.class, new Long(i));
             tt.execute(new TransactionCallback() {
                     public Object doInTransaction(TransactionStatus arg0) {
-                        MutableAcl acl = mutableAclService.createAcl(objectIdentity);
+                        mutableAclService.createAcl(objectIdentity);
 
                         return null;
                     }

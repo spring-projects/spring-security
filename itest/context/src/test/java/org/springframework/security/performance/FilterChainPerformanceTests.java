@@ -1,11 +1,8 @@
 package org.springframework.security.performance;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 
 import org.junit.After;
@@ -19,7 +16,6 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.HttpSessionSecurityContextRepository;
@@ -29,8 +25,6 @@ import org.springframework.security.util.FilterChainProxy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StopWatch;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  *

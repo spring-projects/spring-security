@@ -15,34 +15,37 @@
 
 package org.springframework.security.vote;
 
-import org.springframework.security.AccessDeniedException;
-import org.springframework.security.AuthenticationManager;
-
-import org.springframework.security.context.SecurityContextHolder;
-
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import static org.junit.Assert.*;
 
 import java.util.List;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.AccessDeniedException;
+import org.springframework.security.AuthenticationManager;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 
 /**
- *
- *
  * @author Greg Turnquist
  * @version $Id$
  */
-public class LabelBasedAclVoterTests extends AbstractDependencyInjectionSpringContextTests {
+@ContextConfiguration(locations={"/org/springframework/security/vote/labelBasedSecurityApplicationContext.xml"})
+@RunWith(SpringJUnit4ClassRunner.class)
+public class LabelBasedAclVoterTests {
     //~ Instance fields ================================================================================================
 
+    @Autowired
     private SampleService sampleService = null;
 
-    //~ Methods ========================================================================================================
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
-    protected String[] getConfigLocations() {
-        return new String[] {"org/springframework/security/vote/labelBasedSecurityApplicationContext.xml"};
-    }
+    //~ Methods ========================================================================================================
 
     public SampleService getSampleService() {
         return sampleService;
@@ -54,11 +57,10 @@ public class LabelBasedAclVoterTests extends AbstractDependencyInjectionSpringCo
 
     private void setupContext(String username, String password) {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-        AuthenticationManager authenticationManager = (AuthenticationManager) applicationContext.getBean(
-                "authenticationManager");
         SecurityContextHolder.getContext().setAuthentication(authenticationManager.authenticate(token));
     }
 
+    @Test
     public void testDoingSomethingForBlueUser() {
         setupContext("blueuser", "password");
 
@@ -98,6 +100,7 @@ public class LabelBasedAclVoterTests extends AbstractDependencyInjectionSpringCo
         sampleService.doSomethingOnThis(block3, block3);
     }
 
+    @Test
     public void testDoingSomethingForMultiUser() {
         setupContext("multiuser", "password4");
 
@@ -115,6 +118,7 @@ public class LabelBasedAclVoterTests extends AbstractDependencyInjectionSpringCo
         sampleService.doSomethingOnThis(block3, block3);
     }
 
+    @Test
     public void testDoingSomethingForOrangeUser() {
         setupContext("orangeuser", "password3");
 
@@ -154,6 +158,7 @@ public class LabelBasedAclVoterTests extends AbstractDependencyInjectionSpringCo
         sampleService.doSomethingOnThis(block3, block3);
     }
 
+    @Test
     public void testDoingSomethingForSuperUser() {
         setupContext("superuser", "password2");
 
@@ -171,6 +176,7 @@ public class LabelBasedAclVoterTests extends AbstractDependencyInjectionSpringCo
         sampleService.doSomethingOnThis(block3, block3);
     }
 
+    @Test
     public void testSampleBlockOfDataPOJO() {
         SampleBlockOfData block = new SampleBlockOfData();
         block.setId("ID-ABC");

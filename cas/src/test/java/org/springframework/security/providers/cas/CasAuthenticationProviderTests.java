@@ -167,7 +167,7 @@ public class CasAuthenticationProviderTests {
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(CasProcessingFilter.CAS_STATEFUL_IDENTIFIER, "");
 
-        Authentication result = cap.authenticate(token);
+        cap.authenticate(token);
     }
 
     @Test(expected = BadCredentialsException.class)
