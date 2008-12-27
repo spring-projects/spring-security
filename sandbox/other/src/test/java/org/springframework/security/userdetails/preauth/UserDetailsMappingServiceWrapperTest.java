@@ -25,26 +25,16 @@ import org.springframework.security.userdetails.memory.UserMapEditor;
 
 /**
  * @author Valery Tydykov
- * 
+ *
  */
 public class UserDetailsMappingServiceWrapperTest extends TestCase {
 
     UserDetailsMappingServiceWrapper service;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see junit.framework.TestCase#setUp()
-     */
     protected void setUp() throws Exception {
         service = new UserDetailsMappingServiceWrapper();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see junit.framework.TestCase#tearDown()
-     */
     protected void tearDown() throws Exception {
         service = null;
     }
@@ -84,11 +74,11 @@ public class UserDetailsMappingServiceWrapperTest extends TestCase {
             service.setUserDetailsService(dao);
         }
 
-        Authentication authentication = new TestingAuthenticationToken("any", "any", null);
+        Authentication authentication = new TestingAuthenticationToken("any", "any");
         UserDetails user = service.loadUserDetails(authentication);
 
         // verify that userDetails came from the secondary repository
-        assertEquals("ROLE_ONE", user.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
     }
 
     /**

@@ -16,7 +16,6 @@
 package org.springframework.security.captcha;
 
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
 
 import org.springframework.security.context.SecurityContextHolder;
 
@@ -77,8 +76,7 @@ public abstract class CaptchaChannelProcessorTemplate implements ChannelProcesso
         Assert.hasLength(keyword, "keyword required");
     }
 
-    public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
-        throws IOException, ServletException {
+    public void decide(FilterInvocation invocation, java.util.List<ConfigAttribute> config) throws IOException, ServletException {
         if ((invocation == null) || (config == null)) {
             throw new IllegalArgumentException("Nulls cannot be provided");
         }
@@ -86,7 +84,7 @@ public abstract class CaptchaChannelProcessorTemplate implements ChannelProcesso
         CaptchaSecurityContext context = null;
         context = (CaptchaSecurityContext) SecurityContextHolder.getContext();
 
-        Iterator iter = config.getConfigAttributes().iterator();
+        Iterator iter = config.iterator();
 
         while (iter.hasNext()) {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();

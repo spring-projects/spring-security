@@ -22,7 +22,7 @@ import org.springframework.security.userdetails.UserDetails;
 
 /**
  * @author Valery Tydykov
- * 
+ *
  */
 public class UsernameFromPropertyAccountMapperTest extends TestCase {
 
@@ -30,7 +30,7 @@ public class UsernameFromPropertyAccountMapperTest extends TestCase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see junit.framework.TestCase#setUp()
      */
     protected void setUp() throws Exception {
@@ -39,7 +39,7 @@ public class UsernameFromPropertyAccountMapperTest extends TestCase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see junit.framework.TestCase#tearDown()
      */
     protected void tearDown() throws Exception {
@@ -52,7 +52,7 @@ public class UsernameFromPropertyAccountMapperTest extends TestCase {
      */
     public final void testNormalOperation() {
         String usernameExpected = "username1";
-        UserDetails user = new User(usernameExpected, "password1", false, new GrantedAuthority[0]);
+        UserDetails user = new User(usernameExpected, "password1", false, false, false, false, new GrantedAuthority[0]);
         mapper.setUsername(usernameExpected);
         String username = mapper.map(user);
 

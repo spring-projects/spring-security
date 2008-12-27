@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.springframework.security.context.SecurityContextHolder;
 
+import org.springframework.security.util.MockFilter;
 import org.springframework.security.util.MockFilterChain;
 
 import org.springframework.mock.web.MockHttpServletRequest;

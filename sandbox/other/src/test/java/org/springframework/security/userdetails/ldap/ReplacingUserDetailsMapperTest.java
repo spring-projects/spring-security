@@ -23,10 +23,11 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.userdetails.memory.InMemoryDaoImpl;
 import org.springframework.security.userdetails.memory.UserMap;
 import org.springframework.security.userdetails.memory.UserMapEditor;
+import org.springframework.security.util.AuthorityUtils;
 
 /**
  * @author Valery Tydykov
- * 
+ *
  */
 public class ReplacingUserDetailsMapperTest extends TestCase {
 
@@ -34,7 +35,7 @@ public class ReplacingUserDetailsMapperTest extends TestCase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see junit.framework.TestCase#setUp()
      */
     protected void setUp() throws Exception {
@@ -43,7 +44,7 @@ public class ReplacingUserDetailsMapperTest extends TestCase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see junit.framework.TestCase#tearDown()
      */
     protected void tearDown() throws Exception {
@@ -118,9 +119,9 @@ public class ReplacingUserDetailsMapperTest extends TestCase {
         ctx.setAttributeValues("userRole", new String[] { "X", "Y", "Z" });
         ctx.setAttributeValue("uid", "ani");
 
-        UserDetails userDetails = mapper.mapUserFromContext(ctx, "ani", new GrantedAuthority[0]);
+        UserDetails userDetails = mapper.mapUserFromContext(ctx, "ani", AuthorityUtils.NO_AUTHORITIES);
         // verify that userDetails came from the secondary repository
-        assertEquals("ROLE_ONE", userDetails.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_ONE", userDetails.getAuthorities().get(0).getAuthority());
     }
 
     /**
@@ -141,7 +142,7 @@ public class ReplacingUserDetailsMapperTest extends TestCase {
 
         UserDetails userDetails = mapper.retrieveUser(username);
 
-        assertEquals("ROLE_ONE", userDetails.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_ONE", userDetails.getAuthorities().get(0).getAuthority());
 
         try {
             mapper.retrieveUser("noMatchUsername");

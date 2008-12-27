@@ -181,8 +181,7 @@ public class CaptchaEntryPoint implements ChannelEntryPoint, InitializingBean {
         }
     }
 
-    public void commence(ServletRequest request, ServletResponse response)
-        throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         StringBuffer redirectUrl = new StringBuffer();
         HttpServletRequest req = (HttpServletRequest) request;
 

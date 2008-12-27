@@ -28,8 +28,8 @@ import netscape.ldap.ber.stream.BERSequence;
 import netscape.ldap.ber.stream.BERTag;
 import netscape.ldap.ber.stream.BERTagDecoder;
 
-import org.springframework.security.ldap.LdapDataAccessException;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
+import org.springframework.dao.DataRetrievalFailureException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -98,7 +98,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
         try {
             decoder.decode();
         } catch (IOException e) {
-            throw new LdapDataAccessException("Failed to parse control value", e);
+            throw new DataRetrievalFailureException("Failed to parse control value", e);
         }
     }
 
@@ -107,8 +107,6 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
     /**
      * Returns the unchanged value of the response control.  Returns the unchanged value of the response
      * control as byte array.
-     *
-     * @return DOCUMENT ME!
      */
     public byte[] getEncodedValue() {
         return encodedValue;
@@ -287,7 +285,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
                     }
                 }
 
-                throw new LdapDataAccessException("Unexpected tag " + tag);
+                throw new DataRetrievalFailureException("Unexpected tag " + tag);
             }
 
             private void setInChoice(boolean inChoice) {

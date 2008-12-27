@@ -21,7 +21,7 @@ import org.springframework.security.providers.TestingAuthenticationToken;
 
 /**
  * @author Valery Tydykov
- * 
+ *
  */
 public class UsernameFromPropertyAccountMapperTest extends TestCase {
 
@@ -29,7 +29,7 @@ public class UsernameFromPropertyAccountMapperTest extends TestCase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see junit.framework.TestCase#setUp()
      */
     protected void setUp() throws Exception {
@@ -38,7 +38,7 @@ public class UsernameFromPropertyAccountMapperTest extends TestCase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see junit.framework.TestCase#tearDown()
      */
     protected void tearDown() throws Exception {
@@ -51,7 +51,7 @@ public class UsernameFromPropertyAccountMapperTest extends TestCase {
      */
     public final void testNormalOperation() {
         String usernameExpected = "username1";
-        Authentication authenticationRequest = new TestingAuthenticationToken("any", "any", null);
+        Authentication authenticationRequest = new TestingAuthenticationToken("any", "any");
         mapper.setUsername(usernameExpected);
 
         String username = mapper.map(authenticationRequest);

@@ -18,18 +18,25 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-core</artifactId>
+        <version>${project.version}</version>
+        <classifier>tests</classifier>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>org.springframework.test</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-tx</artifactId>
-    </dependency>    
+        <groupId>org.springframework</groupId>
+        <artifactId>org.springframework.jdbc</artifactId>
+        <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>org.springframework.ldap</groupId>
-      <artifactId>spring-ldap</artifactId>
-      <version>1.2.1</version>
+      <artifactId>spring-ldap-core</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -45,27 +52,26 @@
     </dependency>
     <dependency>
         <groupId>org.aspectj</groupId>
-	    <artifactId>aspectjrt</artifactId>
-	    <version>1.5.4</version>	    
-	    <optional>true</optional>
+        <artifactId>com.springsource.org.aspectj.runtime</artifactId>
     </dependency>
     <dependency>
         <groupId>org.aspectj</groupId>
-	    <artifactId>aspectjweaver</artifactId>
-	    <version>1.5.4</version>
-	    <optional>true</optional>
-    </dependency>	        
+        <artifactId>com.springsource.org.aspectj.weaver</artifactId>
+    </dependency>
     <dependency>
       <groupId>ldapsdk</groupId>
       <artifactId>ldapsdk</artifactId>
       <version>4.1</version>
     </dependency>
+<!--
     <dependency>
       <groupId>org.samba.jcifs</groupId>
       <artifactId>jcifs</artifactId>
       <version>1.2.6</version>
       <type>jar</type>
+
     </dependency>
+-->
       <dependency>
         <groupId>hsqldb</groupId>
         <artifactId>hsqldb</artifactId>

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.springframework.security.userdetails.ldap;
 
@@ -10,16 +10,18 @@ import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 
+import java.util.*;
+
 /**
  * @author Valery Tydykov
- * 
+ *
  */
 public class AuthorityByPrefixAccountMapperTest extends TestCase {
     AuthorityByPrefixAccountMapper mapper;
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see junit.framework.TestCase#setUp()
      */
     protected void setUp() throws Exception {
@@ -28,7 +30,7 @@ public class AuthorityByPrefixAccountMapperTest extends TestCase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see junit.framework.TestCase#tearDown()
      */
     protected void tearDown() throws Exception {
@@ -43,7 +45,7 @@ public class AuthorityByPrefixAccountMapperTest extends TestCase {
         String expectedAuthority = "prefix1_role1";
         GrantedAuthority[] authorities = { new GrantedAuthorityImpl(expectedAuthority),
                 new GrantedAuthorityImpl("prefix1_role2") };
-        UserDetails user = new User("username1", "password1", false, authorities);
+        UserDetails user = new User("username1", "password1", false, false, false, false, Arrays.asList(authorities));
         mapper.setAuthorityPrefix("prefix1_");
         String authority = mapper.map(user);
 
@@ -57,7 +59,7 @@ public class AuthorityByPrefixAccountMapperTest extends TestCase {
     public final void testAuthorityNotFoundThrowsException() {
         String expectedAuthority = "prefix1_role1";
         GrantedAuthority[] authorities = { new GrantedAuthorityImpl(expectedAuthority) };
-        UserDetails user = new User("username1", "password1", false, authorities);
+        UserDetails user = new User("username1", "password1", false, false, false, false, Arrays.asList(authorities));
         mapper.setAuthorityPrefix("NoMatchPrefix");
 
         try {

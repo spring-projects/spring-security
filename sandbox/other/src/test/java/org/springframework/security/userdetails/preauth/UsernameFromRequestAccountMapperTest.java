@@ -21,7 +21,7 @@ import org.springframework.security.providers.TestingAuthenticationToken;
 
 /**
  * @author Valery Tydykov
- * 
+ *
  */
 public class UsernameFromRequestAccountMapperTest extends TestCase {
 
@@ -29,7 +29,7 @@ public class UsernameFromRequestAccountMapperTest extends TestCase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see junit.framework.TestCase#setUp()
      */
     protected void setUp() throws Exception {
@@ -38,7 +38,7 @@ public class UsernameFromRequestAccountMapperTest extends TestCase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see junit.framework.TestCase#tearDown()
      */
     protected void tearDown() throws Exception {
@@ -51,8 +51,7 @@ public class UsernameFromRequestAccountMapperTest extends TestCase {
      */
     public final void testNormalOperation() {
         String usernameExpected = "username1";
-        Authentication authenticationRequest = new TestingAuthenticationToken(usernameExpected,
-            "password1", null);
+        Authentication authenticationRequest = new TestingAuthenticationToken(usernameExpected, "password1");
         String username = mapper.map(authenticationRequest);
 
         assertEquals(usernameExpected, username);

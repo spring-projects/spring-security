@@ -26,6 +26,7 @@ import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
 
+import java.util.List;
 /**
  * The context mapper used by the LDAP authentication provider to create an LDAP user object.
  * Creates the final <tt>UserDetails</tt> object that will be returned by the provider once the
@@ -95,7 +96,7 @@ public class ReplacingUserDetailsMapper extends LdapUserDetailsMapper implements
      * the user has been authenticated, replacing the original <tt>UserDetails</tt> object.
      */
     public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
-            GrantedAuthority[] authorities) {
+            List<GrantedAuthority> authorities) {
         UserDetails userOriginal = super.mapUserFromContext(ctx, username, authorities);
 
         if (this.logger.isDebugEnabled()) {

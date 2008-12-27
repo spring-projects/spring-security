@@ -22,6 +22,8 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
+import java.util.List;
+
 /**
  * Maps user (loaded from the primary user accounts repository, e.g. LDAP) to username in secondary
  * user accounts repository. Tries to find user's authority with name starting with
@@ -53,9 +55,9 @@ public class AuthorityByPrefixAccountMapper implements AccountMapper, Initializi
         }
 
         // search authorities for authority prefix
-        GrantedAuthority[] authorities = user.getAuthorities();
-        for (int i = 0; i < authorities.length; i++) {
-            String authority = authorities[i].getAuthority();
+        List<GrantedAuthority> authorities = user.getAuthorities();
+        for (int i = 0; i < authorities.size(); i++) {
+            String authority = authorities.get(i).getAuthority();
             if (authority.startsWith(this.getAuthorityPrefix())) {
                 if (this.logger.isDebugEnabled()) {
                     this.logger.debug("Authority found=[" + authority + "]");

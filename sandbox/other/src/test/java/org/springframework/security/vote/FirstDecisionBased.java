@@ -15,36 +15,36 @@
 
 package org.springframework.security.vote;
 
-import java.util.Iterator;
+import java.util.*;
 
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 
 /**
  * AccessDecisionManager which bases its result on the first non-abstention from
- * its list of voters. 
- * 
- * @author Janning Vygen 
+ * its list of voters.
+ *
+ * @author Janning Vygen
  */
 public class FirstDecisionBased extends AbstractAccessDecisionManager {
 
-    public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config ) throws AccessDeniedException {
+    public void decide(Authentication authentication, Object object, List<ConfigAttribute> config ) throws AccessDeniedException {
         Iterator voters = this.getDecisionVoters().iterator();
 
         while (voters.hasNext()) {
             AccessDecisionVoter voter = (AccessDecisionVoter) voters.next();
             int result = voter.vote(authentication, object, config);
-            
+
             switch (result) {
                 case AccessDecisionVoter.ACCESS_GRANTED:
                 return;
-                
+
                 case AccessDecisionVoter.ACCESS_DENIED:
                     throw new AccessDeniedException(messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
             }
         }
-        
+
         // To get this far, every AccessDecisionVoter abstained
         checkAllowIfAllAbstainDecisions();
     }

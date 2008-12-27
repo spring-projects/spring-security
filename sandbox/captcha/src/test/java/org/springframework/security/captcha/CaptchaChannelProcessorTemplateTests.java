@@ -17,7 +17,7 @@ package org.springframework.security.captcha;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.ConfigAttribute;
 import org.springframework.security.SecurityConfig;
 
 import org.springframework.security.context.SecurityContextHolder;
@@ -28,6 +28,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.FilterChain;
@@ -44,7 +45,7 @@ import javax.servlet.ServletResponse;
 public class CaptchaChannelProcessorTemplateTests extends TestCase {
     //~ Methods ========================================================================================================
 
-    private MockHttpServletResponse decideWithNewResponse(ConfigAttributeDefinition cad,
+    private MockHttpServletResponse decideWithNewResponse(List<ConfigAttribute> cad,
         CaptchaChannelProcessorTemplate processor, MockHttpServletRequest request)
         throws IOException, ServletException {
         MockHttpServletResponse response;
@@ -70,7 +71,7 @@ public class CaptchaChannelProcessorTemplateTests extends TestCase {
         CaptchaChannelProcessorTemplate processor = new TestHumanityCaptchaChannelProcessor();
         processor.setKeyword("X");
 
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition("Y");
+        List<ConfigAttribute> cad = SecurityConfig.createList("Y");
 
         CaptchaSecurityContext context = new CaptchaSecurityContextImpl();
         SecurityContextHolder.setContext(context);
@@ -136,7 +137,7 @@ public class CaptchaChannelProcessorTemplateTests extends TestCase {
         CaptchaChannelProcessorTemplate processor = new TestHumanityCaptchaChannelProcessor();
         processor.setKeyword("X");
 
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition("X");
+        List<ConfigAttribute> cad = SecurityConfig.createList("X");
         CaptchaSecurityContext context = new CaptchaSecurityContextImpl();
         SecurityContextHolder.setContext(context);
 
@@ -224,5 +225,5 @@ public class CaptchaChannelProcessorTemplateTests extends TestCase {
         public void doFilter(ServletRequest arg0, ServletResponse arg1) throws IOException, ServletException {
             throw new UnsupportedOperationException("mock method not implemented");
         }
-    }    
+    }
 }
