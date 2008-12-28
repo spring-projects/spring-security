@@ -136,7 +136,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         // Setup our test object, to deny access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
-        filter.setFailureHandler(failureHandler);
+        filter.setAuthenticationFailureHandler(failureHandler);
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
@@ -147,7 +147,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         //Prepare again, this time using the exception mapping
         filter = new MockAbstractProcessingFilter(new AccountExpiredException("You're account is expired"));
         ExceptionMappingAuthenticationFailureHandler failureHandler = new ExceptionMappingAuthenticationFailureHandler();
-        filter.setFailureHandler(failureHandler);
+        filter.setAuthenticationFailureHandler(failureHandler);
         Properties exceptionMappings = new Properties();
         exceptionMappings.setProperty(AccountExpiredException.class.getName(), "/accountExpired.jsp");
         failureHandler.setExceptionMappings(exceptionMappings);
@@ -176,7 +176,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our test object, to grant access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
         filter.setFilterProcessesUrl("/j_OTHER_LOCATION");
-        filter.setSuccessHandler(successHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
@@ -234,8 +234,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
 
         filter.setFilterProcessesUrl("/j_mock_post");
-        filter.setSuccessHandler(successHandler);
-        filter.setFailureHandler(failureHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
+        filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationManager(new MockAuthenticationManager(true));
         filter.afterPropertiesSet();
 
@@ -250,9 +250,9 @@ public class AbstractProcessingFilterTests extends TestCase {
 
     public void testStartupDetectsInvalidAuthenticationManager() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
-        filter.setFailureHandler(failureHandler);
+        filter.setAuthenticationFailureHandler(failureHandler);
         successHandler.setDefaultTargetUrl("/");
-        filter.setSuccessHandler(successHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
         filter.setFilterProcessesUrl("/j_spring_security_check");
 
         try {
@@ -265,9 +265,9 @@ public class AbstractProcessingFilterTests extends TestCase {
 
     public void testStartupDetectsInvalidFilterProcessesUrl() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
-        filter.setFailureHandler(failureHandler);
+        filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationManager(new MockAuthenticationManager());
-        filter.setSuccessHandler(successHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
         filter.setFilterProcessesUrl(null);
 
         try {
@@ -292,7 +292,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our test object, to grant access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
         filter.setFilterProcessesUrl("/j_mock_post");
-        filter.setSuccessHandler(successHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
@@ -309,7 +309,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our test object, to deny access
         filter = new MockAbstractProcessingFilter(false);
         filter.setFilterProcessesUrl("/j_mock_post");
-        filter.setFailureHandler(failureHandler);
+        filter.setAuthenticationFailureHandler(failureHandler);
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
@@ -336,7 +336,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertFalse(successHandler.isAlwaysUseDefaultTargetUrl()); // check default
         successHandler.setAlwaysUseDefaultTargetUrl(true);
         assertTrue(successHandler.isAlwaysUseDefaultTargetUrl()); // check changed
-        filter.setSuccessHandler(successHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
@@ -380,7 +380,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
         successHandler.setDefaultTargetUrl("https://monkeymachine.co.uk/");
         successHandler.setAlwaysUseDefaultTargetUrl(true);
-        filter.setSuccessHandler(successHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals("https://monkeymachine.co.uk/", response.getRedirectedUrl());
@@ -400,7 +400,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
         filter.setInvalidateSessionOnSuccessfulAuthentication(true);
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
-        filter.setSuccessHandler(successHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
@@ -420,7 +420,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.setInvalidateSessionOnSuccessfulAuthentication(true);
         filter.setMigrateInvalidatedSessionAttributes(false);
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
-        filter.setSuccessHandler(successHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
@@ -442,9 +442,9 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Reject authentication, so exception would normally be stored in session
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
         filter.setAllowSessionCreation(false);
-        filter.setFailureHandler(failureHandler);
+        filter.setAuthenticationFailureHandler(failureHandler);
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
-        filter.setSuccessHandler(successHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
@@ -463,7 +463,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
-        filter.setSuccessHandler(successHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
@@ -482,8 +482,8 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
-        filter.setSuccessHandler(successHandler);
-        filter.setFailureHandler(failureHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
+        filter.setAuthenticationFailureHandler(failureHandler);
         failureHandler.setUseForward(true);
         failureHandler.setDefaultFailureUrl("/error");
 
@@ -504,10 +504,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
-        filter.setSuccessHandler(successHandler);
+        filter.setAuthenticationSuccessHandler(successHandler);
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
         successHandler.setTargetUrlParameter("targetUrl");
-        filter.setFailureHandler(failureHandler);
+        filter.setAuthenticationFailureHandler(failureHandler);
 
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 

@@ -137,18 +137,18 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         filterBuilder.addPropertyValue("filterProcessesUrl", loginUrl);
 
         if (StringUtils.hasText(successHandlerRef)) {
-            filterBuilder.addPropertyReference("successHandler", successHandlerRef);
+            filterBuilder.addPropertyReference("authenticationSuccessHandler", successHandlerRef);
         } else {
             BeanDefinitionBuilder successHandler = BeanDefinitionBuilder.rootBeanDefinition(SavedRequestAwareAuthenticationSuccessHandler.class);
             if ("true".equals(alwaysUseDefault)) {
                 successHandler.addPropertyValue("alwaysUseDefaultTargetUrl", Boolean.TRUE);
             }
             successHandler.addPropertyValue("defaultTargetUrl", StringUtils.hasText(defaultTargetUrl) ? defaultTargetUrl : DEF_FORM_LOGIN_TARGET_URL);
-            filterBuilder.addPropertyValue("successHandler", successHandler.getBeanDefinition());
+            filterBuilder.addPropertyValue("authenticationSuccessHandler", successHandler.getBeanDefinition());
         }
 
         if (StringUtils.hasText(failureHandlerRef)) {
-            filterBuilder.addPropertyReference("failureHandler", failureHandlerRef);
+            filterBuilder.addPropertyReference("authenticationFailureHandler", failureHandlerRef);
         } else {
             BeanDefinitionBuilder failureHandler = BeanDefinitionBuilder.rootBeanDefinition(SimpleUrlAuthenticationFailureHandler.class);
             if (!StringUtils.hasText(authenticationFailureUrl)) {
@@ -160,7 +160,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
                 }
             }
             failureHandler.addPropertyValue("defaultFailureUrl", authenticationFailureUrl);
-            filterBuilder.addPropertyValue("failureHandler", failureHandler.getBeanDefinition());
+            filterBuilder.addPropertyValue("authenticationFailureHandler", failureHandler.getBeanDefinition());
         }
 
         return (RootBeanDefinition) filterBuilder.getBeanDefinition();

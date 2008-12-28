@@ -23,7 +23,7 @@ public class OpenIDAuthenticationProcessingFilterTests extends TestCase {
         filter = new OpenIDAuthenticationProcessingFilter();
         filter.setConsumer(new MockOpenIDConsumer(REDIRECT_URL));
         SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-        filter.setSuccessHandler(new SavedRequestAwareAuthenticationSuccessHandler());
+        filter.setAuthenticationSuccessHandler(new SavedRequestAwareAuthenticationSuccessHandler());
         successHandler.setDefaultTargetUrl(DEFAULT_TARGET_URL);
         filter.setAuthenticationManager(new MockAuthenticationManager());
         filter.afterPropertiesSet();

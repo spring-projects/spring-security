@@ -61,7 +61,7 @@ import org.springframework.util.Assert;
  *
  * If authentication is successful, the resulting {@link Authentication} object will be placed into the
  * <code>SecurityContext</code> for the current thread, which is guaranteed to have already been created by an earlier
- * filter. The configured {@link #setSuccessHandler(AuthenticationSuccessHandler) AuthenticationSuccessHandler} will
+ * filter. The configured {@link #setAuthenticationSuccessHandler(AuthenticationSuccessHandler) AuthenticationSuccessHandler} will
  * then be called to take the redirect to the appropriate destination after a successful login. The default behaviour
  * is implemented in a {@link SavedRequestAwareAuthenticationSuccessHandler} which will make use of any
  * <tt>SavedRequest</tt> set by the <tt>ExceptionTranslationFilter</tt> and redirect the user to the URL contained
@@ -427,12 +427,12 @@ public abstract class AbstractProcessingFilter extends SpringSecurityFilter impl
      * Sets the strategy used to handle a successful authentication.
      * By default a {@link SavedRequestAwareAuthenticationSuccessHandler} is used.
      */
-    public void setSuccessHandler(AuthenticationSuccessHandler successHandler) {
+    public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler successHandler) {
         Assert.notNull(successHandler, "successHandler cannot be null");
         this.successHandler = successHandler;
     }
 
-    public void setFailureHandler(AuthenticationFailureHandler failureHandler) {
+    public void setAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
         Assert.notNull(failureHandler, "failureHandler cannot be null");
         this.failureHandler = failureHandler;
     }
