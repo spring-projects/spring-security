@@ -77,31 +77,67 @@
 
     <repositories>
         <repository>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>            
             <id>com.springsource.repository.bundles.release</id>
             <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
             <url>http://repository.springsource.com/maven/bundles/release</url>
         </repository>
         <repository>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>            
             <id>com.springsource.repository.bundles.external</id>
             <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
             <url>http://repository.springsource.com/maven/bundles/external</url>
         </repository>
         <repository>
+            <releases>
+              <enabled>false</enabled>
+            </releases>
+            <snapshots>
+              <enabled>true</enabled>
+            </snapshots>            
             <id>com.springsource.repository.bundles.snapshot</id>
             <name>SpringSource Enterprise Bundle Repository - SpringSource Snapshot Releases</name>
             <url>http://repository.springsource.com/maven/bundles/snapshot</url>
         </repository>
         <repository>
-            <id>com.springsource.repository.bundles.mileston</id>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>            
+            <id>com.springsource.repository.bundles.milestone</id>
             <name>SpringSource Enterprise Bundle Repository - SpringSource Milestone Releases</name>
             <url>http://repository.springsource.com/maven/bundles/milestone</url>
         </repository>
         <repository>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>            
             <id>spring-milestone</id>
             <name>Spring Portfolio Milestone Repository</name>
             <url>http://s3.amazonaws.com/maven.springframework.org/milestone</url>
         </repository>
         <repository>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>            
             <!-- needed for jets3t-0.5.1-20080115 -->
             <id>springExternal</id>
             <name>Spring external dependencies</name>

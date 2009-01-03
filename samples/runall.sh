@@ -6,7 +6,7 @@ cleanup() {
 
 start_jetty()
 {
-  mvn jetty:run > runall.log &
+  mvn -o jetty:run > runall.log &
   until (grep "Started Jetty Server" runall.log)
   do
     echo "Waiting for server to start..."
