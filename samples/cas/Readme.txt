@@ -10,11 +10,11 @@ client - this contains the actual sample web application which uses the cas serv
 Running the CAS Server
 -----------------------
 
-You first need to download the CAS server 3.2.1 distribution from
+You first need to download the CAS server 3.3.1 distribution from
 
 http://www.ja-sig.org/products/cas/downloads/index.html
 
-You only need the modules/cas-server-webapp-3.2.1.war web application file from the distribution. Copy this to the
+You only need the modules/cas-server-webapp-3.3.1.war web application file from the distribution. Copy this to the
 "server" directory inside the one that contains this readme file (i.e. copy it to samples/cas/server).
 
 You can then run the CAS server (from the same) by executing the maven command

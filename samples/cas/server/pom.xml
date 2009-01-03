@@ -17,7 +17,7 @@
                 <version>${jetty.version}</version>
                 <configuration>
                     <contextPath>/cas</contextPath>
-                    <webApp>${basedir}/cas-server-webapp-3.2.1.war</webApp>
+                    <webApp>${basedir}/cas-server-webapp-3.3.1.war</webApp>
                     <connectors>
                         <connector implementation="org.mortbay.jetty.security.SslSocketConnector">
                             <port>9443</port>
