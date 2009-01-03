@@ -37,8 +37,8 @@
 
     <!-- Note when doing releases: tagBase is set in release plugin configuration below -->
     <scm>
-        <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/tags/2.5.0.M1</connection>
-        <developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/tags/2.5.0.M1</developerConnection>
+        <connection>scm:svn:https://src.springframework.org/svn/spring-security/tags/2.5.0.M1</connection>
+        <developerConnection>scm:svn:https://src.springframework.org/svn/spring-security/tags/2.5.0.M1</developerConnection>
         <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/spring-security/tags/2.5.0.M1</url>
     </scm>
 
@@ -405,7 +405,7 @@
                 <version>2.0-beta-7</version>
                 <configuration>
                     <tagBase>
-                        https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/tags
+                        https://src.springframework.org/svn/spring-security/tags
                     </tagBase>
                 </configuration>
             </plugin>
