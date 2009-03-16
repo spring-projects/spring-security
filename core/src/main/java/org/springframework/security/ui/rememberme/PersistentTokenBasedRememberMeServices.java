@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
  *
  * <p>Note that while this class will use the date a token was created to check whether a presented cookie
  * is older than the configured <tt>tokenValiditySeconds</tt> property and deny authentication in this case,
- * it will to delete such tokens from the storage. A suitable batch process should be run periodically to
+ * it will not delete these tokens from storage. A suitable batch process should be run periodically to
  * remove expired tokens from the database.
  * </p>
  *
