@@ -1,7 +1,6 @@
 package org.springframework.security.ui.rememberme;
 
 import static org.junit.Assert.*;
-import static org.springframework.security.ui.rememberme.AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
 
 import java.util.Date;
 
