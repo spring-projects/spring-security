@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
 
 /**
  * Simple implementation of {@link AclCache} that delegates to EH-CACHE.
- * 
+ *
  * <p>
  * Designed to handle the transient fields in {@link AclImpl}. Note that this implementation assumes all
  * {@link AclImpl} instances share the same {@link AuditLogger} and {@link AclAuthorizationStrategy} instance.
@@ -121,7 +121,7 @@ public class EhCacheBasedAclCache implements AclCache {
                 this.auditLogger = (AuditLogger) FieldUtils.getProtectedFieldValue("auditLogger", acl);
             }
         }
-        
+
         if ((acl.getParentAcl() != null) && (acl.getParentAcl() instanceof MutableAcl)) {
             putInCache((MutableAcl) acl.getParentAcl());
         }
@@ -136,5 +136,9 @@ public class EhCacheBasedAclCache implements AclCache {
             FieldUtils.setProtectedFieldValue("auditLogger", value, this.auditLogger);
         }
         return value;
+    }
+
+    public void clearCache() {
+        cache.removeAll();
     }
 }

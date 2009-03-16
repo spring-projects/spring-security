@@ -39,4 +39,6 @@ public interface AclCache {
     MutableAcl getFromCache(Serializable pk);
 
     void putInCache(MutableAcl acl);
+
+    void clearCache();
 }
