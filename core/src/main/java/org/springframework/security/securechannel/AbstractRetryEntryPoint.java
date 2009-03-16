@@ -20,7 +20,7 @@ import java.io.IOException;
  */
 public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
     //~ Static fields/initializers =====================================================================================
-    private static final Log logger = LogFactory.getLog(RetryWithHttpEntryPoint.class);
+    protected final Log logger = LogFactory.getLog(getClass());
 
     //~ Instance fields ================================================================================================
 
