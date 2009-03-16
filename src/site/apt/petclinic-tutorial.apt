@@ -19,7 +19,7 @@ Tutorial: Adding Security to Spring Petclinic
 
     You will also need to download:
 
-    * {{{http://www.springframework.org/download}Spring 2.5.5 with dependencies ZIP file}}
+    * {{{http://www.springframework.org/download}Spring 2.5.6 with dependencies ZIP file}}
 
     * {{{http://www.springframework.org/download}Spring Security 2.0.4}}
 
@@ -81,7 +81,7 @@ copy dist\petclinic.war %TOMCAT_HOME%\webapps
     We believe you can adapt it easily on any operating system.  
 
 +------------------------------------------------------
-copy %spring-sec-tutorial%\WEB-INF\applicationContext-security-ns.xml %spring%\samples\petclinic\war\WEB-INF
+copy %spring-sec-tutorial%\WEB-INF\applicationContext-security.xml %spring%\samples\petclinic\war\WEB-INF
 copy %spring-sec-tutorial%\WEB-INF\lib\spring-security-core-2.0.4.jar %spring%\samples\petclinic\war\WEB-INF\lib
 copy %spring-sec-tutorial%\WEB-INF\lib\spring-security-core-tiger-2.0.4.jar %spring%\samples\petclinic\war\WEB-INF\lib
 copy %spring-sec-tutorial%\WEB-INF\lib\spring-security-acl-2.0.4.jar %spring%\samples\petclinic\war\WEB-INF\lib
@@ -127,7 +127,7 @@ copy %spring-sec-tutorial%\WEB-INF\lib\commons-codec-1.3.jar %spring%\samples\pe
 
 +------------------------------------------------------
    Our last step is to specify which URLs require authorization and which do not. Let's
-    edit %spring%\samples\petclinic\war\WEB-INF\applicationContext-security-ns.xml.
+    edit %spring%\samples\petclinic\war\WEB-INF\applicationContext-security.xml.
     All URLs ending with '.do' will be protected.
 
 +------------------------------------------------------
@@ -145,8 +145,8 @@ copy %spring-sec-tutorial%\WEB-INF\lib\commons-codec-1.3.jar %spring%\samples\pe
 
     Finally, start your container and try to visit the home page.
     Your request should be intercepted and you will be forced to login.
-    You can now log in using  the usernames and passwords that are documented at the end
-    of applicationContext-security-ns.xml file. 
+    You can now log in using the usernames and passwords that are documented at the end
+    of applicationContext-security.xml file. 
 
 ** Log out
 
