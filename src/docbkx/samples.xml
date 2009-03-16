@@ -9,7 +9,7 @@
         and "contacts" samples are included in the distribution zip file. You can 
         either build the others yourself, or you can obtain the war files 
         individually from the central Maven repository. We'd recommend the former.
-        You can get the source as described in <link xlink:href="get-source">the introduction</link>
+        You can get the source as described in <link xlink:href="#get-source">the introduction</link>
         and it's easy to build the project using Maven. There is more information
         on the project web site at 
         <link xlink:href="http://www.springframework.org/spring-security/">
