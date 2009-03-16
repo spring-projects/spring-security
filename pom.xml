@@ -39,7 +39,7 @@
     <scm>
         <connection>scm:svn:https://src.springframework.org/svn/spring-security/trunk</connection>
         <developerConnection>scm:svn:https://src.springframework.org/svn/spring-security/trunk</developerConnection>
-        <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/spring-security/trunk</url>
+        <url>https://src.springframework.org/svn/spring-security/trunk</url>
     </scm>
 
     <issueManagement>
