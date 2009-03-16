@@ -1,14 +1,18 @@
 package org.springframework.security.ui.rememberme;
 
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.springframework.security.ui.rememberme.AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
 
 import java.util.Date;
+
+import javax.servlet.http.Cookie;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /**
  * @author Luke Taylor
@@ -95,6 +99,21 @@ public class PersistentTokenBasedRememberMeServicesTests {
 
         assertEquals(repo.getStoredToken().getSeries(), cookie[0]);
         assertEquals(repo.getStoredToken().getTokenValue(), cookie[1]);
+    }
+
+    @Test
+    public void logoutClearsUsersTokenAndCookie() throws Exception {
+        Cookie cookie = new Cookie("mycookiename", "somevalue");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie[] {cookie});
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockTokenRepository repo =
+            new MockTokenRepository(new PersistentRememberMeToken("joe", "series","token", new Date()));
+        services.setTokenRepository(repo);
+        services.logout(request, response, new TestingAuthenticationToken("joe","somepass","SOME_AUTH"));
+        Cookie returnedCookie = response.getCookie("mycookiename");
+        assertNotNull(returnedCookie);
+        assertEquals(0, returnedCookie.getMaxAge());
     }
 
     private class MockTokenRepository implements PersistentTokenRepository {
