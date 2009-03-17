@@ -1,6 +1,6 @@
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="domain-acls">
     <info>
-        <title>Domain Object Security</title>
+        <title>Domain Object Security (ACLs)</title>
     </info>
     <section xml:id="domain-acls-overview">
         <info>
