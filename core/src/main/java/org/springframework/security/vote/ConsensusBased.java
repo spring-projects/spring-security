@@ -60,6 +60,10 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
         for (AccessDecisionVoter voter :  getDecisionVoters()) {
             int result = voter.vote(authentication, object, configAttributes);
 
+            if (logger.isDebugEnabled()) {
+                logger.debug("Voter: " + voter + ", returned: " + result);
+            }
+
             switch (result) {
             case AccessDecisionVoter.ACCESS_GRANTED:
                 grant++;

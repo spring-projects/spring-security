@@ -18,6 +18,8 @@ package org.springframework.security.vote;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AccessDeniedException;
 import org.springframework.security.SpringSecurityMessageSource;
@@ -39,6 +41,7 @@ import org.springframework.util.Assert;
 public abstract class AbstractAccessDecisionManager implements AccessDecisionManager, InitializingBean,
         MessageSourceAware {
     //~ Instance fields ================================================================================================
+    protected final Log logger = LogFactory.getLog(getClass());
 
     private List<AccessDecisionVoter> decisionVoters;
 
