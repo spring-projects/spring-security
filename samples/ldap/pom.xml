@@ -12,7 +12,7 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
+            <artifactId>spring-security-ldap</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -24,11 +24,13 @@
             <artifactId>org.springframework.web.servlet</artifactId>
             <version>${spring.version}</version>
         </dependency>
+<!--        
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>org.springframework.jdbc</artifactId>
             <scope>runtime</scope>
         </dependency>
+-->        
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>org.springframework.aop</artifactId>
@@ -38,23 +40,18 @@
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core</artifactId>
             <version>1.0.2</version>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-server-jndi</artifactId>
             <version>1.0.2</version>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.4.3</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.ldap</groupId>
-            <artifactId>spring-ldap-core</artifactId>
             <scope>runtime</scope>
         </dependency>
     </dependencies>

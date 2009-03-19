@@ -9,14 +9,15 @@
 
     <modules>
         <module>core</module>
-        <!-- module>portlet</module -->
-        <module>ntlm</module>
-        <module>openid</module>
-        <module>samples</module>
+        <module>ldap</module>
         <module>cas</module>
+        <module>openid</module>
         <module>acl</module>
+        <module>ntlm</module>
+        <module>samples</module>
         <module>taglibs</module>
         <module>itest</module>
+        <!-- module>portlet</module -->
   </modules>
 
     <description>Spring Security</description>
@@ -291,6 +292,11 @@
             <artifactId>junit</artifactId>
             <version>4.5</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.7</version>
         </dependency>
     </dependencies>
 

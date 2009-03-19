@@ -6,7 +6,7 @@ package org.springframework.security.config;
  * @author Ben Alex
  * @version $Id$
  */
-abstract class Elements {
+public abstract class Elements {
 
     public static final String AUTHENTICATION_MANAGER = "authentication-manager";
     public static final String USER_SERVICE = "user-service";

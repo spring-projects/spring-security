@@ -1,4 +1,4 @@
-package org.springframework.security.config;
+package org.springframework.security.config.ldap;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.DisposableBean;
@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.Lifecycle;
 import org.springframework.core.io.Resource;
 import org.springframework.ldap.core.ContextSource;
+import org.springframework.security.config.LdapServerBeanDefinitionParser;
 import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

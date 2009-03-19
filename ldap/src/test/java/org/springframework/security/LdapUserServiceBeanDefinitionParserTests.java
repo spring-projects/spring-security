@@ -1,4 +1,4 @@
-package org.springframework.security.config;
+package org.springframework.security;
 
 import java.util.Set;
 

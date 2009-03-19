@@ -2,7 +2,9 @@ package org.springframework.security.config;
 
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.util.StringUtils;
 
@@ -88,9 +90,23 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 
         RuntimeBeanReference contextSource = new RuntimeBeanReference(server);
         contextSource.setSource(parserContext.extractSource(elt));
-        LdapConfigUtils.registerPostProcessorIfNecessary(parserContext.getRegistry(), requiresDefaultName);
+        registerPostProcessorIfNecessary(parserContext.getRegistry(), requiresDefaultName);
 
         return contextSource;
+    }
+
+    private static void registerPostProcessorIfNecessary(BeanDefinitionRegistry registry, boolean defaultNameRequired) {
+        if (registry.containsBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR)) {
+            if (defaultNameRequired) {
+                BeanDefinition bd = registry.getBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR);
+                bd.getPropertyValues().addPropertyValue("defaultNameRequired", Boolean.valueOf(defaultNameRequired));
+            }
+            return;
+        }
+
+        BeanDefinitionBuilder bdb = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.config.ldap.ContextSourceSettingPostProcessor");
+        bdb.addPropertyValue("defaultNameRequired", Boolean.valueOf(defaultNameRequired));
+        registry.registerBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR, bdb.getBeanDefinition());
     }
 
     static RootBeanDefinition parseUserDetailsClass(Element elt, ParserContext parserContext) {

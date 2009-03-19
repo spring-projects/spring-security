@@ -13,10 +13,8 @@
  * limitations under the License.
  */
 
-package org.springframework.security.providers.ldap.authenticator;
+package org.springframework.security.providers.encoding;
 
-import org.springframework.security.providers.encoding.PasswordEncoder;
-import org.springframework.security.providers.encoding.ShaPasswordEncoder;
 
 import org.apache.commons.codec.binary.Base64;
 

@@ -148,7 +148,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
         contextSource.addPropertyValue("userDn", "uid=admin,ou=system");
         contextSource.addPropertyValue("password", "secret");
 
-        RootBeanDefinition apacheContainer = new RootBeanDefinition("org.springframework.security.config.ApacheDSContainer", null, null);
+        RootBeanDefinition apacheContainer = new RootBeanDefinition("org.springframework.security.config.ldap.ApacheDSContainer", null, null);
         apacheContainer.setSource(source);
         apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(configuration.getBeanDefinition());
         apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(contextSource.getBeanDefinition());

@@ -25,6 +25,7 @@ import org.springframework.security.BadCredentialsException;
 import org.springframework.security.ldap.LdapUtils;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.encoding.LdapShaPasswordEncoder;
 import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;

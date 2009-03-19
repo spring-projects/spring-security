@@ -1,17 +1,14 @@
 package org.springframework.security.config;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 
 /**
@@ -83,9 +80,9 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
                     parserContext.getReaderContext().warning("Salt source information isn't valid when used with LDAP",
                             passwordEncoderElement);
                 }
-            } else if (StringUtils.hasText(hash)) {
-                Class<? extends PasswordEncoder> encoderClass = PasswordEncoderParser.ENCODER_CLASSES.get(hash);
-                authenticatorBuilder.addPropertyValue("passwordEncoder", new RootBeanDefinition(encoderClass));
+            } else if (StringUtils.hasText(hash)) {;
+                authenticatorBuilder.addPropertyValue("passwordEncoder",
+                        PasswordEncoderParser.createPasswordEncoderBeanDefinition(hash, false));
             }
         }
 

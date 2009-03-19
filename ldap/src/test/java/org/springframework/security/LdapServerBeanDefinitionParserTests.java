@@ -1,8 +1,9 @@
-package org.springframework.security.config;
+package org.springframework.security;
 
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.security.config.BeanIds;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 

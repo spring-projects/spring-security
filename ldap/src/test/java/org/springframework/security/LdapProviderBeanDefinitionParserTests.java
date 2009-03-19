@@ -1,4 +1,4 @@
-package org.springframework.security.config;
+package org.springframework.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.security.Authentication;
+import org.springframework.security.config.BeanIds;
+import org.springframework.security.config.SecurityConfigurationException;
 import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.ldap.LdapAuthenticationProvider;

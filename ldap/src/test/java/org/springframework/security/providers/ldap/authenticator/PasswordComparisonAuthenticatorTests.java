@@ -20,6 +20,7 @@ import org.springframework.security.Authentication;
 
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 
+import org.springframework.security.providers.encoding.LdapShaPasswordEncoder;
 import org.springframework.security.providers.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 

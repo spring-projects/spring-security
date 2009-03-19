@@ -6,16 +6,18 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanMetadataElement;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.providers.encoding.BaseDigestPasswordEncoder;
+import org.springframework.security.providers.encoding.LdapShaPasswordEncoder;
 import org.springframework.security.providers.encoding.Md4PasswordEncoder;
 import org.springframework.security.providers.encoding.Md5PasswordEncoder;
 import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.providers.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.providers.encoding.ShaPasswordEncoder;
-import org.springframework.security.providers.ldap.authenticator.LdapShaPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -39,10 +41,10 @@ class PasswordEncoderParser {
     static final String OPT_HASH_MD5 = "md5";
     static final String OPT_HASH_LDAP_SHA = "{sha}";
 
-    static final Map<String, Class<? extends PasswordEncoder>> ENCODER_CLASSES;
+    private static final Map<String, Class<? extends PasswordEncoder>> ENCODER_CLASSES;
 
     static {
-        ENCODER_CLASSES = new HashMap<String, Class<? extends PasswordEncoder>>(6);
+        ENCODER_CLASSES = new HashMap<String, Class<? extends PasswordEncoder>>();
         ENCODER_CLASSES.put(OPT_HASH_PLAINTEXT, PlaintextPasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_SHA, ShaPasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_SHA256, ShaPasswordEncoder.class);
@@ -51,7 +53,7 @@ class PasswordEncoderParser {
         ENCODER_CLASSES.put(OPT_HASH_LDAP_SHA, LdapShaPasswordEncoder.class);
     }
 
-    private Log logger = LogFactory.getLog(getClass());
+    private static Log logger = LogFactory.getLog(PasswordEncoderParser.class);
 
     private BeanMetadataElement passwordEncoder;
     private BeanMetadataElement saltSource;
@@ -73,22 +75,8 @@ class PasswordEncoderParser {
         if (StringUtils.hasText(ref)) {
             passwordEncoder = new RuntimeBeanReference(ref);
         } else {
-            Class<? extends PasswordEncoder> beanClass = ENCODER_CLASSES.get(hash);
-            RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
-
-            if (OPT_HASH_SHA256.equals(hash)) {
-                beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, new Integer(256));
-            }
-
-            beanDefinition.setSource(parserContext.extractSource(element));
-            if (useBase64) {
-                if (BaseDigestPasswordEncoder.class.isAssignableFrom(beanClass)) {
-                    beanDefinition.getPropertyValues().addPropertyValue("encodeHashAsBase64", "true");
-                } else {
-                    logger.warn(ATT_BASE_64 + " isn't compatible with " + hash + " and will be ignored");
-                }
-            }
-            passwordEncoder = beanDefinition;
+            passwordEncoder = createPasswordEncoderBeanDefinition(hash, useBase64);
+            ((RootBeanDefinition)passwordEncoder).setSource(parserContext.extractSource(element));
         }
 
         Element saltSourceElt = DomUtils.getChildElementByTagName(element, Elements.SALT_SOURCE);
@@ -96,6 +84,24 @@ class PasswordEncoderParser {
         if (saltSourceElt != null) {
             saltSource = new SaltSourceBeanDefinitionParser().parse(saltSourceElt, parserContext);
         }
+    }
+
+    static BeanDefinition createPasswordEncoderBeanDefinition(String hash, boolean useBase64) {
+        Class<? extends PasswordEncoder> beanClass = ENCODER_CLASSES.get(hash);
+        BeanDefinitionBuilder beanBldr = BeanDefinitionBuilder.rootBeanDefinition(beanClass);
+
+        if (OPT_HASH_SHA256.equals(hash)) {
+            beanBldr.addConstructorArgValue(new Integer(256));
+        }
+
+        if (useBase64) {
+            if (BaseDigestPasswordEncoder.class.isAssignableFrom(beanClass)) {
+                beanBldr.addPropertyValue("encodeHashAsBase64", "true");
+            } else {
+                logger.warn(ATT_BASE_64 + " isn't compatible with " + hash + " and will be ignored");
+            }
+        }
+        return beanBldr.getBeanDefinition();
     }
 
     public BeanMetadataElement getPasswordEncoder() {
