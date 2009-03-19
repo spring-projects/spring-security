@@ -13,8 +13,8 @@ import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.SpelExpressionParser;
-import org.springframework.expression.spel.standard.StandardEvaluationContext;
+import org.springframework.expression.spel.antlr.SpelAntlrExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.AuthenticationTrustResolverImpl;
@@ -39,7 +39,7 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
     private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
     private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-    private ExpressionParser expressionParser = new SpelExpressionParser();
+    private ExpressionParser expressionParser = new SpelAntlrExpressionParser();
 
     public DefaultSecurityExpressionHandler() {
     }
@@ -69,7 +69,7 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
 
     @SuppressWarnings("unchecked")
     public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
-        MethodSecurityExpressionRoot rootObject = (MethodSecurityExpressionRoot) ctx.getRootContextObject();
+        MethodSecurityExpressionRoot rootObject = (MethodSecurityExpressionRoot) ctx.getRootObject();
         List retainList;
 
         if (logger.isDebugEnabled()) {
@@ -150,7 +150,7 @@ public class DefaultSecurityExpressionHandler implements SecurityExpressionHandl
     }
 
     public void setReturnObject(Object returnObject, EvaluationContext ctx) {
-        ((MethodSecurityExpressionRoot)ctx.getRootContextObject()).setReturnObject(returnObject);
+        ((MethodSecurityExpressionRoot)ctx.getRootObject()).setReturnObject(returnObject);
     }
 
 }

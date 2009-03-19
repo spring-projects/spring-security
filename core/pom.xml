@@ -14,15 +14,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>org.springframework.expression</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr</artifactId>
-        </dependency>
-        <dependency>
             <!-- Used by SPEL -->
+        <dependency>
             <groupId>asm</groupId>
             <artifactId>asm-all</artifactId>
-        </dependency>          
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>org.springframework.core</artifactId>
@@ -30,6 +26,10 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>org.springframework.context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.transaction</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

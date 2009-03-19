@@ -7,8 +7,8 @@ import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.expression.Expression;
-import org.springframework.expression.spel.SpelExpressionParser;
-import org.springframework.expression.spel.standard.StandardEvaluationContext;
+import org.springframework.expression.spel.antlr.SpelAntlrExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.expression.ExpressionUtils;
@@ -21,7 +21,7 @@ import org.springframework.security.expression.PermissionEvaluator;
  * @version $Id$
  */
 public class MethodSecurityExpressionRootTests {
-    SpelExpressionParser parser = new SpelExpressionParser();
+    SpelAntlrExpressionParser parser = new SpelAntlrExpressionParser();
     MethodSecurityExpressionRoot root;
     StandardEvaluationContext ctx;
     Mockery jmock = new Mockery();

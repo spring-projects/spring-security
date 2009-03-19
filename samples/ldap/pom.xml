@@ -55,6 +55,7 @@
         <dependency>
             <groupId>org.springframework.ldap</groupId>
             <artifactId>spring-ldap-core</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 

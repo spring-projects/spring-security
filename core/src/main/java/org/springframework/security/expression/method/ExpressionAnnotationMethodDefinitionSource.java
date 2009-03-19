@@ -10,7 +10,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParseException;
-import org.springframework.expression.spel.SpelExpressionParser;
+import org.springframework.expression.spel.antlr.SpelAntlrExpressionParser;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.config.SecurityConfigurationException;
 import org.springframework.security.expression.SecurityExpressionHandler;
@@ -42,7 +42,7 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDe
     private ExpressionParser parser;
 
     public ExpressionAnnotationMethodDefinitionSource() {
-        parser = new SpelExpressionParser();
+        parser = new SpelAntlrExpressionParser();
     }
 
     /**

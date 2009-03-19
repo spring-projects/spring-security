@@ -35,7 +35,7 @@
             <artifactId>jetty-naming</artifactId>
             <version>${jetty.version}</version>
             <scope>test</scope>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty-plus</artifactId>
@@ -44,14 +44,16 @@
         </dependency>
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jsp-2.1</artifactId>
+            <artifactId>jsp-2.1-jetty</artifactId>
             <version>${jetty.version}</version>
             <scope>test</scope>
         </dependency>
+<!--        
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jsp-api-2.1</artifactId>
             <version>${jetty.version}</version>
-        </dependency>               
+        </dependency>
+-->        
     </dependencies>
 </project>
