@@ -11,22 +11,22 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParseException;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.expression.SecurityExpressionHandler;
-import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
+import org.springframework.security.intercept.web.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.intercept.web.RequestKey;
 import org.springframework.security.util.UrlMatcher;
 import org.springframework.util.Assert;
 
 /**
- * Expression-based <tt>FilterInvocationDefinitionSource</tt>.
+ * Expression-based <tt>FilterInvocationSecurityMetadataSource</tt>.
  *
  * @author Luke Taylor
  * @version $Id$
  * @since 2.5
  */
-public final class ExpressionBasedFilterInvocationDefinitionSource extends DefaultFilterInvocationDefinitionSource {
-    private final static Log logger = LogFactory.getLog(ExpressionBasedFilterInvocationDefinitionSource.class);
+public final class ExpressionBasedFilterInvocationSecurityMetadataSource extends DefaultFilterInvocationSecurityMetadataSource {
+    private final static Log logger = LogFactory.getLog(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
 
-    public ExpressionBasedFilterInvocationDefinitionSource(UrlMatcher urlMatcher,
+    public ExpressionBasedFilterInvocationSecurityMetadataSource(UrlMatcher urlMatcher,
             LinkedHashMap<RequestKey, List<ConfigAttribute>> requestMap, SecurityExpressionHandler expressionHandler) {
         super(urlMatcher, processMap(requestMap, expressionHandler.getExpressionParser()));
         Assert.notNull(expressionHandler, "A non-null SecurityExpressionHandler is required");

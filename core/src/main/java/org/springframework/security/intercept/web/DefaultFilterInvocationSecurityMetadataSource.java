@@ -51,7 +51,7 @@ import org.springframework.security.util.UrlMatcher;
  * @author Luke Taylor
  * @version $Id$
  */
-public class DefaultFilterInvocationDefinitionSource implements FilterInvocationDefinitionSource {
+public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
     private static final Set<String> HTTP_METHODS = new HashSet<String>(Arrays.asList("DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"));
 
@@ -76,7 +76,7 @@ public class DefaultFilterInvocationDefinitionSource implements FilterInvocation
      * @param urlMatcher typically an ant or regular expression matcher.
      * @param requestMap order-preserving map of request definitions to attribute lists
      */
-    public DefaultFilterInvocationDefinitionSource(UrlMatcher urlMatcher,
+    public DefaultFilterInvocationSecurityMetadataSource(UrlMatcher urlMatcher,
             LinkedHashMap<RequestKey, List<ConfigAttribute>> requestMap) {
         this.urlMatcher = urlMatcher;
 

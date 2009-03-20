@@ -54,7 +54,7 @@ import org.springframework.util.Assert;
  * <ol>
  * <li>Obtain the {@link Authentication} object from the {@link SecurityContextHolder}.</li>
  * <li>Determine if the request relates to a secured or public invocation by looking up the secure object request
- * against the {@link ObjectDefinitionSource}.</li>
+ * against the {@link SecurityMetadataSource}.</li>
  * <li>For an invocation that is secured (there is a list of <code>ConfigAttribute</code>s for the secure
  * object invocation):
  * <ol type="a">
@@ -122,9 +122,9 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
         Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
         Assert.notNull(this.accessDecisionManager, "An AccessDecisionManager is required");
         Assert.notNull(this.runAsManager, "A RunAsManager is required");
-        Assert.notNull(this.obtainObjectDefinitionSource(), "An ObjectDefinitionSource is required");
-        Assert.isTrue(this.obtainObjectDefinitionSource().supports(getSecureObjectClass()),
-                "ObjectDefinitionSource does not support secure object class: " + getSecureObjectClass());
+        Assert.notNull(this.obtainSecurityMetadataSource(), "An SecurityMetadataSource is required");
+        Assert.isTrue(this.obtainSecurityMetadataSource().supports(getSecureObjectClass()),
+                "SecurityMetadataSource does not support secure object class: " + getSecureObjectClass());
         Assert.isTrue(this.runAsManager.supports(getSecureObjectClass()),
                 "RunAsManager does not support secure object class: " + getSecureObjectClass());
         Assert.isTrue(this.accessDecisionManager.supports(getSecureObjectClass()),
@@ -136,10 +136,10 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
         }
 
         if (this.validateConfigAttributes) {
-            Collection<ConfigAttribute> attributeDefs = this.obtainObjectDefinitionSource().getAllConfigAttributes();
+            Collection<ConfigAttribute> attributeDefs = this.obtainSecurityMetadataSource().getAllConfigAttributes();
 
             if (attributeDefs == null) {
-                logger.warn("Could not validate configuration attributes as the ObjectDefinitionSource did not return "
+                logger.warn("Could not validate configuration attributes as the SecurityMetadataSource did not return "
                         + "any attributes from getAllConfigAttributes()");
                 return;
             }
@@ -171,7 +171,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
                     + getSecureObjectClass());
         }
 
-        List<ConfigAttribute> attributes = this.obtainObjectDefinitionSource().getAttributes(object);
+        List<ConfigAttribute> attributes = this.obtainSecurityMetadataSource().getAttributes(object);
 
         if (attributes == null) {
             if (rejectPublicInvocations) {
@@ -371,7 +371,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
         return validateConfigAttributes;
     }
 
-    public abstract ObjectDefinitionSource obtainObjectDefinitionSource();
+    public abstract SecurityMetadataSource obtainSecurityMetadataSource();
 
     public void setAccessDecisionManager(AccessDecisionManager accessDecisionManager) {
         this.accessDecisionManager = accessDecisionManager;

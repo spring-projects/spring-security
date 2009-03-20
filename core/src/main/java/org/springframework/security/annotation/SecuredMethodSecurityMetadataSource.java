@@ -24,7 +24,7 @@ import java.util.List;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.SecurityConfig;
-import org.springframework.security.intercept.method.AbstractFallbackMethodDefinitionSource;
+import org.springframework.security.intercept.method.AbstractFallbackMethodSecurityMetadataSource;
 
 
 /**
@@ -33,7 +33,7 @@ import org.springframework.security.intercept.method.AbstractFallbackMethodDefin
  * @author Ben Alex
  * @version $Id$
  */
-public class SecuredMethodDefinitionSource extends AbstractFallbackMethodDefinitionSource {
+public class SecuredMethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
 
     protected List<ConfigAttribute> findAttributes(Class<?> clazz) {
         return processAnnotation(clazz.getAnnotation(Secured.class));

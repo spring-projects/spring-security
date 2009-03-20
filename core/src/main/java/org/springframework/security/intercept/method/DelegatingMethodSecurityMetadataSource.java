@@ -22,17 +22,17 @@ import org.springframework.util.ObjectUtils;
  * @author Luke Taylor
  * @version $Id$
  */
-public final class DelegatingMethodDefinitionSource extends AbstractMethodDefinitionSource implements InitializingBean {
+public final class DelegatingMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource implements InitializingBean {
     private final static List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = Collections.emptyList();
 
-    private List<MethodDefinitionSource> methodDefinitionSources;
+    private List<MethodSecurityMetadataSource> methodSecurityMetadataSources;
     private final Map<DefaultCacheKey, List<ConfigAttribute>> attributeCache =
         new HashMap<DefaultCacheKey, List<ConfigAttribute>>();
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(methodDefinitionSources, "A list of MethodDefinitionSources is required");
+        Assert.notNull(methodSecurityMetadataSources, "A list of MethodSecurityMetadataSources is required");
     }
 
     public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
@@ -50,7 +50,7 @@ public final class DelegatingMethodDefinitionSource extends AbstractMethodDefini
 
             // No cached value, so query the sources to find a result
             List<ConfigAttribute> attributes = null;
-            for (MethodDefinitionSource s : methodDefinitionSources) {
+            for (MethodSecurityMetadataSource s : methodSecurityMetadataSources) {
                 attributes = s.getAttributes(method, targetClass);
                 if (attributes != null) {
                     break;
@@ -75,7 +75,7 @@ public final class DelegatingMethodDefinitionSource extends AbstractMethodDefini
 
     public Collection<ConfigAttribute> getAllConfigAttributes() {
         Set<ConfigAttribute> set = new HashSet<ConfigAttribute>();
-        for (MethodDefinitionSource s : methodDefinitionSources) {
+        for (MethodSecurityMetadataSource s : methodSecurityMetadataSources) {
             Collection<ConfigAttribute> attrs = s.getAllConfigAttributes();
             if (attrs != null) {
                 set.addAll(attrs);
@@ -85,8 +85,8 @@ public final class DelegatingMethodDefinitionSource extends AbstractMethodDefini
     }
 
     @SuppressWarnings("unchecked")
-    public void setMethodDefinitionSources(List methodDefinitionSources) {
-        this.methodDefinitionSources = methodDefinitionSources;
+    public void setMethodSecurityMetadataSources(List methodSecurityMetadataSources) {
+        this.methodSecurityMetadataSources = methodSecurityMetadataSources;
     }
 
     //~ Inner Classes ==================================================================================================

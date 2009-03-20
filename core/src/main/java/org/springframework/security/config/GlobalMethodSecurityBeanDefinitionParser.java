@@ -21,10 +21,10 @@ import org.springframework.security.SecurityConfig;
 import org.springframework.security.expression.method.MethodExpressionAfterInvocationProvider;
 import org.springframework.security.expression.method.MethodExpressionVoter;
 import org.springframework.security.expression.support.DefaultSecurityExpressionHandler;
-import org.springframework.security.intercept.method.DelegatingMethodDefinitionSource;
-import org.springframework.security.intercept.method.MapBasedMethodDefinitionSource;
+import org.springframework.security.intercept.method.DelegatingMethodSecurityMetadataSource;
+import org.springframework.security.intercept.method.MapBasedMethodSecurityMetadataSource;
 import org.springframework.security.intercept.method.ProtectPointcutPostProcessor;
-import org.springframework.security.intercept.method.aopalliance.MethodDefinitionSourceAdvisor;
+import org.springframework.security.intercept.method.aopalliance.MethodSecurityMetadataSourceAdvisor;
 import org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.vote.AffirmativeBased;
 import org.springframework.security.vote.AuthenticatedVoter;
@@ -45,9 +45,9 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.SecuredMethodDefinitionSource";
-    private static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.expression.method.ExpressionAnnotationMethodDefinitionSource";
-    private static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.Jsr250MethodDefinitionSource";
+    private static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.SecuredMethodSecurityMetadataSource";
+    private static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.expression.method.ExpressionAnnotationMethodSecurityMetadataSource";
+    private static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.Jsr250MethodSecurityMetadataSource";
     private static final String JSR_250_VOTER_CLASS = "org.springframework.security.annotation.Jsr250Voter";
 
     /*
@@ -56,7 +56,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String SECURITY_INTERCEPTOR_ID = "_globalMethodSecurityInterceptor";
     static final String INTERCEPTOR_POST_PROCESSOR_ID = "_globalMethodSecurityInterceptorPostProcessor";
     static final String ACCESS_MANAGER_ID = "_globalMethodSecurityAccessManager";
-    private static final String DELEGATING_METHOD_DEFINITION_SOURCE_ID = "_delegatingMethodDefinitionSource";
+    private static final String DELEGATING_METHOD_DEFINITION_SOURCE_ID = "_delegatingMethodSecurityMetadataSource";
     private static final String EXPRESSION_HANDLER_ID = "_methodExpressionHandler";
 
     private static final String ATT_ACCESS = "access";
@@ -83,9 +83,9 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         if (pointcutMap.size() > 0) {
             // SEC-1016: Put the pointcut MDS first, but only add it if there are actually any pointcuts defined.
-            MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource = new MapBasedMethodDefinitionSource();
-            delegates.add(mapBasedMethodDefinitionSource);
-            registerProtectPointcutPostProcessor(parserContext, pointcutMap, mapBasedMethodDefinitionSource, source);
+            MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource = new MapBasedMethodSecurityMetadataSource();
+            delegates.add(mapBasedMethodSecurityMetadataSource);
+            registerProtectPointcutPostProcessor(parserContext, pointcutMap, mapBasedMethodSecurityMetadataSource, source);
         }
 
         if (expressionsEnabled) {
@@ -123,7 +123,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
             delegates.add(BeanDefinitionBuilder.rootBeanDefinition(JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS).getBeanDefinition());
         }
 
-        registerDelegatingMethodDefinitionSource(parserContext, delegates, source);
+        registerDelegatingMethodSecurityMetadataSource(parserContext, delegates, source);
 
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
@@ -167,24 +167,24 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     @SuppressWarnings("unchecked")
-    private void registerDelegatingMethodDefinitionSource(ParserContext parserContext, ManagedList delegates, Object source) {
+    private void registerDelegatingMethodSecurityMetadataSource(ParserContext parserContext, ManagedList delegates, Object source) {
         if (parserContext.getRegistry().containsBeanDefinition(DELEGATING_METHOD_DEFINITION_SOURCE_ID)) {
             parserContext.getReaderContext().error("Duplicate <global-method-security> detected.", source);
         }
-        RootBeanDefinition delegatingMethodDefinitionSource = new RootBeanDefinition(DelegatingMethodDefinitionSource.class);
-        delegatingMethodDefinitionSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        delegatingMethodDefinitionSource.setSource(source);
-        delegatingMethodDefinitionSource.getPropertyValues().addPropertyValue("methodDefinitionSources", delegates);
-        parserContext.getRegistry().registerBeanDefinition(DELEGATING_METHOD_DEFINITION_SOURCE_ID, delegatingMethodDefinitionSource);
+        RootBeanDefinition delegatingMethodSecurityMetadataSource = new RootBeanDefinition(DelegatingMethodSecurityMetadataSource.class);
+        delegatingMethodSecurityMetadataSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        delegatingMethodSecurityMetadataSource.setSource(source);
+        delegatingMethodSecurityMetadataSource.getPropertyValues().addPropertyValue("methodSecurityMetadataSources", delegates);
+        parserContext.getRegistry().registerBeanDefinition(DELEGATING_METHOD_DEFINITION_SOURCE_ID, delegatingMethodSecurityMetadataSource);
     }
 
     private void registerProtectPointcutPostProcessor(ParserContext parserContext,
             Map<String, List<ConfigAttribute>> pointcutMap,
-            MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource, Object source) {
+            MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource, Object source) {
         RootBeanDefinition ppbp = new RootBeanDefinition(ProtectPointcutPostProcessor.class);
         ppbp.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         ppbp.setSource(source);
-        ppbp.getConstructorArgumentValues().addGenericArgumentValue(mapBasedMethodDefinitionSource);
+        ppbp.getConstructorArgumentValues().addGenericArgumentValue(mapBasedMethodSecurityMetadataSource);
         ppbp.getPropertyValues().addPropertyValue("pointcutMap", pointcutMap);
         parserContext.getRegistry().registerBeanDefinition(BeanIds.PROTECT_POINTCUT_POST_PROCESSOR, ppbp);
     }
@@ -224,7 +224,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         interceptor.getPropertyValues().addPropertyValue("accessDecisionManager", new RuntimeBeanReference(accessManagerId));
         interceptor.getPropertyValues().addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
-        interceptor.getPropertyValues().addPropertyValue("objectDefinitionSource", new RuntimeBeanReference(DELEGATING_METHOD_DEFINITION_SOURCE_ID));
+        interceptor.getPropertyValues().addPropertyValue("securityMetadataSource", new RuntimeBeanReference(DELEGATING_METHOD_DEFINITION_SOURCE_ID));
         parserContext.getRegistry().registerBeanDefinition(SECURITY_INTERCEPTOR_ID, interceptor);
         parserContext.registerComponent(new BeanComponentDefinition(interceptor, SECURITY_INTERCEPTOR_ID));
 
@@ -233,12 +233,12 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private void registerAdvisor(ParserContext parserContext, Object source) {
-        RootBeanDefinition advisor = new RootBeanDefinition(MethodDefinitionSourceAdvisor.class);
+        RootBeanDefinition advisor = new RootBeanDefinition(MethodSecurityMetadataSourceAdvisor.class);
         advisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         advisor.setSource(source);
         advisor.getConstructorArgumentValues().addGenericArgumentValue(SECURITY_INTERCEPTOR_ID);
         advisor.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(DELEGATING_METHOD_DEFINITION_SOURCE_ID));
 
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_DEFINITION_SOURCE_ADVISOR, advisor);
+        parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_METADATA_SOURCE_ADVISOR, advisor);
     }
 }

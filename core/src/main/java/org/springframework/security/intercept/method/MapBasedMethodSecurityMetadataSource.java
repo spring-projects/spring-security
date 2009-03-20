@@ -34,7 +34,7 @@ import org.springframework.util.ClassUtils;
  * Stores a list of <tt>ConfigAttribute</tt>s for a method or class signature.
  *
  * <p>
- * This class is the preferred implementation of {@link MethodDefinitionSource} for XML-based
+ * This class is the preferred implementation of {@link MethodSecurityMetadataSource} for XML-based
  * definition of method security metadata. To assist in XML-based definition, wildcard support
  * is provided.
  * </p>
@@ -43,7 +43,7 @@ import org.springframework.util.ClassUtils;
  * @version $Id$
  * @since 2.0
  */
-public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefinitionSource implements BeanClassLoaderAware {
+public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource implements BeanClassLoaderAware {
 
     //~ Instance fields ================================================================================================
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
@@ -56,14 +56,14 @@ public class MapBasedMethodDefinitionSource extends AbstractFallbackMethodDefini
 
     //~ Methods ========================================================================================================
 
-    public MapBasedMethodDefinitionSource() {
+    public MapBasedMethodSecurityMetadataSource() {
     }
 
     /**
-     * Creates the MapBasedMethodDefinitionSource from a
+     * Creates the <tt>MapBasedMethodSecurityMetadataSource</tt> from a
      * @param methodMap map of method names to <tt>ConfigAttribute</tt>s.
      */
-    public MapBasedMethodDefinitionSource(Map<String, List<ConfigAttribute>> methodMap) {
+    public MapBasedMethodSecurityMetadataSource(Map<String, List<ConfigAttribute>> methodMap) {
         for (Map.Entry<String, List<ConfigAttribute>> entry : methodMap.entrySet()) {
             addSecureMethod(entry.getKey(), entry.getValue());
         }

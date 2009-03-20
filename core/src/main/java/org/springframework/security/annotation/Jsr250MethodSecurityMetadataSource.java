@@ -27,7 +27,7 @@ import javax.annotation.security.RolesAllowed;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.intercept.method.AbstractFallbackMethodDefinitionSource;
+import org.springframework.security.intercept.method.AbstractFallbackMethodSecurityMetadataSource;
 
 
 /**
@@ -37,7 +37,7 @@ import org.springframework.security.intercept.method.AbstractFallbackMethodDefin
  * @version $Id$
  * @since 2.0
  */
-public class Jsr250MethodDefinitionSource extends AbstractFallbackMethodDefinitionSource {
+public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
 
     protected List<ConfigAttribute> findAttributes(Class<?> clazz) {
         return processAnnotations(clazz.getAnnotations());

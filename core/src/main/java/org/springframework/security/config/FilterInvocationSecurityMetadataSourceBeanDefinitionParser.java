@@ -7,7 +7,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
+import org.springframework.security.intercept.web.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.intercept.web.RequestKey;
 import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.security.util.UrlMatcher;
@@ -16,15 +16,15 @@ import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 /**
- * Allows for convenient creation of a {@link FilterInvocationDefinitionSource} bean for use with a FilterSecurityInterceptor.
+ * Allows for convenient creation of a {@link FilterInvocationSecurityMetadataSource} bean for use with a FilterSecurityInterceptor.
  *
  * @author Luke Taylor
  * @version $Id$
  */
-public class FilterInvocationDefinitionSourceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+public class FilterInvocationSecurityMetadataSourceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     protected String getBeanClassName(Element element) {
-        return "org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource";
+        return "org.springframework.security.intercept.web.DefaultFilterInvocationSecurityMetadataSource";
     }
 
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {

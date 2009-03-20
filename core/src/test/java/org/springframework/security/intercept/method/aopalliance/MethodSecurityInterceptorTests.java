@@ -41,7 +41,7 @@ import org.springframework.security.RunAsManager;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.TargetObject;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.intercept.method.MethodDefinitionSource;
+import org.springframework.security.intercept.method.MethodSecurityMetadataSource;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.runas.RunAsUserToken;
 
@@ -59,7 +59,7 @@ public class MethodSecurityInterceptorTests {
     private ITargetObject realTarget;
     private ITargetObject advisedTarget;
     private AccessDecisionManager adm;
-    private MethodDefinitionSource mds;
+    private MethodSecurityMetadataSource mds;
     private AuthenticationManager authman;
 
     private Expectations mdsWillReturnNullFromGetAttributes;
@@ -74,10 +74,10 @@ public class MethodSecurityInterceptorTests {
         interceptor = new MethodSecurityInterceptor();
         adm = jmock.mock(AccessDecisionManager.class);
         authman = jmock.mock(AuthenticationManager.class);
-        mds = jmock.mock(MethodDefinitionSource.class);
+        mds = jmock.mock(MethodSecurityMetadataSource.class);
         interceptor.setAccessDecisionManager(adm);
         interceptor.setAuthenticationManager(authman);
-        interceptor.setObjectDefinitionSource(mds);
+        interceptor.setSecurityMetadataSource(mds);
         createTarget(false);
 
         mdsWillReturnNullFromGetAttributes = new Expectations() {{
@@ -109,7 +109,7 @@ public class MethodSecurityInterceptorTests {
         assertEquals(adm, interceptor.getAccessDecisionManager());
         assertEquals(runAs, interceptor.getRunAsManager());
         assertEquals(authman, interceptor.getAuthenticationManager());
-        assertEquals(mds, interceptor.getObjectDefinitionSource());
+        assertEquals(mds, interceptor.getSecurityMetadataSource());
         assertEquals(aim, interceptor.getAfterInvocationManager());
     }
 
@@ -126,8 +126,8 @@ public class MethodSecurityInterceptorTests {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void missingMethodDefinitionSourceIsRejected() throws Exception {
-        interceptor.setObjectDefinitionSource(null);
+    public void missingMethodSecurityMetadataSourceIsRejected() throws Exception {
+        interceptor.setSecurityMetadataSource(null);
         interceptor.afterPropertiesSet();
     }
 
@@ -138,7 +138,7 @@ public class MethodSecurityInterceptorTests {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void initializationRejectsObjectDefinitionSourceThatDoesNotSupportMethodInvocation() throws Throwable {
+    public void initializationRejectsSecurityMetadataSourceThatDoesNotSupportMethodInvocation() throws Throwable {
         jmock.checking(new Expectations() {{
            oneOf(mds).supports(MethodInvocation.class); will(returnValue(false));
         }});
@@ -198,7 +198,7 @@ public class MethodSecurityInterceptorTests {
     }
 
     @Test
-    public void validationNotAttemptedIfMethodDefinitionSourceReturnsNullForAttributes() throws Exception {
+    public void validationNotAttemptedIfMethodSecurityMetadataSourceReturnsNullForAttributes() throws Exception {
         jmock.checking(new Expectations() {{
             oneOf(mds).supports(MethodInvocation.class); will(returnValue(true));
             oneOf(adm).supports(MethodInvocation.class); will(returnValue(true));
@@ -302,90 +302,4 @@ public class MethodSecurityInterceptorTests {
         }});
         advisedTarget.makeUpperCase("hello");
     }
-
-
-    //~ Inner Classes ==================================================================================================
-
-//    private static class MockMethodDefinitionSource() extends AbstractMethodDefinitionSource {
-//
-//    }
-
-    /*
-    private class MockAccessDecisionManagerWhichOnlySupportsStrings implements AccessDecisionManager {
-        public void decide(Authentication authentication, Object object, List<ConfigAttribute> configAttributes)
-            throws AccessDeniedException {
-            throw new UnsupportedOperationException("mock method not implemented");
-        }
-
-        public boolean supports(Class<?> clazz) {
-            if (String.class.isAssignableFrom(clazz)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        public boolean supports(ConfigAttribute attribute) {
-            return true;
-        }
-    }
-
-    private class MockAfterInvocationManagerWhichOnlySupportsStrings implements AfterInvocationManager {
-        public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
-            Object returnedObject) throws AccessDeniedException {
-            throw new UnsupportedOperationException("mock method not implemented");
-        }
-
-        public boolean supports(Class<?> clazz) {
-            if (String.class.isAssignableFrom(clazz)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        public boolean supports(ConfigAttribute attribute) {
-            return true;
-        }
-    }
-
-    private class MockObjectDefinitionSourceWhichOnlySupportsStrings implements MethodDefinitionSource {
-        public Collection<ConfigAttribute> getAllConfigAttributes() {
-            return null;
-        }
-
-        public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
-            throw new UnsupportedOperationException("mock method not implemented");
-        }
-
-        public boolean supports(Class<?> clazz) {
-            if (String.class.isAssignableFrom(clazz)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        public List<ConfigAttribute> getAttributes(Object object) {
-            throw new UnsupportedOperationException("mock method not implemented");
-        }
-    }
-
-    private class MockRunAsManagerWhichOnlySupportsStrings implements RunAsManager {
-        public Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> config) {
-            throw new UnsupportedOperationException("mock method not implemented");
-        }
-
-        public boolean supports(Class<?> clazz) {
-            if (String.class.isAssignableFrom(clazz)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        public boolean supports(ConfigAttribute attribute) {
-            return true;
-        }
-    }*/
 }

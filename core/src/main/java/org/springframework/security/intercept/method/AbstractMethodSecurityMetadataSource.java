@@ -33,14 +33,14 @@ import java.util.List;
 
 
 /**
- * Abstract implementation of <tt>MethodDefinitionSource</tt> which resolves the secured object type to
+ * Abstract implementation of <tt>MethodSecurityMetadataSource</tt> which resolves the secured object type to
  * either a MethodInvocation or a JoinPoint.
  *
  * @author Ben Alex
  * @author Luke Taylor
  * @version $Id$
  */
-public abstract class AbstractMethodDefinitionSource implements MethodDefinitionSource {
+public abstract class AbstractMethodSecurityMetadataSource implements MethodSecurityMetadataSource {
 
     protected final Log logger = LogFactory.getLog(getClass());
 

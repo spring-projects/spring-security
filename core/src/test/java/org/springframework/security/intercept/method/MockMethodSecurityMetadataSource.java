@@ -30,7 +30,7 @@ import org.springframework.security.SecurityConfig;
  * @author Ben Alex
  * @version $Id$
  */
-public class MockMethodDefinitionSource implements MethodDefinitionSource {
+public class MockMethodSecurityMetadataSource implements MethodSecurityMetadataSource {
     //~ Instance fields ================================================================================================
 
     private List<ConfigAttribute> list;
@@ -38,7 +38,7 @@ public class MockMethodDefinitionSource implements MethodDefinitionSource {
 
     //~ Constructors ===================================================================================================
 
-    public MockMethodDefinitionSource(boolean includeInvalidAttributes, boolean returnACollectionWhenRequested) {
+    public MockMethodSecurityMetadataSource(boolean includeInvalidAttributes, boolean returnACollectionWhenRequested) {
         returnACollection = returnACollectionWhenRequested;
         list = new ArrayList<ConfigAttribute>();
 

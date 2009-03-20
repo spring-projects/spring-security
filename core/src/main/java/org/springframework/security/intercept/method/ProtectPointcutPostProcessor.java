@@ -15,19 +15,19 @@ import org.aspectj.weaver.tools.PointcutPrimitive;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.intercept.method.aopalliance.MethodDefinitionSourceAdvisor;
+import org.springframework.security.intercept.method.aopalliance.MethodSecurityMetadataSourceAdvisor;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
  * Parses AspectJ pointcut expressions, registering methods that match the pointcut with a
- * traditional {@link MapBasedMethodDefinitionSource}.
+ * traditional {@link MapBasedMethodSecurityMetadataSource}.
  *
  * <p>
  * This class provides a convenient way of declaring a list of pointcuts, and then
  * having every method of every bean defined in the Spring application context compared with
  * those pointcuts. Where a match is found, the matching method will be registered with the
- * {@link MapBasedMethodDefinitionSource}.
+ * {@link MapBasedMethodSecurityMetadataSource}.
  * <p>
  * It is very important to understand that only the <b>first</b> pointcut that matches a given
  * method will be taken as authoritative for that method. This is why pointcuts should be provided
@@ -36,8 +36,8 @@ import org.springframework.util.StringUtils;
  * Note also that only beans defined in the Spring application context will be examined by this
  * class.
  * <p>
- * Because this class registers method security metadata with {@link MapBasedMethodDefinitionSource},
- * normal Spring Security capabilities such as {@link MethodDefinitionSourceAdvisor} can be used.
+ * Because this class registers method security metadata with {@link MapBasedMethodSecurityMetadataSource},
+ * normal Spring Security capabilities such as {@link MethodSecurityMetadataSourceAdvisor} can be used.
  * It does not matter the fact the method metadata was originally obtained from an AspectJ pointcut
  * expression evaluation.
  *
@@ -51,12 +51,12 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
     private static final Log logger = LogFactory.getLog(ProtectPointcutPostProcessor.class);
 
     private Map<String,List<ConfigAttribute>> pointcutMap = new LinkedHashMap<String,List<ConfigAttribute>>();
-    private MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource;
+    private MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource;
     private PointcutParser parser;
 
-    public ProtectPointcutPostProcessor(MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource) {
-        Assert.notNull(mapBasedMethodDefinitionSource, "MapBasedMethodDefinitionSource to populate is required");
-        this.mapBasedMethodDefinitionSource = mapBasedMethodDefinitionSource;
+    public ProtectPointcutPostProcessor(MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource) {
+        Assert.notNull(mapBasedMethodSecurityMetadataSource, "MapBasedMethodSecurityMetadataSource to populate is required");
+        this.mapBasedMethodSecurityMetadataSource = mapBasedMethodSecurityMetadataSource;
 
         // Set up AspectJ pointcut expression parser
         Set<PointcutPrimitive> supportedPrimitives = new HashSet<PointcutPrimitive>(3);
@@ -115,7 +115,7 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
                 logger.debug("AspectJ pointcut expression '" + expression.getPointcutExpression() + "' matches target class '" + targetClass.getName() + "' (bean ID '" + beanName + "') for method '" + method + "'; registering security configuration attribute '" + attr + "'");
             }
 
-            mapBasedMethodDefinitionSource.addSecureMethod(targetClass, method, attr);
+            mapBasedMethodSecurityMetadataSource.addSecureMethod(targetClass, method, attr);
         }
 
         return matches;

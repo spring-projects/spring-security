@@ -18,11 +18,11 @@ import org.springframework.security.expression.annotation.PostAuthorize;
 import org.springframework.security.expression.annotation.PostFilter;
 import org.springframework.security.expression.annotation.PreAuthorize;
 import org.springframework.security.expression.annotation.PreFilter;
-import org.springframework.security.intercept.method.AbstractMethodDefinitionSource;
+import org.springframework.security.intercept.method.AbstractMethodSecurityMetadataSource;
 import org.springframework.util.ClassUtils;
 
 /**
- * MethodDefinitionSource which extracts metadata from the @PreFilter and @PreAuthorize annotations
+ * <tt>MethodSecurityMetadataSource</tt> which extracts metadata from the @PreFilter and @PreAuthorize annotations
  * placed on a method. The metadata is encapsulated in a {@link AbstractExpressionBasedMethodConfigAttribute} instance.
  * <p>
  * Annotations may be specified on classes or methods, and method-specific annotations will take precedence.
@@ -38,10 +38,10 @@ import org.springframework.util.ClassUtils;
  * @since 2.5
  * @version $Id$
  */
-public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDefinitionSource {
+public class ExpressionAnnotationMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
     private ExpressionParser parser;
 
-    public ExpressionAnnotationMethodDefinitionSource() {
+    public ExpressionAnnotationMethodSecurityMetadataSource() {
         parser = new SpelAntlrExpressionParser();
     }
 
@@ -49,7 +49,7 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDe
      * Constructor which obtains the expression parser from the {@link SecurityExpressionHandler#getExpressionParser() }
      * method on the supplied <tt>SecurityExpressionHandler</tt>.
      */
-    public ExpressionAnnotationMethodDefinitionSource(SecurityExpressionHandler handler) {
+    public ExpressionAnnotationMethodSecurityMetadataSource(SecurityExpressionHandler handler) {
         parser = handler.getExpressionParser();
     }
 
@@ -76,7 +76,7 @@ public class ExpressionAnnotationMethodDefinitionSource extends AbstractMethodDe
     }
 
     /**
-     * See {@link org.springframework.security.intercept.method.AbstractFallbackMethodDefinitionSource#getAttributes(Method, Class)}
+     * See {@link org.springframework.security.intercept.method.AbstractFallbackMethodSecurityMetadataSource#getAttributes(Method, Class)}
      * for the logic of this method. The ordering here is slightly different in that we consider method-specific
      * annotations on an interface before class-level ones.
      */

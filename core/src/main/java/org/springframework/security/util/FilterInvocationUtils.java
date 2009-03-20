@@ -16,6 +16,7 @@
 package org.springframework.security.util;
 
 import org.springframework.security.intercept.web.FilterInvocation;
+import org.springframework.security.intercept.web.FilterInvocationSecurityMetadataSource;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -48,18 +49,16 @@ public final class FilterInvocationUtils {
 
     /**
      * Creates a <code>FilterInvocation</code> for the specified <code>contextPath</code> and <code>Uri</code>.
-     * Note the normal subclasses of <code>DefaultFilterInvocationDefinitionSource</code> disregard the
+     * Note the normal subclasses of <tt>DefaultFilterInvocationSecurityMetadataSource</tt> disregard the
      * <code>contextPath</code> when evaluating which secure object metadata applies to a given
      * <code>FilterInvocation</code>, so generally the <code>contextPath</code> is unimportant unless you are using a
-     * custom <code>FilterInvocationDefinitionSource</code>.
+     * custom <code>FilterInvocationSecurityMetadataSource</code>.
      *
      * @param contextPath the <code>contextPath</code> that will be contained within the
      *        <code>FilterInvocation</code><code>HttpServletRequest</code>
      * @param uri the URI of the request, such as <code>/foo/default.jsp</code>
      *
      * @return a fully-formed <code>FilterInvocation</code> (never <code>null</code>)
-     *
-     * @throws UnsupportedOperationException DOCUMENT ME!
      */
     public static FilterInvocation create(String contextPath, String uri) {
         Assert.hasText(contextPath, "contextPath required");
@@ -72,8 +71,7 @@ public final class FilterInvocationUtils {
 
         FilterInvocation fi = new FilterInvocation(req, new MockHttpServletResponse(),
                 new FilterChain() {
-                    public void doFilter(ServletRequest arg0, ServletResponse arg1)
-                        throws IOException, ServletException {
+                    public void doFilter(ServletRequest arg0, ServletResponse arg1) throws IOException, ServletException {
                         throw new UnsupportedOperationException(
                             "WebInvocationPrivilegeEvaluator does not support filter chains");
                     }

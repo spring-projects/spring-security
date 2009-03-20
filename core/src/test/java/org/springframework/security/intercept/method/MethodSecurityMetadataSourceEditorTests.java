@@ -31,13 +31,13 @@ import org.springframework.security.TargetObject;
 
 
 /**
- * Tests {@link MethodDefinitionSourceEditor} and its associated {@link MapBasedMethodDefinitionSource}.
+ * Tests {@link MethodSecurityMetadataSourceEditor} and its associated {@link MapBasedMethodSecurityMetadataSource}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 @SuppressWarnings("deprecation")
-public class MethodDefinitionSourceEditorTests extends TestCase {
+public class MethodSecurityMetadataSourceEditorTests extends TestCase {
     //~ Methods ========================================================================================================
 
     public final void setUp() throws Exception {
@@ -45,10 +45,10 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
     }
 
     public void testAspectJJointPointLookup() throws Exception {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
         editor.setAsText("org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
 
-        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
 
         Class<TargetObject> clazz = TargetObject.class;
         Method method = clazz.getMethod("countLength", new Class[] {String.class});
@@ -61,7 +61,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
     }
 
     public void testClassNameNotFoundResultsInException() {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
 
         try {
             editor.setAsText("org.springframework.security.DOES_NOT_EXIST_NAME=FOO,BAR");
@@ -72,7 +72,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
     }
 
     public void testClassNameNotInProperFormatResultsInException() {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
 
         try {
             editor.setAsText("DOES_NOT_EXIST_NAME=FOO,BAR");
@@ -83,7 +83,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
     }
 
     public void testClassNameValidButMethodNameInvalidResultsInException() {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
 
         try {
             editor.setAsText("org.springframework.security.TargetObject.INVALID_METHOD=FOO,BAR");
@@ -94,7 +94,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
     }
 
     public void testConcreteClassInvocationsAlsoReturnDefinitionsAgainstInterface() throws Exception {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
         editor.setAsText(
             "org.springframework.security.ITargetObject.computeHashCode*=ROLE_FROM_INTERFACE\r\n" +
             "org.springframework.security.ITargetObject.makeLower*=ROLE_FROM_INTERFACE\r\n" +
@@ -103,7 +103,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
             "org.springframework.security.OtherTargetObject.computeHashCode*=ROLE_FROM_OTO\r\n" +
             "org.springframework.security.OtherTargetObject.makeUpper*=ROLE_FROM_IMPLEMENTATION");
 
-        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
         assertEquals(6, map.getMethodMapSize());
 
         List<? extends ConfigAttribute> returnedMakeLower = map.getAttributes(new MockMethodInvocation(ITargetObject.class, "makeLowerCase", new Class[] {String.class}, new OtherTargetObject()));
@@ -124,38 +124,38 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
     }
 
     public void testEmptyStringReturnsEmptyMap() {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
         editor.setAsText("");
 
-        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
         assertEquals(0, map.getMethodMapSize());
     }
 
     public void testIterator() {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
         editor.setAsText(
             "org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY\r\norg.springframework.security.TargetObject.make*=ROLE_NINE,ROLE_SUPERVISOR");
 
-        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
 
         assertEquals(5, map.getAllConfigAttributes().size());
     }
 
     public void testMultiMethodParsing() {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
         editor.setAsText(
             "org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY\r\norg.springframework.security.TargetObject.make*=ROLE_NINE,ROLE_SUPERVISOR");
 
-        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
     }
 
     public void testMultiMethodParsingWhereLaterMethodsOverrideEarlierMethods() throws Exception {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
         editor.setAsText(
             "org.springframework.security.TargetObject.*=ROLE_GENERAL\r\norg.springframework.security.TargetObject.makeLower*=ROLE_LOWER\r\norg.springframework.security.TargetObject.make*=ROLE_MAKE\r\norg.springframework.security.TargetObject.makeUpper*=ROLE_UPPER");
 
-        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
         assertEquals(14, map.getMethodMapSize());
 
         List<? extends ConfigAttribute> returnedMakeLower = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
@@ -174,11 +174,11 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         assertEquals(expectedCountLength, returnedCountLength);
     }
 
-    public void testNullIsReturnedByMethodDefinitionSourceWhenMethodInvocationNotDefined() throws Exception {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+    public void testNullIsReturnedByMethodSecurityMetadataSourceWhenMethodInvocationNotDefined() throws Exception {
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
         editor.setAsText("org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
 
-        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
 
         List<? extends ConfigAttribute> configAttributeDefinition = map.getAttributes(new MockMethodInvocation(
                     ITargetObject.class, "makeLowerCase", new Class[] {String.class}, new TargetObject()));
@@ -186,18 +186,18 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
     }
 
     public void testNullReturnsEmptyMap() {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
         editor.setAsText(null);
 
-        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
         assertEquals(0, map.getMethodMapSize());
     }
 
     public void testSingleMethodParsing() throws Exception {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
         editor.setAsText("org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
 
-        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
 
         List<? extends ConfigAttribute> returnedCountLength = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
                     "countLength", new Class[] {String.class}, new TargetObject()));

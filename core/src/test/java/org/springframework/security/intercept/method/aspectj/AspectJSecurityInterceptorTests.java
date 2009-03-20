@@ -32,7 +32,7 @@ import org.springframework.security.MockJoinPoint;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.TargetObject;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.intercept.method.MethodDefinitionSource;
+import org.springframework.security.intercept.method.MethodSecurityMetadataSource;
 import org.springframework.security.providers.TestingAuthenticationToken;
 
 
@@ -47,7 +47,7 @@ public class AspectJSecurityInterceptorTests {
     private TestingAuthenticationToken token;
     private AspectJSecurityInterceptor interceptor;
     private AccessDecisionManager adm;
-    private MethodDefinitionSource mds;
+    private MethodSecurityMetadataSource mds;
     private AuthenticationManager authman;
     private AspectJCallback aspectJCallback;
     private JoinPoint joinPoint;
@@ -61,10 +61,10 @@ public class AspectJSecurityInterceptorTests {
         interceptor = new AspectJSecurityInterceptor();
         adm = jmock.mock(AccessDecisionManager.class);
         authman = jmock.mock(AuthenticationManager.class);
-        mds = jmock.mock(MethodDefinitionSource.class);
+        mds = jmock.mock(MethodSecurityMetadataSource.class);
         interceptor.setAccessDecisionManager(adm);
         interceptor.setAuthenticationManager(authman);
-        interceptor.setObjectDefinitionSource(mds);
+        interceptor.setSecurityMetadataSource(mds);
         Method method = TargetObject.class.getMethod("countLength", new Class[] {String.class});
         joinPoint = new MockJoinPoint(new TargetObject(), method);
         aspectJCallback = jmock.mock(AspectJCallback.class);

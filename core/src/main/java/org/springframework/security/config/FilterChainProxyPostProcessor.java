@@ -19,7 +19,7 @@ import org.springframework.core.Ordered;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.config.ConfigUtils.FilterChainList;
 import org.springframework.security.context.SecurityContextPersistenceFilter;
-import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
+import org.springframework.security.intercept.web.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import org.springframework.security.providers.anonymous.AnonymousProcessingFilter;
@@ -147,8 +147,8 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
 
             FilterSecurityInterceptor fsi =
                     ((FilterSecurityInterceptor)beanFactory.getBean(BeanIds.FILTER_SECURITY_INTERCEPTOR));
-            DefaultFilterInvocationDefinitionSource fids =
-                    (DefaultFilterInvocationDefinitionSource) fsi.getObjectDefinitionSource();
+            DefaultFilterInvocationSecurityMetadataSource fids =
+                    (DefaultFilterInvocationSecurityMetadataSource) fsi.getSecurityMetadataSource();
             List<ConfigAttribute> attributes = fids.lookupAttributes(loginPage, "POST");
 
             if (attributes == null) {

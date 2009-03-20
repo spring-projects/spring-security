@@ -80,11 +80,11 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
                 }
             }
 
-            // Rely on the default property editor for MethodSecurityInterceptor.setObjectDefinitionSource to setup the MethodDefinitionSource
+            // Rely on the default property editor for MethodSecurityInterceptor.setSecurityMetadataSource to setup the MethodSecurityMetadataSource
             sb.append(methodName + "=" + accessConfig).append("\r\n");
         }
 
-        interceptor.addPropertyValue("objectDefinitionSource", sb.toString());
+        interceptor.addPropertyValue("securityMetadataSource", sb.toString());
 
         return interceptor.getBeanDefinition();
     }

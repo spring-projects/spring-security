@@ -28,7 +28,7 @@ import org.springframework.security.ConfigAttribute;
  * @author Ben Alex
  * @version $Id$
  */
-public interface ObjectDefinitionSource {
+public interface SecurityMetadataSource {
     //~ Methods ========================================================================================================
 
     /**
@@ -41,7 +41,7 @@ public interface ObjectDefinitionSource {
      * @return the attributes that apply to the passed in secured object or null if there are no applicable attributes.
      *
      * @throws IllegalArgumentException if the passed object is not of a type supported by the
-     *         <code>ObjectDefinitionSource</code> implementation
+     *         <code>SecurityMetadataSource</code> implementation
      */
     List<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException;
 
@@ -56,7 +56,7 @@ public interface ObjectDefinitionSource {
     Collection<ConfigAttribute> getAllConfigAttributes();
 
     /**
-     * Indicates whether the <code>ObjectDefinitionSource</code> implementation is able to provide
+     * Indicates whether the <code>SecurityMetadataSource</code> implementation is able to provide
      * <code>ConfigAttribute</code>s for the indicated secure object type.
      *
      * @param clazz the class that is being queried

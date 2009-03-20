@@ -46,7 +46,7 @@ public class AbstractSecurityInterceptorTests {
         si.setAuthenticationManager(jmock.mock(AuthenticationManager.class));
         si.setAfterInvocationManager(jmock.mock(AfterInvocationManager.class));
         si.setAccessDecisionManager(jmock.mock(AccessDecisionManager.class));
-        si.setObjectDefinitionSource(jmock.mock(ObjectDefinitionSource.class));
+        si.setSecurityMetadataSource(jmock.mock(SecurityMetadataSource.class));
 
         jmock.checking(new Expectations() {{ ignoring(anything()); }});
         si.beforeInvocation(new SimpleMethodInvocation());
@@ -59,7 +59,7 @@ public class AbstractSecurityInterceptorTests {
         si.setAuthenticationManager(jmock.mock(AuthenticationManager.class));
         si.setAfterInvocationManager(jmock.mock(AfterInvocationManager.class));
         si.setAccessDecisionManager(jmock.mock(AccessDecisionManager.class));
-        si.setObjectDefinitionSource(jmock.mock(ObjectDefinitionSource.class));
+        si.setSecurityMetadataSource(jmock.mock(SecurityMetadataSource.class));
 
         jmock.checking(new Expectations() {{ ignoring(anything()); }});
 
@@ -69,34 +69,34 @@ public class AbstractSecurityInterceptorTests {
     //~ Inner Classes ==================================================================================================
 
     private class MockSecurityInterceptorReturnsNull extends AbstractSecurityInterceptor {
-        private ObjectDefinitionSource objectDefinitionSource;
+        private SecurityMetadataSource securityMetadataSource;
 
         public Class<? extends Object> getSecureObjectClass() {
             return null;
         }
 
-        public ObjectDefinitionSource obtainObjectDefinitionSource() {
-            return objectDefinitionSource;
+        public SecurityMetadataSource obtainSecurityMetadataSource() {
+            return securityMetadataSource;
         }
 
-        public void setObjectDefinitionSource(ObjectDefinitionSource objectDefinitionSource) {
-            this.objectDefinitionSource = objectDefinitionSource;
+        public void setSecurityMetadataSource(SecurityMetadataSource securityMetadataSource) {
+            this.securityMetadataSource = securityMetadataSource;
         }
     }
 
     private class MockSecurityInterceptorWhichOnlySupportsStrings extends AbstractSecurityInterceptor {
-        private ObjectDefinitionSource objectDefinitionSource;
+        private SecurityMetadataSource securityMetadataSource;
 
         public Class<? extends Object> getSecureObjectClass() {
             return String.class;
         }
 
-        public ObjectDefinitionSource obtainObjectDefinitionSource() {
-            return objectDefinitionSource;
+        public SecurityMetadataSource obtainSecurityMetadataSource() {
+            return securityMetadataSource;
         }
 
-        public void setObjectDefinitionSource(ObjectDefinitionSource objectDefinitionSource) {
-            this.objectDefinitionSource = objectDefinitionSource;
+        public void setSecurityMetadataSource(SecurityMetadataSource securityMetadataSource) {
+            this.securityMetadataSource = securityMetadataSource;
         }
     }
 }

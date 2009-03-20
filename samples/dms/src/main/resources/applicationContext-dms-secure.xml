@@ -220,13 +220,13 @@
 
    <!-- ================= METHOD INVOCATION AUTHORIZATION ==================== -->
 
-    <bean id="methodSecurityAdvisor" class="org.springframework.security.intercept.method.aopalliance.MethodDefinitionSourceAdvisor" autowire="constructor"/>
+   <bean id="methodSecurityAdvisor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityMetadataSourceAdvisor" autowire="constructor"/>
 
    <bean id="methodSecurityInterceptor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
       <property name="authenticationManager"><ref bean="authenticationManager"/></property>
       <property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
       <property name="afterInvocationManager"><ref local="afterInvocationManager"/></property>
-      <property name="objectDefinitionSource">
+      <property name="securityMetadataSource">
          <value>
             sample.dms.DocumentDao.create=ACL_ABSTRACT_ELEMENT_WRITE_PARENT
             sample.dms.DocumentDao.delete=ACL_ABSTRACT_ELEMENT_WRITE

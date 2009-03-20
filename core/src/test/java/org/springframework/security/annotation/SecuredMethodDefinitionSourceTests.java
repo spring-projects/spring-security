@@ -27,7 +27,7 @@ import org.springframework.util.StringUtils;
 
 
 /**
- * Tests for {@link org.springframework.security.annotation.SecuredMethodDefinitionSource}
+ * Tests for {@link org.springframework.security.annotation.SecuredMethodSecurityMetadataSource}
  *
  * @author Mark St.Godard
  * @author Joe Scalise
@@ -37,7 +37,7 @@ import org.springframework.util.StringUtils;
 public class SecuredMethodDefinitionSourceTests extends TestCase {
     //~ Instance fields ================================================================================================
 
-    private SecuredMethodDefinitionSource mds = new SecuredMethodDefinitionSource();;
+    private SecuredMethodSecurityMetadataSource mds = new SecuredMethodSecurityMetadataSource();;
     private Log logger = LogFactory.getLog(SecuredMethodDefinitionSourceTests.class);
 
     //~ Methods ========================================================================================================

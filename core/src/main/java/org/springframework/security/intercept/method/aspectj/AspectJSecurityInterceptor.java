@@ -17,8 +17,8 @@ package org.springframework.security.intercept.method.aspectj;
 
 import org.springframework.security.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.intercept.InterceptorStatusToken;
-import org.springframework.security.intercept.ObjectDefinitionSource;
-import org.springframework.security.intercept.method.MethodDefinitionSource;
+import org.springframework.security.intercept.SecurityMetadataSource;
+import org.springframework.security.intercept.method.MethodSecurityMetadataSource;
 
 import org.aspectj.lang.JoinPoint;
 
@@ -26,8 +26,8 @@ import org.aspectj.lang.JoinPoint;
 /**
  * Provides security interception of AspectJ method invocations.
  * <p>
- * The <code>ObjectDefinitionSource</code> required by this security interceptor is of type
- * {@link MethodDefinitionSource}. This is shared with the AOP Alliance based security interceptor
+ * The <code>SecurityMetadataSource</code> required by this security interceptor is of type
+ * {@link MethodSecurityMetadataSource}. This is shared with the AOP Alliance based security interceptor
  * (<code>MethodSecurityInterceptor</code>),  since both work with Java <code>Method</code>s.
  * <p>
  * The secure object type is <code>org.aspectj.lang.JoinPoint</code>, which is passed from the relevant
@@ -42,7 +42,7 @@ import org.aspectj.lang.JoinPoint;
 public class AspectJSecurityInterceptor extends AbstractSecurityInterceptor {
     //~ Instance fields ================================================================================================
 
-    private MethodDefinitionSource objectDefinitionSource;
+    private MethodSecurityMetadataSource securityMetadataSource;
 
     //~ Methods ========================================================================================================
 
@@ -72,11 +72,11 @@ public class AspectJSecurityInterceptor extends AbstractSecurityInterceptor {
         return result;
     }
 
-    public ObjectDefinitionSource obtainObjectDefinitionSource() {
-        return this.objectDefinitionSource;
+    public SecurityMetadataSource obtainSecurityMetadataSource() {
+        return this.securityMetadataSource;
     }
 
-    public void setObjectDefinitionSource(MethodDefinitionSource newSource) {
-        this.objectDefinitionSource = newSource;
+    public void setSecurityMetadataSource(MethodSecurityMetadataSource newSource) {
+        this.securityMetadataSource = newSource;
     }
 }

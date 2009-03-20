@@ -48,7 +48,7 @@ public class WebInvocationPrivilegeEvaluatorTests {
     private Mockery jmock = new JUnit4Mockery();
     private AuthenticationManager am;
     private AccessDecisionManager adm;
-    private FilterInvocationDefinitionSource ods;
+    private FilterInvocationSecurityMetadataSource ods;
     private RunAsManager ram;
     private FilterSecurityInterceptor interceptor;
 
@@ -58,11 +58,11 @@ public class WebInvocationPrivilegeEvaluatorTests {
     public final void setUp() throws Exception {
         interceptor = new FilterSecurityInterceptor();
         am = jmock.mock(AuthenticationManager.class);
-        ods = jmock.mock(FilterInvocationDefinitionSource.class);
+        ods = jmock.mock(FilterInvocationSecurityMetadataSource.class);
         adm = jmock.mock(AccessDecisionManager.class);
         ram = jmock.mock(RunAsManager.class);
         interceptor.setAuthenticationManager(am);
-        interceptor.setObjectDefinitionSource(ods);
+        interceptor.setSecurityMetadataSource(ods);
         interceptor.setAccessDecisionManager(adm);
         interceptor.setRunAsManager(ram);
         interceptor.setApplicationEventPublisher(new MockApplicationEventPublisher(true));

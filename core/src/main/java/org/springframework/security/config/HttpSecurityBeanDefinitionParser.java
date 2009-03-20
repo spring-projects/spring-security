@@ -22,7 +22,7 @@ import org.springframework.security.SecurityConfig;
 import org.springframework.security.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.context.SecurityContextPersistenceFilter;
 import org.springframework.security.expression.web.WebExpressionVoter;
-import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
+import org.springframework.security.intercept.web.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.intercept.web.RequestKey;
 import org.springframework.security.securechannel.ChannelDecisionManagerImpl;
@@ -106,7 +106,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String ATT_DISABLE_URL_REWRITING = "disable-url-rewriting";
 
-    private static final String EXPRESSION_FIDS_CLASS = "org.springframework.security.expression.web.ExpressionBasedFilterInvocationDefinitionSource";
+    private static final String EXPRESSION_FIDS_CLASS = "org.springframework.security.expression.web.ExpressionBasedFilterInvocationSecurityMetadataSource";
     private static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.expression.support.DefaultSecurityExpressionHandler";
     private static final String EXPRESSION_HANDLER_ID = "_webExpressionHandler";
 
@@ -172,7 +172,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             fidsBuilder.addConstructorArgReference(expressionHandlerRef);
             voters = new Class[] {WebExpressionVoter.class};
         } else {
-            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(DefaultFilterInvocationDefinitionSource.class);
+            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(DefaultFilterInvocationSecurityMetadataSource.class);
             fidsBuilder.addConstructorArgValue(matcher);
             fidsBuilder.addConstructorArgValue(requestToAttributesMap);
             voters = new Class[] {RoleVoter.class, AuthenticatedVoter.class};
@@ -359,7 +359,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             builder.addPropertyValue("observeOncePerRequest", Boolean.FALSE);
         }
 
-        builder.addPropertyValue("objectDefinitionSource", fids);
+        builder.addPropertyValue("securityMetadataSource", fids);
         pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR, builder.getBeanDefinition());
         ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.FILTER_SECURITY_INTERCEPTOR));
     }
@@ -369,11 +369,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         RootBeanDefinition channelFilter = new RootBeanDefinition(ChannelProcessingFilter.class);
         channelFilter.getPropertyValues().addPropertyValue("channelDecisionManager",
                 new RuntimeBeanReference(BeanIds.CHANNEL_DECISION_MANAGER));
-        DefaultFilterInvocationDefinitionSource channelFilterInvDefSource =
-            new DefaultFilterInvocationDefinitionSource(matcher, channelRequestMap);
+        DefaultFilterInvocationSecurityMetadataSource channelFilterInvDefSource =
+            new DefaultFilterInvocationSecurityMetadataSource(matcher, channelRequestMap);
         channelFilterInvDefSource.setStripQueryStringFromUrls(matcher instanceof AntUrlPathMatcher);
 
-        channelFilter.getPropertyValues().addPropertyValue("filterInvocationDefinitionSource",
+        channelFilter.getPropertyValues().addPropertyValue("filterInvocationSecurityMetadataSource",
                 channelFilterInvDefSource);
         RootBeanDefinition channelDecisionManager = new RootBeanDefinition(ChannelDecisionManagerImpl.class);
         ManagedList channelProcessors = new ManagedList(3);
@@ -639,7 +639,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     /**
-     * Parses the filter invocation map which will be used to configure the FilterInvocationDefinitionSource
+     * Parses the filter invocation map which will be used to configure the FilterInvocationSecurityMetadataSource
      * used in the security interceptor.
      */
     static LinkedHashMap<RequestKey, List<ConfigAttribute>>
@@ -677,7 +677,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             if (useExpressions) {
                 logger.info("Creating access control expression attribute '" + access + "' for " + key);
                 attributes = new ArrayList<ConfigAttribute>(1);
-                // The expression will be parsed later by the ExpressionFilterInvocationDefinitionSource
+                // The expression will be parsed later by the ExpressionFilterInvocationSecurityMetadataSource
                 attributes.add(new SecurityConfig(access));
 
             } else {

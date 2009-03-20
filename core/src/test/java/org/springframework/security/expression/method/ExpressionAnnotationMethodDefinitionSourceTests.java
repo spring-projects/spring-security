@@ -11,14 +11,14 @@ import org.springframework.security.expression.annotation.PostAuthorize;
 import org.springframework.security.expression.annotation.PostFilter;
 import org.springframework.security.expression.annotation.PreAuthorize;
 import org.springframework.security.expression.annotation.PreFilter;
-import org.springframework.security.expression.method.ExpressionAnnotationMethodDefinitionSource;
+import org.springframework.security.expression.method.ExpressionAnnotationMethodSecurityMetadataSource;
 import org.springframework.security.expression.method.PostInvocationExpressionAttribute;
 import org.springframework.security.expression.method.PreInvocationExpressionAttribute;
 import org.springframework.security.intercept.method.MockMethodInvocation;
 
 
 public class ExpressionAnnotationMethodDefinitionSourceTests {
-    private ExpressionAnnotationMethodDefinitionSource mds = new ExpressionAnnotationMethodDefinitionSource();
+    private ExpressionAnnotationMethodSecurityMetadataSource mds = new ExpressionAnnotationMethodSecurityMetadataSource();
 
     private MockMethodInvocation voidImpl1;
     private MockMethodInvocation voidImpl2;

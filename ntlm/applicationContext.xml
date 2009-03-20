@@ -3,93 +3,93 @@
 
 <beans>
 
-	<bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
-		<property name="filterInvocationDefinitionSource">
-			<value>
-			CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-			PATTERN_TYPE_APACHE_ANT
-			/login_error.jsp=httpSessionContextIntegrationFilter
-			/**=httpSessionContextIntegrationFilter, exceptionTranslationFilter, ntlmFilter, filterSecurityInterceptor
-			</value>
-		</property>
-	</bean>
+    <bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
+        <property name="filterInvocationDefinitionSource">
+            <value>
+            CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+            PATTERN_TYPE_APACHE_ANT
+            /login_error.jsp=httpSessionContextIntegrationFilter
+            /**=httpSessionContextIntegrationFilter, exceptionTranslationFilter, ntlmFilter, filterSecurityInterceptor
+            </value>
+        </property>
+    </bean>
 
-	<!-- The first item in the Chain: httpSessionContextIntegrationFilter -->
-	<bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter">
-		<property name="context">
-			<value>org.springframework.security.context.SecurityContextImpl</value>
-		</property>
-	</bean>
+    <!-- The first item in the Chain: httpSessionContextIntegrationFilter -->
+    <bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter">
+        <property name="context">
+            <value>org.springframework.security.context.SecurityContextImpl</value>
+        </property>
+    </bean>
 
-	<!-- the second item in the chain: exceptionTranslationFilter -->
-	<bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
-		<property name="authenticationEntryPoint" ref="ntlmEntryPoint"/>
-	</bean>
+    <!-- the second item in the chain: exceptionTranslationFilter -->
+    <bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
+        <property name="authenticationEntryPoint" ref="ntlmEntryPoint"/>
+    </bean>
 
-	<!-- the third item in the chain: ntlmFilter -->
-	<bean id="ntlmFilter" class="org.springframework.security.ui.ntlm.NtlmProcessingFilter">
-		<property name="defaultDomain" value="YOURDOMAIN"/>
-		<!-- It is better to use a WINS server if available over a specific domain controller
- 		<property name="domainController" value="FOO"/> -->
-		<property name="netbiosWINS" value="192.168.0.3"/>
-		<property name="authenticationManager" ref="providerManager"/>
-	</bean>
+    <!-- the third item in the chain: ntlmFilter -->
+    <bean id="ntlmFilter" class="org.springframework.security.ui.ntlm.NtlmProcessingFilter">
+        <property name="defaultDomain" value="YOURDOMAIN"/>
+        <!-- It is better to use a WINS server if available over a specific domain controller
+         <property name="domainController" value="FOO"/> -->
+        <property name="netbiosWINS" value="192.168.0.3"/>
+        <property name="authenticationManager" ref="providerManager"/>
+    </bean>
 
-	<bean id="providerManager" class="org.springframework.security.providers.ProviderManager">
-		<property name="providers">
-			<list>
-				<ref local="daoAuthenticationProvider"/>
+    <bean id="providerManager" class="org.springframework.security.providers.ProviderManager">
+        <property name="providers">
+            <list>
+                <ref local="daoAuthenticationProvider"/>
             </list>
         </property>
     </bean>
 
-	<bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
-		<property name="userDetailsService">
-			<ref local="memoryUserDetailsService"/>
-		</property>
-	</bean>
+    <bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+        <property name="userDetailsService">
+            <ref local="memoryUserDetailsService"/>
+        </property>
+    </bean>
 
-	<!-- NOTE: You will need to write a custom UserDetailsService in most cases -->
-	<bean id="memoryUserDetailsService" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
-		<property name="userMap">
-			<value>jdoe=PASSWORD,ROLE_USER</value>
-		</property>
-	</bean>
+    <!-- NOTE: You will need to write a custom UserDetailsService in most cases -->
+    <bean id="memoryUserDetailsService" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
+        <property name="userMap">
+            <value>jdoe=PASSWORD,ROLE_USER</value>
+        </property>
+    </bean>
 
-	<!-- the fourth item in the chain: filterSecurityInterceptor -->
-	<bean id="filterSecurityInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
-		<property name="authenticationManager"><ref local="providerManager"/></property>
-		<property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
-		<property name="objectDefinitionSource">
-			<value>
-			CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-			PATTERN_TYPE_APACHE_ANT
-			/**=ROLE_USER
-			</value>
-		</property>
-	</bean>
+    <!-- the fourth item in the chain: filterSecurityInterceptor -->
+    <bean id="filterSecurityInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+        <property name="authenticationManager"><ref local="providerManager"/></property>
+        <property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
+        <property name="securityMetadataSource">
+            <value>
+            CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+            PATTERN_TYPE_APACHE_ANT
+            /**=ROLE_USER
+            </value>
+        </property>
+    </bean>
 
-	<!-- authenticationManager defined above -->
-	<bean id="accessDecisionManager" class="org.springframework.security.vote.UnanimousBased">
-		<property name="allowIfAllAbstainDecisions">
-			<value>false</value>
-		</property>
-		<property name="decisionVoters">
-			<list>
-				<ref local="roleVoter"/>
-			</list>
-		</property>
-	</bean>
+    <!-- authenticationManager defined above -->
+    <bean id="accessDecisionManager" class="org.springframework.security.vote.UnanimousBased">
+        <property name="allowIfAllAbstainDecisions">
+            <value>false</value>
+        </property>
+        <property name="decisionVoters">
+            <list>
+                <ref local="roleVoter"/>
+            </list>
+        </property>
+    </bean>
 
-	<bean id="roleVoter" class="org.springframework.security.vote.RoleVoter"/>
+    <bean id="roleVoter" class="org.springframework.security.vote.RoleVoter"/>
 
-	<bean id="ntlmEntryPoint" class="org.springframework.security.ui.ntlm.NtlmProcessingFilterEntryPoint">
-		<property name="authenticationFailureUrl" value="/login_error.jsp"/>
-	</bean>
+    <bean id="ntlmEntryPoint" class="org.springframework.security.ui.ntlm.NtlmProcessingFilterEntryPoint">
+        <property name="authenticationFailureUrl" value="/login_error.jsp"/>
+    </bean>
 
-	<!-- Done with the chain -->
+    <!-- Done with the chain -->
 
-	<!-- This bean automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
-	<bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
+    <!-- This bean automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
+    <bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
 
 </beans>

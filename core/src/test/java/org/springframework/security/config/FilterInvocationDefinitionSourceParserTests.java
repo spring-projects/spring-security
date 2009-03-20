@@ -12,7 +12,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.SecurityConfig;
-import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
+import org.springframework.security.intercept.web.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 
@@ -42,7 +42,7 @@ public class FilterInvocationDefinitionSourceParserTests {
                 "<filter-invocation-definition-source id='fids'>" +
                 "   <intercept-url pattern='/**' access='ROLE_A'/>" +
                 "</filter-invocation-definition-source>");
-        DefaultFilterInvocationDefinitionSource fids = (DefaultFilterInvocationDefinitionSource) appContext.getBean("fids");
+        DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) appContext.getBean("fids");
         List<? extends ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
         assertNotNull(cad);
         assertTrue(cad.contains(new SecurityConfig("ROLE_A")));
@@ -53,7 +53,7 @@ public class FilterInvocationDefinitionSourceParserTests {
         setContext(
                 "<http auto-config='true'/>" +
                 "<b:bean id='fsi' class='org.springframework.security.intercept.web.FilterSecurityInterceptor' autowire='byType'>" +
-                "   <b:property name='objectDefinitionSource'>" +
+                "   <b:property name='securityMetadataSource'>" +
                 "       <filter-invocation-definition-source>" +
                 "           <intercept-url pattern='/secure/extreme/**' access='ROLE_SUPERVISOR'/>" +
                 "           <intercept-url pattern='/secure/**' access='ROLE_USER'/>" +

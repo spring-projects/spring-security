@@ -50,7 +50,7 @@ public class MethodInvocationPrivilegeEvaluatorTests {
     private TestingAuthenticationToken token;
     private MethodSecurityInterceptor interceptor;
     private AccessDecisionManager adm;
-    private MethodDefinitionSource mds;
+    private MethodSecurityMetadataSource mds;
     private final List<ConfigAttribute> role = SecurityConfig.createList("ROLE_IGNORED");
 
     //~ Methods ========================================================================================================
@@ -62,10 +62,10 @@ public class MethodInvocationPrivilegeEvaluatorTests {
         token = new TestingAuthenticationToken("Test", "Password", "ROLE_SOMETHING");
         adm = jmock.mock(AccessDecisionManager.class);
         AuthenticationManager authman = jmock.mock(AuthenticationManager.class);
-        mds = jmock.mock(MethodDefinitionSource.class);
+        mds = jmock.mock(MethodSecurityMetadataSource.class);
         interceptor.setAccessDecisionManager(adm);
         interceptor.setAuthenticationManager(authman);
-        interceptor.setObjectDefinitionSource(mds);
+        interceptor.setSecurityMetadataSource(mds);
     }
 
     @Test

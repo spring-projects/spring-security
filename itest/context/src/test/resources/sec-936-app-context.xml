@@ -30,7 +30,7 @@
         <property name="rejectPublicInvocations" value="true"/>
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="accessDecisionManager" ref="accessDecisionManager"/>
-        <property name="objectDefinitionSource"><value>
+        <property name="securityMetadataSource"><value>
             org.springframework.security.concurrent.SessionRegistry.get*=ROLE_C
         </value></property>
     </bean>

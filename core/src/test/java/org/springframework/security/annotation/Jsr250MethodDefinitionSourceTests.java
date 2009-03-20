@@ -19,7 +19,7 @@ import org.springframework.security.ConfigAttribute;
  * @version $Id$
  */
 public class Jsr250MethodDefinitionSourceTests {
-    Jsr250MethodDefinitionSource mds = new Jsr250MethodDefinitionSource();
+    Jsr250MethodSecurityMetadataSource mds = new Jsr250MethodSecurityMetadataSource();
     A a = new A();
     UserAllowedClass userAllowed = new UserAllowedClass();
     DenyAllClass denyAll = new DenyAllClass();

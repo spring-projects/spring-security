@@ -35,7 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.intercept.web.FilterInvocation;
-import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
+import org.springframework.security.intercept.web.FilterInvocationSecurityMetadataSource;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
@@ -53,7 +53,7 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  *
  * <p>As of version 2.0, <tt>FilterChainProxy</tt> is configured using an ordered Map of path patterns to <tt>List</tt>s
  * of <tt>Filter</tt> objects. In previous
- * versions, a {@link FilterInvocationDefinitionSource} was used. This is now deprecated in favour of namespace-based
+ * versions, a {@link FilterInvocationSecurityMetadataSource} was used. This is now deprecated in favour of namespace-based
  * configuration which provides a more robust and simplfied syntax.  The Map instance will normally be
  * created while parsing the namespace configuration, so doesn't have to be set explicitly.
  * Instead the &lt;filter-chain-map&gt; element should be used within the FilterChainProxy bean declaration.

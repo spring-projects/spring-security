@@ -30,21 +30,21 @@ import org.springframework.util.StringUtils;
 
 
 /**
- * Property editor to assist with the setup of a {@link MethodDefinitionSource}.
+ * Property editor to assist with the setup of a {@link MethodSecurityMetadataSource}.
  * <p>
- * The class creates and populates a {@link MapBasedMethodDefinitionSource}.
+ * The class creates and populates a {@link MapBasedMethodSecurityMetadataSource}.
  *
  * @author Ben Alex
  * @deprecated use method annotations or the protect-pointcut support from the namespace
  * @version $Id$
  */
-public class MethodDefinitionSourceEditor extends PropertyEditorSupport {
+public class MethodSecurityMetadataSourceEditor extends PropertyEditorSupport {
     //~ Methods ========================================================================================================
 
     @SuppressWarnings("unchecked")
     public void setAsText(String s) throws IllegalArgumentException {
         if ((s == null) || "".equals(s)) {
-            setValue(new MapBasedMethodDefinitionSource());
+            setValue(new MapBasedMethodSecurityMetadataSource());
             return;
         }
 
@@ -71,6 +71,6 @@ public class MethodDefinitionSourceEditor extends PropertyEditorSupport {
             mappings.put(name, attributes);
         }
 
-        setValue(new MapBasedMethodDefinitionSource(mappings));
+        setValue(new MapBasedMethodSecurityMetadataSource(mappings));
     }
 }

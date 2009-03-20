@@ -13,22 +13,16 @@
  * limitations under the License.
  */
 
-package org.springframework.security.intercept.method;
+package org.springframework.security.intercept.web;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.intercept.ObjectDefinitionSource;
+import org.springframework.security.intercept.SecurityMetadataSource;
 
 
 /**
- * Interface for <code>ObjectDefinitionSource</code> implementations
- * that are designed to perform lookups keyed on <code>Method</code>s.
+ * Marker interface for <code>SecurityMetadataSource</code> implementations
+ * that are designed to perform lookups keyed on  {@link FilterInvocation}s.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public interface MethodDefinitionSource extends ObjectDefinitionSource {
-    public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass);
-}
+public interface FilterInvocationSecurityMetadataSource extends SecurityMetadataSource {}

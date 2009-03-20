@@ -11,21 +11,21 @@ import org.springframework.security.ConfigAttribute;
 import org.springframework.security.SecurityConfig;
 
 /**
- * Tests for {@link MapBasedMethodDefinitionSource}.
+ * Tests for {@link MapBasedMethodSecurityMetadataSource}.
  *
  * @author Luke Taylor
  * @since 2.0.4
  */
-public class MapBasedMethodDefinitionSourceTests {
+public class MapBasedMethodSecurityMetadataSourceTests {
     private final List<ConfigAttribute> ROLE_A = SecurityConfig.createList("ROLE_A");
     private final List<ConfigAttribute> ROLE_B = SecurityConfig.createList("ROLE_B");
-    private MapBasedMethodDefinitionSource mds;
+    private MapBasedMethodSecurityMetadataSource mds;
     private Method someMethodString;
     private Method someMethodInteger;
 
     @Before
     public void initialize() throws Exception {
-        mds = new MapBasedMethodDefinitionSource();
+        mds = new MapBasedMethodSecurityMetadataSource();
         someMethodString = MockService.class.getMethod("someMethod", String.class);
         someMethodInteger = MockService.class.getMethod("someMethod", Integer.class);
     }

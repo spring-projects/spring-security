@@ -10,9 +10,9 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.util.InMemoryXmlApplicationContext;
 
 /**
- * Tests for SEC-428. 
- * 
- * @author Luke Taylor 
+ * Tests for SEC-428.
+ *
+ * @author Luke Taylor
  * @author Ben Alex
  */
 public class MethodSecurityInterceptorWithAopConfigTests {
@@ -23,21 +23,21 @@ public class MethodSecurityInterceptorWithAopConfigTests {
         "            <user name='bill' password='billspassword' authorities='ROLE_USER' />" +
         "        </user-service>" +
         "    </authentication-provider>";
-    
-    static final String ACCESS_MANAGER_XML = 
+
+    static final String ACCESS_MANAGER_XML =
         "<b:bean id='accessDecisionManager' class='org.springframework.security.vote.AffirmativeBased'>" +
         "   <b:property name='decisionVoters'>" +
         "       <b:list><b:bean class='org.springframework.security.vote.RoleVoter'/></b:list>" +
         "   </b:property>" +
         "</b:bean>";
-    
+
     private AbstractXmlApplicationContext appContext;
-    
+
     @Before
     public void clearContext() {
         SecurityContextHolder.clearContext();
     }
-    
+
     @After
     public void closeAppContext() {
         SecurityContextHolder.clearContext();
@@ -46,7 +46,7 @@ public class MethodSecurityInterceptorWithAopConfigTests {
             appContext = null;
         }
     }
-    
+
     @Test(expected=AuthenticationCredentialsNotFoundException.class)
     public void securityInterceptorIsAppliedWhenUsedWithAopConfig() {
         setContext(
@@ -56,7 +56,7 @@ public class MethodSecurityInterceptorWithAopConfigTests {
                 "</aop:config>" +
                 "<b:bean id='target' class='org.springframework.security.TargetObject'/>" +
                 "<b:bean id='securityInterceptor' class='org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor' autowire='byType' >" +
-                "     <b:property name='objectDefinitionSource'>" +
+                "     <b:property name='securityMetadataSource'>" +
                 "       <b:value>" +
                             "org.springframework.security.TargetObject.makeLower*=ROLE_A\n" +
                             "org.springframework.security.TargetObject.makeUpper*=ROLE_A\n" +
@@ -65,13 +65,13 @@ public class MethodSecurityInterceptorWithAopConfigTests {
                 "     </b:property>" +
                 "</b:bean>" +
                 AUTH_PROVIDER_XML + ACCESS_MANAGER_XML);
-        
+
         ITargetObject target = (ITargetObject) appContext.getBean("target");
         target.makeLowerCase("TEST");
-        
+
     }
 
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
-    }    
+    }
 }

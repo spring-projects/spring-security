@@ -26,11 +26,11 @@ import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.security.intercept.method.MethodDefinitionSource;
+import org.springframework.security.intercept.method.MethodSecurityMetadataSource;
 import org.springframework.util.Assert;
 
 /**
- * Advisor driven by a {@link MethodDefinitionSource}, used to exclude a {@link MethodSecurityInterceptor} from
+ * Advisor driven by a {@link MethodSecurityMetadataSource}, used to exclude a {@link MethodSecurityInterceptor} from
  * public (ie non-secure) methods.
  * <p>
  * Because the AOP framework caches advice calculations, this is normally faster than just letting the
@@ -47,12 +47,12 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor implements BeanFactoryAware {
+public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor implements BeanFactoryAware {
     //~ Instance fields ================================================================================================
 
-    private MethodDefinitionSource attributeSource;
+    private MethodSecurityMetadataSource attributeSource;
     private MethodSecurityInterceptor interceptor;
-    private Pointcut pointcut = new MethodDefinitionSourcePointcut();
+    private Pointcut pointcut = new MethodSecurityMetadataSourcePointcut();
     private BeanFactory beanFactory;
     private String adviceBeanName;
     private final Object adviceMonitor = new Object();
@@ -62,12 +62,12 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor imple
     /**
      * @deprecated use the decoupled approach instead
      */
-    public MethodDefinitionSourceAdvisor(MethodSecurityInterceptor advice) {
-        Assert.notNull(advice.getObjectDefinitionSource(), "Cannot construct a MethodDefinitionSourceAdvisor using a " +
-                "MethodSecurityInterceptor that has no ObjectDefinitionSource configured");
+    public MethodSecurityMetadataSourceAdvisor(MethodSecurityInterceptor advice) {
+        Assert.notNull(advice.getSecurityMetadataSource(), "Cannot construct a MethodSecurityMetadataSourceAdvisor using a " +
+                "MethodSecurityInterceptor that has no SecurityMetadataSource configured");
 
         this.interceptor = advice;
-        this.attributeSource = advice.getObjectDefinitionSource();
+        this.attributeSource = advice.getSecurityMetadataSource();
     }
 
     /**
@@ -82,7 +82,7 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor imple
      * @param adviceBeanName name of the MethodSecurityInterceptor bean
      * @param attributeSource the attribute source (should be the same as the one used on the interceptor)
      */
-    public MethodDefinitionSourceAdvisor(String adviceBeanName, MethodDefinitionSource attributeSource) {
+    public MethodSecurityMetadataSourceAdvisor(String adviceBeanName, MethodSecurityMetadataSource attributeSource) {
         Assert.notNull(adviceBeanName, "The adviceBeanName cannot be null");
         Assert.notNull(attributeSource, "The attributeSource cannot be null");
 
@@ -114,7 +114,7 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor imple
 
     //~ Inner Classes ==================================================================================================
 
-    class MethodDefinitionSourcePointcut extends StaticMethodMatcherPointcut {
+    class MethodSecurityMetadataSourcePointcut extends StaticMethodMatcherPointcut {
         @SuppressWarnings("unchecked")
         public boolean matches(Method m, Class targetClass) {
             return attributeSource.getAttributes(m, targetClass) != null;
@@ -124,7 +124,7 @@ public class MethodDefinitionSourceAdvisor extends AbstractPointcutAdvisor imple
     /**
      * Represents a <code>MethodInvocation</code>.
      * <p>
-     * Required as <code>MethodDefinitionSource</code> only supports lookup of configuration attributes for
+     * Required as <code>MethodSecurityMetadataSource</code> only supports lookup of configuration attributes for
      * <code>MethodInvocation</code>s.
      */
     class InternalMethodInvocation implements MethodInvocation {

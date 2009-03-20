@@ -51,7 +51,7 @@ public class WebInvocationPrivilegeEvaluator implements InitializingBean {
     public boolean isAllowed(FilterInvocation fi, Authentication authentication) {
         Assert.notNull(fi, "FilterInvocation required");
 
-        List<ConfigAttribute> attrs = securityInterceptor.obtainObjectDefinitionSource().getAttributes(fi);
+        List<ConfigAttribute> attrs = securityInterceptor.obtainSecurityMetadataSource().getAttributes(fi);
 
         if (attrs == null) {
             if (securityInterceptor.isRejectPublicInvocations()) {

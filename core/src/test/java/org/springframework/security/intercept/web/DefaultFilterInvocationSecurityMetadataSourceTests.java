@@ -29,29 +29,29 @@ import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.security.util.MockFilterChain;
 
 /**
- * Tests parts of {@link DefaultFilterInvocationDefinitionSource} not tested by {@link
+ * Tests parts of {@link DefaultFilterInvocationSecurityMetadataSource} not tested by {@link
  * FilterInvocationDefinitionSourceEditorTests}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 @SuppressWarnings("unchecked")
-public class DefaultFilterInvocationDefinitionSourceTests {
-    private DefaultFilterInvocationDefinitionSource fids;
+public class DefaultFilterInvocationSecurityMetadataSourceTests {
+    private DefaultFilterInvocationSecurityMetadataSource fids;
     private List<ConfigAttribute> def = SecurityConfig.createList("ROLE_ONE");
 
     //~ Methods ========================================================================================================
     private void createFids(String url, String method) {
         LinkedHashMap requestMap = new LinkedHashMap();
         requestMap.put(new RequestKey(url, method), def);
-        fids = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(), requestMap);
+        fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
         fids.setStripQueryStringFromUrls(true);
     }
 
     private void createFids(String url, boolean convertToLowerCase) {
         LinkedHashMap requestMap = new LinkedHashMap();
         requestMap.put(new RequestKey(url), def);
-        fids = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(convertToLowerCase), requestMap);
+        fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(convertToLowerCase), requestMap);
         fids.setStripQueryStringFromUrls(true);
     }
 
@@ -59,7 +59,7 @@ public class DefaultFilterInvocationDefinitionSourceTests {
     public void convertUrlToLowercaseIsTrueByDefault() {
         LinkedHashMap requestMap = new LinkedHashMap();
         requestMap.put(new RequestKey("/something"), def);
-        fids = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(), requestMap);
+        fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
         assertTrue(fids.isConvertUrlToLowercaseBeforeComparison());
     }
 
@@ -154,7 +154,7 @@ public class DefaultFilterInvocationDefinitionSourceTests {
         requestMap.put(new RequestKey("/**"), def);
         List<ConfigAttribute> postOnlyDef = SecurityConfig.createList("ROLE_TWO");
         requestMap.put(new RequestKey("/somepage**", "POST"), postOnlyDef);
-        fids = new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(), requestMap);
+        fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
 
         List<ConfigAttribute> attrs = fids.getAttributes(createFilterInvocation("/somepage", "POST"));
         assertEquals(postOnlyDef, attrs);

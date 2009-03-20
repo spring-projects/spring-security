@@ -29,7 +29,7 @@ import org.springframework.security.context.HttpSessionSecurityContextRepository
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.context.SecurityContextPersistenceFilter;
 import org.springframework.security.intercept.web.FilterInvocation;
-import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
+import org.springframework.security.intercept.web.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
@@ -86,7 +86,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         checkAutoConfigFilters(filterList);
 
         assertEquals(true, FieldUtils.getFieldValue(appContext.getBean("_filterChainProxy"), "stripQueryStringFromUrls"));
-        assertEquals(true, FieldUtils.getFieldValue(filterList.get(AUTO_CONFIG_FILTERS-1), "objectDefinitionSource.stripQueryStringFromUrls"));
+        assertEquals(true, FieldUtils.getFieldValue(filterList.get(AUTO_CONFIG_FILTERS-1), "securityMetadataSource.stripQueryStringFromUrls"));
     }
 
     @Test(expected=BeanDefinitionParsingException.class)
@@ -144,7 +144,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         List<Filter> allFilters = getFilters("/ImCaughtByTheUniversalMatchPattern");
         checkAutoConfigFilters(allFilters);
         assertEquals(false, FieldUtils.getFieldValue(appContext.getBean("_filterChainProxy"), "stripQueryStringFromUrls"));
-        assertEquals(false, FieldUtils.getFieldValue(allFilters.get(AUTO_CONFIG_FILTERS-1), "objectDefinitionSource.stripQueryStringFromUrls"));
+        assertEquals(false, FieldUtils.getFieldValue(allFilters.get(AUTO_CONFIG_FILTERS-1), "securityMetadataSource.stripQueryStringFromUrls"));
     }
 
     @Test
@@ -225,7 +225,7 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) appContext.getBean(BeanIds.FILTER_SECURITY_INTERCEPTOR);
 
-        FilterInvocationDefinitionSource fids = fis.getObjectDefinitionSource();
+        FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
         List<? extends ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/Secure", null));
         assertEquals(2, attrDef.size());
         assertTrue(attrDef.contains(new SecurityConfig("ROLE_A")));
@@ -245,7 +245,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "    </http>" + AUTH_PROVIDER_XML);
 
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) appContext.getBean(BeanIds.FILTER_SECURITY_INTERCEPTOR);
-        FilterInvocationDefinitionSource fids = fis.getObjectDefinitionSource();
+        FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
         List<? extends ConfigAttribute> attrs = fids.getAttributes(createFilterinvocation("/secure", "POST"));
         assertEquals(2, attrs.size());
         assertTrue(attrs.contains(new SecurityConfig("ROLE_A")));
@@ -685,7 +685,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>" + AUTH_PROVIDER_XML);
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) appContext.getBean(BeanIds.FILTER_SECURITY_INTERCEPTOR);
 
-        FilterInvocationDefinitionSource fids = fis.getObjectDefinitionSource();
+        FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
         List<? extends ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/someurl", null));
         assertEquals(1, attrDef.size());
         assertTrue(attrDef.contains(new SecurityConfig("ROLE_B")));
@@ -723,7 +723,7 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) appContext.getBean(BeanIds.FILTER_SECURITY_INTERCEPTOR);
 
-        FilterInvocationDefinitionSource fids = fis.getObjectDefinitionSource();
+        FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
         List<? extends ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/secure", null));
         assertEquals(1, attrDef.size());
 

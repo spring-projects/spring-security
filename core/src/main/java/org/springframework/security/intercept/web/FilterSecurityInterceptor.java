@@ -17,7 +17,7 @@ package org.springframework.security.intercept.web;
 
 import org.springframework.security.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.intercept.InterceptorStatusToken;
-import org.springframework.security.intercept.ObjectDefinitionSource;
+import org.springframework.security.intercept.SecurityMetadataSource;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.core.Ordered;
 
@@ -34,8 +34,8 @@ import javax.servlet.ServletResponse;
 /**
  * Performs security handling of HTTP resources via a filter implementation.
  * <p>
- * The <code>ObjectDefinitionSource</code> required by this security interceptor is of type {@link
- * FilterInvocationDefinitionSource}.
+ * The <code>SecurityMetadataSource</code> required by this security interceptor is of type {@link
+ * FilterInvocationSecurityMetadataSource}.
  * <p>
  * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
  *
@@ -49,7 +49,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 
     //~ Instance fields ================================================================================================
 
-    private FilterInvocationDefinitionSource objectDefinitionSource;
+    private FilterInvocationSecurityMetadataSource securityMetadataSource;
     private boolean observeOncePerRequest = true;
 
     //~ Methods ========================================================================================================
@@ -85,8 +85,8 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
         invoke(fi);
     }
 
-    public FilterInvocationDefinitionSource getObjectDefinitionSource() {
-        return this.objectDefinitionSource;
+    public FilterInvocationSecurityMetadataSource getSecurityMetadataSource() {
+        return this.securityMetadataSource;
     }
 
     public Class<? extends Object> getSecureObjectClass() {
@@ -96,7 +96,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
     public void invoke(FilterInvocation fi) throws IOException, ServletException {
         if ((fi.getRequest() != null) && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
                 && observeOncePerRequest) {
-            // filter already applied to this request and user wants us to observce
+            // filter already applied to this request and user wants us to observe
             // once-per-request handling, so don't re-do security checking
             fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
         } else {
@@ -129,12 +129,20 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
         return observeOncePerRequest;
     }
 
-    public ObjectDefinitionSource obtainObjectDefinitionSource() {
-        return this.objectDefinitionSource;
+    public SecurityMetadataSource obtainSecurityMetadataSource() {
+        return this.securityMetadataSource;
     }
 
-    public void setObjectDefinitionSource(FilterInvocationDefinitionSource newSource) {
-        this.objectDefinitionSource = newSource;
+    /**
+     * @deprecated use setSecurityMetadataSource instead
+     */
+    public void setObjectDefinitionSource(FilterInvocationSecurityMetadataSource newSource) {
+        logger.warn("The property 'objectDefinitionSource' is deprecated. Please use 'securityMetadataSource' instead");
+        this.securityMetadataSource = newSource;
+    }
+
+    public void setSecurityMetadataSource(FilterInvocationSecurityMetadataSource newSource) {
+        this.securityMetadataSource = newSource;
     }
 
     public void setObserveOncePerRequest(boolean observeOncePerRequest) {

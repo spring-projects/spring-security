@@ -55,13 +55,10 @@ public abstract class BeanIds {
     public static final String DEFAULT_LOGIN_PAGE_GENERATING_FILTER = "_defaultLoginPageFilter";
     public static final String SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER = "_securityContextHolderAwareRequestFilter";
     public static final String SESSION_FIXATION_PROTECTION_FILTER = "_sessionFixationProtectionFilter";
-//    public static final String GLOBAL_METHOD_SECURITY_INTERCEPTOR = "_methodSecurityInterceptor";
-//    public static final String METHOD_SECURITY_INTERCEPTOR_POST_PROCESSOR = "_methodSecurityInterceptorPostProcessor";
-    public static final String METHOD_DEFINITION_SOURCE_ADVISOR = "_methodDefinitionSourceAdvisor";
+    public static final String METHOD_SECURITY_METADATA_SOURCE_ADVISOR = "_methodSecurityMetadataSourceAdvisor";
     public static final String PROTECT_POINTCUT_POST_PROCESSOR = "_protectPointcutPostProcessor";
-//    public static final String DELEGATING_METHOD_DEFINITION_SOURCE = "_delegatingMethodDefinitionSource";
-    public static final String SECURED_METHOD_DEFINITION_SOURCE = "_securedMethodDefinitionSource";
-    public static final String JSR_250_METHOD_DEFINITION_SOURCE = "_jsr250MethodDefinitionSource";
+    public static final String SECURED_METHOD_SECURITY_METADATA_SOURCE = "_securedSecurityMetadataSource";
+    public static final String JSR_250_METHOD_SECURITY_METADATA_SOURCE = "_jsr250SecurityMetadataSource";
     public static final String EMBEDDED_APACHE_DS = "_apacheDirectoryServerContainer";
     public static final String CONTEXT_SOURCE = "_securityContextSource";
     public static final String PORT_MAPPER = "_portMapper";

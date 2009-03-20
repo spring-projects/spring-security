@@ -7,25 +7,25 @@ import org.springframework.security.ConfigAttribute;
 import org.springframework.util.ClassUtils;
 
 /**
- * Abstract implementation of {@link MethodDefinitionSource} that supports both Spring AOP and AspectJ and
+ * Abstract implementation of {@link MethodSecurityMetadataSource} that supports both Spring AOP and AspectJ and
  * performs attribute resolution from: 1. specific target method; 2. target class;  3. declaring method;
- * 4. declaring class/interface. Use with {@link DelegatingMethodDefinitionSource} for caching support.
+ * 4. declaring class/interface. Use with {@link DelegatingMethodSecurityMetadataSource} for caching support.
  * <p>
- * This class mimics the behaviour of Spring's AbstractFallbackTransactionAttributeSource class.
+ * This class mimics the behaviour of Spring's <tt>AbstractFallbackTransactionAttributeSource</tt> class.
  * <p>
  * Note that this class cannot extract security metadata where that metadata is expressed by way of
  * a target method/class (i.e. #1 and #2 above) AND the target method/class is encapsulated in another
  * proxy object. Spring Security does not walk a proxy chain to locate the concrete/final target object.
  * Consider making Spring Security your final advisor (so it advises the final target, as opposed to
  * another proxy), move the metadata to declared methods or interfaces the proxy implements, or provide
- * your own replacement <tt>MethodDefinitionSource</tt>.
+ * your own replacement <tt>MethodSecurityMetadataSource</tt>.
  *
  * @author Ben Alex
  * @author Luke taylor
  * @version $Id$
  * @since 2.0
  */
-public abstract class AbstractFallbackMethodDefinitionSource extends AbstractMethodDefinitionSource {
+public abstract class AbstractFallbackMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
 
     public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
         // The method may be on an interface, but we need attributes from the target class.

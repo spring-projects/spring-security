@@ -2,8 +2,8 @@ package org.springframework.security.intercept.method.aspectj;
 
 import org.springframework.security.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.intercept.InterceptorStatusToken;
-import org.springframework.security.intercept.ObjectDefinitionSource;
-import org.springframework.security.intercept.method.MethodDefinitionSource;
+import org.springframework.security.intercept.SecurityMetadataSource;
+import org.springframework.security.intercept.method.MethodSecurityMetadataSource;
 
 import org.aspectj.lang.JoinPoint;
 
@@ -16,12 +16,12 @@ import org.aspectj.lang.JoinPoint;
 public class AspectJAnnotationSecurityInterceptor extends AbstractSecurityInterceptor {
     //~ Instance fields ================================================================================================
 
-    private MethodDefinitionSource objectDefinitionSource;
+    private MethodSecurityMetadataSource securityMetadataSource;
 
     //~ Methods ========================================================================================================
 
-    public MethodDefinitionSource getObjectDefinitionSource() {
-        return this.objectDefinitionSource;
+    public MethodSecurityMetadataSource getSecurityMetadataSource() {
+        return this.securityMetadataSource;
     }
 
     public Class<? extends Object> getSecureObjectClass() {
@@ -50,12 +50,12 @@ public class AspectJAnnotationSecurityInterceptor extends AbstractSecurityInterc
         return result;
     }
 
-    public ObjectDefinitionSource obtainObjectDefinitionSource() {
-        return this.objectDefinitionSource;
+    public SecurityMetadataSource obtainSecurityMetadataSource() {
+        return this.securityMetadataSource;
     }
 
-    public void setObjectDefinitionSource(MethodDefinitionSource newSource) {
-        this.objectDefinitionSource = newSource;
+    public void setSecurityMetadataSource(MethodSecurityMetadataSource newSource) {
+        this.securityMetadataSource = newSource;
     }
 
 }

@@ -15,20 +15,21 @@
 
 package org.springframework.security.securechannel;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.ServletException;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.intercept.web.FilterInvocation;
-import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
+import org.springframework.security.intercept.web.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.util.MockFilterChain;
 
 
@@ -38,72 +39,57 @@ import org.springframework.security.util.MockFilterChain;
  * @author Ben Alex
  * @version $Id$
  */
-public class ChannelProcessingFilterTests extends TestCase {
+public class ChannelProcessingFilterTests {
     //~ Methods ========================================================================================================
 
-    public void testDetectsMissingChannelDecisionManager()
-        throws Exception {
+    @Test(expected=IllegalArgumentException.class)
+    public void testDetectsMissingChannelDecisionManager() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "MOCK");
-        filter.setFilterInvocationDefinitionSource(fids);
+        filter.setFilterInvocationSecurityMetadataSource(fids);
 
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("channelDecisionManager must be specified", expected.getMessage());
-        }
+        filter.afterPropertiesSet();
     }
 
-    public void testDetectsMissingFilterInvocationDefinitionSource()
-        throws Exception {
+    @Test(expected=IllegalArgumentException.class)
+    public void testDetectsMissingFilterInvocationSecurityMetadataSource() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "MOCK"));
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("filterInvocationDefinitionSource must be specified", expected.getMessage());
-        }
+        filter.afterPropertiesSet();
     }
 
+    @Test
     public void testDetectsSupportedConfigAttribute() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SUPPORTS_MOCK_ONLY"));
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SUPPORTS_MOCK_ONLY");
 
-        filter.setFilterInvocationDefinitionSource(fids);
+        filter.setFilterInvocationSecurityMetadataSource(fids);
 
         filter.afterPropertiesSet();
-        assertTrue(true);
     }
 
+    @Test(expected=IllegalArgumentException.class)
     public void testDetectsUnsupportedConfigAttribute() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SUPPORTS_MOCK_ONLY"));
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SUPPORTS_MOCK_ONLY", "INVALID_ATTRIBUTE");
 
-        filter.setFilterInvocationDefinitionSource(fids);
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage().startsWith("Unsupported configuration attributes:"));
-        }
+        filter.setFilterInvocationSecurityMetadataSource(fids);
+        filter.afterPropertiesSet();
     }
 
+    @Test
     public void testDoFilterWhenManagerDoesCommitResponse() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(true, "SOME_ATTRIBUTE"));
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SOME_ATTRIBUTE");
 
-        filter.setFilterInvocationDefinitionSource(fids);
+        filter.setFilterInvocationSecurityMetadataSource(fids);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=now");
@@ -113,16 +99,16 @@ public class ChannelProcessingFilterTests extends TestCase {
         MockFilterChain chain = new MockFilterChain(false);
 
         filter.doFilter(request, response, chain);
-        assertTrue(true);
     }
 
+    @Test
     public void testDoFilterWhenManagerDoesNotCommitResponse() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SOME_ATTRIBUTE"));
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SOME_ATTRIBUTE");
 
-        filter.setFilterInvocationDefinitionSource(fids);
+        filter.setFilterInvocationSecurityMetadataSource(fids);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=now");
@@ -132,9 +118,9 @@ public class ChannelProcessingFilterTests extends TestCase {
         MockFilterChain chain = new MockFilterChain(true);
 
         filter.doFilter(request, response, chain);
-        assertTrue(true);
     }
 
+    @Test
     public void testDoFilterWhenNullConfigAttributeReturned()
         throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
@@ -142,7 +128,7 @@ public class ChannelProcessingFilterTests extends TestCase {
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "NOT_USED");
 
-        filter.setFilterInvocationDefinitionSource(fids);
+        filter.setFilterInvocationSecurityMetadataSource(fids);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=now");
@@ -152,9 +138,9 @@ public class ChannelProcessingFilterTests extends TestCase {
         MockFilterChain chain = new MockFilterChain(true);
 
         filter.doFilter(request, response, chain);
-        assertTrue(true);
     }
 
+    @Test
     public void testGetterSetters() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "MOCK"));
@@ -162,8 +148,8 @@ public class ChannelProcessingFilterTests extends TestCase {
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", false, "MOCK");
 
-        filter.setFilterInvocationDefinitionSource(fids);
-        assertTrue(filter.getFilterInvocationDefinitionSource() != null);
+        filter.setFilterInvocationSecurityMetadataSource(fids);
+        assertTrue(filter.getFilterInvocationSecurityMetadataSource() != null);
 
         filter.init(null);
         filter.afterPropertiesSet();
@@ -197,7 +183,7 @@ public class ChannelProcessingFilterTests extends TestCase {
         }
     }
 
-    private class MockFilterInvocationDefinitionMap implements FilterInvocationDefinitionSource {
+    private class MockFilterInvocationDefinitionMap implements FilterInvocationSecurityMetadataSource {
         private List<ConfigAttribute> toReturn;
         private String servletPath;
         private boolean provideIterator;

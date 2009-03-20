@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.intercept.web.FilterInvocation;
-import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
+import org.springframework.security.intercept.web.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.ui.FilterChainOrder;
 import org.springframework.security.ui.SpringSecurityFilter;
 import org.springframework.util.Assert;
@@ -51,19 +51,19 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
     //~ Instance fields ================================================================================================
 
     private ChannelDecisionManager channelDecisionManager;
-    private FilterInvocationDefinitionSource filterInvocationDefinitionSource;
+    private FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(filterInvocationDefinitionSource, "filterInvocationDefinitionSource must be specified");
+        Assert.notNull(filterInvocationSecurityMetadataSource, "filterInvocationSecurityMetadataSource must be specified");
         Assert.notNull(channelDecisionManager, "channelDecisionManager must be specified");
 
-        Collection<ConfigAttribute> attrDefs = this.filterInvocationDefinitionSource.getAllConfigAttributes();
+        Collection<ConfigAttribute> attrDefs = this.filterInvocationSecurityMetadataSource.getAllConfigAttributes();
 
         if (attrDefs == null) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Could not validate configuration attributes as the FilterInvocationDefinitionSource did "
+                logger.warn("Could not validate configuration attributes as the FilterInvocationSecurityMetadataSource did "
                         + "not return any attributes");
             }
 
@@ -91,7 +91,7 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
             throws IOException, ServletException {
 
         FilterInvocation fi = new FilterInvocation(request, response, chain);
-        List<ConfigAttribute> attr = this.filterInvocationDefinitionSource.getAttributes(fi);
+        List<ConfigAttribute> attr = this.filterInvocationSecurityMetadataSource.getAttributes(fi);
 
         if (attr != null) {
             if (logger.isDebugEnabled()) {
@@ -112,16 +112,16 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
         return channelDecisionManager;
     }
 
-    public FilterInvocationDefinitionSource getFilterInvocationDefinitionSource() {
-        return filterInvocationDefinitionSource;
+    public FilterInvocationSecurityMetadataSource getFilterInvocationSecurityMetadataSource() {
+        return filterInvocationSecurityMetadataSource;
     }
 
     public void setChannelDecisionManager(ChannelDecisionManager channelDecisionManager) {
         this.channelDecisionManager = channelDecisionManager;
     }
 
-    public void setFilterInvocationDefinitionSource(FilterInvocationDefinitionSource filterInvocationDefinitionSource) {
-        this.filterInvocationDefinitionSource = filterInvocationDefinitionSource;
+    public void setFilterInvocationSecurityMetadataSource(FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource) {
+        this.filterInvocationSecurityMetadataSource = filterInvocationSecurityMetadataSource;
     }
 
     public int getOrder() {

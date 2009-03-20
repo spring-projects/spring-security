@@ -17,8 +17,8 @@ package org.springframework.security.intercept.method.aopalliance;
 
 import org.springframework.security.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.intercept.InterceptorStatusToken;
-import org.springframework.security.intercept.ObjectDefinitionSource;
-import org.springframework.security.intercept.method.MethodDefinitionSource;
+import org.springframework.security.intercept.SecurityMetadataSource;
+import org.springframework.security.intercept.method.MethodSecurityMetadataSource;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -26,8 +26,8 @@ import org.aopalliance.intercept.MethodInvocation;
 
 /**
  * Provides security interception of AOP Alliance based method invocations.<p>The
- * <code>ObjectDefinitionSource</code> required by this security interceptor is of type {@link
- * MethodDefinitionSource}. This is shared with the AspectJ based security interceptor
+ * <code>SecurityMetadataSource</code> required by this security interceptor is of type {@link
+ * MethodSecurityMetadataSource}. This is shared with the AspectJ based security interceptor
  * (<code>AspectJSecurityInterceptor</code>), since both work with Java <code>Method</code>s.</p>
  *  <P>Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
  *
@@ -37,12 +37,12 @@ import org.aopalliance.intercept.MethodInvocation;
 public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements MethodInterceptor {
     //~ Instance fields ================================================================================================
 
-    private MethodDefinitionSource objectDefinitionSource;
+    private MethodSecurityMetadataSource securityMetadataSource;
 
     //~ Methods ========================================================================================================
 
-    public MethodDefinitionSource getObjectDefinitionSource() {
-        return this.objectDefinitionSource;
+    public MethodSecurityMetadataSource getSecurityMetadataSource() {
+        return this.securityMetadataSource;
     }
 
     public Class<? extends Object> getSecureObjectClass() {
@@ -71,11 +71,11 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
         return result;
     }
 
-    public ObjectDefinitionSource obtainObjectDefinitionSource() {
-        return this.objectDefinitionSource;
+    public SecurityMetadataSource obtainSecurityMetadataSource() {
+        return this.securityMetadataSource;
     }
 
-    public void setObjectDefinitionSource(MethodDefinitionSource newSource) {
-        this.objectDefinitionSource = newSource;
+    public void setSecurityMetadataSource(MethodSecurityMetadataSource newSource) {
+        this.securityMetadataSource = newSource;
     }
 }

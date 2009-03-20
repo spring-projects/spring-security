@@ -26,8 +26,8 @@ import org.springframework.security.SecurityConfig;
 import org.springframework.security.annotation.test.Entity;
 import org.springframework.security.annotation.test.PersonServiceImpl;
 import org.springframework.security.annotation.test.Service;
-import org.springframework.security.intercept.method.MapBasedMethodDefinitionSource;
-import org.springframework.security.intercept.method.MethodDefinitionSourceEditor;
+import org.springframework.security.intercept.method.MapBasedMethodSecurityMetadataSource;
+import org.springframework.security.intercept.method.MethodSecurityMetadataSourceEditor;
 import org.springframework.security.intercept.method.MockMethodInvocation;
 
 
@@ -50,13 +50,13 @@ public class MethodDefinitionSourceEditorTigerTests {
 
     @Test
     public void testConcreteClassInvocations() throws Exception {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
         editor.setAsText(
                 "org.springframework.security.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\n" +
                 "org.springframework.security.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\n" +
                 "org.springframework.security.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
 
-        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
 
         List<? extends ConfigAttribute> returnedMakeLower = map.getAttributes(makeLower);
@@ -70,13 +70,13 @@ public class MethodDefinitionSourceEditorTigerTests {
 
     @Test
     public void testBridgeMethodResolution() throws Exception {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
         editor.setAsText(
                 "org.springframework.security.annotation.test.PersonService.makeUpper*=ROLE_FROM_INTERFACE\r\n" +
                 "org.springframework.security.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_ABSTRACT\r\n" +
                 "org.springframework.security.annotation.test.PersonServiceImpl.makeUpper*=ROLE_FROM_PSI");
 
-        MapBasedMethodDefinitionSource map = (MapBasedMethodDefinitionSource) editor.getValue();
+        MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
 
         List<? extends ConfigAttribute> returnedMakeUpper = map.getAttributes(makeUpper);
