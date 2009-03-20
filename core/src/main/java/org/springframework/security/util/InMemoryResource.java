@@ -68,7 +68,7 @@ public class InMemoryResource extends AbstractResource {
     }
 
     public boolean equals(Object res) {
-        if (res instanceof InMemoryResource) {
+        if (!(res instanceof InMemoryResource)) {
             return false;
         }
 
