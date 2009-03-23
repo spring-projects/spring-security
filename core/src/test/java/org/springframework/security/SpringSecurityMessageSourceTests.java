@@ -27,15 +27,6 @@ import java.util.Locale;
  * Tests {@link org.springframework.security.SpringSecurityMessageSource}.
  */
 public class SpringSecurityMessageSourceTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public SpringSecurityMessageSourceTests() {
-    }
-
-    public SpringSecurityMessageSourceTests(String arg0) {
-        super(arg0);
-    }
-
     //~ Methods ========================================================================================================
 
     public void testOperation() {

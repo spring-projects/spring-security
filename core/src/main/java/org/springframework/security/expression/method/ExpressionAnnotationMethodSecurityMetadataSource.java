@@ -12,7 +12,6 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParseException;
 import org.springframework.expression.spel.antlr.SpelAntlrExpressionParser;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.config.SecurityConfigurationException;
 import org.springframework.security.expression.SecurityExpressionHandler;
 import org.springframework.security.expression.annotation.PostAuthorize;
 import org.springframework.security.expression.annotation.PostFilter;
@@ -144,7 +143,7 @@ public class ExpressionAnnotationMethodSecurityMetadataSource extends AbstractMe
                 post = new PostInvocationExpressionAttribute(postFilterExpression, postAuthorizeExpression);
             }
         } catch (ParseException e) {
-            throw new SecurityConfigurationException("Failed to parse expression '" + e.getExpressionString() + "'", e);
+            throw new IllegalArgumentException("Failed to parse expression '" + e.getExpressionString() + "'", e);
         }
 
         List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>(2);

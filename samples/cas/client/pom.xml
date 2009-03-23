@@ -17,9 +17,14 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-cas-client</artifactId>
             <version>${project.version}</version>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>org.springframework.web</artifactId>
@@ -38,7 +43,7 @@
             <artifactId>org.springframework.aop</artifactId>
             <scope>runtime</scope>
         </dependency>
-    
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -78,16 +83,16 @@
                             <trustPassword>password</trustPassword>
                         </connector>
                     </connectors>
-			         <systemProperties>
-			            <systemProperty>
-			              <name>javax.net.ssl.trustStore</name>
-			               <value>../../certificates/server.jks</value>
-			            </systemProperty>
-			            <systemProperty>
-			            	<name>javax.net.ssl.trustStorePassword</name>
-			            	<value>password</value>
-			            </systemProperty>
-					</systemProperties>
+                     <systemProperties>
+                        <systemProperty>
+                          <name>javax.net.ssl.trustStore</name>
+                           <value>../../certificates/server.jks</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <name>javax.net.ssl.trustStorePassword</name>
+                            <value>password</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
             </plugin>
         </plugins>

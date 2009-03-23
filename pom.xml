@@ -9,10 +9,12 @@
 
     <modules>
         <module>core</module>
+        <!-- module>web</module -->
         <module>ldap</module>
+        <module>config</module>
+        <module>acl</module>
         <module>cas</module>
         <module>openid</module>
-        <module>acl</module>
         <module>ntlm</module>
         <module>samples</module>
         <module>taglibs</module>
@@ -800,6 +802,11 @@
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>annotations-api</artifactId>
+                <version>6.0.14</version>
             </dependency>
             <dependency>
                 <groupId>hsqldb</groupId>
