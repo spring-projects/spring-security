@@ -19,8 +19,8 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeEditor;
 import org.springframework.security.SecurityConfig;
-import org.springframework.security.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.context.SecurityContextPersistenceFilter;
+import org.springframework.security.context.web.HttpSessionSecurityContextRepository;
+import org.springframework.security.context.web.SecurityContextPersistenceFilter;
 import org.springframework.security.expression.web.WebExpressionVoter;
 import org.springframework.security.intercept.web.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
@@ -36,12 +36,12 @@ import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.ui.SessionFixationProtectionFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.AntUrlPathMatcher;
-import org.springframework.security.util.FilterChainProxy;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.util.UrlMatcher;
 import org.springframework.security.vote.AccessDecisionVoter;
 import org.springframework.security.vote.AuthenticatedVoter;
 import org.springframework.security.vote.RoleVoter;
+import org.springframework.security.web.util.FilterChainProxy;
 import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -107,7 +107,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_DISABLE_URL_REWRITING = "disable-url-rewriting";
 
     private static final String EXPRESSION_FIDS_CLASS = "org.springframework.security.expression.web.ExpressionBasedFilterInvocationSecurityMetadataSource";
-    private static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.expression.support.DefaultSecurityExpressionHandler";
+    private static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.expression.web.support.DefaultWebSecurityExpressionHandler";
     private static final String EXPRESSION_HANDLER_ID = "_webExpressionHandler";
 
     @SuppressWarnings("unchecked")

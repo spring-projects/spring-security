@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
  * @version $Id$
  *
  * @see java.lang.ThreadLocal
- * @see org.springframework.security.context.SecurityContextPersistenceFilter
+ * @see org.springframework.security.context.web.SecurityContextPersistenceFilter
  */
 public class ThreadLocalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
     //~ Static fields/initializers =====================================================================================

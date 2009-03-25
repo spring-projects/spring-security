@@ -11,8 +11,8 @@ import org.springframework.expression.Expression;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.expression.ExpressionUtils;
-import org.springframework.security.expression.SecurityExpressionHandler;
-import org.springframework.security.expression.support.DefaultSecurityExpressionHandler;
+import org.springframework.security.expression.MethodSecurityExpressionHandler;
+import org.springframework.security.expression.support.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.vote.AccessDecisionVoter;
 
 /**
@@ -29,7 +29,7 @@ import org.springframework.security.vote.AccessDecisionVoter;
 public class MethodExpressionVoter implements AccessDecisionVoter {
     protected final Log logger = LogFactory.getLog(getClass());
 
-    private SecurityExpressionHandler expressionHandler = new DefaultSecurityExpressionHandler();
+    private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
     public boolean supports(ConfigAttribute attribute) {
         return attribute instanceof AbstractExpressionBasedMethodConfigAttribute;
@@ -105,7 +105,7 @@ public class MethodExpressionVoter implements AccessDecisionVoter {
         return null;
     }
 
-    public void setExpressionHandler(SecurityExpressionHandler expressionHandler) {
+    public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
         this.expressionHandler = expressionHandler;
     }
 }

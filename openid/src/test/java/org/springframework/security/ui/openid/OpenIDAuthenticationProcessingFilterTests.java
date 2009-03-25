@@ -1,16 +1,22 @@
 package org.springframework.security.ui.openid;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.ui.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.ui.openid.consumers.MockOpenIDConsumer;
-import org.springframework.security.util.MockFilterChain;
 
-import javax.servlet.http.HttpServletRequest;
-
-public class OpenIDAuthenticationProcessingFilterTests extends TestCase {
+public class OpenIDAuthenticationProcessingFilterTests {
 
     OpenIDAuthenticationProcessingFilter filter;
     private static final String REDIRECT_URL = "http://www.example.com/redirect";
@@ -19,7 +25,8 @@ public class OpenIDAuthenticationProcessingFilterTests extends TestCase {
     private static final String FILTER_PROCESS_URL = "http://localhost:80" + REQUEST_PATH;
     private static final String DEFAULT_TARGET_URL = FILTER_PROCESS_URL;
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         filter = new OpenIDAuthenticationProcessingFilter();
         filter.setConsumer(new MockOpenIDConsumer(REDIRECT_URL));
         SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
@@ -29,6 +36,7 @@ public class OpenIDAuthenticationProcessingFilterTests extends TestCase {
         filter.afterPropertiesSet();
     }
 
+    @Test
     public void testFilterOperation() throws Exception {
         MockHttpServletRequest req = new MockHttpServletRequest("GET", REQUEST_PATH);
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -45,9 +53,10 @@ public class OpenIDAuthenticationProcessingFilterTests extends TestCase {
             }
         });
 
-        filter.doFilter(req, response, new MockFilterChain(false));
+        FilterChain fc = mock(FilterChain.class);
+        filter.doFilter(req, response, fc);
         assertEquals(REDIRECT_URL, response.getRedirectedUrl());
+        // Filter chain shouldn't proceed
+        verify(fc, never()).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
-
-
 }

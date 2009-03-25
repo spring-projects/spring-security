@@ -12,7 +12,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParseException;
 import org.springframework.expression.spel.antlr.SpelAntlrExpressionParser;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.expression.SecurityExpressionHandler;
+import org.springframework.security.expression.MethodSecurityExpressionHandler;
 import org.springframework.security.expression.annotation.PostAuthorize;
 import org.springframework.security.expression.annotation.PostFilter;
 import org.springframework.security.expression.annotation.PreAuthorize;
@@ -45,10 +45,10 @@ public class ExpressionAnnotationMethodSecurityMetadataSource extends AbstractMe
     }
 
     /**
-     * Constructor which obtains the expression parser from the {@link SecurityExpressionHandler#getExpressionParser() }
+     * Constructor which obtains the expression parser from the {@link MethodSecurityExpressionHandler#getExpressionParser() }
      * method on the supplied <tt>SecurityExpressionHandler</tt>.
      */
-    public ExpressionAnnotationMethodSecurityMetadataSource(SecurityExpressionHandler handler) {
+    public ExpressionAnnotationMethodSecurityMetadataSource(MethodSecurityExpressionHandler handler) {
         parser = handler.getExpressionParser();
     }
 

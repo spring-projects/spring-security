@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
  *
  * <p>
  * This authentication provider will not perform any checks on authentication
- * requests, as they should already be pre- authenticated. However, the
+ * requests, as they should already be pre-authenticated. However, the
  * AuthenticationUserDetailsService implementation may still throw a UsernameNotFoundException, for example.
  *
  * @author Ruud Senden

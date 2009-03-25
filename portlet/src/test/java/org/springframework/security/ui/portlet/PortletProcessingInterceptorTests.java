@@ -39,7 +39,6 @@ import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.portlet.PortletTestUtils;
 import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
-import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.util.AuthorityUtils;
 
@@ -52,6 +51,7 @@ import org.springframework.security.util.AuthorityUtils;
  */
 @SuppressWarnings("unchecked")
 public class PortletProcessingInterceptorTests {
+    public static final String SPRING_SECURITY_LAST_EXCEPTION_KEY = "SPRING_SECURITY_LAST_EXCEPTION";
     //~ Methods ========================================================================================================
 
     @Before

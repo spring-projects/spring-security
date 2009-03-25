@@ -25,7 +25,6 @@ import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.SecurityConfig;
-import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 
@@ -129,7 +128,7 @@ public class AfterInvocationProviderManagerTests extends TestCase {
         manager.setProviders(list);
         manager.afterPropertiesSet();
 
-        assertFalse(manager.supports(FilterInvocation.class));
+//        assertFalse(manager.supports(FilterInvocation.class));
         assertTrue(manager.supports(MethodInvocation.class));
     }
 

@@ -12,8 +12,8 @@ import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.afterinvocation.AfterInvocationProvider;
 import org.springframework.security.expression.ExpressionUtils;
-import org.springframework.security.expression.SecurityExpressionHandler;
-import org.springframework.security.expression.support.DefaultSecurityExpressionHandler;
+import org.springframework.security.expression.MethodSecurityExpressionHandler;
+import org.springframework.security.expression.support.DefaultMethodSecurityExpressionHandler;
 
 /**
  * AfterInvocationProvider which handles the @PostAuthorize and @PostFilter annotation expressions.
@@ -26,7 +26,7 @@ public class MethodExpressionAfterInvocationProvider implements AfterInvocationP
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    private SecurityExpressionHandler expressionHandler = new DefaultSecurityExpressionHandler();
+    private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
     public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config, Object returnedObject)
             throws AccessDeniedException {
@@ -90,7 +90,7 @@ public class MethodExpressionAfterInvocationProvider implements AfterInvocationP
         return clazz.isAssignableFrom(MethodInvocation.class);
     }
 
-    public void setExpressionHandler(SecurityExpressionHandler expressionHandler) {
+    public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
         this.expressionHandler = expressionHandler;
     }
 }

@@ -20,7 +20,7 @@ import org.springframework.security.ConfigAttribute;
 import org.springframework.security.SecurityConfig;
 import org.springframework.security.expression.method.MethodExpressionAfterInvocationProvider;
 import org.springframework.security.expression.method.MethodExpressionVoter;
-import org.springframework.security.expression.support.DefaultSecurityExpressionHandler;
+import org.springframework.security.expression.support.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.intercept.method.DelegatingMethodSecurityMetadataSource;
 import org.springframework.security.intercept.method.MapBasedMethodSecurityMetadataSource;
 import org.springframework.security.intercept.method.ProtectPointcutPostProcessor;
@@ -95,7 +95,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
             if (StringUtils.hasText(expressionHandlerRef)) {
                 logger.info("Using bean '" + expressionHandlerRef + "' as method SecurityExpressionHandler implementation");
             } else {
-                parserContext.getRegistry().registerBeanDefinition(EXPRESSION_HANDLER_ID, new RootBeanDefinition(DefaultSecurityExpressionHandler.class));
+                parserContext.getRegistry().registerBeanDefinition(EXPRESSION_HANDLER_ID, new RootBeanDefinition(DefaultMethodSecurityExpressionHandler.class));
                 logger.warn("Expressions were enabled for method security but no SecurityExpressionHandler was configured. " +
                         "All hasPermision() expressions will evaluate to false.");
                 expressionHandlerRef = EXPRESSION_HANDLER_ID;

@@ -14,11 +14,11 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.afterinvocation.AfterInvocationProviderManager;
 import org.springframework.security.expression.method.MethodExpressionVoter;
-import org.springframework.security.util.UrlUtils;
 import org.springframework.security.vote.AccessDecisionVoter;
 import org.springframework.security.vote.AffirmativeBased;
 import org.springframework.security.vote.AuthenticatedVoter;
 import org.springframework.security.vote.RoleVoter;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 

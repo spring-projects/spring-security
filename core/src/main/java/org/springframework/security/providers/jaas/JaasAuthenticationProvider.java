@@ -41,13 +41,12 @@ import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.SpringSecurityException;
-import org.springframework.security.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.context.SecurityContext;
+import org.springframework.security.event.SessionDestroyedEvent;
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.jaas.event.JaasAuthenticationFailedEvent;
 import org.springframework.security.providers.jaas.event.JaasAuthenticationSuccessEvent;
-import org.springframework.security.ui.session.HttpSessionDestroyedEvent;
 import org.springframework.util.Assert;
 
 
@@ -311,9 +310,8 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      *
      * @param event
      */
-    protected void handleLogout(HttpSessionDestroyedEvent event) {
-        SecurityContext context = (SecurityContext)
-                event.getSession().getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+    protected void handleLogout(SessionDestroyedEvent event) {
+        SecurityContext context = event.getSecurityContext();
 
         if (context == null) {
             log.debug("The destroyed session has no SecurityContext");
@@ -343,8 +341,8 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
     }
 
     public void onApplicationEvent(ApplicationEvent applicationEvent) {
-        if (applicationEvent instanceof HttpSessionDestroyedEvent) {
-            HttpSessionDestroyedEvent event = (HttpSessionDestroyedEvent) applicationEvent;
+        if (applicationEvent instanceof SessionDestroyedEvent) {
+            SessionDestroyedEvent event = (SessionDestroyedEvent) applicationEvent;
             handleLogout(event);
         }
     }

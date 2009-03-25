@@ -59,8 +59,8 @@ public class DocumentDaoImpl extends JdbcDaoSupport implements DocumentDao {
 
     /** Executes recursive SQL as needed to build a full Directory hierarchy of objects */
     private Directory getDirectoryWithImmediateParentPopulated(final Long id) {
-        return (Directory) getJdbcTemplate().queryForObject(SELECT_FROM_DIRECTORY_SINGLE, new Object[] {id}, new RowMapper() {
-            public Object mapRow(ResultSet rs, int rowNumber) throws SQLException {
+        return getJdbcTemplate().queryForObject(SELECT_FROM_DIRECTORY_SINGLE, new Object[] {id}, new RowMapper<Directory>() {
+            public Directory mapRow(ResultSet rs, int rowNumber) throws SQLException {
                 Long parentDirectoryId = new Long(rs.getLong("parent_directory_id"));
                 Directory parentDirectory = Directory.ROOT_DIRECTORY;
                 if (parentDirectoryId != null && !parentDirectoryId.equals(new Long(-1))) {
@@ -77,20 +77,20 @@ public class DocumentDaoImpl extends JdbcDaoSupport implements DocumentDao {
     public AbstractElement[] findElements(Directory directory) {
         Assert.notNull(directory, "Directory required (the ID can be null to refer to root)");
         if (directory.getId() == null) {
-            List directories = getJdbcTemplate().query(SELECT_FROM_DIRECTORY_NULL, new RowMapper() {
-                public Object mapRow(ResultSet rs, int rowNumber) throws SQLException {
+            List<Directory> directories = getJdbcTemplate().query(SELECT_FROM_DIRECTORY_NULL, new RowMapper<Directory>() {
+                public Directory mapRow(ResultSet rs, int rowNumber) throws SQLException {
                     return getDirectoryWithImmediateParentPopulated(new Long(rs.getLong("id")));
                 }
             });
             return (AbstractElement[]) directories.toArray(new AbstractElement[] {});
         }
-        List directories = getJdbcTemplate().query(SELECT_FROM_DIRECTORY, new Object[] {directory.getId()}, new RowMapper() {
-            public Object mapRow(ResultSet rs, int rowNumber) throws SQLException {
+        List<AbstractElement> directories = getJdbcTemplate().query(SELECT_FROM_DIRECTORY, new Object[] {directory.getId()}, new RowMapper<AbstractElement>() {
+            public Directory mapRow(ResultSet rs, int rowNumber) throws SQLException {
                 return getDirectoryWithImmediateParentPopulated(new Long(rs.getLong("id")));
             }
         });
-        List files = getJdbcTemplate().query(SELECT_FROM_FILE, new Object[] {directory.getId()}, new RowMapper() {
-            public Object mapRow(ResultSet rs, int rowNumber) throws SQLException {
+        List<File> files = getJdbcTemplate().query(SELECT_FROM_FILE, new Object[] {directory.getId()}, new RowMapper<File>() {
+            public File mapRow(ResultSet rs, int rowNumber) throws SQLException {
                 Long parentDirectoryId = new Long(rs.getLong("parent_directory_id"));
                 Directory parentDirectory = null;
                 if (parentDirectoryId != null) {

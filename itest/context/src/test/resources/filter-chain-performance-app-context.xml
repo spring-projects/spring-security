@@ -11,13 +11,13 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
-    <bean id="fcpMinimalStack" class="org.springframework.security.util.FilterChainProxy">
+    <bean id="fcpMinimalStack" class="org.springframework.security.web.util.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/**" filters="scpf,preAuthFilter,etf,fsi"/>
         </sec:filter-chain-map>
     </bean>
 
-    <bean id="fcpFullStack" class="org.springframework.security.util.FilterChainProxy">
+    <bean id="fcpFullStack" class="org.springframework.security.web.util.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/**" filters="scpf,preAuthFilter,apf,basicPf,logoutFilter,scharf,etf,fsi"/>
         </sec:filter-chain-map>
@@ -37,7 +37,7 @@
         <sec:user name="bob" password="bobspassword" authorities="ROLE_0,ROLE_1"/>
     </sec:user-service>
 
-    <bean id="scpf" class="org.springframework.security.context.SecurityContextPersistenceFilter"/>
+    <bean id="scpf" class="org.springframework.security.context.web.SecurityContextPersistenceFilter"/>
 
     <bean id="apf" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
         <property name="authenticationManager" ref="authenticationManager"/>

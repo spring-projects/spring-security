@@ -26,21 +26,21 @@ import org.springframework.security.concurrent.ConcurrentLoginException;
 import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.context.SecurityContextPersistenceFilter;
+import org.springframework.security.context.web.HttpSessionSecurityContextRepository;
+import org.springframework.security.context.web.SecurityContextPersistenceFilter;
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.intercept.web.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.anonymous.AnonymousProcessingFilter;
 import org.springframework.security.securechannel.ChannelProcessingFilter;
 import org.springframework.security.ui.AuthenticationFailureHandler;
 import org.springframework.security.ui.AuthenticationSuccessHandler;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.ui.SessionFixationProtectionFilter;
 import org.springframework.security.ui.WebAuthenticationDetails;
+import org.springframework.security.ui.anonymous.AnonymousProcessingFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.logout.LogoutFilter;
 import org.springframework.security.ui.logout.LogoutHandler;
@@ -49,9 +49,8 @@ import org.springframework.security.ui.rememberme.PersistentTokenBasedRememberMe
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.FieldUtils;
-import org.springframework.security.util.FilterChainProxy;
-import org.springframework.security.util.MockFilter;
-import org.springframework.security.util.PortMapperImpl;
+import org.springframework.security.web.util.FilterChainProxy;
+import org.springframework.security.web.util.PortMapperImpl;
 import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.ReflectionUtils;
 
@@ -341,20 +340,20 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='userFilter' class='org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter'>" +
                 "    <custom-filter after='LOGOUT_FILTER'/>" +
                 "</b:bean>" +
-                "<b:bean id='userFilter1' class='org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter'>" +
+                "<b:bean id='userFilter1' class='org.springframework.security.context.web.SecurityContextPersistenceFilter'>" +
                 "    <custom-filter before='SESSION_CONTEXT_INTEGRATION_FILTER'/>" +
                 "</b:bean>" +
-                "<b:bean id='userFilter2' class='org.springframework.security.util.MockFilter'>" +
+                "<b:bean id='userFilter2' class='org.springframework.security.context.web.SecurityContextPersistenceFilter'>" +
                 "    <custom-filter position='FIRST'/>" +
                 "</b:bean>" +
-                "<b:bean id='userFilter3' class='org.springframework.security.util.MockFilter'/>" +
+                "<b:bean id='userFilter3' class='org.springframework.security.context.web.SecurityContextPersistenceFilter'/>" +
                 "<b:bean id='userFilter4' class='org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter'/>"
                 );
         List<Filter> filters = getFilters("/someurl");
 
         assertEquals(AUTO_CONFIG_FILTERS + 3, filters.size());
-        assertTrue(filters.get(0) instanceof MockFilter);
-        assertTrue(filters.get(1) instanceof SecurityContextHolderAwareRequestFilter);
+        assertTrue(filters.get(0) instanceof SecurityContextPersistenceFilter);
+        assertTrue(filters.get(1) instanceof SecurityContextPersistenceFilter);
         assertTrue(filters.get(4) instanceof SecurityContextHolderAwareRequestFilter);
     }
 
@@ -694,7 +693,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void supportsExternallyDefinedSecurityContextRepository() throws Exception {
         setContext(
-                "<b:bean id='repo' class='org.springframework.security.context.HttpSessionSecurityContextRepository'/>" +
+                "<b:bean id='repo' class='org.springframework.security.context.web.HttpSessionSecurityContextRepository'/>" +
                 "<http create-session='always' security-context-repository-ref='repo'>" +
                 "    <http-basic />" +
                 "</http>" + AUTH_PROVIDER_XML);
@@ -707,7 +706,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test(expected=BeanDefinitionParsingException.class)
     public void cantUseUnsupportedSessionCreationAttributeWithExternallyDefinedSecurityContextRepository() throws Exception {
         setContext(
-                "<b:bean id='repo' class='org.springframework.security.context.HttpSessionSecurityContextRepository'/>" +
+                "<b:bean id='repo' class='org.springframework.security.context.web.HttpSessionSecurityContextRepository'/>" +
                 "<http create-session='never' security-context-repository-ref='repo'>" +
                 "    <http-basic />" +
                 "</http>" + AUTH_PROVIDER_XML);

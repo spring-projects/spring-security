@@ -16,10 +16,15 @@
 package org.springframework.security.util;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.*;
 
 import java.util.List;
 
 import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Before;
@@ -29,8 +34,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.MockFilterConfig;
-import org.springframework.security.context.SecurityContextPersistenceFilter;
+import org.springframework.security.context.web.SecurityContextPersistenceFilter;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
+import org.springframework.security.web.util.FilterChainProxy;
+import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 
 /**
  * Tests {@link FilterChainProxy}.
@@ -54,23 +61,6 @@ public class FilterChainProxyConfigTests {
         if (appCtx != null) {
             appCtx.close();
         }
-    }
-
-    @Test
-    public void testDoNotFilter() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain", FilterChainProxy.class);
-        MockFilter filter = (MockFilter) appCtx.getBean("mockFilter", MockFilter.class);
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setServletPath("/do/not/filter/somefile.html");
-
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain chain = new MockFilterChain(true);
-
-        filterChainProxy.doFilter(request, response, chain);
-        assertFalse(filter.isWasInitialized());
-        assertFalse(filter.isWasDoFiltered());
-        assertFalse(filter.isWasDestroyed());
     }
 
     @Test(expected=BeanCreationException.class)
@@ -126,14 +116,14 @@ public class FilterChainProxyConfigTests {
     private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) throws Exception {
         List<Filter> filters = filterChainProxy.getFilters("/foo/blah");
         assertEquals(1, filters.size());
-        assertTrue(filters.get(0) instanceof MockFilter);
+        assertTrue(filters.get(0) instanceof SecurityContextHolderAwareRequestFilter);
 
         filters = filterChainProxy.getFilters("/some/other/path/blah");
         assertNotNull(filters);
         assertEquals(3, filters.size());
         assertTrue(filters.get(0) instanceof SecurityContextPersistenceFilter);
-        assertTrue(filters.get(1) instanceof MockFilter);
-        assertTrue(filters.get(2) instanceof MockFilter);
+        assertTrue(filters.get(1) instanceof SecurityContextHolderAwareRequestFilter);
+        assertTrue(filters.get(2) instanceof SecurityContextHolderAwareRequestFilter);
 
         filters = filterChainProxy.getFilters("/do/not/filter");
         assertEquals(0, filters.size());
@@ -142,37 +132,26 @@ public class FilterChainProxyConfigTests {
         assertEquals(3, filters.size());
         assertTrue(filters.get(0) instanceof SecurityContextPersistenceFilter);
         assertTrue(filters.get(1) instanceof AuthenticationProcessingFilter);
-        assertTrue(filters.get(2) instanceof MockFilter);
+        assertTrue(filters.get(2) instanceof SecurityContextHolderAwareRequestFilter);
     }
 
     private void doNormalOperation(FilterChainProxy filterChainProxy) throws Exception {
-        MockFilter filter = (MockFilter) appCtx.getBean("mockFilter", MockFilter.class);
-        assertFalse(filter.isWasInitialized());
-        assertFalse(filter.isWasDoFiltered());
-        assertFalse(filter.isWasDestroyed());
-
         filterChainProxy.init(new MockFilterConfig());
-        assertTrue(filter.isWasInitialized());
-        assertFalse(filter.isWasDoFiltered());
-        assertFalse(filter.isWasDestroyed());
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/foo/secure/super/somefile.html");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain chain = new MockFilterChain(true);
+        FilterChain chain = mock(FilterChain.class);
 
         filterChainProxy.doFilter(request, response, chain);
-        assertTrue(filter.isWasInitialized());
-        assertTrue(filter.isWasDoFiltered());
-        assertFalse(filter.isWasDestroyed());
+        verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         request.setServletPath("/a/path/which/doesnt/match/any/filter.html");
+        chain = mock(FilterChain.class);
         filterChainProxy.doFilter(request, response, chain);
+        verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         filterChainProxy.destroy();
-        assertTrue(filter.isWasInitialized());
-        assertTrue(filter.isWasDoFiltered());
-        assertTrue(filter.isWasDestroyed());
     }
 }

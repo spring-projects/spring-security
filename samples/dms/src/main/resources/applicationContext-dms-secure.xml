@@ -50,8 +50,6 @@
       <property name="providers">
          <list>
             <ref local="daoAuthenticationProvider"/>
-            <ref local="anonymousAuthenticationProvider"/>
-            <ref local="rememberMeAuthenticationProvider"/>
          </list>
       </property>
    </bean>
@@ -81,12 +79,10 @@
 
    <!-- Automatically receives AuthenticationEvent messages -->
    <bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
-
+<!--
    <bean id="anonymousAuthenticationProvider" class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
       <property name="key" value="foobar"/>
    </bean>
-
-   <bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
 
    <bean id="rememberMeServices" class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices">
       <property name="userDetailsService" ref="jdbcDaoImpl"/>
@@ -96,7 +92,7 @@
    <bean id="rememberMeAuthenticationProvider" class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider">
       <property name="key" value="springRocks"/>
    </bean>
-
+ -->
    <!-- ========================= "BEFORE INVOCATION" AUTHORIZATION DEFINITIONS ============================== -->
 
    <!-- ACL permission masks used by this application -->

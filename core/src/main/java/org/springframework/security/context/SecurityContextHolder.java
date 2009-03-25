@@ -43,7 +43,7 @@ import java.lang.reflect.Constructor;
  * @author Ben Alex
  * @version $Id$
  *
- * @see org.springframework.security.context.HttpSessionContextIntegrationFilter
+ * @see org.springframework.security.context.web.HttpSessionContextIntegrationFilter
  */
 public class SecurityContextHolder {
     //~ Static fields/initializers =====================================================================================
@@ -138,7 +138,7 @@ public class SecurityContextHolder {
     /**
      * Delegates the creation of a new, empty context to the configured strategy.
      */
-    static SecurityContext createEmptyContext() {
+    public static SecurityContext createEmptyContext() {
         return strategy.createEmptyContext();
     }
 

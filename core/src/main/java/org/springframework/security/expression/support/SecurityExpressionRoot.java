@@ -15,7 +15,7 @@ import org.springframework.security.util.AuthorityUtils;
  * @version $Id$
  * @since 2.5
  */
-abstract class SecurityExpressionRoot {
+public abstract class SecurityExpressionRoot {
     protected final Authentication authentication;
     private AuthenticationTrustResolver trustResolver;
     /** Allows "permitAll" expression */
@@ -24,7 +24,7 @@ abstract class SecurityExpressionRoot {
     /** Allows "denyAll" expression */
     public final boolean denyAll = false;
 
-    SecurityExpressionRoot(Authentication a) {
+    public SecurityExpressionRoot(Authentication a) {
         if (a == null) {
             throw new IllegalArgumentException("Authentication object cannot be null");
         }

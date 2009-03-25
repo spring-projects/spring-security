@@ -15,6 +15,8 @@
 
 package org.springframework.security.providers.jaas;
 
+import static org.mockito.Mockito.*;
+
 import java.net.URL;
 import java.security.Security;
 import java.util.List;
@@ -26,18 +28,16 @@ import junit.framework.TestCase;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.LockedException;
 import org.springframework.security.SpringSecurityException;
-import org.springframework.security.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.context.SecurityContextImpl;
+import org.springframework.security.event.SessionDestroyedEvent;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.ui.session.HttpSessionDestroyedEvent;
 import org.springframework.security.util.AuthorityUtils;
 
 
@@ -204,10 +204,10 @@ public class JaasAuthenticationProviderTests extends TestCase {
         SecurityContextImpl context = new SecurityContextImpl();
         context.setAuthentication(token);
 
-        MockHttpSession mockSession = new MockHttpSession();
-        mockSession.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+        SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
+        when(event.getSecurityContext()).thenReturn(context);
 
-        jaasProvider.onApplicationEvent(new HttpSessionDestroyedEvent(mockSession));
+        jaasProvider.handleLogout(event);
 
         assertTrue(loginContext.loggedOut);
     }

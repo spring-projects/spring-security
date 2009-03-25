@@ -9,7 +9,7 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider;
-import org.springframework.security.providers.anonymous.AnonymousProcessingFilter;
+import org.springframework.security.ui.anonymous.AnonymousProcessingFilter;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 

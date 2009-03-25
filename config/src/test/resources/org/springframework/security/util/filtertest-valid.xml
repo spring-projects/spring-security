@@ -24,12 +24,12 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-    <bean id="mockFilter" class="org.springframework.security.util.MockFilter"/>
+    <bean id="mockFilter" class="org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter"/>
 
-    <bean id="mockFilter2" class="org.springframework.security.util.MockFilter"/>
+    <bean id="mockFilter2" class="org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter"/>
 
     <!-- These are just here so we have filters of a specific type to check the ordering is as expected -->
-    <bean id="sif" class="org.springframework.security.context.SecurityContextPersistenceFilter"/>
+    <bean id="sif" class="org.springframework.security.context.web.SecurityContextPersistenceFilter"/>
 
     <bean id="apf" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
        <property name="authenticationManager">
@@ -39,7 +39,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <bean id="mockNotAFilter" class="org.springframework.security.util.MockNotAFilter"/>
 
-    <bean id="filterChain" class="org.springframework.security.util.FilterChainProxy">
+    <bean id="filterChain" class="org.springframework.security.web.util.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
             <sec:filter-chain pattern="/some/other/path/**" filters="mockFilter"/>
@@ -48,7 +48,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     </bean>
 
 <!-- TODO: Refactor to replace the above (SEC-1034: 'new' is now the only valid syntax) -->
-    <bean id="newFilterChainProxy" class="org.springframework.security.util.FilterChainProxy">
+    <bean id="newFilterChainProxy" class="org.springframework.security.web.util.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
             <sec:filter-chain pattern="/some/other/path/**" filters="sif,mockFilter,mockFilter2"/>
@@ -57,14 +57,14 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         </sec:filter-chain-map>
     </bean>
 
-    <bean id="newFilterChainProxyNoDefaultPath" class="org.springframework.security.util.FilterChainProxy">
+    <bean id="newFilterChainProxyNoDefaultPath" class="org.springframework.security.web.util.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
             <sec:filter-chain pattern="/*.bar" filters="mockFilter,mockFilter2"/>
         </sec:filter-chain-map>
     </bean>
 
-    <bean id="newFilterChainProxyWrongPathOrder" class="org.springframework.security.util.FilterChainProxy">
+    <bean id="newFilterChainProxyWrongPathOrder" class="org.springframework.security.web.util.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
             <sec:filter-chain pattern="/**" filters="sif,apf,mockFilter"/>
@@ -72,7 +72,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         </sec:filter-chain-map>
     </bean>
 
-    <bean id="newFilterChainProxyRegex" class="org.springframework.security.util.FilterChainProxy">
+    <bean id="newFilterChainProxyRegex" class="org.springframework.security.web.util.FilterChainProxy">
         <sec:filter-chain-map path-type="regex">
             <sec:filter-chain pattern="\A/foo/.*\Z" filters="mockFilter"/>
             <sec:filter-chain pattern="\A/s[oO]me/other/path/.*\Z" filters="sif,mockFilter,mockFilter2"/>
@@ -81,7 +81,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         </sec:filter-chain-map>
     </bean>
 
-    <bean id="newFilterChainProxyNonNamespace" class="org.springframework.security.util.FilterChainProxy">
+    <bean id="newFilterChainProxyNonNamespace" class="org.springframework.security.web.util.FilterChainProxy">
         <property name="matcher">
             <bean class="org.springframework.security.util.AntUrlPathMatcher"/>
         </property>

@@ -15,10 +15,8 @@
 
 package org.springframework.security.providers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +30,7 @@ import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.MockApplicationEventPublisher;
 import org.springframework.security.concurrent.ConcurrentLoginException;
-import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
+import org.springframework.security.concurrent.ConcurrentSessionController;
 import org.springframework.security.concurrent.NullConcurrentSessionController;
 import org.springframework.security.util.AuthorityUtils;
 
@@ -102,9 +100,9 @@ public class ProviderManagerTests {
         assertNotNull(target.getSessionController());
         assertTrue(target.getSessionController() instanceof NullConcurrentSessionController);
 
-        ConcurrentSessionControllerImpl impl = new ConcurrentSessionControllerImpl();
-        target.setSessionController(impl);
-        assertEquals(impl, target.getSessionController());
+        ConcurrentSessionController csc = mock(ConcurrentSessionController.class);
+        target.setSessionController(csc);
+        assertEquals(csc, target.getSessionController());
     }
 
     @Test(expected=IllegalArgumentException.class)

@@ -14,9 +14,8 @@
  */
 package org.springframework.security.acls.domain;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.springframework.security.acls.Permission;
 
@@ -28,9 +27,6 @@ import org.springframework.security.acls.Permission;
  * @version $Id${date}
  */
 public class PermissionTests {
-    private static final Log LOGGER = LogFactory.getLog(PermissionTests.class);
-
-    //~ Methods ========================================================================================================
 
     @Test
     public void basePermissionTest() {

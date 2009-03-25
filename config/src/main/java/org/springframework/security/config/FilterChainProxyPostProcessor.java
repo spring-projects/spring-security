@@ -18,18 +18,18 @@ import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.config.ConfigUtils.FilterChainList;
-import org.springframework.security.context.SecurityContextPersistenceFilter;
+import org.springframework.security.context.web.SecurityContextPersistenceFilter;
 import org.springframework.security.intercept.web.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.providers.anonymous.AnonymousProcessingFilter;
 import org.springframework.security.ui.ExceptionTranslationFilter;
 import org.springframework.security.ui.SessionFixationProtectionFilter;
+import org.springframework.security.ui.anonymous.AnonymousProcessingFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint;
 import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
-import org.springframework.security.util.FilterChainProxy;
+import org.springframework.security.web.util.FilterChainProxy;
 import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
 
 /**
