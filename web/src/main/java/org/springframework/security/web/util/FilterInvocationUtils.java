@@ -24,7 +24,7 @@ import javax.servlet.ServletResponse;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.intercept.web.FilterInvocation;
+import org.springframework.security.web.intercept.FilterInvocation;
 import org.springframework.util.Assert;
 
 

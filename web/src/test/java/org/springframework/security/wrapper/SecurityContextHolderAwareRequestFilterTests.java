@@ -25,7 +25,9 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.web.util.PortResolverImpl;
+import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.wrapper.SavedRequestAwareWrapper;
+import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 
 
 /**

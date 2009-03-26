@@ -18,19 +18,19 @@ import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.config.ConfigUtils.FilterChainList;
-import org.springframework.security.context.web.SecurityContextPersistenceFilter;
-import org.springframework.security.intercept.web.DefaultFilterInvocationSecurityMetadataSource;
-import org.springframework.security.intercept.web.FilterSecurityInterceptor;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.ui.ExceptionTranslationFilter;
-import org.springframework.security.ui.SessionFixationProtectionFilter;
-import org.springframework.security.ui.anonymous.AnonymousProcessingFilter;
-import org.springframework.security.ui.basicauth.BasicProcessingFilter;
-import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
-import org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint;
-import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
-import org.springframework.security.web.util.FilterChainProxy;
-import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
+import org.springframework.security.providers.AnonymousAuthenticationToken;
+import org.springframework.security.web.ExceptionTranslationFilter;
+import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SessionFixationProtectionFilter;
+import org.springframework.security.web.authentication.AnonymousProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.authentication.www.BasicProcessingFilter;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.intercept.DefaultFilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 
 /**
  *

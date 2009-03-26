@@ -6,13 +6,13 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.2.xsd">
 
-    <!-- 
+    <!--
        Http App Context to test form login, remember-me and concurrent session control.
-       Needs to be supplemented with authentication provider(s) 
+       Needs to be supplemented with authentication provider(s)
     -->
 
     <http>
-        <intercept-url pattern="/login.jsp*" filters="none" />        
+        <intercept-url pattern="/login.jsp*" filters="none" />
         <intercept-url pattern="/secure/**" access="ROLE_DEVELOPER,ROLE_USER" />
         <intercept-url pattern="/**" access="ROLE_DEVELOPER,ROLE_USER" />
 
@@ -27,7 +27,7 @@
         <remember-me key="doesntmatter" token-repository-ref="tokenRepo"/>
     </http>
 
-    <beans:bean name="tokenRepo" class="org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl"/>
+    <beans:bean name="tokenRepo" class="org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl"/>
 
     <!-- bean name="rememberMeServices" class="org.springframework.security.ui.rememberme.NullRememberMeServices"/ -->
 

@@ -22,9 +22,9 @@ import junit.framework.TestCase;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.SecurityConfig;
+import org.springframework.security.providers.AnonymousAuthenticationToken;
+import org.springframework.security.providers.RememberMeAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.providers.rememberme.RememberMeAuthenticationToken;
 import org.springframework.security.util.AuthorityUtils;
 
 

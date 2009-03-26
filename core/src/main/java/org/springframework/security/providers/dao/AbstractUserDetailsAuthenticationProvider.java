@@ -26,12 +26,13 @@ import org.springframework.security.LockedException;
 
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.dao.cache.NullUserCache;
 
+import org.springframework.security.userdetails.UserCache;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.userdetails.UserDetailsChecker;
+import org.springframework.security.userdetails.cache.NullUserCache;
 
 import org.springframework.beans.factory.InitializingBean;
 

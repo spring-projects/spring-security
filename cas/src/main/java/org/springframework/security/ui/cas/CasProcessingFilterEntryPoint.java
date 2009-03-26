@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jasig.cas.client.util.CommonUtils;
 import org.springframework.security.AuthenticationException;
-import org.springframework.security.ui.AuthenticationEntryPoint;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 

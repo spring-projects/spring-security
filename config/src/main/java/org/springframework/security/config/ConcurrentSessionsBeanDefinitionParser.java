@@ -10,9 +10,9 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
-import org.springframework.security.concurrent.ConcurrentSessionFilter;
-import org.springframework.security.concurrent.SessionRegistryImpl;
 import org.springframework.security.providers.ProviderManager;
+import org.springframework.security.web.concurrent.ConcurrentSessionFilter;
+import org.springframework.security.web.concurrent.SessionRegistryImpl;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 

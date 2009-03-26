@@ -1,9 +1,9 @@
 package org.springframework.security.config;
 
-import org.springframework.security.ui.preauth.PreAuthenticatedProcessingFilterEntryPoint;
-import org.springframework.security.ui.preauth.x509.X509PreAuthenticatedProcessingFilter;
-import org.springframework.security.ui.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.userdetails.UserDetailsByNameServiceWrapper;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
+import org.springframework.security.web.authentication.preauth.x509.X509PreAuthenticatedProcessingFilter;
 import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;

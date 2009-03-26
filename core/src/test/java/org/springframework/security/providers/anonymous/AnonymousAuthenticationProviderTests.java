@@ -22,6 +22,8 @@ import org.springframework.security.BadCredentialsException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 
+import org.springframework.security.providers.AnonymousAuthenticationProvider;
+import org.springframework.security.providers.AnonymousAuthenticationToken;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.util.AuthorityUtils;
 

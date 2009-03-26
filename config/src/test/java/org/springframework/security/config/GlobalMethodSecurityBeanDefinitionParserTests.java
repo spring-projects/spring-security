@@ -1,6 +1,7 @@
 package org.springframework.security.config;
 
 import static org.junit.Assert.*;
+import static org.springframework.security.config.GlobalMethodSecurityBeanDefinitionParser.*;
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
 
 import java.util.ArrayList;
@@ -14,8 +15,12 @@ import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.afterinvocation.AfterInvocationProviderManager;
 import org.springframework.security.annotation.BusinessService;
+import org.springframework.security.annotation.Jsr250MethodSecurityMetadataSource;
+import org.springframework.security.annotation.Jsr250Voter;
+import org.springframework.security.annotation.SecuredMethodSecurityMetadataSource;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.expression.method.ExpressionAnnotationMethodSecurityMetadataSource;
 import org.springframework.security.expression.method.MethodExpressionAfterInvocationProvider;
 import org.springframework.security.expression.method.MethodExpressionVoter;
 import org.springframework.security.providers.TestingAuthenticationToken;
@@ -54,6 +59,14 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         }
         SecurityContextHolder.clearContext();
         target = null;
+    }
+
+    @Test
+    public void beanClassNamesAreCorrect() throws Exception {
+        assertEquals(SecuredMethodSecurityMetadataSource.class.getName(), SECURED_METHOD_DEFINITION_SOURCE_CLASS);
+        assertEquals(ExpressionAnnotationMethodSecurityMetadataSource.class.getName(), EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS);
+        assertEquals(Jsr250MethodSecurityMetadataSource.class.getName(), JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS);
+        assertEquals(Jsr250Voter.class.getName(), JSR_250_VOTER_CLASS);
     }
 
     @Test(expected=AuthenticationCredentialsNotFoundException.class)

@@ -1,6 +1,6 @@
 package org.springframework.security.config;
 
-import org.springframework.security.web.util.PortMapperImpl;
+import org.springframework.security.web.PortMapperImpl;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 /**
- * Parses a port-mappings element, producing a single {@link org.springframework.security.web.util.PortMapperImpl}
+ * Parses a port-mappings element, producing a single {@link org.springframework.security.web.PortMapperImpl}
  * bean.
  *
  * @author Luke Taylor

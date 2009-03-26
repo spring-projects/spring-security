@@ -34,10 +34,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.MockFilterConfig;
-import org.springframework.security.context.web.SecurityContextPersistenceFilter;
-import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
-import org.springframework.security.web.util.FilterChainProxy;
-import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
+import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 
 /**
  * Tests {@link FilterChainProxy}.

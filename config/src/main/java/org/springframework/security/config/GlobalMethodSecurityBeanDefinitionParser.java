@@ -45,10 +45,10 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.SecuredMethodSecurityMetadataSource";
-    private static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.expression.method.ExpressionAnnotationMethodSecurityMetadataSource";
-    private static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.Jsr250MethodSecurityMetadataSource";
-    private static final String JSR_250_VOTER_CLASS = "org.springframework.security.annotation.Jsr250Voter";
+    static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.SecuredMethodSecurityMetadataSource";
+    static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.expression.method.ExpressionAnnotationMethodSecurityMetadataSource";
+    static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.Jsr250MethodSecurityMetadataSource";
+    static final String JSR_250_VOTER_CLASS = "org.springframework.security.annotation.Jsr250Voter";
 
     /*
      * Internal Bean IDs which are only used within this class

@@ -30,8 +30,6 @@ import org.springframework.security.LockedException;
 
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.dao.cache.EhCacheBasedUserCache;
-import org.springframework.security.providers.dao.cache.NullUserCache;
 import org.springframework.security.providers.dao.salt.SystemWideSaltSource;
 import org.springframework.security.providers.encoding.ShaPasswordEncoder;
 
@@ -39,6 +37,8 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.userdetails.cache.EhCacheBasedUserCache;
+import org.springframework.security.userdetails.cache.NullUserCache;
 import org.springframework.security.util.AuthorityUtils;
 
 import org.springframework.dao.DataAccessException;

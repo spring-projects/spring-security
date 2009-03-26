@@ -26,19 +26,29 @@ stop_jetty() {
 cleanup
 
 cd tutorial
+echo "Running tutorial app..."
 start_jetty
 curl http://localhost:8080/tutorial/
 stop_jetty
 
+echo "Running contacts app..."
 cd ../contacts
 start_jetty
 curl http://localhost:8080/contacts/
 stop_jetty
 
+echo "Running ldap app..."
 cd ../ldap
 start_jetty
 curl http://localhost:8080/ldap/
 stop_jetty
+
+echo "Running preauth app..."
+cd ../preauth
+start_jetty
+curl http://localhost:8080/preauth/
+stop_jetty
+
 
 cd ../cas
 

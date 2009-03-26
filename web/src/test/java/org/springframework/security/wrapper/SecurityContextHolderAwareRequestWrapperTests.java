@@ -23,7 +23,8 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.util.AuthorityUtils;
-import org.springframework.security.web.util.PortResolverImpl;
+import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestWrapper;
 
 
 /**

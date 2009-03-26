@@ -21,7 +21,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.ui.AuthenticationEntryPoint;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
 
 /**

@@ -11,8 +11,8 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.security.concurrent.ConcurrentSessionController;
 import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.concurrent.SessionRegistry;
-import org.springframework.security.ui.AbstractProcessingFilter;
-import org.springframework.security.ui.SessionFixationProtectionFilter;
+import org.springframework.security.web.SessionFixationProtectionFilter;
+import org.springframework.security.web.authentication.AbstractProcessingFilter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

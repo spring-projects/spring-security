@@ -13,9 +13,9 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationProvider;
-import org.springframework.security.ui.rememberme.AbstractRememberMeServices;
 import org.springframework.security.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.util.Assert;
 
 /**

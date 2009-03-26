@@ -7,10 +7,10 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.ui.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.ui.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint;
-import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.authentication.AuthenticationProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.util.StringUtils;
 
 import org.w3c.dom.Element;

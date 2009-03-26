@@ -20,6 +20,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.springframework.security.GrantedAuthority;
+import org.springframework.security.providers.AnonymousAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.util.AuthorityUtils;
 

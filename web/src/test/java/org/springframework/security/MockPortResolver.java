@@ -15,7 +15,7 @@
 
 package org.springframework.security;
 
-import org.springframework.security.web.util.PortResolver;
+import org.springframework.security.web.PortResolver;
 
 import javax.servlet.ServletRequest;
 

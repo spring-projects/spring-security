@@ -19,6 +19,8 @@ import junit.framework.TestCase;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
+import org.springframework.security.providers.RememberMeAuthenticationProvider;
+import org.springframework.security.providers.RememberMeAuthenticationToken;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.util.AuthorityUtils;
 

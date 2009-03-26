@@ -7,11 +7,11 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.ui.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.ui.rememberme.PersistentTokenBasedRememberMeServices;
-import org.springframework.security.ui.rememberme.RememberMeProcessingFilter;
-import org.springframework.security.ui.rememberme.TokenBasedRememberMeServices;
-import org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.RememberMeProcessingFilter;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.providers.RememberMeAuthenticationProvider;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 

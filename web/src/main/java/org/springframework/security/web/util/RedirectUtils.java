@@ -1,7 +1,7 @@
 package org.springframework.security.web.util;
 
-import org.springframework.security.ui.AbstractProcessingFilter;
-import org.springframework.security.ui.logout.LogoutFilter;
+import org.springframework.security.web.authentication.AbstractProcessingFilter;
+import org.springframework.security.web.logout.LogoutFilter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

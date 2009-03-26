@@ -7,13 +7,13 @@
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.2.xsd">
 
     <!-- A second APF in addition to the standard namespace one -->
-    <bean name="formLoginFilter2" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
+    <bean name="formLoginFilter2" class="org.springframework.security.authentication.AuthenticationProcessingFilter">
         <sec:custom-filter after="AUTHENTICATION_PROCESSING_FILTER"/>
         <property name="filterProcessesUrl" value="/j_spring_security_check_2"/>
     </bean>
 
 
-    <bean name="switchUserFilter" class="org.springframework.security.ui.switchuser.SwitchUserProcessingFilter">
+    <bean name="switchUserFilter" class="org.springframework.security.web.authentication.switchuser.SwitchUserProcessingFilter">
         <sec:custom-filter position="SWITCH_USER_FILTER"/>
     </bean>
 </beans>

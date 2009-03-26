@@ -7,8 +7,8 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.ui.basicauth.BasicProcessingFilter;
-import org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.www.BasicProcessingFilter;
+import org.springframework.security.web.authentication.www.BasicProcessingFilterEntryPoint;
 import org.w3c.dom.Element;
 
 /**

@@ -18,6 +18,7 @@ package org.springframework.security.providers.dao.cache;
 import junit.framework.TestCase;
 
 import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.cache.NullUserCache;
 import org.springframework.security.util.AuthorityUtils;
 
 

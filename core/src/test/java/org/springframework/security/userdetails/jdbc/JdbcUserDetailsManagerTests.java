@@ -26,8 +26,8 @@ import org.springframework.security.PopulatedDatabase;
 import org.springframework.security.TestDataSource;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.dao.UserCache;
 import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.UserCache;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.util.AuthorityUtils;
 

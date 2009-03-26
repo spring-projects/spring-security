@@ -6,8 +6,8 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.ui.logout.LogoutFilter;
-import org.springframework.security.ui.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.logout.LogoutFilter;
+import org.springframework.security.web.logout.SecurityContextLogoutHandler;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 

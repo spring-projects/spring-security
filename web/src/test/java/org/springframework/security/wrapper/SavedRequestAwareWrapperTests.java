@@ -11,9 +11,10 @@ import javax.servlet.http.Cookie;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.ui.savedrequest.FastHttpDateFormat;
-import org.springframework.security.ui.savedrequest.SavedRequest;
-import org.springframework.security.web.util.PortResolverImpl;
+import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.savedrequest.FastHttpDateFormat;
+import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.wrapper.SavedRequestAwareWrapper;
 
 public class SavedRequestAwareWrapperTests {
 

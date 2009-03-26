@@ -19,30 +19,30 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeEditor;
 import org.springframework.security.SecurityConfig;
-import org.springframework.security.context.web.HttpSessionSecurityContextRepository;
-import org.springframework.security.context.web.SecurityContextPersistenceFilter;
-import org.springframework.security.expression.web.WebExpressionVoter;
-import org.springframework.security.intercept.web.DefaultFilterInvocationSecurityMetadataSource;
-import org.springframework.security.intercept.web.FilterSecurityInterceptor;
-import org.springframework.security.intercept.web.RequestKey;
-import org.springframework.security.securechannel.ChannelDecisionManagerImpl;
-import org.springframework.security.securechannel.ChannelProcessingFilter;
-import org.springframework.security.securechannel.InsecureChannelProcessor;
-import org.springframework.security.securechannel.RetryWithHttpEntryPoint;
-import org.springframework.security.securechannel.RetryWithHttpsEntryPoint;
-import org.springframework.security.securechannel.SecureChannelProcessor;
-import org.springframework.security.ui.AccessDeniedHandlerImpl;
-import org.springframework.security.ui.ExceptionTranslationFilter;
-import org.springframework.security.ui.SessionFixationProtectionFilter;
-import org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.security.util.RegexUrlPathMatcher;
 import org.springframework.security.util.UrlMatcher;
 import org.springframework.security.vote.AccessDecisionVoter;
 import org.springframework.security.vote.AuthenticatedVoter;
 import org.springframework.security.vote.RoleVoter;
-import org.springframework.security.web.util.FilterChainProxy;
-import org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter;
+import org.springframework.security.web.AccessDeniedHandlerImpl;
+import org.springframework.security.web.ExceptionTranslationFilter;
+import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SessionFixationProtectionFilter;
+import org.springframework.security.web.authentication.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.expression.WebExpressionVoter;
+import org.springframework.security.web.intercept.DefaultFilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.intercept.RequestKey;
+import org.springframework.security.web.securechannel.ChannelDecisionManagerImpl;
+import org.springframework.security.web.securechannel.ChannelProcessingFilter;
+import org.springframework.security.web.securechannel.InsecureChannelProcessor;
+import org.springframework.security.web.securechannel.RetryWithHttpEntryPoint;
+import org.springframework.security.web.securechannel.RetryWithHttpsEntryPoint;
+import org.springframework.security.web.securechannel.SecureChannelProcessor;
+import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -106,8 +106,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String ATT_DISABLE_URL_REWRITING = "disable-url-rewriting";
 
-    private static final String EXPRESSION_FIDS_CLASS = "org.springframework.security.expression.web.ExpressionBasedFilterInvocationSecurityMetadataSource";
-    private static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.expression.web.support.DefaultWebSecurityExpressionHandler";
+    static final String OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProcessingFilter";
+    static final String OPEN_ID_AUTHENTICATION_PROVIDER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProvider";
+    static final String AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.web.authentication.AuthenticationProcessingFilter";
+
+    static final String EXPRESSION_FIMDS_CLASS = "org.springframework.security.web.expression.ExpressionBasedFilterInvocationSecurityMetadataSource";
+    static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.web.expression.DefaultWebSecurityExpressionHandler";
     private static final String EXPRESSION_HANDLER_ID = "_webExpressionHandler";
 
     @SuppressWarnings("unchecked")
@@ -166,7 +170,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 expressionHandlerRef = EXPRESSION_HANDLER_ID;
             }
 
-            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_FIDS_CLASS);
+            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_FIMDS_CLASS);
             fidsBuilder.addConstructorArgValue(matcher);
             fidsBuilder.addConstructorArgValue(requestToAttributesMap);
             fidsBuilder.addConstructorArgReference(expressionHandlerRef);
@@ -437,7 +441,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         if (formLoginElt != null || autoConfig) {
             FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_security_check",
-                    "org.springframework.security.ui.webapp.AuthenticationProcessingFilter");
+                    AUTHENTICATION_PROCESSING_FILTER_CLASS);
 
             parser.parse(formLoginElt, pc);
             formLoginFilter = parser.getFilterBean();
@@ -449,7 +453,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         if (openIDLoginElt != null) {
             FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_openid_security_check",
-                    "org.springframework.security.ui.openid.OpenIDAuthenticationProcessingFilter");
+                    OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS);
 
             parser.parse(openIDLoginElt, pc);
             openIDFilter = parser.getFilterBean();
@@ -457,7 +461,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             openIDLoginPage = parser.getLoginPage();
 
             BeanDefinitionBuilder openIDProviderBuilder =
-                BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.providers.openid.OpenIDAuthenticationProvider");
+                BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_AUTHENTICATION_PROVIDER_CLASS);
 
             String userService = openIDLoginElt.getAttribute(ATT_USER_SERVICE_REF);
 

@@ -25,6 +25,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.cache.EhCacheBasedUserCache;
 import org.springframework.security.util.AuthorityUtils;
 
 /**

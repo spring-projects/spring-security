@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.UserCache;
 import org.springframework.security.userdetails.UserDetails;
 
 public class MockUserCache implements UserCache {

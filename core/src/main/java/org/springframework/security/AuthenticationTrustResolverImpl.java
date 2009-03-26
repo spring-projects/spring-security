@@ -15,8 +15,8 @@
 
 package org.springframework.security;
 
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.providers.rememberme.RememberMeAuthenticationToken;
+import org.springframework.security.providers.AnonymousAuthenticationToken;
+import org.springframework.security.providers.RememberMeAuthenticationToken;
 
 
 /**

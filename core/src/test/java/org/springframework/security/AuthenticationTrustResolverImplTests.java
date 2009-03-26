@@ -17,9 +17,9 @@ package org.springframework.security;
 
 import junit.framework.TestCase;
 
+import org.springframework.security.providers.AnonymousAuthenticationToken;
+import org.springframework.security.providers.RememberMeAuthenticationToken;
 import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.providers.rememberme.RememberMeAuthenticationToken;
 import org.springframework.security.util.AuthorityUtils;
 
 

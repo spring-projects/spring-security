@@ -73,7 +73,7 @@
       <property name="cacheName" value="userCache"/>
    </bean>
 
-   <bean id="userCache" class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache">
+   <bean id="userCache" class="org.springframework.security.userdetails.cache.EhCacheBasedUserCache">
       <property name="cache" ref="userCacheBackend"/>
    </bean>
 

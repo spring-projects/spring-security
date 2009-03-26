@@ -17,8 +17,8 @@ package org.springframework.security.web.util;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.intercept.web.FilterInvocation;
-import org.springframework.security.ui.savedrequest.SavedRequest;
+import org.springframework.security.web.intercept.FilterInvocation;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 
 /**

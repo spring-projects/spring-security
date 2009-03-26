@@ -8,8 +8,10 @@ import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.concurrent.ConcurrentSessionController;
+import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.util.FieldUtils;
+import org.springframework.security.web.concurrent.SessionRegistryImpl;
 
 /**
  *
@@ -35,9 +37,9 @@ public class SessionRegistryInjectionBeanPostProcessorTests {
     public void sessionRegistryIsSetOnFiltersWhenUsingCustomControllerWithInternalRegistryBean() throws Exception {
         setContext(
                 "<http auto-config='true'/>" +
-                "<b:bean id='sc' class='org.springframework.security.concurrent.ConcurrentSessionControllerImpl'>" +
+                "<b:bean id='sc' class='" + ConcurrentSessionControllerImpl.class.getName() + "'>" +
                 "  <b:property name='sessionRegistry'>" +
-                "      <b:bean class='org.springframework.security.concurrent.SessionRegistryImpl'/>" +
+                "      <b:bean class='" + SessionRegistryImpl.class.getName() + "'/>" +
                 "  </b:property>" +
                 "</b:bean>" +
                 "<authentication-manager alias='authManager' session-controller-ref='sc'/>" +
@@ -51,7 +53,7 @@ public class SessionRegistryInjectionBeanPostProcessorTests {
         setContext(
                 "<http auto-config='true'/>" +
                 "<b:bean id='sc' class='org.springframework.security.config.SessionRegistryInjectionBeanPostProcessorTests$MockConcurrentSessionController'/>" +
-                "<b:bean id='sessionRegistry' class='org.springframework.security.concurrent.SessionRegistryImpl'/>" +
+                "<b:bean id='sessionRegistry' class='" + SessionRegistryImpl.class.getName() + "'/>" +
                 "<authentication-manager alias='authManager' session-controller-ref='sc'/>" +
                 ConfigTestUtils.AUTH_PROVIDER_XML);
         assertNotNull(FieldUtils.getFieldValue(appContext.getBean(BeanIds.SESSION_FIXATION_PROTECTION_FILTER), "sessionRegistry"));
