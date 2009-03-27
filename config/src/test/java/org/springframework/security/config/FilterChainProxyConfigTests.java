@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.util;
+package org.springframework.security.config;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
