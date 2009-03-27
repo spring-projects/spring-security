@@ -11,10 +11,10 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.authentication.AbstractProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.util.FilterChainOrder;
 
 /**
  *

@@ -2,7 +2,7 @@ package org.springframework.security.web.authentication.preauth;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.web.FilterChainOrder;
+import org.springframework.security.web.util.FilterChainOrder;
 import org.springframework.util.Assert;
 
 /**

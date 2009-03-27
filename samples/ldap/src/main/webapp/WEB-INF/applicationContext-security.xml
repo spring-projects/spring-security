@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
     http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.1.xsd">
-    
+
     <s:http>
         <s:intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
         <s:intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
@@ -19,44 +19,44 @@
 
     <s:ldap-server ldif="classpath:users.ldif" port="33389"/>
 
-    <s:ldap-authentication-provider 
-        group-search-filter="member={0}" 
+    <s:ldap-authentication-provider
+        group-search-filter="member={0}"
         group-search-base="ou=groups"
         user-search-base="ou=people"
         user-search-filter="uid={0}"
     />
 
     <!-- Traditional Bean version of the same configuration -->
-    
+
     <!-- This bean points at the embedded directory server created by the ldap-server element above  -->
     <bean id="contextSource" class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
         <constructor-arg value="ldap://localhost:33389/dc=springframework,dc=org"/>
     </bean>
 
-    <bean id="secondLdapProvider" class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
+    <bean id="secondLdapProvider" class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
         <s:custom-authentication-provider />
-		<constructor-arg>
-			<bean class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator">
-				<constructor-arg ref="contextSource" />
-				<property name="userSearch">
-					<bean id="userSearch" class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
-					  <constructor-arg index="0" value="ou=people"/>
-					  <constructor-arg index="1" value="(uid={0})"/>
-					  <constructor-arg index="2" ref="contextSource" />
-					</bean>				
-				</property>
-			</bean>
-		</constructor-arg>
-		<constructor-arg>
-			<bean class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
-				<constructor-arg ref="contextSource" />
-				<constructor-arg value="ou=groups" />
-				<property name="groupSearchFilter" value="(member={0})"/>
-				<property name="rolePrefix" value="ROLE_"/>
-				<property name="searchSubtree" value="true"/>
-				<property name="convertToUpperCase" value="true"/>
-			</bean>
-		</constructor-arg>
+        <constructor-arg>
+            <bean class="org.springframework.security.ldap.authentication.BindAuthenticator">
+                <constructor-arg ref="contextSource" />
+                <property name="userSearch">
+                    <bean id="userSearch" class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+                      <constructor-arg index="0" value="ou=people"/>
+                      <constructor-arg index="1" value="(uid={0})"/>
+                      <constructor-arg index="2" ref="contextSource" />
+                    </bean>
+                </property>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
+                <constructor-arg ref="contextSource" />
+                <constructor-arg value="ou=groups" />
+                <property name="groupSearchFilter" value="(member={0})"/>
+                <property name="rolePrefix" value="ROLE_"/>
+                <property name="searchSubtree" value="true"/>
+                <property name="convertToUpperCase" value="true"/>
+            </bean>
+        </constructor-arg>
     </bean>
 
 </beans>

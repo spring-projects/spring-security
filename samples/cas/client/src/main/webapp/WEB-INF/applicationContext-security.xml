@@ -13,16 +13,16 @@
 
     <sec:authentication-manager alias="authenticationManager"/>
 
-    <bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter">
+    <bean id="casProcessingFilter" class="org.springframework.security.cas.web.CasProcessingFilter">
         <sec:custom-filter after="CAS_PROCESSING_FILTER"/>
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="authenticationFailureHandler">
-            <bean class="org.springframework.security.ui.SimpleUrlAuthenticationFailureHandler">
+            <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
                 <property name="defaultFailureUrl" value="/casfailed.jsp"/>
             </bean>
         </property>
         <property name="authenticationSuccessHandler">
-            <bean class="org.springframework.security.ui.SimpleUrlAuthenticationSuccessHandler">
+            <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler">
                 <property name="defaultTargetUrl" value="/"/>
             </bean>
         </property>
@@ -30,12 +30,12 @@
         <property name="proxyReceptorUrl" value="/secure/receptor" />
     </bean>
 
-    <bean id="casProcessingFilterEntryPoint" class="org.springframework.security.ui.cas.CasProcessingFilterEntryPoint">
+    <bean id="casProcessingFilterEntryPoint" class="org.springframework.security.cas.web.CasProcessingFilterEntryPoint">
         <property name="loginUrl" value="https://localhost:9443/cas/login"/>
         <property name="serviceProperties" ref="serviceProperties"/>
     </bean>
 
-    <bean id="casAuthenticationProvider" class="org.springframework.security.providers.cas.CasAuthenticationProvider">
+    <bean id="casAuthenticationProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
         <sec:custom-authentication-provider />
         <property name="userDetailsService" ref="userService"/>
         <property name="serviceProperties" ref="serviceProperties" />
@@ -51,7 +51,7 @@
 
     <bean id="proxyGrantingTicketStorage" class="org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl" />
 
-    <bean id="serviceProperties" class="org.springframework.security.ui.cas.ServiceProperties">
+    <bean id="serviceProperties" class="org.springframework.security.cas.ServiceProperties">
         <property name="service" value="https://localhost:8443/cas-sample/j_spring_cas_security_check"/>
         <property name="sendRenew" value="false"/>
     </bean>

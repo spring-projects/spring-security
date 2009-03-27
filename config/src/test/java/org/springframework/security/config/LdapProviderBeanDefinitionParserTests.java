@@ -1,7 +1,7 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.springframework.security.config.LdapProviderBeanDefinitionParser.*;
 
 import org.junit.After;
 import org.junit.Test;
@@ -9,11 +9,13 @@ import org.springframework.security.Authentication;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.SecurityConfigurationException;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.ldap.authentication.BindAuthenticator;
+import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
+import org.springframework.security.ldap.authentication.PasswordComparisonAuthenticator;
+import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
+import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.ldap.LdapAuthenticationProvider;
-import org.springframework.security.userdetails.ldap.InetOrgPersonContextMapper;
-import org.springframework.security.userdetails.ldap.LdapUserDetailsImpl;
 import org.springframework.security.util.FieldUtils;
 
 
@@ -30,6 +32,13 @@ public class LdapProviderBeanDefinitionParserTests {
             appCtx.close();
             appCtx = null;
         }
+    }
+
+    @Test
+    public void beanClassNamesAreCorrect() throws Exception {
+        assertEquals(PROVIDER_CLASS, LdapAuthenticationProvider.class.getName());
+        assertEquals(BIND_AUTH_CLASS, BindAuthenticator.class.getName());
+        assertEquals(PASSWD_AUTH_CLASS, PasswordComparisonAuthenticator.class.getName());
     }
 
     @Test

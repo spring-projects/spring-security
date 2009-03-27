@@ -27,9 +27,9 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String DEF_USER_SEARCH_FILTER = "uid={0}";
 
-    private static final String PROVIDER_CLASS = "org.springframework.security.providers.ldap.LdapAuthenticationProvider";
-    private static final String BIND_AUTH_CLASS = "org.springframework.security.providers.ldap.authenticator.BindAuthenticator";
-    private static final String PASSWD_AUTH_CLASS = "org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator";
+    static final String PROVIDER_CLASS = "org.springframework.security.ldap.authentication.LdapAuthenticationProvider";
+    static final String BIND_AUTH_CLASS = "org.springframework.security.ldap.authentication.BindAuthenticator";
+    static final String PASSWD_AUTH_CLASS = "org.springframework.security.ldap.authentication.PasswordComparisonAuthenticator";
 
     public BeanDefinition parse(Element elt, ParserContext parserContext) {
         RuntimeBeanReference contextSource = LdapUserServiceBeanDefinitionParser.parseServerReference(elt, parserContext);

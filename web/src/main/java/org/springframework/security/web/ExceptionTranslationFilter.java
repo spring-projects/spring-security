@@ -25,6 +25,7 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.util.ThrowableAnalyzer;
 import org.springframework.security.util.ThrowableCauseExtractor;
 import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.util.FilterChainOrder;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.util.Assert;

@@ -23,10 +23,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.SpringSecurityFilter;
+import org.springframework.security.web.util.FilterChainOrder;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 

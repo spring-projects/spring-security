@@ -13,7 +13,7 @@ import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
-import org.springframework.security.providers.ldap.authenticator.BindAuthenticator;
+import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ui.ntlm.NtlmUsernamePasswordAuthenticationToken;
 
 /**

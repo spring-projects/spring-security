@@ -1,18 +1,27 @@
 package org.springframework.security.config;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.springframework.security.config.LdapUserServiceBeanDefinitionParser.*;
+
 import java.util.Set;
 
+import org.junit.After;
+import org.junit.Test;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.util.AuthorityUtils;
-import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
+import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
+import org.springframework.security.ldap.userdetails.InetOrgPerson;
+import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
+import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
+import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
+import org.springframework.security.ldap.userdetails.Person;
+import org.springframework.security.ldap.userdetails.PersonContextMapper;
 import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.ldap.InetOrgPerson;
-import org.springframework.security.userdetails.ldap.Person;
-
-import org.junit.Test;
-import org.junit.After;
-import static org.junit.Assert.*;
+import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.util.AuthorityUtils;
+import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor
@@ -27,6 +36,16 @@ public class LdapUserServiceBeanDefinitionParserTests {
             appCtx.close();
             appCtx = null;
         }
+    }
+
+    @Test
+    public void beanClassNamesAreCorrect() throws Exception {
+        assertEquals(LDAP_SEARCH_CLASS, FilterBasedLdapUserSearch.class.getName());
+        assertEquals(PERSON_MAPPER_CLASS, PersonContextMapper.class.getName());
+        assertEquals(INET_ORG_PERSON_MAPPER_CLASS, InetOrgPersonContextMapper.class.getName());
+        assertEquals(LDAP_USER_MAPPER_CLASS, LdapUserDetailsMapper.class.getName());
+        assertEquals(LDAP_AUTHORITIES_POPULATOR_CLASS, DefaultLdapAuthoritiesPopulator.class.getName());
+        assertEquals(LdapUserDetailsService.class.getName(), new LdapUserServiceBeanDefinitionParser().getBeanClassName(mock(Element.class)));
     }
 
     @Test

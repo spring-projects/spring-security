@@ -1,7 +1,7 @@
 package org.springframework.security.web.authentication.preauth.x509;
 
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.util.FilterChainOrder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.cert.X509Certificate;

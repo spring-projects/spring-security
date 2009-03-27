@@ -30,16 +30,16 @@
                             <needClientAuth>false</needClientAuth>
                         </connector>
                     </connectors>
-			         <systemProperties>
-			            <systemProperty>
-			              <name>javax.net.ssl.trustStore</name>
-			               <value>../../certificates/server.jks</value>
-			            </systemProperty>
-			            <systemProperty>
-			            	<name>javax.net.ssl.trustStorePassword</name>
-			            	<value>password</value>
-			            </systemProperty>
-					</systemProperties>
+                     <systemProperties>
+                        <systemProperty>
+                          <name>javax.net.ssl.trustStore</name>
+                           <value>../../certificates/server.jks</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <name>javax.net.ssl.trustStorePassword</name>
+                            <value>password</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
             </plugin>
         </plugins>
