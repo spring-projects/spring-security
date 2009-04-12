@@ -42,7 +42,6 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.LockedException;
 import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.event.authentication.AuthenticationSwitchUserEvent;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsChecker;

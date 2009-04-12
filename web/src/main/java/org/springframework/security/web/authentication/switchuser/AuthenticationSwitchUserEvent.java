@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 
-package org.springframework.security.event.authentication;
+package org.springframework.security.web.authentication.switchuser;
 
 import org.springframework.security.Authentication;
 
+import org.springframework.security.event.authentication.AbstractAuthenticationEvent;
 import org.springframework.security.userdetails.UserDetails;
 
 
@@ -33,7 +34,7 @@ public class AuthenticationSwitchUserEvent extends AbstractAuthenticationEvent {
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Switch user context event constructor
      *
      * @param authentication The current <code>Authentication</code> object
