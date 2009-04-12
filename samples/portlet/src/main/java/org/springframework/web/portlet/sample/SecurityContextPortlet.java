@@ -11,11 +11,11 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.web.authentication.AbstractProcessingFilter;
 
 
 /**
- * A simple portlet which prints out the contents of the current {@link SecurityContext} 
+ * A simple portlet which prints out the contents of the current {@link org.springframework.security.context.SecurityContext} 
  *  
  * @author Luke Taylor
  */

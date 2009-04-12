@@ -12,9 +12,9 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
+            <artifactId>spring-security-web</artifactId>
             <version>${project.version}</version>
-        </dependency>                
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -22,13 +22,13 @@
         <dependency>
           <groupId>javax.portlet</groupId>
           <artifactId>portlet-api</artifactId>
-          <version>1.0</version>
+          <version>2.0</version>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.springframework</groupId>
-          <artifactId>spring-portlet</artifactId>
-          <version>2.0.8</version>
+          <artifactId>org.springframework.web.portlet</artifactId>
+          <version>${spring.version}</version>
         </dependency>
         <dependency>
           <groupId>org.springframework</groupId>

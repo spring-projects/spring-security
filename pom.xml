@@ -19,7 +19,7 @@
         <module>samples</module>
         <module>taglibs</module>
         <module>itest</module>
-        <!-- module>portlet</module -->
+        <module>portlet</module>
   </modules>
 
     <description>Spring Security</description>

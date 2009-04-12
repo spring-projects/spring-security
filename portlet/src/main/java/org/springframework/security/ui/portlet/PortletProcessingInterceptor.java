@@ -22,23 +22,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletResponse;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
+import javax.portlet.*;
 
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationDetailsSource;
 import org.springframework.security.AuthenticationDetailsSourceImpl;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
+import org.springframework.security.web.authentication.AbstractProcessingFilter;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
-import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.web.authentication.AbstractProcessingFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -69,14 +64,10 @@ import org.springframework.web.portlet.ModelAndView;
  *
  * <p>This interceptor will put the <code>PortletRequest</code> object into the
  * <code>details<code> property of the <code>Authentication</code> object that is sent
- * as a request to the <code>AuthenticationManager</code>.  This is done so that the request
- * is available to classes like {@link ContainerPortletAuthoritiesPopulator} that need
- * access to information from the portlet container.  The {@link PortletAuthenticationProvider}
- * will replace this with the <code>USER_INFO</code> map in the resulting <code>Authentication</code>
- * object.</p>
+ * as a request to the <code>AuthenticationManager</code>.
  *
- * @see org.springframework.security.ui.AbstractProcessingFilter
- * @see org.springframework.security.ui.webapp.AuthenticationProcessingFilter
+ * @see org.springframework.security.web.authentication.AbstractProcessingFilter
+ * @see org.springframework.security.web.authentication.AuthenticationProcessingFilter
  * @author John A. Lewis
  * @since 2.0
  * @version $Id$
@@ -128,6 +119,35 @@ public class PortletProcessingInterceptor implements HandlerInterceptor, Initial
 
     public void afterRenderCompletion(RenderRequest request, RenderResponse response,
             Object handler, Exception ex) throws Exception {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean preHandleResource(ResourceRequest request, ResourceResponse response, Object handler) throws Exception {
+        return preHandle(request, response, handler);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void postHandleResource(ResourceRequest request, ResourceResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+    }
+
+    public void afterResourceCompletion(ResourceRequest request, ResourceResponse response, Object handler, Exception ex) throws Exception {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean preHandleEvent(EventRequest request, EventResponse response, Object handler) throws Exception {
+        return preHandle(request, response, handler);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void afterEventCompletion(EventRequest request, EventResponse response, Object handler, Exception ex) throws Exception {
     }
 
     /**

@@ -18,14 +18,7 @@ package org.springframework.security.context;
 
 import java.lang.reflect.Method;
 
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletResponse;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
+import javax.portlet.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +27,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.portlet.HandlerInterceptor;
 import org.springframework.web.portlet.ModelAndView;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 /**
  * <p>This interceptor populates the {@link SecurityContextHolder} with information obtained from the
@@ -75,10 +70,10 @@ import org.springframework.web.portlet.ModelAndView;
  * sharing it with all the other portlets in your webapp (which is generally a good idea).  It also means that (if
  * you have done all the other appropriate magic), you will share this <code>SecurityContext</code> with servlets in
  * your webapp.  This is very useful if you have servlets serving images or processing AJAX calls from your portlets
- * since they can now use the {@link HttpSessionContextIntegrationFilter} to access the same <code>SecurityContext<code>
+ * since they can now use the {@link SecurityContextPersistenceFilter} to access the same <code>SecurityContext<code>
  * object from the session.  This allows these calls to be secured as well as the portlet calls.</p>
  *
- * Much of the logic of this interceptor comes from the {@link HttpSessionContextIntegrationFilter} class which
+ * Much of the logic of this interceptor comes from the {@link SecurityContextPersistenceFilter} class which
  * fills the same purpose on the servlet side.  Ben Alex and Patrick Burlson are listed as authors here because they
  * are the authors of that class and there are blocks of code that essentially identical between the two. (Making this
  * a good candidate for refactoring someday.)
@@ -101,7 +96,7 @@ public class PortletSessionContextIntegrationInterceptor
 
     protected static final Log logger = LogFactory.getLog(PortletSessionContextIntegrationInterceptor.class);
 
-    public static final String SPRING_SECURITY_CONTEXT_KEY = HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
+    public static final String SPRING_SECURITY_CONTEXT_KEY = HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
     private static final String SESSION_EXISTED = PortletSessionContextIntegrationInterceptor.class.getName() + ".SESSION_EXISTED";
     private static final String CONTEXT_HASHCODE = PortletSessionContextIntegrationInterceptor.class.getName() + ".CONTEXT_HASHCODE";
@@ -219,6 +214,42 @@ public class PortletSessionContextIntegrationInterceptor
         afterCompletion(request, response, handler, ex);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean preHandleResource(ResourceRequest request, ResourceResponse response, Object handler) throws Exception {
+        return preHandle(request, response, handler);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void postHandleResource(ResourceRequest request, ResourceResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void afterResourceCompletion(ResourceRequest request, ResourceResponse response, Object handler, Exception ex) throws Exception {
+        // call to common afterCompletion method
+        afterCompletion(request, response, handler, ex);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean preHandleEvent(EventRequest request, EventResponse response, Object handler) throws Exception {
+        return preHandle(request, response, handler);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void afterEventCompletion(EventRequest request, EventResponse response, Object handler, Exception ex) throws Exception {
+        // call to common afterCompletion method
+        afterCompletion(request, response, handler, ex);
+    }
 
     private boolean preHandle(PortletRequest request, PortletResponse response,
             Object handler) throws Exception {

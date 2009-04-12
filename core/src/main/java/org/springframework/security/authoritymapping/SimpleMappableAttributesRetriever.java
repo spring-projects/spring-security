@@ -1,6 +1,5 @@
 package org.springframework.security.authoritymapping;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,9 +24,10 @@ public class SimpleMappableAttributesRetriever implements MappableAttributesRetr
         return mappableAttributes;
     }
 
-    public void setMappableAttributes(String[] aMappableRoles) {
-        mappableAttributes = new HashSet<String>(aMappableRoles.length);
-        mappableAttributes.addAll(Arrays.asList(aMappableRoles));
+    @SuppressWarnings("unchecked")
+    public void setMappableAttributes(Set aMappableRoles) {
+        mappableAttributes = new HashSet<String>();
+        mappableAttributes.addAll(aMappableRoles);
         mappableAttributes = Collections.unmodifiableSet(mappableAttributes);
     }
 

@@ -34,6 +34,7 @@ import org.springframework.mock.web.portlet.MockRenderResponse;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.BadCredentialsException;
+import org.springframework.security.web.authentication.AbstractProcessingFilter;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;

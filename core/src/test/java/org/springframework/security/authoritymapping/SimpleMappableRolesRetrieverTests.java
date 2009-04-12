@@ -3,8 +3,10 @@ package org.springframework.security.authoritymapping;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import java.util.HashSet;
 
 import junit.framework.TestCase;
+import org.springframework.util.StringUtils;
 
 /**
  *
@@ -14,13 +16,12 @@ import junit.framework.TestCase;
 public class SimpleMappableRolesRetrieverTests extends TestCase {
 
     public final void testGetSetMappableRoles() {
-        String[] roles = new String[] { "Role1", "Role2" };
+        Set<String> roles = StringUtils.commaDelimitedListToSet("Role1,Role2");
         SimpleMappableAttributesRetriever r = new SimpleMappableAttributesRetriever();
         r.setMappableAttributes(roles);
         Set<String> result = r.getMappableAttributes();
-        Collection<String> rolesColl = Arrays.asList(roles);
-        assertTrue("Role collections do not match; result: " + result + ", expected: " + rolesColl, rolesColl.containsAll(result)
-                && result.containsAll(rolesColl));
+        assertTrue("Role collections do not match; result: " + result + ", expected: " + roles, roles.containsAll(result)
+                && result.containsAll(roles));
     }
 
 }

@@ -6,7 +6,7 @@ import java.util.Set;
 
 import javax.portlet.PortletRequest;
 
-import org.springframework.security.ui.preauth.j2ee.AbstractPreAuthenticatedAuthenticationDetailsSource;
+import org.springframework.security.web.authentication.preauth.j2ee.AbstractPreAuthenticatedAuthenticationDetailsSource;
 
 public class PortletPreAuthenticatedAuthenticationDetailsSource extends AbstractPreAuthenticatedAuthenticationDetailsSource {
 

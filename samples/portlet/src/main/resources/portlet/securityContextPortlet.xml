@@ -38,7 +38,7 @@
                 <property name="mappableRolesRetriever">
                     <bean class="org.springframework.security.authoritymapping.SimpleMappableAttributesRetriever">
                         <property name="mappableAttributes">
-                            <list>
+                            <set>
                                 <value>tomcat</value>
                                 <value>admin</value>
                                 <value>manager</value>
@@ -47,7 +47,7 @@
                                 <value>Guest</value>
                                 <value>User</value>
                                 <value>Power User</value>
-                            </list>
+                            </set>
                         </property>                        
                     </bean>
                 </property>

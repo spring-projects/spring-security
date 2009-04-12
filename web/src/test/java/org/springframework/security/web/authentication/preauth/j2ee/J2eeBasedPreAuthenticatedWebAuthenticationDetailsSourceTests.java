@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.preauth.j2ee.J2eeBasedPre
 import org.springframework.security.GrantedAuthority;
 
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.util.StringUtils;
 
 /**
  *
@@ -123,7 +124,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 
     private MappableAttributesRetriever getMappableRolesRetriever(String[] mappedRoles) {
         SimpleMappableAttributesRetriever result = new SimpleMappableAttributesRetriever();
-        result.setMappableAttributes(mappedRoles);
+        result.setMappableAttributes(new HashSet<String>(Arrays.asList(mappedRoles)));
         return result;
     }
 
