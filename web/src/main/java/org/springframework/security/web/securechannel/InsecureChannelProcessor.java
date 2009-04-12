@@ -21,8 +21,8 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.web.intercept.FilterInvocation;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.util.Assert;
 
 

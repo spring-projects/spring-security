@@ -20,10 +20,11 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.intercept.AbstractSecurityInterceptor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.util.Assert;
 
 

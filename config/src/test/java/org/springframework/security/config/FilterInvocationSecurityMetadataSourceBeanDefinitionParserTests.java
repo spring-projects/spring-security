@@ -11,11 +11,11 @@ import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.SecurityConfig;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.intercept.DefaultFilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.intercept.FilterInvocation;
 import org.w3c.dom.Element;
 
 /**

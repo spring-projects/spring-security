@@ -9,7 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParseException;
-import org.springframework.security.ConfigAttribute;
+import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.util.UrlMatcher;
 import org.springframework.security.web.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.intercept.RequestKey;

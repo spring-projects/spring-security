@@ -27,11 +27,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.ConfigAttribute;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.web.FilterChainOrder;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.intercept.FilterInvocation;
 import org.springframework.security.web.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.util.FilterChainOrder;
 import org.springframework.util.Assert;
 
 

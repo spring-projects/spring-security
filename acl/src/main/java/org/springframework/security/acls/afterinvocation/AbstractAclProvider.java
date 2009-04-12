@@ -19,8 +19,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttribute;
 
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.intercept.AfterInvocationProvider;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AclService;
 import org.springframework.security.acls.NotFoundException;
@@ -32,7 +33,6 @@ import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalS
 import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.acls.sid.SidRetrievalStrategy;
 import org.springframework.security.acls.sid.SidRetrievalStrategyImpl;
-import org.springframework.security.afterinvocation.AfterInvocationProvider;
 
 import org.springframework.util.Assert;
 

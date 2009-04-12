@@ -1,7 +1,7 @@
 package org.springframework.security.web.expression;
 
 import org.springframework.expression.Expression;
-import org.springframework.security.ConfigAttribute;
+import org.springframework.security.access.ConfigAttribute;
 
 /**
  * Simple expression configuration attribute for use in web request authorizations.

@@ -108,7 +108,7 @@
 
 
    <!-- An access decision voter that reads ROLE_* configuration settings -->
-   <bean id="roleVoter" class="org.springframework.security.vote.RoleVoter"/>
+   <bean id="roleVoter" class="org.springframework.security.access.vote.RoleVoter"/>
 
    <!-- An access decision voter that reads ACL_ABSTRACT_ELEMENT_WRITE_PARENT configuration settings -->
    <bean id="aclAbstractElementWriteParentVoter" class="org.springframework.security.acls.vote.AclEntryVoter">
@@ -138,7 +138,7 @@
    </bean>
 
    <!-- An access decision manager used by the business objects -->
-   <bean id="businessAccessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
+   <bean id="businessAccessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
       <property name="allowIfAllAbstainDecisions" value="true"/>
       <property name="decisionVoters">
          <list>
@@ -195,7 +195,7 @@
 
    <!-- ============== "AFTER INTERCEPTION" AUTHORIZATION DEFINITIONS =========== -->
 
-   <bean id="afterInvocationManager" class="org.springframework.security.afterinvocation.AfterInvocationProviderManager">
+   <bean id="afterInvocationManager" class="org.springframework.security.access.intercept.AfterInvocationProviderManager">
       <property name="providers">
          <list>
             <ref local="afterAclCollectionRead"/>
@@ -216,9 +216,9 @@
 
    <!-- ================= METHOD INVOCATION AUTHORIZATION ==================== -->
 
-   <bean id="methodSecurityAdvisor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityMetadataSourceAdvisor" autowire="constructor"/>
+   <bean id="methodSecurityAdvisor" class="org.springframework.security.access.intercept.method.aopalliance.MethodSecurityMetadataSourceAdvisor" autowire="constructor"/>
 
-   <bean id="methodSecurityInterceptor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+   <bean id="methodSecurityInterceptor" class="org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor">
       <property name="authenticationManager"><ref bean="authenticationManager"/></property>
       <property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
       <property name="afterInvocationManager"><ref local="afterInvocationManager"/></property>

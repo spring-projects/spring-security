@@ -7,11 +7,11 @@ import org.springframework.core.Ordered;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
+import org.springframework.security.providers.AccountStatusUserDetailsChecker;
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsChecker;
-import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
 import org.springframework.util.Assert;
 
 /**

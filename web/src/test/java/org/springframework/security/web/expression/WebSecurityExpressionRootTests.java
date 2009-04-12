@@ -7,7 +7,7 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.Authentication;
-import org.springframework.security.web.intercept.FilterInvocation;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.FilterInvocationUtils;
 
 /**

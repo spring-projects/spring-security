@@ -19,10 +19,10 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
-import org.springframework.security.AuthorizationServiceException;
-import org.springframework.security.ConfigAttribute;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.acls.AclService;
 import org.springframework.security.acls.Permission;
 

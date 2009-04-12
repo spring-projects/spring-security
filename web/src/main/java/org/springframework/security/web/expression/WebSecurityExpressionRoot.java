@@ -5,8 +5,8 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 
 import org.springframework.security.Authentication;
-import org.springframework.security.expression.support.SecurityExpressionRoot;
-import org.springframework.security.web.intercept.FilterInvocation;
+import org.springframework.security.access.expression.support.SecurityExpressionRoot;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.util.StringUtils;
 
 /**

@@ -32,11 +32,11 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.AnonymousAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.rememberme.NullRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeServices;
-import org.springframework.security.web.util.FilterChainOrder;
 import org.springframework.util.Assert;
 
 

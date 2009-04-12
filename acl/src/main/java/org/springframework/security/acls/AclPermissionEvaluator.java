@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.Authentication;
+import org.springframework.security.access.expression.PermissionEvaluator;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityGenerator;
@@ -15,12 +16,11 @@ import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalS
 import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.acls.sid.SidRetrievalStrategy;
 import org.springframework.security.acls.sid.SidRetrievalStrategyImpl;
-import org.springframework.security.expression.PermissionEvaluator;
 
 /**
  * Used by Spring Security's expression-based access control implementation to evaluate permissions for a particular
  * object using the ACL module. Similar in behaviour to
- * {@link org.springframework.security.vote.AclEntryVoter AclEntryVoter}.
+ * {@link org.springframework.security.access.vote.AclEntryVoter AclEntryVoter}.
  *
  * @author Luke Taylor
  * @version $Id$

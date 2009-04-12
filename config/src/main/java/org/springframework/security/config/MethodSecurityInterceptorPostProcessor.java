@@ -6,8 +6,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.security.AfterInvocationManager;
-import org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor;
+import org.springframework.security.access.intercept.AfterInvocationManager;
+import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor;
 
 /**
  * BeanPostProcessor which sets the AfterInvocationManager on the global MethodSecurityInterceptor,

@@ -10,9 +10,9 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.security.AuthenticationException;
+import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
-import org.springframework.security.web.util.FilterChainOrder;
 
 /**
  * For internal use with namespace configuration in the case where a user doesn't configure a login page.

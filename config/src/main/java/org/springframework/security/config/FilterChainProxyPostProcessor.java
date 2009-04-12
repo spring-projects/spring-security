@@ -16,7 +16,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
-import org.springframework.security.ConfigAttribute;
+import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.config.ConfigUtils.FilterChainList;
 import org.springframework.security.providers.AnonymousAuthenticationToken;
 import org.springframework.security.web.ExceptionTranslationFilter;

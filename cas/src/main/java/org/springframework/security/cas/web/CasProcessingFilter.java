@@ -26,8 +26,8 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
+import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.authentication.AbstractProcessingFilter;
-import org.springframework.security.web.util.FilterChainOrder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

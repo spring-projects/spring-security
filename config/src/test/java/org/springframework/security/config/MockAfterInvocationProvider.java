@@ -2,10 +2,10 @@ package org.springframework.security.config;
 
 import java.util.List;
 
-import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.afterinvocation.AfterInvocationProvider;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.intercept.AfterInvocationProvider;
 
 public class MockAfterInvocationProvider implements AfterInvocationProvider {
 

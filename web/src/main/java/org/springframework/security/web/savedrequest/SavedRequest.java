@@ -227,7 +227,8 @@ public class SavedRequest implements java.io.Serializable {
      * @return the full URL of this request
      */
     public String getFullRequestUrl() {
-        return UrlUtils.getFullRequestUrl(this);
+        return UrlUtils.buildFullRequestUrl(this.getScheme(), this.getServerName(), this.getServerPort(), this.getContextPath(),
+        this.getRequestURL(), this.getServletPath(), this.getRequestURI(), this.getPathInfo(), this.getQueryString());
     }
 
     public Iterator<String> getHeaderNames() {
@@ -286,7 +287,8 @@ public class SavedRequest implements java.io.Serializable {
      * @return the URL, excluding any server name, context path or servlet path
      */
     public String getRequestUrl() {
-        return UrlUtils.getRequestUrl(this);
+        return UrlUtils.buildRequestUrl(this.getServletPath(), this.getRequestURI(), this.getContextPath(), this.getPathInfo(),
+        this.getQueryString());
     }
 
     public String getScheme() {

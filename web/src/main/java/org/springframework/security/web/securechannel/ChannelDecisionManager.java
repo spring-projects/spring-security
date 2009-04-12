@@ -15,8 +15,8 @@
 
 package org.springframework.security.web.securechannel;
 
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.web.intercept.FilterInvocation;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.web.FilterInvocation;
 
 import java.io.IOException;
 import java.util.List;

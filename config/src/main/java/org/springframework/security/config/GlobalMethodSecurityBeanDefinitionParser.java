@@ -16,19 +16,19 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.SecurityConfig;
-import org.springframework.security.expression.method.MethodExpressionAfterInvocationProvider;
-import org.springframework.security.expression.method.MethodExpressionVoter;
-import org.springframework.security.expression.support.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.intercept.method.DelegatingMethodSecurityMetadataSource;
-import org.springframework.security.intercept.method.MapBasedMethodSecurityMetadataSource;
-import org.springframework.security.intercept.method.ProtectPointcutPostProcessor;
-import org.springframework.security.intercept.method.aopalliance.MethodSecurityMetadataSourceAdvisor;
-import org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor;
-import org.springframework.security.vote.AffirmativeBased;
-import org.springframework.security.vote.AuthenticatedVoter;
-import org.springframework.security.vote.RoleVoter;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.expression.method.MethodExpressionAfterInvocationProvider;
+import org.springframework.security.access.expression.method.MethodExpressionVoter;
+import org.springframework.security.access.expression.support.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.intercept.method.DelegatingMethodSecurityMetadataSource;
+import org.springframework.security.access.intercept.method.MapBasedMethodSecurityMetadataSource;
+import org.springframework.security.access.intercept.method.ProtectPointcutPostProcessor;
+import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor;
+import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityMetadataSourceAdvisor;
+import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.access.vote.AuthenticatedVoter;
+import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -45,10 +45,10 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.SecuredMethodSecurityMetadataSource";
-    static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.expression.method.ExpressionAnnotationMethodSecurityMetadataSource";
-    static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.annotation.Jsr250MethodSecurityMetadataSource";
-    static final String JSR_250_VOTER_CLASS = "org.springframework.security.annotation.Jsr250Voter";
+    static final String SECURED_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.access.annotation.SecuredMethodSecurityMetadataSource";
+    static final String EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.access.expression.method.ExpressionAnnotationMethodSecurityMetadataSource";
+    static final String JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS = "org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource";
+    static final String JSR_250_VOTER_CLASS = "org.springframework.security.access.annotation.Jsr250Voter";
 
     /*
      * Internal Bean IDs which are only used within this class

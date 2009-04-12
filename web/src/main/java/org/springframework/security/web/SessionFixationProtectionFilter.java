@@ -15,7 +15,6 @@ import org.springframework.security.concurrent.SessionRegistry;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.util.FilterChainOrder;
 import org.springframework.security.web.util.SessionUtils;
 
 /**

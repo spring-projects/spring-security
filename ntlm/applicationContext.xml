@@ -57,7 +57,7 @@
     </bean>
 
     <!-- the fourth item in the chain: filterSecurityInterceptor -->
-    <bean id="filterSecurityInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+    <bean id="filterSecurityInterceptor" class="org.springframework.security.access.intercept.web.FilterSecurityInterceptor">
         <property name="authenticationManager"><ref local="providerManager"/></property>
         <property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
         <property name="securityMetadataSource">
@@ -70,7 +70,7 @@
     </bean>
 
     <!-- authenticationManager defined above -->
-    <bean id="accessDecisionManager" class="org.springframework.security.vote.UnanimousBased">
+    <bean id="accessDecisionManager" class="org.springframework.security.access.vote.UnanimousBased">
         <property name="allowIfAllAbstainDecisions">
             <value>false</value>
         </property>
@@ -81,7 +81,7 @@
         </property>
     </bean>
 
-    <bean id="roleVoter" class="org.springframework.security.vote.RoleVoter"/>
+    <bean id="roleVoter" class="org.springframework.security.access.vote.RoleVoter"/>
 
     <bean id="ntlmEntryPoint" class="org.springframework.security.ui.ntlm.NtlmProcessingFilterEntryPoint">
         <property name="authenticationFailureUrl" value="/login_error.jsp"/>

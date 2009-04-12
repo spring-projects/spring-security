@@ -22,8 +22,9 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.Authentication;
-import org.springframework.security.AuthorizationServiceException;
-import org.springframework.security.ConfigAttribute;
+import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.vote.AbstractAclVoter;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AclService;
 import org.springframework.security.acls.NotFoundException;
@@ -34,7 +35,6 @@ import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalS
 import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.acls.sid.SidRetrievalStrategy;
 import org.springframework.security.acls.sid.SidRetrievalStrategyImpl;
-import org.springframework.security.vote.AbstractAclVoter;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -55,7 +55,7 @@ import org.springframework.util.StringUtils;
  * method.
  * <p>
  * If the method argument is <tt>null</tt>, the voter will abstain from voting. If the method argument
- * could not be found, an {@link org.springframework.security.AuthorizationServiceException} will be thrown.
+ * could not be found, an {@link org.springframework.security.access.AuthorizationServiceException} will be thrown.
  * <p>
  * In practical terms users will typically setup a number of <tt>AclEntryVoter</tt>s. Each will have a
  * different {@link #processDomainObjectClass}, {@link #processConfigAttribute} and {@link #requirePermission}

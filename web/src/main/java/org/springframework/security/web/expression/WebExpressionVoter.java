@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.expression.ExpressionUtils;
-import org.springframework.security.vote.AccessDecisionVoter;
-import org.springframework.security.web.intercept.FilterInvocation;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.expression.ExpressionUtils;
+import org.springframework.security.access.vote.AccessDecisionVoter;
+import org.springframework.security.web.FilterInvocation;
 
 /**
  * Voter which handles web authorisation decisions.

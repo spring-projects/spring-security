@@ -25,9 +25,9 @@ public class MethodSecurityInterceptorWithAopConfigTests {
         "    </authentication-provider>";
 
     static final String ACCESS_MANAGER_XML =
-        "<b:bean id='accessDecisionManager' class='org.springframework.security.vote.AffirmativeBased'>" +
+        "<b:bean id='accessDecisionManager' class='org.springframework.security.access.vote.AffirmativeBased'>" +
         "   <b:property name='decisionVoters'>" +
-        "       <b:list><b:bean class='org.springframework.security.vote.RoleVoter'/></b:list>" +
+        "       <b:list><b:bean class='org.springframework.security.access.vote.RoleVoter'/></b:list>" +
         "   </b:property>" +
         "</b:bean>";
 
@@ -55,7 +55,7 @@ public class MethodSecurityInterceptorWithAopConfigTests {
                 "     <aop:advisor advice-ref='securityInterceptor' pointcut-ref='targetMethods' />" +
                 "</aop:config>" +
                 "<b:bean id='target' class='org.springframework.security.TargetObject'/>" +
-                "<b:bean id='securityInterceptor' class='org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor' autowire='byType' >" +
+                "<b:bean id='securityInterceptor' class='org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor' autowire='byType' >" +
                 "     <b:property name='securityMetadataSource'>" +
                 "       <b:value>" +
                             "org.springframework.security.TargetObject.makeLower*=ROLE_A\n" +

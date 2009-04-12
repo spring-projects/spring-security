@@ -3,9 +3,9 @@ package org.springframework.security.config;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.annotation.BusinessService;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.annotation.BusinessService;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
@@ -24,7 +24,7 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
     public void loadContext() {
         SecurityContextHolder.clearContext();
         appContext = new InMemoryXmlApplicationContext(
-                "<b:bean id='target' class='org.springframework.security.annotation.BusinessServiceImpl'/>" +
+                "<b:bean id='target' class='org.springframework.security.access.annotation.BusinessServiceImpl'/>" +
                 "<global-method-security secured-annotations='enabled'/>" + ConfigTestUtils.AUTH_PROVIDER_XML
                 );
         target = (BusinessService) appContext.getBean("target");

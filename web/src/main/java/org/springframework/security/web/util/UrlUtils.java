@@ -17,7 +17,7 @@ package org.springframework.security.web.util;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.web.intercept.FilterInvocation;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
 
@@ -42,7 +42,7 @@ public final class UrlUtils {
      *
      * @return the full URL
      */
-    private static String buildFullRequestUrl(String scheme, String serverName, int serverPort, String contextPath,
+    public static String buildFullRequestUrl(String scheme, String serverName, int serverPort, String contextPath,
         String requestUrl, String servletPath, String requestURI, String pathInfo, String queryString) {
 
         boolean includePort = true;
@@ -64,7 +64,7 @@ public final class UrlUtils {
      *
      * @return the URL, excluding any server name, context path or servlet path
      */
-    private static String buildRequestUrl(String servletPath, String requestURI, String contextPath, String pathInfo,
+    public static String buildRequestUrl(String servletPath, String requestURI, String contextPath, String pathInfo,
         String queryString) {
 
         String uri = servletPath;
@@ -84,21 +84,11 @@ public final class UrlUtils {
             r.getRequestURL().toString(), r.getServletPath(), r.getRequestURI(), r.getPathInfo(), r.getQueryString());
     }
 
-    public static String getFullRequestUrl(SavedRequest sr) {
-        return buildFullRequestUrl(sr.getScheme(), sr.getServerName(), sr.getServerPort(), sr.getContextPath(),
-            sr.getRequestURL(), sr.getServletPath(), sr.getRequestURI(), sr.getPathInfo(), sr.getQueryString());
-    }
-
     public static String getRequestUrl(FilterInvocation fi) {
         HttpServletRequest r = fi.getHttpRequest();
 
         return buildRequestUrl(r.getServletPath(), r.getRequestURI(), r.getContextPath(), r.getPathInfo(),
             r.getQueryString());
-    }
-
-    public static String getRequestUrl(SavedRequest sr) {
-        return buildRequestUrl(sr.getServletPath(), sr.getRequestURI(), sr.getContextPath(), sr.getPathInfo(),
-            sr.getQueryString());
     }
 
     /**

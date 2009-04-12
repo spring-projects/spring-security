@@ -3,7 +3,7 @@ package org.springframework.security.web.expression;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.security.Authentication;
-import org.springframework.security.web.intercept.FilterInvocation;
+import org.springframework.security.web.FilterInvocation;
 
 public interface WebSecurityExpressionHandler {
     /**

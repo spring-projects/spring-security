@@ -19,8 +19,10 @@ import org.springframework.core.NestedRuntimeException;
 
 
 /**
- * Abstract superclass for all exceptions thrown in the security package and subpackages.<p>Note that this is a
- * runtime (unchecked) exception. Security exceptions are usually fatal; there is no reason for them to be checked.</p>
+ * Abstract superclass for all exceptions thrown in the security package and subpackages.
+ * <p>
+ * Note that this is a runtime (unchecked) exception. Security exceptions are usually fatal; there is no reason for
+ * them to be checked.
  *
  * @author Ben Alex
  * @version $Id$

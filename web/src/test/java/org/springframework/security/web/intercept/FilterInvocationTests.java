@@ -23,7 +23,7 @@ import javax.servlet.FilterChain;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.web.intercept.FilterInvocation;
+import org.springframework.security.web.FilterInvocation;
 
 /**
  * Tests {@link FilterInvocation}.

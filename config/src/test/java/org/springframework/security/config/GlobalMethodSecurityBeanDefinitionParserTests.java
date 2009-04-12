@@ -11,24 +11,24 @@ import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
-import org.springframework.security.AccessDeniedException;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.afterinvocation.AfterInvocationProviderManager;
-import org.springframework.security.annotation.BusinessService;
-import org.springframework.security.annotation.Jsr250MethodSecurityMetadataSource;
-import org.springframework.security.annotation.Jsr250Voter;
-import org.springframework.security.annotation.SecuredMethodSecurityMetadataSource;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.annotation.BusinessService;
+import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
+import org.springframework.security.access.annotation.Jsr250Voter;
+import org.springframework.security.access.annotation.SecuredMethodSecurityMetadataSource;
+import org.springframework.security.access.expression.method.ExpressionAnnotationMethodSecurityMetadataSource;
+import org.springframework.security.access.expression.method.MethodExpressionAfterInvocationProvider;
+import org.springframework.security.access.expression.method.MethodExpressionVoter;
+import org.springframework.security.access.intercept.AfterInvocationProviderManager;
+import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.expression.method.ExpressionAnnotationMethodSecurityMetadataSource;
-import org.springframework.security.expression.method.MethodExpressionAfterInvocationProvider;
-import org.springframework.security.expression.method.MethodExpressionVoter;
 import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.util.AuthorityUtils;
 import org.springframework.security.util.FieldUtils;
-import org.springframework.security.vote.AffirmativeBased;
 
 /**
  * @author Ben Alex
@@ -42,7 +42,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
     public void loadContext() {
         setContext(
-                "<b:bean id='target' class='org.springframework.security.annotation.BusinessServiceImpl'/>" +
+                "<b:bean id='target' class='org.springframework.security.access.annotation.BusinessServiceImpl'/>" +
                 "<global-method-security>" +
                 "    <protect-pointcut expression='execution(* *.someUser*(..))' access='ROLE_USER'/>" +
                 "    <protect-pointcut expression='execution(* *.someAdmin*(..))' access='ROLE_ADMIN'/>" +
@@ -132,10 +132,10 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     @Test
     public void supportsMethodArgumentsInPointcut() {
         setContext(
-                "<b:bean id='target' class='org.springframework.security.annotation.BusinessServiceImpl'/>" +
+                "<b:bean id='target' class='org.springframework.security.access.annotation.BusinessServiceImpl'/>" +
                 "<global-method-security>" +
-                "   <protect-pointcut expression='execution(* org.springframework.security.annotation.BusinessService.someOther(String))' access='ROLE_ADMIN'/>" +
-                "   <protect-pointcut expression='execution(* org.springframework.security.annotation.BusinessService.*(..))' access='ROLE_USER'/>" +
+                "   <protect-pointcut expression='execution(* org.springframework.security.access.annotation.BusinessService.someOther(String))' access='ROLE_ADMIN'/>" +
+                "   <protect-pointcut expression='execution(* org.springframework.security.access.annotation.BusinessService.*(..))' access='ROLE_USER'/>" +
                 "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML
         );
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("user", "password"));
@@ -154,11 +154,11 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     @Test
     public void supportsBooleanPointcutExpressions() {
         setContext(
-                "<b:bean id='target' class='org.springframework.security.annotation.BusinessServiceImpl'/>" +
+                "<b:bean id='target' class='org.springframework.security.access.annotation.BusinessServiceImpl'/>" +
                 "<global-method-security>" +
                 "   <protect-pointcut expression=" +
-                "     'execution(* org.springframework.security.annotation.BusinessService.*(..)) " +
-                "       and not execution(* org.springframework.security.annotation.BusinessService.someOther(String)))' " +
+                "     'execution(* org.springframework.security.access.annotation.BusinessService.*(..)) " +
+                "       and not execution(* org.springframework.security.access.annotation.BusinessService.someOther(String)))' " +
                 "               access='ROLE_USER'/>" +
                 "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML
         );
@@ -191,7 +191,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
                 "<global-method-security secured-annotations='enabled'/>" +
                 "<b:bean id='businessService' class='org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean'>" +
                 "    <b:property name='serviceUrl' value='http://localhost:8080/SomeService'/>" +
-                "    <b:property name='serviceInterface' value='org.springframework.security.annotation.BusinessService'/>" +
+                "    <b:property name='serviceInterface' value='org.springframework.security.access.annotation.BusinessService'/>" +
                 "</b:bean>" + AUTH_PROVIDER_XML
                 );
 
@@ -220,7 +220,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     public void accessIsDeniedForHasRoleExpression() {
         setContext(
                 "<global-method-security expression-annotations='enabled'/>" +
-                "<b:bean id='target' class='org.springframework.security.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
+                "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
                 AUTH_PROVIDER_XML);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
         target = (BusinessService) appContext.getBean("target");
@@ -231,7 +231,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     public void preAndPostFilterAnnotationsWorkWithLists() {
         setContext(
                 "<global-method-security expression-annotations='enabled'/>" +
-                "<b:bean id='target' class='org.springframework.security.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
+                "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
                 AUTH_PROVIDER_XML);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
         target = (BusinessService) appContext.getBean("target");
@@ -250,7 +250,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     public void prePostFilterAnnotationWorksWithArrays() {
         setContext(
                 "<global-method-security expression-annotations='enabled'/>" +
-                "<b:bean id='target' class='org.springframework.security.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
+                "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
                 AUTH_PROVIDER_XML);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
         target = (BusinessService) appContext.getBean("target");

@@ -15,17 +15,16 @@
 
 package org.springframework.security.web;
 
-import org.springframework.security.AccessDeniedException;
 import org.springframework.security.SpringSecurityException;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.AuthenticationTrustResolverImpl;
 import org.springframework.security.InsufficientAuthenticationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.util.ThrowableAnalyzer;
 import org.springframework.security.util.ThrowableCauseExtractor;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.util.FilterChainOrder;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.util.Assert;
@@ -46,7 +45,7 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * If an {@link AuthenticationException} is detected, the filter will launch the <code>authenticationEntryPoint</code>.
  * This allows common handling of authentication failures originating from any subclass of
- * {@link org.springframework.security.intercept.AbstractSecurityInterceptor}.
+ * {@link org.springframework.security.access.intercept.AbstractSecurityInterceptor}.
  * <p>
  * If an {@link AccessDeniedException} is detected, the filter will determine whether or not the user is an anonymous
  * user. If they are an anonymous user, the <code>authenticationEntryPoint</code> will be launched. If they are not

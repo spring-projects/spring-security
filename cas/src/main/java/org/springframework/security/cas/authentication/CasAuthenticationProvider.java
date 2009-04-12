@@ -29,12 +29,12 @@ import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.cache.NullStatelessTicketCache;
 import org.springframework.security.cas.web.CasProcessingFilter;
+import org.springframework.security.providers.AccountStatusUserDetailsChecker;
 import org.springframework.security.providers.AuthenticationProvider;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsChecker;
 import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
 import org.springframework.util.Assert;
 
 

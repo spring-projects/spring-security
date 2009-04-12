@@ -24,7 +24,7 @@
         <jdbc-user-service data-source-ref="dataSource"/>
     </authentication-provider>
 
-    <b:bean id="expressionHandler" class="org.springframework.security.expression.support.DefaultMethodSecurityExpressionHandler">
+    <b:bean id="expressionHandler" class="org.springframework.security.access.expression.support.DefaultMethodSecurityExpressionHandler">
         <b:property name="permissionEvaluator" ref="permissionEvaluator" />
     </b:bean>
 

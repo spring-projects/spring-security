@@ -18,6 +18,8 @@ package org.springframework.security;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
 
 
 /**

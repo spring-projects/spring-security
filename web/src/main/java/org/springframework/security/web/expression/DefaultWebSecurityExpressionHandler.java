@@ -7,8 +7,8 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.AuthenticationTrustResolverImpl;
-import org.springframework.security.expression.support.SecurityExpressionRoot;
-import org.springframework.security.web.intercept.FilterInvocation;
+import org.springframework.security.access.expression.support.SecurityExpressionRoot;
+import org.springframework.security.web.FilterInvocation;
 
 /**
  * Facade which isolates Spring Security's requirements for evaluating web-security expressions

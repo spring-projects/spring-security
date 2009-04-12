@@ -3,10 +3,10 @@ package org.springframework.security.acls.domain;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.springframework.security.AccessDeniedException;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.MutableAcl;
 import org.springframework.security.acls.NotFoundException;

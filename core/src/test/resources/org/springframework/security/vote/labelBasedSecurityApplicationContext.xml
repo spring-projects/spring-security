@@ -24,12 +24,12 @@
       </property>
     </bean>
 
-    <bean id="accessDecisionManager" class="org.springframework.security.vote.UnanimousBased">
+    <bean id="accessDecisionManager" class="org.springframework.security.access.vote.UnanimousBased">
         <property name="allowIfAllAbstainDecisions"><value>false</value></property>
         <property name="decisionVoters">
             <list>
-                <bean class="org.springframework.security.vote.RoleVoter"/>
-                <bean class="org.springframework.security.vote.LabelBasedAclVoter">
+                <bean class="org.springframework.security.access.vote.RoleVoter"/>
+                <bean class="org.springframework.security.access.vote.LabelBasedAclVoter">
                     <property name="attributeIndicatingLabeledOperation"><value>LABELED_OPERATION</value></property>
                     <property name="labelMap">
                         <map>
@@ -60,14 +60,14 @@
     </bean>
 
     <bean id="securityInteceptor"
-        class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+        class="org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor">
       <property name="validateConfigAttributes"><value>false</value></property>
       <property name="authenticationManager"><ref bean="authenticationManager"/></property>
       <property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
       <property name="securityMetadataSource">
         <value>
-            org.springframework.security.vote.SampleService.get*=ROLE_BASIC
-            org.springframework.security.vote.SampleService.do*=ROLE_BASIC,LABELED_OPERATION
+            org.springframework.security.access.vote.SampleService.get*=ROLE_BASIC
+            org.springframework.security.access.vote.SampleService.do*=ROLE_BASIC,LABELED_OPERATION
         </value>
       </property>
     </bean>
@@ -76,7 +76,7 @@
         <property name="prefix"><value>Security: </value></property>
     </bean>
 
-    <bean id="sampleService" class="org.springframework.security.vote.SampleServiceImpl"/>
+    <bean id="sampleService" class="org.springframework.security.access.vote.SampleServiceImpl"/>
 
      <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
       <property name="beanNames"><value>sampleService</value></property>

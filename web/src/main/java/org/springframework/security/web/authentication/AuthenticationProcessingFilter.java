@@ -22,7 +22,7 @@ import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.security.util.TextUtils;
-import org.springframework.security.web.util.FilterChainOrder;
+import org.springframework.security.web.FilterChainOrder;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;

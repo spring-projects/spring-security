@@ -17,6 +17,7 @@ package org.springframework.security;
 
 import java.io.Serializable;
 
+import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.userdetails.UserDetails;
 
 /**

@@ -30,13 +30,13 @@
     
     <bean id="defaultExceptionHandler" parent="defaultExceptionHandlerTemplate"/>
 
-    <bean id="portletContextIntegrationInterceptor" class="org.springframework.security.context.PortletSessionContextIntegrationInterceptor"/>
+    <bean id="portletContextIntegrationInterceptor" class="org.springframework.security.portlet.PortletSessionContextIntegrationInterceptor"/>
     
-    <bean id="portletAuthenticationInterceptor" class="org.springframework.security.ui.portlet.PortletProcessingInterceptor">
+    <bean id="portletAuthenticationInterceptor" class="org.springframework.security.portlet.PortletProcessingInterceptor">
         <property name="authenticationDetailsSource">
-            <bean class="org.springframework.security.ui.portlet.PortletPreAuthenticatedAuthenticationDetailsSource">
+            <bean class="org.springframework.security.portlet.PortletPreAuthenticatedAuthenticationDetailsSource">
                 <property name="mappableRolesRetriever">
-                    <bean class="org.springframework.security.authoritymapping.SimpleMappableAttributesRetriever">
+                    <bean class="org.springframework.security.access.authoritymapping.SimpleMappableAttributesRetriever">
                         <property name="mappableAttributes">
                             <set>
                                 <value>tomcat</value>

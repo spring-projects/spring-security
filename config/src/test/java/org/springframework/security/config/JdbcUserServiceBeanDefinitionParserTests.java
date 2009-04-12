@@ -1,6 +1,7 @@
 package org.springframework.security.config;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import org.junit.After;
 import org.junit.Test;
@@ -9,10 +10,11 @@ import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.providers.ProviderManager;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.providers.dao.DaoAuthenticationProvider;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.jdbc.JdbcUserDetailsManager;
 import org.springframework.security.util.AuthorityUtils;
 import org.springframework.security.util.FieldUtils;
+import org.w3c.dom.Element;
 
 /**
  * @author Ben Alex
@@ -38,6 +40,11 @@ public class JdbcUserServiceBeanDefinitionParserTests {
         if (appContext != null) {
             appContext.close();
         }
+    }
+
+    @Test
+    public void beanNameIsCorrect() throws Exception {
+        assertEquals(JdbcUserDetailsManager.class.getName(), new JdbcUserServiceBeanDefinitionParser().getBeanClassName(mock(Element.class)));
     }
 
     @Test

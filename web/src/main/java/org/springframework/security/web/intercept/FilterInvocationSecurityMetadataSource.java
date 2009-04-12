@@ -15,7 +15,8 @@
 
 package org.springframework.security.web.intercept;
 
-import org.springframework.security.intercept.SecurityMetadataSource;
+import org.springframework.security.access.intercept.SecurityMetadataSource;
+import org.springframework.security.web.FilterInvocation;
 
 
 /**

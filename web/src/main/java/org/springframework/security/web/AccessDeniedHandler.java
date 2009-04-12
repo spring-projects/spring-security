@@ -15,7 +15,7 @@
 
 package org.springframework.security.web;
 
-import org.springframework.security.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.io.IOException;
 

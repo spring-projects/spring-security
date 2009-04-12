@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.ConfigAttribute;
+import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.util.AntUrlPathMatcher;
 import org.springframework.security.util.UrlMatcher;
 import org.springframework.security.web.intercept.FilterInvocationSecurityMetadataSource;

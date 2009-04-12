@@ -9,8 +9,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.AuthenticationDetailsSourceImpl;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.MutableGrantedAuthoritiesContainer;
-import org.springframework.security.authoritymapping.Attributes2GrantedAuthoritiesMapper;
-import org.springframework.security.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
+import org.springframework.security.access.authoritymapping.Attributes2GrantedAuthoritiesMapper;
+import org.springframework.security.access.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesAuthenticationDetails;
 import org.springframework.util.Assert;
 

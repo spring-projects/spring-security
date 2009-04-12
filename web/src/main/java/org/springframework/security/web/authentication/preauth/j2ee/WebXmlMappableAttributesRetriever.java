@@ -2,7 +2,7 @@ package org.springframework.security.web.authentication.preauth.j2ee;
 
 import java.io.InputStream;
 
-import org.springframework.security.authoritymapping.XmlMappableAttributesRetriever;
+import org.springframework.security.access.authoritymapping.XmlMappableAttributesRetriever;
 
 /**
  * <p>

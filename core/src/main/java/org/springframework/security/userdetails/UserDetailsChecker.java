@@ -1,21 +1,19 @@
 package org.springframework.security.userdetails;
 
-import org.springframework.security.userdetails.checker.AccountStatusUserDetailsChecker;
-
 /**
- * Called by classes which make use of a {@link UserDetailsService} to check the status of the loaded 
+ * Called by classes which make use of a {@link UserDetailsService} to check the status of the loaded
  * <tt>UserDetails</tt> object. Typically this will involve examining the various flags associated with the account and
- * raising an exception if the information cannot be used (for example if the user account is locked or disabled), but 
+ * raising an exception if the information cannot be used (for example if the user account is locked or disabled), but
  * a custom implementation could perform any checks it wished.
- * <p> 
+ * <p>
  * The intention is that this interface should only be used for checks on the persistent data associated with the user.
- * It should not involved in making any authentication decisions based on a submitted authentication request. 
- * 
+ * It should not involved in making any authentication decisions based on a submitted authentication request.
+ *
  * @author Luke Taylor
  * @version $Id$
  * @since 2.0
- * 
- * @see AccountStatusUserDetailsChecker
+ *
+ * @see org.springframework.security.providers.AccountStatusUserDetailsChecker
  * @see org.springframework.security.AccountStatusException
  */
 public interface UserDetailsChecker {

@@ -15,17 +15,17 @@
 
     <security:authentication-manager alias="authenticationManager"/>
 
-    <bean id="accessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
+    <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
         <property name="allowIfAllAbstainDecisions" value="false"/>
         <property name="decisionVoters">
             <util:list>
-                <bean class="org.springframework.security.vote.RoleVoter" />
-                <bean class="org.springframework.security.vote.AuthenticatedVoter" />
+                <bean class="org.springframework.security.access.vote.RoleVoter" />
+                <bean class="org.springframework.security.access.vote.AuthenticatedVoter" />
             </util:list>
         </property>
     </bean>
 
-    <bean id="securityInterceptor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+    <bean id="securityInterceptor" class="org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor">
         <property name="validateConfigAttributes" value="true"/>
         <property name="rejectPublicInvocations" value="true"/>
         <property name="authenticationManager" ref="authenticationManager"/>

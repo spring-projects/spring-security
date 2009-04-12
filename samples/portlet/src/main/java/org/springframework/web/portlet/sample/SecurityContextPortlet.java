@@ -15,8 +15,8 @@ import org.springframework.security.web.authentication.AbstractProcessingFilter;
 
 
 /**
- * A simple portlet which prints out the contents of the current {@link org.springframework.security.context.SecurityContext} 
- *  
+ * A simple portlet which prints out the contents of the current {@link org.springframework.security.context.SecurityContext}
+ *
  * @author Luke Taylor
  */
 public class SecurityContextPortlet extends GenericPortlet {
@@ -27,13 +27,13 @@ public class SecurityContextPortlet extends GenericPortlet {
         out.println("<h2>Security Context Display Portlet</h2>");
         out.println("<p>");
         out.println(new Date());
-        out.println("<p>Current Session " + request.getPortletSession().getId() + "</p>");        
+        out.println("<p>Current Session " + request.getPortletSession().getId() + "</p>");
         out.println("</p>");
         out.println("<p>The security context contains: " +
                 SecurityContextHolder.getContext().getAuthentication() +
                 "</p>");
         Object lastException = request.getPortletSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, PortletSession.APPLICATION_SCOPE);
-        
+
         if (lastException != null) {
             out.println("Last Exception: " + lastException);
         }

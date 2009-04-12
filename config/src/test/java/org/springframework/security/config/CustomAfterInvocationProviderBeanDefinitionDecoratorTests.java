@@ -5,9 +5,9 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
-import org.springframework.security.afterinvocation.AfterInvocationProviderManager;
+import org.springframework.security.access.intercept.AfterInvocationProviderManager;
+import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor;
 
 public class CustomAfterInvocationProviderBeanDefinitionDecoratorTests {
     private AbstractXmlApplicationContext appContext;
