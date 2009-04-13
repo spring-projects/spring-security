@@ -3,7 +3,7 @@ package org.springframework.security.access.authoritymapping;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Interface to be implemented by classes that can map a list of security attributes (such as roles or

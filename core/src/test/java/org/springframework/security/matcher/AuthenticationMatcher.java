@@ -4,7 +4,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.springframework.security.Authentication;
+import org.springframework.security.core.Authentication;
 
 public class AuthenticationMatcher extends TypeSafeMatcher<Authentication> {
     private String username;

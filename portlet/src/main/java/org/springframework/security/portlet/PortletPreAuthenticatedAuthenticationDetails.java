@@ -6,8 +6,8 @@ import java.util.List;
 
 import javax.portlet.PortletRequest;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.MutableGrantedAuthoritiesContainer;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.MutableGrantedAuthoritiesContainer;
 import org.springframework.util.Assert;
 
 public class PortletPreAuthenticatedAuthenticationDetails extends PortletAuthenticationDetails implements MutableGrantedAuthoritiesContainer {

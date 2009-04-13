@@ -5,17 +5,17 @@ import static org.springframework.security.config.LdapProviderBeanDefinitionPars
 
 import org.junit.After;
 import org.junit.Test;
-import org.springframework.security.Authentication;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.SecurityConfigurationException;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.authentication.PasswordComparisonAuthenticator;
 import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
-import org.springframework.security.providers.ProviderManager;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.util.FieldUtils;
 
 

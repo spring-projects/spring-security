@@ -20,11 +20,11 @@ import java.io.IOException;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.validation.TicketValidator;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.cas.ServiceProperties;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 
 import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.authentication.AbstractProcessingFilter;

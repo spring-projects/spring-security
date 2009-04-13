@@ -19,11 +19,11 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
-import org.springframework.security.AuthenticationManager;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.access.intercept.RunAsManager;
 import org.springframework.security.access.intercept.SecurityMetadataSource;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 

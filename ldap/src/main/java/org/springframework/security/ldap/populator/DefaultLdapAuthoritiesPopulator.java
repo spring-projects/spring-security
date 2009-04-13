@@ -15,8 +15,8 @@
 
 package org.springframework.security.ldap.populator;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthorityImpl;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.ldap.core.ContextSource;
@@ -71,7 +71,7 @@ import java.util.Set;
  * The configuration below shows how the group search might be performed with the above schema.
  * <pre>
  * &lt;bean id="ldapAuthoritiesPopulator"
- *       class="org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
+ *       class="org.springframework.security.authentication.ldap.populator.DefaultLdapAuthoritiesPopulator">
  *   &lt;constructor-arg ref="contextSource"/>
  *   &lt;constructor-arg value="ou=groups"/>
  *   &lt;property name="groupRoleAttribute" value="ou"/>

@@ -5,8 +5,8 @@ import java.util.List;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
 
 /**
  * Tests for {@link SidRetrievalStrategyImpl}

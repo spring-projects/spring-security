@@ -18,9 +18,9 @@ package org.springframework.security.web.context;
 import javax.servlet.ServletException;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.context.SecurityContextImpl;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.FilterChainOrder;
 
 /**
@@ -40,7 +40,7 @@ import org.springframework.security.web.FilterChainOrder;
  * <code>HttpSession</code> for whatever reason, a fresh
  * <code>SecurityContext</code> will be created and used instead. The created
  * object will be of the instance defined by the {@link #setContextClass(Class)}
- * method (which defaults to {@link org.springframework.security.context.SecurityContextImpl}.
+ * method (which defaults to {@link org.springframework.security.core.context.SecurityContextImpl}.
  * </p>
  * <p/>
  * No <code>HttpSession</code> will be created by this filter if one does not

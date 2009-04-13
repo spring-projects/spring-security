@@ -2,7 +2,7 @@ package org.springframework.security.access.expression;
 
 import java.io.Serializable;
 
-import org.springframework.security.Authentication;
+import org.springframework.security.core.Authentication;
 
 /**
  * Strategy used in expression evaluation to determine whether a user has a permission or permissions

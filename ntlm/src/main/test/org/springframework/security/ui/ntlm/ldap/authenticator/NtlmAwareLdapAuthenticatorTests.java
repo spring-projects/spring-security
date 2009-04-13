@@ -1,6 +1,6 @@
 package org.springframework.security.ui.ntlm.ldap.authenticator;
 
-import org.springframework.security.BadCredentialsException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ui.ntlm.NtlmUsernamePasswordAuthenticationToken;
 import org.springframework.ldap.core.DirContextAdapter;

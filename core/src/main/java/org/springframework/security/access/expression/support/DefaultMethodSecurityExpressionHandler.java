@@ -14,12 +14,12 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.antlr.SpelAntlrExpressionParser;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationTrustResolver;
-import org.springframework.security.AuthenticationTrustResolverImpl;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.MethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.PermissionEvaluator;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.core.Authentication;
 
 /**
  * The standard implementation of <tt>SecurityExpressionHandler</tt>.

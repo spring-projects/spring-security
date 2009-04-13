@@ -19,15 +19,15 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.Authentication;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.vote.AccessDecisionVoter;
 import org.springframework.security.access.vote.AuthenticatedVoter;
-import org.springframework.security.providers.AnonymousAuthenticationToken;
-import org.springframework.security.providers.RememberMeAuthenticationToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthorityUtils;
 
 
 /**

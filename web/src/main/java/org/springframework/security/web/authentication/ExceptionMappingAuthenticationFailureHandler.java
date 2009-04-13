@@ -8,7 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.AuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.util.RedirectUtils;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;

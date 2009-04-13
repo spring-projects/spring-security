@@ -15,13 +15,13 @@
 
 package org.springframework.security.web;
 
-import org.springframework.security.SpringSecurityException;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationTrustResolver;
-import org.springframework.security.AuthenticationTrustResolverImpl;
-import org.springframework.security.InsufficientAuthenticationException;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.SpringSecurityException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.ThrowableAnalyzer;
 import org.springframework.security.util.ThrowableCauseExtractor;
 import org.springframework.security.web.savedrequest.SavedRequest;

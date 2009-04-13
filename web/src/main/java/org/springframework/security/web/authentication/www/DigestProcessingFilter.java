@@ -32,13 +32,13 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.AuthenticationDetailsSource;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationServiceException;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.userdetails.UserCache;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
@@ -47,7 +47,7 @@ import org.springframework.security.userdetails.cache.NullUserCache;
 import org.springframework.security.util.StringSplitUtils;
 import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.WebAuthenticationDetailsSource;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -67,7 +67,7 @@ import org.springframework.util.StringUtils;
  * All session management information is stored in the "nonce" that is sent to the client by the {@link
  * DigestProcessingFilterEntryPoint}.
  * <p>
- * If authentication is successful, the resulting {@link org.springframework.security.Authentication Authentication}
+ * If authentication is successful, the resulting {@link org.springframework.security.core.Authentication Authentication}
  * object will be placed into the <code>SecurityContextHolder</code>.
  * <p>
  * If authentication fails, an {@link org.springframework.security.web.AuthenticationEntryPoint AuthenticationEntryPoint}

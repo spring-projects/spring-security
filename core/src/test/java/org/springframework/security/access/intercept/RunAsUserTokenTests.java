@@ -17,11 +17,11 @@ package org.springframework.security.access.intercept;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 
 import org.springframework.security.access.intercept.RunAsUserToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthorityImpl;
 
 
 /**

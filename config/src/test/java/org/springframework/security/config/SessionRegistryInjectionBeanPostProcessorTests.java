@@ -5,11 +5,11 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.concurrent.ConcurrentSessionController;
-import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
+import org.springframework.security.authentication.concurrent.ConcurrentSessionController;
+import org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.concurrent.SessionRegistryImpl;
 

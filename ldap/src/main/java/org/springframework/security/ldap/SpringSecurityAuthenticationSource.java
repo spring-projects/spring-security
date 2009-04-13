@@ -1,9 +1,9 @@
 package org.springframework.security.ldap;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
-import org.springframework.security.providers.AnonymousAuthenticationToken;
 import org.springframework.ldap.core.AuthenticationSource;
 
 import org.apache.commons.logging.Log;

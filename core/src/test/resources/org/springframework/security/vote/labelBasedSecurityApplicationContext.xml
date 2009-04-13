@@ -12,11 +12,11 @@
       </property>
     </bean>
 
-    <bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+    <bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
       <property name="userDetailsService"><ref bean="userDetailsService"/></property>
     </bean>
 
-    <bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
+    <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
       <property name="providers">
         <list>
           <ref local="daoAuthenticationProvider"/>

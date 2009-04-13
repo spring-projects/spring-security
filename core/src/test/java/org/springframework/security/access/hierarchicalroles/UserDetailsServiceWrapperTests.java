@@ -13,11 +13,11 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.hierarchicalroles.UserDetailsServiceWrapper;
+import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.util.AuthorityUtils;
 
 @RunWith(JMock.class)
 @SuppressWarnings("deprecation")

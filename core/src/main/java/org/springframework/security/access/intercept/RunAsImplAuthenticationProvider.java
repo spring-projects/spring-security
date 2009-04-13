@@ -15,12 +15,12 @@
 
 package org.springframework.security.access.intercept;
 
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.BadCredentialsException;
 
-import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.SpringSecurityMessageSource;
 
 import org.springframework.beans.factory.InitializingBean;
 

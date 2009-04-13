@@ -15,7 +15,7 @@
 
 package org.springframework.security.ui.ntlm;
 
-import org.springframework.security.AuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 
 /**
  * Base class for NTLM exceptions so that it is easier to distinguish them

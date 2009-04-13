@@ -14,7 +14,7 @@
  */
 package org.springframework.security.acls;
 
-import org.springframework.security.SpringSecurityException;
+import org.springframework.security.core.SpringSecurityException;
 
 
 /**

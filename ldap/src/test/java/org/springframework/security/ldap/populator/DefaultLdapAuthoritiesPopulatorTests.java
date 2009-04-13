@@ -15,8 +15,8 @@
 
 package org.springframework.security.ldap.populator;
 
-import org.springframework.security.GrantedAuthority;
 
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 

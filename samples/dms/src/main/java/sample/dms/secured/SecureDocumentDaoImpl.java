@@ -10,7 +10,7 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.acls.sid.PrincipalSid;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
 import sample.dms.AbstractElement;

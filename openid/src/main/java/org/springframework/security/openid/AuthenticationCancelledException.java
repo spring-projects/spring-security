@@ -14,7 +14,7 @@
  */
 package org.springframework.security.openid;
 
-import org.springframework.security.AuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 
 
 /**

@@ -2,8 +2,8 @@ package org.springframework.security.access.expression.support;
 
 import java.io.Serializable;
 
-import org.springframework.security.Authentication;
 import org.springframework.security.access.expression.PermissionEvaluator;
+import org.springframework.security.core.Authentication;
 
 
 /**

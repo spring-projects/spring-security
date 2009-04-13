@@ -15,13 +15,13 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
-import org.springframework.security.web.authentication.rememberme.NullRememberMeServices;
+import org.springframework.security.web.authentication.NullRememberMeServices;
 
 import junit.framework.TestCase;
 
 
 /**
- * Tests {@link org.springframework.security.web.authentication.rememberme.NullRememberMeServices}.
+ * Tests {@link org.springframework.security.web.authentication.NullRememberMeServices}.
  *
  * @author Ben Alex
  * @version $Id$

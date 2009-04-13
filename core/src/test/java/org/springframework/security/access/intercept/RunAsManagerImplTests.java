@@ -17,13 +17,13 @@ package org.springframework.security.access.intercept;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.Authentication;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.intercept.RunAsManager;
 import org.springframework.security.access.intercept.RunAsManagerImpl;
 import org.springframework.security.access.intercept.RunAsUserToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthorityUtils;
 
 
 /**

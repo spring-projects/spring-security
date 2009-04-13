@@ -24,9 +24,11 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
@@ -35,9 +37,7 @@ import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsManager;
 import org.springframework.security.ldap.userdetails.PersonContextMapper;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.util.AuthorityUtils;
 
 /**
  * @author Luke Taylor

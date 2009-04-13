@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 
 import java.util.Date;
 
-import org.springframework.security.concurrent.SessionInformation;
+import org.springframework.security.authentication.concurrent.SessionInformation;
 
 
 /**

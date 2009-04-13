@@ -5,8 +5,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.providers.dao.salt.ReflectionSaltSource;
-import org.springframework.security.providers.dao.salt.SystemWideSaltSource;
+import org.springframework.security.authentication.dao.salt.ReflectionSaltSource;
+import org.springframework.security.authentication.dao.salt.SystemWideSaltSource;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 

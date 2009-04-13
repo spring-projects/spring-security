@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.MockFilterConfig;
 
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 
 import org.springframework.security.userdetails.UserDetails;

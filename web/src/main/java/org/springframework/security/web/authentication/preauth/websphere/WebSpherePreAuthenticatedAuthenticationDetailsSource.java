@@ -6,11 +6,11 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.AuthenticationDetailsSourceImpl;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.MutableGrantedAuthoritiesContainer;
 import org.springframework.security.access.authoritymapping.Attributes2GrantedAuthoritiesMapper;
 import org.springframework.security.access.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
+import org.springframework.security.authentication.AuthenticationDetailsSourceImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.MutableGrantedAuthoritiesContainer;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesAuthenticationDetails;
 import org.springframework.util.Assert;
 
@@ -50,7 +50,7 @@ public class WebSpherePreAuthenticatedAuthenticationDetailsSource extends Authen
      * list of pre-authenticated Granted Authorities will be set based on the
      * WebSphere groups for the current user.
      *
-     * @see org.springframework.security.AuthenticationDetailsSource#buildDetails(Object)
+     * @see org.springframework.security.authentication.AuthenticationDetailsSource#buildDetails(Object)
      */
     public Object buildDetails(Object context) {
         Object result = super.buildDetails(context);

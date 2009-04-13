@@ -15,11 +15,11 @@
 package org.springframework.security.openid;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationServiceException;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
@@ -51,7 +51,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
     }
 
     /* (non-Javadoc)
-     * @see org.springframework.security.providers.AuthenticationProvider#authenticate(org.springframework.security.Authentication)
+     * @see org.springframework.security.authentication.AuthenticationProvider#authenticate(org.springframework.security.Authentication)
      */
     public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
 
@@ -97,7 +97,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
     }
 
     /* (non-Javadoc)
-     * @see org.springframework.security.providers.AuthenticationProvider#supports(java.lang.Class)
+     * @see org.springframework.security.authentication.AuthenticationProvider#supports(java.lang.Class)
      */
     public boolean supports(Class<? extends Object> authentication) {
         return OpenIDAuthenticationToken.class.isAssignableFrom(authentication);

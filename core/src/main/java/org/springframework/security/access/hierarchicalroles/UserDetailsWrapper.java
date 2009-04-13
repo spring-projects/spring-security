@@ -16,7 +16,7 @@ package org.springframework.security.access.hierarchicalroles;
 
 import java.util.List;
 
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
 
 /**

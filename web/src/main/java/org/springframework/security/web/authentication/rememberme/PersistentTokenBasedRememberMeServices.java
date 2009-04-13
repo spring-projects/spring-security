@@ -9,8 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.Authentication;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.util.Assert;
 
 /**

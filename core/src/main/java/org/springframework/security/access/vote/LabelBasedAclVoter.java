@@ -21,8 +21,8 @@ import java.util.Map;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.Authentication;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 

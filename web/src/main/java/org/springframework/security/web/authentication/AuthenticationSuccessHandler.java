@@ -6,7 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.Authentication;
+import org.springframework.security.core.Authentication;
 
 /**
  * Strategy used to handle a successful user authentication.

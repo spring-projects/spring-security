@@ -21,14 +21,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.vote.AccessDecisionVoter;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.RoleVoter;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthorityImpl;
 
 
 /**

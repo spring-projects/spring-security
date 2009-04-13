@@ -3,7 +3,7 @@ package org.springframework.security.web.context;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContext;
 
 /**
  * Strategy used for persisting a {@link SecurityContext} between requests.

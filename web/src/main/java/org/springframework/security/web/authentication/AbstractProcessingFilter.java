@@ -29,18 +29,15 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationDetailsSource;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.SpringSecurityMessageSource;
-import org.springframework.security.concurrent.SessionRegistry;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.concurrent.SessionRegistry;
+import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.WebAuthenticationDetailsSource;
-import org.springframework.security.web.authentication.rememberme.NullRememberMeServices;
-import org.springframework.security.web.authentication.rememberme.RememberMeServices;
 import org.springframework.security.web.util.SessionUtils;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
@@ -86,7 +83,7 @@ import org.springframework.util.Assert;
  * <h4>Event Publication</h4>
  *
  * If authentication is successful, an
- * {@link org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent
+ * {@link org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent
  * InteractiveAuthenticationSuccessEvent} will be published via the application context. No events will be published if
  * authentication was unsuccessful, because this would generally be recorded via an
  * <tt>AuthenticationManager</tt>-specific application event.

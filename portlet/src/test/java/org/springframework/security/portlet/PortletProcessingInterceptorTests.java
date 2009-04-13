@@ -31,17 +31,17 @@ import org.springframework.mock.web.portlet.MockActionRequest;
 import org.springframework.mock.web.portlet.MockActionResponse;
 import org.springframework.mock.web.portlet.MockRenderRequest;
 import org.springframework.mock.web.portlet.MockRenderResponse;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.BadCredentialsException;
 import org.springframework.security.web.authentication.AbstractProcessingFilter;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.portlet.PortletProcessingInterceptor;
-import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.userdetails.User;
-import org.springframework.security.util.AuthorityUtils;
 
 /**
  * Tests {@link PortletProcessingInterceptor}.

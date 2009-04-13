@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * A test UserDetailsService containing a set of standard usernames corresponding to their account status:

@@ -27,9 +27,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.portlet.HandlerInterceptor;
 import org.springframework.web.portlet.ModelAndView;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.context.SecurityContextImpl;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
@@ -46,7 +46,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
  * <p> If a valid <code>SecurityContext</code> cannot be obtained from the <code>PortletSession</code> for
  * whatever reason, a fresh <code>SecurityContext</code> will be created and used instead. The created object
  * will be of the instance defined by the {@link #setContext(Class)} method (which defaults to
- * {@link org.springframework.security.context.SecurityContextImpl}. </p>
+ * {@link org.springframework.security.core.context.SecurityContextImpl}. </p>
  *
  * <p>A <code>PortletSession</code> may be created by this interceptor if one does not already exist.  If at the
  * end of the portlet request the <code>PortletSession</code> does not exist, one will <b>only</b> be created if
@@ -177,7 +177,7 @@ public class PortletSessionContextIntegrationInterceptor
         // check that the value of context is legal
         if ((this.context == null) || (!SecurityContext.class.isAssignableFrom(this.context))) {
             throw new IllegalArgumentException("context must be defined and implement SecurityContext "
-                    + "(typically use org.springframework.security.context.SecurityContextImpl; existing class is "
+                    + "(typically use org.springframework.security.core.context.SecurityContextImpl; existing class is "
                     + this.context + ")");
         }
 

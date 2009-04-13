@@ -15,10 +15,8 @@
 
 package org.springframework.security.remoting.httpinvoker;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
-
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -65,12 +63,8 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpIn
      * @param contentLength the length of the content to send
      *
      * @throws IOException if thrown by HttpURLConnection methods
-     * @throws AuthenticationCredentialsNotFoundException if the <code>SecurityContextHolder</code> does not contain a
-     *         valid <code>Authentication</code> with both its <code>principal</code> and <code>credentials</code> not
-     *         <code>null</code>
      */
-    protected void prepareConnection(HttpURLConnection con, int contentLength)
-        throws IOException, AuthenticationCredentialsNotFoundException {
+    protected void prepareConnection(HttpURLConnection con, int contentLength) throws IOException {
         super.prepareConnection(con, contentLength);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

@@ -8,12 +8,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
-import org.springframework.security.Authentication;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.MethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.support.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.vote.AccessDecisionVoter;
+import org.springframework.security.core.Authentication;
 
 /**
  * Voter which performs the actions for @PreFilter and @PostAuthorize annotations.

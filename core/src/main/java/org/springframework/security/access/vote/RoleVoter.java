@@ -17,9 +17,9 @@ package org.springframework.security.access.vote;
 
 import java.util.List;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Votes if any {@link ConfigAttribute#getAttribute()} starts with a prefix
@@ -30,7 +30,7 @@ import org.springframework.security.access.ConfigAttribute;
  * <p>
  * Abstains from voting if no configuration attribute commences with the role
  * prefix. Votes to grant access if there is an exact matching
- * {@link org.springframework.security.GrantedAuthority} to a <code>ConfigAttribute</code>
+ * {@link org.springframework.security.core.GrantedAuthority} to a <code>ConfigAttribute</code>
  * starting with the role prefix. Votes to deny access if there is no exact
  * matching <code>GrantedAuthority</code> to a <code>ConfigAttribute</code>
  * starting with the role prefix.

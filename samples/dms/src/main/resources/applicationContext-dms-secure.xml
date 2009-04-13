@@ -46,7 +46,7 @@
 
    <!-- ======================== AUTHENTICATION (note there is no UI and this is for integration tests only) ======================= -->
 
-   <bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
+   <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
       <property name="providers">
          <list>
             <ref local="daoAuthenticationProvider"/>
@@ -58,11 +58,11 @@
       <property name="dataSource" ref="dataSource"/>
    </bean>
 
-   <bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+   <bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
       <property name="userDetailsService" ref="jdbcDaoImpl"/>
       <property name="userCache" ref="userCache"/>
       <property name="passwordEncoder">
-        <bean class="org.springframework.security.providers.encoding.Md5PasswordEncoder"/>
+        <bean class="org.springframework.security.authentication.encoding.Md5PasswordEncoder"/>
       </property>
    </bean>
 
@@ -78,9 +78,9 @@
    </bean>
 
    <!-- Automatically receives AuthenticationEvent messages -->
-   <bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
+   <bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener"/>
 <!--
-   <bean id="anonymousAuthenticationProvider" class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
+   <bean id="anonymousAuthenticationProvider" class="org.springframework.security.authentication.anonymous.AnonymousAuthenticationProvider">
       <property name="key" value="foobar"/>
    </bean>
 
@@ -89,7 +89,7 @@
       <property name="key" value="springRocks"/>
    </bean>
 
-   <bean id="rememberMeAuthenticationProvider" class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider">
+   <bean id="rememberMeAuthenticationProvider" class="org.springframework.security.authentication.rememberme.RememberMeAuthenticationProvider">
       <property name="key" value="springRocks"/>
    </bean>
  -->
@@ -174,13 +174,13 @@
     <bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
         <constructor-arg>
             <list>
-                <bean class="org.springframework.security.GrantedAuthorityImpl">
+                <bean class="org.springframework.security.core.GrantedAuthorityImpl">
                     <constructor-arg value="ROLE_ADMINISTRATOR"/>
                 </bean>
-                <bean class="org.springframework.security.GrantedAuthorityImpl">
+                <bean class="org.springframework.security.core.GrantedAuthorityImpl">
                     <constructor-arg value="ROLE_ADMINISTRATOR"/>
                 </bean>
-                <bean class="org.springframework.security.GrantedAuthorityImpl">
+                <bean class="org.springframework.security.core.GrantedAuthorityImpl">
                     <constructor-arg value="ROLE_ADMINISTRATOR"/>
                 </bean>
             </list>

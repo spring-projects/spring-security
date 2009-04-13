@@ -8,9 +8,9 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.security.concurrent.ConcurrentSessionController;
-import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
-import org.springframework.security.concurrent.SessionRegistry;
+import org.springframework.security.authentication.concurrent.ConcurrentSessionController;
+import org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl;
+import org.springframework.security.authentication.concurrent.SessionRegistry;
 import org.springframework.security.web.SessionFixationProtectionFilter;
 import org.springframework.security.web.authentication.AbstractProcessingFilter;
 

@@ -21,12 +21,12 @@ import junit.framework.TestCase;
 
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.util.AuthorityUtils;
 
 /**
  * Tests {@link CasAuthenticationToken}.

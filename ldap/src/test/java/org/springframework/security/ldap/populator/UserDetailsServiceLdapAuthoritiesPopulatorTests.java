@@ -7,10 +7,10 @@ import java.util.List;
 
 import org.junit.Test;
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.util.AuthorityUtils;
 
 /**
  * @author Luke Taylor

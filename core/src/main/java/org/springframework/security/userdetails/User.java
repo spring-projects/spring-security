@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
 /**
@@ -58,7 +58,7 @@ public class User implements UserDetails {
 
     /**
      * Construct the <code>User</code> with the details required by
-     * {@link org.springframework.security.providers.dao.DaoAuthenticationProvider}.
+     * {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider}.
      *
      * @param username the username presented to the
      *        <code>DaoAuthenticationProvider</code>

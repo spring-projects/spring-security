@@ -20,13 +20,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.ldap.NameNotFoundException;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
-import org.springframework.security.Authentication;
-import org.springframework.security.BadCredentialsException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.ldap.LdapUtils;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.encoding.LdapShaPasswordEncoder;
-import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 

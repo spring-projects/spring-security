@@ -4,10 +4,10 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.antlr.SpelAntlrExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationTrustResolver;
-import org.springframework.security.AuthenticationTrustResolverImpl;
 import org.springframework.security.access.expression.support.SecurityExpressionRoot;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 
 /**

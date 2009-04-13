@@ -15,7 +15,7 @@
 
 package org.springframework.security.userdetails;
 
-import org.springframework.security.BadCredentialsException;
+import org.springframework.security.authentication.BadCredentialsException;
 
 
 /**

@@ -15,8 +15,8 @@
 
 package org.springframework.security.taglibs.velocity;
 
-import org.springframework.security.Authentication;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.taglibs.authz.AuthenticationTag;
 import org.springframework.security.taglibs.authz.AuthorizeTag;
 

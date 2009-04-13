@@ -14,9 +14,9 @@ import org.springframework.security.access.authoritymapping.Attributes2GrantedAu
 import org.springframework.security.access.authoritymapping.MappableAttributesRetriever;
 import org.springframework.security.access.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
 import org.springframework.security.access.authoritymapping.SimpleMappableAttributesRetriever;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource;
-import org.springframework.security.GrantedAuthority;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.StringUtils;

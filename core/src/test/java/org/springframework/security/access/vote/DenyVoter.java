@@ -15,9 +15,9 @@
 
 package org.springframework.security.access.vote;
 
-import org.springframework.security.Authentication;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.vote.AccessDecisionVoter;
+import org.springframework.security.core.Authentication;
 
 import java.util.Iterator;
 import java.util.List;

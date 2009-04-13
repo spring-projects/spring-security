@@ -18,9 +18,9 @@ package org.springframework.security.access.vote;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.security.Authentication;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.core.Authentication;
 
 
 /**

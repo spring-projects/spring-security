@@ -4,11 +4,11 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationDetailsSource;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
 /**

@@ -13,8 +13,8 @@ package org.springframework.security.userdetails;
  * @version $Id$
  * @since 2.0
  *
- * @see org.springframework.security.providers.AccountStatusUserDetailsChecker
- * @see org.springframework.security.AccountStatusException
+ * @see org.springframework.security.authentication.AccountStatusUserDetailsChecker
+ * @see org.springframework.security.authentication.AccountStatusException
  */
 public interface UserDetailsChecker {
     /**

@@ -15,6 +15,11 @@
 
 package org.springframework.security;
 
+import org.springframework.security.authentication.AbstractAuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+
 /**
  * Simply accepts as valid whatever is passed to it, if <code>grantAccess</code> is set to <code>true</code>.
  *

@@ -3,13 +3,13 @@ package org.springframework.security.acls.sid;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.acls.sid.GrantedAuthoritySid;
 import org.springframework.security.acls.sid.PrincipalSid;
 import org.springframework.security.acls.sid.Sid;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthorityImpl;
 
 public class SidTests extends TestCase {
 

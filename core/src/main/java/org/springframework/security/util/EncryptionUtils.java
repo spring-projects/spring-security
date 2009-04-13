@@ -23,7 +23,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 
-import org.springframework.security.SpringSecurityException;
+import org.springframework.security.core.SpringSecurityException;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.util.Assert;
 

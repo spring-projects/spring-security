@@ -20,8 +20,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.junit.Test;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Tests for {@link HierarchicalRolesTestHelper}.

@@ -28,7 +28,7 @@
         <b:property name="authenticationFailureUrl" value="/openidlogin.jsp?login_error=true"/>
     </b:bean>
 
-    <b:bean id="openIdAuthenticationProvider" class="org.springframework.security.providers.openid.OpenIDAuthenticationProvider">
+    <b:bean id="openIdAuthenticationProvider" class="org.springframework.security.authentication.openid.OpenIDAuthenticationProvider">
         <custom-authentication-provider />
         <b:property name="userDetailsService" ref="userService"/>
     </b:bean>

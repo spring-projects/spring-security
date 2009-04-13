@@ -1,9 +1,9 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core' %>
 
-<%@ page import="org.springframework.security.context.SecurityContextHolder" %>
-<%@ page import="org.springframework.security.Authentication" %>
+<%@ page import="org.springframework.security.core.context.SecurityContextHolder" %>
+<%@ page import="org.springframework.security.core.Authentication" %>
 <%@ page import="org.springframework.security.ui.AbstractProcessingFilter" %>
-<%@ page import="org.springframework.security.AuthenticationException" %>
+<%@ page import="org.springframework.security.core.AuthenticationException" %>
 
 <html>
   <head>

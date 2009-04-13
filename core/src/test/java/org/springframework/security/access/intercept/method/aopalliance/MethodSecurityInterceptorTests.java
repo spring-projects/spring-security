@@ -28,10 +28,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.BadCredentialsException;
 import org.springframework.security.ITargetObject;
 import org.springframework.security.TargetObject;
 import org.springframework.security.access.AccessDecisionManager;
@@ -43,8 +39,12 @@ import org.springframework.security.access.intercept.RunAsManager;
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.access.intercept.method.MethodSecurityMetadataSource;
 import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Tests {@link MethodSecurityInterceptor}.
@@ -222,7 +222,7 @@ public class MethodSecurityInterceptorTests {
     public void callingAPublicMethodWhenPresentingAnAuthenticationObjectDoesntChangeItsAuthenticatedProperty() {
         jmock.checking(mdsWillReturnNullFromGetAttributes);
         SecurityContextHolder.getContext().setAuthentication(token);
-        assertEquals("hello org.springframework.security.providers.TestingAuthenticationToken false",
+        assertEquals("hello org.springframework.security.authentication.TestingAuthenticationToken false",
                 advisedTarget.publicMakeLowerCase("HELLO"));
         assertTrue(!token.isAuthenticated());
     }
@@ -252,7 +252,7 @@ public class MethodSecurityInterceptorTests {
         String result = advisedTarget.makeLowerCase("HELLO");
 
         // Note we check the isAuthenticated remained true in following line
-        assertEquals("hello org.springframework.security.providers.TestingAuthenticationToken true", result);
+        assertEquals("hello org.springframework.security.authentication.TestingAuthenticationToken true", result);
     }
 
     @Test(expected=AccessDeniedException.class)

@@ -17,14 +17,14 @@ package org.springframework.security.web.concurrent;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.Authentication;
 
-import org.springframework.security.concurrent.ConcurrentLoginException;
-import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
-import org.springframework.security.concurrent.SessionRegistry;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
+import org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl;
+import org.springframework.security.authentication.concurrent.SessionRegistry;
+import org.springframework.security.core.Authentication;
 
-import org.springframework.security.web.WebAuthenticationDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.concurrent.SessionRegistryImpl;
 
 import org.springframework.mock.web.MockHttpServletRequest;

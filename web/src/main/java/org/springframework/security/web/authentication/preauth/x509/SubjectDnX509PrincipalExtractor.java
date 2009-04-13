@@ -1,7 +1,7 @@
 package org.springframework.security.web.authentication.preauth.x509;
 
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.util.Assert;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.MessageSource;

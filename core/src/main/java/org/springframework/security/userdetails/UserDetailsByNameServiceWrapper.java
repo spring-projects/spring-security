@@ -1,6 +1,6 @@
 package org.springframework.security.userdetails;
 
-import org.springframework.security.Authentication;
+import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;

@@ -15,8 +15,8 @@
 
 package org.springframework.security.remoting.rmi;
 
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -74,7 +74,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
     /**
      * Invoked on the server-side as described in the class JavaDocs.
      * <p>
-     * Invocations will always have their {@link org.springframework.security.Authentication#setAuthenticated(boolean)}
+     * Invocations will always have their {@link org.springframework.security.core.Authentication#setAuthenticated(boolean)}
      * set to <code>false</code>, which is guaranteed to always be accepted by <code>Authentication</code>
      * implementations. This ensures that even remotely authenticated <code>Authentication</code>s will be untrusted by
      * the server-side, which is an appropriate security measure.

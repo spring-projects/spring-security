@@ -8,12 +8,12 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.AuthenticationTrustResolver;
-import org.springframework.security.AuthenticationTrustResolverImpl;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.context.SecurityContextHolderStrategy;
-import org.springframework.security.context.SecurityContextImpl;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
@@ -217,7 +217,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     public void setSecurityContextClass(Class contextClass) {
         if (contextClass == null || (!SecurityContext.class.isAssignableFrom(contextClass))) {
             throw new IllegalArgumentException("securityContextClass must implement SecurityContext "
-                    + "(typically use org.springframework.security.context.SecurityContextImpl; existing class is "
+                    + "(typically use org.springframework.security.core.context.SecurityContextImpl; existing class is "
                     + contextClass + ")");
         }
 

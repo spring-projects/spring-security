@@ -30,13 +30,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.security.concurrent.SessionInformation;
-import org.springframework.security.concurrent.SessionRegistry;
+import org.springframework.security.authentication.concurrent.SessionInformation;
+import org.springframework.security.authentication.concurrent.SessionRegistry;
 import org.springframework.security.web.session.HttpSessionDestroyedEvent;
 import org.springframework.util.Assert;
 
 /**
- * Base implementation of {@link org.springframework.security.concurrent.SessionRegistry}
+ * Base implementation of {@link org.springframework.security.authentication.concurrent.SessionRegistry}
  * which also listens for {@link org.springframework.security.web.session.HttpSessionDestroyedEvent}s
  * published in the Spring application context.
  *

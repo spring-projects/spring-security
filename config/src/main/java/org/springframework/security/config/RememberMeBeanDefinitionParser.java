@@ -11,7 +11,7 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
-import org.springframework.security.providers.RememberMeAuthenticationProvider;
+import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 

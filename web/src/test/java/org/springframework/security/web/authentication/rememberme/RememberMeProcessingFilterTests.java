@@ -30,16 +30,16 @@ import junit.framework.TestCase;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
 import org.springframework.security.MockApplicationEventPublisher;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockFilterConfig;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.security.web.authentication.rememberme.NullRememberMeServices;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.NullRememberMeServices;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeProcessingFilter;
-import org.springframework.security.web.authentication.rememberme.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 
 

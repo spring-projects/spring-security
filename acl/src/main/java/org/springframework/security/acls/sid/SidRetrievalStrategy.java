@@ -17,7 +17,7 @@ package org.springframework.security.acls.sid;
 
 import java.util.List;
 
-import org.springframework.security.Authentication;
+import org.springframework.security.core.Authentication;
 
 
 /**

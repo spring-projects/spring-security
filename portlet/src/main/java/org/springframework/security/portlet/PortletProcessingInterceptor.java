@@ -24,15 +24,15 @@ import java.util.Map;
 
 import javax.portlet.*;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationDetailsSource;
-import org.springframework.security.AuthenticationDetailsSourceImpl;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationManager;
 import org.springframework.security.web.authentication.AbstractProcessingFilter;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationDetailsSourceImpl;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractProcessingFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

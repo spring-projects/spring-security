@@ -17,8 +17,6 @@ import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.TestDataSource;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AuditableAccessControlEntry;
@@ -33,6 +31,8 @@ import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.acls.sid.PrincipalSid;
 import org.springframework.security.acls.sid.Sid;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthorityImpl;
 import org.springframework.util.FileCopyUtils;
 
 /**

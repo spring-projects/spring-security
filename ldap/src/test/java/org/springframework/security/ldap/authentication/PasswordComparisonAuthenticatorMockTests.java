@@ -26,8 +26,8 @@ import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.ldap.authentication.PasswordComparisonAuthenticator;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 
 /**

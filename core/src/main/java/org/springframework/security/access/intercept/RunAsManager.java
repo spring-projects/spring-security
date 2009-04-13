@@ -17,8 +17,8 @@ package org.springframework.security.access.intercept;
 
 import java.util.List;
 
-import org.springframework.security.Authentication;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.core.Authentication;
 
 /**
  * Creates a new temporary {@link Authentication} object for the current secure
@@ -30,7 +30,7 @@ import org.springframework.security.access.ConfigAttribute;
  * object invocation only. The {@link
  * org.springframework.security.access.intercept.AbstractSecurityInterceptor} will replace
  * the <code>Authentication</code> object held in the
- * {@link org.springframework.security.context.SecurityContext SecurityContext}
+ * {@link org.springframework.security.core.context.SecurityContext SecurityContext}
  * for the duration of  the secure object callback only, returning it to
  * the original <code>Authentication</code> object when the callback ends.
  * </p>

@@ -9,10 +9,10 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 import org.junit.Test;
-import org.springframework.security.Authentication;
 import org.springframework.security.MockJoinPoint;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.vote.AbstractAclVoter;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.util.MethodInvocationUtils;
 
 /**

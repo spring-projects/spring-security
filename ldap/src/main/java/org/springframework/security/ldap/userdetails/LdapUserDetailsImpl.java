@@ -21,8 +21,8 @@ import java.util.List;
 import javax.naming.Name;
 
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
 

@@ -14,7 +14,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.expression.method.MethodExpressionVoter;
 import org.springframework.security.access.expression.method.PreInvocationExpressionAttribute;
 import org.springframework.security.access.vote.AccessDecisionVoter;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 @SuppressWarnings("unchecked")

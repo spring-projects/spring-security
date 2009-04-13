@@ -15,16 +15,15 @@
 
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationDetailsSource;
 
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import org.springframework.security.providers.AnonymousAuthenticationToken;
 import org.springframework.security.userdetails.memory.UserAttribute;
 import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.WebAuthenticationDetailsSource;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 

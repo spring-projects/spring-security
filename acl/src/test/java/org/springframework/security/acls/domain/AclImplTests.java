@@ -13,9 +13,6 @@ import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.acls.AccessControlEntry;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AlreadyExistsException;
@@ -32,8 +29,11 @@ import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.acls.sid.GrantedAuthoritySid;
 import org.springframework.security.acls.sid.PrincipalSid;
 import org.springframework.security.acls.sid.Sid;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthorityImpl;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.FieldUtils;
 
 

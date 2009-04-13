@@ -1,6 +1,6 @@
 package org.springframework.security.config;
 
-import org.springframework.security.SpringSecurityException;
+import org.springframework.security.core.SpringSecurityException;
 
 
 /**

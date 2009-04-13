@@ -6,7 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.Authentication;
+import org.springframework.security.core.Authentication;
 
 /**
  * Strategy that is called after a successful logout by the {@link LogoutFilter}, to handle redirection or

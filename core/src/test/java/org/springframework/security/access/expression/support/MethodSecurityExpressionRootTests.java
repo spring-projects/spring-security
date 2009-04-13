@@ -9,11 +9,11 @@ import org.junit.Test;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.antlr.SpelAntlrExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationTrustResolver;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.PermissionEvaluator;
 import org.springframework.security.access.expression.support.MethodSecurityExpressionRoot;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.core.Authentication;
 
 /**
  * Tests for {@link MethodSecurityExpressionRoot}

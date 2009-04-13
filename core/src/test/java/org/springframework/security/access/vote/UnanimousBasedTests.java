@@ -26,7 +26,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.vote.AccessDecisionVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.access.vote.UnanimousBased;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 
 
 /**

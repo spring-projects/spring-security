@@ -22,10 +22,9 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
 import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.web.WebAuthenticationDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
 
 

@@ -2,10 +2,10 @@ package org.springframework.security.access.expression.support;
 
 import java.util.Set;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationTrustResolver;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.GrantedAuthority;
 
 
 /**

@@ -29,18 +29,18 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.AuthenticationCredentialsNotFoundEvent;
-import org.springframework.security.access.AuthorizationFailureEvent;
-import org.springframework.security.access.AuthorizedEvent;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.PublicInvocationEvent;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.access.event.AuthenticationCredentialsNotFoundEvent;
+import org.springframework.security.access.event.AuthorizationFailureEvent;
+import org.springframework.security.access.event.AuthorizedEvent;
+import org.springframework.security.access.event.PublicInvocationEvent;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
 /**
@@ -55,7 +55,7 @@ import org.springframework.util.Assert;
  * <li>For an invocation that is secured (there is a list of <code>ConfigAttribute</code>s for the secure
  * object invocation):
  * <ol type="a">
- * <li>If either the {@link org.springframework.security.Authentication#isAuthenticated()}
+ * <li>If either the {@link org.springframework.security.core.Authentication#isAuthenticated()}
  * returns <code>false</code>, or the {@link #alwaysReauthenticate} is
  * <code>true</code>, authenticate the request against the configured {@link AuthenticationManager}.
  * When authenticated, replace the <code>Authentication</code> object on the
@@ -282,7 +282,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
     /**
      * Checks the current authentication token and passes it to the AuthenticationManager if
-     * {@link org.springframework.security.Authentication#isAuthenticated()} returns false or the property
+     * {@link org.springframework.security.core.Authentication#isAuthenticated()} returns false or the property
      * <tt>alwaysReauthenticate</tt> has been set to true.
      *
      * @return an authenticated <tt>Authentication</tt> object.

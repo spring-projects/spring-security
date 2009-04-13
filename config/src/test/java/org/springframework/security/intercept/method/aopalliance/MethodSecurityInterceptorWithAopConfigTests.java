@@ -4,10 +4,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.ITargetObject;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Tests for SEC-428.

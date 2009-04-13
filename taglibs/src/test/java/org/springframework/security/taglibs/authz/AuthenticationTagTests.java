@@ -17,12 +17,12 @@ package org.springframework.security.taglibs.authz;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.userdetails.User;
-import org.springframework.security.util.AuthorityUtils;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;

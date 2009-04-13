@@ -6,7 +6,7 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Node;
 
 /**
- * Adds the decorated {@link org.springframework.security.providers.AuthenticationProvider} to the ProviderManager's
+ * Adds the decorated {@link org.springframework.security.authentication.AuthenticationProvider} to the ProviderManager's
  * list.
  *
  * @author Luke Taylor

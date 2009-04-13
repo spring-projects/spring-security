@@ -22,7 +22,6 @@ import javax.sql.DataSource;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.security.Authentication;
 import org.springframework.security.acls.AccessControlEntry;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AlreadyExistsException;
@@ -36,7 +35,8 @@ import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.acls.sid.GrantedAuthoritySid;
 import org.springframework.security.acls.sid.PrincipalSid;
 import org.springframework.security.acls.sid.Sid;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 

@@ -19,9 +19,9 @@ import java.util.List;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * An NTLM-specific {@link UsernamePasswordAuthenticationToken} that allows any provider to bypass the problem of an

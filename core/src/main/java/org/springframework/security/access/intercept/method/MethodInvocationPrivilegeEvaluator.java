@@ -21,10 +21,10 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.Authentication;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 

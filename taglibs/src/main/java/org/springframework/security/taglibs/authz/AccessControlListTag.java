@@ -26,7 +26,7 @@ import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.acls.sid.SidRetrievalStrategy;
 import org.springframework.security.acls.sid.SidRetrievalStrategyImpl;
 
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

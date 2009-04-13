@@ -15,8 +15,8 @@
 
 package org.springframework.security.access;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.SpringSecurityException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.SpringSecurityException;
 
 /**
  * Thrown if an {@link Authentication} object does not hold a required authority.

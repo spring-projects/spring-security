@@ -18,11 +18,11 @@ package org.springframework.security.portlet;
 
 import javax.portlet.PortletRequest;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthorityImpl;
 import org.springframework.security.portlet.PortletAuthenticationDetails;
-import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.mock.web.portlet.MockActionRequest;

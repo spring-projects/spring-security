@@ -7,13 +7,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
-import org.springframework.security.Authentication;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.MethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.support.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.intercept.AfterInvocationProvider;
+import org.springframework.security.core.Authentication;
 
 /**
  * AfterInvocationProvider which handles the @PostAuthorize and @PostFilter annotation expressions.

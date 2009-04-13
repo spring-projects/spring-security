@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthorityImpl;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 

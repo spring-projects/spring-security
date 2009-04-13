@@ -16,9 +16,9 @@
 package org.springframework.security.access;
 
 import org.junit.Test;
-import org.springframework.security.access.AuthorizedEvent;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.access.event.AuthorizedEvent;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 

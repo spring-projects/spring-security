@@ -17,10 +17,10 @@ package org.springframework.security.userdetails.memory;
 
 import junit.framework.TestCase;
 
+import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.util.AuthorityUtils;
 
 
 /**

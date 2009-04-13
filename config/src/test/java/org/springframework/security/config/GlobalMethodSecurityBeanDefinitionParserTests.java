@@ -11,7 +11,6 @@ import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.BusinessService;
 import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
@@ -22,12 +21,13 @@ import org.springframework.security.access.expression.method.MethodExpressionAft
 import org.springframework.security.access.expression.method.MethodExpressionVoter;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.util.AuthorityUtils;
 import org.springframework.security.util.FieldUtils;
 
 /**

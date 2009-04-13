@@ -2,9 +2,9 @@ package org.springframework.security.access.vote;
 
 import java.util.List;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
 /**

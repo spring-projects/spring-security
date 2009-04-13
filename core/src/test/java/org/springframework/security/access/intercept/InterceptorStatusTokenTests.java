@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.intercept.InterceptorStatusToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 

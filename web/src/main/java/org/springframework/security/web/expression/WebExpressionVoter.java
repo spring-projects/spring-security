@@ -3,10 +3,10 @@ package org.springframework.security.web.expression;
 import java.util.List;
 
 import org.springframework.expression.EvaluationContext;
-import org.springframework.security.Authentication;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.vote.AccessDecisionVoter;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 
 /**

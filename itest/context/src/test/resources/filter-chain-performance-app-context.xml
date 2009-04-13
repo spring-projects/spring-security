@@ -23,10 +23,10 @@
         </sec:filter-chain-map>
     </bean>
 
-    <bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
+    <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
         <property name="providers">
             <list>
-               <bean class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+               <bean class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
                    <property name="userDetailsService" ref="userService"/>
                </bean>
             </list>
@@ -71,7 +71,7 @@
     </bean>
 
 
-    <bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationProvider">
+    <bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationProvider">
         <property name="preAuthenticatedUserDetailsService" ref="preAuthenticatedUserDetailsService"/>
     </bean>
 

@@ -15,8 +15,8 @@
 
 package org.springframework.security.web.authentication.switchuser;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthorityImpl;
 
 
 /**

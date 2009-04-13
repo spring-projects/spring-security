@@ -17,8 +17,8 @@ package org.springframework.security.access;
 
 import java.util.List;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.InsufficientAuthenticationException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
 
 /**
  * Makes a final access control (authorization) decision.

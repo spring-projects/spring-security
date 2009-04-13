@@ -17,8 +17,8 @@ package org.springframework.security.access.intercept;
 
 import java.util.List;
 
-import org.springframework.security.Authentication;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.core.Authentication;
 
 
 /**

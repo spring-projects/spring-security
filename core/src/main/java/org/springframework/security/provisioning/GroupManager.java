@@ -2,7 +2,7 @@ package org.springframework.security.provisioning;
 
 import java.util.List;
 
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Allows management of groups of authorities and their members.

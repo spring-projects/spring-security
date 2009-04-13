@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.Authentication;
 import org.springframework.security.access.expression.PermissionEvaluator;
+import org.springframework.security.core.Authentication;
 
 /**
  * A null PermissionEvaluator which denies all access. Used by default for situations when permission

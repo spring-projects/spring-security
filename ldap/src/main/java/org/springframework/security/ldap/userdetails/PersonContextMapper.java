@@ -2,8 +2,8 @@ package org.springframework.security.ldap.userdetails;
 
 import java.util.List;
 
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.GrantedAuthority;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.util.Assert;

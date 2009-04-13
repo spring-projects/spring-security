@@ -15,12 +15,12 @@
 
 package org.springframework.security.web.wrapper;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationTrustResolver;
-import org.springframework.security.AuthenticationTrustResolverImpl;
-import org.springframework.security.GrantedAuthority;
 
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.web.PortResolver;
@@ -149,7 +149,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
     }
 
     /**
-     * Simple searches for an exactly matching {@link org.springframework.security.GrantedAuthority#getAuthority()}.
+     * Simple searches for an exactly matching {@link org.springframework.security.core.GrantedAuthority#getAuthority()}.
      * <p>
      * Will always return <code>false</code> if the <code>SecurityContextHolder</code> contains an
      * <code>Authentication</code> with <code>null</code><code>principal</code> and/or <code>GrantedAuthority[]</code>

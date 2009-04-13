@@ -25,7 +25,6 @@ import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.AuthenticationManager;
 import org.springframework.security.ITargetObject;
 import org.springframework.security.OtherTargetObject;
 import org.springframework.security.TargetObject;
@@ -36,8 +35,9 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.intercept.method.MethodInvocationPrivilegeEvaluator;
 import org.springframework.security.access.intercept.method.MethodSecurityMetadataSource;
 import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.MethodInvocationUtils;
 
 

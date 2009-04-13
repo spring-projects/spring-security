@@ -28,13 +28,13 @@ import junit.framework.TestCase;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.BadCredentialsException;
 import org.springframework.security.MockAuthenticationEntryPoint;
 import org.springframework.security.MockPortResolver;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.AnonymousAuthenticationToken;
-import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AccessDeniedHandlerImpl;
 import org.springframework.security.web.ExceptionTranslationFilter;
 import org.springframework.security.web.savedrequest.SavedRequest;

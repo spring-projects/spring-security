@@ -15,20 +15,20 @@
 
 package org.springframework.security.ui.ntlm;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.AuthenticationDetailsSource;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.InsufficientAuthenticationException;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.AnonymousAuthenticationToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 

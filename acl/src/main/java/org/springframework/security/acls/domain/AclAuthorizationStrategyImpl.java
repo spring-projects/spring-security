@@ -18,15 +18,15 @@ package org.springframework.security.acls.domain;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.sid.PrincipalSid;
 import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.acls.sid.SidRetrievalStrategy;
 import org.springframework.security.acls.sid.SidRetrievalStrategyImpl;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
 

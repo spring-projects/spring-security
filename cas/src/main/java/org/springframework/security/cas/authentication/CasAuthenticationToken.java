@@ -16,9 +16,9 @@
 package org.springframework.security.cas.authentication;
 
 import org.jasig.cas.client.validation.Assertion;
-import org.springframework.security.GrantedAuthority;
 
-import org.springframework.security.providers.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 
 import org.springframework.security.userdetails.UserDetails;
 

@@ -1,5 +1,5 @@
-<%@ page import="org.springframework.security.context.SecurityContextHolder" %>
-<%@ page import="org.springframework.security.Authentication" %>
+<%@ page import="org.springframework.security.core.context.SecurityContextHolder" %>
+<%@ page import="org.springframework.security.core.Authentication" %>
 <%@ page import="org.springframework.security.ui.AccessDeniedHandlerImpl" %>
 
 <h1>Sorry, access is denied</h1>

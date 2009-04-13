@@ -3,13 +3,13 @@ package org.springframework.security.config;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.BusinessService;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author Ben Alex

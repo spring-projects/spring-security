@@ -10,7 +10,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.security.web.authentication.AbstractProcessingFilter;
-import org.springframework.security.web.authentication.rememberme.RememberMeServices;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.www.BasicProcessingFilter;
 import org.springframework.util.Assert;
 

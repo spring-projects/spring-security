@@ -23,10 +23,10 @@ import junit.framework.TestCase;
 
 import org.jmock.Mockery;
 import org.springframework.mock.web.MockPageContext;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthorityImpl;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 
 /**

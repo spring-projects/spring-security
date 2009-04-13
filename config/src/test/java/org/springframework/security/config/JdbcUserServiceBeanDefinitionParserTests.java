@@ -5,14 +5,14 @@ import static org.mockito.Mockito.*;
 
 import org.junit.After;
 import org.junit.Test;
-import org.springframework.security.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.providers.ProviderManager;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.util.AuthorityUtils;
 import org.springframework.security.util.FieldUtils;
 import org.w3c.dom.Element;
 
@@ -22,7 +22,7 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 public class JdbcUserServiceBeanDefinitionParserTests {
-    private static String USER_CACHE_XML = "<b:bean id='userCache' class='org.springframework.security.providers.dao.MockUserCache'/>";
+    private static String USER_CACHE_XML = "<b:bean id='userCache' class='org.springframework.security.authentication.dao.MockUserCache'/>";
 
     private static String DATA_SOURCE =
             "    <b:bean id='populator' class='org.springframework.security.config.DataSourcePopulator'>" +

@@ -38,7 +38,7 @@
     </authentication-provider>
 
     <!-- Automatically receives AuthenticationEvent messages -->
-    <b:bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
+    <b:bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener"/>
 
     <!-- Filter used to switch the user context. Note: the switch and exit url must be secured
         based on the role granted the ability to 'switch' to another user -->

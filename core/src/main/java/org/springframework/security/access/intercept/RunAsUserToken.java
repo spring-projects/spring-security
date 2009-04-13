@@ -18,14 +18,14 @@ package org.springframework.security.access.intercept;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
 
-import org.springframework.security.providers.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 
 /**
- * An immutable {@link org.springframework.security.Authentication}  implementation that supports {@link RunAsManagerImpl}.
+ * An immutable {@link org.springframework.security.core.Authentication}  implementation that supports {@link RunAsManagerImpl}.
  *
  * @author Ben Alex
  * @version $Id$

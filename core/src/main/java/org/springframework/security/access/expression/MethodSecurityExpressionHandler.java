@@ -4,7 +4,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
-import org.springframework.security.Authentication;
+import org.springframework.security.core.Authentication;
 
 /**
  * Facade which isolates Spring Security's requirements for evaluation method-security expressions

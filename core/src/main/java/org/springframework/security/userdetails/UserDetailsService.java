@@ -15,7 +15,7 @@
 
 package org.springframework.security.userdetails;
 
-import org.springframework.security.providers.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 
 import org.springframework.dao.DataAccessException;
 

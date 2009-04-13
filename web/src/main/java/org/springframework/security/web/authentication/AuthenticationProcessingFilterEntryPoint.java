@@ -15,9 +15,9 @@
 
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.AuthenticationException;
 
 
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.ExceptionTranslationFilter;
 import org.springframework.security.web.PortMapper;

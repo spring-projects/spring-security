@@ -24,19 +24,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationDetailsSource;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.AnonymousAuthenticationToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.WebAuthenticationDetailsSource;
-import org.springframework.security.web.authentication.rememberme.NullRememberMeServices;
-import org.springframework.security.web.authentication.rememberme.RememberMeServices;
+import org.springframework.security.web.authentication.NullRememberMeServices;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 
 

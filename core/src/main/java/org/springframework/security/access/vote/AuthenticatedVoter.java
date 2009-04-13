@@ -17,10 +17,10 @@ package org.springframework.security.access.vote;
 
 import java.util.List;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationTrustResolver;
-import org.springframework.security.AuthenticationTrustResolverImpl;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 
@@ -31,8 +31,8 @@ import org.springframework.util.Assert;
  * <p>
  * The current <code>Authentication</code> will be inspected to determine if the principal has a particular
  * level of authentication. The "FULLY" authenticated option means the user is authenticated fully (i.e. {@link
- * org.springframework.security.AuthenticationTrustResolver#isAnonymous(Authentication)} is false and {@link
- * org.springframework.security.AuthenticationTrustResolver#isRememberMe(Authentication)} is false). The "REMEMBERED" will grant
+ * org.springframework.security.authentication.AuthenticationTrustResolver#isAnonymous(Authentication)} is false and {@link
+ * org.springframework.security.authentication.AuthenticationTrustResolver#isRememberMe(Authentication)} is false). The "REMEMBERED" will grant
  * access if the principal was either authenticated via remember-me OR is fully authenticated. The "ANONYMOUSLY" will
  * grant access if the principal was authenticated via remember-me, OR anonymously, OR via full authentication.
  * <p>

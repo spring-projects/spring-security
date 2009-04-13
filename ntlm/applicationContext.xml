@@ -15,9 +15,9 @@
     </bean>
 
     <!-- The first item in the Chain: httpSessionContextIntegrationFilter -->
-    <bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter">
+    <bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.core.context.HttpSessionContextIntegrationFilter">
         <property name="context">
-            <value>org.springframework.security.context.SecurityContextImpl</value>
+            <value>org.springframework.security.core.context.SecurityContextImpl</value>
         </property>
     </bean>
 
@@ -35,7 +35,7 @@
         <property name="authenticationManager" ref="providerManager"/>
     </bean>
 
-    <bean id="providerManager" class="org.springframework.security.providers.ProviderManager">
+    <bean id="providerManager" class="org.springframework.security.authentication.ProviderManager">
         <property name="providers">
             <list>
                 <ref local="daoAuthenticationProvider"/>
@@ -43,7 +43,7 @@
         </property>
     </bean>
 
-    <bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+    <bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
         <property name="userDetailsService">
             <ref local="memoryUserDetailsService"/>
         </property>
@@ -90,6 +90,6 @@
     <!-- Done with the chain -->
 
     <!-- This bean automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
-    <bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
+    <bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener"/>
 
 </beans>

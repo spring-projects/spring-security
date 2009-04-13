@@ -17,7 +17,7 @@ package org.springframework.security.web.concurrent;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.concurrent.SessionInformation;
+import org.springframework.security.authentication.concurrent.SessionInformation;
 import org.springframework.security.web.concurrent.SessionRegistryImpl;
 import org.springframework.security.web.session.HttpSessionDestroyedEvent;
 

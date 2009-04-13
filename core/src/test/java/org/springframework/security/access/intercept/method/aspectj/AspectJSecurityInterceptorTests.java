@@ -25,7 +25,6 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.AuthenticationManager;
 import org.springframework.security.MockJoinPoint;
 import org.springframework.security.TargetObject;
 import org.springframework.security.access.AccessDecisionManager;
@@ -34,8 +33,9 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.intercept.method.MethodSecurityMetadataSource;
 import org.springframework.security.access.intercept.method.aspectj.AspectJCallback;
 import org.springframework.security.access.intercept.method.aspectj.AspectJSecurityInterceptor;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 
 /**

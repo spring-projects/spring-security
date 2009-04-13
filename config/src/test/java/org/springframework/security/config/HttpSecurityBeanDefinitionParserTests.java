@@ -23,21 +23,20 @@ import org.springframework.security.MockAuthenticationEntryPoint;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.concurrent.ConcurrentLoginException;
-import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
+import org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.openid.OpenIDAuthenticationProcessingFilter;
 import org.springframework.security.openid.OpenIDAuthenticationProvider;
-import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.ExceptionTranslationFilter;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.SessionFixationProtectionFilter;
-import org.springframework.security.web.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.AnonymousProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
@@ -45,6 +44,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.x509.X509PreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
@@ -543,7 +543,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true'>" +
                 "    <concurrent-session-control session-registry-alias='seshRegistry' expired-url='/expired'/>" +
                 "</http>" +
-                "<b:bean id='sc' class='org.springframework.security.concurrent.ConcurrentSessionControllerImpl'>" +
+                "<b:bean id='sc' class='org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl'>" +
                 "  <b:property name='sessionRegistry'>" +
                 "    <b:bean class='" + SessionRegistryImpl.class.getName() + "'/>" +
                 "  </b:property>" +

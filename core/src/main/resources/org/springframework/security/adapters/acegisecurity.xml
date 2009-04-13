@@ -34,13 +34,13 @@
 	</bean>
 
 	<!-- Authentication provider that queries our data access object  -->
-	<bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+	<bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
      	<property name="userDetailsService"><ref bean="inMemoryDaoImpl"/></property>
      	<property name="forcePrincipalAsString"><value>true</value></property>
 	</bean>
 
 	<!-- The authentication manager that iterates through our only authentication provider -->
-	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
+	<bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
 		<property name="providers">
 		  <list>
 		    <ref bean="daoAuthenticationProvider"/>

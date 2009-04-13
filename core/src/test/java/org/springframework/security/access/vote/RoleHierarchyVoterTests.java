@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.vote.RoleHierarchyVoter;
-import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 
 public class RoleHierarchyVoterTests {
 

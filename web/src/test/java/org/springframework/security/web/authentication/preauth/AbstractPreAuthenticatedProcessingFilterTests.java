@@ -10,9 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.BadCredentialsException;
 import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 public class AbstractPreAuthenticatedProcessingFilterTests {

@@ -6,7 +6,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.security.Authentication;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.ClassUtils;
 
 /**

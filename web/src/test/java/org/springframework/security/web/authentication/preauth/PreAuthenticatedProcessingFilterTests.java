@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.preauth;
 
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;

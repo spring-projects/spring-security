@@ -4,10 +4,10 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.web.WebAuthenticationDetails;
-import org.springframework.security.GrantedAuthoritiesContainerImpl;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.MutableGrantedAuthoritiesContainer;
+import org.springframework.security.core.GrantedAuthoritiesContainerImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.MutableGrantedAuthoritiesContainer;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 /**
  * This WebAuthenticationDetails implementation allows for storing a list of

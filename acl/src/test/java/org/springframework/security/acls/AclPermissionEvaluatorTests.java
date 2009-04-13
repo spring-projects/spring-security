@@ -9,10 +9,10 @@ import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.Authentication;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalStrategy;
 import org.springframework.security.acls.sid.SidRetrievalStrategy;
+import org.springframework.security.core.Authentication;
 
 /**
  *

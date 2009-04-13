@@ -17,22 +17,22 @@ package org.springframework.security.ldap.authentication;
 
 import java.util.List;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationServiceException;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.SpringSecurityMessageSource;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.ldap.LdapAuthenticator;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
-import org.springframework.security.providers.AuthenticationProvider;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.util.AuthorityUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -46,7 +46,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * An {@link org.springframework.security.providers.AuthenticationProvider} implementation that authenticates
+ * An {@link org.springframework.security.authentication.AuthenticationProvider} implementation that authenticates
  * against an LDAP server.
  * <p>
  * There are many ways in which an LDAP directory can be configured so this class delegates most of
@@ -88,9 +88,9 @@ import org.apache.commons.logging.LogFactory;
  *   &lt;/bean&gt;
  *
  *   &lt;bean id=&quot;ldapAuthProvider&quot;
- *       class=&quot;org.springframework.security.providers.ldap.LdapAuthenticationProvider&quot;&gt;
+ *       class=&quot;org.springframework.security.authentication.ldap.LdapAuthenticationProvider&quot;&gt;
  *     &lt;constructor-arg&gt;
- *       &lt;bean class=&quot;org.springframework.security.providers.ldap.authenticator.BindAuthenticator&quot;&gt;
+ *       &lt;bean class=&quot;org.springframework.security.authentication.ldap.authenticator.BindAuthenticator&quot;&gt;
  *           &lt;constructor-arg ref=&quot;contextSource&quot;/&gt;
  *           &lt;property name=&quot;userDnPatterns&quot;&gt;&lt;list&gt;&lt;value&gt;uid={0},ou=people&lt;/value&gt;&lt;/list&gt;&lt;/property&gt;
  *       &lt;/bean&gt;

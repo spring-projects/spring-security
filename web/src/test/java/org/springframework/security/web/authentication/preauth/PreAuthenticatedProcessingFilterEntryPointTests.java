@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.preauth;
 
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedProcessingFilterEntryPoint;
 
 import java.io.IOException;

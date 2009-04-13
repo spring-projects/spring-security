@@ -17,13 +17,13 @@ package org.springframework.security.access.vote;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.Authentication;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.vote.AbstractAccessDecisionManager;
 import org.springframework.security.access.vote.AccessDecisionVoter;
 import org.springframework.security.access.vote.RoleVoter;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.Vector;

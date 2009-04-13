@@ -25,10 +25,10 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthorityImpl;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.ExpressionEvaluationUtils;
 
@@ -162,13 +162,13 @@ public class AuthorizeTag extends TagSupport {
      * <p>
      * <strong>CAVEAT</strong>:  This method <strong>will not</strong> work if the granted authorities
      * returns a <code>null</code> string as the return value of {@link
-     * org.springframework.security.GrantedAuthority#getAuthority()}.
+     * org.springframework.security.core.GrantedAuthority#getAuthority()}.
      * </p>
      * <p>Reported by rawdave, on Fri Feb 04, 2005 2:11 pm in the Spring Security forum.</p>
      *
      * @param granted The authorities granted by the authentication. May be any implementation of {@link
      *        GrantedAuthority} that does <strong>not</strong> return <code>null</code> from {@link
-     *        org.springframework.security.GrantedAuthority#getAuthority()}.
+     *        org.springframework.security.core.GrantedAuthority#getAuthority()}.
      * @param required A {@link Set} of {@link GrantedAuthorityImpl}s that have been built using ifAny, ifAll or
      *        ifNotGranted.
      *

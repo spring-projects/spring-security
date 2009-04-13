@@ -14,7 +14,7 @@
  */
 package org.springframework.security.access.vote;
 
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.apache.log4j.Logger;
 

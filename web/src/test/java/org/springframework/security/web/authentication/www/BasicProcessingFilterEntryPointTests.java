@@ -17,7 +17,7 @@ package org.springframework.security.web.authentication.www;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.DisabledException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.web.authentication.www.BasicProcessingFilterEntryPoint;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;

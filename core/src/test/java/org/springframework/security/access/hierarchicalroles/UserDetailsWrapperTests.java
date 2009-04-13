@@ -4,12 +4,12 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.GrantedAuthority;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.hierarchicalroles.UserDetailsWrapper;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.util.AuthorityUtils;
 
 /**
  * Tests for {@link UserDetailsWrapper}.

@@ -9,9 +9,9 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.concurrent.SessionRegistry;
-import org.springframework.security.concurrent.SessionRegistryUtils;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.authentication.concurrent.SessionRegistry;
+import org.springframework.security.authentication.concurrent.SessionRegistryUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author Luke Taylor

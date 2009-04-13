@@ -47,7 +47,7 @@
 
 	<!-- Automatically propagates ContextHolder-managed Authentication principal
 		 and credentials to a HTTP invoker BASIC authentication header -->
-	<bean id="httpInvokerRequestExecutor" class="org.springframework.security.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor"/>
+	<bean id="httpInvokerRequestExecutor" class="org.springframework.security.core.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor"/>
 
 	<!-- Proxy for the Hessian-exported ContactManager
 	<bean id="hessianProxy" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">

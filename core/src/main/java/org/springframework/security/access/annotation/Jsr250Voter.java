@@ -2,10 +2,10 @@ package org.springframework.security.access.annotation;
 
 import java.util.List;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.vote.AccessDecisionVoter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Voter on JSR-250 configuration attributes.

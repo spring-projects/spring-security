@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.Authentication;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.vote.AbstractAclVoter;
@@ -35,6 +34,7 @@ import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalS
 import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.acls.sid.SidRetrievalStrategy;
 import org.springframework.security.acls.sid.SidRetrievalStrategyImpl;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 

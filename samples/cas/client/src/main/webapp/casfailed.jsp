@@ -1,4 +1,4 @@
-<%@ page import="org.springframework.security.AuthenticationException" %>
+<%@ page import="org.springframework.security.core.AuthenticationException" %>
 <%@ page import="org.springframework.security.ui.AbstractProcessingFilter" %>
 
 <html>

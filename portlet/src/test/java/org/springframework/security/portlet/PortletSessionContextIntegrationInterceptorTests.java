@@ -20,13 +20,13 @@ import javax.portlet.PortletSession;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.context.SecurityContextImpl;
+import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthorityImpl;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.portlet.PortletSessionContextIntegrationInterceptor;
-import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.userdetails.User;
 import org.springframework.mock.web.portlet.MockActionRequest;
 import org.springframework.mock.web.portlet.MockActionResponse;

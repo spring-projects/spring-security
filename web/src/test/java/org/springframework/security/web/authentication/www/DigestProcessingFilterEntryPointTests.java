@@ -17,8 +17,8 @@ package org.springframework.security.web.authentication.www;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.DisabledException;
 
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.util.StringSplitUtils;
 import org.springframework.security.web.authentication.www.DigestProcessingFilterEntryPoint;
 import org.springframework.security.web.authentication.www.NonceExpiredException;

@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.rememberme;
 
-import org.springframework.security.AuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 
 /**
  * @author Luke Taylor

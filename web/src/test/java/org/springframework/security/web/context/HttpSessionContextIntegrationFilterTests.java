@@ -17,13 +17,13 @@ package org.springframework.security.web.context;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.Authentication;
 import org.springframework.security.MockFilterConfig;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.context.SecurityContextImpl;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.util.AuthorityUtils;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.context.HttpSessionContextIntegrationFilter;
 
 import org.springframework.mock.web.MockHttpServletRequest;

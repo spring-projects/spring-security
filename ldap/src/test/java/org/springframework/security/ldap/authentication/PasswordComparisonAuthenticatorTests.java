@@ -15,15 +15,15 @@
 
 package org.springframework.security.ldap.authentication;
 
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.Authentication;
 
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
+import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 import org.springframework.security.ldap.authentication.PasswordComparisonAuthenticator;
 
-import org.springframework.security.providers.encoding.LdapShaPasswordEncoder;
-import org.springframework.security.providers.encoding.PlaintextPasswordEncoder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.ldap.core.DirContextAdapter;

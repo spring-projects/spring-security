@@ -18,8 +18,8 @@ package org.springframework.security.acls.sid;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Basic implementation of {@link SidRetrievalStrategy} that creates a {@link Sid} for the principal, as well as

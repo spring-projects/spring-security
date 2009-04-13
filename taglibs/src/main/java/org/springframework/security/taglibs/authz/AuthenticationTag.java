@@ -15,10 +15,10 @@
 
 package org.springframework.security.taglibs.authz;
 
-import org.springframework.security.Authentication;
 
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.TextUtils;
 
 import org.springframework.beans.BeanWrapperImpl;

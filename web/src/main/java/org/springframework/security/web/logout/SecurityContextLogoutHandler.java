@@ -15,9 +15,9 @@
 
 package org.springframework.security.web.logout;
 
-import org.springframework.security.Authentication;
 
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * Performs a logout by modifying the {@link org.springframework.security.context.SecurityContextHolder}.
+ * Performs a logout by modifying the {@link org.springframework.security.core.context.SecurityContextHolder}.
  * <p>
  * Will also invalidate the {@link HttpSession} if {@link #isInvalidateHttpSession()} is <code>true</code> and the
  * session is not <code>null</code>.

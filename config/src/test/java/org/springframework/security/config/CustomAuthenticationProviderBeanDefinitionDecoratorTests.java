@@ -3,8 +3,8 @@ package org.springframework.security.config;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.providers.ProviderManager;
 
 
 public class CustomAuthenticationProviderBeanDefinitionDecoratorTests {
@@ -12,7 +12,7 @@ public class CustomAuthenticationProviderBeanDefinitionDecoratorTests {
     @Test
     public void decoratedProviderParsesSuccessfully() {
         InMemoryXmlApplicationContext ctx = new InMemoryXmlApplicationContext(
-                "<b:bean class='org.springframework.security.providers.dao.DaoAuthenticationProvider'>" +
+                "<b:bean class='org.springframework.security.authentication.dao.DaoAuthenticationProvider'>" +
                 "  <custom-authentication-provider />" +
                 "  <b:property name='userDetailsService' ref='us'/>" +
                 "</b:bean>" + 
@@ -28,7 +28,7 @@ public class CustomAuthenticationProviderBeanDefinitionDecoratorTests {
     @Test
     public void decoratedBeanAndRegisteredProviderAreTheSameObject() {
         InMemoryXmlApplicationContext ctx = new InMemoryXmlApplicationContext(
-                "<b:bean id='myProvider' class='org.springframework.security.providers.dao.DaoAuthenticationProvider'>" +
+                "<b:bean id='myProvider' class='org.springframework.security.authentication.dao.DaoAuthenticationProvider'>" +
                 "  <custom-authentication-provider />" +
                 "  <b:property name='userDetailsService' ref='us'/>" +
                 "</b:bean>" + 

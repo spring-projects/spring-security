@@ -21,12 +21,12 @@ import java.util.Vector;
 import junit.framework.TestCase;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.security.Authentication;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.intercept.AfterInvocationProvider;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 

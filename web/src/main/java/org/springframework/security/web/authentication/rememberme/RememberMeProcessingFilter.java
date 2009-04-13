@@ -15,13 +15,14 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -36,15 +37,15 @@ import java.io.IOException;
 
 /**
  * Detects if there is no <code>Authentication</code> object in the <code>SecurityContext</code>, and populates it
- * with a remember-me authentication token if a {@link org.springframework.security.web.authentication.rememberme.RememberMeServices}
+ * with a remember-me authentication token if a {@link org.springframework.security.web.authentication.RememberMeServices}
  * implementation so requests.<p>Concrete <code>RememberMeServices</code> implementations will have their {@link
- * org.springframework.security.web.authentication.rememberme.RememberMeServices#autoLogin(HttpServletRequest, HttpServletResponse)} method
+ * org.springframework.security.web.authentication.RememberMeServices#autoLogin(HttpServletRequest, HttpServletResponse)} method
  * called by this filter. The <code>Authentication</code> or <code>null</code> returned by that method will be placed
  * into the <code>SecurityContext</code>. The <code>AuthenticationManager</code> will be used, so that any concurrent
  * session management or other authentication-specific behaviour can be achieved. This is the same pattern as with
  * other authentication mechanisms, which call the <code>AuthenticationManager</code> as part of their contract.</p>
  *  <p>If authentication is successful, an {@link
- * org.springframework.security.event.authentication.InteractiveAuthenticationSuccessEvent} will be published to the application
+ * org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent} will be published to the application
  * context. No events will be published if authentication was unsuccessful, because this would generally be recorded
  * via an <code>AuthenticationManager</code>-specific application event.</p>
  *

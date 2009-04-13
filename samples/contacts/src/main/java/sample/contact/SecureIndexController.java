@@ -17,11 +17,11 @@ package sample.contact;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.security.Authentication;
 import org.springframework.security.access.expression.PermissionEvaluator;
 import org.springframework.security.acls.Permission;
 import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
 import org.springframework.web.servlet.ModelAndView;

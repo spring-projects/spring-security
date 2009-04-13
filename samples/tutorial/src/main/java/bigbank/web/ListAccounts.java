@@ -3,7 +3,7 @@ package bigbank.web;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;

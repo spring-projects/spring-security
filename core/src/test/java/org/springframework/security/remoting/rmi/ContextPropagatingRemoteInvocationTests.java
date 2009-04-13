@@ -17,12 +17,12 @@ package org.springframework.security.remoting.rmi;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.Authentication;
 import org.springframework.security.TargetObject;
 
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.remoting.rmi.ContextPropagatingRemoteInvocation;
 import org.springframework.security.remoting.rmi.ContextPropagatingRemoteInvocationFactory;
 
@@ -92,7 +92,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 
         // The result from invoking the TargetObject should contain the
         // Authentication class delivered via the SecurityContextHolder
-        assertEquals("some_string org.springframework.security.providers.UsernamePasswordAuthenticationToken false",
+        assertEquals("some_string org.springframework.security.authentication.UsernamePasswordAuthenticationToken false",
             remoteInvocation.invoke(new TargetObject()));
     }
 
