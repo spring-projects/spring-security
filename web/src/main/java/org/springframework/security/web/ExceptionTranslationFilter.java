@@ -26,6 +26,7 @@ import org.springframework.security.util.ThrowableAnalyzer;
 import org.springframework.security.util.ThrowableCauseExtractor;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.NestedRuntimeException;
 
 import org.springframework.util.Assert;
 
@@ -102,14 +103,17 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
         }
         catch (Exception ex) {
             // Try to extract a SpringSecurityException from the stacktrace
-            Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
-            SpringSecurityException ase = (SpringSecurityException)
-                    this.throwableAnalyzer.getFirstThrowableOfType(SpringSecurityException.class, causeChain);
+            Throwable[] causeChain = throwableAnalyzer.determineCauseChain(ex);
+            NestedRuntimeException ase = (NestedRuntimeException)
+                    throwableAnalyzer.getFirstThrowableOfType(AuthenticationException.class, causeChain);
+
+            if (ase == null) {
+                ase = (NestedRuntimeException)throwableAnalyzer.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
+            }
 
             if (ase != null) {
                 handleException(request, response, chain, ase);
-            }
-            else {
+            } else {
                 // Rethrow ServletExceptions and RuntimeExceptions as-is
                 if (ex instanceof ServletException) {
                     throw (ServletException) ex;
@@ -137,7 +141,7 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
     }
 
     private void handleException(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-            SpringSecurityException exception) throws IOException, ServletException {
+            NestedRuntimeException exception) throws IOException, ServletException {
         if (exception instanceof AuthenticationException) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Authentication exception occurred; redirecting to authentication entry point", exception);

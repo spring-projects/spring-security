@@ -51,7 +51,4 @@ public class BadCredentialsException extends AuthenticationException {
     public BadCredentialsException(String msg, Throwable t) {
         super(msg, t);
     }
-
-    //~ Methods ========================================================================================================
-
 }

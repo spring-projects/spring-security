@@ -15,15 +15,15 @@
 
 package org.springframework.security.authentication.jaas;
 
-import org.springframework.security.core.SpringSecurityException;
+import org.springframework.security.core.AuthenticationException;
 
 import javax.security.auth.login.LoginException;
 
 
 /**
  * The JaasAuthenticationProvider takes an instance of LoginExceptionResolver
- * to resolve LoginModule specific exceptions to Spring Security exceptions.  For
- * instance, a configured login module could throw a
+ * to resolve LoginModule specific exceptions to Spring Security <tt>AuthenticationException</tt>s.
+ * For instance, a configured login module could throw a
  * ScrewedUpPasswordException that extends LoginException, in this instance
  * the LoginExceptionResolver implementation would return a {@link
  * org.springframework.security.authentication.BadCredentialsException}.
@@ -39,7 +39,7 @@ public interface LoginExceptionResolver {
      *
      * @param e The LoginException thrown by the configured LoginModule.
      *
-     * @return The SpringSecurityException that the JaasAuthenticationProvider should throw.
+     * @return The AuthenticationException that the JaasAuthenticationProvider should throw.
      */
-    SpringSecurityException resolveException(LoginException e);
+    AuthenticationException resolveException(LoginException e);
 }

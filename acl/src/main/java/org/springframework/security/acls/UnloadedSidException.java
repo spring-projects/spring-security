@@ -14,9 +14,6 @@
  */
 package org.springframework.security.acls;
 
-import org.springframework.security.core.SpringSecurityException;
-
-
 /**
  * Thrown if an {@link Acl} cannot perform an operation because it only loaded a subset of <code>Sid</code>s and
  * the caller has requested details for an unloaded <code>Sid</code>.
@@ -24,7 +21,7 @@ import org.springframework.security.core.SpringSecurityException;
  * @author Ben Alex
  * @version $Id$
  */
-public class UnloadedSidException extends SpringSecurityException {
+public class UnloadedSidException extends AclException {
     //~ Constructors ===================================================================================================
 
     /**

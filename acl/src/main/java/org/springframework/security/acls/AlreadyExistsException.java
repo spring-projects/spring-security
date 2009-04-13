@@ -14,16 +14,13 @@
  */
 package org.springframework.security.acls;
 
-import org.springframework.security.core.SpringSecurityException;
-
-
 /**
  * Thrown if an <code>Acl</code> entry already exists for the object.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AlreadyExistsException extends SpringSecurityException {
+public class AlreadyExistsException extends AclException {
     //~ Constructors ===================================================================================================
 
     /**

@@ -1,14 +1,13 @@
 package org.springframework.security.config;
 
-import org.springframework.security.core.SpringSecurityException;
-
+import org.springframework.core.NestedRuntimeException;
 
 /**
  * @author Luke Taylor
  * @author Ben Alex
  * @version $Id$
  */
-public class SecurityConfigurationException extends SpringSecurityException {
+public class SecurityConfigurationException extends NestedRuntimeException {
     public SecurityConfigurationException(String s) {
         super(s);
     }

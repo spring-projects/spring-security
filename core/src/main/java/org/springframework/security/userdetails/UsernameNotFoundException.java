@@ -15,7 +15,7 @@
 
 package org.springframework.security.userdetails;
 
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 
 
 /**
@@ -24,7 +24,7 @@ import org.springframework.security.authentication.BadCredentialsException;
  * @author Ben Alex
  * @version $Id$
  */
-public class UsernameNotFoundException extends BadCredentialsException {
+public class UsernameNotFoundException extends AuthenticationException {
     //~ Constructors ===================================================================================================
 
     /**

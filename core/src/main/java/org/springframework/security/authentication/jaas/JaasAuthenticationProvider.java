@@ -218,7 +218,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
             return result;
 
         } catch (LoginException loginException) {
-            SpringSecurityException ase = loginExceptionResolver.resolveException(loginException);
+            AuthenticationException ase = loginExceptionResolver.resolveException(loginException);
 
             publishFailureEvent(request, ase);
             throw ase;
@@ -354,7 +354,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      * @param token The {@link UsernamePasswordAuthenticationToken} being processed
      * @param ase The {@link SpringSecurityException} that caused the failure
      */
-    protected void publishFailureEvent(UsernamePasswordAuthenticationToken token, SpringSecurityException ase) {
+    protected void publishFailureEvent(UsernamePasswordAuthenticationToken token, AuthenticationException ase) {
         applicationEventPublisher.publishEvent(new JaasAuthenticationFailedEvent(token, ase));
     }
 

@@ -14,16 +14,13 @@
  */
 package org.springframework.security.acls;
 
-import org.springframework.security.core.SpringSecurityException;
-
-
 /**
  * Thrown if an ACL identity could not be extracted from an object.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class IdentityUnavailableException extends SpringSecurityException {
+public class IdentityUnavailableException extends AclException {
     //~ Constructors ===================================================================================================
 
     /**

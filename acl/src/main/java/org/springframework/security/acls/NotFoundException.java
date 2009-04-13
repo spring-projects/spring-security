@@ -14,16 +14,13 @@
  */
 package org.springframework.security.acls;
 
-import org.springframework.security.core.SpringSecurityException;
-
-
 /**
  * Thrown if an ACL-related object cannot be found.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class NotFoundException extends SpringSecurityException {
+public class NotFoundException extends AclException {
     //~ Constructors ===================================================================================================
 
     /**

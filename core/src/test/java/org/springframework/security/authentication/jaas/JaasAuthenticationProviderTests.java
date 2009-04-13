@@ -41,7 +41,6 @@ import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.GrantedAuthorityImpl;
 import org.springframework.security.core.SessionDestroyedEvent;
-import org.springframework.security.core.SpringSecurityException;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 
@@ -187,7 +186,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
     public void testLoginExceptionResolver() {
         assertNotNull(jaasProvider.getLoginExceptionResolver());
         jaasProvider.setLoginExceptionResolver(new LoginExceptionResolver() {
-                public SpringSecurityException resolveException(LoginException e) {
+                public AuthenticationException resolveException(LoginException e) {
                     return new LockedException("This is just a test!");
                 }
             });

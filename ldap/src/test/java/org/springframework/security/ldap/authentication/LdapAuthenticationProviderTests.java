@@ -34,7 +34,6 @@ import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.LdapAuthenticator;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
-import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
@@ -89,7 +88,7 @@ public class LdapAuthenticationProviderTests {
         ldapProvider.authenticate(new UsernamePasswordAuthenticationToken("jen", ""));
     }
 
-    @Test
+    @Test(expected=BadCredentialsException.class)
     public void usernameNotFoundExceptionIsHiddenByDefault() {
         final LdapAuthenticator authenticator = jmock.mock(LdapAuthenticator.class);
         final UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken("joe", "password");
@@ -98,14 +97,7 @@ public class LdapAuthenticationProviderTests {
         }});
 
         LdapAuthenticationProvider provider = new LdapAuthenticationProvider(authenticator);
-        try {
-            provider.authenticate(joe);
-            fail();
-        } catch (BadCredentialsException expected) {
-            if (expected instanceof UsernameNotFoundException) {
-                fail("Exception should have been hidden");
-            }
-        }
+        provider.authenticate(joe);
     }
 
     @Test(expected=UsernameNotFoundException.class)

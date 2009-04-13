@@ -23,8 +23,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 
-import org.springframework.security.core.SpringSecurityException;
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.core.NestedRuntimeException;
 import org.springframework.util.Assert;
 
 /**
@@ -150,7 +150,7 @@ public final class EncryptionUtils {
         Assert.isTrue(key.length() >= 24, "Key must be at least 24 characters long");
     }
 
-    public static class EncryptionException extends SpringSecurityException {
+    public static class EncryptionException extends NestedRuntimeException {
         private static final long serialVersionUID = 1L;
 
         public EncryptionException(String message, Throwable t) {
