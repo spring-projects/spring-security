@@ -18,14 +18,14 @@ package org.springframework.security.userdetails;
 
 
 /**
- * Provides a cache of {@link User} objects.
+ * Provides a cache of {@link UserDetails} objects.
  *
- * <P>
+ * <p>
  * Implementations should provide appropriate methods to set their cache
- * parameters (eg time-to-live) and/or force removal of entities before their
+ * parameters (e.g. time-to-live) and/or force removal of entities before their
  * normal expiration. These are not part of the <code>UserCache</code>
  * interface contract because they vary depending on the type of caching
- * system used (eg in-memory vs disk vs cluster vs hybrid).
+ * system used (e.g. in-memory vs disk vs cluster vs hybrid).
  * </p>
  *
  * @author Ben Alex
