@@ -6,12 +6,12 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.access.authoritymapping.Attributes2GrantedAuthoritiesMapper;
-import org.springframework.security.access.authoritymapping.MappableAttributesRetriever;
-import org.springframework.security.access.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
 import org.springframework.security.authentication.AuthenticationDetailsSourceImpl;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.MutableGrantedAuthoritiesContainer;
+import org.springframework.security.core.authoritymapping.Attributes2GrantedAuthoritiesMapper;
+import org.springframework.security.core.authoritymapping.MappableAttributesRetriever;
+import org.springframework.security.core.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
 import org.springframework.util.Assert;
 
 /**

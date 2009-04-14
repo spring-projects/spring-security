@@ -1,4 +1,4 @@
-package org.springframework.security.access.authoritymapping;
+package org.springframework.security.core.authoritymapping;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
-import org.springframework.security.access.authoritymapping.XmlMappableAttributesRetriever;
+import org.springframework.security.core.authoritymapping.XmlMappableAttributesRetriever;
 
 import junit.framework.TestCase;
 

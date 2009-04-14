@@ -30,7 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * <p>
  * Once the request has been authenticated, the <tt>Authentication</tt> will usually be stored in a thread-local
  * <tt>SecurityContext</tt> managed by the {@link SecurityContextHolder} by the authentication mechanism which is
- * being used. An explicit authentication can be achieved, without using one of Spring Security's authentication 
+ * being used. An explicit authentication can be achieved, without using one of Spring Security's authentication
  * mechanisms,  by creating an <tt>Authentication</tt> instance and using the code:
  *
  * <pre>
@@ -38,7 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * </pre>
  * Note that unless the <tt>Authentication</tt> has the <tt>authenticated</tt> property set to <tt>true</tt>, it will
  * still be authenticated by any security interceptor (for method or web invocations) which encounters it.
- *
+ * <p>
  * In most cases, the framework transparently takes care of managing the security context and authentication objects
  * for you.
  *

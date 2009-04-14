@@ -1,4 +1,4 @@
-package org.springframework.security.access.authoritymapping;
+package org.springframework.security.core.authoritymapping;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -144,7 +144,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements Attributes2G
 
     /**
      *
-     * @see org.springframework.security.access.authoritymapping.MappableAttributesRetriever#getMappableAttributes()
+     * @see org.springframework.security.core.authoritymapping.MappableAttributesRetriever#getMappableAttributes()
      */
     public Set<String> getMappableAttributes() {
         return mappableAttributes;

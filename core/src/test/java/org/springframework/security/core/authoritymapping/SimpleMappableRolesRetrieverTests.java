@@ -1,9 +1,10 @@
-package org.springframework.security.access.authoritymapping;
+package org.springframework.security.core.authoritymapping;
 
 import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.springframework.security.core.authoritymapping.SimpleMappableAttributesRetriever;
 import org.springframework.util.StringUtils;
 
 /**

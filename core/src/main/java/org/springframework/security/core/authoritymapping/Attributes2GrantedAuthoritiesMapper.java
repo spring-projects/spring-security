@@ -1,4 +1,4 @@
-package org.springframework.security.access.authoritymapping;
+package org.springframework.security.core.authoritymapping;
 
 import java.util.Collection;
 import java.util.List;

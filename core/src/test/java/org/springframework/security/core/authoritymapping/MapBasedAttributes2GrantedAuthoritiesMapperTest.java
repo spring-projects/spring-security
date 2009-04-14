@@ -1,4 +1,4 @@
-package org.springframework.security.access.authoritymapping;
+package org.springframework.security.core.authoritymapping;
 
 import static org.junit.Assert.*;
 
@@ -11,10 +11,10 @@ import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Test;
-import org.springframework.security.access.authoritymapping.Attributes2GrantedAuthoritiesMapper;
-import org.springframework.security.access.authoritymapping.MapBasedAttributes2GrantedAuthoritiesMapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.GrantedAuthorityImpl;
+import org.springframework.security.core.authoritymapping.Attributes2GrantedAuthoritiesMapper;
+import org.springframework.security.core.authoritymapping.MapBasedAttributes2GrantedAuthoritiesMapper;
 
 /**
  *

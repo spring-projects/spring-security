@@ -1,4 +1,4 @@
-package org.springframework.security.access.authoritymapping;
+package org.springframework.security.core.authoritymapping;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.GrantedAuthorityImpl;

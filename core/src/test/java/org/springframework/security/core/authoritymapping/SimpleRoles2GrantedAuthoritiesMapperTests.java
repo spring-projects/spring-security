@@ -1,7 +1,7 @@
-package org.springframework.security.access.authoritymapping;
+package org.springframework.security.core.authoritymapping;
 
-import org.springframework.security.access.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;

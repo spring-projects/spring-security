@@ -52,7 +52,7 @@
         <property name="userRoles2GrantedAuthoritiesMapper" ref="j2eeUserRoles2GrantedAuthoritiesMapper"/>
     </bean>
 
-    <bean id="j2eeUserRoles2GrantedAuthoritiesMapper" class="org.springframework.security.access.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper">
+    <bean id="j2eeUserRoles2GrantedAuthoritiesMapper" class="org.springframework.security.core.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper">
         <property name="convertAttributeToUpperCase" value="true"/>
     </bean>
 

@@ -10,11 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.access.authoritymapping.Attributes2GrantedAuthoritiesMapper;
-import org.springframework.security.access.authoritymapping.MappableAttributesRetriever;
-import org.springframework.security.access.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
-import org.springframework.security.access.authoritymapping.SimpleMappableAttributesRetriever;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authoritymapping.Attributes2GrantedAuthoritiesMapper;
+import org.springframework.security.core.authoritymapping.MappableAttributesRetriever;
+import org.springframework.security.core.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
+import org.springframework.security.core.authoritymapping.SimpleMappableAttributesRetriever;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource;
 

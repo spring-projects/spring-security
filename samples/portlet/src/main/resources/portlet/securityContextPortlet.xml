@@ -36,7 +36,7 @@
         <property name="authenticationDetailsSource">
             <bean class="org.springframework.security.portlet.PortletPreAuthenticatedAuthenticationDetailsSource">
                 <property name="mappableRolesRetriever">
-                    <bean class="org.springframework.security.access.authoritymapping.SimpleMappableAttributesRetriever">
+                    <bean class="org.springframework.security.core.authoritymapping.SimpleMappableAttributesRetriever">
                         <property name="mappableAttributes">
                             <set>
                                 <value>tomcat</value>

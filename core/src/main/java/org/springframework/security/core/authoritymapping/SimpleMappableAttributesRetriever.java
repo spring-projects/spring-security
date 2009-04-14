@@ -1,4 +1,4 @@
-package org.springframework.security.access.authoritymapping;
+package org.springframework.security.core.authoritymapping;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,7 +18,7 @@ public class SimpleMappableAttributesRetriever implements MappableAttributesRetr
     /*
      * (non-Javadoc)
      *
-     * @see org.springframework.security.access.authoritymapping.MappableAttributesRetriever#getMappableAttributes()
+     * @see org.springframework.security.core.authoritymapping.MappableAttributesRetriever#getMappableAttributes()
      */
     public Set<String> getMappableAttributes() {
         return mappableAttributes;
