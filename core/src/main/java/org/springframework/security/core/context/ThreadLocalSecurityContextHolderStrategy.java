@@ -27,10 +27,10 @@ import org.springframework.util.Assert;
  * @see java.lang.ThreadLocal
  * @see org.springframework.security.core.context.web.SecurityContextPersistenceFilter
  */
-public class ThreadLocalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
+final class ThreadLocalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
     //~ Static fields/initializers =====================================================================================
 
-    private static ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<SecurityContext>();
+    private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<SecurityContext>();
 
     //~ Methods ========================================================================================================
 
@@ -39,11 +39,14 @@ public class ThreadLocalSecurityContextHolderStrategy implements SecurityContext
     }
 
     public SecurityContext getContext() {
-        if (contextHolder.get() == null) {
-            contextHolder.set(new SecurityContextImpl());
+        SecurityContext ctx = contextHolder.get();
+
+        if (ctx == null) {
+            ctx = createEmptyContext();
+            contextHolder.set(ctx);
         }
 
-        return contextHolder.get();
+        return ctx;
     }
 
     public void setContext(SecurityContext context) {

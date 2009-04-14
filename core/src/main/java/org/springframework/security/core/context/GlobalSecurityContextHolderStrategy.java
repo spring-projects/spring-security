@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class GlobalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
+final class GlobalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
     //~ Static fields/initializers =====================================================================================
 
     private static SecurityContext contextHolder;
