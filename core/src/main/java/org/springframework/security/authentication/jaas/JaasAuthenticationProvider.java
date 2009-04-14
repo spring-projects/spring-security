@@ -45,7 +45,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SessionDestroyedEvent;
-import org.springframework.security.core.SpringSecurityException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.Assert;
 
