@@ -15,27 +15,25 @@
 
 package org.springframework.security.web;
 
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationTrustResolver;
-import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.SpringSecurityException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.util.ThrowableAnalyzer;
-import org.springframework.security.util.ThrowableCauseExtractor;
-import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.NestedRuntimeException;
-
-import org.springframework.util.Assert;
-
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.NestedRuntimeException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.util.ThrowableAnalyzer;
+import org.springframework.security.util.ThrowableCauseExtractor;
+import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.util.Assert;
 
 /**
  * Handles any <code>AccessDeniedException</code> and <code>AuthenticationException</code> thrown within the
