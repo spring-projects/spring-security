@@ -102,11 +102,11 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
         catch (Exception ex) {
             // Try to extract a SpringSecurityException from the stacktrace
             Throwable[] causeChain = throwableAnalyzer.determineCauseChain(ex);
-            NestedRuntimeException ase = (NestedRuntimeException)
+            RuntimeException ase = (AuthenticationException)
                     throwableAnalyzer.getFirstThrowableOfType(AuthenticationException.class, causeChain);
 
             if (ase == null) {
-                ase = (NestedRuntimeException)throwableAnalyzer.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
+                ase = (AccessDeniedException)throwableAnalyzer.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
             }
 
             if (ase != null) {
@@ -139,7 +139,7 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
     }
 
     private void handleException(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-            NestedRuntimeException exception) throws IOException, ServletException {
+            RuntimeException exception) throws IOException, ServletException {
         if (exception instanceof AuthenticationException) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Authentication exception occurred; redirecting to authentication entry point", exception);

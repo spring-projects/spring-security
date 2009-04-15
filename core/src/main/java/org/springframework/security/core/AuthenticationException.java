@@ -15,9 +15,6 @@
 
 package org.springframework.security.core;
 
-import org.springframework.core.NestedRuntimeException;
-
-
 /**
  * Abstract superclass for all exceptions related to an {@link Authentication} object being invalid for whatever
  * reason.
@@ -25,7 +22,7 @@ import org.springframework.core.NestedRuntimeException;
  * @author Ben Alex
  * @version $Id$
  */
-public abstract class AuthenticationException extends NestedRuntimeException {
+public abstract class AuthenticationException extends RuntimeException {
     //~ Instance fields ================================================================================================
 
     private Authentication authentication;

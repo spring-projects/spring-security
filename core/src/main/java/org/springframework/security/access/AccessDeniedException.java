@@ -15,16 +15,14 @@
 
 package org.springframework.security.access;
 
-import org.springframework.core.NestedRuntimeException;
-import org.springframework.security.core.Authentication;
-
 /**
- * Thrown if an {@link Authentication} object does not hold a required authority.
+ * Thrown if an {@link org.springframework.security.core.Authentication Authentication} object does not hold a
+ * required authority.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AccessDeniedException extends NestedRuntimeException {
+public class AccessDeniedException extends RuntimeException {
     //~ Constructors ===================================================================================================
 
     /**
