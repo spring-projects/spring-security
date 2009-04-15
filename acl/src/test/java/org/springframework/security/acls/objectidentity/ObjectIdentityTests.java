@@ -3,7 +3,6 @@ package org.springframework.security.acls.objectidentity;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.springframework.security.acls.IdentityUnavailableException;
 
 /**
  * Tests for {@link ObjectIdentityImpl}.

@@ -1,4 +1,4 @@
-package org.springframework.security.acls;
+package org.springframework.security.acls.expression;
 
 import static org.junit.Assert.assertTrue;
 
@@ -9,6 +9,9 @@ import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.security.acls.Acl;
+import org.springframework.security.acls.AclService;
+import org.springframework.security.acls.expression.AclPermissionEvaluator;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalStrategy;
 import org.springframework.security.acls.sid.SidRetrievalStrategy;

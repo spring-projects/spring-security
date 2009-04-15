@@ -20,7 +20,7 @@ package org.springframework.security.acls;
  * @author Ben Alex
  * @version $Id$
  */
-public class AlreadyExistsException extends AclException {
+public class AlreadyExistsException extends AclDataAccessException {
     //~ Constructors ===================================================================================================
 
     /**

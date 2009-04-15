@@ -21,7 +21,7 @@ package org.springframework.security.acls;
  * @author Ben Alex
  * @version $Id$
  */
-public class UnloadedSidException extends AclException {
+public class UnloadedSidException extends AclDataAccessException {
     //~ Constructors ===================================================================================================
 
     /**

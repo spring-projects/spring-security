@@ -20,7 +20,7 @@ package org.springframework.security.acls;
  * @author Ben Alex
  * @version $Id$
  */
-public class NotFoundException extends AclException {
+public class NotFoundException extends AclDataAccessException {
     //~ Constructors ===================================================================================================
 
     /**

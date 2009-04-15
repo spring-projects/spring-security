@@ -20,7 +20,7 @@ package org.springframework.security.acls;
  * @author Ben Alex
  * @version $Id$
  */
-public class ChildrenExistException extends AclException {
+public class ChildrenExistException extends AclDataAccessException {
     //~ Constructors ===================================================================================================
 
     /**

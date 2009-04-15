@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.acls;
+package org.springframework.security.acls.objectidentity;
 
 /**
  * Thrown if an ACL identity could not be extracted from an object.
@@ -20,7 +20,7 @@ package org.springframework.security.acls;
  * @author Ben Alex
  * @version $Id$
  */
-public class IdentityUnavailableException extends AclException {
+public class IdentityUnavailableException extends RuntimeException {
     //~ Constructors ===================================================================================================
 
     /**

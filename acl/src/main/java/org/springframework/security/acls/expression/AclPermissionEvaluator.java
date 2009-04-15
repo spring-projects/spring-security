@@ -1,4 +1,4 @@
-package org.springframework.security.acls;
+package org.springframework.security.acls.expression;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -7,6 +7,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.access.expression.PermissionEvaluator;
+import org.springframework.security.acls.Acl;
+import org.springframework.security.acls.AclService;
+import org.springframework.security.acls.NotFoundException;
+import org.springframework.security.acls.Permission;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityGenerator;

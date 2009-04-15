@@ -14,7 +14,6 @@
  */
 package org.springframework.security.acls.objectidentity;
 
-import org.springframework.security.acls.IdentityUnavailableException;
 import org.springframework.security.acls.jdbc.LookupStrategy;
 
 import org.springframework.util.Assert;
