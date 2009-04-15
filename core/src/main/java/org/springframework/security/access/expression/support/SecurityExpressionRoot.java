@@ -4,8 +4,8 @@ import java.util.Set;
 
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 
 /**

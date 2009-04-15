@@ -3,8 +3,8 @@ package org.springframework.security.ldap.populator;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
-import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.util.Assert;
 

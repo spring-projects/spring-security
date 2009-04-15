@@ -24,7 +24,7 @@ import org.springframework.security.authentication.rcp.RemoteAuthenticationManag
 import org.springframework.security.authentication.rcp.RemoteAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 
 /**

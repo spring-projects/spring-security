@@ -8,7 +8,7 @@ import org.springframework.security.access.annotation.BusinessService;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**

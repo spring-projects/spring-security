@@ -115,7 +115,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
                 "         <b:property name='userPropertyToUse' value='username'/>" +
                 "    </b:bean>" +
                 "    <b:bean id='customUserService' " +
-                "           class='org.springframework.security.userdetails.memory.InMemoryDaoImpl'>" +
+                "           class='org.springframework.security.core.userdetails.memory.InMemoryDaoImpl'>" +
                 "        <b:property name='userMap' value='bob=f117f0862384e9497ff4f470e3522606,ROLE_A'/>" +
                 "    </b:bean>");
         getProvider().authenticate(bob);

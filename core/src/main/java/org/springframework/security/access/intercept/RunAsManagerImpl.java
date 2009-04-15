@@ -22,7 +22,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.util.Assert;
 
 
@@ -43,7 +43,7 @@ import org.springframework.util.Assert;
  * properly discerned based on the prefix, with possible consequences when performing voting and other actions.
  * However, this option may be of some use when using pre-existing role names without a prefix, and no ability exists to
  * prefix them with a role prefix on reading them in, such as provided for example in
- * {@link org.springframework.security.userdetails.jdbc.JdbcDaoImpl}.
+ * {@link org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl}.
  *
  * @author Ben Alex
  * @author colin sampaleanu

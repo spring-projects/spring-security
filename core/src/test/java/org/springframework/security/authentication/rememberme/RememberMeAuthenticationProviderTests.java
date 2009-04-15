@@ -22,7 +22,7 @@ import org.springframework.security.authentication.RememberMeAuthenticationProvi
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 
 /**

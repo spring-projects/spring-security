@@ -15,8 +15,8 @@
 
 package org.springframework.security.ldap.search;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
-import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;

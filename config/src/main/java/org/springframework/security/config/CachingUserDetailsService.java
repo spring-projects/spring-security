@@ -1,9 +1,9 @@
 package org.springframework.security.config;
 
-import org.springframework.security.userdetails.UserCache;
-import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.cache.NullUserCache;
+import org.springframework.security.core.userdetails.UserCache;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.util.Assert;
 
 /**

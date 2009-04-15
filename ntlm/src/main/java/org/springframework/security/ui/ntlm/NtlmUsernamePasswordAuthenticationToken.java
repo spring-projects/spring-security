@@ -20,8 +20,8 @@ import java.util.List;
 import jcifs.smb.NtlmPasswordAuthentication;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
  * An NTLM-specific {@link UsernamePasswordAuthenticationToken} that allows any provider to bypass the problem of an

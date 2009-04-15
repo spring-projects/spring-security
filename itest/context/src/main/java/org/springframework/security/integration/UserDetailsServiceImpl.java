@@ -1,8 +1,8 @@
 package org.springframework.security.integration;
 
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
 
 public class UserDetailsServiceImpl implements UserDetailsService {

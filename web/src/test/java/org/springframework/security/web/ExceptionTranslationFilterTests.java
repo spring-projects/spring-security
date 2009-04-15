@@ -33,7 +33,7 @@ import org.springframework.security.MockPortResolver;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AccessDeniedHandlerImpl;
 import org.springframework.security.web.ExceptionTranslationFilter;

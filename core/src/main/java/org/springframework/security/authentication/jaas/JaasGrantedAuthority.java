@@ -15,7 +15,7 @@
 
 package org.springframework.security.authentication.jaas;
 
-import org.springframework.security.core.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 import java.security.Principal;
 

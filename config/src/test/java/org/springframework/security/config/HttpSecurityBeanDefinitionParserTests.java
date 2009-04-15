@@ -473,7 +473,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true'>" +
                 "    <remember-me key='somekey' user-service-ref='userService'/>" +
                 "</http>" +
-                "<b:bean id='userService' class='org.springframework.security.userdetails.MockUserDetailsService'/> " +
+                "<b:bean id='userService' class='org.springframework.security.core.userdetails.MockUserDetailsService'/> " +
                 AUTH_PROVIDER_XML);
 //        AbstractRememberMeServices rememberMeServices = (AbstractRememberMeServices) appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
     }

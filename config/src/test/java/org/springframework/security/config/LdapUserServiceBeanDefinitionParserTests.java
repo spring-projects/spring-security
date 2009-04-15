@@ -9,8 +9,10 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.core.AuthorityUtils;
-import org.springframework.security.core.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.InetOrgPerson;
@@ -19,8 +21,6 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.security.ldap.userdetails.Person;
 import org.springframework.security.ldap.userdetails.PersonContextMapper;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
 import org.w3c.dom.Element;
 
 /**

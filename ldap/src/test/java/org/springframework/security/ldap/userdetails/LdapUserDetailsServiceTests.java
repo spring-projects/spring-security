@@ -10,13 +10,13 @@ import org.junit.Test;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.authentication.MockUserSearch;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
-import org.springframework.security.userdetails.UserDetails;
 
 /**
  * Tests for {@link LdapUserDetailsService}

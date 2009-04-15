@@ -5,8 +5,8 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
-import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
  *

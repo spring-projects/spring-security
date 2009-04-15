@@ -11,7 +11,7 @@ import org.springframework.security.authentication.jaas.JaasAuthenticationProvid
 import org.springframework.security.authentication.jaas.JaasNameCallbackHandler;
 import org.springframework.security.authentication.jaas.JaasPasswordCallbackHandler;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
  * Tests bug reported in SEC-760.

@@ -20,8 +20,8 @@ import junit.framework.TestCase;
 
 import org.springframework.security.access.hierarchicalroles.CycleInRoleHierarchyException;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
  * Tests for {@link RoleHierarchyImpl}.

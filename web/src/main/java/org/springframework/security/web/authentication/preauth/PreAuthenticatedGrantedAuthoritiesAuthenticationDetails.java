@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.security.authentication.AuthenticationDetails;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.MutableGrantedAuthoritiesContainer;
+import org.springframework.security.core.authority.MutableGrantedAuthoritiesContainer;
 import org.springframework.util.Assert;
 
 /**
@@ -37,7 +37,7 @@ public class PreAuthenticatedGrantedAuthoritiesAuthenticationDetails extends Aut
 
     /**
      *
-     * @see org.springframework.security.core.GrantedAuthoritiesContainer#getGrantedAuthorities()
+     * @see org.springframework.security.core.authority.GrantedAuthoritiesContainer#getGrantedAuthorities()
      */
     public List<GrantedAuthority> getGrantedAuthorities() {
         Assert.notNull(preAuthenticatedGrantedAuthorities, "Pre-authenticated granted authorities have not been set");
@@ -46,7 +46,7 @@ public class PreAuthenticatedGrantedAuthoritiesAuthenticationDetails extends Aut
     }
 
     /**
-     * @see org.springframework.security.core.MutableGrantedAuthoritiesContainer#setGrantedAuthorities()
+     * @see org.springframework.security.core.authority.MutableGrantedAuthoritiesContainer#setGrantedAuthorities()
      */
     public void setGrantedAuthorities(List<GrantedAuthority> aJ2eeBasedGrantedAuthorities) {
         this.preAuthenticatedGrantedAuthorities = Collections.unmodifiableList(aJ2eeBasedGrantedAuthorities);

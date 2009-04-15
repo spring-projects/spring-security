@@ -3,8 +3,8 @@ package org.springframework.security.config;
 import static org.junit.Assert.*;
 
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.beans.FatalBeanException;
 

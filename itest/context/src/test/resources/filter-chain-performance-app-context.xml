@@ -75,7 +75,7 @@
         <property name="preAuthenticatedUserDetailsService" ref="preAuthenticatedUserDetailsService"/>
     </bean>
 
-    <bean id="preAuthenticatedUserDetailsService" class="org.springframework.security.userdetails.UserDetailsByNameServiceWrapper">
+    <bean id="preAuthenticatedUserDetailsService" class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
         <property name="userDetailsService" ref="userService"/>
     </bean>
 

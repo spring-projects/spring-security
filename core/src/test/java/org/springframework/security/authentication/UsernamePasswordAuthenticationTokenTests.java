@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 
 /**

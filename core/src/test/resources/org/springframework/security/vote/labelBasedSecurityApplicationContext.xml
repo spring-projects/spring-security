@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd" >
 <beans>
-    <bean id="userDetailsService" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
+    <bean id="userDetailsService" class="org.springframework.security.core.userdetails.memory.InMemoryDaoImpl">
       <property name="userMap">
         <value>
           blueuser=password,ROLE_BASIC,LABEL_BLUE

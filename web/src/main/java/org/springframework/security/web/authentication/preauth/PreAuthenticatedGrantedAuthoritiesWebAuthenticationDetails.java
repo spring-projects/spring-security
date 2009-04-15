@@ -4,9 +4,9 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.core.GrantedAuthoritiesContainerImpl;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.MutableGrantedAuthoritiesContainer;
+import org.springframework.security.core.authority.GrantedAuthoritiesContainerImpl;
+import org.springframework.security.core.authority.MutableGrantedAuthoritiesContainer;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 /**

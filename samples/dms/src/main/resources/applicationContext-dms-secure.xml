@@ -54,7 +54,7 @@
       </property>
    </bean>
 
-   <bean id="jdbcDaoImpl" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
+   <bean id="jdbcDaoImpl" class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
       <property name="dataSource" ref="dataSource"/>
    </bean>
 
@@ -73,7 +73,7 @@
       <property name="cacheName" value="userCache"/>
    </bean>
 
-   <bean id="userCache" class="org.springframework.security.userdetails.cache.EhCacheBasedUserCache">
+   <bean id="userCache" class="org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache">
       <property name="cache" ref="userCacheBackend"/>
    </bean>
 
@@ -174,13 +174,13 @@
     <bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
         <constructor-arg>
             <list>
-                <bean class="org.springframework.security.core.GrantedAuthorityImpl">
+                <bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
                     <constructor-arg value="ROLE_ADMINISTRATOR"/>
                 </bean>
-                <bean class="org.springframework.security.core.GrantedAuthorityImpl">
+                <bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
                     <constructor-arg value="ROLE_ADMINISTRATOR"/>
                 </bean>
-                <bean class="org.springframework.security.core.GrantedAuthorityImpl">
+                <bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
                     <constructor-arg value="ROLE_ADMINISTRATOR"/>
                 </bean>
             </list>

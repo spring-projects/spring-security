@@ -1,7 +1,7 @@
 package org.springframework.security.web.authentication.preauth.j2ee;
 
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
-import org.springframework.security.core.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.SimpleAttributes2GrantedAuthoritiesMapper;
 
 import java.util.ArrayList;
 import java.util.Collection;

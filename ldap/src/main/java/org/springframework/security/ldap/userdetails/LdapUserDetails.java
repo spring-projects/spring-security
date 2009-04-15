@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Captures the information for a user's LDAP entry.

@@ -1,7 +1,7 @@
 package org.springframework.security.provisioning;
 
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * An extension of the {@link UserDetailsService} which provides the ability

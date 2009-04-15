@@ -36,7 +36,7 @@
         <property name="authenticationDetailsSource">
             <bean class="org.springframework.security.portlet.PortletPreAuthenticatedAuthenticationDetailsSource">
                 <property name="mappableRolesRetriever">
-                    <bean class="org.springframework.security.core.authoritymapping.SimpleMappableAttributesRetriever">
+                    <bean class="org.springframework.security.core.authority.mapping.SimpleMappableAttributesRetriever">
                         <property name="mappableAttributes">
                             <set>
                                 <value>tomcat</value>
@@ -72,7 +72,7 @@
     <bean id="portletAuthProvider" class="org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationProvider">
         <sec:custom-authentication-provider/>
         <property name="preAuthenticatedUserDetailsService">
-            <bean class="org.springframework.security.userdetails.UserDetailsByNameServiceWrapper">
+            <bean class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
                 <property name="userDetailsService" ref="userDetailsService"/>
             </bean>
         </property>

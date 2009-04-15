@@ -20,9 +20,9 @@ import junit.framework.TestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthorityUtils;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestWrapper;
 

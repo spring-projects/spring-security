@@ -19,8 +19,8 @@ import org.jasig.cas.client.validation.Assertion;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import org.springframework.security.userdetails.UserDetails;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -62,9 +62,9 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
      * @param credentials the service/proxy ticket ID from CAS (cannot be
      *        <code>null</code>)
      * @param authorities the authorities granted to the user (from the {@link
-     *        org.springframework.security.userdetails.UserDetailsService}) (cannot be <code>null</code>)
+     *        org.springframework.security.core.userdetails.UserDetailsService}) (cannot be <code>null</code>)
      * @param userDetails the user details (from the {@link
-     *        org.springframework.security.userdetails.UserDetailsService}) (cannot be <code>null</code>)
+     *        org.springframework.security.core.userdetails.UserDetailsService}) (cannot be <code>null</code>)
      * @param assertion the assertion returned from the CAS servers.  It contains the principal and how to obtain a
      *        proxy ticket for the user.
      *

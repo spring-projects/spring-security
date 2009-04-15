@@ -16,15 +16,15 @@
 package org.springframework.security.authentication.dao.salt;
 
 import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import org.springframework.security.userdetails.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 
 
 /**
  * Uses a static system-wide <code>String</code> as the salt.<P>Does not supply a different salt for each {@link
- * org.springframework.security.userdetails.User}. This means users sharing the same password will still have the same digested
+ * org.springframework.security.core.userdetails.User}. This means users sharing the same password will still have the same digested
  * password. Of benefit is the digested passwords will at least be more protected than if stored without any salt.</p>
  *
  * @author Ben Alex

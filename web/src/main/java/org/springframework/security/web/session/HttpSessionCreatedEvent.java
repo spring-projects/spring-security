@@ -17,7 +17,7 @@ package org.springframework.security.web.session;
 
 import javax.servlet.http.HttpSession;
 
-import org.springframework.security.core.SessionCreationEvent;
+import org.springframework.security.core.session.SessionCreationEvent;
 
 /**
  * Published by the {@link HttpSessionEventPublisher} when a HttpSession is destroyed by the container

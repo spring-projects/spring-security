@@ -16,7 +16,7 @@
 package org.springframework.security.ldap;
 
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 
 /**

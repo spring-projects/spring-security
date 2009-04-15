@@ -41,7 +41,7 @@ import org.springframework.security.core.GrantedAuthority;
  * which do not represent roles. However, this option may be of some use when
  * using pre-existing role names without a prefix, and no ability exists to
  * prefix them with a role prefix on reading them in, such as provided for
- * example in {@link org.springframework.security.userdetails.jdbc.JdbcDaoImpl}.
+ * example in {@link org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl}.
  * <p>
  * All comparisons and prefixes are case sensitive.
  *

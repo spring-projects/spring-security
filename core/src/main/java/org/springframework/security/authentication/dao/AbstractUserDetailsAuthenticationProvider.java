@@ -26,13 +26,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.userdetails.UserCache;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.cache.NullUserCache;
 
-import org.springframework.security.userdetails.UserCache;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.userdetails.UserDetailsChecker;
-import org.springframework.security.userdetails.cache.NullUserCache;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -45,7 +45,7 @@ import org.springframework.util.Assert;
 
 /**
  * A base {@link AuthenticationProvider} that allows subclasses to override and work with {@link
- * org.springframework.security.userdetails.UserDetails} objects. The class is designed to respond to {@link
+ * org.springframework.security.core.userdetails.UserDetails} objects. The class is designed to respond to {@link
  * UsernamePasswordAuthenticationToken} authentication requests.
  *
  * <p>

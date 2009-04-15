@@ -16,7 +16,7 @@
 package org.springframework.security.web.authentication.rememberme;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -40,9 +40,9 @@ import java.util.Date;
  * implementation will only send a remember-me token if the parameter defined by
  * {@link #setParameter(String)} is present.
  * <p>
- * An {@link org.springframework.security.userdetails.UserDetailsService} is required by
+ * An {@link org.springframework.security.core.userdetails.UserDetailsService} is required by
  * this implementation, so that it can construct a valid
- * <code>Authentication</code> from the returned {@link org.springframework.security.userdetails.UserDetails}.
+ * <code>Authentication</code> from the returned {@link org.springframework.security.core.userdetails.UserDetails}.
  * This is also necessary so that the user's password is available and can be checked as part of the encoded cookie.
  * <p>
  * The cookie encoded by this implementation adopts the following form:

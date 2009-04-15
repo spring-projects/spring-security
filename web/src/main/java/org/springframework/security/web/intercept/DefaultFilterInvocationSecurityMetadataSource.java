@@ -27,8 +27,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.util.UrlMatcher;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.util.UrlMatcher;
 
 
 /**

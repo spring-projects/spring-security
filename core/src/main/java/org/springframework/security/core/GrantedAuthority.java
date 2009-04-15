@@ -18,7 +18,7 @@ package org.springframework.security.core;
 import java.io.Serializable;
 
 import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Represents an authority granted to an {@link Authentication} object.

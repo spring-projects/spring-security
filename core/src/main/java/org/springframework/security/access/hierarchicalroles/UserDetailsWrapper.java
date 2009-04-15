@@ -17,7 +17,7 @@ package org.springframework.security.access.hierarchicalroles;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * This class wraps Spring Security's <tt>UserDetails</tt> in a way that its <tt>getAuthorities()</tt> method is

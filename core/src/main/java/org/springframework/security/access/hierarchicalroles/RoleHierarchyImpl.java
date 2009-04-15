@@ -16,7 +16,7 @@ package org.springframework.security.access.hierarchicalroles;
 
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

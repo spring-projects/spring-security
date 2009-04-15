@@ -37,7 +37,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
        </property>
     </bean>
 
-    <bean id="mockNotAFilter" class="org.springframework.security.util.AntUrlPathMatcher"/>
+    <bean id="mockNotAFilter" class="org.springframework.security.web.util.AntUrlPathMatcher"/>
 
     <bean id="filterChain" class="org.springframework.security.web.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
@@ -83,7 +83,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <bean id="newFilterChainProxyNonNamespace" class="org.springframework.security.web.FilterChainProxy">
         <property name="matcher">
-            <bean class="org.springframework.security.util.AntUrlPathMatcher"/>
+            <bean class="org.springframework.security.web.util.AntUrlPathMatcher"/>
         </property>
         <property name="filterChainMap">
             <map>

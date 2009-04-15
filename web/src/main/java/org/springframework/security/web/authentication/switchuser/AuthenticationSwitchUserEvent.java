@@ -18,7 +18,7 @@ package org.springframework.security.web.authentication.switchuser;
 
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 /**

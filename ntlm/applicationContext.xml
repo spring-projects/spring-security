@@ -50,7 +50,7 @@
     </bean>
 
     <!-- NOTE: You will need to write a custom UserDetailsService in most cases -->
-    <bean id="memoryUserDetailsService" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
+    <bean id="memoryUserDetailsService" class="org.springframework.security.core.userdetails.memory.InMemoryDaoImpl">
         <property name="userMap">
             <value>jdoe=PASSWORD,ROLE_USER</value>
         </property>

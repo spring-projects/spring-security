@@ -26,13 +26,13 @@ import org.junit.Test;
 import org.springframework.security.MockFilterConfig;
 
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.cache.NullUserCache;
+import org.springframework.security.core.userdetails.memory.InMemoryDaoImpl;
+import org.springframework.security.core.userdetails.memory.UserMap;
+import org.springframework.security.core.userdetails.memory.UserMapEditor;
 
 
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.cache.NullUserCache;
-import org.springframework.security.userdetails.memory.InMemoryDaoImpl;
-import org.springframework.security.userdetails.memory.UserMap;
-import org.springframework.security.userdetails.memory.UserMapEditor;
 
 import org.springframework.security.util.StringSplitUtils;
 import org.springframework.security.web.authentication.www.DigestProcessingFilter;

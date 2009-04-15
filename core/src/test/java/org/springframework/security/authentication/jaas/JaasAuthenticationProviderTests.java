@@ -37,11 +37,11 @@ import org.springframework.security.authentication.jaas.JaasGrantedAuthority;
 import org.springframework.security.authentication.jaas.LoginExceptionResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.GrantedAuthorityImpl;
-import org.springframework.security.core.SessionDestroyedEvent;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.session.SessionDestroyedEvent;
 
 
 /**

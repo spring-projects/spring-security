@@ -22,7 +22,7 @@
 <beans>
 
 	<!-- Data access object which stores authentication information -->
-	<bean id="inMemoryDaoImpl" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
+	<bean id="inMemoryDaoImpl" class="org.springframework.security.core.userdetails.memory.InMemoryDaoImpl">
   		<property name="userMap">
 			<value>
 				rod=koala,ROLE_TELLER,ROLE_SUPERVISOR

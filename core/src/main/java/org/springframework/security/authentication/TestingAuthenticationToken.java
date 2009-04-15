@@ -18,8 +18,8 @@ package org.springframework.security.authentication;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 
 /**

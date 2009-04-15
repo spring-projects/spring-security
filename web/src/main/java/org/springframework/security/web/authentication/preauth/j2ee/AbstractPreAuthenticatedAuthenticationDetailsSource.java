@@ -8,10 +8,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.AuthenticationDetailsSourceImpl;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.MutableGrantedAuthoritiesContainer;
-import org.springframework.security.core.authoritymapping.Attributes2GrantedAuthoritiesMapper;
-import org.springframework.security.core.authoritymapping.MappableAttributesRetriever;
-import org.springframework.security.core.authoritymapping.SimpleAttributes2GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.MutableGrantedAuthoritiesContainer;
+import org.springframework.security.core.authority.mapping.Attributes2GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.MappableAttributesRetriever;
+import org.springframework.security.core.authority.mapping.SimpleAttributes2GrantedAuthoritiesMapper;
 import org.springframework.util.Assert;
 
 /**

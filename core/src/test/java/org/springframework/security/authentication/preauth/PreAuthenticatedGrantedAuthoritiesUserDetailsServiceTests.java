@@ -7,10 +7,10 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.authentication.preauth.PreAuthenticatedGrantedAuthoritiesUserDetailsService;
-import org.springframework.security.core.AuthorityUtils;
-import org.springframework.security.core.GrantedAuthoritiesContainer;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  *

@@ -15,7 +15,7 @@
 
 package org.springframework.security.authentication.dao;
 
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 /**

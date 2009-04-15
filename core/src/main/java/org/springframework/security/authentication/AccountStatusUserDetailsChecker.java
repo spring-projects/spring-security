@@ -1,8 +1,8 @@
 package org.springframework.security.authentication;
 
 import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.security.userdetails.UserDetailsChecker;
-import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /**

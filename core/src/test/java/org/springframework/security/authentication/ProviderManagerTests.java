@@ -34,8 +34,8 @@ import org.springframework.security.authentication.concurrent.ConcurrentSessionC
 import org.springframework.security.authentication.concurrent.NullConcurrentSessionController;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.AuthorityUtils;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
  * Tests {@link ProviderManager}.

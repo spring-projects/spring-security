@@ -18,8 +18,8 @@ package org.springframework.security.authentication.dao.salt;
 
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import org.springframework.security.userdetails.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.BeanUtils;
@@ -31,7 +31,7 @@ import java.beans.PropertyDescriptor;
 
 
 /**
- * Obtains a salt from a specified property of the {@link org.springframework.security.userdetails.User} object.
+ * Obtains a salt from a specified property of the {@link org.springframework.security.core.userdetails.User} object.
  * <p>
  * This allows you to subclass <code>User</code> and provide an additional bean getter for a salt. You should use a
  * synthetic value that does not change, such as a database primary key.  Do not use <code>username</code> if it is

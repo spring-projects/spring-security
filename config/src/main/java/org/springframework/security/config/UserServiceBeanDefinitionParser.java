@@ -6,9 +6,9 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.security.core.AuthorityUtils;
-import org.springframework.security.userdetails.memory.UserMap;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.memory.UserMap;
 import org.springframework.util.StringUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.xml.DomUtils;
@@ -33,7 +33,7 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
     static final String ATT_LOCKED = "locked";
 
     protected String getBeanClassName(Element element) {
-        return "org.springframework.security.userdetails.memory.InMemoryDaoImpl";
+        return "org.springframework.security.core.userdetails.memory.InMemoryDaoImpl";
     }
 
     @SuppressWarnings("unchecked")
