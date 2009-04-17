@@ -21,10 +21,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>portlet-api</groupId>
-            <artifactId>portlet-api</artifactId>
-            <version>2.0</version>
-            <scope>provided</scope>
+          <groupId>javax.portlet</groupId>
+          <artifactId>portlet-api</artifactId>
+          <version>2.0</version>
+          <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
