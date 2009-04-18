@@ -77,7 +77,7 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
             String loginPageHtml = generateLoginPageHtml(request);
             response.setContentType("text/html;charset=UTF-8");
             response.setContentLength(loginPageHtml.length());
-            response.getOutputStream().print(loginPageHtml);
+            response.getWriter().write(loginPageHtml);
 
             return;
         }
