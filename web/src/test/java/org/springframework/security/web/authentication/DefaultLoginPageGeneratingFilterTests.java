@@ -2,11 +2,9 @@ package org.springframework.security.web.authentication;
 
 import static org.mockito.Mockito.mock;
 
-import java.io.IOException;
 import java.util.Locale;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -19,8 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.web.FilterChainOrder;
-import org.springframework.security.web.authentication.AbstractProcessingFilter;
-import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
 
 /**
  *
