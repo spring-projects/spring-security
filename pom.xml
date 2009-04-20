@@ -16,10 +16,10 @@
         <module>cas</module>
         <module>openid</module>
         <module>ntlm</module>
-        <module>samples</module>
         <module>taglibs</module>
-        <module>itest</module>
         <module>portlet</module>
+        <module>samples</module>
+        <module>itest</module>
   </modules>
 
     <description>Spring Security</description>
@@ -70,11 +70,7 @@
         <site>
             <id>local</id>
             <name>Local Site Directory</name>
-            <!--
-            This variable is set by the build release script. You can also set it on the command line if
-            you are running maven directly. e.g. mvn site -DsiteDirectory=file:///home/joe/mysite
-            -->
-            <url>${siteDirectory}</url>
+            <url>file:///${user.dir}/site</url>
         </site>
     </distributionManagement>
 
@@ -123,6 +119,7 @@
             <name>SpringSource Enterprise Bundle Repository - SpringSource Milestone Releases</name>
             <url>http://repository.springsource.com/maven/bundles/milestone</url>
         </repository>
+<!--        
         <repository>
             <releases>
               <enabled>true</enabled>
@@ -134,18 +131,7 @@
             <name>Spring Portfolio Milestone Repository</name>
             <url>http://s3.amazonaws.com/maven.springframework.org/milestone</url>
         </repository>
-        <repository>
-            <releases>
-              <enabled>true</enabled>
-            </releases>
-            <snapshots>
-              <enabled>false</enabled>
-            </snapshots>            
-            <!-- needed for jets3t-0.5.1-20080115 -->
-            <id>springExternal</id>
-            <name>Spring external dependencies</name>
-            <url>http://maven.springframework.org/external/</url>
-        </repository>
+-->        
     </repositories>
 
     <mailingLists>
@@ -299,6 +285,7 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>1.7</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jmock</groupId>
@@ -311,10 +298,10 @@
     <build>
         <extensions>
             <extension>
-                <groupId>org.springframework.aws</groupId>
-                <artifactId>spring-aws-maven</artifactId>
-                <version>1.2.2</version>
-            </extension>
+              <groupId>org.springframework.build.aws</groupId>
+              <artifactId>org.springframework.build.aws.maven</artifactId>
+              <version>2.0.0.RELEASE</version>
+            </extension>            
         </extensions>
         <plugins>
             <plugin>
@@ -449,7 +436,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>2.0-beta-6</version>
+                <version>2.0</version>
             </plugin>
 
             <plugin>
@@ -549,53 +536,23 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.4</version>
+                <version>2.5</version>
                 <configuration>
+                    <excludePackageNames>sample:bigbank:zzz</excludePackageNames>
+                    <breakiterator>true</breakiterator>
                     <aggregate>true</aggregate>
-                    <header>Spring Security Framework</header>
-                    <quiet>true</quiet>
-                    <excludePackageNames>sample,bigbank,zzz</excludePackageNames>
                     <links>
-                        <link>
-                            http://java.sun.com/j2se/1.5.0/docs/api
-                        </link>
-                        <link>
-                            http://static.springframework.org/spring/docs/2.5.x/api/
-                        </link>
-                        <link>
-                            http://commons.apache.org/dbcp/apidocs/
-                        </link>
-                        <link>
-                            http://commons.apache.org/httpclient/apidocs/
-                        </link>
-                        <link>
-                            http://commons.apache.org/pool/apidocs/
-                        </link>
-                        <link>
-                            http://commons.apache.org/lang/api/
-                        </link>
-                        <link>
-                            http://commons.apache.org/codec/apidocs/
-                        </link>
-                        <link>
-                            http://commons.apache.org/collections/apidocs/
-                        </link>
-                        <link>
-                            http://velocity.apache.org/engine/releases/velocity-1.5/apidocs/
-                        </link>
-                        <link>
-                            http://developer.ja-sig.org/projects/cas/cas-server-core/cas-server/cas-server-core/apidocs/
-                        </link>
-                        <link>
-                            http://tomcat.apache.org/tomcat-5.5-doc/servletapi/
-                        </link>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
+                        <link>http://static.springframework.org/spring/docs/3.0.x/javadoc-api/</link>
+                        <link>http://commons.apache.org/httpclient/apidocs/</link>
+                        <link>http://developer.ja-sig.org/projects/cas/cas-server-core/cas-server/cas-server-core/apidocs/</link>
+                        <link>http://tomcat.apache.org/tomcat-5.5-doc/servletapi/</link>
                     </links>
                 </configuration>
                 <reportSets>
                   <reportSet>
                     <reports>
                       <report>javadoc</report>
-                      <!--<report>test-javadoc</report> -->
                     </reports>
                   </reportSet>
                 </reportSets>
