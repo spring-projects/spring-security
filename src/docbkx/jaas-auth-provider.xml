@@ -27,7 +27,7 @@ JAASTest {
     sample.SampleLoginModule required;
 };</programlisting></para>      
         <para>Like all Spring Security beans, the
-            <literal>JaasAuthenticationProvider</literal> is configured via the
+            <classname>JaasAuthenticationProvider</classname> is configured via the
             application context. The following definitions would correspond to the
             above JAAS login configuration file:
 <programlisting><![CDATA[
@@ -50,7 +50,7 @@ JAASTest {
 ]]></programlisting></para>
         
         <para>The <literal>CallbackHandler</literal>s and
-            <literal>AuthorityGranter</literal>s are discussed below.</para>
+            <interfacename>AuthorityGranter</interfacename>s are discussed below.</para>
         
         <section xml:id="jaas-callbackhandler">
             <info><title xml:id="jaas-callback-handler">JAAS CallbackHandler</title></info>
@@ -105,26 +105,26 @@ JAASTest {
                 <literal>AuthorityGranter</literal> interface.</para>
             
             <para>An <literal>AuthorityGranter</literal> is responsible for
-                inspecting a JAAS principal and returning a
-                <literal>String</literal>. The
-                <literal>JaasAuthenticationProvider</literal> then creates a
-                <literal>JaasGrantedAuthority</literal> (which implements Spring
+                inspecting a JAAS principal and returning a set of 
+                <literal>String</literal>s, representing the authorities assigned to the principal. 
+                For each returned authority string, the
+                <classname>JaasAuthenticationProvider</classname> creates a
+                <classname>JaasGrantedAuthority</classname> (which implements Spring
                 Security’s <interfacename>GrantedAuthority</interfacename> interface) containing
-                both the <literal>AuthorityGranter</literal>-returned
-                <literal>String</literal> and the JAAS principal that the
-                <literal>AuthorityGranter</literal> was passed. The
-                <literal>JaasAuthenticationProvider</literal> obtains the JAAS
+                the authority string and the JAAS principal that the
+                <interfacename>AuthorityGranter</interfacename> was passed. The
+                <classname>JaasAuthenticationProvider</classname> obtains the JAAS
                 principals by firstly successfully authenticating the user’s
                 credentials using the JAAS <literal>LoginModule</literal>, and then
                 accessing the <literal>LoginContext</literal> it returns. A call to
                 <literal>LoginContext.getSubject().getPrincipals()</literal> is
                 made, with each resulting principal passed to each
-                <literal>AuthorityGranter</literal> defined against the
+                <interfacename>AuthorityGranter</interfacename> defined against the
                 <literal>JaasAuthenticationProvider.setAuthorityGranters(List)</literal>
                 property.</para>
             
             <para>Spring Security does not include any production
-                <literal>AuthorityGranter</literal>s given that every JAAS principal
+                <interfacename>AuthorityGranter</interfacename>s given that every JAAS principal
                 has an implementation-specific meaning. However, there is a
                 <literal>TestAuthorityGranter</literal> in the unit tests that
                 demonstrates a simple <literal>AuthorityGranter</literal>
