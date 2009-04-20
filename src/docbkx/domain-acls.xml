@@ -118,7 +118,7 @@
                     <para>ACL_SID allows us to uniquely identify any principal or authority in the
                         system ("SID" stands for "security identity"). The only columns are the ID,
                         a textual representation of the SID, and a flag to indicate whether the
-                        textual representation refers to a prncipal name or a
+                        textual representation refers to a principal name or a
                             <interfacename>GrantedAuthority</interfacename>. Thus, there is a single row for
                         each unique principal or <interfacename>GrantedAuthority</interfacename>. When used in
                         the context of receiving a permission, a SID is generally called a
