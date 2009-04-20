@@ -234,7 +234,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
             messages.getMessage("AbstractUserDetailsAuthenticationProvider.onlySupports",
                 "Only UsernamePasswordAuthenticationToken is supported"));
 
-        UsernamePasswordAuthenticationToken userToken = (UsernamePasswordAuthenticationToken)authentication;
+        final UsernamePasswordAuthenticationToken userToken = (UsernamePasswordAuthenticationToken)authentication;
 
         String username = userToken.getName();
 
@@ -287,7 +287,10 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
             UserDetails user) {
         Object password = useAuthenticationRequestCredentials ? authentication.getCredentials() : user.getPassword();
 
-        return new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
+        UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
+        result.setDetails(authentication.getDetails());
+
+        return result;
     }
 
     public boolean supports(Class<? extends Object> authentication) {

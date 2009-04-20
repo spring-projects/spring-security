@@ -124,8 +124,11 @@ public class LdapAuthenticationProviderTests {
         assertNotNull(ldapProvider.getAuthoritiesPopulator());
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben", "benspassword");
+        Object authDetails = new Object();
+        authRequest.setDetails(authDetails);
         Authentication authResult = ldapProvider.authenticate(authRequest);
         assertEquals("benspassword", authResult.getCredentials());
+        assertSame(authDetails, authResult.getDetails());
         UserDetails user = (UserDetails) authResult.getPrincipal();
         assertEquals(2, user.getAuthorities().size());
         assertEquals("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=", user.getPassword());
