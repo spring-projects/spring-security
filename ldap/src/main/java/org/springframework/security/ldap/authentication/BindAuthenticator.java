@@ -30,6 +30,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 
 /**
@@ -67,6 +68,12 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
         String username = authentication.getName();
         String password = (String)authentication.getCredentials();
+
+        if (!StringUtils.hasLength(password)) {
+            logger.debug("Rejecting empty password for user " + username);
+            throw new BadCredentialsException(messages.getMessage("LdapAuthenticationProvider.emptyPassword",
+                    "Empty Password"));
+        }
 
         // If DN patterns are configured, try authenticating with them directly
         for (String dn : getUserDns(username)) {

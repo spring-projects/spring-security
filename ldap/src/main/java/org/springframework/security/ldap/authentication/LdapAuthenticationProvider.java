@@ -246,12 +246,6 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
         String password = (String) authentication.getCredentials();
         Assert.notNull(password, "Null password was supplied in authentication token");
 
-        if (password.length() == 0) {
-            logger.debug("Rejecting empty password for user " + username);
-            throw new BadCredentialsException(messages.getMessage("LdapAuthenticationProvider.emptyPassword",
-                    "Empty Password"));
-        }
-
         try {
             DirContextOperations userData = getAuthenticator().authenticate(authentication);
 

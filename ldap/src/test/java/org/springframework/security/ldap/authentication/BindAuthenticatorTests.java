@@ -15,19 +15,17 @@
 
 package org.springframework.security.ldap.authentication;
 
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
-import org.springframework.security.ldap.authentication.BindAuthenticator;
-import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import org.junit.Test;
 
 /**
  * Tests for {@link BindAuthenticator}.
@@ -51,6 +49,11 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
         bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
 //        ben = new UsernamePasswordAuthenticationToken("ben", "benspassword");
 
+    }
+
+    @Test(expected=BadCredentialsException.class)
+    public void emptyPasswordIsRejected() {
+        authenticator.authenticate(new UsernamePasswordAuthenticationToken("jen", ""));
     }
 
     @Test

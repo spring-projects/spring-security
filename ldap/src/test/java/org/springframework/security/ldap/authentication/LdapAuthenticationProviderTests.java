@@ -83,12 +83,6 @@ public class LdapAuthenticationProviderTests {
     }
 
     @Test(expected=BadCredentialsException.class)
-    public void emptyPasswordIsRejected() {
-        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator());
-        ldapProvider.authenticate(new UsernamePasswordAuthenticationToken("jen", ""));
-    }
-
-    @Test(expected=BadCredentialsException.class)
     public void usernameNotFoundExceptionIsHiddenByDefault() {
         final LdapAuthenticator authenticator = jmock.mock(LdapAuthenticator.class);
         final UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken("joe", "password");
