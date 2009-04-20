@@ -30,6 +30,8 @@ public class PersistentTokenBasedRememberMeServicesTests {
     public void setUpData() throws Exception {
         services = new PersistentTokenBasedRememberMeServices();
         services.setCookieName("mycookiename");
+        // Default to 100 days (see SEC-1081).
+        services.setTokenValiditySeconds(100*24*60*60);
         services.setUserDetailsService(
                 new AbstractRememberMeServicesTests.MockUserDetailsService(AbstractRememberMeServicesTests.joe, false));
     }

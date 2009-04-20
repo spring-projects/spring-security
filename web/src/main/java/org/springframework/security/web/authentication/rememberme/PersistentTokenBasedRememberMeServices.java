@@ -92,7 +92,7 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
                     "Invalid remember-me token (Series/token) mismatch. Implies previous cookie theft attack."));
         }
 
-        if (token.getDate().getTime() + getTokenValiditySeconds()*1000 < System.currentTimeMillis()) {
+        if (token.getDate().getTime() + getTokenValiditySeconds()*1000L < System.currentTimeMillis()) {
             throw new RememberMeAuthenticationException("Remember-me login has expired");
         }
 
