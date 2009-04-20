@@ -160,6 +160,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
     protected InterceptorStatusToken beforeInvocation(Object object) {
         Assert.notNull(object, "Object was null");
+        final boolean debug = logger.isDebugEnabled();
 
         if (!getSecureObjectClass().isAssignableFrom(object.getClass())) {
             throw new IllegalArgumentException("Security invocation attempted for object "
@@ -178,7 +179,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
                                 + "rejectPublicInvocations property is set to 'true'");
             }
 
-            if (logger.isDebugEnabled()) {
+            if (debug) {
                 logger.debug("Public object - authentication not attempted");
             }
 
@@ -187,7 +188,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             return null; // no further work post-invocation
         }
 
-        if (logger.isDebugEnabled()) {
+        if (debug) {
             logger.debug("Secure object: " + object + "; Attributes: " + attributes);
         }
 
@@ -203,38 +204,36 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             this.accessDecisionManager.decide(authenticated, object, attributes);
         }
         catch (AccessDeniedException accessDeniedException) {
-            AuthorizationFailureEvent event = new AuthorizationFailureEvent(object, attributes, authenticated,
-                    accessDeniedException);
-            publishEvent(event);
+            publishEvent(new AuthorizationFailureEvent(object, attributes, authenticated,
+                    accessDeniedException));
 
             throw accessDeniedException;
         }
 
-        if (logger.isDebugEnabled()) {
+        if (debug) {
             logger.debug("Authorization successful");
         }
 
-        AuthorizedEvent event = new AuthorizedEvent(object, attributes, authenticated);
-        publishEvent(event);
+        publishEvent(new AuthorizedEvent(object, attributes, authenticated));
 
         // Attempt to run as a different user
         Authentication runAs = this.runAsManager.buildRunAs(authenticated, object, attributes);
 
         if (runAs == null) {
-            if (logger.isDebugEnabled()) {
+            if (debug) {
                 logger.debug("RunAsManager did not change Authentication object");
             }
 
             // no further work post-invocation
             return new InterceptorStatusToken(authenticated, false, attributes, object);
         } else {
-            if (logger.isDebugEnabled()) {
+            if (debug) {
                 logger.debug("Switching to RunAs Authentication: " + runAs);
             }
 
             SecurityContextHolder.getContext().setAuthentication(runAs);
 
-            // revert to token.Authenticated post-invocation
+            // need to revert to token.Authenticated post-invocation
             return new InterceptorStatusToken(authenticated, true, attributes, object);
         }
     }
@@ -278,7 +277,6 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
         return returnedObject;
     }
-
 
     /**
      * Checks the current authentication token and passes it to the AuthenticationManager if
