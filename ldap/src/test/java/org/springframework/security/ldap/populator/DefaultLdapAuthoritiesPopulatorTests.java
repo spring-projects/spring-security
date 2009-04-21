@@ -44,11 +44,11 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         super.onSetUp();
 
         populator = new DefaultLdapAuthoritiesPopulator(getContextSource(), "ou=groups");
+        populator.setIgnorePartialResultException(false);
     }
 
     @Test
-    public void testDefaultRoleIsAssignedWhenSet() {
-
+    public void defaultRoleIsAssignedWhenSet() {
         populator.setDefaultRole("ROLE_USER");
 
         DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("cn=notfound"));
@@ -59,7 +59,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
     }
 
     @Test
-    public void testGroupSearchReturnsExpectedRoles() {
+    public void groupSearchReturnsExpectedRoles() {
         populator.setRolePrefix("ROLE_");
         populator.setGroupRoleAttribute("ou");
         populator.setSearchSubtree(true);
@@ -81,7 +81,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
     }
 
     @Test
-    public void testUseOfUsernameParameterReturnsExpectedRoles() {
+    public void useOfUsernameParameterReturnsExpectedRoles() {
         populator.setGroupRoleAttribute("ou");
         populator.setConvertToUpperCase(true);
         populator.setGroupSearchFilter("(ou={1})");
@@ -95,7 +95,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
     }
 
     @Test
-    public void testSubGroupRolesAreNotFoundByDefault() {
+    public void subGroupRolesAreNotFoundByDefault() {
         populator.setGroupRoleAttribute("ou");
         populator.setConvertToUpperCase(true);
 
@@ -112,7 +112,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
     }
 
     @Test
-    public void testSubGroupRolesAreFoundWhenSubtreeSearchIsEnabled() {
+    public void subGroupRolesAreFoundWhenSubtreeSearchIsEnabled() {
         populator.setGroupRoleAttribute("ou");
         populator.setConvertToUpperCase(true);
         populator.setSearchSubtree(true);
@@ -132,7 +132,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
     }
 
     @Test
-    public void testUserDnWithEscapedCharacterParameterReturnsExpectedRoles() {
+    public void userDnWithEscapedCharacterParameterReturnsExpectedRoles() {
         populator.setGroupRoleAttribute("ou");
         populator.setConvertToUpperCase(true);
         populator.setGroupSearchFilter("(member={0})");
@@ -144,5 +144,4 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         assertEquals("Should have 1 role", 1, authorities.size());
         assertEquals("ROLE_MANAGER", authorities.get(0).getAuthority());
     }
-
 }

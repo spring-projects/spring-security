@@ -21,6 +21,7 @@ import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.LdapAuthoritiesPopulator;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.util.Assert;
 
 import org.apache.commons.logging.Log;
@@ -291,5 +292,14 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     public void setSearchSubtree(boolean searchSubtree) {
         int searchScope = searchSubtree ? SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE;
         searchControls.setSearchScope(searchScope);
+    }
+
+    /**
+     * Sets the corresponding property on the underlying template, avoiding specific issues with Active Directory.
+     *
+     *   @see LdapTemplate#setIgnoreNameNotFoundException(boolean)
+     */
+    public void setIgnorePartialResultException(boolean ignore) {
+        ldapTemplate.setIgnorePartialResultException(ignore);
     }
 }
