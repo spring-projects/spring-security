@@ -131,7 +131,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
         final String endSql = ") order by acl_object_identity.object_id_identity"
             + " asc, acl_entry.ace_order asc";
 
-        StringBuilder sqlStringBldr = 
+        StringBuilder sqlStringBldr =
             new StringBuilder(startSql.length() + endSql.length() + requiredRepetitions * (repeatingSql.length() + 4));
         sqlStringBldr.append(startSql);
 
@@ -507,7 +507,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
             }
 
             // Add an extra ACE to the ACL (ORDER BY maintains the ACE list order)
-            // It is permissable to have no ACEs in an ACL (which is detected by a null ACE_SID)
+            // It is permissible to have no ACEs in an ACL (which is detected by a null ACE_SID)
             if (rs.getString("ace_sid") != null) {
                 Long aceId = new Long(rs.getLong("ace_id"));
                 Sid recipient;
