@@ -14,6 +14,7 @@
  */
 package org.springframework.security.acls.jdbc;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -53,12 +54,14 @@ import org.springframework.util.Assert;
 
 
 /**
- * Performs lookups in a manner that is compatible with ANSI SQL.<p>NB: This implementation does attempt to provide
- * reasonably optimised lookups - within the constraints of a normalised database and standard ANSI SQL features. If
- * you are willing to sacrifice either of these constraints (eg use a particular database feature such as hierarchical
- * queries or materalized views, or reduce normalisation) you are likely to achieve better performance. In such
- * situations you will need to provide your own custom <code>LookupStrategy</code>. This class does not support
- * subclassing, as it is likely to change in future releases and therefore subclassing is unsupported.</p>
+ * Performs lookups in a manner that is compatible with ANSI SQL.
+ * <p>
+ * NB: This implementation does attempt to provide reasonably optimised lookups - within the constraints of a normalised
+ * database and standard ANSI SQL features. If you are willing to sacrifice either of these constraints
+ * (e.g. use a particular database feature such as hierarchical queries or materalized views, or reduce normalisation)
+ * you are likely to achieve better performance. In such situations you will need to provide your own custom
+ * <code>LookupStrategy</code>. This class does not support subclassing, as it is likely to change in future releases
+ * and therefore subclassing is unsupported.
  *
  * @author Ben Alex
  * @version $Id$
@@ -71,6 +74,9 @@ public final class BasicLookupStrategy implements LookupStrategy {
     private AuditLogger auditLogger;
     private JdbcTemplate jdbcTemplate;
     private int batchSize = 50;
+
+    private final Field fieldAces = FieldUtils.getField(AclImpl.class, "aces");
+    private final Field fieldAcl = FieldUtils.getField(AccessControlEntryImpl.class, "acl");
 
     //~ Constructors ===================================================================================================
 
@@ -87,18 +93,20 @@ public final class BasicLookupStrategy implements LookupStrategy {
         Assert.notNull(aclCache, "AclCache required");
         Assert.notNull(aclAuthorizationStrategy, "AclAuthorizationStrategy required");
         Assert.notNull(auditLogger, "AuditLogger required");
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        jdbcTemplate = new JdbcTemplate(dataSource);
         this.aclCache = aclCache;
         this.aclAuthorizationStrategy = aclAuthorizationStrategy;
         this.auditLogger = auditLogger;
+        fieldAces.setAccessible(true);
+        fieldAcl.setAccessible(true);
     }
 
     //~ Methods ========================================================================================================
 
     private static String computeRepeatingSql(String repeatingSql, int requiredRepetitions) {
-        Assert.isTrue(requiredRepetitions >= 1, "Must be => 1");
+        assert requiredRepetitions > 0 : "requiredRepetitions must be > 0";
 
-        String startSql = "select acl_object_identity.object_id_identity, "
+        final String startSql = "select acl_object_identity.object_id_identity, "
             + "acl_entry.ace_order,  "
             + "acl_object_identity.id as acl_id, "
             + "acl_object_identity.parent_object, "
@@ -114,29 +122,30 @@ public final class BasicLookupStrategy implements LookupStrategy {
             + "acli_sid.sid as acl_sid, "
             + "acl_class.class "
             + "from acl_object_identity "
-            + "left join acl_sid acli_sid on  acli_sid.id = acl_object_identity.owner_sid "
+            + "left join acl_sid acli_sid on acli_sid.id = acl_object_identity.owner_sid "
             + "left join acl_class on acl_class.id = acl_object_identity.object_id_class   "
             + "left join acl_entry on acl_object_identity.id = acl_entry.acl_object_identity "
             + "left join acl_sid on acl_entry.sid = acl_sid.id  "
             + "where ( ";
 
-        String endSql = ") order by acl_object_identity.object_id_identity"
+        final String endSql = ") order by acl_object_identity.object_id_identity"
             + " asc, acl_entry.ace_order asc";
 
-        StringBuffer sqlStringBuffer = new StringBuffer();
-        sqlStringBuffer.append(startSql);
+        StringBuilder sqlStringBldr = 
+            new StringBuilder(startSql.length() + endSql.length() + requiredRepetitions * (repeatingSql.length() + 4));
+        sqlStringBldr.append(startSql);
 
         for (int i = 1; i <= requiredRepetitions; i++) {
-            sqlStringBuffer.append(repeatingSql);
+            sqlStringBldr.append(repeatingSql);
 
             if (i != requiredRepetitions) {
-                sqlStringBuffer.append(" or ");
+                sqlStringBldr.append(" or ");
             }
         }
 
-        sqlStringBuffer.append(endSql);
+        sqlStringBldr.append(endSql);
 
-        return sqlStringBuffer.toString();
+        return sqlStringBldr.toString();
     }
 
     /**
@@ -170,114 +179,51 @@ public final class BasicLookupStrategy implements LookupStrategy {
                 auditLogger, parent, null, inputAcl.isEntriesInheriting(), inputAcl.getOwner());
 
         // Copy the "aces" from the input to the destination
-        Field fieldAces = FieldUtils.getField(AclImpl.class, "aces");
-        Field fieldAcl = FieldUtils.getField(AccessControlEntryImpl.class, "acl");
 
-        try {
-            fieldAces.setAccessible(true);
-            fieldAcl.setAccessible(true);
+        // Obtain the "aces" from the input ACL
+        List<AccessControlEntryImpl> aces = readAces(inputAcl);
 
-            // Obtain the "aces" from the input ACL
-            List<AccessControlEntryImpl> aces = (List<AccessControlEntryImpl>) fieldAces.get(inputAcl);
+        // Create a list in which to store the "aces" for the "result" AclImpl instance
+        List<AccessControlEntryImpl> acesNew = new ArrayList<AccessControlEntryImpl>();
 
-            // Create a list in which to store the "aces" for the "result" AclImpl instance
-            List<AccessControlEntryImpl> acesNew = new ArrayList<AccessControlEntryImpl>();
-
-            // Iterate over the "aces" input and replace each nested AccessControlEntryImpl.getAcl() with the new "result" AclImpl instance
-            // This ensures StubAclParent instances are removed, as per SEC-951
-            for (AccessControlEntryImpl ace : aces) {
-                fieldAcl.set(ace, result);
-                acesNew.add(ace);
-            }
-
-            // Finally, now that the "aces" have been converted to have the "result" AclImpl instance, modify the "result" AclImpl instance
-            fieldAces.set(result, acesNew);
-        } catch (IllegalAccessException ex) {
-            throw new IllegalStateException("Could not obtain or set AclImpl or AccessControlEntryImpl fields");
+        // Iterate over the "aces" input and replace each nested AccessControlEntryImpl.getAcl() with the new "result" AclImpl instance
+        // This ensures StubAclParent instances are removed, as per SEC-951
+        for (AccessControlEntryImpl ace : aces) {
+            setAclOnAce(ace, result);
+            acesNew.add(ace);
         }
 
+        // Finally, now that the "aces" have been converted to have the "result" AclImpl instance, modify the "result" AclImpl instance
+        setAces(result, acesNew);
 
         return result;
     }
 
-    /**
-     * Accepts the current <code>ResultSet</code> row, and converts it into an <code>AclImpl</code> that
-     * contains a <code>StubAclParent</code>
-     *
-     * @param acls the Map we should add the converted Acl to
-     * @param rs the ResultSet focused on a current row
-     *
-     * @throws SQLException if something goes wrong converting values
-     */
-    private void convertCurrentResultIntoObject(Map<Long,AclImpl> acls, ResultSet rs) throws SQLException {
-        Long id = new Long(rs.getLong("acl_id"));
-
-        // If we already have an ACL for this ID, just create the ACE
-        AclImpl acl = (AclImpl) acls.get(id);
-
-        if (acl == null) {
-            // Make an AclImpl and pop it into the Map
-            ObjectIdentity objectIdentity = new ObjectIdentityImpl(rs.getString("class"),
-                    new Long(rs.getLong("object_id_identity")));
-
-            Acl parentAcl = null;
-            long parentAclId = rs.getLong("parent_object");
-
-            if (parentAclId != 0) {
-                parentAcl = new StubAclParent(new Long(parentAclId));
-            }
-
-            boolean entriesInheriting = rs.getBoolean("entries_inheriting");
-            Sid owner;
-
-            if (rs.getBoolean("acl_principal")) {
-                owner = new PrincipalSid(rs.getString("acl_sid"));
-            } else {
-                owner = new GrantedAuthoritySid(rs.getString("acl_sid"));
-            }
-
-            acl = new AclImpl(objectIdentity, id, aclAuthorizationStrategy, auditLogger, parentAcl, null,
-                    entriesInheriting, owner);
-            acls.put(id, acl);
-        }
-
-        // Add an extra ACE to the ACL (ORDER BY maintains the ACE list order)
-        // It is permissable to have no ACEs in an ACL (which is detected by a null ACE_SID)
-        if (rs.getString("ace_sid") != null) {
-            Long aceId = new Long(rs.getLong("ace_id"));
-            Sid recipient;
-
-            if (rs.getBoolean("ace_principal")) {
-                recipient = new PrincipalSid(rs.getString("ace_sid"));
-            } else {
-                recipient = new GrantedAuthoritySid(rs.getString("ace_sid"));
-            }
-
-            int mask = rs.getInt("mask");
-            Permission permission = convertMaskIntoPermission(mask);
-            boolean granting = rs.getBoolean("granting");
-            boolean auditSuccess = rs.getBoolean("audit_success");
-            boolean auditFailure = rs.getBoolean("audit_failure");
-
-            AccessControlEntryImpl ace = new AccessControlEntryImpl(aceId, acl, recipient, permission, granting,
-                    auditSuccess, auditFailure);
-
-            Field acesField = FieldUtils.getField(AclImpl.class, "aces");
-            List<AccessControlEntryImpl> aces;
-
-            try {
-                acesField.setAccessible(true);
-                aces = (List<AccessControlEntryImpl>) acesField.get(acl);
-            } catch (IllegalAccessException ex) {
-                throw new IllegalStateException("Could not obtain AclImpl.ace field: cause[" + ex.getMessage() + "]");
-            }
-
-            // Add the ACE if it doesn't already exist in the ACL.aces field
-            if (!aces.contains(ace)) {
-                aces.add(ace);
-            }
+    @SuppressWarnings("unchecked")
+    private List<AccessControlEntryImpl> readAces(AclImpl acl) {
+        try {
+            return (List<AccessControlEntryImpl>) fieldAces.get(acl);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Could not obtain AclImpl.aces field", e);
         }
     }
+
+    private void setAclOnAce(AccessControlEntryImpl ace, AclImpl acl) {
+        try {
+            fieldAcl.set(ace, acl);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Could not or set AclImpl on AccessControlEntryImpl fields", e);
+        }
+    }
+
+    private void setAces(AclImpl acl, List<AccessControlEntryImpl> aces) {
+        try {
+            fieldAces.set(acl, aces);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Could not set AclImpl entries", e);
+        }
+    }
+
 
     protected Permission convertMaskIntoPermission(int mask) {
         return BasePermission.buildFromMask(mask);
@@ -291,22 +237,20 @@ public final class BasicLookupStrategy implements LookupStrategy {
      * @param findNow Long-based primary keys to retrieve
      * @param sids
      */
-    private void lookupPrimaryKeys(final Map acls, final Set findNow, final List<Sid> sids) {
+    private void lookupPrimaryKeys(final Map<Serializable, Acl> acls, final Set<Long> findNow, final List<Sid> sids) {
         Assert.notNull(acls, "ACLs are required");
         Assert.notEmpty(findNow, "Items to find now required");
 
         String sql = computeRepeatingSql("(acl_object_identity.id = ?)", findNow.size());
 
-        Set parentsToLookup = (Set) jdbcTemplate.query(sql,
+        Set<Long> parentsToLookup = jdbcTemplate.query(sql,
             new PreparedStatementSetter() {
-                public void setValues(PreparedStatement ps)
-                    throws SQLException {
-                    Iterator iter = findNow.iterator();
+                public void setValues(PreparedStatement ps) throws SQLException {
                     int i = 0;
 
-                    while (iter.hasNext()) {
+                    for (Long toFind : findNow) {
                         i++;
-                        ps.setLong(i, ((Long) iter.next()).longValue());
+                        ps.setLong(i, toFind);
                     }
                 }
             }, new ProcessResultSet(acls, sids));
@@ -466,11 +410,11 @@ public final class BasicLookupStrategy implements LookupStrategy {
 
     //~ Inner Classes ==================================================================================================
 
-    private class ProcessResultSet implements ResultSetExtractor {
-        private Map acls;
+    private class ProcessResultSet implements ResultSetExtractor<Set<Long>> {
+        private Map<Serializable, Acl> acls;
         private List<Sid> sids;
 
-        public ProcessResultSet(Map acls, List<Sid> sids) {
+        public ProcessResultSet(Map<Serializable, Acl> acls, List<Sid> sids) {
             Assert.notNull(acls, "ACLs cannot be null");
             this.acls = acls;
             this.sids = sids; // can be null
@@ -487,7 +431,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
          * @throws SQLException
          * @throws DataAccessException
          */
-        public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
+        public Set<Long> extractData(ResultSet rs) throws SQLException, DataAccessException {
             Set<Long> parentIdsToLookup = new HashSet<Long>(); // Set of parent_id Longs
 
             while (rs.next()) {
@@ -516,8 +460,81 @@ public final class BasicLookupStrategy implements LookupStrategy {
                 }
             }
 
-            // Return the parents left to lookup to the calller
+            // Return the parents left to lookup to the caller
             return parentIdsToLookup;
+        }
+
+        /**
+         * Accepts the current <code>ResultSet</code> row, and converts it into an <code>AclImpl</code> that
+         * contains a <code>StubAclParent</code>
+         *
+         * @param acls the Map we should add the converted Acl to
+         * @param rs the ResultSet focused on a current row
+         *
+         * @throws SQLException if something goes wrong converting values
+         */
+        private void convertCurrentResultIntoObject(Map<Serializable, Acl> acls, ResultSet rs) throws SQLException {
+            Long id = new Long(rs.getLong("acl_id"));
+
+            // If we already have an ACL for this ID, just create the ACE
+            Acl acl = acls.get(id);
+
+            if (acl == null) {
+                // Make an AclImpl and pop it into the Map
+                ObjectIdentity objectIdentity = new ObjectIdentityImpl(rs.getString("class"),
+                        new Long(rs.getLong("object_id_identity")));
+
+                Acl parentAcl = null;
+                long parentAclId = rs.getLong("parent_object");
+
+                if (parentAclId != 0) {
+                    parentAcl = new StubAclParent(new Long(parentAclId));
+                }
+
+                boolean entriesInheriting = rs.getBoolean("entries_inheriting");
+                Sid owner;
+
+                if (rs.getBoolean("acl_principal")) {
+                    owner = new PrincipalSid(rs.getString("acl_sid"));
+                } else {
+                    owner = new GrantedAuthoritySid(rs.getString("acl_sid"));
+                }
+
+                acl = new AclImpl(objectIdentity, id, aclAuthorizationStrategy, auditLogger, parentAcl, null,
+                        entriesInheriting, owner);
+
+                acls.put(id, acl);
+            }
+
+            // Add an extra ACE to the ACL (ORDER BY maintains the ACE list order)
+            // It is permissable to have no ACEs in an ACL (which is detected by a null ACE_SID)
+            if (rs.getString("ace_sid") != null) {
+                Long aceId = new Long(rs.getLong("ace_id"));
+                Sid recipient;
+
+                if (rs.getBoolean("ace_principal")) {
+                    recipient = new PrincipalSid(rs.getString("ace_sid"));
+                } else {
+                    recipient = new GrantedAuthoritySid(rs.getString("ace_sid"));
+                }
+
+                int mask = rs.getInt("mask");
+                Permission permission = convertMaskIntoPermission(mask);
+                boolean granting = rs.getBoolean("granting");
+                boolean auditSuccess = rs.getBoolean("audit_success");
+                boolean auditFailure = rs.getBoolean("audit_failure");
+
+                AccessControlEntryImpl ace = new AccessControlEntryImpl(aceId, acl, recipient, permission, granting,
+                        auditSuccess, auditFailure);
+
+                //Field acesField = FieldUtils.getField(AclImpl.class, "aces");
+                List<AccessControlEntryImpl> aces = readAces((AclImpl)acl);
+
+                // Add the ACE if it doesn't already exist in the ACL.aces field
+                if (!aces.contains(ace)) {
+                    aces.add(ace);
+                }
+            }
         }
     }
 

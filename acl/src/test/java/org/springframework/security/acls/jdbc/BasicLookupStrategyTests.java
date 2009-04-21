@@ -41,10 +41,13 @@ import org.springframework.util.FileCopyUtils;
  * @author Andrei Stefan
  */
 public class BasicLookupStrategyTests {
+
+    private static final Sid BEN_SID = new PrincipalSid("ben");
+
     //~ Instance fields ================================================================================================
 
     private static JdbcTemplate jdbcTemplate;
-    private LookupStrategy strategy;
+    private BasicLookupStrategy strategy;
     private static TestDataSource dataSource;
     private static CacheManager cacheManager;
 
@@ -265,10 +268,10 @@ public class BasicLookupStrategyTests {
 
         // First lookup only child, thus populating the cache with grandParent, parent1 and child
         List<Permission> checkPermission = Arrays.asList(BasePermission.READ);
-        List<Sid> sids = Arrays.asList((Sid)new PrincipalSid("ben"));
+        List<Sid> sids = Arrays.asList(BEN_SID);
         List<ObjectIdentity> childOids = Arrays.asList(childOid);
 
-        ((BasicLookupStrategy) this.strategy).setBatchSize(6);
+        strategy.setBatchSize(6);
         Map<ObjectIdentity, Acl> foundAcls = strategy.readAclsById(childOids, sids);
 
         Acl foundChildAcl = (Acl) foundAcls.get(childOid);
@@ -288,6 +291,17 @@ public class BasicLookupStrategyTests {
         Acl foundParent2Acl = (Acl) foundAcls.get(parent2Oid);
         Assert.assertNotNull(foundParent2Acl);
         Assert.assertTrue(foundParent2Acl.isGranted(checkPermission, sids, false));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void nullOwnerIsNotSupported() {
+        String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (4,2,104,null,null,1);";
+
+        jdbcTemplate.execute(query);
+
+        ObjectIdentity oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(104));
+
+        strategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID));
     }
 
 }
