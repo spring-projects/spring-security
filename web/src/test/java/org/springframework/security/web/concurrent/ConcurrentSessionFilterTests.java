@@ -21,8 +21,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.concurrent.SessionRegistry;
+import org.springframework.security.authentication.concurrent.SessionRegistryImpl;
 import org.springframework.security.web.concurrent.ConcurrentSessionFilter;
-import org.springframework.security.web.concurrent.SessionRegistryImpl;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;

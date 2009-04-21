@@ -13,22 +13,18 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.concurrent;
+package org.springframework.security.authentication.concurrent;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-
+import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
 import org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl;
+import org.springframework.security.authentication.concurrent.SessionIdentifierAware;
 import org.springframework.security.authentication.concurrent.SessionRegistry;
+import org.springframework.security.authentication.concurrent.SessionRegistryImpl;
 import org.springframework.security.core.Authentication;
-
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
-import org.springframework.security.web.concurrent.SessionRegistryImpl;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpSession;
 
 
 /**
@@ -37,25 +33,24 @@ import org.springframework.mock.web.MockHttpSession;
  * @author Ben Alex
  * @version $Id$
  */
-public class ConcurrentSessionControllerImplTests extends TestCase {
+public class ConcurrentSessionControllerImplTests {
     //~ Methods ========================================================================================================
+
+    private static int nextSessionId = 1000;
 
     private Authentication createAuthentication(String user, String password) {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, password);
-        auth.setDetails(createWebDetails(auth));
+        auth.setDetails(new SessionIdentifierAware() {
+            private final String id = Integer.toString(nextSessionId++);
+            public String getSessionId() {
+                return id;
+            }
+        });
 
         return auth;
     }
 
-    private WebAuthenticationDetails createWebDetails(Authentication auth) {
-        MockHttpSession session = new MockHttpSession();
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setSession(session);
-        request.setUserPrincipal(auth);
-
-        return new WebAuthenticationDetails(request);
-    }
-
+    @Test
     public void testLifecycle() throws Exception {
         // Build a test fixture
         ConcurrentSessionControllerImpl sc = new ConcurrentSessionControllerImpl();
@@ -67,7 +62,7 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         sc.checkAuthenticationAllowed(auth);
         sc.registerSuccessfulAuthentication(auth);
 
-        String sessionId1 = ((WebAuthenticationDetails) auth.getDetails()).getSessionId();
+        String sessionId1 = ((SessionIdentifierAware) auth.getDetails()).getSessionId();
         assertFalse(registry.getSessionInformation(sessionId1).isExpired());
 
         // Attempt to authenticate again - it should still be successful
@@ -94,34 +89,24 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         sc.checkAuthenticationAllowed(auth3);
         sc.registerSuccessfulAuthentication(auth3);
 
-        String sessionId3 = ((WebAuthenticationDetails) auth3.getDetails()).getSessionId();
+        String sessionId3 = ((SessionIdentifierAware) auth3.getDetails()).getSessionId();
         assertTrue(registry.getSessionInformation(sessionId1).isExpired());
         assertFalse(registry.getSessionInformation(sessionId3).isExpired());
     }
 
-    public void testStartupDetectsInvalidMaximumSessions()
-        throws Exception {
+    @Test(expected=IllegalArgumentException.class)
+    public void startupDetectsInvalidMaximumSessions() throws Exception {
         ConcurrentSessionControllerImpl sc = new ConcurrentSessionControllerImpl();
         sc.setMaximumSessions(0);
 
-        try {
-            sc.afterPropertiesSet();
-            fail("Should have thrown IAE");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        sc.afterPropertiesSet();
     }
 
-    public void testStartupDetectsInvalidSessionRegistry()
-        throws Exception {
+    @Test(expected=IllegalArgumentException.class)
+    public void startupDetectsInvalidSessionRegistry() throws Exception {
         ConcurrentSessionControllerImpl sc = new ConcurrentSessionControllerImpl();
         sc.setSessionRegistry(null);
 
-        try {
-            sc.afterPropertiesSet();
-            fail("Should have thrown IAE");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        sc.afterPropertiesSet();
     }
 }

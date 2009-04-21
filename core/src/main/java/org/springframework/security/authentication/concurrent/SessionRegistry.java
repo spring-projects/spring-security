@@ -67,11 +67,8 @@ public interface SessionRegistry {
      *
      * @param sessionId to associate with the principal (should never be <code>null</code>)
      * @param principal to associate with the session (should never be <code>null</code>)
-     *
-     * @throws SessionAlreadyUsedException DOCUMENT ME!
      */
-    void registerNewSession(String sessionId, Object principal)
-        throws SessionAlreadyUsedException;
+    void registerNewSession(String sessionId, Object principal);
 
     /**
      * Deletes all the session information being maintained for the specified <code>sessionId</code>. If the

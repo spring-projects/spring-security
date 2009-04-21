@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.concurrent;
+package org.springframework.security.authentication.concurrent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,15 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.security.authentication.concurrent.SessionInformation;
-import org.springframework.security.authentication.concurrent.SessionRegistry;
-import org.springframework.security.web.session.HttpSessionDestroyedEvent;
+import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.util.Assert;
 
 /**
@@ -48,7 +43,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class SessionRegistryImpl implements SessionRegistry, ApplicationListener {
+public class SessionRegistryImpl implements SessionRegistry, ApplicationListener<SessionDestroyedEvent> {
     //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(SessionRegistryImpl.class);
@@ -98,11 +93,9 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
         return (SessionInformation) sessionIds.get(sessionId);
     }
 
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof HttpSessionDestroyedEvent) {
-            String sessionId = ((HttpSession) event.getSource()).getId();
-            removeSessionInformation(sessionId);
-        }
+    public void onApplicationEvent(SessionDestroyedEvent event) {
+        String sessionId = event.getId();
+        removeSessionInformation(sessionId);
     }
 
     public void refreshLastRequest(String sessionId) {

@@ -13,49 +13,59 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.concurrent;
+package org.springframework.security.authentication.concurrent;
 
-import junit.framework.TestCase;
-
-import org.springframework.security.authentication.concurrent.SessionInformation;
-import org.springframework.security.web.concurrent.SessionRegistryImpl;
-import org.springframework.security.web.session.HttpSessionDestroyedEvent;
-
-import org.springframework.mock.web.MockHttpSession;
+import static org.junit.Assert.*;
 
 import java.util.Date;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.session.SessionDestroyedEvent;
 
 /**
  * Tests {@link SessionRegistryImpl}.
  *
-* @author Ben Alex
+ * @author Ben Alex
  * @version $Id$
  */
-public class SessionRegistryImplTests extends TestCase {
+public class SessionRegistryImplTests {
     private SessionRegistryImpl sessionRegistry;
 
     //~ Methods ========================================================================================================
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         sessionRegistry = new SessionRegistryImpl();
     }
 
-    public void testEventPublishing() {
-        MockHttpSession httpSession = new MockHttpSession();
+    @Test
+    public void sessionDestroyedEventRemovesSessionFromRegistry() {
         Object principal = "Some principal object";
-        String sessionId = httpSession.getId();
-        assertNotNull(sessionId);
+        final String sessionId = "zzzz";
 
         // Register new Session
         sessionRegistry.registerNewSession(sessionId, principal);
 
-        // Deregister session via an ApplicationEvent
-        sessionRegistry.onApplicationEvent(new HttpSessionDestroyedEvent(httpSession));
+        // De-register session via an ApplicationEvent
+        sessionRegistry.onApplicationEvent(new SessionDestroyedEvent("") {
+            @Override
+            public String getId() {
+                return sessionId;
+            }
+
+            @Override
+            public SecurityContext getSecurityContext() {
+                return null;
+            }
+        });
 
         // Check attempts to retrieve cleared session return null
         assertNull(sessionRegistry.getSessionInformation(sessionId));
     }
 
+    @Test
     public void testMultiplePrincipals() throws Exception {
         Object principal1 = "principal_1";
         Object principal2 = "principal_2";
@@ -71,6 +81,7 @@ public class SessionRegistryImplTests extends TestCase {
         assertEquals(principal2, sessionRegistry.getAllPrincipals()[1]);
     }
 
+    @Test
     public void testSessionInformationLifecycle() throws Exception {
         Object principal = "Some principal object";
         String sessionId = "1234567890";
@@ -106,6 +117,7 @@ public class SessionRegistryImplTests extends TestCase {
         assertNull(sessionRegistry.getAllSessions(principal, false));
     }
 
+    @Test
     public void testTwoSessionsOnePrincipalExpiring() throws Exception {
         Object principal = "Some principal object";
         String sessionId1 = "1234567890";
@@ -130,6 +142,7 @@ public class SessionRegistryImplTests extends TestCase {
         assertFalse(sessionRegistry.getSessionInformation(sessionId1).isExpired());
     }
 
+    @Test
     public void testTwoSessionsOnePrincipalHandling() throws Exception {
         Object principal = "Some principal object";
         String sessionId1 = "1234567890";
@@ -155,7 +168,7 @@ public class SessionRegistryImplTests extends TestCase {
         assertNull(sessionRegistry.getAllSessions(principal, false));
     }
 
-    boolean contains(String sessionId, Object principal) {
+    private boolean contains(String sessionId, Object principal) {
         SessionInformation[] info = sessionRegistry.getAllSessions(principal, false);
 
         for (int i = 0; i < info.length; i++) {

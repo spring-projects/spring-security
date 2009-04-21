@@ -27,6 +27,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
 import org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl;
+import org.springframework.security.authentication.concurrent.SessionRegistryImpl;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.openid.OpenIDAuthenticationProcessingFilter;
@@ -51,7 +52,6 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.www.BasicProcessingFilter;
 import org.springframework.security.web.concurrent.ConcurrentSessionFilter;
-import org.springframework.security.web.concurrent.SessionRegistryImpl;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.expression.DefaultWebSecurityExpressionHandler;

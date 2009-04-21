@@ -35,11 +35,17 @@ public class HttpSessionDestroyedEvent extends SessionDestroyedEvent {
         super(session);
     }
 
+    public HttpSession getSession() {
+        return (HttpSession) getSource();
+    }
+
+    @Override
     public SecurityContext getSecurityContext() {
         return (SecurityContext) ((HttpSession)getSource()).getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
     }
 
-    public HttpSession getSession() {
-        return (HttpSession) getSource();
+    @Override
+    public String getId() {
+        return getSession().getId();
     }
 }

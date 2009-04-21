@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.concurrent;
+package org.springframework.security.authentication.concurrent;
 
 import junit.framework.TestCase;
 
