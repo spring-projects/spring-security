@@ -712,6 +712,10 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.springframework</groupId>
+                        <artifactId>spring-tx</artifactId>
+                    </exclusion>                    
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
                         <artifactId>spring-beans</artifactId>
                     </exclusion>
                     <exclusion>
