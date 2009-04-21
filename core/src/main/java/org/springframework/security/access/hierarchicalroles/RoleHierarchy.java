@@ -22,22 +22,23 @@ import org.springframework.security.core.GrantedAuthority;
  * The simple interface of a role hierarchy.
  *
  * @author Michael Mayr
- *
  */
 public interface RoleHierarchy {
 
     /**
-     * This method returns an array of all reachable authorities.<br>
+     * Returns an array of all reachable authorities.
+     * <p>
      * Reachable authorities are the directly assigned authorities plus all
      * authorities that are (transitively) reachable from them in the role
-     * hierarchy.<br>
+     * hierarchy.
+     * <p>
      * Example:<br>
      * Role hierarchy: ROLE_A > ROLE_B and ROLE_B > ROLE_C.<br>
      * Directly assigned authority: ROLE_A.<br>
      * Reachable authorities: ROLE_A, ROLE_B, ROLE_C.
      *
-     * @param authorities - Array of the directly assigned authorities.
-     * @return Array of all reachable authorities given the assigned authorities.
+     * @param authorities - List of the directly assigned authorities.
+     * @return List of all reachable authorities given the assigned authorities.
      */
     public List<GrantedAuthority> getReachableGrantedAuthorities(List<GrantedAuthority> authorities);
 
