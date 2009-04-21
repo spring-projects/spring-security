@@ -14,15 +14,12 @@
  */
 package org.springframework.security.acls.objectidentity;
 
-import org.springframework.security.acls.jdbc.LookupStrategy;
+import java.io.Serializable;
+import java.lang.reflect.Method;
 
+import org.springframework.security.acls.jdbc.LookupStrategy;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.ReflectionUtils;
-
-import java.io.Serializable;
-
-import java.lang.reflect.Method;
 
 
 /**
@@ -47,9 +44,9 @@ public class ObjectIdentityImpl implements ObjectIdentity {
         Assert.notNull(identifier, "identifier required");
 
         try {
-            this.javaType = Class.forName(javaType);
-        } catch (Exception ex) {
-            ReflectionUtils.handleReflectionException(ex);
+            this.javaType = ClassUtils.forName(javaType);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Unable to load javaType: " + javaType, e);
         }
 
         this.identifier = identifier;
@@ -69,7 +66,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
      * be considered the {@link #javaType}, so if more control is required,
      * an alternate constructor should be used instead.
      *
-     * @param object the domain object instance to create an identity for
+     * @param object the domain object instance to create an identity for.
      *
      * @throws IdentityUnavailableException if identity could not be extracted
      */
