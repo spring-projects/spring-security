@@ -16,6 +16,7 @@
 package org.springframework.security.authentication.concurrent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -57,18 +58,18 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 
     // ~ Methods =======================================================================================================
 
-    public Object[] getAllPrincipals() {
-        return principals.keySet().toArray();
+    public List<Object> getAllPrincipals() {
+        return Arrays.asList(principals.keySet().toArray());
     }
 
-    public SessionInformation[] getAllSessions(Object principal, boolean includeExpiredSessions) {
-        Set<String> sessionsUsedByPrincipal = principals.get(principal);
+    public List<SessionInformation> getAllSessions(Object principal, boolean includeExpiredSessions) {
+        final Set<String> sessionsUsedByPrincipal = principals.get(principal);
 
         if (sessionsUsedByPrincipal == null) {
             return null;
         }
 
-        List<SessionInformation> list = new ArrayList<SessionInformation>();
+        List<SessionInformation> list = new ArrayList<SessionInformation>(sessionsUsedByPrincipal.size());
 
         synchronized (sessionsUsedByPrincipal) {
             for (String sessionId : sessionsUsedByPrincipal) {
@@ -84,7 +85,7 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
             }
         }
 
-        return (SessionInformation[]) list.toArray(new SessionInformation[0]);
+        return list;
     }
 
     public SessionInformation getSessionInformation(String sessionId) {

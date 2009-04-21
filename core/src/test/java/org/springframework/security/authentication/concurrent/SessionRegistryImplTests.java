@@ -18,6 +18,7 @@ package org.springframework.security.authentication.concurrent;
 import static org.junit.Assert.*;
 
 import java.util.Date;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -77,8 +78,9 @@ public class SessionRegistryImplTests {
         sessionRegistry.registerNewSession(sessionId2, principal1);
         sessionRegistry.registerNewSession(sessionId3, principal2);
 
-        assertEquals(principal1, sessionRegistry.getAllPrincipals()[0]);
-        assertEquals(principal2, sessionRegistry.getAllPrincipals()[1]);
+        assertEquals(2, sessionRegistry.getAllPrincipals().size());
+        assertTrue(sessionRegistry.getAllPrincipals().contains(principal1));
+        assertTrue(sessionRegistry.getAllPrincipals().contains(principal2));
     }
 
     @Test
@@ -95,7 +97,7 @@ public class SessionRegistryImplTests {
         assertNotNull(sessionRegistry.getSessionInformation(sessionId).getLastRequest());
 
         // Retrieve existing session by principal
-        assertEquals(1, sessionRegistry.getAllSessions(principal, false).length);
+        assertEquals(1, sessionRegistry.getAllSessions(principal, false).size());
 
         // Sleep to ensure SessionRegistryImpl will update time
         Thread.sleep(1000);
@@ -107,7 +109,7 @@ public class SessionRegistryImplTests {
         assertTrue(retrieved.after(currentDateTime));
 
         // Check it retrieves correctly when looked up via principal
-        assertEquals(retrieved, sessionRegistry.getAllSessions(principal, false)[0].getLastRequest());
+        assertEquals(retrieved, sessionRegistry.getAllSessions(principal, false).get(0).getLastRequest());
 
         // Clear session information
         sessionRegistry.removeSessionInformation(sessionId);
@@ -124,13 +126,13 @@ public class SessionRegistryImplTests {
         String sessionId2 = "9876543210";
 
         sessionRegistry.registerNewSession(sessionId1, principal);
-        SessionInformation[] sessions = sessionRegistry.getAllSessions(principal, false);
-        assertEquals(1, sessions.length);
+        List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
+        assertEquals(1, sessions.size());
         assertTrue(contains(sessionId1, principal));
 
         sessionRegistry.registerNewSession(sessionId2, principal);
         sessions = sessionRegistry.getAllSessions(principal, false);
-        assertEquals(2, sessions.length);
+        assertEquals(2, sessions.size());
         assertTrue(contains(sessionId2, principal));
 
         // Expire one session
@@ -149,18 +151,18 @@ public class SessionRegistryImplTests {
         String sessionId2 = "9876543210";
 
         sessionRegistry.registerNewSession(sessionId1, principal);
-        SessionInformation[] sessions = sessionRegistry.getAllSessions(principal, false);
-        assertEquals(1, sessions.length);
+        List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
+        assertEquals(1, sessions.size());
         assertTrue(contains(sessionId1, principal));
 
         sessionRegistry.registerNewSession(sessionId2, principal);
         sessions = sessionRegistry.getAllSessions(principal, false);
-        assertEquals(2, sessions.length);
+        assertEquals(2, sessions.size());
         assertTrue(contains(sessionId2, principal));
 
         sessionRegistry.removeSessionInformation(sessionId1);
         sessions = sessionRegistry.getAllSessions(principal, false);
-        assertEquals(1, sessions.length);
+        assertEquals(1, sessions.size());
         assertTrue(contains(sessionId2, principal));
 
         sessionRegistry.removeSessionInformation(sessionId2);
@@ -169,10 +171,10 @@ public class SessionRegistryImplTests {
     }
 
     private boolean contains(String sessionId, Object principal) {
-        SessionInformation[] info = sessionRegistry.getAllSessions(principal, false);
+        List<SessionInformation> info = sessionRegistry.getAllSessions(principal, false);
 
-        for (int i = 0; i < info.length; i++) {
-            if (sessionId.equals(info[i].getSessionId())) {
+        for (int i = 0; i < info.size(); i++) {
+            if (sessionId.equals(info.get(i).getSessionId())) {
                 return true;
             }
         }

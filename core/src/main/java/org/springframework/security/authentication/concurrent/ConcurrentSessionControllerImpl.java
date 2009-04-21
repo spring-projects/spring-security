@@ -15,6 +15,8 @@
 
 package org.springframework.security.authentication.concurrent;
 
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
@@ -29,14 +31,13 @@ import org.springframework.util.Assert;
 
 
 /**
- * Base implementation of {@link ConcurrentSessionControllerImpl} which prohibits simultaneous logins.<p>By default
- * uses {@link SessionRegistryImpl}, although any <code>SessionRegistry</code> may be used.</p>
+ * Base implementation of {@link ConcurrentSessionControllerImpl} which prohibits simultaneous logins.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class ConcurrentSessionControllerImpl implements ConcurrentSessionController, InitializingBean,
-    MessageSourceAware {
+        MessageSourceAware {
     //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
@@ -61,10 +62,10 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
      * @param allowableSessions DOCUMENT ME!
      * @param registry an instance of the <code>SessionRegistry</code> for subclass use
      *
-     * @throws ConcurrentLoginException DOCUMENT ME!
+     * @throws ConcurrentLoginException if the
      */
-    protected void allowableSessionsExceeded(String sessionId, SessionInformation[] sessions, int allowableSessions,
-        SessionRegistry registry) {
+    protected void allowableSessionsExceeded(String sessionId, List<SessionInformation> sessions, int allowableSessions,
+            SessionRegistry registry) {
         if (exceptionIfMaximumExceeded || (sessions == null)) {
             throw new ConcurrentLoginException(messages.getMessage("ConcurrentSessionControllerImpl.exceededAllowed",
                     new Object[] {new Integer(allowableSessions)},
@@ -74,30 +75,25 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
         // Determine least recently used session, and mark it for invalidation
         SessionInformation leastRecentlyUsed = null;
 
-        for (int i = 0; i < sessions.length; i++) {
+        for (int i = 0; i < sessions.size(); i++) {
             if ((leastRecentlyUsed == null)
-                    || sessions[i].getLastRequest().before(leastRecentlyUsed.getLastRequest())) {
-                leastRecentlyUsed = sessions[i];
+                    || sessions.get(i).getLastRequest().before(leastRecentlyUsed.getLastRequest())) {
+                leastRecentlyUsed = sessions.get(i);
             }
         }
 
         leastRecentlyUsed.expireNow();
     }
 
-    public void checkAuthenticationAllowed(Authentication request)
-        throws AuthenticationException {
+    public void checkAuthenticationAllowed(Authentication request) throws AuthenticationException {
         Assert.notNull(request, "Authentication request cannot be null (violation of interface contract)");
 
         Object principal = SessionRegistryUtils.obtainPrincipalFromAuthentication(request);
         String sessionId = SessionRegistryUtils.obtainSessionIdFromAuthentication(request);
 
-        SessionInformation[] sessions = sessionRegistry.getAllSessions(principal, false);
+        final List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
 
-        int sessionCount = 0;
-
-        if (sessions != null) {
-            sessionCount = sessions.length;
-        }
+        int sessionCount = sessions == null ? 0 : sessions.size();
 
         int allowableSessions = getMaximumSessionsForThisUser(request);
         Assert.isTrue(allowableSessions != 0, "getMaximumSessionsForThisUser() must return either -1 to allow "
@@ -106,13 +102,17 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
         if (sessionCount < allowableSessions) {
             // They haven't got too many login sessions running at present
             return;
-        } else if (allowableSessions == -1) {
+        }
+
+        if (allowableSessions == -1) {
             // We permit unlimited logins
             return;
-        } else if (sessionCount == allowableSessions) {
+        }
+
+        if (sessionCount == allowableSessions) {
             // Only permit it though if this request is associated with one of the sessions
-            for (int i = 0; i < sessionCount; i++) {
-                if (sessions[i].getSessionId().equals(sessionId)) {
+            for (SessionInformation si : sessions) {
+                if (si.getSessionId().equals(sessionId)) {
                     return;
                 }
             }

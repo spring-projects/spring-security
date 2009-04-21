@@ -15,6 +15,8 @@
 
 package org.springframework.security.authentication.concurrent;
 
+import java.util.List;
+
 /**
  * Maintains a registry of <code>SessionInformation</code> instances.
  *
@@ -29,7 +31,7 @@ public interface SessionRegistry {
      *
      * @return each of the unique principals, which can then be presented to {@link #getAllSessions(Object, boolean)}.
      */
-    Object[] getAllPrincipals();
+    List<Object> getAllPrincipals();
 
     /**
      * Obtains all the known sessions for the specified principal. Sessions that have been destroyed are not
@@ -41,7 +43,7 @@ public interface SessionRegistry {
      *
      * @return the matching sessions for this principal, or <code>null</code> if none were found
      */
-    SessionInformation[] getAllSessions(Object principal, boolean includeExpiredSessions);
+    List<SessionInformation> getAllSessions(Object principal, boolean includeExpiredSessions);
 
     /**
      * Obtains the session information for the specified <code>sessionId</code>. Even expired sessions are
