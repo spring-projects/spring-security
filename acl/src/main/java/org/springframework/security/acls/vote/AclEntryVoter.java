@@ -55,11 +55,12 @@ import org.springframework.util.StringUtils;
  * method.
  * <p>
  * If the method argument is <tt>null</tt>, the voter will abstain from voting. If the method argument
- * could not be found, an {@link org.springframework.security.access.AuthorizationServiceException} will be thrown.
+ * could not be found, an {@link AuthorizationServiceException} will be thrown.
  * <p>
  * In practical terms users will typically setup a number of <tt>AclEntryVoter</tt>s. Each will have a
- * different {@link #processDomainObjectClass}, {@link #processConfigAttribute} and {@link #requirePermission}
- * combination. For example, a small application might employ the following instances of <tt>AclEntryVoter</tt>:
+ * different {@link #setProcessDomainObjectClass processDomainObjectClass}, {@link #processConfigAttribute} and
+ * {@link #requirePermission} combination. For example, a small application might employ the following instances of
+ * <tt>AclEntryVoter</tt>:
  *  <ul>
  *      <li>Process domain object class <code>BankAccount</code>, configuration attribute
  *      <code>VOTE_ACL_BANK_ACCONT_READ</code>, require permission <code>BasePermission.READ</code></li>
