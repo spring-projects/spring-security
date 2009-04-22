@@ -14,6 +14,7 @@
 
 package org.springframework.security.access.hierarchicalroles;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -35,6 +36,57 @@ public abstract class HierarchicalRolesTestHelper {
             return false;
         }
         return CollectionUtils.isEqualCollection(authorities1, authorities2);
+    }
+
+    public static boolean containTheSameGrantedAuthoritiesCompareByAuthorityString(List<GrantedAuthority> authorities1, List<GrantedAuthority> authorities2) {
+        if (authorities1 == null && authorities2 == null) {
+            return true;
+        }
+
+        if (authorities1 == null || authorities2 == null) {
+            return false;
+        }
+        return CollectionUtils.isEqualCollection(toListOfAuthorityStrings(authorities1), toListOfAuthorityStrings(authorities2));
+    }
+
+    public static List<String> toListOfAuthorityStrings(List<GrantedAuthority> authorities) {
+        if (authorities == null) {
+            return null;
+        }
+
+        List<String> result = new ArrayList<String>(authorities.size());
+        for (GrantedAuthority authority : authorities) {
+            result.add(authority.getAuthority());
+        }
+        return result;
+    }
+
+    public static List<GrantedAuthority> createAuthorityList(final String... roles) {
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(roles.length);
+
+        for (final String role : roles) {
+            // Use non GrantedAuthorityImpl (SEC-863)
+            authorities.add(new GrantedAuthority() {
+                public String getAuthority() {
+                    return role;
+                }
+
+                public int compareTo(GrantedAuthority ga) {
+                    if (ga != null) {
+                        String rhsRole = ga.getAuthority();
+
+                        if (rhsRole == null) {
+                            return -1;
+                        }
+
+                        return role.compareTo(rhsRole);
+                    }
+                    return -1;
+                }
+            });
+        }
+
+        return authorities;
     }
 
 }

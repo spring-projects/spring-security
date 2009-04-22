@@ -110,5 +110,19 @@ public class RoleHierarchyImplTests extends TestCase {
             fail("A cycle in role hierarchy was incorrectly detected!");
         }
     }
+    
+    // SEC-863
+    public void testSimpleRoleHierarchyWithCustomGrantedAuthorityImplementation() {
 
+        List<GrantedAuthority> authorities0 = HierarchicalRolesTestHelper.createAuthorityList("ROLE_0");
+        List<GrantedAuthority> authorities1 = HierarchicalRolesTestHelper.createAuthorityList("ROLE_A");
+        List<GrantedAuthority> authorities2 = HierarchicalRolesTestHelper.createAuthorityList("ROLE_A","ROLE_B");
+
+        RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+        roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B");
+
+        assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthoritiesCompareByAuthorityString(roleHierarchyImpl.getReachableGrantedAuthorities(authorities0), authorities0));
+        assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthoritiesCompareByAuthorityString(roleHierarchyImpl.getReachableGrantedAuthorities(authorities1), authorities2));
+        assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthoritiesCompareByAuthorityString(roleHierarchyImpl.getReachableGrantedAuthorities(authorities2), authorities2));
+    }
 }

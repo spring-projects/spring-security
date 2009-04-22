@@ -106,8 +106,8 @@ public class RoleHierarchyImpl implements RoleHierarchy {
         Set<GrantedAuthority> reachableRoles = new HashSet<GrantedAuthority>();
 
         for (GrantedAuthority authority : authorities) {
-            reachableRoles.add(authority);
-            Set<GrantedAuthority> additionalReachableRoles = rolesReachableInOneOrMoreStepsMap.get(authority);
+            addReachableRoles(reachableRoles, authority);
+            Set<GrantedAuthority> additionalReachableRoles = getRolesReachableInOneOrMoreSteps(authority);
             if (additionalReachableRoles != null) {
                 reachableRoles.addAll(additionalReachableRoles);
             }
@@ -124,6 +124,41 @@ public class RoleHierarchyImpl implements RoleHierarchy {
         return reachableRoleList;
     }
 
+    // SEC-863
+	private void addReachableRoles(Set<GrantedAuthority> reachableRoles,
+			GrantedAuthority authority) {
+		
+		Iterator<GrantedAuthority> iterator = reachableRoles.iterator();		
+		while (iterator.hasNext()) {
+			GrantedAuthority testAuthority = iterator.next(); 
+			String testKey = testAuthority.getAuthority();
+			if ((testKey != null) && (testKey.equals(authority.getAuthority()))) {
+				return;
+			}
+		}
+		reachableRoles.add(authority);
+	}
+
+    // SEC-863
+	private Set<GrantedAuthority> getRolesReachableInOneOrMoreSteps(
+			GrantedAuthority authority) {
+		
+		if (authority.getAuthority() == null) {
+			return null;
+		}
+		
+		Iterator<GrantedAuthority> iterator = rolesReachableInOneOrMoreStepsMap.keySet().iterator();		
+		while (iterator.hasNext()) {
+			GrantedAuthority testAuthority = iterator.next(); 
+			String testKey = testAuthority.getAuthority();
+			if ((testKey != null) && (testKey.equals(authority.getAuthority()))) {
+				return rolesReachableInOneOrMoreStepsMap.get(testAuthority);
+			}
+		}
+		
+		return null;
+	}
+    
     /**
      * Parse input and build the map for the roles reachable in one step: the higher role will become a key that
      * references a set of the reachable lower roles.
@@ -145,7 +180,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
             } else {
                 rolesReachableInOneStepSet = rolesReachableInOneStepMap.get(higherRole);
             }
-            rolesReachableInOneStepSet.add(lowerRole);
+            addReachableRoles(rolesReachableInOneStepSet, lowerRole);
 
             logger.debug("buildRolesReachableInOneStepMap() - From role "
                     + higherRole + " one can reach role " + lowerRole + " in one step.");
@@ -174,7 +209,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
                 // take a role from the rolesToVisit set
                 GrantedAuthority aRole = (GrantedAuthority) rolesToVisitSet.iterator().next();
                 rolesToVisitSet.remove(aRole);
-                visitedRolesSet.add(aRole);
+                addReachableRoles(visitedRolesSet, aRole);
                 if (rolesReachableInOneStepMap.containsKey(aRole)) {
                     Set<GrantedAuthority> newReachableRoles = rolesReachableInOneStepMap.get(aRole);
 
