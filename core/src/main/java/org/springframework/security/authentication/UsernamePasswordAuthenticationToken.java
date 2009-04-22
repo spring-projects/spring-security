@@ -35,9 +35,8 @@ import org.springframework.security.core.GrantedAuthority;
 public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================
 
-    private static final long serialVersionUID = 1L;
-    private Object credentials;
-    private Object principal;
+    private final Object credentials;
+    private final Object principal;
 
     //~ Constructors ===================================================================================================
 
@@ -91,7 +90,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
         if (isAuthenticated) {
             throw new IllegalArgumentException(
-                "Cannot set this token to trusted - use constructor containing GrantedAuthority[]s instead");
+                "Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
         }
 
         super.setAuthenticated(false);

@@ -15,9 +15,8 @@ import org.springframework.security.core.GrantedAuthority;
  * @since 2.0
  */
 public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationToken {
-    private Object principal;
-
-    private Object credentials;
+    private final Object principal;
+    private final Object credentials;
 
     /**
      * Constructor used for an authentication request. The {@link

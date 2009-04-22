@@ -32,8 +32,7 @@ import javax.security.auth.login.LoginContext;
 public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken {
     //~ Instance fields ================================================================================================
 
-    private static final long serialVersionUID = 1L;
-    private transient LoginContext loginContext = null;
+    private final transient LoginContext loginContext;
 
     //~ Constructors ===================================================================================================
 

@@ -37,7 +37,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
     //~ Instance fields ================================================================================================
 
     private Object details;
-    private List<GrantedAuthority> authorities;
+    private final List<GrantedAuthority> authorities;
     private boolean authenticated = false;
 
     //~ Constructors ===================================================================================================
@@ -53,7 +53,9 @@ public abstract class AbstractAuthenticationToken implements Authentication {
      *                    presented if the principal has not been authenticated).
      */
     public AbstractAuthenticationToken(List<GrantedAuthority> authorities) {
-        if (authorities != null) {
+        if (authorities == null) {
+            this.authorities = null;
+        } else {
             for (int i = 0; i < authorities.size(); i++) {
                 if(authorities.get(i) == null) {
                     throw new IllegalArgumentException("Granted authority element " + i

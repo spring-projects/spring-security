@@ -26,24 +26,24 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
 /**
- * Models core user information retieved by an {@link UserDetailsService}.<p>Implemented with value object
- * semantics (immutable after construction, like a <code>String</code>). Developers may use this class directly,
- * subclass it, or write their own {@link UserDetails} implementation from scratch.</p>
+ * Models core user information retrieved by a {@link UserDetailsService}.
+ * <p>
+ * Implemented with value object semantics (immutable after construction, like a <code>String</code>).
+ * Developers may use this class directly, subclass it, or write their own {@link UserDetails} implementation from
+ * scratch.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class User implements UserDetails {
     //~ Instance fields ================================================================================================
-
-    private static final long serialVersionUID = 1L;
-    private String password;
-    private String username;
-    private List<GrantedAuthority> authorities;
-    private boolean accountNonExpired;
-    private boolean accountNonLocked;
-    private boolean credentialsNonExpired;
-    private boolean enabled;
+    private final String password;
+    private final String username;
+    private final List<GrantedAuthority> authorities;
+    private final boolean accountNonExpired;
+    private final boolean accountNonLocked;
+    private final boolean credentialsNonExpired;
+    private final boolean enabled;
 
     //~ Constructors ===================================================================================================
 
@@ -92,7 +92,7 @@ public class User implements UserDetails {
         this.accountNonExpired = accountNonExpired;
         this.credentialsNonExpired = credentialsNonExpired;
         this.accountNonLocked = accountNonLocked;
-        setAuthorities(authorities);
+        this.authorities = Collections.unmodifiableList(sortAuthorities(authorities));
     }
 
     //~ Methods ========================================================================================================
@@ -182,7 +182,7 @@ public class User implements UserDetails {
         return enabled;
     }
 
-    protected void setAuthorities(List<GrantedAuthority> authorities) {
+    private static List<GrantedAuthority> sortAuthorities(List<GrantedAuthority> authorities) {
         Assert.notNull(authorities, "Cannot pass a null GrantedAuthority array");
         // Ensure array iteration order is predictable (as per UserDetails.getAuthorities() contract and SEC-xxx)
         SortedSet<GrantedAuthority> sorter = new TreeSet<GrantedAuthority>();
@@ -195,7 +195,7 @@ public class User implements UserDetails {
         List<GrantedAuthority> sortedAuthorities = new ArrayList<GrantedAuthority>(sorter.size());
         sortedAuthorities.addAll(sorter);
 
-        this.authorities = Collections.unmodifiableList(sortedAuthorities);
+        return sortedAuthorities;
     }
 
     public String toString() {

@@ -33,8 +33,8 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
     //~ Instance fields ================================================================================================
 
     private static final long serialVersionUID = 1L;
-    private Object principal;
-    private int keyHash;
+    private final Object principal;
+    private final int keyHash;
 
     //~ Constructors ===================================================================================================
 

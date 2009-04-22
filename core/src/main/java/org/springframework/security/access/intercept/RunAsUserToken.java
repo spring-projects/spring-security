@@ -33,11 +33,10 @@ import org.springframework.security.core.GrantedAuthority;
 public class RunAsUserToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================
 
-    private static final long serialVersionUID = 1L;
-    private Class<? extends Authentication> originalAuthentication;
-    private Object credentials;
-    private Object principal;
-    private int keyHash;
+    private final Class<? extends Authentication> originalAuthentication;
+    private final Object credentials;
+    private final Object principal;
+    private final int keyHash;
 
     //~ Constructors ===================================================================================================
 

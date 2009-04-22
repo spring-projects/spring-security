@@ -29,9 +29,9 @@ import org.springframework.security.core.GrantedAuthority;
 public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================
 
-    private OpenIDAuthenticationStatus status;
-    private String identityUrl;
-    private String message;
+    private final OpenIDAuthenticationStatus status;
+    private final String identityUrl;
+    private final String message;
 
     //~ Constructors ===================================================================================================
 
@@ -52,6 +52,7 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
         super(authorities);
         this.status = status;
         this.identityUrl = identityUrl;
+        this.message = null;
 
         setAuthenticated(true);
     }

@@ -23,8 +23,10 @@ import org.springframework.security.core.GrantedAuthority;
 
 
 /**
- * Represents a remembered <code>Authentication</code>.<p>A remembered <code>Authentication</code> must provide a
- * fully valid <code>Authentication</code>, including the <code>GrantedAuthority</code>[]s that apply.</p>
+ * Represents a remembered <code>Authentication</code>.
+ * <p>
+ * A remembered <code>Authentication</code> must provide a fully valid <code>Authentication</code>, including the
+ * <code>GrantedAuthority</code>s that apply.
  *
  * @author Ben Alex
  * @version $Id$
@@ -32,9 +34,8 @@ import org.springframework.security.core.GrantedAuthority;
 public class RememberMeAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
     //~ Instance fields ================================================================================================
 
-    private static final long serialVersionUID = 1L;
-    private Object principal;
-    private int keyHash;
+    private final Object principal;
+    private final int keyHash;
 
     //~ Constructors ===================================================================================================
 
