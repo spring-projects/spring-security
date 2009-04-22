@@ -97,7 +97,7 @@ create table acl_object_identity (
   object_id_class bigint not null, 
   object_id_identity bigint not null, 
   parent_object bigint, 
-  owner_sid bigint, 
+  owner_sid bigint not null, 
   entries_inheriting boolean not null, 
   constraint unique_uk_3 unique(object_id_class,object_id_identity), 
   constraint foreign_fk_1 foreign key(parent_object)references acl_object_identity(id), 
