@@ -87,7 +87,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
             return (PersistentRememberMeToken) tokensBySeriesMapping.findObject(seriesId);
         } catch(IncorrectResultSizeDataAccessException moreThanOne) {
             logger.error("Querying token for series '" + seriesId + "' returned more than one value. Series" +
-                    "should be unique");
+                    " should be unique");
         } catch(DataAccessException e) {
             logger.error("Failed to load token for series " + seriesId, e);
         }
