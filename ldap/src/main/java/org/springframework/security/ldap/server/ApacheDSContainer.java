@@ -183,6 +183,10 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
     @SuppressWarnings("unchecked")
     public void stop() {
+        if (!isRunning()) {
+            return;
+        }
+
         Properties env = new Properties();
         env.setProperty(Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName());
         env.setProperty(Context.SECURITY_AUTHENTICATION, "simple");
