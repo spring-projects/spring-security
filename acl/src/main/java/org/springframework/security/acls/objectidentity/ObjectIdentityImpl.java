@@ -17,7 +17,6 @@ package org.springframework.security.acls.objectidentity;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import org.springframework.security.acls.jdbc.LookupStrategy;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
@@ -92,35 +91,38 @@ public class ObjectIdentityImpl implements ObjectIdentity {
     //~ Methods ========================================================================================================
 
     /**
-     * Important so caching operates properly.<P>Considers an object of the same class equal if it has the same
-     * <code>classname</code> and <code>id</code> properties.</p>
-     *
+     * Important so caching operates properly.
      * <p>
-     * Note that this class uses string equality for the identifier field, which ensures it better supports
-     * differences between {@link LookupStrategy} requirements and the domain object represented by this
-     * <code>ObjectIdentityImpl</code>.
-     * </p>
+     * Considers an object of the same class equal if it has the same <code>classname</code> and
+     * <code>id</code> properties.
+     * <p>
+     * Numeric identities (Integer and Long values) are considered equal if they are numerically equal. Other
+     * serializable types are evaluated using a simple equality.
      *
      * @param arg0 object to compare
      *
      * @return <code>true</code> if the presented object matches this object
      */
     public boolean equals(Object arg0) {
-        if (arg0 == null) {
-            return false;
-        }
-
-        if (!(arg0 instanceof ObjectIdentityImpl)) {
+        if (arg0 == null || !(arg0 instanceof ObjectIdentityImpl)) {
             return false;
         }
 
         ObjectIdentityImpl other = (ObjectIdentityImpl) arg0;
 
-        if (this.getIdentifier().toString().equals(other.getIdentifier().toString()) && this.getJavaType().equals(other.getJavaType())) {
-            return true;
+        if (identifier instanceof Number && other.identifier instanceof Number) {
+            // Integers and Longs with same value should be considered equal
+            if (((Number)identifier).longValue() != ((Number)other.identifier).longValue()) {
+                return false;
+            }
+        } else {
+            // Use plain equality for other serializable types
+            if (!identifier.equals(other.identifier)) {
+                return false;
+            }
         }
 
-        return false;
+        return javaType.equals(other.javaType);
     }
 
     public Serializable getIdentifier() {
@@ -145,7 +147,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(this.getClass().getName()).append("[");
         sb.append("Java Type: ").append(this.javaType.getName());
         sb.append("; Identifier: ").append(this.identifier).append("]");
