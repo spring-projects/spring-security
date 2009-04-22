@@ -10,7 +10,7 @@
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-samples-webflow</artifactId>
     <name>Spring Security - Webflow sample</name>
-    <version>2.5.0-SNAPSHOT</version>
+    <version>3.0.0.CI-SNAPSHOT</version>
     <packaging>war</packaging>
     <dependencies>
         <dependency>
