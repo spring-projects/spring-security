@@ -15,15 +15,14 @@
 
 package org.springframework.security.acls.afterinvocation;
 
-import org.apache.commons.collections.iterators.ArrayIterator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.reflect.Array;
-
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -40,8 +39,8 @@ class ArrayFilterer<T> implements Filterer<T> {
 
     //~ Instance fields ================================================================================================
 
-    private Set<T> removeList;
-    private T[] list;
+    private final Set<T> removeList;
+    private final T[] list;
 
     //~ Constructors ===================================================================================================
 
@@ -88,9 +87,25 @@ class ArrayFilterer<T> implements Filterer<T> {
      *
      * @see org.springframework.security.acls.afterinvocation.Filterer#iterator()
      */
-    @SuppressWarnings("unchecked")
     public Iterator<T> iterator() {
-        return new ArrayIterator(list);
+        return new Iterator<T>() {
+            private int index = 0;
+
+            public boolean hasNext() {
+                return index < list.length;
+            }
+
+            public T next() {
+                if (hasNext() == false) {
+                    throw new NoSuchElementException();
+                }
+                return list[index++];
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
     /**
