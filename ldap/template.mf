@@ -1,0 +1,23 @@
+Bundle-SymbolicName: org.springframework.security.ldap
+Bundle-Name: Spring Security LDAP
+Bundle-Vendor: SpringSource
+Bundle-Version: ${version}
+Bundle-ManifestVersion: 2
+Ignored-Existing-Headers: 
+ Import-Package,
+ Export-Package
+Import-Template: 
+ org.apache.commons.logging.*;version="[1.0.4, 2.0.0)",
+ org.apache.directory.server.*;version="[1.0.2, 1.5)";resolution:=optional,
+ org.springframework.ldap.*;version="[1.3.0,1.4.0)",
+ org.springframework.security.core.*;version="[${version}, 3.1.0)",
+ org.springframework.security.authentication.*;version="[${version}, 3.1.0)",
+ org.springframework.security.provisioning.*;version="[${version}, 3.1.0)",
+ org.springframework.security.util;version="[${version}, 3.1.0)", 
+ org.springframework.beans.*;version="[3.0.0, 3.1.0)",
+ org.springframework.context.*;version="[3.0.0, 3.1.0)", 
+ org.springframework.core.io.*;version="[3.0.0, 3.1.0)",
+ org.springframework.dao.*;version="[3.0.0, 3.1.0)";resolution:=optional,
+ org.springframework.util.*;version="[3.0.0, 3.1.0)",
+ javax.naming.*;version="0";resolution:=optional
+ 

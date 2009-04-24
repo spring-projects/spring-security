@@ -1,0 +1,34 @@
+Bundle-SymbolicName: org.springframework.security.web
+Bundle-Name: Spring Security Web
+Bundle-Vendor: SpringSource
+Bundle-Version: ${version}
+Bundle-ManifestVersion: 2
+Excluded-Exports: 
+ org.springframework.security.web.authentication.preauth.websphere
+Excluded-Imports: 
+ javax.naming.*,
+ javax.rmi.*,
+ javax.sql.*,
+ javax.security.auth.*,
+ org.aopalliance.*
+Ignored-Existing-Headers: 
+ Import-Package,
+ Export-Package
+Import-Template: 
+ org.apache.commons.logging.*;version="[1.0.4, 2.0.0)",
+ org.apache.commons.codec.*;version="[1.3, 2.0)";resolution:=optional,
+ org.springframework.security.core.*;version="[${version}, 3.1.0)",
+ org.springframework.security.authentication.*;version="[${version}, 3.1.0)",
+ org.springframework.security.access.*;version="[${version}, 3.1.0)",
+ org.springframework.security.util;version="[${version}, 3.1.0)",
+ org.springframework.beans.*;version="[3.0.0, 3.1.0)",
+ org.springframework.context.*;version="[3.0.0, 3.1.0)",
+ org.springframework.core;version="[3.0.0, 3.1.0)",
+ org.springframework.dao;version="[3.0.0, 3.1.0)";resolution:=optional,
+ org.springframework.expression;version="[3.0.0, 3.1.0)";resolution:=optional,
+ org.springframework.expression.spel.*;version="[3.0.0, 3.1.0)";resolution:=optional,
+ org.springframework.jdbc.*;version="[3.0.0, 3.1.0)";resolution:=optional,
+ org.springframework.mock.web;version="[3.0.0, 3.1.0)";resolution:=optional,
+ org.springframework.web.context.*;version="[3.0.0, 3.1.0)";resolution:=optional,
+ org.springframework.util;version="[3.0.0, 3.1.0)";resolution:=optional,
+ javax.servlet.*;version="0"
