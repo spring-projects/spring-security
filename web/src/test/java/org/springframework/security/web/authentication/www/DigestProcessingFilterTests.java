@@ -17,43 +17,32 @@ package org.springframework.security.web.authentication.www;
 
 import static org.junit.Assert.*;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.security.MockFilterConfig;
-
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.cache.NullUserCache;
-import org.springframework.security.core.userdetails.memory.InMemoryDaoImpl;
-import org.springframework.security.core.userdetails.memory.UserMap;
-import org.springframework.security.core.userdetails.memory.UserMapEditor;
-
-
-
-import org.springframework.security.util.StringSplitUtils;
-import org.springframework.security.web.authentication.www.DigestProcessingFilter;
-import org.springframework.security.web.authentication.www.DigestProcessingFilterEntryPoint;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
-import org.springframework.util.StringUtils;
-
 import java.io.IOException;
-
 import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.MockFilterConfig;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.cache.NullUserCache;
+import org.springframework.security.core.userdetails.memory.InMemoryDaoImpl;
+import org.springframework.security.core.userdetails.memory.UserMap;
+import org.springframework.security.core.userdetails.memory.UserMapEditor;
+import org.springframework.util.StringUtils;
 
 
 /**
@@ -153,7 +142,7 @@ public class DigestProcessingFilterTests {
     public void testExpiredNonceReturnsForbiddenWithStaleHeader()
             throws Exception {
         String nonce = generateNonce(0);
-        String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
+        String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, nonce, NC, CNONCE);
 
         request.addHeader("Authorization",
@@ -168,7 +157,7 @@ public class DigestProcessingFilterTests {
 
         String header = response.getHeader("WWW-Authenticate").toString().substring(7);
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
-        Map<String,String> headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+        Map<String,String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
         assertEquals("true", headerMap.get("stale"));
     }
 
@@ -222,7 +211,7 @@ public class DigestProcessingFilterTests {
     public void testNonBase64EncodedNonceReturnsForbidden() throws Exception {
         String nonce = "NOT_BASE_64_ENCODED";
 
-        String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
+        String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, nonce, NC, CNONCE);
 
         request.addHeader("Authorization",
@@ -237,7 +226,7 @@ public class DigestProcessingFilterTests {
     @Test
     public void testNonceWithIncorrectSignatureForNumericFieldReturnsForbidden() throws Exception {
         String nonce = new String(Base64.encodeBase64("123456:incorrectStringPassword".getBytes()));
-        String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
+        String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, nonce, NC, CNONCE);
 
         request.addHeader("Authorization",
@@ -252,7 +241,7 @@ public class DigestProcessingFilterTests {
     @Test
     public void testNonceWithNonNumericFirstElementReturnsForbidden() throws Exception {
         String nonce = new String(Base64.encodeBase64("hello:ignoredSecondElement".getBytes()));
-        String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
+        String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, nonce, NC, CNONCE);
 
         request.addHeader("Authorization",
@@ -267,7 +256,7 @@ public class DigestProcessingFilterTests {
     @Test
     public void testNonceWithoutTwoColonSeparatedElementsReturnsForbidden() throws Exception {
         String nonce = new String(Base64.encodeBase64("a base 64 string without a colon".getBytes()));
-        String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
+        String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, nonce, NC, CNONCE);
 
         request.addHeader("Authorization",
@@ -281,8 +270,8 @@ public class DigestProcessingFilterTests {
 
     @Test
     public void testNormalOperationWhenPasswordIsAlreadyEncoded() throws Exception {
-        String encodedPassword = DigestProcessingFilter.encodePasswordInA1Format(USERNAME, REALM, PASSWORD);
-        String responseDigest = DigestProcessingFilter.generateDigest(true, USERNAME, REALM, encodedPassword, "GET",
+        String encodedPassword = DigestAuthUtils.encodePasswordInA1Format(USERNAME, REALM, PASSWORD);
+        String responseDigest = DigestAuthUtils.generateDigest(true, USERNAME, REALM, encodedPassword, "GET",
                 REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
         request.addHeader("Authorization",
@@ -297,7 +286,7 @@ public class DigestProcessingFilterTests {
 
     @Test
     public void testNormalOperationWhenPasswordNotAlreadyEncoded() throws Exception {
-        String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
+        String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
         request.addHeader("Authorization",
@@ -336,7 +325,7 @@ public class DigestProcessingFilterTests {
 
     @Test
     public void successfulLoginThenFailedLoginResultsInSessionLosingToken() throws Exception {
-        String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
+        String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
         request.addHeader("Authorization",
@@ -347,7 +336,7 @@ public class DigestProcessingFilterTests {
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
 
         // Now retry, giving an invalid nonce
-        responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, "WRONG_PASSWORD", "GET",
+        responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, "WRONG_PASSWORD", "GET",
                 REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
         request = new MockHttpServletRequest();
@@ -365,7 +354,7 @@ public class DigestProcessingFilterTests {
     public void wrongCnonceBasedOnDigestReturnsForbidden() throws Exception {
         String cnonce = "NOT_SAME_AS_USED_FOR_DIGEST_COMPUTATION";
 
-        String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
+        String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
                 REQUEST_URI, QOP, NONCE, NC, "DIFFERENT_CNONCE");
 
         request.addHeader("Authorization",
@@ -380,7 +369,7 @@ public class DigestProcessingFilterTests {
     @Test
     public void wrongDigestReturnsForbidden() throws Exception {
         String password = "WRONG_PASSWORD";
-        String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, REALM, password, "GET",
+        String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, password, "GET",
                 REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
         request.addHeader("Authorization",
@@ -395,7 +384,7 @@ public class DigestProcessingFilterTests {
     @Test
     public void wrongRealmReturnsForbidden() throws Exception {
         String realm = "WRONG_REALM";
-        String responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME, realm, PASSWORD, "GET",
+        String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, realm, PASSWORD, "GET",
                 REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
         request.addHeader("Authorization",
@@ -409,7 +398,7 @@ public class DigestProcessingFilterTests {
 
     @Test
     public void wrongUsernameReturnsForbidden() throws Exception {
-        String responseDigest = DigestProcessingFilter.generateDigest(false, "NOT_A_KNOWN_USER", REALM, PASSWORD,
+        String responseDigest = DigestAuthUtils.generateDigest(false, "NOT_A_KNOWN_USER", REALM, PASSWORD,
                 "GET", REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
         request.addHeader("Authorization",

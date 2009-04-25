@@ -21,8 +21,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
-import org.springframework.security.util.TextUtils;
 import org.springframework.security.web.FilterChainOrder;
+import org.springframework.security.web.util.TextEscapeUtils;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
@@ -88,7 +88,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
         HttpSession session = request.getSession(false);
 
         if (session != null || getAllowSessionCreation()) {
-            request.getSession().setAttribute(SPRING_SECURITY_LAST_USERNAME_KEY, TextUtils.escapeEntities(username));
+            request.getSession().setAttribute(SPRING_SECURITY_LAST_USERNAME_KEY, TextEscapeUtils.escapeEntities(username));
         }
 
         // Allow subclasses to set the "details" property

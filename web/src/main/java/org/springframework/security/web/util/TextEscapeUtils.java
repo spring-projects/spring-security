@@ -1,14 +1,14 @@
-package org.springframework.security.util;
+package org.springframework.security.web.util;
 
 /**
- * Utilities for working with Strings and text.
+ * Utility for escaping characters in HTML strings.
  *
  * @author Luke Taylor
  * @version $Id$
  */
-public abstract class TextUtils {
+public abstract class TextEscapeUtils {
 
-    public static String escapeEntities(String s) {
+    public final static String escapeEntities(String s) {
         if (s == null || s.length() == 0) {
             return s;
         }

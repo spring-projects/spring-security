@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.util;
+package org.springframework.security.web.authentication.www;
 
 import junit.framework.TestCase;
 
@@ -28,7 +28,7 @@ import java.util.Map;
  * @author Ben Alex
  * @version $Id$
  */
-public class StringSplitUtilsTests extends TestCase {
+public class DigestAuthUtilsTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     //~ Methods ========================================================================================================
@@ -37,7 +37,7 @@ public class StringSplitUtilsTests extends TestCase {
         // note it ignores malformed entries (ie those without an equals sign)
         String unsplit = "username=\"rod\", invalidEntryThatHasNoEqualsSign, realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
-        Map<String, String> headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+        Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
         assertEquals("rod", headerMap.get("username"));
         assertEquals("Contacts Realm", headerMap.get("realm"));
@@ -54,7 +54,7 @@ public class StringSplitUtilsTests extends TestCase {
     public void testSplitEachArrayElementAndCreateMapRespectsInstructionNotToRemoveCharacters() {
         String unsplit = "username=\"rod\", realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
-        Map<String, String> headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", null);
+        Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", null);
 
         assertEquals("\"rod\"", headerMap.get("username"));
         assertEquals("\"Contacts Realm\"", headerMap.get("realm"));
@@ -69,47 +69,47 @@ public class StringSplitUtilsTests extends TestCase {
     }
 
     public void testSplitEachArrayElementAndCreateMapReturnsNullIfArrayEmptyOrNull() {
-        assertNull(StringSplitUtils.splitEachArrayElementAndCreateMap(null, "=", "\""));
-        assertNull(StringSplitUtils.splitEachArrayElementAndCreateMap(new String[]{}, "=", "\""));
+        assertNull(DigestAuthUtils.splitEachArrayElementAndCreateMap(null, "=", "\""));
+        assertNull(DigestAuthUtils.splitEachArrayElementAndCreateMap(new String[]{}, "=", "\""));
     }
 
     public void testSplitNormalOperation() {
         String unsplit = "username=\"rod==\"";
-        assertEquals("username", StringSplitUtils.split(unsplit, "=")[0]);
-        assertEquals("\"rod==\"", StringSplitUtils.split(unsplit, "=")[1]); // should not remove quotes or extra equals
+        assertEquals("username", DigestAuthUtils.split(unsplit, "=")[0]);
+        assertEquals("\"rod==\"", DigestAuthUtils.split(unsplit, "=")[1]); // should not remove quotes or extra equals
     }
 
     public void testSplitRejectsNullsAndIncorrectLengthStrings() {
         try {
-            StringSplitUtils.split(null, "="); // null
+            DigestAuthUtils.split(null, "="); // null
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
 
         try {
-            StringSplitUtils.split("", "="); // empty string
+            DigestAuthUtils.split("", "="); // empty string
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
 
         try {
-            StringSplitUtils.split("sdch=dfgf", null); // null
+            DigestAuthUtils.split("sdch=dfgf", null); // null
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
 
         try {
-            StringSplitUtils.split("fvfv=dcdc", ""); // empty string
+            DigestAuthUtils.split("fvfv=dcdc", ""); // empty string
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
 
         try {
-            StringSplitUtils.split("dfdc=dcdc", "BIGGER_THAN_ONE_CHARACTER");
+            DigestAuthUtils.split("dfdc=dcdc", "BIGGER_THAN_ONE_CHARACTER");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -117,11 +117,11 @@ public class StringSplitUtilsTests extends TestCase {
     }
 
     public void testSplitWorksWithDifferentDelimiters() {
-        assertEquals(2, StringSplitUtils.split("18/rod", "/").length);
-        assertNull(StringSplitUtils.split("18/rod", "!"));
+        assertEquals(2, DigestAuthUtils.split("18/rod", "/").length);
+        assertNull(DigestAuthUtils.split("18/rod", "!"));
 
         // only guarantees to split at FIRST delimiter, not EACH delimiter
-        assertEquals(2, StringSplitUtils.split("18|rod|foo|bar", "|").length);
+        assertEquals(2, DigestAuthUtils.split("18|rod|foo|bar", "|").length);
     }
 
 
@@ -129,7 +129,7 @@ public class StringSplitUtilsTests extends TestCase {
         String header = "Digest username=\"hamilton,bob\", realm=\"bobs,ok,realm\", nonce=\"the,nonce\", " +
                 "uri=\"the,Uri\", response=\"the,response,Digest\", qop=theqop, nc=thenc, cnonce=\"the,cnonce\"";
 
-        String[] parts = StringSplitUtils.splitIgnoringQuotes(header, ',');
+        String[] parts = DigestAuthUtils.splitIgnoringQuotes(header, ',');
 
         assertEquals(8, parts.length);
     }

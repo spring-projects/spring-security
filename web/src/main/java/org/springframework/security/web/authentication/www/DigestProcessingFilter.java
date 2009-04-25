@@ -44,7 +44,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
-import org.springframework.security.util.StringSplitUtils;
 import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -81,6 +80,7 @@ import org.springframework.util.StringUtils;
 public class DigestProcessingFilter extends SpringSecurityFilter implements Filter, InitializingBean, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
+
     private static final Log logger = LogFactory.getLog(DigestProcessingFilter.class);
 
     //~ Instance fields ================================================================================================
@@ -110,17 +110,17 @@ public class DigestProcessingFilter extends SpringSecurityFilter implements Filt
         if ((header != null) && header.startsWith("Digest ")) {
             String section212response = header.substring(7);
 
-            String[] headerEntries = StringSplitUtils.splitIgnoringQuotes(section212response, ',');
-            Map<String,String> headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+            String[] headerEntries = DigestAuthUtils.splitIgnoringQuotes(section212response, ',');
+            Map<String,String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
-            String username = (String) headerMap.get("username");
-            String realm = (String) headerMap.get("realm");
-            String nonce = (String) headerMap.get("nonce");
-            String uri = (String) headerMap.get("uri");
-            String responseDigest = (String) headerMap.get("response");
-            String qop = (String) headerMap.get("qop"); // RFC 2617 extension
-            String nc = (String) headerMap.get("nc"); // RFC 2617 extension
-            String cnonce = (String) headerMap.get("cnonce"); // RFC 2617 extension
+            String username = headerMap.get("username");
+            String realm = headerMap.get("realm");
+            String nonce = headerMap.get("nonce");
+            String uri = headerMap.get("uri");
+            String responseDigest = headerMap.get("response");
+            String qop = headerMap.get("qop"); // RFC 2617 extension
+            String nc = headerMap.get("nc"); // RFC 2617 extension
+            String cnonce = headerMap.get("cnonce"); // RFC 2617 extension
 
             // Check all required parameters were supplied (ie RFC 2069)
             if ((username == null) || (realm == null) || (nonce == null) || (uri == null) || (response == null)) {
@@ -241,8 +241,8 @@ public class DigestProcessingFilter extends SpringSecurityFilter implements Filt
             String serverDigestMd5;
 
             // Don't catch IllegalArgumentException (already checked validity)
-            serverDigestMd5 = generateDigest(passwordAlreadyEncoded, username, realm, user.getPassword(),
-                    ((HttpServletRequest) request).getMethod(), uri, qop, nonce, nc, cnonce);
+            serverDigestMd5 = DigestAuthUtils.generateDigest(passwordAlreadyEncoded, username, realm, user.getPassword(),
+                    request.getMethod(), uri, qop, nonce, nc, cnonce);
 
             // If digest is incorrect, try refreshing from backend and recomputing
             if (!serverDigestMd5.equals(responseDigest) && !loadedFromDao) {
@@ -263,8 +263,8 @@ public class DigestProcessingFilter extends SpringSecurityFilter implements Filt
                 userCache.putUserInCache(user);
 
                 // Don't catch IllegalArgumentException (already checked validity)
-                serverDigestMd5 = generateDigest(passwordAlreadyEncoded, username, realm, user.getPassword(),
-                        ((HttpServletRequest) request).getMethod(), uri, qop, nonce, nc, cnonce);
+                serverDigestMd5 = DigestAuthUtils.generateDigest(passwordAlreadyEncoded, username, realm, user.getPassword(),
+                        request.getMethod(), uri, qop, nonce, nc, cnonce);
             }
 
             // If digest is still incorrect, definitely reject authentication attempt
@@ -277,7 +277,6 @@ public class DigestProcessingFilter extends SpringSecurityFilter implements Filt
                 fail(request, response,
                         new BadCredentialsException(messages.getMessage("DigestProcessingFilter.incorrectResponse",
                                 "Incorrect response")));
-
                 return;
             }
 
@@ -309,13 +308,6 @@ public class DigestProcessingFilter extends SpringSecurityFilter implements Filt
         chain.doFilter(request, response);
     }
 
-    public static String encodePasswordInA1Format(String username, String realm, String password) {
-        String a1 = username + ":" + realm + ":" + password;
-        String a1Md5 = new String(DigestUtils.md5Hex(a1));
-
-        return a1Md5;
-    }
-
     private void fail(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed)
             throws IOException, ServletException {
         SecurityContextHolder.getContext().setAuthentication(null);
@@ -325,55 +317,6 @@ public class DigestProcessingFilter extends SpringSecurityFilter implements Filt
         }
 
         authenticationEntryPoint.commence(request, response, failed);
-    }
-
-    /**
-     * Computes the <code>response</code> portion of a Digest authentication header. Both the server and user
-     * agent should compute the <code>response</code> independently. Provided as a static method to simplify the
-     * coding of user agents.
-     *
-     * @param passwordAlreadyEncoded true if the password argument is already encoded in the correct format. False if
-     *                               it is plain text.
-     * @param username               the user's login name.
-     * @param realm                  the name of the realm.
-     * @param password               the user's password in plaintext or ready-encoded.
-     * @param httpMethod             the HTTP request method (GET, POST etc.)
-     * @param uri                    the request URI.
-     * @param qop                    the qop directive, or null if not set.
-     * @param nonce                  the nonce supplied by the server
-     * @param nc                     the "nonce-count" as defined in RFC 2617.
-     * @param cnonce                 opaque string supplied by the client when qop is set.
-     * @return the MD5 of the digest authentication response, encoded in hex
-     * @throws IllegalArgumentException if the supplied qop value is unsupported.
-     */
-    public static String generateDigest(boolean passwordAlreadyEncoded, String username, String realm, String password,
-                                        String httpMethod, String uri, String qop, String nonce, String nc, String cnonce)
-            throws IllegalArgumentException {
-        String a1Md5 = null;
-        String a2 = httpMethod + ":" + uri;
-        String a2Md5 = new String(DigestUtils.md5Hex(a2));
-
-        if (passwordAlreadyEncoded) {
-            a1Md5 = password;
-        } else {
-            a1Md5 = encodePasswordInA1Format(username, realm, password);
-        }
-
-        String digest;
-
-        if (qop == null) {
-            // as per RFC 2069 compliant clients (also reaffirmed by RFC 2617)
-            digest = a1Md5 + ":" + nonce + ":" + a2Md5;
-        } else if ("auth".equals(qop)) {
-            // As per RFC 2617 compliant clients
-            digest = a1Md5 + ":" + nonce + ":" + nc + ":" + cnonce + ":" + qop + ":" + a2Md5;
-        } else {
-            throw new IllegalArgumentException("This method does not support a qop: '" + qop + "'");
-        }
-
-        String digestMd5 = new String(DigestUtils.md5Hex(digest));
-
-        return digestMd5;
     }
 
     public DigestProcessingFilterEntryPoint getAuthenticationEntryPoint() {

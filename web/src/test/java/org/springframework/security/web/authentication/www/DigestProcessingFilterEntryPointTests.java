@@ -15,23 +15,16 @@
 
 package org.springframework.security.web.authentication.www;
 
+import java.util.Map;
+
 import junit.framework.TestCase;
-
-
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.util.StringSplitUtils;
-import org.springframework.security.web.authentication.www.DigestProcessingFilterEntryPoint;
-import org.springframework.security.web.authentication.www.NonceExpiredException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.util.StringUtils;
-
-import java.util.Map;
 
 
 /**
@@ -114,7 +107,7 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
         // Break up response header
         String header = response.getHeader("WWW-Authenticate").toString().substring(7);
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
-        Map<String,String> headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+        Map<String,String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
         assertEquals("hello", headerMap.get("realm"));
         assertEquals("auth", headerMap.get("qop"));
@@ -144,7 +137,7 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
         // Break up response header
         String header = response.getHeader("WWW-Authenticate").toString().substring(7);
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
-        Map<String,String> headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+        Map<String,String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
         assertEquals("hello", headerMap.get("realm"));
         assertEquals("auth", headerMap.get("qop"));

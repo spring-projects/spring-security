@@ -19,7 +19,7 @@ package org.springframework.security.taglibs.authz;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.util.TextUtils;
+import org.springframework.security.web.util.TextEscapeUtils;
 
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
@@ -121,7 +121,7 @@ public class AuthenticationTag extends TagSupport {
                 }
             }
         } else {
-            writeMessage(TextUtils.escapeEntities(String.valueOf(result)));
+            writeMessage(TextEscapeUtils.escapeEntities(String.valueOf(result)));
         }
         return EVAL_PAGE;
     }
