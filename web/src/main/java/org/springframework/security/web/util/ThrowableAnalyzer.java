@@ -1,4 +1,4 @@
-package org.springframework.security.util;
+package org.springframework.security.web.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;

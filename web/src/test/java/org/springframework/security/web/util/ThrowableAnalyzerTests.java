@@ -1,6 +1,9 @@
-package org.springframework.security.util;
+package org.springframework.security.web.util;
 
 import java.lang.reflect.InvocationTargetException;
+
+import org.springframework.security.web.util.ThrowableAnalyzer;
+import org.springframework.security.web.util.ThrowableCauseExtractor;
 
 import junit.framework.TestCase;
 
@@ -82,7 +85,7 @@ public class ThrowableAnalyzerTests extends TestCase {
        // Set up nonstandard analyzer
        this.nonstandardAnalyzer = new ThrowableAnalyzer() {
            /**
-            * @see org.springframework.security.util.ThrowableAnalyzer#initExtractorMap()
+            * @see org.springframework.security.web.util.ThrowableAnalyzer#initExtractorMap()
             */
            @Override
            protected void initExtractorMap() {
@@ -107,7 +110,7 @@ public class ThrowableAnalyzerTests extends TestCase {
             new ThrowableAnalyzer() {
 
                 /**
-                 * @see org.springframework.security.util.ThrowableAnalyzer#initExtractorMap()
+                 * @see org.springframework.security.web.util.ThrowableAnalyzer#initExtractorMap()
                  */
                 @Override
                 protected void initExtractorMap() {
@@ -143,7 +146,7 @@ public class ThrowableAnalyzerTests extends TestCase {
         ThrowableAnalyzer analyzer = new ThrowableAnalyzer() {
 
             /**
-             * @see org.springframework.security.util.ThrowableAnalyzer#initExtractorMap()
+             * @see org.springframework.security.web.util.ThrowableAnalyzer#initExtractorMap()
              */
             @Override
             protected void initExtractorMap() {

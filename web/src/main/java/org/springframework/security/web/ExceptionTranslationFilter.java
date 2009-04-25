@@ -29,9 +29,9 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.util.ThrowableAnalyzer;
-import org.springframework.security.util.ThrowableCauseExtractor;
 import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.util.ThrowableAnalyzer;
+import org.springframework.security.web.util.ThrowableCauseExtractor;
 import org.springframework.util.Assert;
 
 /**
@@ -252,7 +252,7 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
      */
     private static final class DefaultThrowableAnalyzer extends ThrowableAnalyzer {
         /**
-         * @see org.springframework.security.util.ThrowableAnalyzer#initExtractorMap()
+         * @see org.springframework.security.web.util.ThrowableAnalyzer#initExtractorMap()
          */
         protected void initExtractorMap() {
             super.initExtractorMap();

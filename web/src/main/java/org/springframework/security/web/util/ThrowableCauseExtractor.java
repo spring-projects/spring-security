@@ -1,4 +1,4 @@
-package org.springframework.security.util;
+package org.springframework.security.web.util;
 
 
 /**
