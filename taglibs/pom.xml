@@ -44,18 +44,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <build>
-        <resources>
-            <resource>
-                <directory>
-                    ${basedir}/src/main/resources
-                </directory>
-                <targetPath>/</targetPath>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
-    </build>
 </project>
