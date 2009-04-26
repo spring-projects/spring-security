@@ -49,7 +49,7 @@ public class BasePermission extends AbstractPermission {
         super(mask, code);
     }
 
-    protected final static void registerPermissionsFor(Class<?> subClass) {
+    protected final static void registerPermissionsFor(Class<? extends Permission> subClass) {
         defaultPermissionFactory.registerPublicPermissions(subClass);
     }
 
