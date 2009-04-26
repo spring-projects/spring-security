@@ -16,8 +16,8 @@
 package org.springframework.security.config;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Matchers.*;
 
 import java.util.List;
 
