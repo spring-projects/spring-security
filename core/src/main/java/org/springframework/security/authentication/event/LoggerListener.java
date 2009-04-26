@@ -17,7 +17,6 @@ package org.springframework.security.authentication.event;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.ClassUtils;
 
@@ -30,7 +29,7 @@ import org.springframework.util.ClassUtils;
  * @author Ben Alex
  * @version $Id$
  */
-public class LoggerListener implements ApplicationListener {
+public class LoggerListener implements ApplicationListener<AbstractAuthenticationEvent> {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(LoggerListener.class);
@@ -40,7 +39,7 @@ public class LoggerListener implements ApplicationListener {
 
     //~ Methods ========================================================================================================
 
-    public void onApplicationEvent(ApplicationEvent event) {
+    public void onApplicationEvent(AbstractAuthenticationEvent event) {
         if (event instanceof AbstractAuthenticationEvent) {
             AbstractAuthenticationEvent authEvent = (AbstractAuthenticationEvent) event;
 

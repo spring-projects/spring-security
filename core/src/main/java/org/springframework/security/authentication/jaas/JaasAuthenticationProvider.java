@@ -32,7 +32,6 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
@@ -127,7 +126,7 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class JaasAuthenticationProvider implements AuthenticationProvider, ApplicationEventPublisherAware,
-        InitializingBean, ApplicationListener {
+        InitializingBean, ApplicationListener<SessionDestroyedEvent> {
     //~ Static fields/initializers =====================================================================================
 
     protected static final Log log = LogFactory.getLog(JaasAuthenticationProvider.class);
@@ -339,11 +338,8 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
         }
     }
 
-    public void onApplicationEvent(ApplicationEvent applicationEvent) {
-        if (applicationEvent instanceof SessionDestroyedEvent) {
-            SessionDestroyedEvent event = (SessionDestroyedEvent) applicationEvent;
-            handleLogout(event);
-        }
+    public void onApplicationEvent(SessionDestroyedEvent event) {
+        handleLogout(event);
     }
 
     /**

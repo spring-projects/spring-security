@@ -15,10 +15,6 @@
 
 package org.springframework.security.authentication;
 
-import org.springframework.security.core.Authentication;
-
-
-
 /**
  * Provides a {@link org.springframework.security.core.Authentication#getDetails()} object for
  * a given web request.

@@ -15,20 +15,17 @@
 
 package org.springframework.security.authentication.jaas;
 
+import org.springframework.context.ApplicationListener;
+import org.springframework.security.authentication.jaas.event.JaasAuthenticationEvent;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationFailedEvent;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationSuccessEvent;
 
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-
 
 /**
- * DOCUMENT ME!
- *
  * @author Ray Krueger
  * @version $Id$
  */
-public class JaasEventCheck implements ApplicationListener {
+public class JaasEventCheck implements ApplicationListener<JaasAuthenticationEvent> {
     //~ Instance fields ================================================================================================
 
     JaasAuthenticationFailedEvent failedEvent;
@@ -36,7 +33,7 @@ public class JaasEventCheck implements ApplicationListener {
 
     //~ Methods ========================================================================================================
 
-    public void onApplicationEvent(ApplicationEvent event) {
+    public void onApplicationEvent(JaasAuthenticationEvent event) {
         if (event instanceof JaasAuthenticationFailedEvent) {
             failedEvent = (JaasAuthenticationFailedEvent) event;
         }
