@@ -56,6 +56,7 @@ public abstract class AbstractLdapIntegrationTests {
     protected AbstractLdapIntegrationTests() {
     }
 
+    @SuppressWarnings("unchecked")
     @BeforeClass
     public static void startServer() throws Exception {
         shutdownRunningServers();

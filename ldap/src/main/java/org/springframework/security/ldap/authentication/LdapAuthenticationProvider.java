@@ -50,7 +50,7 @@ import org.apache.commons.logging.LogFactory;
  * against an LDAP server.
  * <p>
  * There are many ways in which an LDAP directory can be configured so this class delegates most of
- * its responsibilites to two separate strategy interfaces, {@link LdapAuthenticator}
+ * its responsibilities to two separate strategy interfaces, {@link LdapAuthenticator}
  * and {@link LdapAuthoritiesPopulator}.
  *
  * <h3>LdapAuthenticator</h3>
@@ -237,13 +237,17 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
         final UsernamePasswordAuthenticationToken userToken = (UsernamePasswordAuthenticationToken)authentication;
 
         String username = userToken.getName();
+        String password = (String) authentication.getCredentials();
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Processing authentication request for user: " + username);
+        }
 
         if (!StringUtils.hasLength(username)) {
             throw new BadCredentialsException(messages.getMessage("LdapAuthenticationProvider.emptyUsername",
                     "Empty Username"));
         }
 
-        String password = (String) authentication.getCredentials();
         Assert.notNull(password, "Null password was supplied in authentication token");
 
         try {
