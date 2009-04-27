@@ -112,7 +112,7 @@ public class JdbcAclService implements AclService {
         for (int i = 0; i < objects.size(); i++) {
             if (!result.containsKey(objects.get(i))) {
                 throw new NotFoundException("Unable to find ACL information for object identity '"
-                    + objects.get(i).toString() + "'");
+                    + objects.get(i) + "'");
             }
         }
 
