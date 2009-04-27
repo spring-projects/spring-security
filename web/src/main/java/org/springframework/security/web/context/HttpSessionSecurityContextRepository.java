@@ -13,7 +13,6 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
-import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
@@ -25,7 +24,8 @@ import org.springframework.util.ReflectionUtils;
  * method (using the key {@link #SPRING_SECURITY_CONTEXT_KEY}). If a valid <code>SecurityContext</code> cannot be
  * obtained from the <code>HttpSession</code> for whatever reason, a fresh <code>SecurityContext</code> will be created
  * and returned instead. The created object will be an instance of the class set using the
- * {@link #setSecurityContextClass(Class)} method. If this hasn't been set, a {@link SecurityContextImpl} will be returned.
+ * {@link #setSecurityContextClass(Class)} method. If this hasn't been set, a default context implementation
+ * as returned by {@link SecurityContextHolder#createEmptyContext()} will be used.
  * <p>
  * When <tt>saveContext</tt> is called, the context will be stored under the same key, provided
  * <ol>
@@ -62,7 +62,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
     private Class<? extends SecurityContext> securityContextClass = null;
     /** SecurityContext instance used to check for equality with default (unauthenticated) content */
-    private Object contextObject = new SecurityContextImpl();
+    private Object contextObject = SecurityContextHolder.createEmptyContext();
     private boolean cloneFromHttpSession = false;
     private boolean allowSessionCreation = true;
     private boolean disableUrlRewriting = false;
