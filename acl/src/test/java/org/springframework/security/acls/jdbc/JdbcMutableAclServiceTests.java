@@ -54,10 +54,10 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Ben Alex
  * @author Andrei Stefan
- * @version $Id:JdbcAclServiceTests.java 1754 2006-11-17 02:01:21Z benalex $
+ * @version $Id:JdbcMutableAclServiceTests.java 1754 2006-11-17 02:01:21Z benalex $
  */
 @ContextConfiguration(locations={"/org/springframework/security/acls/jdbc/applicationContext-test.xml"})
-public class JdbcAclServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
+public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
     //~ Constant fields ================================================================================================
 
     private final Authentication auth = new TestingAuthenticationToken("ben", "ignored","ROLE_ADMINISTRATOR");
@@ -275,7 +275,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void testConstructorRejectsNullParameters() throws Exception {
+    public void constructorRejectsNullParameters() throws Exception {
         try {
             new JdbcMutableAclService(null, lookupStrategy, aclCache);
             fail("It should have thrown IllegalArgumentException");
@@ -299,7 +299,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void testCreateAclRejectsNullParameter() throws Exception {
+    public void createAclRejectsNullParameter() throws Exception {
         try {
             jdbcMutableAclService.createAcl(null);
             fail("It should have thrown IllegalArgumentException");
@@ -377,6 +377,18 @@ public class JdbcAclServiceTests extends AbstractTransactionalJUnit4SpringContex
         // Check the cache
         assertNull(aclCache.getFromCache(childOid));
         assertNull(aclCache.getFromCache(new Long(102)));
+    }
+
+    /** SEC-1107 */
+    @Test
+    @Transactional
+    @Rollback
+    public void identityWithIntegerIdIsSupported() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        ObjectIdentity oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", Integer.valueOf(101));
+        jdbcMutableAclService.createAcl(oid);
+
+        assertNotNull(jdbcMutableAclService.readAclById(new ObjectIdentityImpl("org.springframework.security.TargetObject", Long.valueOf(101))));
     }
 
     /**

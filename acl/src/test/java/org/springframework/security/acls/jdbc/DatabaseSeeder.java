@@ -27,7 +27,7 @@ import javax.sql.DataSource;
 
 
 /**
- * Seeds the database for {@link JdbcAclServiceTests}.
+ * Seeds the database for {@link JdbcMutableAclServiceTests}.
  *
  * @author Ben Alex
  * @version $Id$

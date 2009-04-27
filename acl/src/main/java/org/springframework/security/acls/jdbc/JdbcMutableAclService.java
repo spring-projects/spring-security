@@ -143,8 +143,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     protected void createObjectIdentity(ObjectIdentity object, Sid owner) {
         Long sidId = createOrRetrieveSidPrimaryKey(owner, true);
         Long classId = createOrRetrieveClassPrimaryKey(object.getJavaType(), true);
-        jdbcTemplate.update(insertObjectIdentity,
-            new Object[] {classId, object.getIdentifier().toString(), sidId, new Boolean(true)});
+        jdbcTemplate.update(insertObjectIdentity, classId, object.getIdentifier().toString(), sidId, Boolean.TRUE);
     }
 
     /**

@@ -75,8 +75,7 @@ public class JdbcAclService implements AclService {
         Object[] args = {parentIdentity.getIdentifier(), parentIdentity.getJavaType().getName()};
         List<ObjectIdentity> objects = jdbcTemplate.query(selectAclObjectWithParent, args,
                 new RowMapper<ObjectIdentity>() {
-                    public ObjectIdentity mapRow(ResultSet rs, int rowNum)
-                        throws SQLException {
+                    public ObjectIdentity mapRow(ResultSet rs, int rowNum) throws SQLException {
                         String javaType = rs.getString("class");
                         Long identifier = new Long(rs.getLong("obj_id"));
 
