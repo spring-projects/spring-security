@@ -20,18 +20,16 @@ import javax.portlet.PortletSession;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextImpl;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.portlet.PortletSessionContextIntegrationInterceptor;
 import org.springframework.mock.web.portlet.MockActionRequest;
 import org.springframework.mock.web.portlet.MockActionResponse;
 import org.springframework.mock.web.portlet.MockRenderRequest;
 import org.springframework.mock.web.portlet.MockRenderResponse;
+import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.User;
 
 /**
  * Tests {@link PortletSessionContextIntegrationInterceptor}.
@@ -169,10 +167,10 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
         // Perform updates to principal
         sessionPrincipal = PortletTestUtils.createAuthenticatedToken(
                 new User(PortletTestUtils.TESTUSER, PortletTestUtils.TESTCRED, true, true, true, true,
-                        new GrantedAuthority[] {new GrantedAuthorityImpl("UPDATEDROLE1")}));
+                        AuthorityUtils.createAuthorityList("UPDATEDROLE1")));
         baselinePrincipal = PortletTestUtils.createAuthenticatedToken(
                 new User(PortletTestUtils.TESTUSER, PortletTestUtils.TESTCRED, true, true, true, true,
-                        new GrantedAuthority[] {new GrantedAuthorityImpl("UPDATEDROLE1")}));
+                        AuthorityUtils.createAuthorityList("UPDATEDROLE1")));
 
         // Store updated principal into SecurityContextHolder
         SecurityContextHolder.getContext().setAuthentication(sessionPrincipal);
@@ -323,10 +321,10 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
         // Perform updates to principal
         sessionPrincipal = PortletTestUtils.createAuthenticatedToken(
                 new User(PortletTestUtils.TESTUSER, PortletTestUtils.TESTCRED, true, true, true, true,
-                        new GrantedAuthority[] {new GrantedAuthorityImpl("UPDATEDROLE1")}));
+                        AuthorityUtils.createAuthorityList("UPDATEDROLE1")));
         baselinePrincipal = PortletTestUtils.createAuthenticatedToken(
                 new User(PortletTestUtils.TESTUSER, PortletTestUtils.TESTCRED, true, true, true, true,
-                        new GrantedAuthority[] {new GrantedAuthorityImpl("UPDATEDROLE1")}));
+                        AuthorityUtils.createAuthorityList("UPDATEDROLE1")));
 
         // Store updated principal into SecurityContextHolder
         SecurityContextHolder.getContext().setAuthentication(sessionPrincipal);

@@ -18,18 +18,16 @@ package org.springframework.security.portlet;
 
 import javax.portlet.PortletRequest;
 
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.portlet.PortletAuthenticationDetails;
 import org.springframework.mock.web.portlet.MockActionRequest;
 import org.springframework.mock.web.portlet.MockActionResponse;
 import org.springframework.mock.web.portlet.MockPortletRequest;
 import org.springframework.mock.web.portlet.MockRenderRequest;
 import org.springframework.mock.web.portlet.MockRenderResponse;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Utilities for testing Portlet (JSR 168) based security.
@@ -54,7 +52,7 @@ public class PortletTestUtils {
 
     public static UserDetails createUser() {
         return new User(PortletTestUtils.TESTUSER, "dummy", true, true, true, true,
-            new GrantedAuthority[] {new GrantedAuthorityImpl(TESTROLE1), new GrantedAuthorityImpl(TESTROLE2)});
+            AuthorityUtils.createAuthorityList(TESTROLE1, TESTROLE2));
     }
 
     public static void applyPortletRequestSecurity(MockPortletRequest request) {
@@ -100,7 +98,7 @@ public class PortletTestUtils {
 
     public static PreAuthenticatedAuthenticationToken createAuthenticatedToken(UserDetails user) {
         PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(
-                user, user.getPassword(), user.getAuthorities().toArray(new GrantedAuthority[0]));
+                user, user.getPassword(), user.getAuthorities());
         result.setAuthenticated(true);
         return result;
     }

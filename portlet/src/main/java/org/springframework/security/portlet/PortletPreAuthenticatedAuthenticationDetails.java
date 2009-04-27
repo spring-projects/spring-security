@@ -1,6 +1,5 @@
 package org.springframework.security.portlet;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class PortletPreAuthenticatedAuthenticationDetails extends PortletAuthent
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(super.toString() + "; ");
-        sb.append("preAuthenticatedGrantedAuthorities: " + Arrays.asList(preAuthenticatedGrantedAuthorities));
+        sb.append("preAuthenticatedGrantedAuthorities: " + preAuthenticatedGrantedAuthorities);
         return sb.toString();
     }
 }

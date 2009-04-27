@@ -22,9 +22,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.portlet.*;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.EventRequest;
+import javax.portlet.EventResponse;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletResponse;
+import javax.portlet.PortletSession;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 
-import org.springframework.security.web.authentication.AbstractProcessingFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationDetailsSourceImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,9 +46,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractProcessingFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.web.portlet.HandlerInterceptor;
 import org.springframework.web.portlet.ModelAndView;
@@ -72,6 +81,7 @@ import org.springframework.web.portlet.ModelAndView;
  * @since 2.0
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class PortletProcessingInterceptor implements HandlerInterceptor, InitializingBean {
 
     //~ Static fields/initializers =====================================================================================
