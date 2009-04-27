@@ -383,7 +383,7 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
     @Test
     @Transactional
     @Rollback
-    public void identityWithIntegerIdIsSupported() throws Exception {
+    public void identityWithIntegerIdIsSupportedByCreateAcl() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(auth);
         ObjectIdentity oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", Integer.valueOf(101));
         jdbcMutableAclService.createAcl(oid);

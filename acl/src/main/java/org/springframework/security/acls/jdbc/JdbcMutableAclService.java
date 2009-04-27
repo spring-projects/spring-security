@@ -116,8 +116,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
                     return acl.getEntries().size();
                 }
 
-                public void setValues(PreparedStatement stmt, int i)
-                        throws SQLException {
+                public void setValues(PreparedStatement stmt, int i) throws SQLException {
                     AccessControlEntry entry_ = acl.getEntries().get(i);
                     Assert.isTrue(entry_ instanceof AccessControlEntryImpl, "Unknown ACE class");
                     AccessControlEntryImpl entry = (AccessControlEntryImpl) entry_;
@@ -187,28 +186,27 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         Assert.notNull(sid, "Sid required");
 
         String sidName = null;
-        boolean principal = true;
+        boolean sidIsPrincipal = true;
 
         if (sid instanceof PrincipalSid) {
             sidName = ((PrincipalSid) sid).getPrincipal();
         } else if (sid instanceof GrantedAuthoritySid) {
             sidName = ((GrantedAuthoritySid) sid).getGrantedAuthority();
-            principal = false;
+            sidIsPrincipal = false;
         } else {
             throw new IllegalArgumentException("Unsupported implementation of Sid");
         }
 
         List<Long> sidIds = jdbcTemplate.queryForList(selectSidPrimaryKey,
-                new Object[] {new Boolean(principal), sidName},  Long.class);
+                new Object[] {Boolean.valueOf(sidIsPrincipal), sidName},  Long.class);
 
         if (!sidIds.isEmpty()) {
             return sidIds.get(0);
         }
 
         if (allowCreate) {
-            jdbcTemplate.update(insertSid, new Object[] {new Boolean(principal), sidName});
-            Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
-                    "Transaction must be running");
+            jdbcTemplate.update(insertSid, new Object[] {Boolean.valueOf(sidIsPrincipal), sidName});
+            Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(), "Transaction must be running");
             return new Long(jdbcTemplate.queryForLong(sidIdentityQuery));
         }
 
