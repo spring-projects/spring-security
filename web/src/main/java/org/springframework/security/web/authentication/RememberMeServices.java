@@ -15,11 +15,10 @@
 
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.rememberme.RememberMeProcessingFilter;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.core.Authentication;
 
 
 /**
@@ -27,8 +26,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * <p>
  * Spring Security filters (namely {@link org.springframework.security.web.authentication.AbstractProcessingFilter} and
- * {@link org.springframework.security.web.authentication.rememberme.RememberMeProcessingFilter} will call
- * the methods provided by an implementation of this interface.
+ * {@link RememberMeProcessingFilter} will call the methods provided by an implementation of this interface.
  * <p>
  * Implementations may implement any type of remember-me capability they wish.
  * Rolling cookies (as per <a href="http://fishbowl.pastiche.org/2004/01/19/persistent_login_cookie_best_practice">
