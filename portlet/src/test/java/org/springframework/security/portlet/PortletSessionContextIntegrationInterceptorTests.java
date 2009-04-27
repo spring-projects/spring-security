@@ -68,25 +68,6 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
         interceptor.afterPropertiesSet();
     }
 
-    public void testDetectsMissingOrInvalidContext() throws Exception {
-        PortletSessionContextIntegrationInterceptor interceptor = new PortletSessionContextIntegrationInterceptor();
-        try {
-            interceptor.setContext(null);
-            interceptor.afterPropertiesSet();
-            fail("Shown have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            // ignore
-        }
-        try {
-            interceptor.setContext(Integer.class);
-            assertEquals(Integer.class, interceptor.getContext());
-            interceptor.afterPropertiesSet();
-            fail("Shown have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            // ignore
-        }
-    }
-
     public void testNormalRenderRequestProcessing() throws Exception {
 
         // Build an Authentication object we simulate came from PortletSession

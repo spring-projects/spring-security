@@ -18,20 +18,30 @@ package org.springframework.security.portlet;
 
 import java.lang.reflect.Method;
 
-import javax.portlet.*;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.EventRequest;
+import javax.portlet.EventResponse;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletResponse;
+import javax.portlet.PortletSession;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.portlet.HandlerInterceptor;
 import org.springframework.web.portlet.ModelAndView;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextImpl;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 /**
  * <p>This interceptor populates the {@link SecurityContextHolder} with information obtained from the
@@ -45,13 +55,13 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
  *
  * <p> If a valid <code>SecurityContext</code> cannot be obtained from the <code>PortletSession</code> for
  * whatever reason, a fresh <code>SecurityContext</code> will be created and used instead. The created object
- * will be of the instance defined by the {@link #setContext(Class)} method (which defaults to
- * {@link org.springframework.security.core.context.SecurityContextImpl}. </p>
+ * will be of the instance defined by the {@link #setContext(Class)} method. If this hasn't been set, a call to
+ * {@link SecurityContextHolder#createEmptyContext()} will be used to create the instance.
  *
  * <p>A <code>PortletSession</code> may be created by this interceptor if one does not already exist.  If at the
  * end of the portlet request the <code>PortletSession</code> does not exist, one will <b>only</b> be created if
  * the current contents of the <code>SecurityContextHolder</code> are not the {@link java.lang.Object#equals}
- * to a <code>new</code> instance of {@link #context}.  This avoids needless <code>PortletSession</code> creation,
+ * to a <code>new</code> instance of {@link #contextClass}.  This avoids needless <code>PortletSession</code> creation,
  * and automates the storage of changes made to the <code>SecurityContextHolder</code>. There is one exception to
  * this rule, that is if the {@link #forceEagerSessionCreation} property is <code>true</code>, in which case
  * sessions will always be created irrespective of normal session-minimization logic (the default is
@@ -92,8 +102,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
  * @since 2.0
  * @version $Id$
  */
-public class PortletSessionContextIntegrationInterceptor
-        implements InitializingBean, HandlerInterceptor {
+public class PortletSessionContextIntegrationInterceptor implements InitializingBean, HandlerInterceptor {
 
     //~ Static fields/initializers =====================================================================================
 
@@ -106,7 +115,7 @@ public class PortletSessionContextIntegrationInterceptor
 
     //~ Instance fields ================================================================================================
 
-    private Class context = SecurityContextImpl.class;
+    private Class<? extends SecurityContext> contextClass;
 
     private Object contextObject;
 
@@ -146,7 +155,7 @@ public class PortletSessionContextIntegrationInterceptor
      * allowed to affect the security identity in other threads associated with
      * the same <code>PortletSession</code>. For unusual cases where this is not
      * permitted, change this value to <code>true</code> and ensure the
-     * {@link #context} is set to a <code>SecurityContext</code> that
+     * {@link #contextClass} is set to a <code>SecurityContext</code> that
      * implements {@link Cloneable} and overrides the <code>clone()</code>
      * method.
      */
@@ -173,14 +182,6 @@ public class PortletSessionContextIntegrationInterceptor
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-
-        // check that the value of context is legal
-        if ((this.context == null) || (!SecurityContext.class.isAssignableFrom(this.context))) {
-            throw new IllegalArgumentException("context must be defined and implement SecurityContext "
-                    + "(typically use org.springframework.security.core.context.SecurityContextImpl; existing class is "
-                    + this.context + ")");
-        }
-
         // check that session creation options make sense
         if ((forceEagerSessionCreation == true) && (allowSessionCreation == false)) {
             throw new IllegalArgumentException(
@@ -265,16 +266,16 @@ public class PortletSessionContextIntegrationInterceptor
             portletSession = request.getPortletSession(forceEagerSessionCreation);
         } catch (IllegalStateException ignored) {}
 
-        // if there is a session, then see if there is a context to bring in
+        // if there is a session, then see if there is a contextClass to bring in
         if (portletSession != null) {
 
             // remember that the session already existed
             portletSessionExistedAtStartOfRequest = true;
 
-            // attempt to retrieve the context from the session
+            // attempt to retrieve the contextClass from the session
             Object contextFromSessionObject = portletSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY, portletSessionScope());
 
-            // if we got a context then place it into the holder
+            // if we got a contextClass then place it into the holder
             if (contextFromSessionObject != null) {
 
                 // if we are supposed to clone it, then do so
@@ -293,7 +294,7 @@ public class PortletSessionContextIntegrationInterceptor
                     }
                 }
 
-                // if what we got is a valid context then place it into the holder, otherwise create a new one
+                // if what we got is a valid contextClass then place it into the holder, otherwise create a new one
                 if (contextFromSessionObject instanceof SecurityContext) {
                     if (logger.isDebugEnabled())
                         logger.debug("Obtained from SPRING_SECURITY_CONTEXT a valid SecurityContext and "
@@ -312,7 +313,7 @@ public class PortletSessionContextIntegrationInterceptor
 
             } else {
 
-                // there was no context in the session, so create a new context and put it in the holder
+                // there was no contextClass in the session, so create a new contextClass and put it in the holder
                 if (logger.isDebugEnabled())
                     logger.debug("PortletSession returned null object for SPRING_SECURITY_CONTEXT - new "
                             + "SecurityContext instance associated with SecurityContextHolder");
@@ -321,7 +322,7 @@ public class PortletSessionContextIntegrationInterceptor
 
         } else {
 
-            // there was no session, so create a new context and place it in the holder
+            // there was no session, so create a new contextClass and place it in the holder
             if (logger.isDebugEnabled())
                 logger.debug("No PortletSession currently exists - new SecurityContext instance "
                         + "associated with SecurityContextHolder");
@@ -329,7 +330,7 @@ public class PortletSessionContextIntegrationInterceptor
 
         }
 
-        // place attributes onto the request to remember if the session existed and the hashcode of the context
+        // place attributes onto the request to remember if the session existed and the hashcode of the contextClass
         request.setAttribute(SESSION_EXISTED, new Boolean(portletSessionExistedAtStartOfRequest));
         request.setAttribute(CONTEXT_HASHCODE, new Integer(SecurityContextHolder.getContext().hashCode()));
 
@@ -341,7 +342,7 @@ public class PortletSessionContextIntegrationInterceptor
 
         PortletSession portletSession = null;
 
-        // retrieve the attributes that remember if the session existed and the hashcode of the context
+        // retrieve the attributes that remember if the session existed and the hashcode of the contextClass
         boolean portletSessionExistedAtStartOfRequest = ((Boolean)request.getAttribute(SESSION_EXISTED)).booleanValue();
         int oldContextHashCode = ((Integer)request.getAttribute(CONTEXT_HASHCODE)).intValue();
 
@@ -368,7 +369,7 @@ public class PortletSessionContextIntegrationInterceptor
                             + "(because the allowSessionCreation property is false) - SecurityContext thus not "
                             + "stored for next request");
             }
-            // if the context was changed during the request, then go ahead and create a session
+            // if the contextClass was changed during the request, then go ahead and create a session
             else if (!contextObject.equals(SecurityContextHolder.getContext())) {
                 if (logger.isDebugEnabled())
                     logger.debug("PortletSession being created as SecurityContextHolder contents are non-default");
@@ -376,7 +377,7 @@ public class PortletSessionContextIntegrationInterceptor
                     portletSession = request.getPortletSession(true);
                 } catch (IllegalStateException ignored) {}
             }
-            // if nothing in the context changed, then don't bother to create a session
+            // if nothing in the contextClass changed, then don't bother to create a session
             else {
                 if (logger.isDebugEnabled())
                     logger.debug("PortletSession is null, but SecurityContextHolder has not changed from default: ' "
@@ -385,7 +386,7 @@ public class PortletSessionContextIntegrationInterceptor
             }
         }
 
-        // if the session exists and the context has changes, then store the context back into the session
+        // if the session exists and the contextClass has changes, then store the contextClass back into the session
         if ((portletSession != null)
             && (SecurityContextHolder.getContext().hashCode() != oldContextHashCode)) {
             portletSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,    SecurityContextHolder.getContext(), portletSessionScope());
@@ -397,21 +398,25 @@ public class PortletSessionContextIntegrationInterceptor
         // remove the contents of the holder
         SecurityContextHolder.clearContext();
         if (logger.isDebugEnabled())
-            logger.debug("SecurityContextHolder set to new context, as request processing completed");
+            logger.debug("SecurityContextHolder set to new contextClass, as request processing completed");
 
     }
 
     /**
      * Creates a new <code>SecurityContext</code> object.  The specific class is
-     * determined by the setting of the {@link #context} property.
+     * determined by the setting of the {@link #contextClass} property.
      * @return the new <code>SecurityContext</code>
      * @throws PortletException if the creation throws an <code>InstantiationException</code> or
      *     an <code>IllegalAccessException</code>, then this method will wrap them in a
      *     <code>PortletException</code>
      */
-    public SecurityContext generateNewContext() throws PortletException {
+    SecurityContext generateNewContext() throws PortletException {
+        if (contextClass == null) {
+            return SecurityContextHolder.createEmptyContext();
+        }
+
         try {
-            return (SecurityContext) this.context.newInstance();
+            return this.contextClass.newInstance();
         } catch (InstantiationException ie) {
             throw new PortletException(ie);
         } catch (IllegalAccessException iae) {
@@ -427,12 +432,12 @@ public class PortletSessionContextIntegrationInterceptor
     }
 
 
-    public Class getContext() {
-        return context;
+    public Class<? extends SecurityContext> getContext() {
+        return contextClass;
     }
 
-    public void setContext(Class secureContext) {
-        this.context = secureContext;
+    public void setContext(Class<? extends SecurityContext> secureContext) {
+        this.contextClass = secureContext;
     }
 
     public boolean isAllowSessionCreation() {
