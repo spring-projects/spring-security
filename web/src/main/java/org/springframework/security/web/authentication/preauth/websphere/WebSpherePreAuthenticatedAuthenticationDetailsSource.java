@@ -1,6 +1,5 @@
 package org.springframework.security.web.authentication.preauth.websphere;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -29,12 +28,19 @@ public class WebSpherePreAuthenticatedAuthenticationDetailsSource extends Authen
 
     private Attributes2GrantedAuthoritiesMapper webSphereGroups2GrantedAuthoritiesMapper = new SimpleAttributes2GrantedAuthoritiesMapper();
 
+    private final WASUsernameAndGroupsExtractor wasHelper;
+
     /**
      * Public constructor which overrides the default AuthenticationDetails
      * class to be used.
      */
     public WebSpherePreAuthenticatedAuthenticationDetailsSource() {
+        this(new DefaultWASUsernameAndGroupsExtractor());
+    }
+
+    WebSpherePreAuthenticatedAuthenticationDetailsSource(WASUsernameAndGroupsExtractor wasHelper) {
         super.setClazz(PreAuthenticatedGrantedAuthoritiesAuthenticationDetails.class);
+        this.wasHelper = wasHelper;
     }
 
     /**
@@ -64,10 +70,10 @@ public class WebSpherePreAuthenticatedAuthenticationDetailsSource extends Authen
     /**
      * Get a list of Granted Authorities based on the current user's WebSphere groups.
      *
-     * @return GrantedAuthority[] mapped from the user's WebSphere groups.
+     * @return authorities mapped from the user's WebSphere groups.
      */
     private List<GrantedAuthority> getWebSphereGroupsBasedGrantedAuthorities() {
-        List<String> webSphereGroups = Arrays.asList(WASSecurityHelper.getGroupsForCurrentUser());
+        List<String> webSphereGroups = wasHelper.getGroupsForCurrentUser();
         List<GrantedAuthority> userGas = webSphereGroups2GrantedAuthoritiesMapper.getGrantedAuthorities(webSphereGroups);
         if (logger.isDebugEnabled()) {
             logger.debug("WebSphere groups: " + webSphereGroups + " mapped to Granted Authorities: " + userGas);
