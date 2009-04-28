@@ -511,16 +511,20 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='seshRegistry' class='" + SessionRegistryImpl.class.getName() + "'/>" +
                 AUTH_PROVIDER_XML);
         Object sessionRegistry = appContext.getBean("seshRegistry");
-        Object sessionRegistryFromFilter = FieldUtils.getFieldValue(
+        Object sessionRegistryFromConcurrencyFilter = FieldUtils.getFieldValue(
                 appContext.getBean(BeanIds.CONCURRENT_SESSION_FILTER),"sessionRegistry");
+        Object sessionRegistryFromFormLoginFilter = FieldUtils.getFieldValue(
+                appContext.getBean(BeanIds.FORM_LOGIN_FILTER),"sessionRegistry");
         Object sessionRegistryFromController = FieldUtils.getFieldValue(
                 appContext.getBean(BeanIds.CONCURRENT_SESSION_CONTROLLER),"sessionRegistry");
         Object sessionRegistryFromFixationFilter = FieldUtils.getFieldValue(
                 appContext.getBean(BeanIds.SESSION_FIXATION_PROTECTION_FILTER),"sessionRegistry");
 
-        assertSame(sessionRegistry, sessionRegistryFromFilter);
+        assertSame(sessionRegistry, sessionRegistryFromConcurrencyFilter);
         assertSame(sessionRegistry, sessionRegistryFromController);
         assertSame(sessionRegistry, sessionRegistryFromFixationFilter);
+        // SEC-1143
+        assertSame(sessionRegistry, sessionRegistryFromFormLoginFilter);
     }
 
     @Test(expected=BeanDefinitionParsingException.class)

@@ -91,7 +91,9 @@ public final class FieldUtils {
             field = getField(componentClass, nestedFields[i]);
             field.setAccessible(true);
             value = field.get(value);
-            componentClass = value.getClass();
+            if (value != null) {
+                componentClass = value.getClass();
+            }
         }
 
         return value;

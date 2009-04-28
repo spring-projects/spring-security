@@ -111,7 +111,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
                     new RuntimeBeanReference(BeanIds.REMEMBER_ME_SERVICES) );
         }
 
-        if (pc.getRegistry().containsBeanDefinition(BeanIds.SESSION_REGISTRY)) {
+        if (pc.getRegistry().isBeanNameInUse(BeanIds.SESSION_REGISTRY)) {
             filterBean.getPropertyValues().addPropertyValue("sessionRegistry",
                     new RuntimeBeanReference(BeanIds.SESSION_REGISTRY));
         }
