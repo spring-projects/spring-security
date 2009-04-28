@@ -24,7 +24,7 @@ public class GenericDAOImpl<T extends Serializable, PK extends Serializable>
 
     /**
      * Minimal constructor
-     * 
+     *
      * @param t
      *            type POJO hibernate
      */
@@ -34,12 +34,11 @@ public class GenericDAOImpl<T extends Serializable, PK extends Serializable>
 
     /**
      * read data
-     * 
+     *
      * @param id
      *            data id
      * @return data
      */
-    @SuppressWarnings("unchecked")
     public T read(PK id) {
         if (id == null) {
             throw new IllegalArgumentException("Id cannot be null or empty");
@@ -54,7 +53,7 @@ public class GenericDAOImpl<T extends Serializable, PK extends Serializable>
 
     /**
      * persist data
-     * 
+     *
      * @param transientInstance
      *            data to persist
      * @see sido.common.dao.GenericDAO#persist(T)
@@ -68,9 +67,9 @@ public class GenericDAOImpl<T extends Serializable, PK extends Serializable>
     }
 
     /**
-     * 
+     *
      * attach clean
-     * 
+     *
      * @param instance
      *            data to attach
      * @see sido.common.dao.GenericDAO#refresh(T)
@@ -85,7 +84,7 @@ public class GenericDAOImpl<T extends Serializable, PK extends Serializable>
 
     /**
      * delete
-     * 
+     *
      * @param persistentInstance
      *            data to delete
      * @see sido.common.dao.GenericDAO#delete(T)
@@ -100,13 +99,12 @@ public class GenericDAOImpl<T extends Serializable, PK extends Serializable>
 
     /**
      * merge
-     * 
+     *
      * @param detachedInstance
      *            data to merge
      * @return the merged data
      * @see sido.common.dao.GenericDAO#merge(T)
      */
-    @SuppressWarnings("unchecked")
     public T merge(T detachedInstance) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("merging instance of "

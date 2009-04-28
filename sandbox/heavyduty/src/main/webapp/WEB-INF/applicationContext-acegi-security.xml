@@ -18,35 +18,35 @@
 
 <beans>
 
-	<bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
-		<property name="filterInvocationDefinitionSource">
-			<value><![CDATA[
-				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-				PATTERN_TYPE_APACHE_ANT
-				/**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
-			]]></value>
-		</property>
-	</bean>
+    <bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
+        <property name="filterInvocationDefinitionSource">
+            <value><![CDATA[
+                CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+                PATTERN_TYPE_APACHE_ANT
+                /**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
+            ]]></value>
+        </property>
+    </bean>
 
-	<bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
+    <bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
 
-	<bean id="logoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
-		<constructor-arg value="/index.jsp"/> <!-- URL redirected to after logout -->
-		<constructor-arg>
-			<list>
-				<ref bean="rememberMeServices"/>
-				<bean class="org.springframework.security.ui.logout.SecurityContextLogoutHandler"/>
-			</list>
-		</constructor-arg>
-	</bean>
+    <bean id="logoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
+        <constructor-arg value="/index.jsp"/> <!-- URL redirected to after logout -->
+        <constructor-arg>
+            <list>
+                <ref bean="rememberMeServices"/>
+                <bean class="org.springframework.security.ui.logout.SecurityContextLogoutHandler"/>
+            </list>
+        </constructor-arg>
+    </bean>
 
-	<bean id="authenticationProcessingFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
-		<property name="authenticationManager" ref="authenticationManager"/>
-		<property name="authenticationFailureUrl" value="/acegilogin.jsp?login_error=1"/>
-		<property name="defaultTargetUrl" value="/"/>
-		<property name="filterProcessesUrl" value="/j_spring_security_check"/>
-		<property name="rememberMeServices" ref="rememberMeServices"/>
-	</bean>
+    <bean id="authenticationProcessingFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="authenticationFailureUrl" value="/acegilogin.jsp?login_error=1"/>
+        <property name="defaultTargetUrl" value="/"/>
+        <property name="filterProcessesUrl" value="/j_spring_security_check"/>
+        <property name="rememberMeServices" ref="rememberMeServices"/>
+    </bean>
 
     <bean id="basicProcessingFilter" class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
         <property name="authenticationManager"><ref local="authenticationManager"/></property>
@@ -57,105 +57,105 @@
         <property name="realmName"><value>My Realm</value></property>
     </bean>
 
-	<bean id="securityContextHolderAwareRequestFilter" class="org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter"/>
+    <bean id="securityContextHolderAwareRequestFilter" class="org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter"/>
 
-	<bean id="rememberMeProcessingFilter" class="org.springframework.security.ui.rememberme.RememberMeProcessingFilter">
-		<property name="authenticationManager" ref="authenticationManager"/>
-		<property name="rememberMeServices" ref="rememberMeServices"/>
-	</bean>
+    <bean id="rememberMeProcessingFilter" class="org.springframework.security.ui.rememberme.RememberMeProcessingFilter">
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="rememberMeServices" ref="rememberMeServices"/>
+    </bean>
 
-	<bean id="anonymousProcessingFilter" class="org.springframework.security.providers.anonymous.AnonymousProcessingFilter">
-		<property name="key" value="changeThis"/>
-		<property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS"/>
-	</bean>
+    <bean id="anonymousProcessingFilter" class="org.springframework.security.providers.anonymous.AnonymousProcessingFilter">
+        <property name="key" value="changeThis"/>
+        <property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS"/>
+    </bean>
 
-	<bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
-		<property name="authenticationEntryPoint">
-			<bean class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
-				<property name="loginFormUrl" value="/acegilogin.jsp"/>
-				<property name="forceHttps" value="false"/>
-			</bean>
-		</property>
-		<property name="accessDeniedHandler">
-			<bean class="org.springframework.security.ui.AccessDeniedHandlerImpl">
-				<property name="errorPage" value="/accessDenied.jsp"/>
-			</bean>
-		</property>
-	</bean>
+    <bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
+        <property name="authenticationEntryPoint">
+            <bean class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+                <property name="loginFormUrl" value="/acegilogin.jsp"/>
+                <property name="forceHttps" value="false"/>
+            </bean>
+        </property>
+        <property name="accessDeniedHandler">
+            <bean class="org.springframework.security.ui.AccessDeniedHandlerImpl">
+                <property name="errorPage" value="/accessDenied.jsp"/>
+            </bean>
+        </property>
+    </bean>
 
-	<bean id="accessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
-		<property name="allowIfAllAbstainDecisions" value="false"/>
-		<property name="decisionVoters">
-			<list>
-				<bean class="org.springframework.security.vote.RoleVoter"/>
-				<bean class="org.springframework.security.vote.AuthenticatedVoter"/>
-			</list>
-		</property>
-	</bean>
+    <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
+        <property name="allowIfAllAbstainDecisions" value="false"/>
+        <property name="decisionVoters">
+            <list>
+                <bean class="org.springframework.security.access.vote.RoleVoter"/>
+                <bean class="org.springframework.security.access.vote.AuthenticatedVoter"/>
+            </list>
+        </property>
+    </bean>
 
-	<bean id="filterInvocationInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
-		<property name="authenticationManager" ref="authenticationManager"/>
-		<property name="accessDecisionManager" ref="accessDecisionManager"/>
-		<property name="objectDefinitionSource">
-			<value><![CDATA[
-				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-				PATTERN_TYPE_APACHE_ANT
-				/secure/extreme/**=ROLE_SUPERVISOR
-				/secure/**=IS_AUTHENTICATED_REMEMBERED
-				/**=IS_AUTHENTICATED_ANONYMOUSLY
-			]]></value>
-		</property>
-	</bean>
+    <bean id="filterInvocationInterceptor" class="org.springframework.security.web.intercept.FilterSecurityInterceptor">
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="accessDecisionManager" ref="accessDecisionManager"/>
+        <property name="objectDefinitionSource">
+            <value><![CDATA[
+                CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+                PATTERN_TYPE_APACHE_ANT
+                /secure/extreme/**=ROLE_SUPERVISOR
+                /secure/**=IS_AUTHENTICATED_REMEMBERED
+                /**=IS_AUTHENTICATED_ANONYMOUSLY
+            ]]></value>
+        </property>
+    </bean>
 
-	<bean id="rememberMeServices" class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices">
-		<property name="userDetailsService" ref="userDetailsService"/>
-		<property name="key" value="changeThis"/>
-	</bean>
+    <bean id="rememberMeServices" class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+        <property name="userDetailsService" ref="userDetailsService"/>
+        <property name="key" value="changeThis"/>
+    </bean>
 
-	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
-		<property name="providers">
-			<list>
-				<ref local="daoAuthenticationProvider"/>
-				<bean class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
-					<property name="key" value="changeThis"/>
-				</bean>
-				<bean class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider">
-					<property name="key" value="changeThis"/>
-				</bean>
-			</list>
-		</property>
-	</bean>
+    <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
+        <property name="providers">
+            <list>
+                <ref local="daoAuthenticationProvider"/>
+                <bean class="org.springframework.security.authentication.AnonymousAuthenticationProvider">
+                    <property name="key" value="changeThis"/>
+                </bean>
+                <bean class="org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationProvider">
+                    <property name="key" value="changeThis"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
 
-	<bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
-		<property name="userDetailsService" ref="userDetailsService"/>
-	</bean>
+    <bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+        <property name="userDetailsService" ref="userDetailsService"/>
+    </bean>
 
-	<!-- UserDetailsService is the most commonly frequently Acegi Security interface implemented by end users -->
-	<bean id="userDetailsService" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
-		<property name="userProperties">
-			<bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-				<property name="location" value="/WEB-INF/users.properties"/>
-			</bean>
-		</property>
-	</bean>
+    <!-- UserDetailsService is the most commonly frequently Acegi Security interface implemented by end users -->
+    <bean id="userDetailsService" class="org.springframework.security.core.userdetails.memory.InMemoryDaoImpl">
+        <property name="userProperties">
+            <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+                <property name="location" value="/WEB-INF/users.properties"/>
+            </bean>
+        </property>
+    </bean>
 
-	<!-- This bean is optional; it isn't used by any other bean as it only listens and logs -->
-	<bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
+    <!-- This bean is optional; it isn't used by any other bean as it only listens and logs -->
+    <bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener"/>
 
-	<bean id="daacc" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+    <bean id="daacc" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
 
-	<bean id="attributes" class="org.springframework.security.annotation.SecurityAnnotationAttributes"/>
+    <bean id="attributes" class="org.springframework.security.access.annotation.SecurityAnnotationAttributes"/>
 
-	<bean id="objectDefinitionSource" class="org.springframework.security.intercept.method.MethodDefinitionAttributes">
-		<property name="attributes"><ref local="attributes"/></property>
-	</bean>
+    <bean id="securityMetadataSource" class="org.springframework.security.access.intercept.method.MethodDefinitionAttributes">
+        <property name="attributes"><ref local="attributes"/></property>
+    </bean>
 
-	<bean id="securityInterceptor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
-		<property name="authenticationManager"><ref local="authenticationManager"/></property>
-		<property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
-		<property name="objectDefinitionSource">
-			<ref local="objectDefinitionSource"/>
-		</property>
-	</bean>
+    <bean id="securityInterceptor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+        <property name="authenticationManager"><ref local="authenticationManager"/></property>
+        <property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
+        <property name="securityMetadataSource">
+            <ref local="securityMetadataSource"/>
+        </property>
+    </bean>
 
 </beans>

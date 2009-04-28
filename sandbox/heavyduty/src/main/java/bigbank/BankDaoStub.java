@@ -5,8 +5,8 @@ import java.util.Map;
 
 public class BankDaoStub implements BankDao {
     private long id = 0;
-    private Map accounts = new HashMap();
-    
+    private Map<Long, Account> accounts = new HashMap<Long, Account>();
+
     public void createOrUpdateAccount(Account account) {
         if (account.getId() == -1) {
             id++;

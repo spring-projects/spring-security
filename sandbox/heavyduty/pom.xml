@@ -8,24 +8,20 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
+            <artifactId>spring-security-web</artifactId>
             <version>${spring.security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-taglibs</artifactId>
+            <artifactId>spring-security-ldap</artifactId>
             <version>${spring.security.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>org.springframework.core</artifactId>
-            <version>${spring.version}</version>
-        </dependency>                
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>org.springframework.context</artifactId>
-            <version>${spring.version}</version>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${spring.security.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>org.springframework.web</artifactId>
@@ -40,60 +36,62 @@
             <groupId>org.springframework</groupId>
             <artifactId>org.springframework.jdbc</artifactId>
             <scope>runtime</scope>
-            <version>${spring.version}</version>    
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
+            <artifactId>org.springframework.orm</artifactId>
             <version>${spring.version}</version>
-        </dependency>        
+        </dependency>
+<!--
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-taglibs</artifactId>
+            <version>${spring.security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>org.springframework.context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>org.springframework.aop</artifactId>
             <scope>runtime</scope>
             <version>${spring.version}</version>
         </dependency>
+-->
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <scope>runtime</scope>
             <version>2.3.12</version>
-        </dependency>        
-	    <dependency>
-	      <groupId>hsqldb</groupId>
-	      <artifactId>hsqldb</artifactId>
-	      <version>1.8.0.7</version>
-	      <scope>compile</scope>
-	    </dependency>
-	    <dependency>
-	      <groupId>org.hibernate</groupId>
-	      <artifactId>hibernate-entitymanager</artifactId>
-	      <version>3.3.2.GA</version>
-	      <scope>compile</scope>
-	    </dependency>
-	    <dependency>
-	      <groupId>net.sf.ehcache</groupId>
-	      <artifactId>ehcache</artifactId>
-	      <version>1.3.0</version>
-	      <scope>compile</scope>
-	    </dependency>
-	    <dependency>
-	        <groupId>org.aspectj</groupId>
-    		<artifactId>aspectjweaver</artifactId>
-	    	<optional>true</optional>
-		    <version>1.5.4</version>
-	    </dependency>	    
-	    <dependency>
-	        <groupId>org.aspectj</groupId>
-	    	<artifactId>aspectjrt</artifactId>
-		    <version>1.5.4</version>
-	    </dependency>
+        </dependency>
+        <dependency>
+          <groupId>hsqldb</groupId>
+          <artifactId>hsqldb</artifactId>
+          <version>1.8.0.7</version>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-entitymanager</artifactId>
+          <version>3.3.2.GA</version>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>net.sf.ehcache</groupId>
+          <artifactId>ehcache</artifactId>
+          <version>1.4.1</version>
+          <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <scope>provided</scope>
             <version>2.4</version>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
@@ -104,7 +102,7 @@
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
             <scope>runtime</scope>
-            <version>1.1.2</version>            
+            <version>1.1.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
@@ -123,18 +121,18 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.4.3</version>
             <scope>runtime</scope>
-        </dependency>       
+        </dependency>
         <dependency>
             <groupId>org.springframework.ldap</groupId>
             <artifactId>spring-ldap</artifactId>
             <version>1.2.1</version>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <scope>runtime</scope>
             <version>1.2.14</version>
-        </dependency>        
+        </dependency>
     </dependencies>
 
     <build>
@@ -155,7 +153,7 @@
                     <downloadSources>true</downloadSources>
                     <wtpversion>2.0</wtpversion>
                 </configuration>
-            </plugin>            
+            </plugin>
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>maven-jetty-plugin</artifactId>
@@ -183,8 +181,8 @@
             </plugin>
         </plugins>
     </build>
-    <properties>        
-        <spring.version>2.5.6</spring.version>
+    <properties>
+        <spring.version>3.0.0.M2</spring.version>
         <spring.security.version>3.0.0.CI-SNAPSHOT</spring.security.version>
     </properties>
 

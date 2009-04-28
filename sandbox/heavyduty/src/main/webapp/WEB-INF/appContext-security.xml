@@ -12,33 +12,33 @@
     xmlns:aop="http://www.springframework.org/schema/aop"
     xmlns:context="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-						http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
                         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.2.xsd">
 
     <!--b:import resource="appContext-misc.xml"/-->
-	<context:component-scan base-package='sample'/>
-    
-	<global-method-security secured-annotations="enabled" access-decision-manager-ref="methodAccessMgr">
-		<protect-pointcut expression="execution(* sample.service.UserService+.*(..))"
-					access="ROLE_LOGGEDIN" />
-	</global-method-security>
-	
-	<aop:aspectj-autoproxy/>
-	
-	<b:bean id="methodAccessMgr" class="org.springframework.security.vote.AffirmativeBased">
-	   <b:property name="decisionVoters">
-	       <b:list>
-	           <b:bean class="sample.TestVoter"/>
-	       </b:list>
-	   </b:property>
-	</b:bean>
-    
+    <context:component-scan base-package='sample'/>
+
+    <global-method-security secured-annotations="enabled" access-decision-manager-ref="methodAccessMgr">
+        <protect-pointcut expression="execution(* sample.service.UserService+.*(..))"
+                    access="ROLE_LOGGEDIN" />
+    </global-method-security>
+
+    <aop:aspectj-autoproxy/>
+
+    <b:bean id="methodAccessMgr" class="org.springframework.security.access.vote.AffirmativeBased">
+       <b:property name="decisionVoters">
+           <b:list>
+               <b:bean class="sample.TestVoter"/>
+           </b:list>
+       </b:property>
+    </b:bean>
+
     <http>
         <intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
         <intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
-        <intercept-url pattern="/testMulti.htm*" access="IS_AUTHENTICATED_FULLY" />        
-		<!-- Disable web URI authorization, as we're using <global-method-security> and have @Secured the services layer instead
+        <intercept-url pattern="/testMulti.htm*" access="IS_AUTHENTICATED_FULLY" />
+        <!-- Disable web URI authorization, as we're using <global-method-security> and have @Secured the services layer instead
         <intercept-url pattern="/listAccounts.html" access="IS_AUTHENTICATED_REMEMBERED" />
         <intercept-url pattern="/post.html" access="ROLE_TELLER" />
         -->
@@ -57,25 +57,25 @@
 
         <!-- Uncomment to limit the number of sessions a user can have -->
         <concurrent-session-control max-sessions="1" exception-if-maximum-exceeded="true" session-registry-ref='sessionRegistry'/>
-        
+
     </http>
 
     <authentication-manager alias="authenticationManager" />
-    
-    <b:bean id='tokenRepo' class='org.springframework.security.ui.rememberme.InMemoryTokenRepositoryImpl'/>    
-    
+
+    <b:bean id='tokenRepo' class='org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl'/>
+
     <!-- Traditional Session Control Beans -->
-<!--     
+<!--
     <b:bean id='sessionControlFilter' class="org.springframework.security.concurrent.ConcurrentSessionFilter">
         <custom-filter position="CONCURRENT_SESSION_FILTER"/>
         <b:property name="sessionRegistry" ref='sessionRegistry'/>
     </b:bean>
-    
+
     <b:bean id='sessionController' class="org.springframework.security.concurrent.ConcurrentSessionControllerImpl">
         <b:property name='sessionRegistry' ref='sessionRegistry'/>
     </b:bean>
- -->    
-    <b:bean id='sessionRegistry' class="org.springframework.security.concurrent.SessionRegistryImpl"/>
+ -->
+    <b:bean id='sessionRegistry' class="org.springframework.security.authentication.concurrent.SessionRegistryImpl"/>
 <!--
     <b:bean id="customAuthFilter" class="heavyduty.security.ui.HeavyDutyAuthenticationProcessingFilter">
         <custom-filter position="AUTHENTICATION_PROCESSING_FILTER"/>
@@ -86,45 +86,45 @@
     <b:bean id="customEntryPoint" class="heavyduty.security.ui.HeavyDutyEntryPoint">
         <b:property name="loginFormUrl" value="/login.jsp"/>
     </b:bean>
--->    
-<!--     
+-->
+<!--
     <b:bean id="loginPageGenerator" class="org.springframework.security.ui.webapp.DefaultLoginPageGeneratingFilter">
         <custom-filter after="AUTHENTICATION_PROCESSING_FILTER"/>
         <b:constructor-arg ref="customAuthFilter"/>
     </b:bean>
  -->
-    
-	<authentication-provider user-service-ref="daoUserService">
-	    <password-encoder hash="md5" />
-	</authentication-provider>
+
+    <authentication-provider user-service-ref="daoUserService">
+        <password-encoder hash="md5" />
+    </authentication-provider>
 
     <authentication-provider>
         <password-encoder hash="md5"/>
         <user-service>
             <user name="rod" password="a564de63c2d0da68cf47586ee05984d7" authorities="ROLE_SUPERVISOR, ROLE_USER, ROLE_TELLER" />
-	        <user name="dianne" password="65d15fe9156f9c4bbffd98085992a44e" authorities="ROLE_USER,ROLE_TELLER" />
+            <user name="dianne" password="65d15fe9156f9c4bbffd98085992a44e" authorities="ROLE_USER,ROLE_TELLER" />
             <user name="scott" password="2b58af6dddbd072ed27ffc86725d7d3a" authorities="ROLE_USER" />
             <user name="peter" password="22b5c9accc6e1ba628cedc63a72d57f8" authorities="ROLE_USER" />
-	    </user-service>
-	</authentication-provider>
-	
-	<ldap-server id="ldapServer"/>
+        </user-service>
+    </authentication-provider>
+
+    <ldap-server id="ldapServer"/>
 
     <!-- b:bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"/ -->
 
-	<b:bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
-	    <b:property name="beans">
-	      <b:map>
-	        <b:entry key="bean:name=ldapContextSource" value-ref="ldapServer"/>
-	      </b:map>
-	    </b:property>
-	    <b:property name="assembler">
-	      <b:bean class="org.springframework.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
-	        <b:property name="managedMethods" value="setPassword,setUserDn,getUrls,setUrl,setUrls,setPooled,isPooled,setBase,getBaseLdapPathAsString"/>
-	      </b:bean>
-	    </b:property>	    
-	    <!-- b:property name="server" ref="mbeanServer"/-->
-	</b:bean>
-	
+    <b:bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+        <b:property name="beans">
+          <b:map>
+            <b:entry key="bean:name=ldapContextSource" value-ref="ldapServer"/>
+          </b:map>
+        </b:property>
+        <b:property name="assembler">
+          <b:bean class="org.springframework.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
+            <b:property name="managedMethods" value="setPassword,setUserDn,getUrls,setUrl,setUrls,setPooled,isPooled,setBase,getBaseLdapPathAsString"/>
+          </b:bean>
+        </b:property>
+        <!-- b:property name="server" ref="mbeanServer"/-->
+    </b:bean>
+
 
 </b:beans>
