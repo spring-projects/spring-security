@@ -169,6 +169,7 @@ public class AccessControlListTag extends TagSupport {
         return hasPermission;
     }
 
+    @SuppressWarnings("unchecked")
     private void initializeIfRequired() throws JspException {
         if (applicationContext != null) {
             return;

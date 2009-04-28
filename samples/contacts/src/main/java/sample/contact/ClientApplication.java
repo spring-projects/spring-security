@@ -16,23 +16,17 @@
 package sample.contact;
 
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-
-import org.springframework.beans.factory.ListableBeanFactory;
-
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-
 import org.springframework.util.StopWatch;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -57,13 +51,11 @@ public class ClientApplication {
 
     public void invokeContactManager(Authentication authentication, int nrOfCalls) {
         StopWatch stopWatch = new StopWatch(nrOfCalls + " ContactManager call(s)");
-        Map contactServices = this.beanFactory.getBeansOfType(ContactManager.class, true, true);
+        Map<String, ContactManager> contactServices = this.beanFactory.getBeansOfType(ContactManager.class, true, true);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        for (Iterator it = contactServices.keySet().iterator(); it.hasNext();) {
-            String beanName = (String) it.next();
-
+        for (String beanName : contactServices.keySet()) {
             Object object = this.beanFactory.getBean("&" + beanName);
 
             try {
@@ -91,12 +83,12 @@ public class ClientApplication {
             } catch (IllegalAccessException ignored) {}
             catch (InvocationTargetException ignored) {}
 
-            ContactManager remoteContactManager = (ContactManager) contactServices.get(beanName);
+            ContactManager remoteContactManager = contactServices.get(beanName);
             System.out.println("Calling ContactManager '" + beanName + "'");
 
             stopWatch.start(beanName);
 
-            List contacts = null;
+            List<Contact> contacts = null;
 
             for (int i = 0; i < nrOfCalls; i++) {
                 contacts = remoteContactManager.getAll();
@@ -105,11 +97,8 @@ public class ClientApplication {
             stopWatch.stop();
 
             if (contacts.size() != 0) {
-                Iterator listIterator = contacts.iterator();
-
-                while (listIterator.hasNext()) {
-                    Contact contact = (Contact) listIterator.next();
-                    System.out.println("Contact: " + contact.toString());
+                for(Contact contact : contacts) {
+                    System.out.println("Contact: " + contact);
                 }
             } else {
                 System.out.println("No contacts found which this user has permission to");

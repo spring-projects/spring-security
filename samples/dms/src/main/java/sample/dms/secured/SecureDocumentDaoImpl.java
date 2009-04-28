@@ -34,8 +34,8 @@ public class SecureDocumentDaoImpl extends DocumentDaoImpl implements SecureDocu
     }
 
     public String[] getUsers() {
-        return (String[]) getJdbcTemplate().query(SELECT_FROM_USERS, new RowMapper() {
-            public Object mapRow(ResultSet rs, int rowNumber) throws SQLException {
+        return (String[]) getJdbcTemplate().query(SELECT_FROM_USERS, new RowMapper<String>() {
+            public String mapRow(ResultSet rs, int rowNumber) throws SQLException {
                 return rs.getString("USERNAME");
             }
         }).toArray(new String[] {});

@@ -25,7 +25,7 @@ public abstract class AbstractWebServerIntegrationTests {
     private final Object SERVER_LOCK = new Object();
     protected final WebTester tester = new WebTester();
 
-    /** 
+    /**
      * Override to set the application context files that should be loaded or return null
      * to use web.xml.
      */
@@ -49,15 +49,16 @@ public abstract class AbstractWebServerIntegrationTests {
             }
         }
     }
-    
+
+    @SuppressWarnings("unchecked")
     protected WebAppContext createWebContext() {
         WebAppContext webCtx = new WebAppContext("src/main/webapp", getContextPath());
-        
+
         if (StringUtils.hasText(getContextConfigLocations())) {
             webCtx.addEventListener(new ContextLoaderListener());
             webCtx.getInitParams().put("contextConfigLocation", getContextConfigLocations());
         }
-        
+
         return webCtx;
     }
 
@@ -70,12 +71,12 @@ public abstract class AbstractWebServerIntegrationTests {
             server = null;
         }
     }
-        
+
     @AfterMethod
     public void resetWebConversation() {
         tester.getTestContext().setWebClient(new WebConversation());
     }
-    
+
     private final String getBaseUrl() {
         int port = server.getConnectors()[0].getLocalPort();
         return "http://localhost:" + port + getContextPath() + "/";
@@ -84,7 +85,7 @@ public abstract class AbstractWebServerIntegrationTests {
     protected final Object getBean(String beanName) {
         return getAppContext().getBean(beanName);
     }
-    
+
     private WebApplicationContext getAppContext() {
         ServletContext servletCtx = ((WebAppContext)server.getHandler()).getServletContext();
         WebApplicationContext appCtx =
@@ -116,14 +117,14 @@ public abstract class AbstractWebServerIntegrationTests {
         tester.assertTextPresent(text);
     }
 
-    
-    
-    // Security-specific utility methods 
-    
+
+
+    // Security-specific utility methods
+
     protected void login(String username, String password) {
         assertFormPresent();
         setFormElement("j_username", username);
         setFormElement("j_password", password);
-        submit();        
+        submit();
     }
 }

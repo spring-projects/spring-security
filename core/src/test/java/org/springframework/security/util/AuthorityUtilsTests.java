@@ -49,7 +49,7 @@ public class AuthorityUtilsTests {
     @Test
     public void commaSeparatedStringIsParsedCorrectly() {
         List<GrantedAuthority> authorityArray =
-                AuthorityUtils.commaSeparatedStringToAuthorityList(" ROLE_A, B, C, ROLE_D, E ");
+                AuthorityUtils.commaSeparatedStringToAuthorityList(" ROLE_A, B, C, ROLE_D\n,\n E ");
 
         Set<String> authorities = AuthorityUtils.authorityListToSet(authorityArray);
 

@@ -26,7 +26,7 @@ import org.springframework.security.web.session.HttpSessionDestroyedEvent;
  *
  * @author Ray Krueger
  */
-public class MockApplicationListener implements ApplicationListener {
+public class MockApplicationListener implements ApplicationListener<ApplicationEvent> {
     //~ Instance fields ================================================================================================
 
     private HttpSessionCreatedEvent createdEvent;

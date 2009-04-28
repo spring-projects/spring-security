@@ -165,7 +165,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
         }
 
         Random rnd = new Random();
-        List contacts = contactDao.findAll();
+        List<Contact> contacts = contactDao.findAll();
         int getNumber = rnd.nextInt(contacts.size());
 
         return (Contact) contacts.get(getNumber);

@@ -85,7 +85,7 @@ public class SecureIndexController implements Controller, InitializingBean {
                             permissionEvaluator.hasPermission(user, contact, HAS_ADMIN) ? Boolean.TRUE : Boolean.FALSE);
         }
 
-        Map model = new HashMap();
+        Map<String, Object> model = new HashMap<String, Object>();
         model.put("contacts", myContactsList);
         model.put("hasDeletePermission", hasDelete);
         model.put("hasAdminPermission", hasAdmin);

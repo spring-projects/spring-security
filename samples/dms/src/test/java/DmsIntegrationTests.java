@@ -1,6 +1,13 @@
+import static org.junit.Assert.*;
+
+import org.junit.After;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 import sample.dms.AbstractElement;
 import sample.dms.Directory;
@@ -13,14 +20,21 @@ import sample.dms.DocumentDao;
  * @version $Id$
  *
  */
-public class DmsIntegrationTests extends AbstractTransactionalDataSourceSpringContextTests {
+@ContextConfiguration(locations={"classpath:applicationContext-dms-shared.xml", "classpath:applicationContext-dms-insecure.xml"})
+public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContextTests{
+
+    @Autowired
+    protected JdbcTemplate jdbcTemplate;
+
+    @Autowired
     protected DocumentDao documentDao;
 
     protected String[] getConfigLocations() {
         return new String[] {"classpath:applicationContext-dms-shared.xml", "classpath:applicationContext-dms-insecure.xml"};
     }
 
-    protected void onTearDown() throws Exception {
+    @After
+    public void clearContext() {
         SecurityContextHolder.clearContext();
     }
 
@@ -28,20 +42,24 @@ public class DmsIntegrationTests extends AbstractTransactionalDataSourceSpringCo
         this.documentDao = documentDao;
     }
 
+    @Test
     public void testBasePopulation() {
         assertEquals(9, jdbcTemplate.queryForInt("select count(id) from DIRECTORY"));
         assertEquals(90, jdbcTemplate.queryForInt("select count(id) from FILE"));
         assertEquals(3, documentDao.findElements(Directory.ROOT_DIRECTORY).length);
     }
 
+    @Test
     public void testMarissaRetrieval() {
         process("rod", "koala", false);
     }
 
+    @Test
     public void testScottRetrieval() {
         process("scott", "wombat", false);
     }
 
+    @Test
     public void testDianneRetrieval() {
         process("dianne", "emu", false);
     }

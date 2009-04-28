@@ -1,4 +1,7 @@
-import org.springframework.security.acls.AclService;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
 
 
 
@@ -9,18 +12,17 @@ import org.springframework.security.acls.AclService;
  * @version $Id$
  *
  */
+@ContextConfiguration(locations={"classpath:applicationContext-dms-shared.xml", "classpath:applicationContext-dms-secure.xml"})
 public class SecureDmsIntegrationTests extends DmsIntegrationTests {
 
-    private AclService aclService;
-
-    public void setAclService(AclService aclService) {
-        this.aclService = aclService;
-    }
+//    @Autowired
+//    private AclService aclService;
 
     protected String[] getConfigLocations() {
         return new String[] {"classpath:applicationContext-dms-shared.xml", "classpath:applicationContext-dms-secure.xml"};
     }
 
+    @Test
     public void testBasePopulation() {
         assertEquals(9, jdbcTemplate.queryForInt("select count(id) from DIRECTORY"));
         assertEquals(90, jdbcTemplate.queryForInt("select count(id) from FILE"));

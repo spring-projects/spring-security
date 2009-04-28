@@ -59,9 +59,10 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
         return beginConsumption(req, identityUrl,  returnToUrl, returnToUrl);
     }
 
+    @SuppressWarnings("unchecked")
     public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl, String realm)
             throws OpenIDConsumerException {
-        List discoveries;
+        List<DiscoveryInformation> discoveries;
 
         try {
             discoveries = consumerManager.discover(identityUrl);

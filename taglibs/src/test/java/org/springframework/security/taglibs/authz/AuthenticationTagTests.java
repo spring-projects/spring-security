@@ -15,17 +15,16 @@
 
 package org.springframework.security.taglibs.authz;
 
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.Tag;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.Tag;
 
 
 /**

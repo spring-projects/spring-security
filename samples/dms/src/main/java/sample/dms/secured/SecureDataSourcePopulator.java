@@ -38,7 +38,7 @@ public class SecureDataSourcePopulator extends DataSourcePopulator {
         Assert.notNull(SecurityContextHolder.getContext().getAuthentication(), "SecurityContextHolder must contain an Authentication");
 
         // We need SecureDocumentDao to assign different permissions
-        SecureDocumentDao dao = (SecureDocumentDao) documentDao;
+        //SecureDocumentDao dao = (SecureDocumentDao) documentDao;
 
         // We need to construct an ACL-specific Sid. Note the prefix contract is defined on the superclass method's JavaDocs
         Sid sid = null;

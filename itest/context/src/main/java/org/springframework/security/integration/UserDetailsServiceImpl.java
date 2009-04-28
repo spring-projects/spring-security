@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class UserDetailsServiceImpl implements UserDetailsService {
 
+    @SuppressWarnings("unused")
     private UserRepository userRepository;
 
     @Transactional(readOnly=true)

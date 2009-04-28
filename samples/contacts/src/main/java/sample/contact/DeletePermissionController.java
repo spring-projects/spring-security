@@ -14,28 +14,24 @@
  */
 package sample.contact;
 
-import org.springframework.security.acls.AclService;
-import org.springframework.security.acls.Permission;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.sid.PrincipalSid;
-import org.springframework.security.acls.sid.Sid;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.util.Assert;
-
-import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
-
 import java.io.IOException;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.acls.AclService;
+import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.sid.PrincipalSid;
+import org.springframework.security.acls.sid.Sid;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.ServletRequestUtils;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
 
 
 /**
@@ -71,7 +67,7 @@ public class DeletePermissionController implements Controller, InitializingBean 
 
         contactManager.deletePermission(contact, sidObject, permission);
 
-        Map model = new HashMap();
+        Map<String, Object> model = new HashMap<String, Object>();
         model.put("contact", contact);
         model.put("sid", sidObject);
         model.put("permission", permission);

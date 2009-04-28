@@ -15,20 +15,16 @@
 package org.springframework.security.openid;
 
 import junit.framework.TestCase;
+
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.openid.AuthenticationCancelledException;
-import org.springframework.security.openid.OpenIDAuthenticationProvider;
-import org.springframework.security.openid.OpenIDAuthenticationStatus;
-import org.springframework.security.openid.OpenIDAuthenticationToken;
 
 
 /**
@@ -201,10 +197,9 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
     }
 
     static class MockUserDetailsService implements UserDetailsService {
-        public UserDetails loadUserByUsername(String ssoUserId)
-            throws AuthenticationException {
+        public UserDetails loadUserByUsername(String ssoUserId) throws AuthenticationException {
             return new User(ssoUserId, "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B")});
+                    AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B"));
         }
     }
 }

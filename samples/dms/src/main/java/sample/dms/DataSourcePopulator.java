@@ -6,8 +6,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -74,8 +73,8 @@ public class DataSourcePopulator implements InitializingBean {
            template.execute("INSERT INTO AUTHORITIES VALUES('jane','ROLE_USER');");
 
            // Now create an ACL entry for the root directory
-           SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("rod", "ignored", new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_IGNORED")}));
-           tt.execute(new TransactionCallback() {
+           SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("rod", "ignored", AuthorityUtils.createAuthorityList(("ROLE_IGNORED"))));
+           tt.execute(new TransactionCallback<Object>() {
                public Object doInTransaction(TransactionStatus arg0) {
                    addPermission(documentDao, Directory.ROOT_DIRECTORY, "ROLE_USER", LEVEL_GRANT_WRITE);
                    return null;

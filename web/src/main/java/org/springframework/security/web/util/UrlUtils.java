@@ -18,7 +18,6 @@ package org.springframework.security.web.util;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.savedrequest.SavedRequest;
 
 
 /**

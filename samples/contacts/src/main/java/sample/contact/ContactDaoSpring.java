@@ -70,7 +70,7 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
     }
 
     public Contact getById(Long id) {
-        List list = contactsByIdQuery.execute(id.longValue());
+        List<Contact> list = contactsByIdQuery.execute(id.longValue());
 
         if (list.size() == 0) {
             return null;
@@ -89,24 +89,20 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         contactsByIdQuery = new ContactsByIdQuery(getDataSource());
     }
 
-    private String makeObjectIdentity(Contact contact) {
-        return contact.getClass().getName() + ":" + contact.getId();
-    }
-
     public void update(Contact contact) {
         contactUpdate.update(contact);
     }
 
     //~ Inner Classes ==================================================================================================
 
-    protected class AclObjectIdentityByObjectIdentityQuery extends MappingSqlQuery {
+    protected class AclObjectIdentityByObjectIdentityQuery extends MappingSqlQuery<Long> {
         protected AclObjectIdentityByObjectIdentityQuery(DataSource ds) {
             super(ds, "SELECT id FROM acl_object_identity WHERE object_identity = ?");
             declareParameter(new SqlParameter(Types.VARCHAR));
             compile();
         }
 
-        protected Object mapRow(ResultSet rs, int rownum)
+        protected Long mapRow(ResultSet rs, int rownum)
             throws SQLException {
             return new Long(rs.getLong("id"));
         }
@@ -172,14 +168,13 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         }
     }
 
-    protected class ContactsAllQuery extends MappingSqlQuery {
+    protected class ContactsAllQuery extends MappingSqlQuery<Contact> {
         protected ContactsAllQuery(DataSource ds) {
             super(ds, "SELECT id, contact_name, email FROM contacts ORDER BY id");
             compile();
         }
 
-        protected Object mapRow(ResultSet rs, int rownum)
-            throws SQLException {
+        protected Contact mapRow(ResultSet rs, int rownum) throws SQLException {
             Contact contact = new Contact();
             contact.setId(new Long(rs.getLong("id")));
             contact.setName(rs.getString("contact_name"));
@@ -189,15 +184,14 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         }
     }
 
-    protected class ContactsByIdQuery extends MappingSqlQuery {
+    protected class ContactsByIdQuery extends MappingSqlQuery<Contact> {
         protected ContactsByIdQuery(DataSource ds) {
             super(ds, "SELECT id, contact_name, email FROM contacts WHERE id = ? ORDER BY id");
             declareParameter(new SqlParameter(Types.BIGINT));
             compile();
         }
 
-        protected Object mapRow(ResultSet rs, int rownum)
-            throws SQLException {
+        protected Contact mapRow(ResultSet rs, int rownum) throws SQLException {
             Contact contact = new Contact();
             contact.setId(new Long(rs.getLong("id")));
             contact.setName(rs.getString("contact_name"));
@@ -238,26 +232,24 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         }
     }
 
-    protected class PrincipalsAllQuery extends MappingSqlQuery {
+    protected class PrincipalsAllQuery extends MappingSqlQuery<String> {
         protected PrincipalsAllQuery(DataSource ds) {
             super(ds, "SELECT username FROM users ORDER BY username");
             compile();
         }
 
-        protected Object mapRow(ResultSet rs, int rownum)
-            throws SQLException {
+        protected String mapRow(ResultSet rs, int rownum) throws SQLException {
             return rs.getString("username");
         }
     }
 
-    protected class RolesAllQuery extends MappingSqlQuery {
+    protected class RolesAllQuery extends MappingSqlQuery<String> {
         protected RolesAllQuery(DataSource ds) {
             super(ds, "SELECT DISTINCT authority FROM authorities ORDER BY authority");
             compile();
         }
 
-        protected Object mapRow(ResultSet rs, int rownum)
-            throws SQLException {
+        protected String mapRow(ResultSet rs, int rownum) throws SQLException {
             return rs.getString("authority");
         }
     }

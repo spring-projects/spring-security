@@ -78,7 +78,7 @@ public class AuthorizeTagTests extends TestCase {
     }
 
     public void testOutputsBodyWhenAllGranted() throws JspException {
-        authorizeTag.setIfAllGranted("ROLE SUPERVISOR,ROLE_TELLER");
+        authorizeTag.setIfAllGranted("ROLE SUPERVISOR, \nROLE_TELLER");
         assertEquals("allows request - all required roles granted on principal", Tag.EVAL_BODY_INCLUDE,
             authorizeTag.doStartTag());
     }
@@ -102,7 +102,7 @@ public class AuthorizeTagTests extends TestCase {
     }
 
     public void testSkipsBodyWhenMissingAnAllGranted() throws JspException {
-        authorizeTag.setIfAllGranted("ROLE SUPERVISOR,ROLE_TELLER,ROLE_BANKER");
+        authorizeTag.setIfAllGranted("ROLE SUPERVISOR, ROLE_TELLER,\n\rROLE_BANKER");
         assertEquals("prevents request - missing ROLE_BANKER on principal", Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 

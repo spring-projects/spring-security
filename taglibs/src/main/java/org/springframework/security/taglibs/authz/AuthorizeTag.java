@@ -18,7 +18,6 @@ package org.springframework.security.taglibs.authz;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.servlet.jsp.JspException;
@@ -27,9 +26,9 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.util.ExpressionEvaluationUtils;
 
 
@@ -49,12 +48,10 @@ public class AuthorizeTag extends TagSupport {
 
     //~ Methods ========================================================================================================
 
-    private Set authoritiesToRoles(Collection c) {
-        Set target = new HashSet();
+    private Set<String> authoritiesToRoles(Collection<GrantedAuthority> c) {
+        Set<String> target = new HashSet<String>();
 
-        for (Iterator iterator = c.iterator(); iterator.hasNext();) {
-            GrantedAuthority authority = (GrantedAuthority) iterator.next();
-
+        for (GrantedAuthority authority : c) {
             if (null == authority.getAuthority()) {
                 throw new IllegalArgumentException(
                     "Cannot process GrantedAuthority objects which return null from getAuthority() - attempting to process "
@@ -73,13 +70,13 @@ public class AuthorizeTag extends TagSupport {
             return Tag.SKIP_BODY;
         }
 
-        final Collection granted = getPrincipalAuthorities();
+        final Collection<GrantedAuthority> granted = getPrincipalAuthorities();
 
         final String evaledIfNotGranted = ExpressionEvaluationUtils.evaluateString("ifNotGranted", ifNotGranted,
                 pageContext);
 
         if ((null != evaledIfNotGranted) && !"".equals(evaledIfNotGranted)) {
-            Set grantedCopy = retainAll(granted, parseAuthoritiesString(evaledIfNotGranted));
+            Set<GrantedAuthority> grantedCopy = retainAll(granted, parseAuthoritiesString(evaledIfNotGranted));
 
             if (!grantedCopy.isEmpty()) {
                 return Tag.SKIP_BODY;
@@ -99,7 +96,7 @@ public class AuthorizeTag extends TagSupport {
                 pageContext);
 
         if ((null != evaledIfAnyGranted) && !"".equals(evaledIfAnyGranted)) {
-            Set grantedCopy = retainAll(granted, parseAuthoritiesString(evaledIfAnyGranted));
+            Set<GrantedAuthority> grantedCopy = retainAll(granted, parseAuthoritiesString(evaledIfAnyGranted));
 
             if (grantedCopy.isEmpty()) {
                 return Tag.SKIP_BODY;
@@ -135,20 +132,9 @@ public class AuthorizeTag extends TagSupport {
         return currentUser.getAuthorities();
     }
 
-    private Set parseAuthoritiesString(String authorizationsString) {
-        final Set requiredAuthorities = new HashSet();
-        final String[] authorities = StringUtils.commaDelimitedListToStringArray(authorizationsString);
-
-        for (int i = 0; i < authorities.length; i++) {
-            String authority = authorities[i];
-
-            // Remove the role's whitespace characters without depending on JDK 1.4+
-            // Includes space, tab, new line, carriage return and form feed.
-            String role = authority.trim(); // trim, don't use spaces, as per SEC-378
-            role = StringUtils.deleteAny(role, "\t\n\r\f");
-
-            requiredAuthorities.add(new GrantedAuthorityImpl(role));
-        }
+    private Set<GrantedAuthority> parseAuthoritiesString(String authorizationsString) {
+        final Set<GrantedAuthority> requiredAuthorities = new HashSet<GrantedAuthority>();
+        requiredAuthorities.addAll(AuthorityUtils.commaSeparatedStringToAuthorityList(authorizationsString));
 
         return requiredAuthorities;
     }
@@ -161,39 +147,31 @@ public class AuthorizeTag extends TagSupport {
      * invalidating {@link Collection#retainAll(java.util.Collection)} results.</p>
      * <p>
      * <strong>CAVEAT</strong>:  This method <strong>will not</strong> work if the granted authorities
-     * returns a <code>null</code> string as the return value of {@link
-     * org.springframework.security.core.GrantedAuthority#getAuthority()}.
+     * returns a <code>null</code> string as the return value of {@link GrantedAuthority#getAuthority()}.
      * </p>
-     * <p>Reported by rawdave, on Fri Feb 04, 2005 2:11 pm in the Spring Security forum.</p>
      *
      * @param granted The authorities granted by the authentication. May be any implementation of {@link
      *        GrantedAuthority} that does <strong>not</strong> return <code>null</code> from {@link
-     *        org.springframework.security.core.GrantedAuthority#getAuthority()}.
+     *        GrantedAuthority#getAuthority()}.
      * @param required A {@link Set} of {@link GrantedAuthorityImpl}s that have been built using ifAny, ifAll or
      *        ifNotGranted.
      *
      * @return A set containing only the common authorities between <var>granted</var> and <var>required</var>.
      *
-     * @see <a href="http://forum.springframework.org/viewtopic.php?t=3367">authz:authorize ifNotGranted not behaving
-     *      as expected</a> TODO: wrong article Url
      */
-    private Set retainAll(final Collection granted, final Set required) {
-        Set grantedRoles = authoritiesToRoles(granted);
-        Set requiredRoles = authoritiesToRoles(required);
+    private Set<GrantedAuthority> retainAll(final Collection<GrantedAuthority> granted, final Set<GrantedAuthority> required) {
+        Set<String> grantedRoles = authoritiesToRoles(granted);
+        Set<String> requiredRoles = authoritiesToRoles(required);
         grantedRoles.retainAll(requiredRoles);
 
         return rolesToAuthorities(grantedRoles, granted);
     }
 
-    private Set rolesToAuthorities(Set grantedRoles, Collection granted) {
-        Set target = new HashSet();
+    private Set<GrantedAuthority> rolesToAuthorities(Set<String> grantedRoles, Collection<GrantedAuthority> granted) {
+        Set<GrantedAuthority> target = new HashSet<GrantedAuthority>();
 
-        for (Iterator iterator = grantedRoles.iterator(); iterator.hasNext();) {
-            String role = (String) iterator.next();
-
-            for (Iterator grantedIterator = granted.iterator(); grantedIterator.hasNext();) {
-                GrantedAuthority authority = (GrantedAuthority) grantedIterator.next();
-
+        for (String role : grantedRoles) {
+            for (GrantedAuthority authority : granted) {
                 if (authority.getAuthority().equals(role)) {
                     target.add(authority);
 
