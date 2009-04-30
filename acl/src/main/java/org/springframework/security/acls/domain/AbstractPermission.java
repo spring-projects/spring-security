@@ -5,11 +5,9 @@ import org.springframework.security.acls.Permission;
 
 /**
  * Provides an abstract superclass for {@link Permission} implementations.
- * 
+ *
  * @author Ben Alex
  * @since 2.0.3
- * @see AbstractRegisteredPermission
- * 
  */
 public abstract class AbstractPermission implements Permission {
 
@@ -19,7 +17,23 @@ public abstract class AbstractPermission implements Permission {
     protected int mask;
 
     //~ Constructors ===================================================================================================
+    /**
+     * Sets the permission mask and uses the '*' character to represent active bits when represented as a bit
+     * pattern string.
+     *
+     * @param mask the integer bit mask for the permission
+     */
+    protected AbstractPermission(int mask) {
+        this.mask = mask;
+        this.code = '*';
+    }
 
+    /**
+     * Sets the permission mask and uses the specified character for active bits.
+     *
+     * @param mask the integer bit mask for the permission
+     * @param code the character to print for each active bit in the mask (see {@link Permission#getPattern()})
+     */
     protected AbstractPermission(int mask, char code) {
         this.mask = mask;
         this.code = code;

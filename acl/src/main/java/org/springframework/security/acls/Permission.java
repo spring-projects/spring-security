@@ -17,7 +17,7 @@ package org.springframework.security.acls;
 import java.io.Serializable;
 
 /**
- * Represents a permission granted to a {@link org.springframework.security.acls.sid.Sid Sid} for a given domain object.
+ * Represents a permission granted to a <tt>Sid</tt> for a given domain object.
  *
  * @author Ben Alex
  * @version $Id$
@@ -46,10 +46,11 @@ public interface Permission extends Serializable {
      * {@link #RESERVED_OFF} which is used to denote a bit that is off (clear).
      * Implementations may also elect to use {@link #RESERVED_ON} internally for computation purposes,
      * although this method may not return any <code>String</code> containing {@link #RESERVED_ON}.
-     * </p>
-     *  <p>The returned String must be 32 characters in length.</p>
-     *  <p>This method is only used for user interface and logging purposes. It is not used in any permission
-     * calculations. Therefore, duplication of characters within the output is permitted.</p>
+     * <p>
+     * The returned String must be 32 characters in length.
+     * <p>
+     * This method is only used for user interface and logging purposes. It is not used in any permission
+     * calculations. Therefore, duplication of characters within the output is permitted.
      *
      * @return a 32-character bit pattern
      */

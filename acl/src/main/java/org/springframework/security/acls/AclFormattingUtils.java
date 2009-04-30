@@ -63,17 +63,11 @@ public abstract class AclFormattingUtils {
         return new String(replacement);
     }
 
-    private static String printBinary(int i, char on, char off) {
-        String s = Integer.toString(i, 2);
-        String pattern = Permission.THIRTY_TWO_RESERVED_OFF;
-        String temp2 = pattern.substring(0, pattern.length() - s.length()) + s;
-
-        return temp2.replace('0', off).replace('1', on);
-    }
-
     /**
      * Returns a representation of the active bits in the presented mask, with each active bit being denoted by
-     * character "".<p>Inactive bits will be denoted by character {@link Permission#RESERVED_OFF}.</p>
+     * character '*'.
+     * <p>
+     * Inactive bits will be denoted by character {@link Permission#RESERVED_OFF}.
      *
      * @param i the integer bit mask to print the active bits for
      *
@@ -101,5 +95,13 @@ public abstract class AclFormattingUtils {
             Permission.RESERVED_OFF + " is a reserved character code");
 
         return printBinary(mask, Permission.RESERVED_ON, Permission.RESERVED_OFF).replace(Permission.RESERVED_ON, code);
+    }
+
+    private static String printBinary(int i, char on, char off) {
+        String s = Integer.toString(i, 2);
+        String pattern = Permission.THIRTY_TWO_RESERVED_OFF;
+        String temp2 = pattern.substring(0, pattern.length() - s.length()) + s;
+
+        return temp2.replace('0', off).replace('1', on);
     }
 }

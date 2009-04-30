@@ -44,6 +44,10 @@ public class BasePermission extends AbstractPermission {
     static {
         registerPermissionsFor(BasePermission.class);
     }
+    
+    protected BasePermission(int mask) {
+       super(mask);
+    }
 
     protected BasePermission(int mask, char code) {
         super(mask, code);
