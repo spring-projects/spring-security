@@ -16,8 +16,9 @@ import org.springframework.security.web.SpringSecurityFilter;
 /**
  * Populates the {@link SecurityContextHolder} with information obtained from
  * the configured {@link SecurityContextRepository} prior to the request and stores it back in the repository
- * once the request has completed. By default it uses an {@link HttpSessionSecurityContextRepository}. See this
- * class for information <tt>HttpSession</tt> related configuration options.
+ * once the request has completed and clearing the context holder. By default it uses an
+ * {@link HttpSessionSecurityContextRepository}. See this class for information <tt>HttpSession</tt> related
+ * configuration options.
  * <p>
  * This filter will only execute once per request, to resolve servlet container (specifically Weblogic)
  * incompatibilities.
@@ -55,11 +56,16 @@ public class SecurityContextPersistenceFilter extends SpringSecurityFilter {
             return;
         }
 
+        final boolean debug = logger.isDebugEnabled();
+
         request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 
         if (forceEagerSessionCreation) {
             HttpSession session = request.getSession();
-            logger.debug("Eagerly created session: " + session.getId());
+
+            if (debug && session.isNew()) {
+                logger.debug("Eagerly created session: " + session.getId());
+            }
         }
 
         HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
@@ -77,7 +83,7 @@ public class SecurityContextPersistenceFilter extends SpringSecurityFilter {
             repo.saveContext(contextAfterChainExecution, holder.getRequest(), holder.getResponse());
             request.removeAttribute(FILTER_APPLIED);
 
-            if (logger.isDebugEnabled()) {
+            if (debug) {
                 logger.debug("SecurityContextHolder now cleared, as request processing completed");
             }
         }

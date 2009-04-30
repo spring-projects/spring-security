@@ -116,8 +116,10 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
      * @param httpSession the session obtained from the request.
      */
     private SecurityContext readSecurityContextFromSession(HttpSession httpSession) {
+        final boolean debug = logger.isDebugEnabled();
+
         if (httpSession == null) {
-            if (logger.isDebugEnabled()) {
+            if (debug) {
                 logger.debug("No HttpSession currently exists");
             }
 
@@ -129,7 +131,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         Object contextFromSession = httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
 
         if (contextFromSession == null) {
-            if (logger.isDebugEnabled()) {
+            if (debug) {
                 logger.debug("HttpSession returned null object for SPRING_SECURITY_CONTEXT");
             }
 
@@ -153,7 +155,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
             contextFromSession = cloneContext(contextFromSession);
         }
 
-        if (logger.isDebugEnabled()) {
+        if (debug) {
             logger.debug("Obtained a valid SecurityContext from SPRING_SECURITY_CONTEXT: '" + contextFromSession + "'");
         }
 
