@@ -33,6 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.openid.OpenIDAuthenticationProcessingFilter;
 import org.springframework.security.openid.OpenIDAuthenticationProvider;
 import org.springframework.security.util.FieldUtils;
+import org.springframework.security.web.AccessDeniedHandlerImpl;
 import org.springframework.security.web.ExceptionTranslationFilter;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
@@ -347,6 +348,49 @@ public class HttpSecurityBeanDefinitionParserTests {
         setContext(
                 "    <b:bean id='configurer' class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
                 "    <http auto-config='true' access-denied-page='${accessDenied}'/>" + AUTH_PROVIDER_XML);
+        ExceptionTranslationFilter filter = (ExceptionTranslationFilter) appContext.getBean(BeanIds.EXCEPTION_TRANSLATION_FILTER);
+        assertEquals("/go-away", FieldUtils.getFieldValue(filter, "accessDeniedHandler.errorPage"));
+    }
+
+    @Test
+    public void accessDeniedHandlerPageIsSetCorectly() throws Exception {
+        setContext(
+                "    <http auto-config='true'>" +
+                "        <access-denied-handler error-page='/go-away'/>" +
+                "    </http>" + AUTH_PROVIDER_XML);
+        ExceptionTranslationFilter filter = (ExceptionTranslationFilter) appContext.getBean(BeanIds.EXCEPTION_TRANSLATION_FILTER);
+        assertEquals("/go-away", FieldUtils.getFieldValue(filter, "accessDeniedHandler.errorPage"));
+    }
+
+    @Test
+    public void accessDeniedHandlerIsSetCorectly() throws Exception {
+        setContext(
+                "    <b:bean id='adh' class='" + AccessDeniedHandlerImpl.class.getName() + "'/>" +
+                "    <http auto-config='true'>" +
+                "        <access-denied-handler ref='adh'/>" +
+                "    </http>" + AUTH_PROVIDER_XML);
+        ExceptionTranslationFilter filter = (ExceptionTranslationFilter) appContext.getBean(BeanIds.EXCEPTION_TRANSLATION_FILTER);
+        AccessDeniedHandlerImpl adh = (AccessDeniedHandlerImpl) appContext.getBean("adh");
+        assertSame(adh, FieldUtils.getFieldValue(filter, "accessDeniedHandler"));
+    }
+
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void accessDeniedHandlerAndAccessDeniedHandlerAreMutuallyExclusive() throws Exception {
+        setContext(
+                "    <http auto-config='true' access-denied-page='/go-away'>" +
+                "        <access-denied-handler error-page='/go-away'/>" +
+                "    </http>" + AUTH_PROVIDER_XML);
+        ExceptionTranslationFilter filter = (ExceptionTranslationFilter) appContext.getBean(BeanIds.EXCEPTION_TRANSLATION_FILTER);
+        assertEquals("/go-away", FieldUtils.getFieldValue(filter, "accessDeniedHandler.errorPage"));
+    }
+
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void accessDeniedHandlerPageAndRefAreMutuallyExclusive() throws Exception {
+        setContext(
+                "    <b:bean id='adh' class='" + AccessDeniedHandlerImpl.class.getName() + "'/>" +
+                "    <http auto-config='true'>" +
+                "        <access-denied-handler error-page='/go-away' ref='adh'/>" +
+                "    </http>" + AUTH_PROVIDER_XML);
         ExceptionTranslationFilter filter = (ExceptionTranslationFilter) appContext.getBean(BeanIds.EXCEPTION_TRANSLATION_FILTER);
         assertEquals("/go-away", FieldUtils.getFieldValue(filter, "accessDeniedHandler.errorPage"));
     }

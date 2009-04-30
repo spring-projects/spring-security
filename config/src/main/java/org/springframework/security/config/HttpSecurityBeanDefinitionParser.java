@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -99,6 +100,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_ENTRY_POINT_REF = "entry-point-ref";
     private static final String ATT_ONCE_PER_REQUEST = "once-per-request";
     private static final String ATT_ACCESS_DENIED_PAGE = "access-denied-page";
+    private static final String ATT_ACCESS_DENIED_ERROR_PAGE = "error-page";
 
     private static final String ATT_USE_EXPRESSIONS = "use-expressions";
 
@@ -336,20 +338,49 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private void registerExceptionTranslationFilter(Element element, ParserContext pc, boolean allowSessionCreation) {
-        String accessDeniedPage = element.getAttribute(ATT_ACCESS_DENIED_PAGE);
-        ConfigUtils.validateHttpRedirect(accessDeniedPage, pc, pc.extractSource(element));
         BeanDefinitionBuilder exceptionTranslationFilterBuilder
             = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
-        exceptionTranslationFilterBuilder.addPropertyValue("createSessionAllowed", new Boolean(allowSessionCreation));
-
-        if (StringUtils.hasText(accessDeniedPage)) {
-            BeanDefinition accessDeniedHandler = new RootBeanDefinition(AccessDeniedHandlerImpl.class);
-            accessDeniedHandler.getPropertyValues().addPropertyValue("errorPage", accessDeniedPage);
-            exceptionTranslationFilterBuilder.addPropertyValue("accessDeniedHandler", accessDeniedHandler);
-        }
+        exceptionTranslationFilterBuilder.addPropertyValue("createSessionAllowed", Boolean.valueOf(allowSessionCreation));
+        exceptionTranslationFilterBuilder.addPropertyValue("accessDeniedHandler", createAccessDeniedHandler(element, pc));
 
         pc.getRegistry().registerBeanDefinition(BeanIds.EXCEPTION_TRANSLATION_FILTER, exceptionTranslationFilterBuilder.getBeanDefinition());
         ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.EXCEPTION_TRANSLATION_FILTER));
+    }
+
+    private BeanMetadataElement createAccessDeniedHandler(Element element, ParserContext pc) {
+        String accessDeniedPage = element.getAttribute(ATT_ACCESS_DENIED_PAGE);
+        ConfigUtils.validateHttpRedirect(accessDeniedPage, pc, pc.extractSource(element));
+        Element accessDeniedElt = DomUtils.getChildElementByTagName(element, Elements.ACCESS_DENIED_HANDLER);
+        BeanDefinitionBuilder accessDeniedHandler = BeanDefinitionBuilder.rootBeanDefinition(AccessDeniedHandlerImpl.class);
+
+        if (StringUtils.hasText(accessDeniedPage)) {
+            if (accessDeniedElt != null) {
+                pc.getReaderContext().error("The attribute " + ATT_ACCESS_DENIED_PAGE +
+                        " cannot be used with <" + Elements.ACCESS_DENIED_HANDLER + ">", pc.extractSource(accessDeniedElt));
+            }
+
+            accessDeniedHandler.addPropertyValue("errorPage", accessDeniedPage);
+        }
+
+        if (accessDeniedElt != null) {
+            String errorPage = accessDeniedElt.getAttribute("error-page");
+            String ref = accessDeniedElt.getAttribute("ref");
+
+            if (StringUtils.hasText(errorPage)) {
+                if (StringUtils.hasText(ref)) {
+                    pc.getReaderContext().error("The attribute " + ATT_ACCESS_DENIED_ERROR_PAGE +
+                            " cannot be used together with the 'ref' attribute within <" +
+                            Elements.ACCESS_DENIED_HANDLER + ">", pc.extractSource(accessDeniedElt));
+
+                }
+                accessDeniedHandler.addPropertyValue("errorPage", errorPage);
+            } else if (StringUtils.hasText(ref)) {
+                return new RuntimeBeanReference(ref);
+            }
+
+        }
+
+        return accessDeniedHandler.getBeanDefinition();
     }
 
     private void registerFilterSecurityInterceptor(Element element, ParserContext pc, String accessManagerId,
