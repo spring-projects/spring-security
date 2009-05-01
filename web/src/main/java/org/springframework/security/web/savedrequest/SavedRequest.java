@@ -52,6 +52,8 @@ public class SavedRequest implements java.io.Serializable {
 
     protected static final Log logger = LogFactory.getLog(SavedRequest.class);
 
+    public static final String SPRING_SECURITY_SAVED_REQUEST_KEY = "SPRING_SECURITY_SAVED_REQUEST_KEY";
+
     //~ Instance fields ================================================================================================
 
     private ArrayList<SavedCookie> cookies = new ArrayList<SavedCookie>();
@@ -68,8 +70,6 @@ public class SavedRequest implements java.io.Serializable {
     private String serverName;
     private String servletPath;
     private int serverPort;
-
-    public static final String SPRING_SECURITY_SAVED_REQUEST_KEY = "SPRING_SECURITY_SAVED_REQUEST_KEY";
 
     //~ Constructors ===================================================================================================
 
@@ -228,7 +228,7 @@ public class SavedRequest implements java.io.Serializable {
      */
     public String getFullRequestUrl() {
         return UrlUtils.buildFullRequestUrl(this.getScheme(), this.getServerName(), this.getServerPort(), this.getContextPath(),
-        this.getRequestURL(), this.getServletPath(), this.getRequestURI(), this.getPathInfo(), this.getQueryString());
+        this.getServletPath(), this.getRequestURI(), this.getPathInfo(), this.getQueryString());
     }
 
     public Iterator<String> getHeaderNames() {

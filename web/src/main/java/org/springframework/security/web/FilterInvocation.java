@@ -70,7 +70,7 @@ public class FilterInvocation {
      * @return the full URL of this request
      */
     public String getFullRequestUrl() {
-        return UrlUtils.getFullRequestUrl(this);
+        return UrlUtils.buildFullRequestUrl(request);
     }
 
     public HttpServletRequest getHttpRequest() {
@@ -87,7 +87,7 @@ public class FilterInvocation {
      * @return the URL, excluding any server name, context path or servlet path
      */
     public String getRequestUrl() {
-        return UrlUtils.getRequestUrl(this);
+        return UrlUtils.buildRequestUrl(request);
     }
 
     public HttpServletRequest getRequest() {

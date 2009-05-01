@@ -17,8 +17,6 @@ package org.springframework.security.web.util;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.web.FilterInvocation;
-
 
 /**
  * Provides static methods for composing URLs.<p>Placed into a separate class for visibility, so that changes to
@@ -28,21 +26,23 @@ import org.springframework.security.web.FilterInvocation;
  * @version $Id$
  */
 public final class UrlUtils {
-    //~ Constructors ===================================================================================================
-
-    private UrlUtils() {
-    }
-
     //~ Methods ========================================================================================================
 
+    public static String buildFullRequestUrl(HttpServletRequest r) {
+        return buildFullRequestUrl(r.getScheme(), r.getServerName(), r.getServerPort(), r.getContextPath(),
+            r.getServletPath(), r.getRequestURI(), r.getPathInfo(), r.getQueryString());
+    }
+
     /**
-     * Obtains the full URL the client used to make the request.<p>Note that the server port will not be shown
-     * if it is the default server port for HTTP or HTTPS (ie 80 and 443 respectively).</p>
+     * Obtains the full URL the client used to make the request.
+     * <p>
+     * Note that the server port will not be shown if it is the default server port for HTTP or HTTPS
+     * (80 and 443 respectively).
      *
      * @return the full URL
      */
     public static String buildFullRequestUrl(String scheme, String serverName, int serverPort, String contextPath,
-        String requestUrl, String servletPath, String requestURI, String pathInfo, String queryString) {
+        String servletPath, String requestURI, String pathInfo, String queryString) {
 
         boolean includePort = true;
 
@@ -55,7 +55,17 @@ public final class UrlUtils {
         }
 
         return scheme + "://" + serverName + ((includePort) ? (":" + serverPort) : "") + contextPath
-        + buildRequestUrl(servletPath, requestURI, contextPath, pathInfo, queryString);
+                + buildRequestUrl(servletPath, requestURI, contextPath, pathInfo, queryString);
+    }
+
+    /**
+     * Obtains the web application-specific fragment of the request URL.
+     *
+     * @return the URL, excluding any server name, context path or servlet path
+     */
+    public static String buildRequestUrl(HttpServletRequest r) {
+        return buildRequestUrl(r.getServletPath(), r.getRequestURI(), r.getContextPath(), r.getPathInfo(),
+            r.getQueryString());
     }
 
     /**
@@ -74,20 +84,6 @@ public final class UrlUtils {
         }
 
         return uri + ((pathInfo == null) ? "" : pathInfo) + ((queryString == null) ? "" : ("?" + queryString));
-    }
-
-    public static String getFullRequestUrl(FilterInvocation fi) {
-        HttpServletRequest r = fi.getHttpRequest();
-
-        return buildFullRequestUrl(r.getScheme(), r.getServerName(), r.getServerPort(), r.getContextPath(),
-            r.getRequestURL().toString(), r.getServletPath(), r.getRequestURI(), r.getPathInfo(), r.getQueryString());
-    }
-
-    public static String getRequestUrl(FilterInvocation fi) {
-        HttpServletRequest r = fi.getHttpRequest();
-
-        return buildRequestUrl(r.getServletPath(), r.getRequestURI(), r.getContextPath(), r.getPathInfo(),
-            r.getQueryString());
     }
 
     /**
