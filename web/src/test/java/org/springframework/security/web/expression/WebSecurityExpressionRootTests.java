@@ -1,14 +1,15 @@
 package org.springframework.security.web.expression;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.util.FilterInvocationUtils;
 
 /**
  * Tests for {@link WebSecurityExpressionRoot}.
@@ -18,15 +19,15 @@ import org.springframework.security.web.util.FilterInvocationUtils;
  * @since 2.5
  */
 public class WebSecurityExpressionRootTests {
-    Mockery jmock = new JUnit4Mockery();
 
     @Test
     public void ipAddressMatchesForEqualIpAddresses() throws Exception {
-        FilterInvocation fi = FilterInvocationUtils.create("/test");
-        MockHttpServletRequest request = (MockHttpServletRequest) fi.getHttpRequest();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/test");
         // IPv4
         request.setRemoteAddr("192.168.1.1");
-        WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(jmock.mock(Authentication.class), fi);
+        WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(mock(Authentication.class),
+                new FilterInvocation(request, mock(HttpServletResponse.class), mock(FilterChain.class)));
 
         assertTrue(root.hasIpAddress("192.168.1.1"));
 
@@ -37,9 +38,10 @@ public class WebSecurityExpressionRootTests {
 
     @Test
     public void addressesInIpRangeMatch() throws Exception {
-        FilterInvocation fi = FilterInvocationUtils.create("/test");
-        MockHttpServletRequest request = (MockHttpServletRequest) fi.getHttpRequest();
-        WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(jmock.mock(Authentication.class), fi);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/test");
+        WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(mock(Authentication.class),
+                new FilterInvocation(request, mock(HttpServletResponse.class), mock(FilterChain.class)));
         for (int i=0; i < 255; i++) {
             request.setRemoteAddr("192.168.1." + i);
             assertTrue(root.hasIpAddress("192.168.1.0/24"));
