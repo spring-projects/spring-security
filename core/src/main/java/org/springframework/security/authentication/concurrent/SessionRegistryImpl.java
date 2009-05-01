@@ -39,7 +39,6 @@ import org.springframework.util.Assert;
  * <p>
  * NB: It is important that you register the {@link org.springframework.security.web.session.HttpSessionEventPublisher} in
  * <code>web.xml</code> so that this class is notified of sessions that expire.
- * </p>
  *
  * @author Ben Alex
  * @version $Id$

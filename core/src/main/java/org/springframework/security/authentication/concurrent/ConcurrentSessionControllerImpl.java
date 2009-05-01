@@ -88,10 +88,9 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
     public void checkAuthenticationAllowed(Authentication request) throws AuthenticationException {
         Assert.notNull(request, "Authentication request cannot be null (violation of interface contract)");
 
-        Object principal = SessionRegistryUtils.obtainPrincipalFromAuthentication(request);
-        String sessionId = SessionRegistryUtils.obtainSessionIdFromAuthentication(request);
+        String sessionId = obtainSessionId(request);
 
-        final List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
+        final List<SessionInformation> sessions = sessionRegistry.getAllSessions(request.getPrincipal(), false);
 
         int sessionCount = sessions == null ? 0 : sessions.size();
 
@@ -137,10 +136,7 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
     public void registerSuccessfulAuthentication(Authentication authentication) {
         Assert.notNull(authentication, "Authentication cannot be null (violation of interface contract)");
 
-        Object principal = SessionRegistryUtils.obtainPrincipalFromAuthentication(authentication);
-        String sessionId = SessionRegistryUtils.obtainSessionIdFromAuthentication(authentication);
-
-        sessionRegistry.registerNewSession(sessionId, principal);
+        sessionRegistry.registerNewSession(obtainSessionId(authentication), authentication.getPrincipal());
     }
 
     public void setExceptionIfMaximumExceeded(boolean exceptionIfMaximumExceeded) {
@@ -161,5 +157,18 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
 
     public SessionRegistry getSessionRegistry() {
         return sessionRegistry;
+    }
+
+    private String obtainSessionId(Authentication auth) {
+        if (auth.getDetails() == null || !(auth.getDetails() instanceof SessionIdentifierAware)) {
+            throw new IllegalArgumentException("The 'details' property of the supplied Authentication " +
+                    "object must be set and must implement 'SessionIdentifierAware', but Authentication.getDetails() " +
+                    "returned " + auth.getDetails());
+        }
+
+        String sessionId = ((SessionIdentifierAware) auth.getDetails()).getSessionId();
+        Assert.hasText(sessionId, "SessionIdentifierAware did not return a Session ID (" + auth.getDetails() + ")");
+
+        return sessionId;
     }
 }

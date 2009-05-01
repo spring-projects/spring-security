@@ -10,7 +10,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.concurrent.SessionRegistry;
-import org.springframework.security.authentication.concurrent.SessionRegistryUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -67,10 +66,8 @@ public final class SessionUtils {
 
         if (sessionRegistry != null) {
             sessionRegistry.removeSessionInformation(originalSessionId);
-            Object principal = SessionRegistryUtils.obtainPrincipalFromAuthentication(
-                    SecurityContextHolder.getContext().getAuthentication());
-
-            sessionRegistry.registerNewSession(session.getId(), principal);
+            sessionRegistry.registerNewSession(session.getId(),
+                    SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         }
     }
 }
