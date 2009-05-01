@@ -58,7 +58,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="url">
-    <xs:attribute name="url" use="required" type="xs:string">
+    <xs:attribute name="url" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>Specifies a URL.</xs:documentation>
       </xs:annotation>
@@ -73,14 +73,14 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="ref">
-    <xs:attribute name="ref" use="required" type="xs:string">
+    <xs:attribute name="ref" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>Defines a reference to a Spring bean Id.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="cache-ref">
-    <xs:attribute name="cache-ref" use="required" type="xs:string">
+    <xs:attribute name="cache-ref" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>Defines a reference to a cache for use with a
           UserDetailsService.</xs:documentation>
@@ -88,7 +88,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="user-service-ref">
-    <xs:attribute name="user-service-ref" use="required" type="xs:string">
+    <xs:attribute name="user-service-ref" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>A reference to a user-service (or UserDetailsService bean)
           Id</xs:documentation>
@@ -96,14 +96,14 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="data-source-ref">
-    <xs:attribute name="data-source-ref" use="required" type="xs:string">
+    <xs:attribute name="data-source-ref" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>A reference to a DataSource bean</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="password-encoder.attlist">
-    <xs:attribute name="ref" type="xs:string">
+    <xs:attribute name="ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Defines a reference to a Spring bean Id.</xs:documentation>
       </xs:annotation>
@@ -138,7 +138,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="user-property">
-    <xs:attribute name="user-property" use="required" type="xs:string">
+    <xs:attribute name="user-property" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>A property of the UserDetails object which will be used as salt by a
           password encoder. Typically something like "username" might be used. </xs:documentation>
@@ -146,7 +146,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="system-wide">
-    <xs:attribute name="system-wide" use="required" type="xs:string">
+    <xs:attribute name="system-wide" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>A single value that will be used as the salt for a password encoder.
         </xs:documentation>
@@ -160,7 +160,7 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:attributeGroup name="role-prefix">
-    <xs:attribute name="role-prefix" use="required" type="xs:string">
+    <xs:attribute name="role-prefix" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>A non-empty string prefix that will be added to role strings loaded from
           persistent storage (e.g. "ROLE_"). Use the value "none" for no prefix in cases where the
@@ -198,7 +198,7 @@
           context.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="url" type="xs:string">
+    <xs:attribute name="url" type="xs:token">
       <xs:annotation>
         <xs:documentation>Specifies a URL.</xs:documentation>
       </xs:annotation>
@@ -235,7 +235,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="ldap-server-ref-attribute">
-    <xs:attribute name="server-ref" use="required" type="xs:string">
+    <xs:attribute name="server-ref" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>The optional server to use. If omitted, and a default LDAP server is
           registered (using &lt;ldap-server&gt; with no Id), that server will be used.
@@ -244,7 +244,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="group-search-filter-attribute">
-    <xs:attribute name="group-search-filter" use="required" type="xs:string">
+    <xs:attribute name="group-search-filter" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>Group search filter. Defaults to (uniqueMember={0}). The substituted
           parameter is the DN of the user.</xs:documentation>
@@ -252,7 +252,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="group-search-base-attribute">
-    <xs:attribute name="group-search-base" use="required" type="xs:string">
+    <xs:attribute name="group-search-base" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>Search base for group membership searches. Defaults to "" (searching from
           the root).</xs:documentation>
@@ -260,7 +260,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="user-search-filter-attribute">
-    <xs:attribute name="user-search-filter" use="required" type="xs:string">
+    <xs:attribute name="user-search-filter" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>The LDAP filter used to search for users (optional). For example
           "(uid={0})". The substituted parameter is the user's login name.</xs:documentation>
@@ -268,7 +268,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="user-search-base-attribute">
-    <xs:attribute name="user-search-base" use="required" type="xs:string">
+    <xs:attribute name="user-search-base" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>Search base for user searches. Defaults to "". Only used with a
           'user-search-filter'.</xs:documentation>
@@ -276,7 +276,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="group-role-attribute-attribute">
-    <xs:attribute name="group-role-attribute" use="required" type="xs:string">
+    <xs:attribute name="group-role-attribute" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>The LDAP attribute name which contains the role name which will be used
           within Spring Security. Defaults to "cn".</xs:documentation>
@@ -310,50 +310,50 @@
           context.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="server-ref" type="xs:string">
+    <xs:attribute name="server-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>The optional server to use. If omitted, and a default LDAP server is
           registered (using &lt;ldap-server&gt; with no Id), that server will be used.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="user-search-filter" type="xs:string">
+    <xs:attribute name="user-search-filter" type="xs:token">
       <xs:annotation>
         <xs:documentation>The LDAP filter used to search for users (optional). For example
           "(uid={0})". The substituted parameter is the user's login name.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="user-search-base" type="xs:string">
+    <xs:attribute name="user-search-base" type="xs:token">
       <xs:annotation>
         <xs:documentation>Search base for user searches. Defaults to "". Only used with a
           'user-search-filter'.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="group-search-filter" type="xs:string">
+    <xs:attribute name="group-search-filter" type="xs:token">
       <xs:annotation>
         <xs:documentation>Group search filter. Defaults to (uniqueMember={0}). The substituted
           parameter is the DN of the user.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="group-search-base" type="xs:string">
+    <xs:attribute name="group-search-base" type="xs:token">
       <xs:annotation>
         <xs:documentation>Search base for group membership searches. Defaults to "" (searching from
           the root).</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="group-role-attribute" type="xs:string">
+    <xs:attribute name="group-role-attribute" type="xs:token">
       <xs:annotation>
         <xs:documentation>The LDAP attribute name which contains the role name which will be used
           within Spring Security. Defaults to "cn".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="cache-ref" type="xs:string">
+    <xs:attribute name="cache-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Defines a reference to a cache for use with a
           UserDetailsService.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="role-prefix" type="xs:string">
+    <xs:attribute name="role-prefix" type="xs:token">
       <xs:annotation>
         <xs:documentation>A non-empty string prefix that will be added to role strings loaded from
           persistent storage (e.g. "ROLE_"). Use the value "none" for no prefix in cases where the
@@ -401,20 +401,20 @@
                           property from the UserDetails object can be used.</xs:documentation>
                       </xs:annotation>
                       <xs:complexType>
-                        <xs:attribute name="user-property" type="xs:string">
+                        <xs:attribute name="user-property" type="xs:token">
                           <xs:annotation>
                             <xs:documentation>A property of the UserDetails object which will be
                               used as salt by a password encoder. Typically something like
                               "username" might be used. </xs:documentation>
                           </xs:annotation>
                         </xs:attribute>
-                        <xs:attribute name="system-wide" type="xs:string">
+                        <xs:attribute name="system-wide" type="xs:token">
                           <xs:annotation>
                             <xs:documentation>A single value that will be used as the salt for a
                               password encoder. </xs:documentation>
                           </xs:annotation>
                         </xs:attribute>
-                        <xs:attribute name="ref" type="xs:string">
+                        <xs:attribute name="ref" type="xs:token">
                           <xs:annotation>
                             <xs:documentation>Defines a reference to a Spring bean
                               Id.</xs:documentation>
@@ -435,51 +435,51 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="ldap-ap.attlist">
-    <xs:attribute name="server-ref" type="xs:string">
+    <xs:attribute name="server-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>The optional server to use. If omitted, and a default LDAP server is
           registered (using &lt;ldap-server&gt; with no Id), that server will be used.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="user-search-base" type="xs:string">
+    <xs:attribute name="user-search-base" type="xs:token">
       <xs:annotation>
         <xs:documentation>Search base for user searches. Defaults to "". Only used with a
           'user-search-filter'.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="user-search-filter" type="xs:string">
+    <xs:attribute name="user-search-filter" type="xs:token">
       <xs:annotation>
         <xs:documentation>The LDAP filter used to search for users (optional). For example
           "(uid={0})". The substituted parameter is the user's login name.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="group-search-base" type="xs:string">
+    <xs:attribute name="group-search-base" type="xs:token">
       <xs:annotation>
         <xs:documentation>Search base for group membership searches. Defaults to "" (searching from
           the root).</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="group-search-filter" type="xs:string">
+    <xs:attribute name="group-search-filter" type="xs:token">
       <xs:annotation>
         <xs:documentation>Group search filter. Defaults to (uniqueMember={0}). The substituted
           parameter is the DN of the user.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="group-role-attribute" type="xs:string">
+    <xs:attribute name="group-role-attribute" type="xs:token">
       <xs:annotation>
         <xs:documentation>The LDAP attribute name which contains the role name which will be used
           within Spring Security. Defaults to "cn".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="user-dn-pattern" type="xs:string">
+    <xs:attribute name="user-dn-pattern" type="xs:token">
       <xs:annotation>
         <xs:documentation>A specific pattern used to build the user's DN, for example
           "uid={0},ou=people". The key "{0}" must be present and will be substituted with the
           username.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="role-prefix" type="xs:string">
+    <xs:attribute name="role-prefix" type="xs:token">
       <xs:annotation>
         <xs:documentation>A non-empty string prefix that will be added to role strings loaded from
           persistent storage (e.g. "ROLE_"). Use the value "none" for no prefix in cases where the
@@ -501,7 +501,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="password-compare.attlist">
-    <xs:attribute name="password-attribute" type="xs:string">
+    <xs:attribute name="password-attribute" type="xs:token">
       <xs:annotation>
         <xs:documentation>The attribute in the directory which contains the user password. Defaults
           to "userPassword".</xs:documentation>
@@ -547,7 +547,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="intercept-methods.attlist">
-    <xs:attribute name="access-decision-manager-ref" type="xs:string">
+    <xs:attribute name="access-decision-manager-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Optional AccessDecisionManager bean ID to be used by the created method
           security interceptor.</xs:documentation>
@@ -555,12 +555,12 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="protect.attlist">
-    <xs:attribute name="method" use="required" type="xs:string">
+    <xs:attribute name="method" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>A method name</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="access" use="required" type="xs:string">
+    <xs:attribute name="access" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>Access configuration attributes list that applies to the method, e.g.
           "ROLE_A,ROLE_B".</xs:documentation>
@@ -637,10 +637,16 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="access-decision-manager-ref" type="xs:string">
+    <xs:attribute name="access-decision-manager-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Optional AccessDecisionManager bean ID to override the default used for
           method security.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="run-as-manager-ref" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Optional RunAsmanager implementation which will be used by the configured
+          MethodSecurityInterceptor</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -669,7 +675,7 @@
           quotes).</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="access" use="required" type="xs:string">
+    <xs:attribute name="access" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>Access configuration attributes list that applies to all methods matching
           the pointcut, e.g. "ROLE_A,ROLE_B"</xs:documentation>
@@ -816,7 +822,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="security-context-repository-ref" type="xs:string">
+    <xs:attribute name="security-context-repository-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>A reference to a SecurityContextRepository bean. This can be used to
           customize how the SecurityContext is stored between requests.</xs:documentation>
@@ -848,13 +854,13 @@
           SecurityContext. Defaults to "true".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="access-decision-manager-ref" type="xs:string">
+    <xs:attribute name="access-decision-manager-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Optional attribute specifying the ID of the AccessDecisionManager
           implementation which should be used for authorizing HTTP requests.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="realm" type="xs:string">
+    <xs:attribute name="realm" type="xs:token">
       <xs:annotation>
         <xs:documentation>Optional attribute specifying the realm name that will be used for all
           authentication features that require a realm name (eg BASIC and Digest authentication). If
@@ -877,7 +883,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="entry-point-ref" type="xs:string">
+    <xs:attribute name="entry-point-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Allows a customized AuthenticationEntryPoint to be
           used.</xs:documentation>
@@ -889,7 +895,7 @@
           FilterSecurityInterceptor. Defaults to "true"</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="access-denied-page" type="xs:string">
+    <xs:attribute name="access-denied-page" type="xs:token">
       <xs:annotation>
         <xs:documentation>Deprecated in favour of the access-denied-handler
           element.</xs:documentation>
@@ -902,12 +908,12 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="access-denied-handler.attlist">
-    <xs:attribute name="ref" type="xs:string">
+    <xs:attribute name="ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Defines a reference to a Spring bean Id.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="error-page" type="xs:string">
+    <xs:attribute name="error-page" type="xs:token">
       <xs:annotation>
         <xs:documentation>The access denied page that an authenticated user will be redirected to if
           they request a page which they don't have the authority to access. </xs:documentation>
@@ -915,7 +921,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="access-denied-handler-page">
-    <xs:attribute name="error-page" use="required" type="xs:string">
+    <xs:attribute name="error-page" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>The access denied page that an authenticated user will be redirected to if
           they request a page which they don't have the authority to access. </xs:documentation>
@@ -923,14 +929,14 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="intercept-url.attlist">
-    <xs:attribute name="pattern" use="required" type="xs:string">
+    <xs:attribute name="pattern" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>The pattern which defines the URL path. The content will depend on the
           type set in the containing http element, so will default to ant path
           syntax.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="access" type="xs:string">
+    <xs:attribute name="access" type="xs:token">
       <xs:annotation>
         <xs:documentation>The access configuration attributes that apply for the configured
           path.</xs:documentation>
@@ -981,14 +987,14 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="logout.attlist">
-    <xs:attribute name="logout-url" type="xs:string">
+    <xs:attribute name="logout-url" type="xs:token">
       <xs:annotation>
         <xs:documentation>Specifies the URL that will cause a logout. Spring Security will
           initialize a filter that responds to this particular URL. Defaults to
           /j_spring_security_logout if unspecified.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="logout-success-url" type="xs:string">
+    <xs:attribute name="logout-success-url" type="xs:token">
       <xs:annotation>
         <xs:documentation>Specifies the URL to display once the user has logged out. If not
           specified, defaults to /.</xs:documentation>
@@ -1002,13 +1008,13 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="form-login.attlist">
-    <xs:attribute name="login-processing-url" type="xs:string">
+    <xs:attribute name="login-processing-url" type="xs:token">
       <xs:annotation>
         <xs:documentation>The URL that the login form is posted to. If unspecified, it defaults to
           /j_spring_security_check.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="default-target-url" type="xs:string">
+    <xs:attribute name="default-target-url" type="xs:token">
       <xs:annotation>
         <xs:documentation>The URL that will be redirected to after successful authentication, if the
           user's previous action could not be resumed. This generally happens if the user visits a
@@ -1023,14 +1029,14 @@
           after login. </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="login-page" type="xs:string">
+    <xs:attribute name="login-page" type="xs:token">
       <xs:annotation>
         <xs:documentation>The URL for the login page. If no login URL is specified, Spring Security
           will automatically create a login URL at /spring_security_login and a corresponding filter
           to render that login URL when requested.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="authentication-failure-url" type="xs:string">
+    <xs:attribute name="authentication-failure-url" type="xs:token">
       <xs:annotation>
         <xs:documentation>The URL for the login failure page. If no login failure URL is specified,
           Spring Security will automatically create a failure login URL at
@@ -1038,7 +1044,7 @@
           URL when requested.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="authentication-success-handler-ref" type="xs:string">
+    <xs:attribute name="authentication-success-handler-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Reference to an AuthenticationSuccessHandler bean which should be used to
           handle a successful authentication request. Should not be used in combination with
@@ -1046,7 +1052,7 @@
           deal with navigation to the subsequent destination</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="authentication-failure-handler-ref" type="xs:string">
+    <xs:attribute name="authentication-failure-handler-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Reference to an AuthenticationFailureHandler bean which should be used to
           handle a failed authentication request. Should not be used in combination with
@@ -1062,7 +1068,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:attributeGroup ref="security:form-login.attlist"/>
-      <xs:attribute name="user-service-ref" type="xs:string">
+      <xs:attribute name="user-service-ref" type="xs:token">
         <xs:annotation>
           <xs:documentation>A reference to a user-service (or UserDetailsService bean)
             Id</xs:documentation>
@@ -1097,8 +1103,8 @@
     <xs:attributeGroup ref="security:path-type"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="filter-chain.attlist">
-    <xs:attribute name="pattern" use="required" type="xs:string"/>
-    <xs:attribute name="filters" use="required" type="xs:string"/>
+    <xs:attribute name="pattern" use="required" type="xs:token"/>
+    <xs:attribute name="filters" use="required" type="xs:token"/>
   </xs:attributeGroup>
   <xs:element name="filter-invocation-definition-source">
     <xs:annotation>
@@ -1165,7 +1171,7 @@
           time. Defaults to "1".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="expired-url" type="xs:string">
+    <xs:attribute name="expired-url" type="xs:token">
       <xs:annotation>
         <xs:documentation>The URL a user will be redirected to if they attempt to use a session
           which has been "expired" by the concurrent session controller because they have logged in
@@ -1179,13 +1185,13 @@
           expire the original session.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="session-registry-alias" type="xs:string">
+    <xs:attribute name="session-registry-alias" type="xs:token">
       <xs:annotation>
         <xs:documentation>Allows you to define an alias for the SessionRegistry bean in order to
           access it in your own configuration</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="session-registry-ref" type="xs:string">
+    <xs:attribute name="session-registry-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>A reference to an external SessionRegistry implementation which will be
           used in place of the standard one. </xs:documentation>
@@ -1193,26 +1199,26 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="remember-me.attlist">
-    <xs:attribute name="key" type="xs:string">
+    <xs:attribute name="key" type="xs:token">
       <xs:annotation>
         <xs:documentation>The "key" used to identify cookies from a specific token-based remember-me
           application. You should set this to a unique value for your
           application.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="token-repository-ref" type="xs:string">
+    <xs:attribute name="token-repository-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Reference to a PersistentTokenRepository bean for use with the persistent
           token remember-me implementation. </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="data-source-ref" type="xs:string">
+    <xs:attribute name="data-source-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>A reference to a DataSource bean</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attributeGroup ref="security:remember-me-services-ref"/>
-    <xs:attribute name="user-service-ref" type="xs:string">
+    <xs:attribute name="user-service-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>A reference to a user-service (or UserDetailsService bean)
           Id</xs:documentation>
@@ -1226,7 +1232,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="token-repository-ref">
-    <xs:attribute name="token-repository-ref" use="required" type="xs:string">
+    <xs:attribute name="token-repository-ref" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>Reference to a PersistentTokenRepository bean for use with the persistent
           token remember-me implementation. </xs:documentation>
@@ -1234,7 +1240,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="remember-me-services-ref">
-    <xs:attribute name="services-ref" type="xs:string">
+    <xs:attribute name="services-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Allows a custom implementation of RememberMeServices to be used. Note that
           this implementation should return RememberMeAuthenticationToken instances with the same
@@ -1247,20 +1253,20 @@
     <xs:attributeGroup ref="security:data-source-ref"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="anonymous.attlist">
-    <xs:attribute name="key" type="xs:string">
+    <xs:attribute name="key" type="xs:token">
       <xs:annotation>
         <xs:documentation>The key shared between the provider and filter. This generally does not
           need to be set. If unset, it will default to "doesNotMatter".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="username" type="xs:string">
+    <xs:attribute name="username" type="xs:token">
       <xs:annotation>
         <xs:documentation>The username that should be assigned to the anonymous request. This allows
           the principal to be identified, which may be important for logging and auditing. if unset,
           defaults to "anonymousUser".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="granted-authority" type="xs:string">
+    <xs:attribute name="granted-authority" type="xs:token">
       <xs:annotation>
         <xs:documentation>The granted authority that should be assigned to the anonymous request.
           Commonly this is used to assign the anonymous request particular roles, which can
@@ -1276,20 +1282,20 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="http-port">
-    <xs:attribute name="http" use="required" type="xs:string"/>
+    <xs:attribute name="http" use="required" type="xs:token"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="https-port">
-    <xs:attribute name="https" use="required" type="xs:string"/>
+    <xs:attribute name="https" use="required" type="xs:token"/>
   </xs:attributeGroup>
   <xs:attributeGroup name="x509.attlist">
-    <xs:attribute name="subject-principal-regex" type="xs:string">
+    <xs:attribute name="subject-principal-regex" type="xs:token">
       <xs:annotation>
         <xs:documentation>The regular expression used to obtain the username from the certificate's
           subject. Defaults to matching on the common name using the pattern
           "CN=(.*?),".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="user-service-ref" type="xs:string">
+    <xs:attribute name="user-service-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>A reference to a user-service (or UserDetailsService bean)
           Id</xs:documentation>
@@ -1314,7 +1320,7 @@
           bean</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="session-controller-ref" type="xs:string">
+    <xs:attribute name="session-controller-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Allows the session controller to be set on the internal
           AuthenticationManager. This should not be used with the &lt;concurrent-session-control
@@ -1344,20 +1350,20 @@
                     from the UserDetails object can be used.</xs:documentation>
                 </xs:annotation>
                 <xs:complexType>
-                  <xs:attribute name="user-property" type="xs:string">
+                  <xs:attribute name="user-property" type="xs:token">
                     <xs:annotation>
                       <xs:documentation>A property of the UserDetails object which will be used as
                         salt by a password encoder. Typically something like "username" might be
                         used. </xs:documentation>
                     </xs:annotation>
                   </xs:attribute>
-                  <xs:attribute name="system-wide" type="xs:string">
+                  <xs:attribute name="system-wide" type="xs:token">
                     <xs:annotation>
                       <xs:documentation>A single value that will be used as the salt for a password
                         encoder. </xs:documentation>
                     </xs:annotation>
                   </xs:attribute>
-                  <xs:attribute name="ref" type="xs:string">
+                  <xs:attribute name="ref" type="xs:token">
                     <xs:annotation>
                       <xs:documentation>Defines a reference to a Spring bean Id.</xs:documentation>
                     </xs:annotation>
@@ -1373,7 +1379,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="ap.attlist">
-    <xs:attribute name="user-service-ref" type="xs:string">
+    <xs:attribute name="user-service-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>A reference to a user-service (or UserDetailsService bean)
           Id</xs:documentation>
@@ -1406,7 +1412,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="properties-file">
-    <xs:attribute name="properties" type="xs:string"/>
+    <xs:attribute name="properties" type="xs:token"/>
   </xs:attributeGroup>
   <xs:element name="user">
     <xs:annotation>
@@ -1417,7 +1423,7 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="user.attlist">
-    <xs:attribute name="name" use="required" type="xs:string">
+    <xs:attribute name="name" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>The username assigned to the user.</xs:documentation>
       </xs:annotation>
@@ -1429,7 +1435,7 @@
           "user-service" element).</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="authorities" use="required" type="xs:string">
+    <xs:attribute name="authorities" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>One of more authorities granted to the user. Separate authorities with a
           comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"</xs:documentation>
@@ -1463,37 +1469,37 @@
     </xs:complexType>
   </xs:element>
   <xs:attributeGroup name="jdbc-user-service.attlist">
-    <xs:attribute name="data-source-ref" use="required" type="xs:string">
+    <xs:attribute name="data-source-ref" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>The bean ID of the DataSource which provides the required
           tables.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="cache-ref" type="xs:string">
+    <xs:attribute name="cache-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Defines a reference to a cache for use with a
           UserDetailsService.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="users-by-username-query" type="xs:string">
+    <xs:attribute name="users-by-username-query" type="xs:token">
       <xs:annotation>
         <xs:documentation>An SQL statement to query a username, password, and enabled status given a
           username</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="authorities-by-username-query" type="xs:string">
+    <xs:attribute name="authorities-by-username-query" type="xs:token">
       <xs:annotation>
         <xs:documentation>An SQL statement to query for a user's granted authorities given a
           username.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="group-authorities-by-username-query" type="xs:string">
+    <xs:attribute name="group-authorities-by-username-query" type="xs:token">
       <xs:annotation>
         <xs:documentation>An SQL statement to query user's group authorities given a
           username.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="role-prefix" type="xs:string">
+    <xs:attribute name="role-prefix" type="xs:token">
       <xs:annotation>
         <xs:documentation>A non-empty string prefix that will be added to role strings loaded from
           persistent storage (e.g. "ROLE_"). Use the value "none" for no prefix in cases where the

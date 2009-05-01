@@ -1,5 +1,6 @@
 package org.springframework.security.config.util;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.security.util.InMemoryResource;
@@ -22,12 +23,18 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
     Resource inMemoryXml;
 
     public InMemoryXmlApplicationContext(String xml) {
-        this(xml, true);
+        this(xml, true, null);
     }
 
-    public InMemoryXmlApplicationContext(String xml, boolean addBeansTags) {
+    public InMemoryXmlApplicationContext(String xml, ApplicationContext parent) {
+        this(xml, true, parent);
+    }
+
+
+    public InMemoryXmlApplicationContext(String xml, boolean addBeansTags, ApplicationContext parent) {
         String fullXml = addBeansTags ? BEANS_OPENING + xml + BEANS_CLOSE : xml;
         inMemoryXml = new InMemoryResource(fullXml);
+        setParent(parent);
         refresh();
     }
 

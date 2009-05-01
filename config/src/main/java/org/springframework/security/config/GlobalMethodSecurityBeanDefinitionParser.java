@@ -62,6 +62,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_ACCESS = "access";
     private static final String ATT_EXPRESSION = "expression";
     private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
+    private static final String ATT_RUN_AS_MGR = "run-as-manager-ref";
     private static final String ATT_USE_JSR250 = "jsr250-annotations";
     private static final String ATT_USE_SECURED = "secured-annotations";
     private static final String ATT_USE_EXPRESSIONS = "expression-annotations";
@@ -132,7 +133,9 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
             accessManagerId = ACCESS_MANAGER_ID;
         }
 
-        registerMethodSecurityInterceptor(parserContext, accessManagerId, source);
+        String runAsManagerId = element.getAttribute(ATT_RUN_AS_MGR);
+
+        registerMethodSecurityInterceptor(parserContext, accessManagerId, runAsManagerId, source);
 
         registerAdvisor(parserContext, source);
 
@@ -217,18 +220,23 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return pointcutMap;
     }
 
-    private void registerMethodSecurityInterceptor(ParserContext parserContext, String accessManagerId, Object source) {
-        RootBeanDefinition interceptor = new RootBeanDefinition(MethodSecurityInterceptor.class);
-        interceptor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        interceptor.setSource(source);
+    private void registerMethodSecurityInterceptor(ParserContext pc, String accessManagerId, String runAsManagerId, Object source) {
+        BeanDefinitionBuilder bldr = BeanDefinitionBuilder.rootBeanDefinition(MethodSecurityInterceptor.class);
+        bldr.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        bldr.getRawBeanDefinition().setSource(source);
 
-        interceptor.getPropertyValues().addPropertyValue("accessDecisionManager", new RuntimeBeanReference(accessManagerId));
-        interceptor.getPropertyValues().addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
-        interceptor.getPropertyValues().addPropertyValue("securityMetadataSource", new RuntimeBeanReference(DELEGATING_METHOD_DEFINITION_SOURCE_ID));
-        parserContext.getRegistry().registerBeanDefinition(SECURITY_INTERCEPTOR_ID, interceptor);
-        parserContext.registerComponent(new BeanComponentDefinition(interceptor, SECURITY_INTERCEPTOR_ID));
+        bldr.addPropertyReference("accessDecisionManager", accessManagerId);
+        bldr.addPropertyReference("authenticationManager", BeanIds.AUTHENTICATION_MANAGER);
+        bldr.addPropertyReference("securityMetadataSource", DELEGATING_METHOD_DEFINITION_SOURCE_ID);
+        if (StringUtils.hasText(runAsManagerId)) {
+            bldr.addPropertyReference("runAsManager", runAsManagerId);
+        }
 
-        parserContext.getRegistry().registerBeanDefinition(INTERCEPTOR_POST_PROCESSOR_ID,
+        BeanDefinition interceptor = bldr.getBeanDefinition();
+        pc.getRegistry().registerBeanDefinition(SECURITY_INTERCEPTOR_ID, interceptor);
+        pc.registerComponent(new BeanComponentDefinition(interceptor, SECURITY_INTERCEPTOR_ID));
+
+        pc.getRegistry().registerBeanDefinition(INTERCEPTOR_POST_PROCESSOR_ID,
                 new RootBeanDefinition(MethodSecurityInterceptorPostProcessor.class));
     }
 

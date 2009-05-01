@@ -1,16 +1,19 @@
 package org.springframework.security.config;
 
 import static org.junit.Assert.*;
-import static org.springframework.security.config.GlobalMethodSecurityBeanDefinitionParser.*;
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
+import static org.springframework.security.config.GlobalMethodSecurityBeanDefinitionParser.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractXmlApplicationContext;
+import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.BusinessService;
 import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
@@ -20,6 +23,7 @@ import org.springframework.security.access.expression.method.ExpressionAnnotatio
 import org.springframework.security.access.expression.method.MethodExpressionAfterInvocationProvider;
 import org.springframework.security.access.expression.method.MethodExpressionVoter;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
+import org.springframework.security.access.intercept.RunAsManagerImpl;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -260,8 +264,25 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         assertEquals("bob", result[0]);
     }
 
+    @Test
+    public void runAsManagerIsSetCorrectly() throws Exception {
+        StaticApplicationContext parent = new StaticApplicationContext();
+        MutablePropertyValues props = new MutablePropertyValues();
+        props.addPropertyValue("key", "blah");
+        parent.registerSingleton("runAsMgr", RunAsManagerImpl.class, props);
+        parent.refresh();
+
+        setContext("<global-method-security run-as-manager-ref='runAsMgr'/>" + AUTH_PROVIDER_XML, parent);
+        RunAsManagerImpl ram = (RunAsManagerImpl) appContext.getBean("runAsMgr");
+        assertSame(ram, FieldUtils.getFieldValue(appContext.getBean(GlobalMethodSecurityBeanDefinitionParser.SECURITY_INTERCEPTOR_ID), "runAsManager"));
+    }
+
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
+    }
+
+    private void setContext(String context, ApplicationContext parent) {
+        appContext = new InMemoryXmlApplicationContext(context, parent);
     }
 }
 
