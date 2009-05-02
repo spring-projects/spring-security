@@ -158,7 +158,7 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
      * Subclasses can override if required to perform any modifications to the URL.
      *
      * @param url the URI to retrieve configuration attributes for
-     * @param method the HTTP method (GET, POST, DELETE...).
+     * @param method the HTTP method (GET, POST, DELETE...), or null for any method.
      *
      * @return the <code>ConfigAttribute</code>s that apply to the specified <code>FilterInvocation</code>
      * or null if no match is found

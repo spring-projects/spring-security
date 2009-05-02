@@ -15,16 +15,13 @@
 
 package org.springframework.security.web.intercept;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.security.matcher.AuthenticationMatcher.anAuthenticationWithUsername;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.MockApplicationEventPublisher;
@@ -35,11 +32,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.intercept.WebInvocationPrivilegeEvaluator;
-import org.springframework.security.web.util.FilterInvocationUtils;
 
 
 /**
@@ -49,8 +41,6 @@ import org.springframework.security.web.util.FilterInvocationUtils;
  * @version $Id$
  */
 public class WebInvocationPrivilegeEvaluatorTests {
-    private Mockery jmock = new JUnit4Mockery();
-    private AuthenticationManager am;
     private AccessDecisionManager adm;
     private FilterInvocationSecurityMetadataSource ods;
     private RunAsManager ram;
@@ -59,13 +49,12 @@ public class WebInvocationPrivilegeEvaluatorTests {
     //~ Methods ========================================================================================================
 
     @Before
-    public final void setUp() throws Exception {
+    public final void setUp() {
         interceptor = new FilterSecurityInterceptor();
-        am = jmock.mock(AuthenticationManager.class);
-        ods = jmock.mock(FilterInvocationSecurityMetadataSource.class);
-        adm = jmock.mock(AccessDecisionManager.class);
-        ram = jmock.mock(RunAsManager.class);
-        interceptor.setAuthenticationManager(am);
+        ods = mock(FilterInvocationSecurityMetadataSource.class);
+        adm = mock(AccessDecisionManager.class);
+        ram = mock(RunAsManager.class);
+        interceptor.setAuthenticationManager(mock(AuthenticationManager.class));
         interceptor.setSecurityMetadataSource(ods);
         interceptor.setAccessDecisionManager(adm);
         interceptor.setRunAsManager(ram);
@@ -73,47 +62,47 @@ public class WebInvocationPrivilegeEvaluatorTests {
         SecurityContextHolder.clearContext();
     }
 
-    @After
-    public void tearDown() throws Exception {
-        SecurityContextHolder.clearContext();
+    @Test
+    public void permitsAccessIfNoMatchingAttributesAndPublicInvocationsAllowed() throws Exception {
+        WebInvocationPrivilegeEvaluator wipe = new WebInvocationPrivilegeEvaluator(interceptor);
+        when(ods.getAttributes(anyObject())).thenReturn(null);
+        assertTrue(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class)));
     }
 
-    @SuppressWarnings("unchecked")
+    @Test
+    public void deniesAccessIfNoMatchingAttributesAndPublicInvocationsNotAllowed() throws Exception {
+        WebInvocationPrivilegeEvaluator wipe = new WebInvocationPrivilegeEvaluator(interceptor);
+        when(ods.getAttributes(anyObject())).thenReturn(null);
+        interceptor.setRejectPublicInvocations(true);
+        assertFalse(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class)));
+    }
+
+    @Test
+    public void deniesAccessIfAuthenticationIsNull() throws Exception {
+        WebInvocationPrivilegeEvaluator wipe = new WebInvocationPrivilegeEvaluator(interceptor);
+        assertFalse(wipe.isAllowed("/foo/index.jsp", null));
+    }
+
     @Test
     public void allowsAccessIfAccessDecisionMangerDoes() throws Exception {
         Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
-        FilterInvocation fi = FilterInvocationUtils.create("/foo/index.jsp");
-
-        WebInvocationPrivilegeEvaluator wipe = new WebInvocationPrivilegeEvaluator();
-        wipe.setSecurityInterceptor(interceptor);
-        wipe.afterPropertiesSet();
-
-        jmock.checking(new Expectations() {{
-            ignoring(ram); ignoring(ods);
-            oneOf(adm).decide(with(anAuthenticationWithUsername("test")), with(anything()), with(aNonNull(List.class)));
-        }});
-
-        assertTrue(wipe.isAllowed(fi, token));
-        jmock.assertIsSatisfied();
+        WebInvocationPrivilegeEvaluator wipe = new WebInvocationPrivilegeEvaluator(interceptor);
+        assertTrue(wipe.isAllowed("/foo/index.jsp", token));
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void deniesAccessIfAccessDecisionMangerDoes() throws Exception {
         Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
-        FilterInvocation fi = FilterInvocationUtils.create("/foo/index.jsp");
+        WebInvocationPrivilegeEvaluator wipe = new WebInvocationPrivilegeEvaluator(interceptor);
 
-        WebInvocationPrivilegeEvaluator wipe = new WebInvocationPrivilegeEvaluator();
-        wipe.setSecurityInterceptor(interceptor);
-        wipe.afterPropertiesSet();
+        doThrow(new AccessDeniedException("")).when(adm).decide(any(Authentication.class), anyObject(), anyList());
 
-        jmock.checking(new Expectations() {{
-            ignoring(ram); ignoring(ods);
-            oneOf(adm).decide(with(anAuthenticationWithUsername("test")), with(anything()), with(aNonNull(List.class)));
-                will(throwException(new AccessDeniedException("")));
-        }});
+        assertFalse(wipe.isAllowed("/foo/index.jsp", token));
+    }
 
-        assertFalse(wipe.isAllowed(fi, token));
-        jmock.assertIsSatisfied();
+    @Test(expected=UnsupportedOperationException.class)
+    public void dummyChainRejectsInvocation() throws Exception {
+        WebInvocationPrivilegeEvaluator.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class));
     }
 }
