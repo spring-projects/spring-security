@@ -48,7 +48,7 @@
             </bean>
         </constructor-arg>
         <constructor-arg>
-            <bean class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
+            <bean class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
                 <constructor-arg ref="contextSource" />
                 <constructor-arg value="ou=groups" />
                 <property name="groupSearchFilter" value="(member={0})"/>

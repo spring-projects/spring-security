@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.ExceptionTranslationFilter;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.RedirectUtils;
 import org.springframework.security.web.wrapper.SavedRequestAwareWrapper;

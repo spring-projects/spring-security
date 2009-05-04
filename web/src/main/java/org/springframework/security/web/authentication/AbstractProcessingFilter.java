@@ -38,7 +38,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.util.SessionUtils;
+import org.springframework.security.web.session.SessionUtils;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 

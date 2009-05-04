@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
 
 
 /**
- * An {@link org.springframework.security.ldap.LdapAuthenticator LdapAuthenticator} which compares the login
+ * An {@link org.springframework.security.ldap.authentication.LdapAuthenticator LdapAuthenticator} which compares the login
  * password with the value stored in the directory using a remote LDAP "compare" operation.
  *
  * <p>

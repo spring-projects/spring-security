@@ -7,7 +7,6 @@ import java.util.Date;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.util.Sha512DigestUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 

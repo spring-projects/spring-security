@@ -172,11 +172,11 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
         return FilterChainOrder.AUTHENTICATION_PROCESSING_FILTER;
     }
 
-    String getUsernameParameter() {
+    public final String getUsernameParameter() {
         return usernameParameter;
     }
 
-    String getPasswordParameter() {
+    public final String getPasswordParameter() {
         return passwordParameter;
     }
 }

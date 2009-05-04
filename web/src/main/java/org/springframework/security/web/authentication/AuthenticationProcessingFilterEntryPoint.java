@@ -19,11 +19,11 @@ package org.springframework.security.web.authentication;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.ExceptionTranslationFilter;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.util.RedirectUrlBuilder;
 import org.springframework.security.web.util.UrlUtils;
 

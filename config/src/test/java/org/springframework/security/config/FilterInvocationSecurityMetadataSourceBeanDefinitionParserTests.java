@@ -15,7 +15,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.intercept.DefaultFilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.w3c.dom.Element;
 
 /**
@@ -59,7 +59,7 @@ public class FilterInvocationSecurityMetadataSourceBeanDefinitionParserTests {
     public void parsingWithinFilterSecurityInterceptorIsSuccessful() {
         setContext(
                 "<http auto-config='true'/>" +
-                "<b:bean id='fsi' class='org.springframework.security.web.intercept.FilterSecurityInterceptor' autowire='byType'>" +
+                "<b:bean id='fsi' class='org.springframework.security.web.access.intercept.FilterSecurityInterceptor' autowire='byType'>" +
                 "   <b:property name='securityMetadataSource'>" +
                 "       <filter-invocation-definition-source>" +
                 "           <intercept-url pattern='/secure/extreme/**' access='ROLE_SUPERVISOR'/>" +

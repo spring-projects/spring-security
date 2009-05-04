@@ -16,6 +16,7 @@
 package org.springframework.security.web;
 
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 import java.io.IOException;
 

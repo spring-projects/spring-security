@@ -17,7 +17,6 @@ package org.springframework.security.ldap.search;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
-import org.springframework.security.ldap.LdapUserSearch;
 
 
 import org.apache.commons.logging.Log;

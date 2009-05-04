@@ -19,17 +19,17 @@ import org.springframework.core.Ordered;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.config.ConfigUtils.FilterChainList;
-import org.springframework.security.web.ExceptionTranslationFilter;
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.SessionFixationProtectionFilter;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationProcessingFilterEntryPoint;
-import org.springframework.security.web.authentication.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicProcessingFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.intercept.DefaultFilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.session.SessionFixationProtectionFilter;
 import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 
 /**

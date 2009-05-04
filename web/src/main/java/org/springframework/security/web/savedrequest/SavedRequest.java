@@ -37,7 +37,7 @@ import java.util.TreeMap;
  * Represents central information from a <code>HttpServletRequest</code>.<p>This class is used by {@link
  * org.springframework.security.web.authentication.AbstractProcessingFilter} and {@link org.springframework.security.web.wrapper.SavedRequestAwareWrapper} to
  * reproduce the request after successful authentication. An instance of this class is stored at the time of an
- * authentication exception by {@link org.springframework.security.web.ExceptionTranslationFilter}.</p>
+ * authentication exception by {@link org.springframework.security.web.access.ExceptionTranslationFilter}.</p>
  * <p><em>IMPLEMENTATION NOTE</em>: It is assumed that this object is accessed only from the context of a single
  * thread, so no synchronization around internal collection classes is performed.</p>
  * <p>This class is based on code in Apache Tomcat.</p>

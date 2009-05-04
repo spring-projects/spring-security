@@ -57,16 +57,16 @@
     <bean id="preAuthenticatedProcessingFilterEntryPoint"
             class="org.springframework.security.web.authentication.preauth.PreAuthenticatedProcessingFilterEntryPoint"/>
 
-    <bean id="logoutFilter" class="org.springframework.security.web.logout.LogoutFilter">
+    <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
         <constructor-arg value="/"/>
         <constructor-arg>
             <list>
-                <bean class="org.springframework.security.web.logout.SecurityContextLogoutHandler"/>
+                <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
             </list>
         </constructor-arg>
     </bean>
 
-    <bean id="etf" class="org.springframework.security.web.ExceptionTranslationFilter">
+    <bean id="etf" class="org.springframework.security.web.access.ExceptionTranslationFilter">
         <property name="authenticationEntryPoint" ref="preAuthenticatedProcessingFilterEntryPoint"/>
     </bean>
 
@@ -88,7 +88,7 @@
         </property>
     </bean>
 
-    <bean id="fsi" class="org.springframework.security.web.intercept.FilterSecurityInterceptor">
+    <bean id="fsi" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="accessDecisionManager" ref="accessDecisionManager"/>
         <property name="securityMetadataSource">

@@ -36,7 +36,7 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
     public static final String PERSON_MAPPER_CLASS = "org.springframework.security.ldap.userdetails.PersonContextMapper";
     public static final String INET_ORG_PERSON_MAPPER_CLASS = "org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper";
     public static final String LDAP_USER_MAPPER_CLASS = "org.springframework.security.ldap.userdetails.LdapUserDetailsMapper";
-    public static final String LDAP_AUTHORITIES_POPULATOR_CLASS = "org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator";
+    public static final String LDAP_AUTHORITIES_POPULATOR_CLASS = "org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator";
 
     protected String getBeanClassName(Element element) {
         return "org.springframework.security.ldap.userdetails.LdapUserDetailsService";

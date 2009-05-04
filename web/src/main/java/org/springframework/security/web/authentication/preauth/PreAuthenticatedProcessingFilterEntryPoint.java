@@ -31,7 +31,7 @@ import org.springframework.core.Ordered;
  * This code is based on
  * {@link org.springframework.security.ui.x509.X509ProcessingFilterEntryPoint}.
  *
- * @see org.springframework.security.web.ExceptionTranslationFilter
+ * @see org.springframework.security.web.access.ExceptionTranslationFilter
  *
  * @author Luke Taylor
  * @author Ruud Senden

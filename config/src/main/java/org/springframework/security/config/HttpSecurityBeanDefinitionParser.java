@@ -23,23 +23,23 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.vote.AccessDecisionVoter;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
-import org.springframework.security.web.AccessDeniedHandlerImpl;
-import org.springframework.security.web.ExceptionTranslationFilter;
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.SessionFixationProtectionFilter;
-import org.springframework.security.web.authentication.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
+import org.springframework.security.web.access.channel.InsecureChannelProcessor;
+import org.springframework.security.web.access.channel.RetryWithHttpEntryPoint;
+import org.springframework.security.web.access.channel.RetryWithHttpsEntryPoint;
+import org.springframework.security.web.access.channel.SecureChannelProcessor;
+import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.access.intercept.RequestKey;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.expression.WebExpressionVoter;
-import org.springframework.security.web.intercept.DefaultFilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.intercept.RequestKey;
-import org.springframework.security.web.securechannel.ChannelDecisionManagerImpl;
-import org.springframework.security.web.securechannel.ChannelProcessingFilter;
-import org.springframework.security.web.securechannel.InsecureChannelProcessor;
-import org.springframework.security.web.securechannel.RetryWithHttpEntryPoint;
-import org.springframework.security.web.securechannel.RetryWithHttpsEntryPoint;
-import org.springframework.security.web.securechannel.SecureChannelProcessor;
+import org.springframework.security.web.session.SessionFixationProtectionFilter;
 import org.springframework.security.web.util.AntUrlPathMatcher;
 import org.springframework.security.web.util.RegexUrlPathMatcher;
 import org.springframework.security.web.util.UrlMatcher;
@@ -112,8 +112,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String OPEN_ID_AUTHENTICATION_PROVIDER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProvider";
     static final String AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.web.authentication.AuthenticationProcessingFilter";
 
-    static final String EXPRESSION_FIMDS_CLASS = "org.springframework.security.web.expression.ExpressionBasedFilterInvocationSecurityMetadataSource";
-    static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.web.expression.DefaultWebSecurityExpressionHandler";
+    static final String EXPRESSION_FIMDS_CLASS = "org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource";
+    static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler";
     private static final String EXPRESSION_HANDLER_ID = "_webExpressionHandler";
 
     @SuppressWarnings("unchecked")

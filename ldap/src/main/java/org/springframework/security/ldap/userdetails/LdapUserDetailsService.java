@@ -4,8 +4,7 @@ import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.ldap.LdapAuthoritiesPopulator;
-import org.springframework.security.ldap.LdapUserSearch;
+import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.util.Assert;
 
 /**

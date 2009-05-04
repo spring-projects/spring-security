@@ -7,8 +7,8 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.web.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.intercept.RequestKey;
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.access.intercept.RequestKey;
 import org.springframework.security.web.util.AntUrlPathMatcher;
 import org.springframework.security.web.util.UrlMatcher;
 import org.springframework.util.StringUtils;
@@ -24,7 +24,7 @@ import org.w3c.dom.Element;
 public class FilterInvocationSecurityMetadataSourceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     protected String getBeanClassName(Element element) {
-        return "org.springframework.security.web.intercept.DefaultFilterInvocationSecurityMetadataSource";
+        return "org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource";
     }
 
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {

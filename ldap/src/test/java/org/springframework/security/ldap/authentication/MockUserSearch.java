@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap.authentication;
 
-import org.springframework.security.ldap.LdapUserSearch;
+import org.springframework.security.ldap.search.LdapUserSearch;
 
 import org.springframework.ldap.core.DirContextOperations;
 

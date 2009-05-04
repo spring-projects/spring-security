@@ -10,7 +10,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.ExceptionTranslationFilter;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.util.Assert;
 
 /**
