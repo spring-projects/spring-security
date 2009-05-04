@@ -43,6 +43,12 @@
             <groupId>org.openid4java</groupId>
             <artifactId>openid4java</artifactId>
             <version>0.9.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jdbc</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
