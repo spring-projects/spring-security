@@ -46,6 +46,7 @@ class MethodSecurityEvaluationContext extends StandardEvaluationContext {
 
         if (!argumentsAdded) {
             addArgumentsAsVariables();
+            argumentsAdded = true;
         }
 
         return super.lookupVariable(name);
