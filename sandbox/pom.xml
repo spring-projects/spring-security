@@ -11,9 +11,7 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>webwork</module>
     <module>other</module>
-    <module>captcha</module>
   </modules>
 
   <dependencies>
