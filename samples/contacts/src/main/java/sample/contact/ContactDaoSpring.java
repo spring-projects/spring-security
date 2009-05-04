@@ -49,7 +49,6 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
     //~ Methods ========================================================================================================
 
     public void create(Contact contact) {
-        System.out.println("creating contact w/ id " + contact.getId() + " " + contact.getEmail());
         contactInsert.insert(contact);
     }
 

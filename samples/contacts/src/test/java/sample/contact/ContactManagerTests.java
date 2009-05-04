@@ -37,13 +37,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  *
  * @author David Leal
  * @author Ben Alex
+ * @Author Luke Taylor
  */
 @ContextConfiguration(locations={
                 "/applicationContext-common-authorization.xml",
                 "/applicationContext-common-business.xml",
                 "/applicationContext-contacts-test.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
-public class GetAllContactsTests {
+public class ContactManagerTests {
     //~ Instance fields ================================================================================================
 
     @Autowired
@@ -51,9 +52,9 @@ public class GetAllContactsTests {
 
     //~ Methods ========================================================================================================
 
-    protected void assertContainsContact(String id, List<Contact> contacts) {
+    void assertContainsContact(long id, List<Contact> contacts) {
         for(Contact contact : contacts) {
-            if (contact.getId().toString().equals(id)) {
+            if (contact.getId().equals(Long.valueOf(id))) {
                 return;
             }
         }
@@ -61,23 +62,24 @@ public class GetAllContactsTests {
         fail("List of contacts should have contained: " + id);
     }
 
-    void assertDoestNotContainContact(String id, List<Contact> contacts) {
+    void assertDoestNotContainContact(long id, List<Contact> contacts) {
         for(Contact contact : contacts) {
-            if (contact.getId().toString().equals(id)) {
+            if (contact.getId().equals(Long.valueOf(id))) {
                 fail("List of contact should NOT (but did) contain: " + id);
             }
         }
     }
 
     /**
-     * Locates the first <code>Contact</code> of the exact name specified.<p>Uses the {@link
-     * ContactManager#getAll()} method.</p>
+     * Locates the first <code>Contact</code> of the exact name specified.
+     * <p>
+     * Uses the {@link ContactManager#getAll()} method.
      *
      * @param id Identify of the contact to locate (must be an exact match)
      *
      * @return the domain or <code>null</code> if not found
      */
-    protected Contact getContact(String id) {
+    Contact getContact(String id) {
         for(Contact contact : contactManager.getAll()) {
             if (contact.getId().equals(id)) {
                 return contact;
@@ -87,7 +89,7 @@ public class GetAllContactsTests {
         return null;
     }
 
-    protected void makeActiveUser(String username) {
+    private void makeActiveUser(String username) {
         String password = "";
 
         if ("rod".equals(username)) {
@@ -105,7 +107,7 @@ public class GetAllContactsTests {
     }
 
     @After
-    public void onTearDownInTransaction() {
+    public void clearContext() {
         SecurityContextHolder.clearContext();
     }
 
@@ -116,14 +118,14 @@ public class GetAllContactsTests {
         List<Contact> contacts = contactManager.getAll();
         assertEquals(4, contacts.size());
 
-        assertContainsContact(Long.toString(4), contacts);
-        assertContainsContact(Long.toString(5), contacts);
-        assertContainsContact(Long.toString(6), contacts);
-        assertContainsContact(Long.toString(8), contacts);
+        assertContainsContact(4, contacts);
+        assertContainsContact(5, contacts);
+        assertContainsContact(6, contacts);
+        assertContainsContact(8, contacts);
 
-        assertDoestNotContainContact(Long.toString(1), contacts);
-        assertDoestNotContainContact(Long.toString(2), contacts);
-        assertDoestNotContainContact(Long.toString(3), contacts);
+        assertDoestNotContainContact(1, contacts);
+        assertDoestNotContainContact(2, contacts);
+        assertDoestNotContainContact(3, contacts);
     }
 
     @Test
@@ -134,16 +136,17 @@ public class GetAllContactsTests {
 
         assertEquals(4, contacts.size());
 
-        assertContainsContact(Long.toString(1), contacts);
-        assertContainsContact(Long.toString(2), contacts);
-        assertContainsContact(Long.toString(3), contacts);
-        assertContainsContact(Long.toString(4), contacts);
+        assertContainsContact(1, contacts);
+        assertContainsContact(2, contacts);
+        assertContainsContact(3, contacts);
+        assertContainsContact(4, contacts);
 
-        assertDoestNotContainContact(Long.toString(5), contacts);
+        assertDoestNotContainContact(5, contacts);
 
         Contact c1 = contactManager.getById(new Long(4));
 
         contactManager.deletePermission(c1, new PrincipalSid("bob"), BasePermission.ADMINISTRATION);
+        contactManager.addPermission(c1, new PrincipalSid("bob"), BasePermission.ADMINISTRATION);
     }
 
     @Test
@@ -154,12 +157,12 @@ public class GetAllContactsTests {
 
         assertEquals(5, contacts.size());
 
-        assertContainsContact(Long.toString(4), contacts);
-        assertContainsContact(Long.toString(6), contacts);
-        assertContainsContact(Long.toString(7), contacts);
-        assertContainsContact(Long.toString(8), contacts);
-        assertContainsContact(Long.toString(9), contacts);
+        assertContainsContact(4, contacts);
+        assertContainsContact(6, contacts);
+        assertContainsContact(7, contacts);
+        assertContainsContact(8, contacts);
+        assertContainsContact(9, contacts);
 
-        assertDoestNotContainContact(Long.toString(1), contacts);
+        assertDoestNotContainContact(1, contacts);
     }
 }

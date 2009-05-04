@@ -58,6 +58,11 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
 
     //~ Methods ========================================================================================================
 
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(contactDao, "contactDao required");
+        Assert.notNull(mutableAclService, "mutableAclService required");
+    }
+
     public void addPermission(Contact contact, Sid recipient, Permission permission) {
         MutableAcl acl;
         ObjectIdentity oid = new ObjectIdentityImpl(Contact.class, contact.getId());
@@ -71,14 +76,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
         acl.insertAce(acl.getEntries().size(), permission, recipient, true);
         mutableAclService.updateAcl(acl);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Added permission " + permission + " for Sid " + recipient + " contact " + contact);
-        }
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(contactDao, "contactDao required");
-        Assert.notNull(mutableAclService, "mutableAclService required");
+        logger.debug("Added permission " + permission + " for Sid " + recipient + " contact " + contact);
     }
 
     public void create(Contact contact) {
@@ -128,18 +126,14 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
 
     @Transactional(readOnly=true)
     public List<Contact> getAll() {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Returning all contacts");
-        }
+        logger.debug("Returning all contacts");
 
         return contactDao.findAll();
     }
 
     @Transactional(readOnly=true)
     public List<String> getAllRecipients() {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Returning all recipients");
-        }
+        logger.debug("Returning all recipients");
 
         List<String> list = contactDao.findAllPrincipals();
 
@@ -160,15 +154,13 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
      */
     @Transactional(readOnly=true)
     public Contact getRandomContact() {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Returning random contact");
-        }
+        logger.debug("Returning random contact");
 
         Random rnd = new Random();
         List<Contact> contacts = contactDao.findAll();
         int getNumber = rnd.nextInt(contacts.size());
 
-        return (Contact) contacts.get(getNumber);
+        return contacts.get(getNumber);
     }
 
     protected String getUsername() {
@@ -192,8 +184,6 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
     public void update(Contact contact) {
         contactDao.update(contact);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Updated contact " + contact);
-        }
+        logger.debug("Updated contact " + contact);
     }
 }

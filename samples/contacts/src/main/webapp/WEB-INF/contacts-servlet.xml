@@ -1,20 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<!--
-  - Application context definition for "contacts" DispatcherServlet.
-  -
-  - $Id: contacts-servlet.xml 1754 2006-11-17 02:01:21Z benalex $
-  -->
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
     <!-- ========================== WEB DEFINITIONS ======================= -->
 
-  <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
-    <property name="basename" value="messages"/>
-  </bean>
+    <context:component-scan base-package="sample.contact"/>
+    <context:annotation-config />
 
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="messages"/>
+    </bean>
+<!--
   <bean id="publicIndexController" class="sample.contact.PublicIndexController">
     <property name="contactManager" ref="contactManager"/>
   </bean>
@@ -28,7 +25,7 @@
     <property name="contactManager" ref="contactManager"/>
   </bean>
 
-  <bean id="adminPermissionController" class="sample.contact.AdminPermissionController">
+  <bean id="adminPermissionController" class="sample.contact.AdmnPermissionController">
     <property name="contactManager" ref="contactManager"/>
     <property name="aclService" ref="aclService"/>
   </bean>
@@ -75,7 +72,7 @@
     <property name="successView" value="index.htm"/>
     <property name="contactManager" ref="contactManager"/>
   </bean>
-
+ -->
     <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/jsp/"/>
         <property name="suffix" value=".jsp"/>
