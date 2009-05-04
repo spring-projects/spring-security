@@ -15,13 +15,10 @@
 
 package org.springframework.security.web.authentication.www;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.springframework.security.matcher.AuthenticationMatcher.anAuthenticationWithUsernameAndPassword;
+import static org.junit.Assert.*;
+import static org.mockito.AdditionalMatchers.not;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
@@ -29,11 +26,9 @@ import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +36,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.MockAuthenticationEntryPoint;
-import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockFilterConfig;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -49,8 +43,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.www.BasicProcessingFilter;
-import org.springframework.security.web.authentication.www.BasicProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 
 /**
@@ -63,7 +56,8 @@ public class BasicProcessingFilterTests {
     //~ Instance fields ================================================================================================
 
     private BasicProcessingFilter filter;
-    private Mockery jmock = new JUnit4Mockery();
+    private AuthenticationManager manager;
+//    private Mockery jmock = new JUnit4Mockery();
 
     //~ Methods ========================================================================================================
 
@@ -72,32 +66,26 @@ public class BasicProcessingFilterTests {
         filter.init(new MockFilterConfig());
 
         final MockHttpServletResponse response = new MockHttpServletResponse();
-        Mockery jmockContext = new JUnit4Mockery();
 
-        final FilterChain chain = jmockContext.mock(FilterChain.class);
-        jmockContext.checking(new Expectations() {{
-                exactly(expectChainToProceed ? 1 : 0).of(chain).doFilter(request, response);
-            }});
-
+        FilterChain chain = mock(FilterChain.class);
         filter.doFilter(request, response, chain);
         filter.destroy();
-        jmockContext.assertIsSatisfied();
+
+        verify(chain, expectChainToProceed ? times(1) : never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
         return response;
     }
 
     @Before
     public void setUp() throws Exception {
         SecurityContextHolder.clearContext();
-
-        final AuthenticationManager manager = jmock.mock(AuthenticationManager.class);
-        final Authentication rod =
+        UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken("rod", "koala");
+        rodRequest.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
+        Authentication rod =
             new UsernamePasswordAuthenticationToken("rod", "koala", AuthorityUtils.createAuthorityList("ROLE_1"));
-        jmock.checking(new Expectations() {{
-            allowing(manager).authenticate(with(anAuthenticationWithUsernameAndPassword("rod", "koala")));
-                will(returnValue(rod));
-            allowing(manager).authenticate(with(any(Authentication.class)));
-                will(throwException(new BadCredentialsException("")));
-        }});
+
+        manager = mock(AuthenticationManager.class);
+        when(manager.authenticate(rodRequest)).thenReturn(rod);
+        when(manager.authenticate(not(eq(rodRequest)))).thenThrow(new BadCredentialsException(""));
 
         filter = new BasicProcessingFilter();
         filter.setAuthenticationManager(manager);
@@ -124,7 +112,7 @@ public class BasicProcessingFilterTests {
     @Test
     public void testGettersSetters() {
         BasicProcessingFilter filter = new BasicProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager());
+        filter.setAuthenticationManager(manager);
         assertTrue(filter.getAuthenticationManager() != null);
 
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("sx"));
@@ -153,7 +141,7 @@ public class BasicProcessingFilterTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
-        request.setSession(new MockHttpSession());
+//        request.setSession(new MockHttpSession());
 
         // Test
         assertNull(SecurityContextHolder.getContext().getAuthentication());
@@ -177,16 +165,11 @@ public class BasicProcessingFilterTests {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
-        try {
-            BasicProcessingFilter filter = new BasicProcessingFilter();
-            filter.setAuthenticationManager(new MockAuthenticationManager());
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("An AuthenticationEntryPoint is required", expected.getMessage());
-        }
+        BasicProcessingFilter filter = new BasicProcessingFilter();
+        filter.setAuthenticationManager(manager);
+        filter.afterPropertiesSet();
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -203,7 +186,6 @@ public class BasicProcessingFilterTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
-        request.setSession(new MockHttpSession());
 
         // Test
         executeFilterInContainerSimulator(filter, request, true);
@@ -217,7 +199,6 @@ public class BasicProcessingFilterTests {
         request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
-        request.setSession(new MockHttpSession());
 
         // Test - the filter chain will not be invoked, as we get a 403 forbidden response
         MockHttpServletResponse response = executeFilterInContainerSimulator(filter, request, false);

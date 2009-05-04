@@ -14,10 +14,6 @@
  */
 package org.springframework.security.access.vote;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import org.apache.log4j.Logger;
-
 import java.util.List;
 import java.util.Vector;
 
@@ -29,32 +25,12 @@ import java.util.Vector;
  * @version $Id$
  */
 public class SampleServiceImpl implements SampleService {
-    //~ Instance fields ================================================================================================
-
-    Logger logger = Logger.getLogger(SampleServiceImpl.class);
-
     //~ Methods ========================================================================================================
 
     public void doSomethingOnThis(SampleBlockOfData block1, SampleBlockOfData block2) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("You made it! Your context is " + SecurityContextHolder.getContext().getAuthentication());
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Block1 is " + block1);
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Block2 is " + block2);
-        }
     }
 
     public List<SampleBlockOfData> getTheSampleData() {
-        if (logger.isDebugEnabled()) {
-            logger.debug(SecurityContextHolder.getContext().getAuthentication().getName()
-                + " is requesting some sample data.");
-        }
-
         List<SampleBlockOfData> dataList = new Vector<SampleBlockOfData>();
         SampleBlockOfData block;
 

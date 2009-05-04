@@ -15,6 +15,9 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -28,19 +31,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.MockApplicationEventPublisher;
-import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockFilterConfig;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.authentication.rememberme.RememberMeProcessingFilter;
-import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 
 
 /**
@@ -74,11 +76,10 @@ public class RememberMeProcessingFilterTests extends TestCase {
 
     public void testDetectsAuthenticationManagerProperty() throws Exception {
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager());
+        filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.setRememberMeServices(new NullRememberMeServices());
 
         filter.afterPropertiesSet();
-        assertTrue(true);
 
         filter.setAuthenticationManager(null);
 
@@ -92,7 +93,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
 
     public void testDetectsRememberMeServicesProperty() throws Exception {
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager());
+        filter.setAuthenticationManager(mock(AuthenticationManager.class));
 
         // check default is NullRememberMeServices
         // assertEquals(NullRememberMeServices.class, filter.getRememberMeServices().getClass());
@@ -119,7 +120,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
 
         // Setup our filter correctly
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager());
+        filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.setRememberMeServices(new MockRememberMeServices(remembered));
         filter.afterPropertiesSet();
 
@@ -136,7 +137,9 @@ public class RememberMeProcessingFilterTests extends TestCase {
     public void testOperationWhenNoAuthenticationInContextHolder() throws Exception {
 
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager());
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        when(am.authenticate(remembered)).thenReturn(remembered);
+        filter.setAuthenticationManager(am);
         filter.setRememberMeServices(new MockRememberMeServices(remembered));
         filter.afterPropertiesSet();
 
@@ -149,7 +152,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
         assertEquals(remembered, SecurityContextHolder.getContext().getAuthentication());
     }
 
-    public void testOnunsuccessfulLoginIsCalledWhenProviderRejectsAuth() throws Exception {
+    public void testOnUnsuccessfulLoginIsCalledWhenProviderRejectsAuth() throws Exception {
         final Authentication failedAuth = new TestingAuthenticationToken("failed", "");
 
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter() {
@@ -158,9 +161,11 @@ public class RememberMeProcessingFilterTests extends TestCase {
                 SecurityContextHolder.getContext().setAuthentication(failedAuth);
             }
         };
-        filter.setAuthenticationManager(new MockAuthenticationManager(false));
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
+        filter.setAuthenticationManager(am);
         filter.setRememberMeServices(new MockRememberMeServices(remembered));
-        filter.setApplicationEventPublisher(new MockApplicationEventPublisher());
+        filter.setApplicationEventPublisher(mock(ApplicationEventPublisher.class));
         filter.afterPropertiesSet();
 
         MockHttpServletRequest request = new MockHttpServletRequest();

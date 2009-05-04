@@ -25,20 +25,19 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.MockApplicationEventPublisher;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.event.AuthorizedEvent;
 import org.springframework.security.access.intercept.RunAsManager;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.intercept.FilterSecurityInterceptor;
 
 
 /**
@@ -54,6 +53,7 @@ public class FilterSecurityInterceptorTests {
     private FilterInvocationSecurityMetadataSource ods;
     private RunAsManager ram;
     private FilterSecurityInterceptor interceptor;
+    private ApplicationEventPublisher publisher;
 
 
     //~ Methods ========================================================================================================
@@ -65,11 +65,12 @@ public class FilterSecurityInterceptorTests {
         ods = jmock.mock(FilterInvocationSecurityMetadataSource.class);
         adm = jmock.mock(AccessDecisionManager.class);
         ram = jmock.mock(RunAsManager.class);
+        publisher = jmock.mock(ApplicationEventPublisher.class);
         interceptor.setAuthenticationManager(am);
         interceptor.setSecurityMetadataSource(ods);
         interceptor.setAccessDecisionManager(adm);
         interceptor.setRunAsManager(ram);
-        interceptor.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
+        interceptor.setApplicationEventPublisher(publisher);
         SecurityContextHolder.clearContext();
     }
 
@@ -121,6 +122,7 @@ public class FilterSecurityInterceptorTests {
             oneOf(adm).decide(token, fi, attributes);
             // Setup our expectation that the filter chain will be invoked, as access is granted
             oneOf(chain).doFilter(request, response);
+            oneOf(publisher).publishEvent(with(aNonNull(AuthorizedEvent.class)));
         }});
 
         interceptor.invoke(fi);

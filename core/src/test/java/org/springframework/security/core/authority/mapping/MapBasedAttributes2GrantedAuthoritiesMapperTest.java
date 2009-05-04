@@ -8,8 +8,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
@@ -22,11 +20,6 @@ import org.springframework.security.core.authority.mapping.MapBasedAttributes2Gr
  */
 @SuppressWarnings("unchecked")
 public class MapBasedAttributes2GrantedAuthoritiesMapperTest {
-
-    protected void setUp() throws Exception {
-        // Set Log4j loglevel to debug to include all logstatements in tests
-        Logger.getRootLogger().setLevel(Level.DEBUG);
-    }
 
     @Test(expected=IllegalArgumentException.class)
     public void testAfterPropertiesSetNoMap() throws Exception {

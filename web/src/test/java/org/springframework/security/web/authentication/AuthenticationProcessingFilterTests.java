@@ -15,17 +15,23 @@
 
 package org.springframework.security.web.authentication;
 
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import javax.servlet.ServletException;
 
 import junit.framework.TestCase;
 
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.MockAuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
 
 
 /**
@@ -45,7 +51,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
         assertEquals("/j_spring_security_check", filter.getFilterProcessesUrl());
-        filter.setAuthenticationManager(new MockAuthenticationManager(true));
+        filter.setAuthenticationManager(createAuthenticationManager());
         filter.init(null);
 
         Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
@@ -61,10 +67,8 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         request.addParameter(AuthenticationProcessingFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
 
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager(true));
-
-        Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
-        assertTrue(result != null);
+        filter.setAuthenticationManager(createAuthenticationManager());
+        assertNotNull(filter.attemptAuthentication(request, new MockHttpServletResponse()));
     }
 
     @Test
@@ -73,16 +77,14 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         request.addParameter(AuthenticationProcessingFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
 
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager(true));
-
-        Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
-        assertTrue(result != null);
+        filter.setAuthenticationManager(createAuthenticationManager());
+        assertNotNull(filter.attemptAuthentication(request, new MockHttpServletResponse()));
     }
 
     @Test
     public void testUsingDifferentParameterNamesWorksAsExpected() throws ServletException {
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager(true));
+        filter.setAuthenticationManager(createAuthenticationManager());
         filter.setUsernameParameter("x");
         filter.setPasswordParameter("y");
 
@@ -91,7 +93,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         request.addParameter("y", "koala");
 
         Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
-        assertTrue(result != null);
+        assertNotNull(result);
         assertEquals("127.0.0.1", ((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
     }
 
@@ -102,7 +104,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         request.addParameter(AuthenticationProcessingFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
 
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager(true));
+        filter.setAuthenticationManager(createAuthenticationManager());
 
         Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
         assertEquals("rod", result.getName());
@@ -113,7 +115,9 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
         request.addParameter(AuthenticationProcessingFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager(false));
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
+        filter.setAuthenticationManager(am);
 
         try {
             filter.attemptAuthentication(request, new MockHttpServletResponse());
@@ -135,10 +139,22 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
         filter.setAllowSessionCreation(false);
-        filter.setAuthenticationManager(new MockAuthenticationManager(true));
+        filter.setAuthenticationManager(createAuthenticationManager());
 
         filter.attemptAuthentication(request, new MockHttpServletResponse());
 
         assertNull(request.getSession(false));
     }
+
+    private AuthenticationManager createAuthenticationManager() {
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        when(am.authenticate(any(Authentication.class))).thenAnswer(new Answer<Authentication>() {
+            public Authentication answer(InvocationOnMock invocation) throws Throwable {
+                return (Authentication) invocation.getArguments()[0];
+            }
+        });
+
+        return am;
+    }
+
 }

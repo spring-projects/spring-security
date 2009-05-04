@@ -16,13 +16,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-            <version>${project.version}</version>
-            <classifier>tests</classifier>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>org.springframework.web</artifactId>
             <!-- optional>true</optional -->

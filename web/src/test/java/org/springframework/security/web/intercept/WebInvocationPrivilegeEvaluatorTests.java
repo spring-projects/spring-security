@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.MockApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.intercept.RunAsManager;
@@ -58,7 +58,7 @@ public class WebInvocationPrivilegeEvaluatorTests {
         interceptor.setSecurityMetadataSource(ods);
         interceptor.setAccessDecisionManager(adm);
         interceptor.setRunAsManager(ram);
-        interceptor.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
+        interceptor.setApplicationEventPublisher(mock(ApplicationEventPublisher.class));
         SecurityContextHolder.clearContext();
     }
 

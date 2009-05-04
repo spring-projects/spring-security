@@ -15,6 +15,8 @@
 
 package org.springframework.security.web.authentication;
 
+import static org.mockito.Mockito.*;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -33,8 +35,8 @@ import junit.framework.TestCase;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -74,7 +76,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     }
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig, Filter filter, ServletRequest request,
-        ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+            ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         filter.init(filterConfig);
         filter.doFilter(request, response, filterChain);
         filter.destroy();
@@ -190,7 +192,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
     public void testGettersSetters() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager());
+        filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.setFilterProcessesUrl("/p");
         filter.afterPropertiesSet();
 
@@ -239,7 +241,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.setFilterProcessesUrl("/j_mock_post");
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setAuthenticationFailureHandler(failureHandler);
-        filter.setAuthenticationManager(new MockAuthenticationManager(true));
+        filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.afterPropertiesSet();
 
         // Test
@@ -269,7 +271,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     public void testStartupDetectsInvalidFilterProcessesUrl() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationFailureHandler(failureHandler);
-        filter.setAuthenticationManager(new MockAuthenticationManager());
+        filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setFilterProcessesUrl(null);
 

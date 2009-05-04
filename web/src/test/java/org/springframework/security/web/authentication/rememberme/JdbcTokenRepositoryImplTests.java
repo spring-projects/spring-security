@@ -1,21 +1,19 @@
 package org.springframework.security.web.authentication.rememberme;
 
-import org.springframework.security.TestDataSource;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import org.junit.After;
-import org.junit.AfterClass;
 import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 /**
  * @author Luke Taylor
@@ -23,13 +21,14 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class JdbcTokenRepositoryImplTests {
-    private static TestDataSource dataSource;
+    private static SingleConnectionDataSource dataSource;
     private JdbcTokenRepositoryImpl repo;
     private JdbcTemplate template;
 
     @BeforeClass
     public static void createDataSource() {
-        dataSource = new TestDataSource("tokenrepotest");
+        dataSource = new SingleConnectionDataSource("jdbc:hsqldb:mem:tokenrepotest", "sa", "", true);
+        dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
     }
 
     @AfterClass

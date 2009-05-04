@@ -1,23 +1,33 @@
 package org.springframework.security.web.authentication.preauth;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.web.FilterChainOrder;
-import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 import javax.servlet.http.HttpServletRequest;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.FilterChainOrder;
 
-public class PreAuthenticatedProcessingFilterTests extends TestCase {
-    protected void setUp() throws Exception {
+public class PreAuthenticatedProcessingFilterTests {
+    @After
+    @Before
+    public void setUp() throws Exception {
         SecurityContextHolder.clearContext();
     }
-    
+
+    @Test
     public void testAfterPropertiesSet() {
         ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
         try {
@@ -29,29 +39,43 @@ public class PreAuthenticatedProcessingFilterTests extends TestCase {
         }
     }
 
-    public final void testDoFilterAuthenticated() throws Exception {
+    @Test
+    public void testDoFilterAuthenticated() throws Exception {
         testDoFilter(true);
     }
 
-    public final void testDoFilterUnauthenticated() throws Exception {
+    @Test
+    public void testDoFilterUnauthenticated() throws Exception {
         testDoFilter(false);
     }
-    
-    private final void testDoFilter(boolean grantAccess) throws Exception {
+
+    private void testDoFilter(boolean grantAccess) throws Exception {
         MockHttpServletRequest req = new MockHttpServletRequest();
         MockHttpServletResponse res = new MockHttpServletResponse();
         getFilter(grantAccess).doFilter(req,res,new MockFilterChain());
         assertEquals(grantAccess,null!= SecurityContextHolder.getContext().getAuthentication());
     }
-    
-    private static final ConcretePreAuthenticatedProcessingFilter getFilter(boolean grantAccess) throws Exception {
+
+    private static ConcretePreAuthenticatedProcessingFilter getFilter(boolean grantAccess) throws Exception {
         ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
-        filter.setAuthenticationManager(new MockAuthenticationManager(grantAccess));
+        AuthenticationManager am = mock(AuthenticationManager.class);
+
+        if (!grantAccess) {
+            when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
+        } else {
+            when(am.authenticate(any(Authentication.class))).thenAnswer(new Answer<Authentication>() {
+                public Authentication answer(InvocationOnMock invocation) throws Throwable {
+                    return (Authentication) invocation.getArguments()[0];
+                }
+            });
+        }
+
+        filter.setAuthenticationManager(am);
         filter.afterPropertiesSet();
         return filter;
     }
-    
-    private static final class ConcretePreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
+
+    private static class ConcretePreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
         protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
             return "testPrincipal";
         }
