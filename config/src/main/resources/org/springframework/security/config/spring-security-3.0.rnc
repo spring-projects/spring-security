@@ -429,6 +429,10 @@ anonymous.attlist &=
 anonymous.attlist &=
     ## The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions. If unset, defaults to "ROLE_ANONYMOUS".
     attribute granted-authority {xsd:token}?
+anonymous.attlist &=
+    ## With the default namespace setup, the anonymous "authentication" facility is automatically enabled. You can disable it using this property. 
+    attribute enabled {boolean}?
+
 
 port-mappings = 
     ## Defines the list of mappings between http and https ports for use in redirects

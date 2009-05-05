@@ -204,7 +204,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         boolean autoConfig = "true".equals(element.getAttribute(ATT_AUTO_CONFIG));
 
         Element anonymousElt = DomUtils.getChildElementByTagName(element, Elements.ANONYMOUS);
-        if (anonymousElt != null || autoConfig) {
+
+        if (anonymousElt == null || !"false".equals(anonymousElt.getAttribute("enabled"))) {
             new AnonymousBeanDefinitionParser().parse(anonymousElt, parserContext);
         }
 

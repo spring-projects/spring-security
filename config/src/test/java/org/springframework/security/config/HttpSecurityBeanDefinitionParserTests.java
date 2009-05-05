@@ -1,6 +1,7 @@
 package org.springframework.security.config;
 
 import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
 import static org.springframework.security.config.HttpSecurityBeanDefinitionParser.*;
 
@@ -122,15 +123,9 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof LogoutFilter);
         Object authProcFilter = filters.next();
         assertTrue(authProcFilter instanceof AuthenticationProcessingFilter);
-        // Check RememberMeServices has been set on AuthenticationProcessingFilter
-        //Object rms = FieldUtils.getFieldValue(authProcFilter, "rememberMeServices");
-        //assertNotNull(rms);
-        //assertTrue(rms instanceof RememberMeServices);
-        //assertFalse(rms instanceof NullRememberMeServices);
         assertTrue(filters.next() instanceof DefaultLoginPageGeneratingFilter);
         assertTrue(filters.next() instanceof BasicProcessingFilter);
         assertTrue(filters.next() instanceof SecurityContextHolderAwareRequestFilter);
-        //assertTrue(filters.next() instanceof RememberMeProcessingFilter);
         assertTrue(filters.next() instanceof AnonymousProcessingFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
         assertTrue(filters.next() instanceof SessionFixationProtectionFilter);
@@ -199,6 +194,27 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals("/default", FieldUtils.getFieldValue(filter, "successHandler.defaultTargetUrl"));
         assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "successHandler.alwaysUseDefaultTargetUrl"));
     }
+
+    // SEC-1152
+    @Test
+    public void anonymousFilterIsAddedByDefault() throws Exception {
+        setContext(
+                "<http>" +
+                "   <form-login />" +
+                "</http>" + AUTH_PROVIDER_XML);
+        assertThat(getFilters("/anything").get(4), instanceOf(AnonymousProcessingFilter.class));
+    }
+
+    @Test
+    public void anonymousFilterIsRemovedIfDisabledFlagSet() throws Exception {
+        setContext(
+                "<http>" +
+                "   <form-login />" +
+                "   <anonymous enabled='false'/>" +
+                "</http>" + AUTH_PROVIDER_XML);
+        assertThat(getFilters("/anything").get(4), not(instanceOf(AnonymousProcessingFilter.class)));
+    }
+
 
     @Test(expected=BeanCreationException.class)
     public void invalidLoginPageIsDetected() throws Exception {
