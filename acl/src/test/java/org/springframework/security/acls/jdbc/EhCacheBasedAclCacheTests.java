@@ -40,10 +40,10 @@ import org.springframework.security.util.FieldUtils;
  * @author Andrei Stefan
  */
 public class EhCacheBasedAclCacheTests {
-    //~ Instance fields ================================================================================================
+    private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
+
     private static CacheManager cacheManager;
 
-    //~ Methods ========================================================================================================
     @BeforeClass
     public static void initCacheManaer() {
         cacheManager = new CacheManager();
@@ -128,7 +128,7 @@ public class EhCacheBasedAclCacheTests {
     // SEC-527
     @Test
     public void testDiskSerializationOfMutableAclObjectInstance() throws Exception {
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
                 new GrantedAuthorityImpl("ROLE_GENERAL") });
@@ -160,7 +160,7 @@ public class EhCacheBasedAclCacheTests {
         Ehcache cache = getCache();
         EhCacheBasedAclCache myCache = new EhCacheBasedAclCache(cache);
 
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
                 new GrantedAuthorityImpl("ROLE_GENERAL") });
@@ -178,7 +178,7 @@ public class EhCacheBasedAclCacheTests {
         assertEquals(myCache.getFromCache(identity), acl);
 
         // Put another object in cache
-        ObjectIdentity identity2 = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
+        ObjectIdentity identity2 = new ObjectIdentityImpl(TARGET_CLASS, new Long(101));
         MutableAcl acl2 = new AclImpl(identity2, new Long(2), aclAuthorizationStrategy, new ConsoleAuditLogger());
 
         myCache.putInCache(acl2);
@@ -187,7 +187,7 @@ public class EhCacheBasedAclCacheTests {
 
         // Try to evict an entry that doesn't exist
         myCache.evictFromCache(new Long(3));
-        myCache.evictFromCache(new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102)));
+        myCache.evictFromCache(new ObjectIdentityImpl(TARGET_CLASS, new Long(102)));
         assertEquals(cache.getSize(), 4);
         assertEquals(4, cache.getDiskStoreSize());
 
@@ -213,8 +213,8 @@ public class EhCacheBasedAclCacheTests {
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        ObjectIdentity identityParent = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
+        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+        ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS, new Long(101));
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
                 new GrantedAuthorityImpl("ROLE_GENERAL") });

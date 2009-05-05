@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,7 +34,6 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.MockFilterConfig;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -136,7 +136,7 @@ public class FilterChainProxyConfigTests {
     }
 
     private void doNormalOperation(FilterChainProxy filterChainProxy) throws Exception {
-        filterChainProxy.init(new MockFilterConfig());
+        filterChainProxy.init(mock(FilterConfig.class));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/foo/secure/super/somefile.html");

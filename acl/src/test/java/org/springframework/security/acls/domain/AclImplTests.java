@@ -43,6 +43,7 @@ import org.springframework.security.util.FieldUtils;
  * @author Andrei Stefan
  */
 public class AclImplTests {
+    private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
     private static final List<Permission> READ = Arrays.asList(BasePermission.READ );
     private static final List<Permission> WRITE = Arrays.asList(BasePermission.WRITE);
     private static final List<Permission> CREATE = Arrays.asList(BasePermission.CREATE );
@@ -54,7 +55,7 @@ public class AclImplTests {
     Mockery jmockCtx = new Mockery();
     AclAuthorizationStrategy mockAuthzStrategy;
     AuditLogger mockAuditLogger;
-    ObjectIdentity objectIdentity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+    ObjectIdentity objectIdentity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
 
     // ~ Methods ========================================================================================================
 
@@ -258,7 +259,7 @@ public class AclImplTests {
         Authentication auth = new TestingAuthenticationToken("ben", "ignored", "ROLE_GENERAL","ROLE_GUEST");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        ObjectIdentity rootOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        ObjectIdentity rootOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
 
         // Create an ACL which owner is not the authenticated principal
         MutableAcl rootAcl = new AclImpl(rootOid, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, false, new PrincipalSid(
@@ -298,11 +299,11 @@ public class AclImplTests {
         Authentication auth = new TestingAuthenticationToken("ben", "ignored","ROLE_GENERAL");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        ObjectIdentity grandParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        ObjectIdentity parentOid1 = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
-        ObjectIdentity parentOid2 = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
-        ObjectIdentity childOid1 = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(103));
-        ObjectIdentity childOid2 = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(104));
+        ObjectIdentity grandParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+        ObjectIdentity parentOid1 = new ObjectIdentityImpl(TARGET_CLASS, new Long(101));
+        ObjectIdentity parentOid2 = new ObjectIdentityImpl(TARGET_CLASS, new Long(102));
+        ObjectIdentity childOid1 = new ObjectIdentityImpl(TARGET_CLASS, new Long(103));
+        ObjectIdentity childOid2 = new ObjectIdentityImpl(TARGET_CLASS, new Long(104));
 
         // Create ACLs
         MutableAcl grandParentAcl = new AclImpl(grandParentOid, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, false,
@@ -431,8 +432,8 @@ public class AclImplTests {
                 new GrantedAuthorityImpl("ROLE_GENERAL") });
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        ObjectIdentity identity2 = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
+        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+        ObjectIdentity identity2 = new ObjectIdentityImpl(TARGET_CLASS, new Long(101));
         MutableAcl acl = new AclImpl(identity, new Long(1), mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(
                 "johndoe"));
         MutableAcl parentAcl = new AclImpl(identity2, new Long(2), mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(

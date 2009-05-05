@@ -16,12 +16,14 @@
 package org.springframework.security.web.authentication.www;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 
@@ -35,7 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.MockFilterConfig;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
@@ -86,7 +87,7 @@ public class DigestProcessingFilterTests {
 
     private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter, final ServletRequest request,
                                                                       final boolean expectChainToProceed) throws ServletException, IOException {
-        filter.init(new MockFilterConfig());
+        filter.init(mock(FilterConfig.class));
 
         final MockHttpServletResponse response = new MockHttpServletResponse();
 

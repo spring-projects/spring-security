@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -35,14 +36,13 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.MockAuthenticationEntryPoint;
-import org.springframework.security.MockFilterConfig;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 
@@ -63,7 +63,7 @@ public class BasicProcessingFilterTests {
 
     private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter, final ServletRequest request,
                     final boolean expectChainToProceed) throws ServletException, IOException {
-        filter.init(new MockFilterConfig());
+        filter.init(mock(FilterConfig.class));
 
         final MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -115,7 +115,7 @@ public class BasicProcessingFilterTests {
         filter.setAuthenticationManager(manager);
         assertTrue(filter.getAuthenticationManager() != null);
 
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("sx"));
+        filter.setAuthenticationEntryPoint(mock(AuthenticationEntryPoint.class));
         assertTrue(filter.getAuthenticationEntryPoint() != null);
     }
 
@@ -175,7 +175,7 @@ public class BasicProcessingFilterTests {
     @Test(expected=IllegalArgumentException.class)
     public void testStartupDetectsMissingAuthenticationManager() throws Exception {
         BasicProcessingFilter filter = new BasicProcessingFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("x"));
+        filter.setAuthenticationEntryPoint(mock(AuthenticationEntryPoint.class));
         filter.afterPropertiesSet();
     }
 

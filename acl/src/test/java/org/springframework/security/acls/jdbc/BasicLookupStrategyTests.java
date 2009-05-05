@@ -17,7 +17,7 @@ import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.TestDataSource;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.security.acls.Acl;
 import org.springframework.security.acls.AuditableAccessControlEntry;
 import org.springframework.security.acls.MutableAcl;
@@ -43,12 +43,13 @@ import org.springframework.util.FileCopyUtils;
 public class BasicLookupStrategyTests {
 
     private static final Sid BEN_SID = new PrincipalSid("ben");
+    private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
 
     //~ Instance fields ================================================================================================
 
     private static JdbcTemplate jdbcTemplate;
     private BasicLookupStrategy strategy;
-    private static TestDataSource dataSource;
+    private static SingleConnectionDataSource dataSource;
     private static CacheManager cacheManager;
 
     //~ Methods ========================================================================================================
@@ -60,10 +61,11 @@ public class BasicLookupStrategyTests {
 
     @BeforeClass
     public static void createDatabase() throws Exception {
-        dataSource = new TestDataSource("lookupstrategytest");
+        dataSource = new SingleConnectionDataSource("jdbc:hsqldb:mem:lookupstrategytest", "sa", "", true);
+        dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
         jdbcTemplate = new JdbcTemplate(dataSource);
 
-        Resource resource = new ClassPathResource("org/springframework/security/acls/jdbc/testData.sql");
+        Resource resource = new ClassPathResource("createAclSchema.sql");
         String sql = new String(FileCopyUtils.copyToByteArray(resource.getInputStream()));
         jdbcTemplate.execute(sql);
     }
@@ -82,7 +84,7 @@ public class BasicLookupStrategyTests {
     @Before
     public void populateDatabase() {
         String query = "INSERT INTO acl_sid(ID,PRINCIPAL,SID) VALUES (1,1,'ben');"
-                + "INSERT INTO acl_class(ID,CLASS) VALUES (2,'org.springframework.security.TargetObject');"
+                + "INSERT INTO acl_class(ID,CLASS) VALUES (2,'" + TARGET_CLASS + "');"
                 + "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (1,2,100,null,1,1);"
                 + "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (2,2,101,1,1,1);"
                 + "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (3,2,102,2,1,1);"
@@ -120,10 +122,10 @@ public class BasicLookupStrategyTests {
 
     @Test
     public void testAclsRetrievalWithDefaultBatchSize() throws Exception {
-        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
+        ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+        ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(101));
         // Deliberately use an integer for the child, to reproduce bug report in SEC-819
-        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(102));
+        ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Integer(102));
 
         Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
         checkEntries(topParentOid, middleParentOid, childOid, map);
@@ -131,9 +133,9 @@ public class BasicLookupStrategyTests {
 
     @Test
     public void testAclsRetrievalFromCacheOnly() throws Exception {
-        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(100));
-        ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
-        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
+        ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Integer(100));
+        ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(101));
+        ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(102));
 
         // Objects were put in cache
         strategy.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
@@ -147,9 +149,9 @@ public class BasicLookupStrategyTests {
 
     @Test
     public void testAclsRetrievalWithCustomBatchSize() throws Exception {
-        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(101));
-        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
+        ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+        ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Integer(101));
+        ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(102));
 
         // Set a batch size to allow multiple database queries in order to retrieve all acls
         ((BasicLookupStrategy) this.strategy).setBatchSize(1);
@@ -229,10 +231,10 @@ public class BasicLookupStrategyTests {
         String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (4,2,103,1,1,1);";
         jdbcTemplate.execute(query);
 
-        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-        ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(101));
-        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
-        ObjectIdentity middleParent2Oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(103));
+        ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+        ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Integer(101));
+        ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(102));
+        ObjectIdentity middleParent2Oid = new ObjectIdentityImpl(TARGET_CLASS, new Long(103));
 
         // Retrieve the child
         Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(Arrays.asList(childOid), null);
@@ -261,10 +263,10 @@ public class BasicLookupStrategyTests {
                 + "INSERT INTO acl_entry(ID,ACL_OBJECT_IDENTITY,ACE_ORDER,SID,MASK,GRANTING,AUDIT_SUCCESS,AUDIT_FAILURE) VALUES (5,4,0,1,1,1,0,0)";
         jdbcTemplate.execute(query);
 
-        ObjectIdentity grandParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(104));
-        ObjectIdentity parent1Oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(105));
-        ObjectIdentity parent2Oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(106));
-        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Integer(107));
+        ObjectIdentity grandParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(104));
+        ObjectIdentity parent1Oid = new ObjectIdentityImpl(TARGET_CLASS, new Long(105));
+        ObjectIdentity parent2Oid = new ObjectIdentityImpl(TARGET_CLASS, new Integer(106));
+        ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Integer(107));
 
         // First lookup only child, thus populating the cache with grandParent, parent1 and child
         List<Permission> checkPermission = Arrays.asList(BasePermission.READ);
@@ -299,7 +301,7 @@ public class BasicLookupStrategyTests {
 
         jdbcTemplate.execute(query);
 
-        ObjectIdentity oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(104));
+        ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, new Long(104));
 
         strategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID));
     }

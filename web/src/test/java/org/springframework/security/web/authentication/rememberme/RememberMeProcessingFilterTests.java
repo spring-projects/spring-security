@@ -34,7 +34,6 @@ import junit.framework.TestCase;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.MockFilterConfig;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -127,7 +126,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
         // Test
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("x");
-        executeFilterInContainerSimulator(new MockFilterConfig(), filter, request, new MockHttpServletResponse(),
+        executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
             new MockFilterChain(true));
 
         // Ensure filter didn't change our original object
@@ -145,7 +144,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("x");
-        executeFilterInContainerSimulator(new MockFilterConfig(), filter, request, new MockHttpServletResponse(),
+        executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
             new MockFilterChain(true));
 
         // Ensure filter setup with our remembered authentication object
@@ -170,7 +169,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("x");
-        executeFilterInContainerSimulator(new MockFilterConfig(), filter, request, new MockHttpServletResponse(),
+        executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
             new MockFilterChain(true));
 
         assertEquals(failedAuth, SecurityContextHolder.getContext().getAuthentication());

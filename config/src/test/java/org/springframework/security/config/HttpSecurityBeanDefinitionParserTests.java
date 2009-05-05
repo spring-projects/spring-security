@@ -1,7 +1,7 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
 import static org.springframework.security.config.HttpSecurityBeanDefinitionParser.*;
 
@@ -20,7 +20,6 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.MockAuthenticationEntryPoint;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
@@ -47,6 +46,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.authentication.AnonymousProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationProcessingFilterEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -650,12 +650,17 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void customEntryPointIsSupported() throws Exception {
         setContext(
                 "<http auto-config='true' entry-point-ref='entryPoint'/>" +
-                "<b:bean id='entryPoint' class='" + MockAuthenticationEntryPoint.class.getName() + "'>" +
-                "    <b:constructor-arg value='/customlogin'/>" +
+                "<b:bean id='entryPoint' class='" + MockEntryPoint.class.getName() + "'>" +
                 "</b:bean>" + AUTH_PROVIDER_XML);
         ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilters("/someurl").get(AUTO_CONFIG_FILTERS-3);
         assertTrue("ExceptionTranslationFilter should be configured with custom entry point",
-                etf.getAuthenticationEntryPoint() instanceof MockAuthenticationEntryPoint);
+                etf.getAuthenticationEntryPoint() instanceof MockEntryPoint);
+    }
+
+    private static class MockEntryPoint extends AuthenticationProcessingFilterEntryPoint {
+        public MockEntryPoint() {
+            super.setLoginFormUrl("/notused");
+        }
     }
 
     @Test

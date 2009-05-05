@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Andrei Stefan
  */
 public class AclImplementationSecurityCheckTests extends TestCase {
+    private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
 
     //~ Methods ========================================================================================================
 
@@ -39,7 +40,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
                 new GrantedAuthorityImpl("ROLE_GENERAL") });
@@ -83,7 +84,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
         // Authorization strategy will require a different role for each access
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
@@ -171,7 +172,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
         // Authorization strategy will require a different role for each access
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO"),
@@ -229,7 +230,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        ObjectIdentity identity = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
                 new GrantedAuthorityImpl("ROLE_GENERAL") });

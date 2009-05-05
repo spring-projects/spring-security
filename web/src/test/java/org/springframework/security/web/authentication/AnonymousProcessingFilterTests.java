@@ -15,6 +15,7 @@
 
 package org.springframework.security.web.authentication;
 
+import static org.mockito.Mockito.mock;
 import junit.framework.TestCase;
 
 import org.springframework.security.MockFilterConfig;
@@ -144,7 +145,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
         // Test
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("x");
-        executeFilterInContainerSimulator(new MockFilterConfig(), filter, request, new MockHttpServletResponse(),
+        executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
             new MockFilterChain(true));
 
         // Ensure filter didn't change our original object
@@ -164,7 +165,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("x");
-        executeFilterInContainerSimulator(new MockFilterConfig(), filter, request, new MockHttpServletResponse(),
+        executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
             new MockFilterChain(true));
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -174,7 +175,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
 
         // Now test operation if we have removeAfterRequest = true
         filter.setRemoveAfterRequest(true); // set to default value
-        executeFilterInContainerSimulator(new MockFilterConfig(), filter, request, new MockHttpServletResponse(),
+        executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
             new MockFilterChain(true));
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }

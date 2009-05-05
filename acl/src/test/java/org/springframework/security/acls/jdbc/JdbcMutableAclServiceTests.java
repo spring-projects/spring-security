@@ -36,6 +36,7 @@ import org.springframework.security.acls.ChildrenExistException;
 import org.springframework.security.acls.MutableAcl;
 import org.springframework.security.acls.NotFoundException;
 import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.TargetObject;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
@@ -56,9 +57,11 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Andrei Stefan
  * @version $Id:JdbcMutableAclServiceTests.java 1754 2006-11-17 02:01:21Z benalex $
  */
-@ContextConfiguration(locations={"/org/springframework/security/acls/jdbc/applicationContext-test.xml"})
+@ContextConfiguration(locations={"/jdbcMutableAclServiceTests-context.xml"})
 public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
     //~ Constant fields ================================================================================================
+
+    private static final String TARGET_CLASS = TargetObject.class.getName();
 
     private final Authentication auth = new TestingAuthenticationToken("ben", "ignored","ROLE_ADMINISTRATOR");
 
@@ -66,9 +69,9 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 
     //~ Instance fields ================================================================================================
 
-    private final ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
-    private final ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(101));
-    private final ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(102));
+    private final ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+    private final ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(101));
+    private final ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(102));
 
     @Autowired
     private JdbcMutableAclService jdbcMutableAclService;
@@ -85,7 +88,7 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 
     @Before
     public void createTables() throws IOException {
-        new DatabaseSeeder(dataSource, new ClassPathResource("org/springframework/security/acls/jdbc/testData.sql"));
+        new DatabaseSeeder(dataSource, new ClassPathResource("createAclSchema.sql"));
     }
 
     @After
@@ -313,7 +316,7 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
     @Rollback
     public void testCreateAclForADuplicateDomainObject() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(auth);
-        ObjectIdentity duplicateOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(100));
+        ObjectIdentity duplicateOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
         jdbcMutableAclService.createAcl(duplicateOid);
         // Try to add the same object second time
         try {
@@ -370,7 +373,7 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 
         // Remove the child and check all related database rows were removed accordingly
         jdbcMutableAclService.deleteAcl(childOid, false);
-        assertEquals(1, jdbcTemplate.queryForList(SELECT_ALL_CLASSES, new Object[] {"org.springframework.security.TargetObject"} ).size());
+        assertEquals(1, jdbcTemplate.queryForList(SELECT_ALL_CLASSES, new Object[] {TARGET_CLASS} ).size());
         assertEquals(0, jdbcTemplate.queryForList("select * from acl_object_identity").size());
         assertEquals(0, jdbcTemplate.queryForList("select * from acl_entry").size());
 
@@ -385,10 +388,10 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
     @Rollback
     public void identityWithIntegerIdIsSupportedByCreateAcl() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(auth);
-        ObjectIdentity oid = new ObjectIdentityImpl("org.springframework.security.TargetObject", Integer.valueOf(101));
+        ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(101));
         jdbcMutableAclService.createAcl(oid);
 
-        assertNotNull(jdbcMutableAclService.readAclById(new ObjectIdentityImpl("org.springframework.security.TargetObject", Long.valueOf(101))));
+        assertNotNull(jdbcMutableAclService.readAclById(new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(101))));
     }
 
     /**
@@ -400,8 +403,8 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        ObjectIdentity parentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(104));
-        ObjectIdentity childOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(105));
+        ObjectIdentity parentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(104));
+        ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(105));
 
         MutableAcl parent = jdbcMutableAclService.createAcl(parentOid);
         MutableAcl child = jdbcMutableAclService.createAcl(childOid);
@@ -433,7 +436,7 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
    auth.setAuthenticated(true);
    SecurityContextHolder.getContext().setAuthentication(auth);
 
-   ObjectIdentity topParentOid = new ObjectIdentityImpl("org.springframework.security.TargetObject", new Long(110));
+   ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(110));
    MutableAcl topParent = jdbcMutableAclService.createAcl(topParentOid);
 
    // Add an ACE permission entry

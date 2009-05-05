@@ -22,21 +22,21 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import junit.framework.TestCase;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.MockAuthenticationEntryPoint;
 import org.springframework.security.MockPortResolver;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
 /**
@@ -85,7 +85,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
+        filter.setAuthenticationEntryPoint(mockEntryPoint());
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
@@ -111,7 +111,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
+        filter.setAuthenticationEntryPoint(mockEntryPoint());
         filter.setAccessDeniedHandler(adh);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -124,7 +124,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
     public void testGettersSetters() {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
+        filter.setAuthenticationEntryPoint(mockEntryPoint());
         assertTrue(filter.getAuthenticationEntryPoint() != null);
 
         filter.setPortResolver(new MockPortResolver(80, 443));
@@ -146,7 +146,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
+        filter.setAuthenticationEntryPoint(mockEntryPoint());
         filter.setPortResolver(new MockPortResolver(80, 443));
         /*
          * Disabled the call to afterPropertiesSet as it requires
@@ -177,7 +177,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
+        filter.setAuthenticationEntryPoint(mockEntryPoint());
         filter.setPortResolver(new MockPortResolver(8080, 8443));
         /*
          * Disabled the call to afterPropertiesSet as it requires
@@ -195,7 +195,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
     public void testSavedRequestIsNotStoredForPostIfJustUseSaveRequestOnGetIsSet() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setJustUseSavedRequestOnGet(true);
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
+        filter.setAuthenticationEntryPoint(mockEntryPoint());
         filter.setPortResolver(new MockPortResolver(8080, 8443));
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockFilterChain chain = new MockFilterChain(false, true, false, false);
@@ -218,7 +218,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 
     public void testStartupDetectsMissingPortResolver() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
+        filter.setAuthenticationEntryPoint(mockEntryPoint());
         filter.setPortResolver(null);
 
         try {
@@ -240,7 +240,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
+        filter.setAuthenticationEntryPoint(mockEntryPoint());
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
@@ -257,7 +257,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
     public void testThrowIOException() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(""));
+        filter.setAuthenticationEntryPoint(mockEntryPoint());
         /*
          * Disabled the call to afterPropertiesSet as it requires
          * applicationContext to be injected before it is invoked. We do not
@@ -278,7 +278,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
     public void testThrowServletException() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(""));
+        filter.setAuthenticationEntryPoint(mockEntryPoint());
         /*
          * Disabled the call to afterPropertiesSet as it requires
          * applicationContext to be injected before it is invoked. We do not
@@ -294,6 +294,15 @@ public class ExceptionTranslationFilterTests extends TestCase {
         catch (ServletException e) {
             assertNull("The ServletException thrown should not have been wrapped", e.getCause());
         }
+    }
+
+    private AuthenticationEntryPoint mockEntryPoint() {
+        return new AuthenticationEntryPoint() {
+            public void commence(HttpServletRequest request, HttpServletResponse response,
+                    AuthenticationException authException) throws IOException, ServletException {
+                response.sendRedirect(request.getContextPath() + "/login.jsp");
+            }
+        };
     }
 
     // ~ Inner Classes =================================================================================================
