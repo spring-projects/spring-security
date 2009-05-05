@@ -67,14 +67,14 @@
             <artifactId>ehcache</artifactId>
         </dependency>
         <dependency>
-            <groupId>hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>hessian</groupId>
             <artifactId>hessian</artifactId>
             <version>3.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
@@ -96,11 +96,21 @@
                 <configuration>
                     <contextPath>/contacts</contextPath>
                     <!--jettyConfig>${basedir}/src/test/resources/jetty.xml</jettyConfig-->
-                    <scanIntervalSeconds>10</scanIntervalSeconds>
+                    <scanIntervalSeconds>5</scanIntervalSeconds>
                     <!--scanTargets>
                         <scanTarget>src/main/webapp/css</scanTarget>
                     </scanTargets-->
                 </configuration>
+<!--
+                <dependencies>
+                    <dependency>
+                        <groupId>hsqldb</groupId>
+                        <artifactId>hsqldb</artifactId>
+                        <version>1.8.0.7</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
+ -->
             </plugin>
         </plugins>
     </build>
