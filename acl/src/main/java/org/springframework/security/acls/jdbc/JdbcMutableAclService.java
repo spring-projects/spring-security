@@ -42,7 +42,14 @@ import org.springframework.util.Assert;
 
 
 /**
- * Provides a base implementation of {@link MutableAclService}.
+ * Provides a base JDBC implementation of {@link MutableAclService}.
+ * <p>
+ * The default settings are for HSQLDB. If you are using a different database you
+ * will probably need to set the {@link #setSidIdentityQuery(String) sidIdentityQuery} and
+ * {@link #setClassIdentityQuery(String) classIdentityQuery} properties appropriately.
+ * <p>
+ * See the appendix of the Spring Security reference manual for more information on the expected schema
+ * and how it is used. Information on using PostgreSQL is also included.
  *
  * @author Ben Alex
  * @author Johannes Zlattinger
@@ -55,8 +62,8 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     private AclCache aclCache;
     private String deleteEntryByObjectIdentityForeignKey = "delete from acl_entry where acl_object_identity=?";
     private String deleteObjectIdentityByPrimaryKey = "delete from acl_object_identity where id=?";
-    private String classIdentityQuery = "call identity()"; // should be overridden for postgres : select currval('acl_class_seq')
-    private String sidIdentityQuery = "call identity()"; // should be overridden for postgres : select currval('acl_siq_seq')
+    private String classIdentityQuery = "call identity()";
+    private String sidIdentityQuery = "call identity()";
     private String insertClass = "insert into acl_class (class) values (?)";
     private String insertEntry = "insert into acl_entry "
         + "(acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure)"
@@ -142,7 +149,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     protected void createObjectIdentity(ObjectIdentity object, Sid owner) {
         Long sidId = createOrRetrieveSidPrimaryKey(owner, true);
         Long classId = createOrRetrieveClassPrimaryKey(object.getJavaType(), true);
-        jdbcTemplate.update(insertObjectIdentity, classId, object.getIdentifier().toString(), sidId, Boolean.TRUE);
+        jdbcTemplate.update(insertObjectIdentity, classId, object.getIdentifier(), sidId, Boolean.TRUE);
     }
 
     /**
@@ -354,14 +361,26 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         }
     }
 
-    public void setClassIdentityQuery(String identityQuery) {
-        Assert.hasText(identityQuery, "New identity query is required");
-        this.classIdentityQuery = identityQuery;
+    /**
+     * Sets the query that will be used to retrieve the identity of a newly created row in the <tt>acl_class</tt>
+     * table.
+     *
+     * @param classIdentityQuery the query, which should return the identifier. Defaults to <tt>call identity()</tt>
+     */
+    public void setClassIdentityQuery(String classIdentityQuery) {
+        Assert.hasText(classIdentityQuery, "New classIdentityQuery query is required");
+        this.classIdentityQuery = classIdentityQuery;
     }
 
-    public void setSidIdentityQuery(String identityQuery) {
-        Assert.hasText(identityQuery, "New identity query is required");
-        this.sidIdentityQuery = identityQuery;
+    /**
+     * Sets the query that will be used to retrieve the identity of a newly created row in the <tt>acl_sid</tt>
+     * table.
+     *
+     * @param sidIdentityQuery the query, which should return the identifier. Defaults to <tt>call identity()</tt>
+     */
+    public void setSidIdentityQuery(String sidIdentityQuery) {
+        Assert.hasText(sidIdentityQuery, "New sidIdentityQuery query is required");
+        this.sidIdentityQuery = sidIdentityQuery;
     }
     /**
      * @param foreignKeysInDatabase if false this class will perform additional FK constrain checking, which may

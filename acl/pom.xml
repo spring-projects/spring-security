@@ -47,6 +47,13 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>8.3-603.jdbc3</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

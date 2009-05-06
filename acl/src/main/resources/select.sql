@@ -1,27 +1,39 @@
 -- Not required. Just shows the sort of queries being sent to DB.
 
 
-select ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY, ACL_ENTRY.ACE_ORDER, 
-ACL_OBJECT_IDENTITY.ID as ACL_ID,
-ACL_OBJECT_IDENTITY.PARENT_OBJECT,
-ACL_OBJECT_IDENTITY,ENTRIES_INHERITING,
-ACL_ENTRY.ID as ACE_ID, ACL_ENTRY.MASK, ACL_ENTRY.GRANTING, ACL_ENTRY.AUDIT_SUCCESS, ACL_ENTRY.AUDIT_FAILURE,
-ACL_SID.PRINCIPAL as ACE_PRINCIPAL, ACL_SID.SID as ACE_SID,
-ACLI_SID.PRINCIPAL as ACL_PRINCIPAL, ACLI_SID.SID as ACL_SID,
-ACL_CLASS.CLASS
+select  acl_object_identity.object_id_identity,
+        acl_entry.ace_order,
+        acl_object_identity.id as acl_id,
+        acl_object_identity.parent_object,
+        acl_object_identity,
+        entries_inheriting,
+        acl_entry.id as ace_id,
+        acl_entry.mask,
+        acl_entry.granting,
+        acl_entry.audit_success,
+        acl_entry.audit_failure,
+        acl_sid.principal as ace_principal,
+        acl_sid.sid as ace_sid,
+        acli_sid.principal as acl_principal,
+        acli_sid.sid as acl_sid,
+        acl_class.class
 
-from ACL_OBJECT_IDENTITY, ACL_SID ACLI_SID, ACL_CLASS
-LEFT JOIN ACL_ENTRY ON ACL_OBJECT_IDENTITY.ID = ACL_ENTRY.ACL_OBJECT_IDENTITY
-LEFT JOIN ACL_SID ON ACL_ENTRY.SID = ACL_SID.ID
+from    acl_object_identity,
+        acl_sid acli_sid,
+        acl_class
 
-where 
+left join acl_entry on acl_object_identity.id = acl_entry.acl_object_identity
+left join acl_sid on acl_entry.sid = acl_sid.id
 
-ACLI_SID.ID = ACL_OBJECT_IDENTITY.OWNER_SID
-and ACL_CLASS.ID = ACL_OBJECT_IDENTITY.OBJECT_ID_CLASS
+where
+    acli_sid.id = acl_object_identity.owner_sid
+
+and acl_class.id = acl_object_identity.object_id_class
+
 and (
-(ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY = 1 
-and ACL_CLASS.CLASS = 'sample.contact.Contact')
-or 
-(ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY = 2000
-and ACL_CLASS.CLASS = 'sample.contact.Contact')
-) order by ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY asc, ACL_ENTRY.ACE_ORDER asc
+
+    (acl_object_identity.object_id_identity = 1 and acl_class.class = 'sample.contact.contact')
+or
+    (acl_object_identity.object_id_identity = 2000 and acl_class.class = 'sample.contact.contact')
+
+) order by acl_object_identity.object_id_identity asc, acl_entry.ace_order asc
