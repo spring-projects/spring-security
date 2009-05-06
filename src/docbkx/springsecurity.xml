@@ -1,229 +1,150 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <book version="5.0" xml:id="spring-security-reference-guide" xmlns="http://docbook.org/ns/docbook"
-    xmlns:xlink="http://www.w3.org/1999/xlink" 
-    xmlns:xi="http://www.w3.org/2001/XInclude">
-    
-    <info>
-        <title>Spring Security</title>
-        
-        <subtitle>Reference Documentation</subtitle>
-        
-        <author>
-            <personname>Ben Alex, Luke Taylor</personname>
-        </author>
-                
-        <releaseinfo>2.0.x</releaseinfo>
-        
-    </info>
-    
+  xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <info><title>Spring Security</title><subtitle>Reference Documentation</subtitle><author>
+      <personname>Ben Alex, Luke Taylor</personname>
+    </author>
+    <releaseinfo>2.0.x</releaseinfo>
+  </info>
   <toc/>
-
   <preface xml:id="preface">
     <title>Preface</title>
-
-    <para>Spring Security provides a comprehensive security solution for
-    J2EE-based enterprise software applications. As you will discover as you
-    venture through this reference guide, we have tried to provide you a
-    useful and highly configurable security system.</para>
-
-    <para>Security is an ever-moving target, and it's important to pursue a
-    comprehensive, system-wide approach. In security circles we encourage you
-    to adopt "layers of security", so that each layer tries to be as secure as
-    possible in its own right, with successive layers providing additional
-    security. The "tighter" the security of each layer, the more robust and
-    safe your application will be. At the bottom level you'll need to deal
-    with issues such as transport security and system identification, in order
-    to mitigate man-in-the-middle attacks. Next you'll generally utilise
-    firewalls, perhaps with VPNs or IP security to ensure only authorised
-    systems can attempt to connect. In corporate environments you may deploy a
-    DMZ to separate public-facing servers from backend database and
-    application servers. Your operating system will also play a critical part,
-    addressing issues such as running processes as non-privileged users and
-    maximising file system security. An operating system will usually also be
-    configured with its own firewall. Hopefully somewhere along the way you'll
-    be trying to prevent denial of service and brute force attacks against the
-    system. An intrusion detection system will also be especially useful for
-    monitoring and responding to attacks, with such systems able to take
-    protective action such as blocking offending TCP/IP addresses in
-    real-time. Moving to the higher layers, your Java Virtual Machine will
-    hopefully be configured to minimize the permissions granted to different
-    Java types, and then your application will add its own problem
-    domain-specific security configuration. Spring Security makes this latter
-    area - application security - much easier. 
-    </para>
-
-    <para>Of course, you will need to properly address all security layers
-    mentioned above, together with managerial factors that encompass every
-    layer. A non-exhaustive list of such managerial factors would include
-    security bulletin monitoring, patching, personnel vetting, audits, change
-    control, engineering management systems, data backup, disaster recovery,
-    performance benchmarking, load monitoring, centralised logging, incident
-    response procedures etc.</para>
-
-    <para>With Spring Security being focused on helping you with the
-    enterprise application security layer, you will find that there are as
-    many different requirements as there are business problem domains. A
-    banking application has different needs from an ecommerce application. An
-    ecommerce application has different needs from a corporate sales force
-    automation tool. These custom requirements make application security
-    interesting, challenging and rewarding.
-    </para>
-
-    <para>Please read <xref linkend="getting-started"/>, in
-    its entirety to begin with. This will introduce you to the framework and the namespace-based
-    configuration system with which you can get up and running quite quickly. To get more of an understanding
-    of an in-depth understaning of how Spring Security works, and some of the classes you might
-    need to use, you should then read <xref linkend="overall-architecture"/>.
-    The remaining parts of this guide are structured in a more traditional reference style, 
-    designed to be read on an as-required basis. We'd also recommend that you read up as much as 
-    possible on application security issues in general. Spring Security is not a panacea which will
-    solve all security issues. It is important that the application is designed with security in 
-    mind from the start. Attempting to retrofit it is not a good idea. 
-    In particular, if you are building a web application, you should be aware of the many potential
-    vulnerabilities such as cross-site scripting, request-forgery and session-hijacking which you should
-    be taking into account from the start. The OWASP web site (http://www.owasp.org/) maintains a
-    top ten list of web application vulnerabilities as well as a lot of useful reference information.
-    </para>
-
-    <para>We hope that you find this reference guide useful, and we welcome
-      your feedback and <link xlink:href="#jira">suggestions</link>.
-    </para>
-
-    <para>Finally, welcome to the Spring Security <link xlink:href="#community" >community</link>.
+    <para>Spring Security provides a comprehensive security solution for J2EE-based enterprise
+      software applications. As you will discover as you venture through this reference guide, we
+      have tried to provide you a useful and highly configurable security system.</para>
+    <para>Security is an ever-moving target, and it's important to pursue a comprehensive,
+      system-wide approach. In security circles we encourage you to adopt "layers of security", so
+      that each layer tries to be as secure as possible in its own right, with successive layers
+      providing additional security. The "tighter" the security of each layer, the more robust and
+      safe your application will be. At the bottom level you'll need to deal with issues such as
+      transport security and system identification, in order to mitigate man-in-the-middle attacks.
+      Next you'll generally utilise firewalls, perhaps with VPNs or IP security to ensure only
+      authorised systems can attempt to connect. In corporate environments you may deploy a DMZ to
+      separate public-facing servers from backend database and application servers. Your operating
+      system will also play a critical part, addressing issues such as running processes as
+      non-privileged users and maximising file system security. An operating system will usually
+      also be configured with its own firewall. Hopefully somewhere along the way you'll be trying
+      to prevent denial of service and brute force attacks against the system. An intrusion
+      detection system will also be especially useful for monitoring and responding to attacks, with
+      such systems able to take protective action such as blocking offending TCP/IP addresses in
+      real-time. Moving to the higher layers, your Java Virtual Machine will hopefully be configured
+      to minimize the permissions granted to different Java types, and then your application will
+      add its own problem domain-specific security configuration. Spring Security makes this latter
+      area - application security - much easier. </para>
+    <para>Of course, you will need to properly address all security layers mentioned above, together
+      with managerial factors that encompass every layer. A non-exhaustive list of such managerial
+      factors would include security bulletin monitoring, patching, personnel vetting, audits,
+      change control, engineering management systems, data backup, disaster recovery, performance
+      benchmarking, load monitoring, centralised logging, incident response procedures etc.</para>
+    <para>With Spring Security being focused on helping you with the enterprise application security
+      layer, you will find that there are as many different requirements as there are business
+      problem domains. A banking application has different needs from an ecommerce application. An
+      ecommerce application has different needs from a corporate sales force automation tool. These
+      custom requirements make application security interesting, challenging and rewarding. </para>
+    <para>Please read <xref linkend="getting-started"/>, in its entirety to begin with. This will
+      introduce you to the framework and the namespace-based configuration system with which you can
+      get up and running quite quickly. To get more of an understanding of an in-depth understaning
+      of how Spring Security works, and some of the classes you might need to use, you should then
+      read <xref linkend="overall-architecture"/>. The remaining parts of this guide are structured
+      in a more traditional reference style, designed to be read on an as-required basis. We'd also
+      recommend that you read up as much as possible on application security issues in general.
+      Spring Security is not a panacea which will solve all security issues. It is important that
+      the application is designed with security in mind from the start. Attempting to retrofit it is
+      not a good idea. In particular, if you are building a web application, you should be aware of
+      the many potential vulnerabilities such as cross-site scripting, request-forgery and
+      session-hijacking which you should be taking into account from the start. The OWASP web site
+      (http://www.owasp.org/) maintains a top ten list of web application vulnerabilities as well as
+      a lot of useful reference information. </para>
+    <para>We hope that you find this reference guide useful, and we welcome your feedback and <link
+        xlink:href="#jira">suggestions</link>. </para>
+    <para>Finally, welcome to the Spring Security <link xlink:href="#community">community</link>.
     </para>
   </preface>
-  
   <part xml:id="getting-started">
     <title>Getting Started</title>
     <partintro>
-    <para>The later parts of this guide provide an in-depth discussion of the
-      framework architecture and implementation classes, an understanding of which is important
-      if you need to do any serious customization. In this part, we'll introduce Spring Security 2.0,
-      give a brief overview of the project's history and take a slightly
-      gentler look at how to get started using the framework.
-      In particular, we'll look at namespace configuration which provides a much simpler way of securing
-      your application compared to the traditional Spring bean approach where you had to wire up all the 
-      implementation classes individually.
-    </para>
-    <para>
-      We'll also take a look at the sample applications that are available. It's worth trying to run
-      these and experimenting with them a bit even before you read the later sections - you can dip back into them
-      as your understanding of the framework increases.
-    </para>
+      <para>The later parts of this guide provide an in-depth discussion of the framework
+        architecture and implementation classes, an understanding of which is important if you need
+        to do any serious customization. In this part, we'll introduce Spring Security 2.0, give a
+        brief overview of the project's history and take a slightly gentler look at how to get
+        started using the framework. In particular, we'll look at namespace configuration which
+        provides a much simpler way of securing your application compared to the traditional Spring
+        bean approach where you had to wire up all the implementation classes individually. </para>
+      <para> We'll also take a look at the sample applications that are available. It's worth trying
+        to run these and experimenting with them a bit even before you read the later sections - you
+        can dip back into them as your understanding of the framework increases. </para>
     </partintro>
-    
-    <xi:include href="introduction.xml" />    
-    
-    <xi:include href="namespace-config.xml" />
-    
+    <xi:include href="introduction.xml"/>
+    <xi:include href="namespace-config.xml"/>
     <xi:include href="samples.xml"/>
-    
-    <xi:include href="community.xml"/>     
-
+    <xi:include href="community.xml"/>
   </part>
-
   <part xml:id="overall-architecture">
     <title>Overall Architecture</title>
-
     <partintro>
-      <para>Like most software, Spring Security has certain central
-      interfaces, classes and conceptual abstractions that are commonly used
-      throughout the framework. In this part of the reference guide we will
-      introduce Spring Security, before examining these central elements that
-      are necessary to successfully planning and executing a Spring Security
-      integration.</para>
+      <para>Like most software, Spring Security has certain central interfaces, classes and
+        conceptual abstractions that are commonly used throughout the framework. In this part of the
+        reference guide we will introduce Spring Security, before examining these central elements
+        that are necessary to successfully planning and executing a Spring Security
+        integration.</para>
     </partintro>
-    
-    <xi:include href="technical-overview.xml" />
-
-    <xi:include href="supporting-infrastructure.xml" />
-    
-    <xi:include href="channel-security.xml" />
-
+    <xi:include href="technical-overview.xml"/>
+    <xi:include href="supporting-infrastructure.xml"/>
+    <xi:include href="channel-security.xml"/>
   </part>
-
   <part xml:id="authentication">
     <title>Authentication</title>
-
     <partintro>
-      <para>We've already introduced Spring Security's authentication architecture
-        in the <link xlink:href="#technical-overview">Technical Overview</link> chapter.
-        In this part of the reference guide we will examine individual
-      authentication mechanisms and their corresponding
-      <classname>AuthenticationProvider</classname>s. We'll also look at how to
-      configure authentication more generally, including if you have several
-      authentication approaches that need to be chained together.</para>
-      <para>
-        With some exceptions, we will be discussing the full details of Spring Security
-        bean configuration rather than the shorthand
-        <link xlink:href="#ns-config">namespace syntax</link>. You should review
-        the introduction to using namespace configuration and the options it provides
-        to see if they will meet your needs. As you come to use the framework more,
-        and need to customize the internal behaviour, you will probably want to understand
-        more about how the individual services are implemented, which classes to look at
-        extending and so on. This part is more targeted at providing this kind of information.
-        We'd recommend that you supplement the content by browsing the Javadoc and the source
-        itself <footnote><para>Links to both Javadoc APIs and browsable source cross-reference
-        are available from the project web site.</para></footnote>.
-      </para>
+      <para>We've already introduced Spring Security's authentication architecture in the <link
+          xlink:href="#technical-overview">Technical Overview</link> chapter. In this part of the
+        reference guide we will examine individual authentication mechanisms and their corresponding
+          <classname>AuthenticationProvider</classname>s. We'll also look at how to configure
+        authentication more generally, including if you have several authentication approaches that
+        need to be chained together.</para>
+      <para> With some exceptions, we will be discussing the full details of Spring Security bean
+        configuration rather than the shorthand <link xlink:href="#ns-config">namespace
+          syntax</link>. You should review the introduction to using namespace configuration and the
+        options it provides to see if they will meet your needs. As you come to use the framework
+        more, and need to customize the internal behaviour, you will probably want to understand
+        more about how the individual services are implemented, which classes to look at extending
+        and so on. This part is more targeted at providing this kind of information. We'd recommend
+        that you supplement the content by browsing the Javadoc and the source itself <footnote>
+          <para>Links to both Javadoc APIs and browsable source cross-reference are available from
+            the project web site.</para>
+        </footnote>. </para>
     </partintro>
-
-    <xi:include href="common-auth-services.xml" />
-
-    <xi:include href="dao-auth-provider.xml" />    
-
+    <xi:include href="common-auth-services.xml"/>
+    <xi:include href="dao-auth-provider.xml"/>
     <xi:include href="ldap-auth-provider.xml"/>
-    
-    <xi:include href="form-authentication.xml" />
-    
-    <xi:include href="basic-authentication.xml" />
-    
-    <xi:include href="digest-authentication.xml" />
-    
-    <xi:include href="remember-me-authentication.xml" />
-
-    <xi:include href="jaas-auth-provider.xml" />
-    
-    <xi:include href="preauth.xml" />    
-    
-    <xi:include href="anon-auth-provider.xml" />    
-
+    <xi:include href="form-authentication.xml"/>
+    <xi:include href="basic-authentication.xml"/>
+    <xi:include href="digest-authentication.xml"/>
+    <xi:include href="remember-me-authentication.xml"/>
+    <xi:include href="jaas-auth-provider.xml"/>
+    <xi:include href="preauth.xml"/>
+    <xi:include href="anon-auth-provider.xml"/>
     <xi:include href="x509-auth-provider.xml"/>
-
     <xi:include href="cas-auth-provider.xml"/>
-
-    <xi:include href="runas-auth-provider.xml" />
-
+    <xi:include href="runas-auth-provider.xml"/>
   </part>
-
   <part xml:id="authorization">
     <title>Authorization</title>
-
     <partintro>
-      <para>The advanced authorization capabilities within Spring Security
-      represent one of the most compelling reasons for its popularity.
-      Irrespective of how you choose to authenticate - whether using a Spring
-      Security-provided mechanism and provider, or integrating with a
-      container or other non-Spring Security authentication authority - you
-      will find the authorization services can be used within your application
-      in a consistent and simple way.</para>
-
+      <para>The advanced authorization capabilities within Spring Security represent one of the most
+        compelling reasons for its popularity. Irrespective of how you choose to authenticate -
+        whether using a Spring Security-provided mechanism and provider, or integrating with a
+        container or other non-Spring Security authentication authority - you will find the
+        authorization services can be used within your application in a consistent and simple
+        way.</para>
       <para>In this part we'll explore the different
-      <classname>AbstractSecurityInterceptor</classname> implementations, which
-      were introduced in Part I. We then move on to explore how to fine-tune
-      authorization through use of domain access control lists.</para>
+          <classname>AbstractSecurityInterceptor</classname> implementations, which were introduced
+        in Part I. We then move on to explore how to fine-tune authorization through use of domain
+        access control lists.</para>
     </partintro>
-
-    <xi:include href="authorization-common.xml"/>    
-
+    <xi:include href="authorization-common.xml"/>
     <xi:include href="secured-objects.xml"/>
-    
     <xi:include href="domain-acls.xml"/>
-  
   </part>
-   
   <xi:include href="appendix-db-schema.xml"/>
-  
   <xi:include href="appendix-namespace.xml"/>
-
 </book>

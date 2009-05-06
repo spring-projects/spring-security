@@ -1,70 +1,50 @@
-<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:id="sample-apps">
-    
-<info>
-    <title xml:id="samples">Sample Applications</title>
-</info>
-    <para>
-        There are several sample web applications that are available with the
-        project. To avoid an overly large download, only the "tutorial"
-        and "contacts" samples are included in the distribution zip file. You can 
-        either build the others yourself, or you can obtain the war files 
-        individually from the central Maven repository. We'd recommend the former.
-        You can get the source as described in <link xlink:href="#get-source">the introduction</link>
-        and it's easy to build the project using Maven. There is more information
-        on the project web site at 
-        <link xlink:href="http://www.springframework.org/spring-security/">
-            http://www.springframework.org/spring-security/
-        </link> if you need it.
-        All paths referred to in this chapter are relative to the source directory, once
-        you have checked it out from subversion.
-    </para>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0" xml:id="sample-apps">
+    <info>
+        <title xml:id="samples">Sample Applications</title>
+    </info>
+    <para> There are several sample web applications that are available with the project. To avoid
+        an overly large download, only the "tutorial" and "contacts" samples are included in the
+        distribution zip file. You can either build the others yourself, or you can obtain the war
+        files individually from the central Maven repository. We'd recommend the former. You can get
+        the source as described in <link xlink:href="#get-source">the introduction</link> and it's
+        easy to build the project using Maven. There is more information on the project web site at
+            <link xlink:href="http://www.springframework.org/spring-security/">
+            http://www.springframework.org/spring-security/ </link> if you need it. All paths
+        referred to in this chapter are relative to the source directory, once you have checked it
+        out from subversion. </para>
     <section xml:id="tutorial-sample">
-    <title>Tutorial Sample</title>
-    
-    <para> The tutorial sample is a nice basic example to get you started. It uses
-        simple namespace configuration throughout. The compiled application is included in the 
-        distribution zip file, ready to be deployed into your web container 
-        (<filename>spring-security-samples-tutorial-2.0.x.war</filename>). 
-        The <link xlink:href="#form">form-based</link> 
-        authentication mechanism is used in combination with the commonly-used 
-        <link xlink:href="#remember-me">remember-me</link>
-        authentication provider to automatically remember the login using
-        cookies.</para>
-    
-    <para>We recommend you start with the tutorial sample, as the XML is
-        minimal and easy to follow. Most importantly, you can easily add 
-        this one XML file (and its corresponding <literal>web.xml</literal> entries) to your existing
-        application. Only when this basic integration is achieved do we
-        suggest you attempt adding in method authorization or domain object
-        security.</para>
+        <title>Tutorial Sample</title>
+        <para> The tutorial sample is a nice basic example to get you started. It uses simple
+            namespace configuration throughout. The compiled application is included in the
+            distribution zip file, ready to be deployed into your web container
+                (<filename>spring-security-samples-tutorial-3.0.x.war</filename>). The <link
+                xlink:href="#form">form-based</link> authentication mechanism is used in combination
+            with the commonly-used <link xlink:href="#remember-me">remember-me</link> authentication
+            provider to automatically remember the login using cookies.</para>
+        <para>We recommend you start with the tutorial sample, as the XML is minimal and easy to
+            follow. Most importantly, you can easily add this one XML file (and its corresponding
+                <literal>web.xml</literal> entries) to your existing application. Only when this
+            basic integration is achieved do we suggest you attempt adding in method authorization
+            or domain object security.</para>
     </section>
-
     <section xml:id="contacts-sample">
-    <title>Contacts</title>
-    
-    <para>
-        The Contacts Sample is quite an advanced example in that it 
-        illustrates the more powerful features of domain object access control lists
-        in addition to basic application security.
-    </para>
-    
-    <para>To deploy, simply copy the WAR file from Spring
-        Security distribution into your container’s <literal>webapps</literal>
-        directory. The war should be called <filename>spring-security-samples-contacts-2.0.0.war</filename>
-        (the appended version number will vary depending on what release you are using).
-    </para>
-    
-    <para>After starting your container, check the application can load.
-        Visit
-        <literal>http://localhost:8080/contacts</literal>
-        (or whichever URL is appropriate for your web container and the WAR
-        you deployed). </para>
-    
-    <para>Next, click "Debug". You will be prompted to authenticate, and a
-        series of usernames and passwords are suggested on that page. Simply
-        authenticate with any of these and view the resulting page. It should
-        contain a success message similar to the following:
-    <literallayout>
+        <title>Contacts</title>
+        <para> The Contacts Sample is an advanced example in that it illustrates the more powerful
+            features of domain object access control lists (ACLs) in addition to basic application
+            security. The application provides an interface with which the users are able to
+            administer a simple database of contacts (the domain objects).</para>
+        <para>To deploy, simply copy the WAR file from Spring Security distribution into your
+            container’s <literal>webapps</literal> directory. The war should be called
+                <filename>spring-security-samples-contacts-3.0.x.war</filename> (the appended
+            version number will vary depending on what release you are using). </para>
+        <para>After starting your container, check the application can load. Visit
+                <literal>http://localhost:8080/contacts</literal> (or whichever URL is appropriate
+            for your web container and the WAR you deployed). </para>
+        <para>Next, click "Debug". You will be prompted to authenticate, and a series of usernames
+            and passwords are suggested on that page. Simply authenticate with any of these and view
+            the resulting page. It should contain a success message similar to the following:
+            <literallayout>
         Authentication object is of type: org.springframework.security.providers.UsernamePasswordAuthenticationToken
         
         Authentication object as a String: 
@@ -83,21 +63,17 @@
         ROLE_USER (getAuthority(): ROLE_USER)
         
         SUCCESS! Your web filters appear to be properly configured!        
-    </literallayout>
-    </para>
-    
-    <para>Once you successfully receive the above message, return to the
-        sample application's home page and click "Manage". You can then try
-        out the application. Notice that only the contacts available to the
-        currently logged on user are displayed, and only users with
-        <literal>ROLE_SUPERVISOR</literal> are granted access to delete their
-        contacts. Behind the scenes, the
-        <classname>MethodSecurityInterceptor</classname> is securing the business
-        objects. </para>
-         <para>The application allows you to modify the access control lists associated
-        with different contacts. Be sure to give this a try and understand how
-        it works by reviewing the application context XML files.</para>
-<!--
+    </literallayout></para>
+        <para>Once you successfully receive the above message, return to the sample application's
+            home page and click "Manage". You can then try out the application. Notice that only the
+            contacts available to the currently logged on user are displayed, and only users with
+                <literal>ROLE_SUPERVISOR</literal> are granted access to delete their contacts.
+            Behind the scenes, the <classname>MethodSecurityInterceptor</classname> is securing the
+            business objects. </para>
+        <para>The application allows you to modify the access control lists associated with
+            different contacts. Be sure to give this a try and understand how it works by reviewing
+            the application context XML files.</para>
+        <!--
     TODO: Reintroduce standalone client example.
     <para>The Contacts sample application also includes a
         <literal>client</literal> directory. Inside you will find a small
@@ -110,40 +86,32 @@
         and the password to use. Note that you may need to edit
         <literal>client.properties</literal> to use a different target
         URL.</para>
--->        
-        
+-->
     </section>
-    
     <section xml:id="ldap-sample">
         <title>LDAP Sample</title>
-        <para>
-            The LDAP sample application provides a basic configuration and sets up both a namespace configuration
-            and an equivalent configuration using traditional beans, both in the same application context file.
-            This means there are actually two identical authentication providers configured in this application.
-        </para>
+        <para> The LDAP sample application provides a basic configuration and sets up both a
+            namespace configuration and an equivalent configuration using traditional beans, both in
+            the same application context file. This means there are actually two identical
+            authentication providers configured in this application. </para>
     </section>
-
     <section xml:id="cas-sample">
         <title>CAS Sample</title>
-        <para>
-            The CAS sample requires that you run both a CAS server and CAS client. It isn't included in the distribution so you should check out
-            the project code as described in <link xlink:href="get-source">the introduction</link>. You'll find the relevant files under the 
-            <filename>sample/cas</filename> directory. There's also a <filename>Readme.txt</filename> file in there which explains how to run
-            both the server and the client directly from the source tree, complete with SSL support. You have to download the CAS Server web application 
-            (a war file) from the CAS site and drop it into the <filename>samples/cas/server</filename> directory.
-        </para>
+        <para> The CAS sample requires that you run both a CAS server and CAS client. It isn't
+            included in the distribution so you should check out the project code as described in
+                <link xlink:href="get-source">the introduction</link>. You'll find the relevant
+            files under the <filename>sample/cas</filename> directory. There's also a
+                <filename>Readme.txt</filename> file in there which explains how to run both the
+            server and the client directly from the source tree, complete with SSL support. You have
+            to download the CAS Server web application (a war file) from the CAS site and drop it
+            into the <filename>samples/cas/server</filename> directory. </para>
     </section>
-    
     <section xml:id="preauth-sample">
         <title>Pre-Authentication Sample</title>
-        <para>
-            This sample application demonstrates how to wire up beans from the <link xlink:href="#preauth">pre-authentication</link> 
-            framework to make use of login information from a J2EE container. The user name and roles are those setup by the container.
-        </para>
-        <para>
-            The code is in <filename>samples/preauth</filename> .
-        </para>
+        <para> This sample application demonstrates how to wire up beans from the <link
+                xlink:href="#preauth">pre-authentication</link> framework to make use of login
+            information from a J2EE container. The user name and roles are those setup by the
+            container. </para>
+        <para> The code is in <filename>samples/preauth</filename> . </para>
     </section>
-    
-
 </chapter>
