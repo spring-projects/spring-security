@@ -58,7 +58,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
 
     @SuppressWarnings("unchecked")
     public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
-        MethodSecurityExpressionRoot rootObject = (MethodSecurityExpressionRoot) ctx.getRootObject();
+        MethodSecurityExpressionRoot rootObject = (MethodSecurityExpressionRoot) ctx.getRootObject().getValue();
         List retainList;
 
         if (logger.isDebugEnabled()) {
@@ -139,7 +139,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
     }
 
     public void setReturnObject(Object returnObject, EvaluationContext ctx) {
-        ((MethodSecurityExpressionRoot)ctx.getRootObject()).setReturnObject(returnObject);
+        ((MethodSecurityExpressionRoot)ctx.getRootObject().getValue()).setReturnObject(returnObject);
     }
 
 }
