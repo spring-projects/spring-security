@@ -763,7 +763,28 @@ public class HttpSecurityBeanDefinitionParserTests {
         Object filter = appContext.getBean(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER);
         assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(filter, "forceEagerSessionCreation"));
         assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(filter, "repo.allowSessionCreation"));
+        // Check that an invocation doesn't create a session
+        FilterChainProxy fcp = (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setServletPath("/anything");
+        fcp.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+        assertNull(request.getSession(false));
     }
+
+    @Test
+    public void settingCreateSessionToIfRequiredDoesntCreateASessionForPublicInvocation() throws Exception {
+        setContext("<http auto-config='true' create-session='ifRequired'/>" + AUTH_PROVIDER_XML);
+        Object filter = appContext.getBean(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER);
+        assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(filter, "forceEagerSessionCreation"));
+        assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "repo.allowSessionCreation"));
+        // Check that an invocation doesn't create a session
+        FilterChainProxy fcp = (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setServletPath("/anything");
+        fcp.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+        assertNull(request.getSession(false));
+    }
+
 
     /* SEC-934 */
     @Test
