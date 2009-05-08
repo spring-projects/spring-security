@@ -127,8 +127,9 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         if (aceIndex < 0) {
             throw new NotFoundException("aceIndex must be greater than or equal to zero");
         }
-        if (aceIndex > this.aces.size()) {
-            throw new NotFoundException("aceIndex must correctly refer to an index of the AccessControlEntry collection");
+        if (aceIndex >= this.aces.size()) {
+            throw new NotFoundException("aceIndex must refer to an index of the AccessControlEntry list. " +
+                    "List size is " + aces.size() + ", index was " + aceIndex);
         }
     }
 
