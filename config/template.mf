@@ -7,7 +7,8 @@ Ignored-Existing-Headers:
  Import-Package,
  Export-Package
 Import-Template: 
- org.apache.commons.logging.*;version="[1.0.4, 2.0.0)", 
+ org.apache.commons.logging.*;version="[1.0.4, 2.0.0)",
+ org.aspectj.*;version="[1.5.2, 1.7.0)";resolution:=optional, 
  org.springframework.security.access.*;version="[${version}, 3.1.0)",
  org.springframework.security.authentication.*;version="[${version}, 3.1.0)",
  org.springframework.security.core.*;version="[${version}, 3.1.0)", 
