@@ -21,7 +21,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.PermitAll;
 
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.expression.annotation.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * @version $Id$

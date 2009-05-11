@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.expression.PermissionEvaluator;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.acls.AclPermissionEvaluator;
 import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.expression.AclPermissionEvaluator;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;

@@ -24,8 +24,8 @@
             <value>
                 sample.dms.secured.SecureDocumentDao.*=PROPAGATION_REQUIRED
                 sample.dms.DocumentDao.*=PROPAGATION_REQUIRED
-                org.springframework.security.acls.AclService.*=PROPAGATION_REQUIRED
-                org.springframework.security.acls.MutableAclService.*=PROPAGATION_REQUIRED
+                org.springframework.security.acls.model.AclService.*=PROPAGATION_REQUIRED
+                org.springframework.security.acls.model.MutableAclService.*=PROPAGATION_REQUIRED
                 org.springframework.security.acls.jdbc.JdbcMutableAclService.*=PROPAGATION_REQUIRED
                 org.springframework.security.acls.jdbc.JdbcAclService.*=PROPAGATION_REQUIRED
             </value>
@@ -114,7 +114,7 @@
    <bean id="roleVoter" class="org.springframework.security.access.vote.RoleVoter"/>
 
    <!-- An access decision voter that reads ACL_ABSTRACT_ELEMENT_WRITE_PARENT configuration settings -->
-   <bean id="aclAbstractElementWriteParentVoter" class="org.springframework.security.acls.vote.AclEntryVoter">
+   <bean id="aclAbstractElementWriteParentVoter" class="org.springframework.security.acls.AclEntryVoter">
       <constructor-arg ref="aclService"/>
       <constructor-arg value="ACL_ABSTRACT_ELEMENT_WRITE_PARENT"/>
       <constructor-arg>
@@ -128,7 +128,7 @@
    </bean>
 
    <!-- An access decision voter that reads ACL_ABSTRACT_ELEMENT_WRITE configuration settings -->
-   <bean id="aclAbstractElementWriteVoter" class="org.springframework.security.acls.vote.AclEntryVoter">
+   <bean id="aclAbstractElementWriteVoter" class="org.springframework.security.acls.AclEntryVoter">
       <constructor-arg ref="aclService"/>
       <constructor-arg value="ACL_ABSTRACT_ELEMENT_WRITE"/>
       <constructor-arg>

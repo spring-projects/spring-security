@@ -12,7 +12,6 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.access.expression.method.MethodExpressionVoter;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.vote.AccessDecisionVoter;
 import org.springframework.security.access.vote.AffirmativeBased;
@@ -35,7 +34,7 @@ abstract class ConfigUtils {
     static void registerDefaultMethodAccessManagerIfNecessary(ParserContext parserContext) {
         if (!parserContext.getRegistry().containsBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER)) {
             parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER,
-                    createAccessManagerBean(MethodExpressionVoter.class, RoleVoter.class, AuthenticatedVoter.class));
+                    createAccessManagerBean(RoleVoter.class, AuthenticatedVoter.class));
         }
     }
 

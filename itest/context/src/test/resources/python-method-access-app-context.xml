@@ -1,0 +1,32 @@
+<b:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:b="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <global-method-security pre-post-annotations="enabled">
+        <pre-post-annotation-handling>
+            <invocation-attribute-factory ref="attributeFactory"/>
+            <pre-invocation-advice ref="preAdvice"/>
+            <post-invocation-advice ref="postAdvice"/>
+        </pre-post-annotation-handling>
+    </global-method-security>
+
+    <b:bean id="attributeFactory" class="org.springframework.security.integration.python.PythonInterpreterPrePostInvocationAttributeFactory"/>
+    <b:bean id="preAdvice" class="org.springframework.security.integration.python.PythonInterpreterPreInvocationAdvice"/>
+    <b:bean id="postAdvice" class="org.springframework.security.integration.python.PythonInterpreterPostInvocationAdvice"/>
+
+    <b:bean id="service" class="org.springframework.security.integration.python.TestServiceImpl"/>
+
+    <authentication-provider>
+        <user-service>
+            <user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B"/>
+        </user-service>
+    </authentication-provider>
+
+</b:beans>

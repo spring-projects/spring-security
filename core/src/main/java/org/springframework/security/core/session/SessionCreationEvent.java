@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationEvent;
  *
  * @author Luke Taylor
  * @version $Id$
- * @since 2.5
+ * @since 3.0
  */
 public abstract class SessionCreationEvent extends ApplicationEvent {
 

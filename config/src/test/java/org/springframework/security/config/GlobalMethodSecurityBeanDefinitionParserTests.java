@@ -2,7 +2,6 @@ package org.springframework.security.config;
 
 import static org.junit.Assert.*;
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
-import static org.springframework.security.config.GlobalMethodSecurityBeanDefinitionParser.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +15,10 @@ import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.BusinessService;
-import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
-import org.springframework.security.access.annotation.Jsr250Voter;
-import org.springframework.security.access.annotation.SecuredMethodSecurityMetadataSource;
-import org.springframework.security.access.expression.method.ExpressionAnnotationMethodSecurityMetadataSource;
-import org.springframework.security.access.expression.method.MethodExpressionAfterInvocationProvider;
-import org.springframework.security.access.expression.method.MethodExpressionVoter;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.intercept.RunAsManagerImpl;
+import org.springframework.security.access.prepost.PostInvocationAdviceProvider;
+import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -63,14 +58,6 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         }
         SecurityContextHolder.clearContext();
         target = null;
-    }
-
-    @Test
-    public void beanClassNamesAreCorrect() throws Exception {
-        assertEquals(SecuredMethodSecurityMetadataSource.class.getName(), SECURED_METHOD_DEFINITION_SOURCE_CLASS);
-        assertEquals(ExpressionAnnotationMethodSecurityMetadataSource.class.getName(), EXPRESSION_METHOD_DEFINITION_SOURCE_CLASS);
-        assertEquals(Jsr250MethodSecurityMetadataSource.class.getName(), JSR_250_SECURITY_METHOD_DEFINITION_SOURCE_CLASS);
-        assertEquals(Jsr250Voter.class.getName(), JSR_250_VOTER_CLASS);
     }
 
     @Test(expected=AuthenticationCredentialsNotFoundException.class)
@@ -211,19 +198,19 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     @SuppressWarnings("unchecked")
     @Test
     public void expressionVoterAndAfterInvocationProviderUseSameExpressionHandlerInstance() throws Exception {
-        setContext("<global-method-security expression-annotations='enabled'/>" + AUTH_PROVIDER_XML);
+        setContext("<global-method-security pre-post-annotations='enabled'/>" + AUTH_PROVIDER_XML);
         AffirmativeBased adm = (AffirmativeBased) appContext.getBean(GlobalMethodSecurityBeanDefinitionParser.ACCESS_MANAGER_ID);
         List voters = (List) FieldUtils.getFieldValue(adm, "decisionVoters");
-        MethodExpressionVoter mev = (MethodExpressionVoter) voters.get(0);
+        PreInvocationAuthorizationAdviceVoter mev = (PreInvocationAuthorizationAdviceVoter) voters.get(0);
         AfterInvocationProviderManager pm = (AfterInvocationProviderManager) appContext.getBean(BeanIds.AFTER_INVOCATION_MANAGER);
-        MethodExpressionAfterInvocationProvider aip = (MethodExpressionAfterInvocationProvider) pm.getProviders().get(0);
-        assertTrue(FieldUtils.getFieldValue(mev, "expressionHandler") == FieldUtils.getFieldValue(aip, "expressionHandler"));
+        PostInvocationAdviceProvider aip = (PostInvocationAdviceProvider) pm.getProviders().get(0);
+        assertTrue(FieldUtils.getFieldValue(mev, "preAdvice.expressionHandler") == FieldUtils.getFieldValue(aip, "postAdvice.expressionHandler"));
     }
 
     @Test(expected=AccessDeniedException.class)
     public void accessIsDeniedForHasRoleExpression() {
         setContext(
-                "<global-method-security expression-annotations='enabled'/>" +
+                "<global-method-security pre-post-annotations='enabled'/>" +
                 "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
                 AUTH_PROVIDER_XML);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
@@ -234,7 +221,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     @Test
     public void preAndPostFilterAnnotationsWorkWithLists() {
         setContext(
-                "<global-method-security expression-annotations='enabled'/>" +
+                "<global-method-security pre-post-annotations='enabled'/>" +
                 "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
                 AUTH_PROVIDER_XML);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
@@ -253,7 +240,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     @Test
     public void prePostFilterAnnotationWorksWithArrays() {
         setContext(
-                "<global-method-security expression-annotations='enabled'/>" +
+                "<global-method-security pre-post-annotations='enabled'/>" +
                 "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
                 AUTH_PROVIDER_XML);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));

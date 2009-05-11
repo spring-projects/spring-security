@@ -19,7 +19,7 @@ import static junit.framework.Assert.assertEquals;
 
 import org.junit.Test;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.dao.salt.ReflectionSaltSource;
+import org.springframework.security.authentication.dao.ReflectionSaltSource;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

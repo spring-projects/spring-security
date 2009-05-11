@@ -11,8 +11,8 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.expression.method.MethodExpressionVoter;
 import org.springframework.security.access.expression.method.PreInvocationExpressionAttribute;
+import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
 import org.springframework.security.access.vote.AccessDecisionVoter;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
@@ -20,7 +20,8 @@ import org.springframework.security.util.SimpleMethodInvocation;
 @SuppressWarnings("unchecked")
 public class MethodExpressionVoterTests {
     private TestingAuthenticationToken joe = new TestingAuthenticationToken("joe", "joespass", "blah");
-    private MethodExpressionVoter am = new MethodExpressionVoter();
+    private PreInvocationAuthorizationAdviceVoter am =
+        new PreInvocationAuthorizationAdviceVoter(new ExpressionBasedPreInvocationAdvice());
 
     @Test
     public void hasRoleExpressionAllowsUserWithRole() throws Exception {

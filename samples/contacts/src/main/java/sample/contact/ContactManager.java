@@ -14,10 +14,10 @@
  */
 package sample.contact;
 
-import org.springframework.security.access.expression.annotation.PostFilter;
-import org.springframework.security.access.expression.annotation.PreAuthorize;
-import org.springframework.security.acls.Permission;
-import org.springframework.security.acls.sid.Sid;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
 
 import java.util.List;
 

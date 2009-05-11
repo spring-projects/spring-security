@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.ReflectionSaltSource;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.util.FieldUtils;
@@ -111,7 +112,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
                 "    <b:bean id='customPasswordEncoder' " +
                             "class='org.springframework.security.authentication.encoding.Md5PasswordEncoder'/>" +
                 "    <b:bean id='saltSource' " +
-                "           class='org.springframework.security.authentication.dao.salt.ReflectionSaltSource'>" +
+                "           class='" + ReflectionSaltSource.class.getName() +"'>" +
                 "         <b:property name='userPropertyToUse' value='username'/>" +
                 "    </b:bean>" +
                 "    <b:bean id='customUserService' " +

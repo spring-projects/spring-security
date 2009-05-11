@@ -14,7 +14,7 @@ import org.springframework.util.ClassUtils;
  *
  * @author Luke Taylor
  * @version $Id$
- * @since 2.5
+ * @since 3.0
  */
 class ContextSourceSettingPostProcessor implements BeanFactoryPostProcessor, Ordered {
     private static final String REQUIRED_CONTEXT_SOURCE_CLASS_NAME = "org.springframework.ldap.core.support.BaseLdapPathContextSource";
@@ -27,7 +27,7 @@ class ContextSourceSettingPostProcessor implements BeanFactoryPostProcessor, Ord
         Class<?> contextSourceClass;
 
         try {
-            contextSourceClass = ClassUtils.forName(REQUIRED_CONTEXT_SOURCE_CLASS_NAME);
+            contextSourceClass = ClassUtils.forName(REQUIRED_CONTEXT_SOURCE_CLASS_NAME, ClassUtils.getDefaultClassLoader());
         } catch (ClassNotFoundException e) {
             throw new SecurityConfigurationException("Couldn't locate: " + REQUIRED_CONTEXT_SOURCE_CLASS_NAME + ". " +
                     " If you are using LDAP with Spring Security, please ensure that you include the spring-ldap " +

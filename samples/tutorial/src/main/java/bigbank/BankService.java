@@ -1,6 +1,6 @@
 package bigbank;
 
-import org.springframework.security.access.expression.annotation.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 
 public interface BankService {

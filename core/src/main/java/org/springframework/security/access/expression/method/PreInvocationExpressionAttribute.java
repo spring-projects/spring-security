@@ -2,8 +2,17 @@ package org.springframework.security.access.expression.method;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;
+import org.springframework.security.access.prepost.PreInvocationAttribute;
 
-class PreInvocationExpressionAttribute extends AbstractExpressionBasedMethodConfigAttribute {
+/**
+ *
+ * @author Luke Taylor
+ * @version $Id$
+ * @since 3.0
+ */
+class PreInvocationExpressionAttribute extends AbstractExpressionBasedMethodConfigAttribute
+        implements PreInvocationAttribute {
+
     private final String filterTarget;
 
     PreInvocationExpressionAttribute(String filterExpression, String filterTarget, String authorizeExpression)

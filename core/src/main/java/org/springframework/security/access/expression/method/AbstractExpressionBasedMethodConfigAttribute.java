@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
  *
  * @author Luke Taylor
  * @version $Id$
- * @since 2.5
+ * @since 3.0
  */
 abstract class AbstractExpressionBasedMethodConfigAttribute implements ConfigAttribute {
     private final Expression filterExpression;

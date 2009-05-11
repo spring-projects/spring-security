@@ -3,8 +3,9 @@ package org.springframework.security.access.annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.security.access.expression.annotation.PostFilter;
-import org.springframework.security.access.expression.annotation.PreFilter;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreFilter;
+
 
 public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
 

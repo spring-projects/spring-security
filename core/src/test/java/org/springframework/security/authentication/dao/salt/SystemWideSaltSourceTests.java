@@ -15,7 +15,7 @@
 
 package org.springframework.security.authentication.dao.salt;
 
-import org.springframework.security.authentication.dao.salt.SystemWideSaltSource;
+import org.springframework.security.authentication.dao.SystemWideSaltSource;
 
 import junit.framework.TestCase;
 
