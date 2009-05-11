@@ -4,7 +4,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import org.springframework.security.access.expression.support.SecurityExpressionRoot;
+import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.util.StringUtils;
@@ -13,7 +13,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Luke Taylor
  * @version $Id$
- * @since 2.5
+ * @since 3.0
  */
 class WebSecurityExpressionRoot extends SecurityExpressionRoot {
     private FilterInvocation filterInvocation;

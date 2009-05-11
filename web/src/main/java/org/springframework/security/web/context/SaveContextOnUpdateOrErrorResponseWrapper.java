@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Luke Taylor
  * @author Marten Algesten
  * @version $Id$
- * @since 2.5
+ * @since 3.0
  */
 public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServletResponseWrapper {
 

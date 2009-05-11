@@ -17,7 +17,7 @@ import org.springframework.security.core.context.SecurityContext;
  *
  * @author Luke Taylor
  * @version $Id$
- * @since 2.5
+ * @since 3.0
  *
  * @see SecurityContextPersistenceFilter
  * @see HttpSessionSecurityContextRepository

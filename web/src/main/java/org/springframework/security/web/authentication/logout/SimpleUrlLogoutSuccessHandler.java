@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationTar
  *
  * @author Luke Taylor
  * @version $Id$
- * @since 2.5
+ * @since 3.0
  */
 public class SimpleUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler
         implements LogoutSuccessHandler {

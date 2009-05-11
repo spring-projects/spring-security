@@ -3,9 +3,9 @@ package org.springframework.security.web.access.expression;
 import java.util.List;
 
 import org.springframework.expression.EvaluationContext;
+import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.expression.ExpressionUtils;
-import org.springframework.security.access.vote.AccessDecisionVoter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 
@@ -13,7 +13,7 @@ import org.springframework.security.web.FilterInvocation;
  * Voter which handles web authorisation decisions.
  * @author Luke Taylor
  * @version $Id$
- * @since 2.5
+ * @since 3.0
  */
 public class WebExpressionVoter implements AccessDecisionVoter {
     private WebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();

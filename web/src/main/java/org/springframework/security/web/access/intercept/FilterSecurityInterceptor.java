@@ -15,9 +15,9 @@
 
 package org.springframework.security.web.access.intercept;
 
+import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.access.intercept.InterceptorStatusToken;
-import org.springframework.security.access.intercept.SecurityMetadataSource;
 import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.core.Ordered;

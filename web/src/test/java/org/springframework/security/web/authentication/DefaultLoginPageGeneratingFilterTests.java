@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
  *
  * @author Luke Taylor
  * @version $Id$
- * @since 2.5
+ * @since 3.0
  */
 public class DefaultLoginPageGeneratingFilterTests {
     FilterChain chain = mock(FilterChain.class);

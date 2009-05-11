@@ -53,7 +53,7 @@ import org.springframework.util.ReflectionUtils;
  *
  * @author Luke Taylor
  * @version $Id$
- * @since 2.5
+ * @since 3.0
  */
 public class HttpSessionSecurityContextRepository implements SecurityContextRepository {
     public static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
