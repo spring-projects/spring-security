@@ -14,11 +14,11 @@
  */
 package org.springframework.security.acls.domain;
 
-import org.springframework.security.acls.AccessControlEntry;
-import org.springframework.security.acls.Acl;
-import org.springframework.security.acls.AuditableAccessControlEntry;
-import org.springframework.security.acls.Permission;
-import org.springframework.security.acls.sid.Sid;
+import org.springframework.security.acls.model.AccessControlEntry;
+import org.springframework.security.acls.model.Acl;
+import org.springframework.security.acls.model.AuditableAccessControlEntry;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
 
 import org.springframework.util.Assert;
 

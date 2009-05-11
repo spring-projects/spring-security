@@ -17,7 +17,7 @@ package org.springframework.security.acls.domain;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 
 
 /**

@@ -1,5 +1,8 @@
 package org.springframework.security.acls;
 
+import org.springframework.security.acls.domain.AclFormattingUtils;
+import org.springframework.security.acls.model.Permission;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

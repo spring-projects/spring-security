@@ -11,8 +11,8 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.acls.AccessControlEntry;
-import org.springframework.security.acls.AuditableAccessControlEntry;
+import org.springframework.security.acls.model.AccessControlEntry;
+import org.springframework.security.acls.model.AuditableAccessControlEntry;
 
 /**
  * Test class for {@link ConsoleAuditLogger}.

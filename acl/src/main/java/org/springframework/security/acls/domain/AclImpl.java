@@ -18,16 +18,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.security.acls.AccessControlEntry;
-import org.springframework.security.acls.Acl;
-import org.springframework.security.acls.AuditableAcl;
-import org.springframework.security.acls.MutableAcl;
-import org.springframework.security.acls.NotFoundException;
-import org.springframework.security.acls.OwnershipAcl;
-import org.springframework.security.acls.Permission;
-import org.springframework.security.acls.UnloadedSidException;
-import org.springframework.security.acls.objectidentity.ObjectIdentity;
-import org.springframework.security.acls.sid.Sid;
+import org.springframework.security.acls.model.AccessControlEntry;
+import org.springframework.security.acls.model.Acl;
+import org.springframework.security.acls.model.AuditableAcl;
+import org.springframework.security.acls.model.MutableAcl;
+import org.springframework.security.acls.model.NotFoundException;
+import org.springframework.security.acls.model.ObjectIdentity;
+import org.springframework.security.acls.model.OwnershipAcl;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
+import org.springframework.security.acls.model.UnloadedSidException;
 import org.springframework.util.Assert;
 
 
@@ -54,7 +54,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
     /**
      * Minimal constructor, which should be used {@link
-     * org.springframework.security.acls.MutableAclService#createAcl(ObjectIdentity)}.
+     * org.springframework.security.acls.model.MutableAclService#createAcl(ObjectIdentity)}.
      *
      * @param objectIdentity the object identity this ACL relates to (required)
      * @param id the primary key assigned to this ACL (required)
@@ -226,19 +226,19 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
                             }
 
                             return true;
-                        } else {
-                            // Failure for this permission, so stop search
-                            // We will see if they have a different permission
-                            // (this permission is 100% rejected for this SID)
-                            if (firstRejection == null) {
-                                // Store first rejection for auditing reasons
-                                firstRejection = ace;
-                            }
-
-                            scanNextSid = false; // helps break the loop
-
-                            break; // exit aces loop
                         }
+
+                        // Failure for this permission, so stop search
+                        // We will see if they have a different permission
+                        // (this permission is 100% rejected for this SID)
+                        if (firstRejection == null) {
+                            // Store first rejection for auditing reasons
+                            firstRejection = ace;
+                        }
+
+                        scanNextSid = false; // helps break the loop
+
+                        break; // exit aces loop
                     }
                 }
 

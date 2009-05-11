@@ -1,6 +1,6 @@
 package org.springframework.security.acls.domain;
 
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 
 /**
  * Provides a simple mechanism to retrieve {@link Permission} instances from integer masks.

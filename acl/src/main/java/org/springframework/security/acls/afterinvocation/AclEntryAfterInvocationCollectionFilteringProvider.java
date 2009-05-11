@@ -22,8 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.acls.AclService;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.AclService;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 
 

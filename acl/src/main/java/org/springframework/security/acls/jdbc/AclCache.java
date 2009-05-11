@@ -14,8 +14,8 @@
  */
 package org.springframework.security.acls.jdbc;
 
-import org.springframework.security.acls.MutableAcl;
-import org.springframework.security.acls.objectidentity.ObjectIdentity;
+import org.springframework.security.acls.model.MutableAcl;
+import org.springframework.security.acls.model.ObjectIdentity;
 
 import java.io.Serializable;
 

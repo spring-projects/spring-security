@@ -4,12 +4,10 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.acls.Acl;
-import org.springframework.security.acls.MutableAcl;
-import org.springframework.security.acls.NotFoundException;
-import org.springframework.security.acls.objectidentity.ObjectIdentity;
-import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
-import org.springframework.security.acls.sid.PrincipalSid;
+import org.springframework.security.acls.model.Acl;
+import org.springframework.security.acls.model.MutableAcl;
+import org.springframework.security.acls.model.NotFoundException;
+import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

@@ -14,7 +14,7 @@
  */
 package org.springframework.security.acls.domain;
 
-import org.springframework.security.acls.AccessControlEntry;
+import org.springframework.security.acls.model.AccessControlEntry;
 
 
 /**

@@ -18,22 +18,20 @@ package org.springframework.security.acls.afterinvocation;
 import java.util.Arrays;
 import java.util.List;
 
-
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.intercept.AfterInvocationProvider;
-import org.springframework.security.acls.Acl;
-import org.springframework.security.acls.AclService;
-import org.springframework.security.acls.NotFoundException;
-import org.springframework.security.acls.Permission;
 import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.objectidentity.ObjectIdentity;
-import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalStrategy;
-import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalStrategyImpl;
-import org.springframework.security.acls.sid.Sid;
-import org.springframework.security.acls.sid.SidRetrievalStrategy;
-import org.springframework.security.acls.sid.SidRetrievalStrategyImpl;
+import org.springframework.security.acls.domain.ObjectIdentityRetrievalStrategyImpl;
+import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
+import org.springframework.security.acls.model.Acl;
+import org.springframework.security.acls.model.AclService;
+import org.springframework.security.acls.model.NotFoundException;
+import org.springframework.security.acls.model.ObjectIdentity;
+import org.springframework.security.acls.model.ObjectIdentityRetrievalStrategy;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
+import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.Authentication;
-
 import org.springframework.util.Assert;
 
 

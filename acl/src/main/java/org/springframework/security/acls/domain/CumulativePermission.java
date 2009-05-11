@@ -14,8 +14,7 @@
  */
 package org.springframework.security.acls.domain;
 
-import org.springframework.security.acls.AclFormattingUtils;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 
 
 /**

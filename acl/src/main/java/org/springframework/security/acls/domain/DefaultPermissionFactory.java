@@ -4,8 +4,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.security.acls.Permission;
 import org.springframework.security.acls.jdbc.LookupStrategy;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.util.Assert;
 
 /**

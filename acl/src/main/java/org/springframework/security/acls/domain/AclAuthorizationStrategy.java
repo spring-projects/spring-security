@@ -15,7 +15,7 @@
 
 package org.springframework.security.acls.domain;
 
-import org.springframework.security.acls.Acl;
+import org.springframework.security.acls.model.Acl;
 
 
 /**

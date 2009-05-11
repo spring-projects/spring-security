@@ -14,17 +14,17 @@
  */
 package org.springframework.security.acls.jdbc;
 
-import org.springframework.security.acls.Acl;
-import org.springframework.security.acls.NotFoundException;
-import org.springframework.security.acls.objectidentity.ObjectIdentity;
-import org.springframework.security.acls.sid.Sid;
+import org.springframework.security.acls.model.Acl;
+import org.springframework.security.acls.model.NotFoundException;
+import org.springframework.security.acls.model.ObjectIdentity;
+import org.springframework.security.acls.model.Sid;
 
 import java.util.List;
 import java.util.Map;
 
 
 /**
- * Performs lookups for {@link org.springframework.security.acls.AclService}.
+ * Performs lookups for {@link org.springframework.security.acls.model.AclService}.
  *
  * @author Ben Alex
  * @version $Id$
