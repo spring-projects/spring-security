@@ -13,57 +13,58 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.intercept.method.aopalliance;
+package org.springframework.security.access.intercept.aspectj;
 
+import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.access.intercept.InterceptorStatusToken;
-import org.springframework.security.access.intercept.SecurityMetadataSource;
-import org.springframework.security.access.intercept.method.MethodSecurityMetadataSource;
+import org.springframework.security.access.method.MethodSecurityMetadataSource;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
+import org.aspectj.lang.JoinPoint;
 
 
 /**
- * Provides security interception of AOP Alliance based method invocations.<p>The
- * <code>SecurityMetadataSource</code> required by this security interceptor is of type {@link
- * MethodSecurityMetadataSource}. This is shared with the AspectJ based security interceptor
- * (<code>AspectJSecurityInterceptor</code>), since both work with Java <code>Method</code>s.</p>
- *  <P>Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
+ * Provides security interception of AspectJ method invocations.
+ * <p>
+ * The <code>SecurityMetadataSource</code> required by this security interceptor is of type
+ * {@link MethodSecurityMetadataSource}. This is shared with the AOP Alliance based security interceptor
+ * (<code>MethodSecurityInterceptor</code>),  since both work with Java <code>Method</code>s.
+ * <p>
+ * The secure object type is <code>org.aspectj.lang.JoinPoint</code>, which is passed from the relevant
+ * <code>around()</code> advice. The <code>around()</code> advice also passes an anonymous implementation of {@link
+ * AspectJCallback} which contains the call for AspectJ to continue processing:  <code>return proceed();</code>.
+ * <p>
+ * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements MethodInterceptor {
+public class AspectJSecurityInterceptor extends AbstractSecurityInterceptor {
     //~ Instance fields ================================================================================================
 
     private MethodSecurityMetadataSource securityMetadataSource;
 
     //~ Methods ========================================================================================================
 
-    public MethodSecurityMetadataSource getSecurityMetadataSource() {
-        return this.securityMetadataSource;
-    }
-
     public Class<? extends Object> getSecureObjectClass() {
-        return MethodInvocation.class;
+        return JoinPoint.class;
     }
 
     /**
-     * This method should be used to enforce security on a <code>MethodInvocation</code>.
+     * This method should be used to enforce security on a <code>JoinPoint</code>.
      *
-     * @param mi The method being invoked which requires a security decision
+     * @param jp The AspectJ joint point being invoked which requires a security decision
+     * @param advisorProceed the advice-defined anonymous class that implements <code>AspectJCallback</code> containing
+     *        a simple <code>return proceed();</code> statement
      *
      * @return The returned value from the method invocation
-     *
-     * @throws Throwable if any error occurs
      */
-    public Object invoke(MethodInvocation mi) throws Throwable {
+    public Object invoke(JoinPoint jp, AspectJCallback advisorProceed) {
         Object result = null;
-        InterceptorStatusToken token = super.beforeInvocation(mi);
+        InterceptorStatusToken token = super.beforeInvocation(jp);
 
         try {
-            result = mi.proceed();
+            result = advisorProceed.proceedWithObject();
         } finally {
             result = super.afterInvocation(token, result);
         }

@@ -14,6 +14,7 @@
  */
 package org.springframework.security.access.vote;
 
+import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AuthorizationServiceException;
 
 import org.aopalliance.intercept.MethodInvocation;

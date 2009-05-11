@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.intercept.method.aopalliance;
+package org.springframework.security.access.intercept.aopalliance;
 
 import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 
 import org.springframework.security.TargetObject;
-import org.springframework.security.access.intercept.method.MapBasedMethodSecurityMetadataSource;
-import org.springframework.security.access.intercept.method.MethodSecurityMetadataSourceEditor;
-import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor;
-import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityMetadataSourceAdvisor;
+import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
+import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
+import org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource;
+import org.springframework.security.access.method.MethodSecurityMetadataSourceEditor;
 
 /**
  * Tests {@link MethodSecurityMetadataSourceAdvisor}.

@@ -24,7 +24,7 @@ import java.util.List;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.method.AbstractFallbackMethodSecurityMetadataSource;
+import org.springframework.security.access.method.AbstractFallbackMethodSecurityMetadataSource;
 
 
 /**

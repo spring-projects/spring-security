@@ -26,9 +26,9 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.annotation.test.Entity;
 import org.springframework.security.access.annotation.test.PersonServiceImpl;
 import org.springframework.security.access.annotation.test.Service;
-import org.springframework.security.access.intercept.method.MapBasedMethodSecurityMetadataSource;
-import org.springframework.security.access.intercept.method.MethodSecurityMetadataSourceEditor;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
+import org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource;
+import org.springframework.security.access.method.MethodSecurityMetadataSourceEditor;
 
 
 /**

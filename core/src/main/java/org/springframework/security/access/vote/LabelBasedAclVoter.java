@@ -43,7 +43,7 @@ import org.springframework.util.Assert;
  * @author Greg Turnquist
  * @version $Id$
  *
- * @see org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor
+ * @see org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor
  * @deprecated Use new spring-security-acl module instead
  */
 public class LabelBasedAclVoter extends AbstractAclVoter {
@@ -141,7 +141,7 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
      * configuration with the attribute stored in attributeIndicatingLabeledOperation.
      *
      * @see org.springframework.security.access.vote.AbstractAclVoter
-     * @see org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor
+     * @see org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor
      */
     public boolean supports(ConfigAttribute attribute) {
         if (attribute.getAttribute().equals(attributeIndicatingLabeledOperation)) {

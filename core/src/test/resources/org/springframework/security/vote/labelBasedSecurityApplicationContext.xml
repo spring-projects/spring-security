@@ -60,7 +60,7 @@
     </bean>
 
     <bean id="securityInteceptor"
-        class="org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor">
+        class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
       <property name="validateConfigAttributes"><value>false</value></property>
       <property name="authenticationManager"><ref bean="authenticationManager"/></property>
       <property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>

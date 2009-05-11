@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.intercept;
+package org.springframework.security.access;
 
 import java.util.List;
 
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.core.Authentication;
 
 

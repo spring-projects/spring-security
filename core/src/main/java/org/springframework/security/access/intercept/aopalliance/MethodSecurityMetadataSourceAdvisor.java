@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.intercept.method.aopalliance;
+package org.springframework.security.access.intercept.aopalliance;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
@@ -26,7 +26,7 @@ import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.security.access.intercept.method.MethodSecurityMetadataSource;
+import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.util.Assert;
 
 /**

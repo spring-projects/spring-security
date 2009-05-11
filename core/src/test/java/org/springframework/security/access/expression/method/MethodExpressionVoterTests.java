@@ -10,10 +10,10 @@ import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
+import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.expression.method.PreInvocationExpressionAttribute;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
-import org.springframework.security.access.vote.AccessDecisionVoter;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
 

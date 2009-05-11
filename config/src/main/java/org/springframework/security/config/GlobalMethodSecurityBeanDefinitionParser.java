@@ -27,11 +27,10 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.ExpressionBasedAnnotationAttributeFactory;
 import org.springframework.security.access.expression.method.ExpressionBasedPostInvocationAdvice;
 import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
-import org.springframework.security.access.intercept.method.DelegatingMethodSecurityMetadataSource;
-import org.springframework.security.access.intercept.method.MapBasedMethodSecurityMetadataSource;
-import org.springframework.security.access.intercept.method.ProtectPointcutPostProcessor;
-import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor;
-import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityMetadataSourceAdvisor;
+import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
+import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
+import org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource;
+import org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource;
 import org.springframework.security.access.prepost.PostInvocationAdviceProvider;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
 import org.springframework.security.access.prepost.PrePostAnnotationSecurityMetadataSource;

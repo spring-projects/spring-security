@@ -2,8 +2,8 @@ package org.springframework.security.access.annotation;
 
 import java.util.List;
 
+import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.vote.AccessDecisionVoter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 

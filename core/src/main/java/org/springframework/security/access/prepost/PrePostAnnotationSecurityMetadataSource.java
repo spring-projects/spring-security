@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.intercept.method.AbstractMethodSecurityMetadataSource;
+import org.springframework.security.access.method.AbstractMethodSecurityMetadataSource;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -81,7 +81,7 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
     }
 
     /**
-     * See {@link org.springframework.security.access.intercept.method.AbstractFallbackMethodSecurityMetadataSource#getAttributes(Method, Class)}
+     * See {@link org.springframework.security.access.method.AbstractFallbackMethodSecurityMetadataSource#getAttributes(Method, Class)}
      * for the logic of this method. The ordering here is slightly different in that we consider method-specific
      * annotations on an interface before class-level ones.
      */

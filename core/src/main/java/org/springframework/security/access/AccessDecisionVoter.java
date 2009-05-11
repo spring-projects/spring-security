@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.vote;
+package org.springframework.security.access;
 
 import java.util.List;
 
-import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 
 

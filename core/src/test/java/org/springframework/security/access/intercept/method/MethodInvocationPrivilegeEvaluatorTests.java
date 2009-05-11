@@ -32,9 +32,9 @@ import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.method.MethodInvocationPrivilegeEvaluator;
-import org.springframework.security.access.intercept.method.MethodSecurityMetadataSource;
-import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor;
+import org.springframework.security.access.intercept.MethodInvocationPrivilegeEvaluator;
+import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
+import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,7 +42,7 @@ import org.springframework.security.util.MethodInvocationUtils;
 
 
 /**
- * Tests {@link org.springframework.security.access.intercept.method.MethodInvocationPrivilegeEvaluator}.
+ * Tests {@link org.springframework.security.access.intercept.MethodInvocationPrivilegeEvaluator}.
  *
  * @author Ben Alex
  * @version $Id$

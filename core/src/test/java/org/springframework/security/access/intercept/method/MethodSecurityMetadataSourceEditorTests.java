@@ -28,8 +28,8 @@ import org.springframework.security.OtherTargetObject;
 import org.springframework.security.TargetObject;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.method.MapBasedMethodSecurityMetadataSource;
-import org.springframework.security.access.intercept.method.MethodSecurityMetadataSourceEditor;
+import org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource;
+import org.springframework.security.access.method.MethodSecurityMetadataSourceEditor;
 
 
 /**

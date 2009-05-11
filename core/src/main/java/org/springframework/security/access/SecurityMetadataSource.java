@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.intercept;
+package org.springframework.security.access;
 
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 
 
 /**

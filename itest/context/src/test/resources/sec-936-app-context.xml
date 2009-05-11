@@ -25,7 +25,7 @@
         </property>
     </bean>
 
-    <bean id="securityInterceptor" class="org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor">
+    <bean id="securityInterceptor" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
         <property name="validateConfigAttributes" value="true"/>
         <property name="rejectPublicInvocations" value="true"/>
         <property name="authenticationManager" ref="authenticationManager"/>

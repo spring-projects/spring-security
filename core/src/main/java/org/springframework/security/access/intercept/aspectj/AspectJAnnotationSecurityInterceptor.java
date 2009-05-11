@@ -1,9 +1,9 @@
-package org.springframework.security.access.intercept.method.aspectj;
+package org.springframework.security.access.intercept.aspectj;
 
+import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.access.intercept.InterceptorStatusToken;
-import org.springframework.security.access.intercept.SecurityMetadataSource;
-import org.springframework.security.access.intercept.method.MethodSecurityMetadataSource;
+import org.springframework.security.access.method.MethodSecurityMetadataSource;
 
 import org.aspectj.lang.JoinPoint;
 

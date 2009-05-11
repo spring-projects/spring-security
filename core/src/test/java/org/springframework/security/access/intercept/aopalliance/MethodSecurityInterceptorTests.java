@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.intercept.method.aopalliance;
+package org.springframework.security.access.intercept.aopalliance;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -37,8 +37,8 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.intercept.AfterInvocationManager;
 import org.springframework.security.access.intercept.RunAsManager;
 import org.springframework.security.access.intercept.RunAsUserToken;
-import org.springframework.security.access.intercept.method.MethodSecurityMetadataSource;
-import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor;
+import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
+import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;

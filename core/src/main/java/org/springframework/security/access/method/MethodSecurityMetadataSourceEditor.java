@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.intercept.method;
+package org.springframework.security.access.method;
 
 import java.beans.PropertyEditorSupport;
 import java.util.ArrayList;

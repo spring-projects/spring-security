@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.intercept.method.aspectj;
+package org.springframework.security.access.intercept.aspectj;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -30,9 +30,9 @@ import org.springframework.security.TargetObject;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.method.MethodSecurityMetadataSource;
-import org.springframework.security.access.intercept.method.aspectj.AspectJCallback;
-import org.springframework.security.access.intercept.method.aspectj.AspectJSecurityInterceptor;
+import org.springframework.security.access.intercept.aspectj.AspectJCallback;
+import org.springframework.security.access.intercept.aspectj.AspectJSecurityInterceptor;
+import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

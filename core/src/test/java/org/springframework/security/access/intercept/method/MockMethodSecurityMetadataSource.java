@@ -24,7 +24,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.method.MethodSecurityMetadataSource;
+import org.springframework.security.access.method.MethodSecurityMetadataSource;
 
 
 /**

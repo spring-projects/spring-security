@@ -1,4 +1,4 @@
-package org.springframework.security.access.intercept.method;
+package org.springframework.security.config;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -15,7 +15,8 @@ import org.aspectj.weaver.tools.PointcutPrimitive;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.intercept.method.aopalliance.MethodSecurityMetadataSourceAdvisor;
+import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
+import org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 

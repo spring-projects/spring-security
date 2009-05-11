@@ -13,19 +13,22 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.intercept.method.aspectj;
+package org.springframework.security.access.method;
+
+import java.lang.reflect.Method;
+import java.util.List;
+
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityMetadataSource;
+
 
 /**
- * Called by the {@link AspectJSecurityInterceptor} when it wishes for the
- * AspectJ processing to continue. Typically implemented in the
- * <code>around()</code> advice as a simple <code>return proceed();</code>
- * statement.
+ * Interface for <code>SecurityMetadataSource</code> implementations
+ * that are designed to perform lookups keyed on <code>Method</code>s.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public interface AspectJCallback {
-    //~ Methods ========================================================================================================
-
-    Object proceedWithObject();
+public interface MethodSecurityMetadataSource extends SecurityMetadataSource {
+    public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass);
 }

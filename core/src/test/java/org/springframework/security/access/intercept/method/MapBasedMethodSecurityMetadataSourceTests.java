@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.method.MapBasedMethodSecurityMetadataSource;
+import org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource;
 
 /**
  * Tests for {@link MapBasedMethodSecurityMetadataSource}.

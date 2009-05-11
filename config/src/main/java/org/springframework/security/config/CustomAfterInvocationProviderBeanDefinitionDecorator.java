@@ -6,7 +6,7 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Node;
 
 /**
- * Adds the decorated {@link org.springframework.security.access.intercept.AfterInvocationProvider} to the
+ * Adds the decorated {@link org.springframework.security.access.AfterInvocationProvider} to the
  * AfterInvocationProviderManager's list.
  *
  * @author Luke Taylor

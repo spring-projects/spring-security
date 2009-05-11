@@ -1,4 +1,4 @@
-package org.springframework.security.access.intercept.method;
+package org.springframework.security.access.method;
 
 import java.lang.reflect.Method;
 import java.util.Collection;

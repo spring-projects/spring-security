@@ -1,4 +1,4 @@
-package org.springframework.security.access.intercept.method.aspectj;
+package org.springframework.security.access.intercept.aspectj;
 
 
 /**

@@ -18,8 +18,8 @@ package org.springframework.security.acls.afterinvocation;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.security.access.AfterInvocationProvider;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.intercept.AfterInvocationProvider;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.ObjectIdentityRetrievalStrategyImpl;
 import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;

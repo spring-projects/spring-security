@@ -55,7 +55,7 @@ public class MethodSecurityInterceptorWithAopConfigTests {
                 "     <aop:advisor advice-ref='securityInterceptor' pointcut-ref='targetMethods' />" +
                 "</aop:config>" +
                 "<b:bean id='target' class='org.springframework.security.TargetObject'/>" +
-                "<b:bean id='securityInterceptor' class='org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor' autowire='byType' >" +
+                "<b:bean id='securityInterceptor' class='org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor' autowire='byType' >" +
                 "     <b:property name='securityMetadataSource'>" +
                 "       <b:value>" +
                             "org.springframework.security.TargetObject.makeLower*=ROLE_A\n" +
