@@ -219,9 +219,9 @@
 
    <!-- ================= METHOD INVOCATION AUTHORIZATION ==================== -->
 
-   <bean id="methodSecurityAdvisor" class="org.springframework.security.access.intercept.method.aopalliance.MethodSecurityMetadataSourceAdvisor" autowire="constructor"/>
+   <bean id="methodSecurityAdvisor" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor" autowire="constructor"/>
 
-   <bean id="methodSecurityInterceptor" class="org.springframework.security.access.intercept.method.aopalliance.MethodSecurityInterceptor">
+   <bean id="methodSecurityInterceptor" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
       <property name="authenticationManager"><ref bean="authenticationManager"/></property>
       <property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
       <property name="afterInvocationManager"><ref local="afterInvocationManager"/></property>
