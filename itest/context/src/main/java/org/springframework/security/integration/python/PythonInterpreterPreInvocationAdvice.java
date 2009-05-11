@@ -43,7 +43,7 @@ public class PythonInterpreterPreInvocationAdvice implements PreInvocationAuthor
             throw new IllegalStateException("Python script did not set the permit flag");
         }
 
-        return Py.tojava(allowed, Boolean.class);
+        return (Boolean)Py.tojava(allowed, Boolean.class);
     }
 
     private Map<String,Object> createArgumentMap(MethodInvocation mi) {
