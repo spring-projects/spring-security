@@ -14,17 +14,17 @@
  */
 package org.springframework.security.taglibs.authz;
 
-import org.springframework.security.acls.Acl;
-import org.springframework.security.acls.AclService;
-import org.springframework.security.acls.NotFoundException;
-import org.springframework.security.acls.Permission;
 import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.objectidentity.ObjectIdentity;
-import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalStrategy;
-import org.springframework.security.acls.objectidentity.ObjectIdentityRetrievalStrategyImpl;
-import org.springframework.security.acls.sid.Sid;
-import org.springframework.security.acls.sid.SidRetrievalStrategy;
-import org.springframework.security.acls.sid.SidRetrievalStrategyImpl;
+import org.springframework.security.acls.domain.ObjectIdentityRetrievalStrategyImpl;
+import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
+import org.springframework.security.acls.model.Acl;
+import org.springframework.security.acls.model.AclService;
+import org.springframework.security.acls.model.NotFoundException;
+import org.springframework.security.acls.model.ObjectIdentity;
+import org.springframework.security.acls.model.ObjectIdentityRetrievalStrategy;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
+import org.springframework.security.acls.model.SidRetrievalStrategy;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -57,7 +57,7 @@ import javax.servlet.jsp.tagext.TagSupport;
  * <p>
  * One or more comma separate numeric are specified via the <tt>hasPermission</tt> attribute.
  * These permissions are then converted into {@link Permission} instances. These instances are then presented as an
- * array to the {@link Acl#isGranted(Permission[], org.springframework.security.acls.sid.Sid[], boolean)} method.
+ * array to the {@link Acl#isGranted(Permission[], org.springframework.security.acls.model.Sid[], boolean)} method.
  * The {@link Sid} presented is determined by the {@link SidRetrievalStrategy}.
  * <p>
  * For this class to operate it must be able to access the application context via the
