@@ -8,7 +8,7 @@ import org.springframework.util.Assert;
 /**
  * This implementation for AuthenticationUserDetailsService wraps a regular
  * Spring Security UserDetailsService implementation, to retrieve a UserDetails object
- * based on the user name contained in a PreAuthenticatedAuthenticationToken.
+ * based on the user name contained in an <tt>Authentication</tt> object.
  *
  * @author Ruud Senden
  * @since 2.0
