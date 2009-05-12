@@ -1,7 +1,7 @@
 package org.springframework.security.web.authentication.preauth;
 
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 
 import java.io.IOException;
 
@@ -21,7 +21,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 public class PreAuthenticatedProcessingFilterEntryPointTests extends TestCase {
 
     public void testGetSetOrder() {
-        PreAuthenticatedProcessingFilterEntryPoint fep = new PreAuthenticatedProcessingFilterEntryPoint();
+        Http403ForbiddenEntryPoint fep = new Http403ForbiddenEntryPoint();
         fep.setOrder(333);
         assertEquals(fep.getOrder(), 333);
     }
@@ -29,7 +29,7 @@ public class PreAuthenticatedProcessingFilterEntryPointTests extends TestCase {
     public void testCommence() {
         MockHttpServletRequest req = new MockHttpServletRequest();
         MockHttpServletResponse resp = new MockHttpServletResponse();
-        PreAuthenticatedProcessingFilterEntryPoint fep = new PreAuthenticatedProcessingFilterEntryPoint();
+        Http403ForbiddenEntryPoint fep = new Http403ForbiddenEntryPoint();
         try {
             fep.commence(req,resp,new AuthenticationCredentialsNotFoundException("test"));
             assertEquals("Incorrect status",resp.getStatus(),HttpServletResponse.SC_FORBIDDEN);

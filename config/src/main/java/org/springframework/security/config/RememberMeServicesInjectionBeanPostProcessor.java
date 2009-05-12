@@ -9,7 +9,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.security.web.authentication.AbstractProcessingFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.www.BasicProcessingFilter;
 import org.springframework.util.Assert;
@@ -26,8 +26,8 @@ public class RememberMeServicesInjectionBeanPostProcessor implements BeanPostPro
     private ListableBeanFactory beanFactory;
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if (bean instanceof AbstractProcessingFilter) {
-            AbstractProcessingFilter pf = (AbstractProcessingFilter) bean;
+        if (bean instanceof AbstractAuthenticationProcessingFilter) {
+            AbstractAuthenticationProcessingFilter pf = (AbstractAuthenticationProcessingFilter) bean;
 
             if (pf.getRememberMeServices() == null) {
                 logger.info("Setting RememberMeServices on bean " + beanName);

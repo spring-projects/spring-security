@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import org.springframework.security.MockPortResolver;
 
 import org.springframework.security.web.PortMapperImpl;
-import org.springframework.security.web.authentication.AuthenticationProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -30,7 +30,7 @@ import java.util.Map;
 
 
 /**
- * Tests {@link AuthenticationProcessingFilterEntryPoint}.
+ * Tests {@link LoginUrlAuthenticationEntryPoint}.
  *
  * @author Ben Alex
  * @author colin sampaleanu
@@ -40,7 +40,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     //~ Methods ========================================================================================================
 
     public void testDetectsMissingLoginFormUrl() throws Exception {
-        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setPortMapper(new PortMapperImpl());
         ep.setPortResolver(new MockPortResolver(80, 443));
 
@@ -52,7 +52,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testDetectsMissingPortMapper() throws Exception {
-        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("xxx");
         ep.setPortMapper(null);
 
@@ -64,7 +64,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testDetectsMissingPortResolver() throws Exception {
-        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("xxx");
         ep.setPortResolver(null);
 
@@ -76,7 +76,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testGettersSetters() {
-        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
         ep.setPortMapper(new PortMapperImpl());
         ep.setPortResolver(new MockPortResolver(8080, 8443));
@@ -100,7 +100,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
         ep.setPortMapper(new PortMapperImpl());
         ep.setForceHttps(true);
@@ -129,7 +129,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         portMapper.setPortMappings(map);
         response = new MockHttpServletResponse();
 
-        ep = new AuthenticationProcessingFilterEntryPoint();
+        ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
         ep.setPortMapper(new PortMapperImpl());
         ep.setForceHttps(true);
@@ -151,7 +151,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
         ep.setPortMapper(new PortMapperImpl());
         ep.setForceHttps(true);
@@ -170,7 +170,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testNormalOperation() throws Exception {
-        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
         ep.setPortMapper(new PortMapperImpl());
         ep.setPortResolver(new MockPortResolver(80, 443));
@@ -191,7 +191,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testOperationWhenHttpsRequestsButHttpsPortUnknown() throws Exception {
-        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
         ep.setPortResolver(new MockPortResolver(8888, 1234));
         ep.setForceHttps(true);
@@ -214,7 +214,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testServerSideRedirectWithoutForceHttpsForwardsToLoginPage() throws Exception {
-        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
         ep.setUseForward(true);
         ep.afterPropertiesSet();
@@ -234,7 +234,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testServerSideRedirectWithForceHttpsRedirectsCurrentRequest() throws Exception {
-        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
         ep.setUseForward(true);
         ep.setForceHttps(true);

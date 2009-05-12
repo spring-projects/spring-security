@@ -45,8 +45,8 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.AuthenticationProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -92,7 +92,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void beanClassNamesAreCorrect() throws Exception {
         assertEquals(DefaultWebSecurityExpressionHandler.class.getName(), EXPRESSION_HANDLER_CLASS);
         assertEquals(ExpressionBasedFilterInvocationSecurityMetadataSource.class.getName(), EXPRESSION_FIMDS_CLASS);
-        assertEquals(AuthenticationProcessingFilter.class.getName(), AUTHENTICATION_PROCESSING_FILTER_CLASS);
+        assertEquals(UsernamePasswordAuthenticationProcessingFilter.class.getName(), AUTHENTICATION_PROCESSING_FILTER_CLASS);
         assertEquals(OpenIDAuthenticationProcessingFilter.class.getName(), OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS);
         assertEquals(OpenIDAuthenticationProvider.class.getName(), OPEN_ID_AUTHENTICATION_PROVIDER_CLASS);
     }
@@ -122,7 +122,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof SecurityContextPersistenceFilter);
         assertTrue(filters.next() instanceof LogoutFilter);
         Object authProcFilter = filters.next();
-        assertTrue(authProcFilter instanceof AuthenticationProcessingFilter);
+        assertTrue(authProcFilter instanceof UsernamePasswordAuthenticationProcessingFilter);
         assertTrue(filters.next() instanceof DefaultLoginPageGeneratingFilter);
         assertTrue(filters.next() instanceof BasicProcessingFilter);
         assertTrue(filters.next() instanceof SecurityContextHolderAwareRequestFilter);
@@ -190,7 +190,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "   <form-login default-target-url='/default' always-use-default-target='true' />" +
                 "</http>" + AUTH_PROVIDER_XML);
         // These will be matched by the default pattern "/**"
-        AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) getFilters("/anything").get(1);
+        UsernamePasswordAuthenticationProcessingFilter filter = (UsernamePasswordAuthenticationProcessingFilter) getFilters("/anything").get(1);
         assertEquals("/default", FieldUtils.getFieldValue(filter, "successHandler.defaultTargetUrl"));
         assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "successHandler.alwaysUseDefaultTargetUrl"));
     }
@@ -657,7 +657,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 etf.getAuthenticationEntryPoint() instanceof MockEntryPoint);
     }
 
-    private static class MockEntryPoint extends AuthenticationProcessingFilterEntryPoint {
+    private static class MockEntryPoint extends LoginUrlAuthenticationEntryPoint {
         public MockEntryPoint() {
             super.setLoginFormUrl("/notused");
         }
@@ -861,7 +861,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='sh' class='" + SavedRequestAwareAuthenticationSuccessHandler.class.getName() +"'/>" +
                 "<b:bean id='fh' class='" + SimpleUrlAuthenticationFailureHandler.class.getName() + "'/>" +
                 AUTH_PROVIDER_XML);
-        AuthenticationProcessingFilter apf = (AuthenticationProcessingFilter) appContext.getBean(BeanIds.FORM_LOGIN_FILTER);
+        UsernamePasswordAuthenticationProcessingFilter apf = (UsernamePasswordAuthenticationProcessingFilter) appContext.getBean(BeanIds.FORM_LOGIN_FILTER);
         AuthenticationSuccessHandler sh = (AuthenticationSuccessHandler) appContext.getBean("sh");
         AuthenticationFailureHandler fh = (AuthenticationFailureHandler) appContext.getBean("fh");
         assertSame(sh, FieldUtils.getFieldValue(apf, "successHandler"));

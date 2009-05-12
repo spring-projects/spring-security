@@ -110,7 +110,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     static final String OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProcessingFilter";
     static final String OPEN_ID_AUTHENTICATION_PROVIDER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProvider";
-    static final String AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.web.authentication.AuthenticationProcessingFilter";
+    static final String AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter";
 
     static final String EXPRESSION_FIMDS_CLASS = "org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource";
     static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler";

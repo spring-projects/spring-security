@@ -192,7 +192,7 @@ public void afterPropertiesSet() throws Exception {
 </bean>
 
 <bean id="authenticationEntryPoint"
-        class="org.springframework.security.web.authentication.AuthenticationProcessingFilterEntryPoint">
+        class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
   <property name="loginFormUrl" value="/acegilogin.jsp"/>
   <property name="forceHttps" value="false"/>
 </bean>
@@ -222,13 +222,13 @@ public void afterPropertiesSet() throws Exception {
     authenticated. The class handles presenting the appropriate response
     to the user so that authentication can begin. Three concrete
     implementations are provided with Spring Security:
-    <classname>AuthenticationProcessingFilterEntryPoint</classname> for
+    <classname>LoginUrlAuthenticationEntryPoint</classname> for
     commencing a form-based authentication,
     <literal>BasicProcessingFilterEntryPoint</literal> for commencing a
     HTTP Basic authentication process, and
     <literal>CasProcessingFilterEntryPoint</literal> for commencing a
     JA-SIG Central Authentication Service (CAS) login. The
-    <classname>AuthenticationProcessingFilterEntryPoint</classname> and
+    <classname>LoginUrlAuthenticationEntryPoint</classname> and
     <literal>CasProcessingFilterEntryPoint</literal> have optional
     properties related to forcing the use of HTTPS, so please refer to the
     JavaDocs if you require this.</para>

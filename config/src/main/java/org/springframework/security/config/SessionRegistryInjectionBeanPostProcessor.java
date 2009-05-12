@@ -11,7 +11,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.security.authentication.concurrent.ConcurrentSessionController;
 import org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.authentication.concurrent.SessionRegistry;
-import org.springframework.security.web.authentication.AbstractProcessingFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.session.SessionFixationProtectionFilter;
 
 import org.apache.commons.logging.Log;
@@ -44,7 +44,7 @@ class SessionRegistryInjectionBeanPostProcessor implements BeanPostProcessor, Be
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         if (BeanIds.FORM_LOGIN_FILTER.equals(beanName) ||
                 BeanIds.OPEN_ID_FILTER.equals(beanName)) {
-            ((AbstractProcessingFilter) bean).setSessionRegistry(getSessionRegistry());
+            ((AbstractAuthenticationProcessingFilter) bean).setSessionRegistry(getSessionRegistry());
         } else if (BeanIds.SESSION_FIXATION_PROTECTION_FILTER.equals(beanName)) {
             ((SessionFixationProtectionFilter)bean).setSessionRegistry(getSessionRegistry());
         }

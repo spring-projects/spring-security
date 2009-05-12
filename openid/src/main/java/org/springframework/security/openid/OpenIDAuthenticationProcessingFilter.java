@@ -29,8 +29,8 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.FilterChainOrder;
-import org.springframework.security.web.authentication.AbstractProcessingFilter;
-import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
 import org.springframework.util.StringUtils;
 
 
@@ -63,7 +63,7 @@ import org.springframework.util.StringUtils;
  * @since 2.0
  * @see OpenIDAuthenticationProvider
  */
-public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilter {
+public class OpenIDAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
     //~ Static fields/initializers =====================================================================================
 
     public static final String DEFAULT_CLAIMED_IDENTITY_FIELD = "j_username";
@@ -153,7 +153,7 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractProcessingFilt
         HttpSession session = request.getSession(false);
 
         if (session != null || getAllowSessionCreation()) {
-            request.getSession().setAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY, username);
+            request.getSession().setAttribute(UsernamePasswordAuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY, username);
         }
     }
 

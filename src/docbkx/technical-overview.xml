@@ -503,7 +503,7 @@ if (obj instanceof UserDetails) {
         A "configuration attribute" can be thought of as a String that has special meaning to the classes used by
         <classname>AbstractSecurityInterceptor</classname>. They may be simple role names or have more complex meaning, depending on the
         how sophisticated the <interfacename>AccessDecisionManager</interfacename> implementation is. 
-        The <classname>AbstractSecurityInterceptor</classname> is configured with an <interfacename>ObjectDefinitionSource</interfacename> which 
+        The <classname>AbstractSecurityInterceptor</classname> is configured with a <interfacename>SecurityMetadataSource</interfacename> which 
         it uses to look up the attributes for a secure object. Usually this configuration will be hidden from the user. Configuration
         attributes will be entered as annotations on secured methods, or as access attributes on secured URLs (using the 
         namespace <literal>&lt;intercept-url&gt;</literal> syntax).

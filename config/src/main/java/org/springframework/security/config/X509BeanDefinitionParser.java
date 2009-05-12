@@ -1,7 +1,7 @@
 package org.springframework.security.config;
 
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedProcessingFilterEntryPoint;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509PreAuthenticatedProcessingFilter;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
@@ -17,7 +17,7 @@ import org.w3c.dom.Element;
 
 /**
  * Parses x509 element in namespace, registering an {@link X509PreAuthenticatedProcessingFilter} instance and a
- * {@link PreAuthenticatedProcessingFilterEntryPoint}.
+ * {@link Http403ForbiddenEntryPoint}.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -29,7 +29,7 @@ public class X509BeanDefinitionParser implements BeanDefinitionParser {
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(X509PreAuthenticatedProcessingFilter.class);
-        RootBeanDefinition entryPoint = new RootBeanDefinition(PreAuthenticatedProcessingFilterEntryPoint.class);
+        RootBeanDefinition entryPoint = new RootBeanDefinition(Http403ForbiddenEntryPoint.class);
 
         Object source = parserContext.extractSource(element);
         filterBuilder.getRawBeanDefinition().setSource(source);

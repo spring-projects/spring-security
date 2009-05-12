@@ -11,7 +11,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.AbstractProcessingFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
 
 /**
@@ -32,7 +32,7 @@ public class SecurityContextPortlet extends GenericPortlet {
         out.println("<p>The security context contains: " +
                 SecurityContextHolder.getContext().getAuthentication() +
                 "</p>");
-        Object lastException = request.getPortletSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, PortletSession.APPLICATION_SCOPE);
+        Object lastException = request.getPortletSession().getAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, PortletSession.APPLICATION_SCOPE);
 
         if (lastException != null) {
             out.println("Last Exception: " + lastException);

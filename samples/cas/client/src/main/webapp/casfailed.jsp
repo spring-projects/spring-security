@@ -1,5 +1,5 @@
 <%@ page import="org.springframework.security.core.AuthenticationException" %>
-<%@ page import="org.springframework.security.web.authentication.AbstractProcessingFilter" %>
+<%@ page import="org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter" %>
 
 <html>
 <head>

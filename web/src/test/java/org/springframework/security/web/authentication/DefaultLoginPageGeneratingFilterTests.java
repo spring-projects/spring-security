@@ -30,7 +30,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 
     @Test
     public void generatingPageWithAuthenticationProcessingFilterOnlyIsSuccessFul() throws Exception {
-        DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new AuthenticationProcessingFilter());
+        DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new UsernamePasswordAuthenticationProcessingFilter());
         filter.doFilter(new MockHttpServletRequest("GET", "/spring_security_login"), new MockHttpServletResponse(), chain);
         filter.doFilter(new MockHttpServletRequest("GET", "/spring_security_login;pathparam=unused"), new MockHttpServletResponse(), chain);
     }
@@ -43,7 +43,7 @@ public class DefaultLoginPageGeneratingFilterTests {
     }
 
     // Fake OpenID filter (since it's not in this module
-    private static class MockProcessingFilter extends AbstractProcessingFilter {
+    private static class MockProcessingFilter extends AbstractAuthenticationProcessingFilter {
         protected MockProcessingFilter() {
             super("/someurl");
         }
@@ -65,14 +65,14 @@ public class DefaultLoginPageGeneratingFilterTests {
     /* SEC-1111 */
     @Test
     public void handlesNonIso8859CharsInErrorMessage() throws Exception {
-        DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new AuthenticationProcessingFilter());
+        DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new UsernamePasswordAuthenticationProcessingFilter());
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/spring_security_login");
         request.addParameter("login_error", "true");
         MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
         String message = messages.getMessage(
                 "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials", Locale.KOREA);
         System.out.println("Message: " + message);
-        request.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, new BadCredentialsException(message));
+        request.getSession().setAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, new BadCredentialsException(message));
 
         filter.doFilter(request, new MockHttpServletResponse(), chain);
     }

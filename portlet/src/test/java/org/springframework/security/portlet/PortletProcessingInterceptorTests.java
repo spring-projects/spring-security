@@ -31,7 +31,7 @@ import org.springframework.mock.web.portlet.MockActionRequest;
 import org.springframework.mock.web.portlet.MockActionResponse;
 import org.springframework.mock.web.portlet.MockRenderRequest;
 import org.springframework.mock.web.portlet.MockRenderResponse;
-import org.springframework.security.web.authentication.AbstractProcessingFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -140,7 +140,7 @@ public class PortletProcessingInterceptorTests {
 
         // Verify that proper exception was thrown
         assertTrue(request.getPortletSession().getAttribute(
-                    AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY,
+                    AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY,
                     PortletSession.APPLICATION_SCOPE)
                     instanceof BadCredentialsException);
     }

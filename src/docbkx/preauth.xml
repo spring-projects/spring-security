@@ -109,7 +109,7 @@
       </para>
     </section>
     <section>
-      <title>PreAuthenticatedProcessingFilterEntryPoint</title>
+      <title>Http403ForbiddenEntryPoint</title>
       <para>
         The <interfacename>AuthenticationEntryPoint</interfacename> was discussed in the <link xlink:href="#tech-auth-entry-point">technical
         overview</link> chapter. Normally it is responsible for kick-starting the authentication process for an unauthenticated user

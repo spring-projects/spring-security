@@ -44,7 +44,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.authentication.AbstractProcessingFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -53,7 +53,7 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 
 
 /**
- * Tests {@link AbstractProcessingFilter}.
+ * Tests {@link AbstractAuthenticationProcessingFilter}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -191,7 +191,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     }
 
     public void testGettersSetters() throws Exception {
-        AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
+        AbstractAuthenticationProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.setFilterProcessesUrl("/p");
         filter.afterPropertiesSet();
@@ -254,7 +254,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     }
 
     public void testStartupDetectsInvalidAuthenticationManager() throws Exception {
-        AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
+        AbstractAuthenticationProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationFailureHandler(failureHandler);
         successHandler.setDefaultTargetUrl("/");
         filter.setAuthenticationSuccessHandler(successHandler);
@@ -269,7 +269,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     }
 
     public void testStartupDetectsInvalidFilterProcessesUrl() throws Exception {
-        AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
+        AbstractAuthenticationProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.setAuthenticationSuccessHandler(successHandler);
@@ -520,7 +520,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
     //~ Inner Classes ==================================================================================================
 
-    private class MockAbstractProcessingFilter extends AbstractProcessingFilter {
+    private class MockAbstractProcessingFilter extends AbstractAuthenticationProcessingFilter {
         private AuthenticationException exceptionToThrow;
         private boolean grantAccess;
 

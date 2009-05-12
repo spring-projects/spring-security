@@ -1,6 +1,6 @@
 package org.springframework.security.web.util;
 
-import org.springframework.security.web.authentication.AbstractProcessingFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +20,7 @@ public abstract class RedirectUtils {
     //~ Methods ========================================================================================================
 
     /**
-     * Encapsulates the redirect logic used in classes like {@link AbstractProcessingFilter} and {@link LogoutFilter}.
+     * Encapsulates the redirect logic used in classes like {@link AbstractAuthenticationProcessingFilter} and {@link LogoutFilter}.
      *
      * @param request the incoming request
      * @param response the response to redirect
@@ -28,7 +28,7 @@ public abstract class RedirectUtils {
      * @param useRelativeContext if true, causes any redirection URLs to be calculated minus the protocol
      * and context path.
      *
-     * @see AbstractProcessingFilter#setUseRelativeContext(boolean)
+     * @see AbstractAuthenticationProcessingFilter#setUseRelativeContext(boolean)
      */
     public static final void sendRedirect(HttpServletRequest request,
                                           HttpServletResponse response,

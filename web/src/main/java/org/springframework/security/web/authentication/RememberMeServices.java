@@ -25,7 +25,7 @@ import org.springframework.security.core.Authentication;
  * Implement by a class that is capable of providing a remember-me service.
  *
  * <p>
- * Spring Security filters (namely {@link org.springframework.security.web.authentication.AbstractProcessingFilter} and
+ * Spring Security filters (namely {@link org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter} and
  * {@link RememberMeProcessingFilter} will call the methods provided by an implementation of this interface.
  * <p>
  * Implementations may implement any type of remember-me capability they wish.

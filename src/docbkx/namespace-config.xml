@@ -395,7 +395,7 @@
         at particular locations or use a Spring Security filter for which there isn't currently a
         namespace configuration option (CAS, for example). Or you might want to use a customized
         version of a standard namespace filter, such as the
-          <literal>AuthenticationProcessingFilter</literal> which is created by the
+          <literal>UsernamePasswordAuthenticationProcessingFilter</literal> which is created by the
           <literal>&lt;form-login&gt;</literal> element, taking advantage of some of the extra
         configuration options which are available by using defining the bean directly. How can you
         do this with namespace configuration, since the filter chain is not directly exposed? </para>
@@ -453,7 +453,7 @@
               </row>
               <row>
                 <entry> AUTHENTICATION_PROCESSING_FILTER </entry>
-                <entry><literal>AuthenticationProcessingFilter</literal></entry>
+                <entry><literal>UsernamePasswordAuthenticationProcessingFilter</literal></entry>
                 <entry><literal>http/form-login</literal></entry>
               </row>
               <row>
@@ -691,7 +691,7 @@
       you can then use this name elsewhere in your application context. <programlisting><![CDATA[        
   <security:authentication-manager alias="authenticationManager"/>
 
-  <bean id="customizedFormLoginFilter" class="org.springframework.security.web.authentication.AuthenticationProcessingFilter">
+  <bean id="customizedFormLoginFilter" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter">
      <security:custom-filter position="AUTHENTICATION_PROCESSING_FILTER "/>
      <property name="authenticationManager" ref="authenticationManager"/>
      ...

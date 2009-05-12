@@ -27,7 +27,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -445,7 +445,7 @@ public class NtlmProcessingFilter extends SpringSecurityFilter implements Initia
         authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
 
         // Place the last username attempted into HttpSession for views
-        session.setAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY, authRequest.getName());
+        session.setAttribute(UsernamePasswordAuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY, authRequest.getName());
 
         // Backup the current authentication in case of an AuthenticationException
         backupAuth = SecurityContextHolder.getContext().getAuthentication();

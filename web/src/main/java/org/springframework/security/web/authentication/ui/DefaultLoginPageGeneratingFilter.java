@@ -12,8 +12,8 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.authentication.AbstractProcessingFilter;
-import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 
 /**
@@ -39,19 +39,19 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
     private String openIDusernameParameter;
     private String openIDrememberMeParameter;
 
-    public DefaultLoginPageGeneratingFilter(AbstractProcessingFilter filter) {
-        if (filter instanceof AuthenticationProcessingFilter) {
-            init((AuthenticationProcessingFilter)filter, null);
+    public DefaultLoginPageGeneratingFilter(AbstractAuthenticationProcessingFilter filter) {
+        if (filter instanceof UsernamePasswordAuthenticationProcessingFilter) {
+            init((UsernamePasswordAuthenticationProcessingFilter)filter, null);
         } else {
             init(null, filter);
         }
     }
 
-    public DefaultLoginPageGeneratingFilter(AuthenticationProcessingFilter authFilter, AbstractProcessingFilter openIDFilter) {
+    public DefaultLoginPageGeneratingFilter(UsernamePasswordAuthenticationProcessingFilter authFilter, AbstractAuthenticationProcessingFilter openIDFilter) {
         init(authFilter, openIDFilter);
     }
 
-    private void init(AuthenticationProcessingFilter authFilter, AbstractProcessingFilter openIDFilter) {
+    private void init(UsernamePasswordAuthenticationProcessingFilter authFilter, AbstractAuthenticationProcessingFilter openIDFilter) {
         if (authFilter != null) {
             formLoginEnabled = true;
             authenticationUrl = authFilter.getFilterProcessesUrl();
@@ -96,8 +96,8 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
             HttpSession session = request.getSession(false);
 
             if(session != null) {
-                lastUser = (String) session.getAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY);
-                AuthenticationException ex = (AuthenticationException) session.getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY);
+                lastUser = (String) session.getAttribute(UsernamePasswordAuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY);
+                AuthenticationException ex = (AuthenticationException) session.getAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY);
                 errorMsg = ex != null ? ex.getMessage() : "none";
                 if (lastUser == null) {
                     lastUser = "";

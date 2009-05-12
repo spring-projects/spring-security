@@ -206,7 +206,7 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
             SavedRequest savedRequest = new SavedRequest(request, portResolver);
 
             if (createSessionAllowed || request.getSession(false) != null) {
-                // Store the HTTP request itself. Used by AbstractProcessingFilter
+                // Store the HTTP request itself. Used by AbstractAuthenticationProcessingFilter
                 // for redirection after successful authentication (SEC-29)
                 request.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, savedRequest);
                 logger.debug("SavedRequest added to Session: " + savedRequest);

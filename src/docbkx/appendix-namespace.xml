@@ -83,7 +83,7 @@
         </para>
         <para>
           If enabled this will add a <classname>SessionFixationProtectionFilter</classname> to the stack. The session fixation protection
-          options on namespace-created instances of <classname>AbstractProcessingFilter</classname> will also be set appropriately.
+          options on namespace-created instances of <classname>AbstractAuthenticationProcessingFilter</classname> will also be set appropriately.
         </para>
       </section>
 
@@ -206,8 +206,8 @@
     <section xml:id="nsa-form-login">
       <title>The <literal>&lt;form-login&gt;</literal> Element</title>
       <para>
-        Used to add an <classname>AuthenticationProcessingFilter</classname> to the filter stack and an 
-        <classname>AuthenticationProcessingFilterEntryPoint</classname> to the application context to provide authentication
+        Used to add an <classname>UsernamePasswordAuthenticationProcessingFilter</classname> to the filter stack and an 
+        <classname>LoginUrlAuthenticationEntryPoint</classname> to the application context to provide authentication
         on demand. This will always take precedence over other namespace-created entry points.
         If no attributes are supplied, a login page will be generated automatically at the URL "/spring-security-login"
         <footnote><para>This feature is really just provided for convenience and is not intended for production (where a 
@@ -221,7 +221,7 @@
         <title><literal>login-page</literal></title>
         <para>
           The URL that should be used to render the login page. Maps to the <literal>loginFormUrl</literal>
-          property of the <classname>AuthenticationProcessingFilterEntryPoint</classname>. Defaults to
+          property of the <classname>LoginUrlAuthenticationEntryPoint</classname>. Defaults to
           "/spring-security-login".
         </para>
       </section>
@@ -229,14 +229,14 @@
       <section>
         <title><literal>login-processing-url</literal></title>
         <para>
-          Maps to the <literal>filterProcessesUrl</literal> property of <classname>AuthenticationProcessingFilter</classname>.
+          Maps to the <literal>filterProcessesUrl</literal> property of <classname>UsernamePasswordAuthenticationProcessingFilter</classname>.
           The default value is "/j_spring_security_check".
         </para>
       </section>
       
       <section>
         <title><literal>default-target-url</literal></title>
-        <para>Maps to the <literal>defaultTargetUrl</literal> property of <classname>AuthenticationProcessingFilter</classname>. If
+        <para>Maps to the <literal>defaultTargetUrl</literal> property of <classname>UsernamePasswordAuthenticationProcessingFilter</classname>. If
         not set, the default value is "/" (the application root). A user will be taken to this URL after logging in, provided they
         were not asked to login while attempting to access a secured resource, when they will be taken to the originally requested URL.
         </para>
@@ -247,14 +247,14 @@
         <para>
           If set to "true", the user will always start at the value given by <literal>default-target-url</literal>, regardless of how 
           they arrived at the login page. Maps to the <literal>alwaysUseDefaultTargetUrl</literal> property of
-          <classname>AuthenticationProcessingFilter</classname>. Default value is "false".
+          <classname>UsernamePasswordAuthenticationProcessingFilter</classname>. Default value is "false".
         </para>
       </section>
 
       <section>
         <title><literal>authentication-failure-url</literal></title>
         <para>
-          Maps to the <literal>authenticationFailureUrl</literal> property of <classname>AuthenticationProcessingFilter</classname>.
+          Maps to the <literal>authenticationFailureUrl</literal> property of <classname>UsernamePasswordAuthenticationProcessingFilter</classname>.
           Defines the URL the browser will be redirected to on login failure. Defaults to "/spring_security_login?login_error", which will
           be automatically handled by the automatic login page generator, re-rendering the login page with an error message.
         </para>
@@ -425,7 +425,7 @@
       <title>The <literal>&lt;openid-login&gt;</literal> Element</title>
       <para>
         Similar to <literal>&lt;form-login&gt;</literal> and has the same attributes. The default value for <literal>login-processing-url</literal> 
-        is "/j_spring_openid_security_check". An <classname>OpenIDAuthenticationProcessingFilter</classname> and <classname>OpenIDAuthenticationProvider</classname>
+        is "/j_spring_openid_security_check". An <classname>OpenIDUsernamePasswordAuthenticationProcessingFilter</classname> and <classname>OpenIDAuthenticationProvider</classname>
         will be registered. The latter requires a reference to a <interfacename>UserDetailsService</interfacename>. Again, this can be
         specified by Id, using the <literal>user-service-ref</literal> attribute, or will be located automatically in the application context.
       </para>

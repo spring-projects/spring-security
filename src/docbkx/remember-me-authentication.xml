@@ -92,8 +92,8 @@
     <para>Remember-me authentication is not used with basic
         authentication, given it is often not used with
         <literal>HttpSession</literal>s. Remember-me is used with
-        <literal>AuthenticationProcessingFilter</literal>, and is implemented
-        via hooks in the <literal>AbstractProcessingFilter</literal>
+        <literal>UsernamePasswordAuthenticationProcessingFilter</literal>, and is implemented
+        via hooks in the <literal>AbstractAuthenticationProcessingFilter</literal>
         superclass. The hooks will invoke a concrete
         <interfacename>RememberMeServices</interfacename> at the appropriate times. The
         interface looks like this:
@@ -104,7 +104,7 @@
     </programlisting>
         Please refer to the JavaDocs for a fuller discussion on what the
         methods do, although note at this stage that
-        <literal>AbstractProcessingFilter</literal> only calls the
+        <literal>AbstractAuthenticationProcessingFilter</literal> only calls the
         <literal>loginFail()</literal> and <literal>loginSuccess()</literal>
         methods. The <literal>autoLogin()</literal> method is called by
         <classname>RememberMeProcessingFilter</classname> whenever the
@@ -156,13 +156,13 @@
 ]]>        
             </programlisting>Don't forget to add your
                 <interfacename>RememberMeServices</interfacename> implementation to your
-                <literal>AuthenticationProcessingFilter.setRememberMeServices()</literal>
+                <literal>UsernamePasswordAuthenticationProcessingFilter.setRememberMeServices()</literal>
                 property, include the
                 <literal>RememberMeAuthenticationProvider</literal> in your
                 <literal>AuthenticationManager.setProviders()</literal> list, and add
                 <classname>RememberMeProcessingFilter</classname> into your
                 <classname>FilterChainProxy</classname> (typically immediately after your
-                <literal>AuthenticationProcessingFilter</literal>).</para>           
+                <literal>UsernamePasswordAuthenticationProcessingFilter</literal>).</para>           
         </section>
         <section>
             <title>PersistentTokenBasedRememberMeServices</title>

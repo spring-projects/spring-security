@@ -38,7 +38,7 @@ public interface AuthenticationEntryPoint {
      * Commences an authentication scheme.
      * <p>
      * <code>ExceptionTranslationFilter</code> will populate the <code>HttpSession</code> attribute named
-     * <code>AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY</code> with the requested target URL before
+     * <code>AbstractAuthenticationProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY</code> with the requested target URL before
      * calling this method.
      * <p>
      * Implementations should modify the headers on the <code>ServletResponse</code> as necessary to

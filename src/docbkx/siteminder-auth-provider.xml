@@ -8,7 +8,7 @@
         Associates.</para>
     
     <para>Spring Security provides a filter,
-        <literal>SiteminderAuthenticationProcessingFilter</literal> and
+        <literal>SiteminderUsernamePasswordAuthenticationProcessingFilter</literal> and
         provider, <literal>SiteminderAuthenticationProvider</literal> that can
         be used to process requests that have been pre-authenticated by
         Siteminder. This filter assumes that you're using Siteminder for
@@ -39,7 +39,7 @@
         example:</para>
     
     <para><programlisting>&lt;bean id="authenticationProcessingFilter"
-        class="org.springframework.security.ui.webapp.SiteminderAuthenticationProcessingFilter"&gt;
+        class="org.springframework.security.ui.webapp.SiteminderUsernamePasswordAuthenticationProcessingFilter"&gt;
         &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
         &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/login.jsp?login_error=1&lt;/value&gt;&lt;/property&gt;
         &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/security.do?method=getMainMenu&lt;/value&gt;&lt;/property&gt;

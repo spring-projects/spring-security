@@ -6,7 +6,7 @@
         
         
         <para>HTTP Form Authentication involves using the
-            <literal>AuthenticationProcessingFilter</literal> to process a login
+            <literal>UsernamePasswordAuthenticationProcessingFilter</literal> to process a login
             form. This is the most common way for an application to authenticate end
             users. Form-based authentication is entirely compatible with the DAO
             and JAAS authentication providers.</para>
@@ -19,10 +19,10 @@
             <literal>j_password</literal> input fields, and posts to a URL that is
             monitored by the filter (by default
             <literal>/j_spring_security_check</literal>). You should add an 
-            <literal>AuthenticationProcessingFilter</literal> to your application context:
+            <literal>UsernamePasswordAuthenticationProcessingFilter</literal> to your application context:
             <programlisting><![CDATA[    
 <bean id="authenticationProcessingFilter"
-    class="org.springframework.security.web.authentication.AuthenticationProcessingFilter">
+    class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="authenticationFailureUrl" value="/login.jsp?login_error=1"/>
   <property name="defaultTargetUrl" value="/"/>
@@ -36,7 +36,7 @@
             <literal>authenticationFailureUrl</literal>. The
             <literal>AuthenticationException</literal> will be placed into the
             <literal>HttpSession</literal> attribute indicated by
-            <literal>AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY</literal>,
+            <literal>AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY</literal>,
             enabling a reason to be provided to the user on the error page.</para>
         
         <para>If authentication is successful, the resulting
@@ -46,7 +46,7 @@
         <para>Once the <classname>SecurityContextHolder</classname> has been
             updated, the browser will need to be redirected to the target URL which 
             is usually indicated by the <literal>HttpSession</literal> attribute stored under
-            <literal>AbstractProcessingFilter.SPRING_SECURITY_TARGET_URL_KEY</literal>.
+            <literal>AbstractAuthenticationProcessingFilter.SPRING_SECURITY_TARGET_URL_KEY</literal>.
             This attribute is automatically set by the
             <classname>ExceptionTranslationFilter</classname> when an
             <literal>AuthenticationException</literal> occurs, so that after login

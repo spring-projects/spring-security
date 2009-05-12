@@ -239,7 +239,7 @@
 
       <listitem>
         <para>Authentication processing mechanisms -
-        <literal>AuthenticationProcessingFilter</literal>,
+        <literal>UsernamePasswordAuthenticationProcessingFilter</literal>,
         <literal>CasProcessingFilter</literal>,
         <literal>BasicProcessingFilter, HttpRequestIntegrationFilter,
         JbossIntegrationFilter</literal> etc - so that the

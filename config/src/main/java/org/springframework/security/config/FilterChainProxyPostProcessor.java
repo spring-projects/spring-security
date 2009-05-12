@@ -24,8 +24,8 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousProcessingFilter;
-import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.AuthenticationProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicProcessingFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -99,7 +99,7 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
      */
     private void checkFilterStack(List<Filter> filters) {
         checkForDuplicates(SecurityContextPersistenceFilter.class, filters);
-        checkForDuplicates(AuthenticationProcessingFilter.class, filters);
+        checkForDuplicates(UsernamePasswordAuthenticationProcessingFilter.class, filters);
         checkForDuplicates(SessionFixationProtectionFilter.class, filters);
         checkForDuplicates(BasicProcessingFilter.class, filters);
         checkForDuplicates(SecurityContextHolderAwareRequestFilter.class, filters);
@@ -128,9 +128,9 @@ public class FilterChainProxyPostProcessor implements BeanPostProcessor, BeanFac
     private void checkLoginPageIsntProtected(FilterChainProxy fcp) {
         ExceptionTranslationFilter etf = (ExceptionTranslationFilter) beanFactory.getBean(BeanIds.EXCEPTION_TRANSLATION_FILTER);
 
-        if (etf.getAuthenticationEntryPoint() instanceof AuthenticationProcessingFilterEntryPoint) {
+        if (etf.getAuthenticationEntryPoint() instanceof LoginUrlAuthenticationEntryPoint) {
             String loginPage =
-                ((AuthenticationProcessingFilterEntryPoint)etf.getAuthenticationEntryPoint()).getLoginFormUrl();
+                ((LoginUrlAuthenticationEntryPoint)etf.getAuthenticationEntryPoint()).getLoginFormUrl();
             List<Filter> filters = fcp.getFilters(loginPage);
             logger.info("Checking whether login URL '" + loginPage + "' is accessible with your configuration");
 

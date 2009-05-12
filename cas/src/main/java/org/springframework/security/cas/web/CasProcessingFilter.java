@@ -27,7 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
 import org.springframework.security.web.FilterChainOrder;
-import org.springframework.security.web.authentication.AbstractProcessingFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -59,7 +59,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class CasProcessingFilter extends AbstractProcessingFilter {
+public class CasProcessingFilter extends AbstractAuthenticationProcessingFilter {
     //~ Static fields/initializers =====================================================================================
 
     /** Used to identify a CAS request for a stateful user agent, such as a web browser. */

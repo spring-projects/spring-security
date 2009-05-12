@@ -44,7 +44,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.AbstractProcessingFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.util.Assert;
 import org.springframework.web.portlet.HandlerInterceptor;
@@ -52,14 +52,14 @@ import org.springframework.web.portlet.ModelAndView;
 
 /**
  * <p>This interceptor is responsible for processing portlet authentication requests.  This
- * is the portlet equivalent of the <code>AuthenticationProcessingFilter</code> used for
+ * is the portlet equivalent of the <code>UsernamePasswordAuthenticationProcessingFilter</code> used for
  * traditional servlet-based web applications. It is applied to both <code>ActionRequest</code>s
  * and <code>RenderRequest</code>s alike.  If authentication is successful, the resulting
  * {@link Authentication} object will be placed into the <code>SecurityContext</code>, which
  * is guaranteed to have already been created by an earlier interceptor.  If authentication
  * fails, the <code>AuthenticationException</code> will be placed into the
  * <code>APPLICATION_SCOPE</code> of the <code>PortletSession</code> with the attribute defined
- * by {@link AbstractProcessingFilter#SPRING_SECURITY_LAST_EXCEPTION_KEY}.</p>
+ * by {@link AbstractAuthenticationProcessingFilter#SPRING_SECURITY_LAST_EXCEPTION_KEY}.</p>
  *
  *  <p>Some portals do not properly provide the identity of the current user via the
  * <code>getRemoteUser()</code> or <code>getUserPrincipal()</code> methods of the
@@ -75,8 +75,8 @@ import org.springframework.web.portlet.ModelAndView;
  * <code>details<code> property of the <code>Authentication</code> object that is sent
  * as a request to the <code>AuthenticationManager</code>.
  *
- * @see org.springframework.security.web.authentication.AbstractProcessingFilter
- * @see org.springframework.security.web.authentication.AuthenticationProcessingFilter
+ * @see org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
+ * @see org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter
  * @author John A. Lewis
  * @since 2.0
  * @version $Id$
@@ -209,7 +209,7 @@ public class PortletProcessingInterceptor implements HandlerInterceptor, Initial
                 }
                 ctx.setAuthentication(null);
                 request.getPortletSession().setAttribute(
-                        AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY,
+                        AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY,
                         failed, PortletSession.APPLICATION_SCOPE);
                 onUnsuccessfulAuthentication(request, response, failed);
             }

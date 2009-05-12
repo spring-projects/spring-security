@@ -316,7 +316,7 @@
     </para>
 
     <para>The <literal>CasProcessingFilter</literal> has very similar
-    properties to the <literal>AuthenticationProcessingFilter</literal>
+    properties to the <literal>UsernamePasswordAuthenticationProcessingFilter</literal>
     (used for form-based logins). Each property is
     self-explanatory. Note that we've also used the namespace syntax 
     for setting up an alias to the authentication mnager, since the 

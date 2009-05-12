@@ -7,7 +7,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.web.authentication.AuthenticationProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
@@ -117,7 +117,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         BeanDefinitionBuilder entryPointBuilder =
-                BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProcessingFilterEntryPoint.class);
+                BeanDefinitionBuilder.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class);
         entryPointBuilder.getRawBeanDefinition().setSource(source);
         entryPointBuilder.addPropertyValue("loginFormUrl", loginPage != null ? loginPage : DEF_LOGIN_PAGE);
         entryPointBean = (RootBeanDefinition) entryPointBuilder.getBeanDefinition();

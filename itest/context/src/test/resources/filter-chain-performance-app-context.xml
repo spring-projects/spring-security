@@ -39,7 +39,7 @@
 
     <bean id="scpf" class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 
-    <bean id="apf" class="org.springframework.security.web.authentication.AuthenticationProcessingFilter">
+    <bean id="apf" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter">
         <property name="authenticationManager" ref="authenticationManager"/>
     </bean>
 
@@ -55,7 +55,7 @@
     <bean id="scharf" class="org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter" />
 
     <bean id="preAuthenticatedProcessingFilterEntryPoint"
-            class="org.springframework.security.web.authentication.preauth.PreAuthenticatedProcessingFilterEntryPoint"/>
+            class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint"/>
 
     <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
         <constructor-arg value="/"/>

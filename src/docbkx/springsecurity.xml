@@ -4,7 +4,7 @@
   <info><title>Spring Security</title><subtitle>Reference Documentation</subtitle><author>
       <personname>Ben Alex, Luke Taylor</personname>
     </author>
-    <releaseinfo>2.0.x</releaseinfo>
+    <releaseinfo>3.0.0.M1</releaseinfo>
   </info>
   <toc/>
   <preface xml:id="preface">
@@ -65,7 +65,7 @@
     <partintro>
       <para>The later parts of this guide provide an in-depth discussion of the framework
         architecture and implementation classes, an understanding of which is important if you need
-        to do any serious customization. In this part, we'll introduce Spring Security 2.0, give a
+        to do any serious customization. In this part, we'll introduce Spring Security 3.0, give a
         brief overview of the project's history and take a slightly gentler look at how to get
         started using the framework. In particular, we'll look at namespace configuration which
         provides a much simpler way of securing your application compared to the traditional Spring

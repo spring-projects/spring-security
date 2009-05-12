@@ -119,7 +119,7 @@
         <classname>ChannelProcessingFilter</classname> with form-based login,
         please ensure that your login page is set to
         <literal>REQUIRES_SECURE_CHANNEL</literal>, and that the
-        <literal>AuthenticationProcessingFilterEntryPoint.forceHttps</literal>
+        <literal>LoginUrlAuthenticationEntryPoint.forceHttps</literal>
         property is <literal>true</literal>.</para>
 </section>
 

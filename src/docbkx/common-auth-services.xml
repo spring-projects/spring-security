@@ -67,7 +67,7 @@
     guide - although they are correct in the above example.</para>
 
     <para>In our example we have the
-    <literal>AuthenticationProcessingFilter</literal> and
+    <literal>UsernamePasswordAuthenticationProcessingFilter</literal> and
     <literal>BasicProcessingFilter</literal> being used. These are the
     "authentication mechanisms" that respond to form-based authentication
     and BASIC HTTP header-based authentication respectively (we discussed
@@ -197,7 +197,7 @@
 </bean>
 
 <bean id="authenticationProcessingFilterEntryPoint"
-        class="org.springframework.security.web.authentication.AuthenticationProcessingFilterEntryPoint">
+        class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
   <property name="loginFormUrl" value="/login.jsp"/>
   <property name="forceHttps">< value="false"/>
 </bean>]]></programlisting></para>
