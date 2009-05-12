@@ -1,12 +1,12 @@
-package org.springframework.security.authentication.preauth;
+package org.springframework.security.web.authentication.preauth;
 
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 /**
  *

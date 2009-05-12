@@ -1,4 +1,4 @@
-package org.springframework.security.authentication.preauth;
+package org.springframework.security.web.authentication.preauth;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,7 +17,7 @@ import org.springframework.util.Assert;
 /**
  * <p>
  * Processes a pre-authenticated authentication request. The request will
- * typically originate from a {@link org.springframework.security.ui.preauth.AbstractPreAuthenticatedProcessingFilter}
+ * typically originate from a {@link org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter}
  * subclass.
  *
  * <p>

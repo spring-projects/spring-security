@@ -92,14 +92,14 @@
         <para><programlisting>
 <![CDATA[
 <bean id="digestProcessingFilter" 
-    class="org.springframework.security.ui.digestauth.DigestProcessingFilter">
+    class="org.springframework.security.web.authentication.www.DigestProcessingFilter">
   <property name="userDetailsService" ref="jdbcDaoImpl"/>
   <property name="authenticationEntryPoint" ref="digestProcessingFilterEntryPoint"/>
   <property name="userCache" ref="userCache"/>
 </bean>
 
 <bean id="digestProcessingFilterEntryPoint"
-    class="org.springframework.security.ui.digestauth.DigestProcessingFilterEntryPoint">
+    class="org.springframework.security.web.authentication.www.DigestProcessingFilterEntryPoint">
   <property name="realmName" value="Contacts Realm via Digest Authentication"/>
   <property name="key" value="acegi"/>
   <property name="nonceValiditySeconds" value="10"/>

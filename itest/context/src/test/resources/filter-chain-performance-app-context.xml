@@ -71,7 +71,7 @@
     </bean>
 
 
-    <bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+    <bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
         <property name="preAuthenticatedUserDetailsService" ref="preAuthenticatedUserDetailsService"/>
     </bean>
 

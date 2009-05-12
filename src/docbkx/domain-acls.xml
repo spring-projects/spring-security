@@ -6,13 +6,6 @@
         <info>
             <title>Overview</title>
         </info>
-        <para>PLEASE NOTE: Before release 2.0.0, Spring Security was known as Acegi Security. An ACL
-            module was provided with the old Acegi Security releases under the
-                <literal>org.[acegisecurity/springsecurity].acl</literal> package. This old package
-            is now deprecated and will be removed in a future release of Spring Security. This
-            chapter covers the new ACL module, which is officially recommended from Spring Security
-            2.0.0 and above, and can be found under the
-            <literal>org.springframework.security.acls</literal> package.</para>
         <para>Complex applications often will find the need to define access permissions not simply
             at a web request or method invocation level. Instead, security decisions need to
             comprise both who (<interfacename>Authentication</interfacename>), where

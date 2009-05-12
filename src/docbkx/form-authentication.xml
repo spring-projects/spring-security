@@ -22,7 +22,7 @@
             <literal>AuthenticationProcessingFilter</literal> to your application context:
             <programlisting><![CDATA[    
 <bean id="authenticationProcessingFilter"
-    class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
+    class="org.springframework.security.web.authentication.AuthenticationProcessingFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="authenticationFailureUrl" value="/login.jsp?login_error=1"/>
   <property name="defaultTargetUrl" value="/"/>

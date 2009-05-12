@@ -33,7 +33,7 @@
     <para><programlisting>
         <![CDATA[
 <bean id="daoAuthenticationProvider"
-    class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+    class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
   <property name="userDetailsService" ref="inMemoryDaoImpl"/>
   <property name="saltSource" ref bean="saltSource"/>
   <property name="passwordEncoder" ref="passwordEncoder"/>
@@ -71,7 +71,7 @@
         follows:</para>
     <para><programlisting><![CDATA[
 <bean id="daoAuthenticationProvider"
-    class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+    class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
   <property name="userDetailsService" ref="userDetailsService"/>
   <property name="userCache" ref="userCache"/>
 </bean>
@@ -85,7 +85,7 @@
   <property name="cacheName" value="userCache"/>
 </bean>
 
-<bean id="userCache" class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache">
+<bean id="userCache" class="org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache">
   <property name="cache" ref="userCacheBackend"/>
 </bean>]]>        
     </programlisting></para>

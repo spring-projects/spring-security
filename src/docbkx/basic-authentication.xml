@@ -28,13 +28,13 @@
         collaborator:</para>
     
     <para><programlisting>
-        &lt;bean id="basicProcessingFilter" class="org.springframework.security.ui.basicauth.BasicProcessingFilter"&gt;
+        &lt;bean id="basicProcessingFilter" class="org.springframework.security.web.authentication.www.BasicProcessingFilter"&gt;
         &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
         &lt;property name="authenticationEntryPoint"&gt;&lt;ref bean="authenticationEntryPoint"/&gt;&lt;/property&gt;
         &lt;/bean&gt;
         
         &lt;bean id="authenticationEntryPoint"
-        class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint"&gt;
+        class="org.springframework.security.web.authentication.www.BasicProcessingFilterEntryPoint"&gt;
         &lt;property name="realmName"&gt;&lt;value&gt;Name Of Your Realm&lt;/value&gt;&lt;/property&gt;
         &lt;/bean&gt;
         

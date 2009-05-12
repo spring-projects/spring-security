@@ -1,4 +1,4 @@
-package org.springframework.security.authentication.preauth;
+package org.springframework.security.web.authentication.preauth;
 
 import java.util.List;
 

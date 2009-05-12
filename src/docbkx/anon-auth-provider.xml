@@ -44,13 +44,13 @@
     <para><programlisting>
 <![CDATA[
 <bean id="anonymousProcessingFilter"
-    class="org.springframework.security.providers.anonymous.AnonymousProcessingFilter">
+    class="org.springframework.security.web.authentication.AnonymousProcessingFilter">
   <property name="key" value="foobar"/>
   <property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS"/>
 </bean>
 
 <bean id="anonymousAuthenticationProvider"
-    class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
+    class="org.springframework.security.authentication.AnonymousAuthenticationProvider">
   <property name="key" value="foobar"/>
 </bean>]]>
     </programlisting></para>
@@ -71,7 +71,7 @@
     <para><programlisting>
 <![CDATA[
 <bean id="filterInvocationInterceptor"
-    class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+    class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="httpRequestAccessDecisionManager"/>
   <property name="objectDefinitionSource">

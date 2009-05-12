@@ -196,7 +196,7 @@
         </para>
         <para>
             The main LDAP provider class is
-            <classname>org.springframework.security.providers.ldap.LdapAuthenticationProvider</classname>.
+            <classname>org.springframework.security.ldap.authentication.LdapAuthenticationProvider</classname>.
             This bean doesn't actually do much itself but delegates the work to two other beans, an
             <interfacename>LdapAuthenticator</interfacename>
             and an
@@ -261,7 +261,7 @@
                     <title>BindAuthenticator</title>
                 </info>
                 <para>The class
-                    <classname>org.springframework.security.providers.ldap.authenticator.BindAuthenticator</classname>
+                    <classname>org.springframework.security.ldap.authentication.BindAuthenticator</classname>
                     implements the bind authentication strategy. It simply attempts to bind as the
                     user.</para>
             </section>
@@ -270,7 +270,7 @@
                     <title>PasswordComparisonAuthenticator</title>
                 </info>
                 <para>The class
-                    <classname>org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator</classname>
+                    <classname>org.springframework.security.ldap.authentication.PasswordComparisonAuthenticator</classname>
                     implements the password comparison authentication strategy.</para>
             </section>
             <section xml:id="ldap-ldap-authenticators-active-directory">
@@ -350,9 +350,9 @@
 </bean>
 
 <bean id="ldapAuthProvider"
-        class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
+        class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
   <constructor-arg>
-    <bean class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator">
+    <bean class="org.springframework.security.ldap.authentication.BindAuthenticator">
       <constructor-arg ref="contextSource"/>
       <property name="userDnPatterns">
         <list><value>uid={0},ou=people</value></list>
@@ -360,7 +360,7 @@
     </bean>
   </constructor-arg>
   <constructor-arg>
-    <bean class="org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator">
+    <bean class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
       <constructor-arg ref="contextSource"/>
       <constructor-arg value="ou=groups"/>
       <property name="groupRoleAttribute" value="ou"/>

@@ -1,9 +1,9 @@
-package org.springframework.security.authentication.preauth;
+package org.springframework.security.core.userdetails;
 
 import junit.framework.TestCase;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,9 +42,9 @@ public class UserDetailsByNameServiceWrapperTests extends TestCase {
             }
         });
         svc.afterPropertiesSet();
-        UserDetails result1 = svc.loadUserDetails(new PreAuthenticatedAuthenticationToken("dummy", "dummy"));
+        UserDetails result1 = svc.loadUserDetails(new TestingAuthenticationToken("dummy", "dummy"));
         assertEquals("Result doesn't match original user", user, result1);
-        UserDetails result2 = svc.loadUserDetails(new PreAuthenticatedAuthenticationToken("dummy2", "dummy"));
+        UserDetails result2 = svc.loadUserDetails(new TestingAuthenticationToken("dummy2", "dummy"));
         assertNull("Result should have been null", result2);
     }
 

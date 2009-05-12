@@ -184,71 +184,6 @@ boolean supports(Class clazz);
       as the <literal>ROLE_</literal> prefix.</para>
     </section>
 
-<!--
-
-    <para><literal>BasicAclEntryVoter</literal> is the other concrete
-    voter included with Spring Security. It integrates with Spring
-    Security's <literal>AclManager</literal> (discussed later). This voter
-    is designed to have multiple instances in the same application
-    context, such as:
-<programlisting>
-<![CDATA[
-<bean id="aclContactReadVoter"
-    class="org.springframework.security.vote.BasicAclEntryVoter">
-  <property name="processConfigAttribute" value="ACL_CONTACT_READ"/>
-  <property name="processDomainObjectClass" value="sample.contact.Contact"/>
-  <property name="aclManager" ref="aclManager"/>
-  <property name="requirePermission">
-    <list>
-      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
-      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/>
-    </list>
-  </property>
-</bean>
-
-<bean id="aclContactDeleteVoter"
-    class="org.springframework.security.vote.BasicAclEntryVoter">
-  <property name="processConfigAttribute" value="ACL_CONTACT_DELETE"/>
-  <property name="processDomainObjectClass" value="sample.contact.Contact"/>
-  <property name="aclManager" ref="aclManager"/>
-  <property name="requirePermission">
-    <list>
-      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
-      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.DELETE"/>
-    </list>
-  </property>
-</bean>
-]]></programlisting>
-      In the above example, you'd define
-    <literal>ACL_CONTACT_READ</literal> or
-    <literal>ACL_CONTACT_DELETE</literal> against some methods on a
-    <classname>MethodSecurityInterceptor</classname> or
-    <literal>AspectJSecurityInterceptor</literal>. When those methods are
-    invoked, the above applicable voter defined above would vote to grant
-    or deny access. The voter would look at the method invocation to
-    locate the first argument of type
-    <literal>sample.contact.Contact</literal>, and then pass that
-    <literal>Contact</literal> to the <literal>AclManager</literal>. The
-    <literal>AclManager</literal> will then return an access control list
-    (ACL) that applies to the current <interfacename>Authentication</interfacename>.
-    Assuming that ACL contains one of the listed
-    <literal>requirePermission</literal>s, the voter will vote to grant
-    access. If the ACL does not contain one of the permissions defined
-    against the voter, the voter will vote to deny access.
-    <literal>BasicAclEntryVoter</literal> is an important class as it
-    allows you to build truly complex applications with domain object
-    security entirely defined in the application context. If you're
-    interested in learning more about Spring Security's ACL capabilities
-    and how best to apply them, please see the ACL and "After Invocation"
-    sections of this reference guide, and the Contacts sample
-    application.</para>
--->
-      <!--
-        <para>TODO: Remove references to the old ACL package when it's
-        deprecated, and have all references to the replacement package limited
-        to the chapter describing the new ACL implementation.</para>
-      -->
-
       <section>
         <title>Custom Voters</title>
     <para>It is also possible to implement a custom
@@ -337,19 +272,7 @@ boolean supports(Class clazz);
     <literal>ROLE_AUTHENTICATED</literal> configuration attribute</para>
 
     <section xml:id="after-invocation-acl-aware"><info><title>ACL-Aware AfterInvocationProviders</title></info>
-
-      <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
-      ACL module. The new ACL module is a significant rewrite of the
-      existing ACL module. The new module can be found under the
-      <literal>org.springframework.security.acls</literal> package, with
-      the old ACL module under
-      <literal>org.springframework.security.acl</literal>. We encourage
-      users to consider testing with the new ACL module and build
-      applications with it. The old ACL module should be considered
-      deprecated and may be removed from a future release. The following
-      information relates to the new ACL package, and is thus
-      recommended.</para>
-
+<!-- TODO: Move to ACL section and add reference here -->
       <para>A common services layer method we've all written at one stage
       or another looks like this:</para>
 
@@ -362,11 +285,11 @@ boolean supports(Class clazz);
       not suffice. This is because the identity of the
       <literal>Contact</literal> is all that is available before the
       secure object is invoked. The
-      <literal>AclAfterInvocationProvider</literal> delivers a solution,
+        <classname>AclEntryAfterInvocationProvider</classname> delivers a solution,
       and is configured as follows:
 <programlisting><![CDATA[
 <bean id="afterAclRead"
-   class="org.springframework.security.afterinvocation.AclEntryAfterInvocationProvider">
+   class="org.springframework.security.acls.afterinvocation.AclEntryAfterInvocationProvider">
   <constructor-arg ref="aclService"/>
   <constructor-arg>
     <list>
@@ -378,25 +301,25 @@ boolean supports(Class clazz);
 ]]></programlisting>
         In the above example, the <literal>Contact</literal> will be
       retrieved and passed to the
-      <literal>AclEntryAfterInvocationProvider</literal>. The provider
-      will thrown an <literal>AccessDeniedException</literal> if one of
+      <classname>AclEntryAfterInvocationProvider</classname>. The provider
+      will thrown an <classname>AccessDeniedException</classname> if one of
       the listed <literal>requirePermission</literal>s is not held by the
       <interfacename>Authentication</interfacename>. The
-      <literal>AclEntryAfterInvocationProvider</literal> queries the
-      <literal>Acl</literal>Service to determine the ACL that applies for
+      <classname>AclEntryAfterInvocationProvider</classname> queries the
+      acl service to determine the ACL that applies for
       this domain object to this <interfacename>Authentication</interfacename>.</para>
 
       <para>Similar to the
-      <literal>AclEntryAfterInvocationProvider</literal> is
-      <literal>AclEntryAfterInvocationCollectionFilteringProvider</literal>.
+      <classname>AclEntryAfterInvocationProvider</classname> is
+      <classname>AclEntryAfterInvocationCollectionFilteringProvider</classname>.
       It is designed to remove <literal>Collection</literal> or array
       elements for which a principal does not have access. It never thrown
-      an <literal>AccessDeniedException</literal> - simply silently
+      an <classname>AccessDeniedException</classname> - simply silently
       removes the offending elements. The provider is configured as
       follows:
 <programlisting><![CDATA[
 <bean id="afterAclCollectionRead"
-    class="org.springframework.security.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider">
+    class="org.springframework.security.acls.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider">
   <constructor-arg ref="aclService"/>
   <constructor-arg>
     <list>
@@ -416,92 +339,10 @@ boolean supports(Class clazz);
       <para>The Contacts sample application demonstrates these two
       <literal>AfterInvocationProvider</literal>s.</para>
     </section>
-
-    <section xml:id="after-invocation-acl-aware-old">
-      <info><title>ACL-Aware AfterInvocationProviders (old ACL module)</title></info>
-
-      <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
-      ACL module. The new ACL module is a significant rewrite of the
-      existing ACL module. The new module can be found under the
-      <literal>org.springframework.security.acls</literal> package, with
-      the old ACL module under
-      <literal>org.springframework.security.acl</literal>. We encourage
-      users to consider testing with the new ACL module and build
-      applications with it. The old ACL module should be considered
-      deprecated and may be removed from a future release.</para>
-
-      <para>A common services layer method we've all written at one stage
-      or another looks like this:</para>
-
-      <para><programlisting>public Contact getById(Integer id);</programlisting></para>
-
-      <para>Quite often, only principals with permission to read the
-      <literal>Contact</literal> should be allowed to obtain it. In this
-      situation the <interfacename>AccessDecisionManager</interfacename> approach
-      provided by the <classname>AbstractSecurityInterceptor</classname> will
-      not suffice. This is because the identity of the
-      <literal>Contact</literal> is all that is available before the
-      secure object is invoked. The
-      <literal>BasicAclAfterInvocationProvider</literal> delivers a
-      solution, and is configured as follows:</para>
-
-      <para><programlisting><![CDATA[
-<bean id="afterAclRead"
-    class="org.springframework.security.afterinvocation.BasicAclEntryAfterInvocationProvider">
-  <property name="aclManager" ref="aclManager"/>
-  <property name="requirePermission">
-    <list>
-      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
-      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/>
-    </list>
-  </property>
-</bean>
-]]>      </programlisting></para>
-
-      <para>In the above example, the <literal>Contact</literal> will be
-      retrieved and passed to the
-      <literal>BasicAclEntryAfterInvocationProvider</literal>. The
-      provider will thrown an <literal>AccessDeniedException</literal> if
-      one of the listed <literal>requirePermission</literal>s is not held
-      by the <interfacename>Authentication</interfacename>. The
-      <literal>BasicAclEntryAfterInvocationProvider</literal> queries the
-      <literal>AclManager</literal> to determine the ACL that applies for
-      this domain object to this <interfacename>Authentication</interfacename>.</para>
-
-      <para>Similar to the
-      <literal>BasicAclEntryAfterInvocationProvider</literal> is
-      <literal>BasicAclEntryAfterInvocationCollectionFilteringProvider</literal>.
-      It is designed to remove <literal>Collection</literal> or array
-      elements for which a principal does not have access. It never thrown
-      an <literal>AccessDeniedException</literal> - simply silently
-      removes the offending elements. The provider is configured as
-      follows:
-<programlisting><![CDATA[
-<bean id="afterAclCollectionRead"
-    class="org.springframework.security.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider">
-  <property name="aclManager" ref="aclManager"/>
-  <property name="requirePermission">
-    <list>
-      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
-      <ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/>
-    </list>
-  </property>
-</bean>
-]]></programlisting>
-        As you can imagine, the returned <literal>Object</literal>
-      must be a <literal>Collection</literal> or array for this provider
-      to operate. It will remove any element if the
-      <literal>AclManager</literal> indicates the
-      <interfacename>Authentication</interfacename> does not hold one of the listed
-      <literal>requirePermission</literal>s.</para>
-
-      <para>The Contacts sample application demonstrates these two
-      <literal>AfterInvocationProvider</literal>s.</para>
-    </section>
   </section>
 
-  <section xml:id="authorization-taglibs"><info><title>Authorization Tag Libraries</title></info>
-
+  <section xml:id="authorization-taglibs">
+    <info><title>Authorization Tag Libraries</title></info>
 
     <para><literal>AuthorizeTag</literal> is used to include content if
     the current principal holds certain
