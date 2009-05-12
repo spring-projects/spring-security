@@ -32,14 +32,14 @@
         for use with one of Spring AOP's proxying mechanisms:
 <programlisting><![CDATA[
 <bean id="bankManagerSecurity"
-    class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+    class="org.springframework.security.intercept.aopalliance.MethodSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="afterInvocationManager" ref="afterInvocationManager"/>
-  <property name="objectDefinitionSource">
+  <property name="securityMetadataSource">
     <value>
-      org.springframework.security.context.BankManager.delete*=ROLE_SUPERVISOR
-      org.springframework.security.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR
+      com.mycompany.BankManager.delete*=ROLE_SUPERVISOR
+      com.mycompany.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR
     </value>
   </property>
 </bean> ]]>
@@ -76,14 +76,14 @@
 
     <programlisting><![CDATA[
 <bean id="bankManagerSecurity"
-        class="org.springframework.security.intercept.method.aspectj.AspectJSecurityInterceptor">
+        class="org.springframework.security.intercept.aspectj.AspectJSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="afterInvocationManager" ref="afterInvocationManager"/>
-  <property name="objectDefinitionSource">
+  <property name="securityMetadataSource">
     <value>
-        org.springframework.security.context.BankManager.delete*=ROLE_SUPERVISOR
-        org.springframework.security.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR
+        com.mycompany.BankManager.delete*=ROLE_SUPERVISOR
+        com.mycompany.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR
     </value>
 </property>
 </bean>]]>        </programlisting>
@@ -91,8 +91,8 @@
     <para>As you can see, aside from the class name, the
     <literal>AspectJSecurityInterceptor</literal> is exactly the same as
     the AOP Alliance security interceptor. Indeed the two interceptors can
-    share the same <literal>objectDefinitionSource</literal>, as the
-    <interfacename>ObjectDefinitionSource</interfacename> works with
+    share the same <literal>securityMetadataSource</literal>, as the
+    <interfacename>SecurityMetadataSource</interfacename> works with
     <literal>java.lang.reflect.Method</literal>s rather than an AOP
     library-specific class. Of course, your access decisions have access
     to the relevant AOP library-specific invocation (ie
@@ -106,8 +106,8 @@
     <programlisting>
 package org.springframework.security.samples.aspectj;
 
-import org.springframework.security.intercept.method.aspectj.AspectJSecurityInterceptor;
-import org.springframework.security.intercept.method.aspectj.AspectJCallback;
+import org.springframework.security.intercept.aspectj.AspectJSecurityInterceptor;
+import org.springframework.security.intercept.aspectj.AspectJCallback;
 import org.springframework.beans.factory.InitializingBean;
 
 public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
@@ -187,12 +187,12 @@ public void afterPropertiesSet() throws Exception {
     <programlisting>
 <![CDATA[
 <bean id="exceptionTranslationFilter"
-        class="org.springframework.security.ui.ExceptionTranslationFilter">
+        class="org.springframework.security.web.access.ExceptionTranslationFilter">
   <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
 </bean>
 
 <bean id="authenticationEntryPoint"
-        class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+        class="org.springframework.security.web.authentication.AuthenticationProcessingFilterEntryPoint">
   <property name="loginFormUrl" value="/acegilogin.jsp"/>
   <property name="forceHttps" value="false"/>
 </bean>
@@ -201,7 +201,7 @@ public void afterPropertiesSet() throws Exception {
         class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
-  <property name="objectDefinitionSource">
+  <property name="securityMetadataSource">
     <security:filter-invocation-definition-source>
       <security:intercept-url pattern="/secure/super/**" access="ROLE_WE_DONT_HAVE"/>
       <security:intercept-url pattern="/secure/**" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
@@ -251,23 +251,23 @@ public void afterPropertiesSet() throws Exception {
     used to configure a <classname>FilterChainProxy</classname> but the <literal>&lt;intercept-url&gt;</literal>
     child elements only use the <literal>pattern</literal> and <literal>access</literal> attributes.
     The second is by writing your own
-    <interfacename>ObjectDefinitionSource</interfacename>, although this is beyond the
+    <interfacename>SecurityMetadataSource</interfacename>, although this is beyond the
     scope of this document. Irrespective of the approach used, the
-    <interfacename>ObjectDefinitionSource</interfacename> is responsible for returning
+    <interfacename>SecurityMetadataSource</interfacename> is responsible for returning
     a <literal>List&lt;ConfigAttribute&gt;</literal> containing
     all of the configuration attributes associated with a single secure
     HTTP URL.</para>
 
     <para>It should be noted that the
-    <literal>FilterSecurityInterceptor.setObjectDefinitionSource()</literal>
+    <literal>FilterSecurityInterceptor.setSecurityMetadataSource()</literal>
     method actually expects an instance of
     <interfacename>FilterInvocationDefinitionSource</interfacename>. This is a marker
-    interface which subclasses <interfacename>ObjectDefinitionSource</interfacename>.
-    It simply denotes the <interfacename>ObjectDefinitionSource</interfacename>
+    interface which subclasses <interfacename>SecurityMetadataSource</interfacename>.
+    It simply denotes the <interfacename>SecurityMetadataSource</interfacename>
     understands <classname>FilterInvocation</classname>s. In the interests of
     simplicity we'll continue to refer to the
     <interfacename>FilterInvocationDefinitionSource</interfacename> as an
-    <interfacename>ObjectDefinitionSource</interfacename>, as the distinction is of
+    <interfacename>SecurityMetadataSource</interfacename>, as the distinction is of
     little relevance to most users of the
     <classname>FilterSecurityInterceptor</classname>.</para>
 
@@ -276,7 +276,7 @@ public void afterPropertiesSet() throws Exception {
     attributes that apply to each HTTP URL. Each configuration attribute
     is assigned into its own <literal>SecurityConfig</literal> object. The
     <literal>SecurityConfig</literal> object is discussed in the High
-    Level Design section. The <interfacename>ObjectDefinitionSource</interfacename>
+    Level Design section. The <interfacename>SecurityMetadataSource</interfacename>
     created by the property editor,
     <interfacename>FilterInvocationDefinitionSource</interfacename>, matches
     configuration attributes against <literal>FilterInvocations</literal>
@@ -295,7 +295,7 @@ public void afterPropertiesSet() throws Exception {
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="runAsManager" ref="runAsManager"/>
-  <property name="objectDefinitionSource">
+  <property name="securityMetadataSource">
     <security:filter-invocation-definition-source path-type="regex">
       <security:intercept-url pattern="\A/secure/super/.*\Z" access="ROLE_WE_DONT_HAVE"/>
       <security:intercept-url pattern="\A/secure/.*\" access="ROLE_SUPERVISOR,ROLE_TELLER"/>

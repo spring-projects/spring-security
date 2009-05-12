@@ -139,18 +139,18 @@
             <para>The beans required in an application context to enable remember-me services are as follows:
 <programlisting><![CDATA[        
 <bean id="rememberMeProcessingFilter"
-    class="org.springframework.security.ui.rememberme.RememberMeProcessingFilter">
+    class="org.springframework.security.web.authentication.rememberme.RememberMeProcessingFilter">
   <property name="rememberMeServices" ref="rememberMeServices"/>
   <property name="authenticationManager" ref="theAuthenticationManager" />    
 </bean>
         
-<bean id="rememberMeServices" class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices">
+<bean id="rememberMeServices" class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
   <property name="userDetailsService" ref="myUserDetailsService"/>
   <property name="key" value="springRocks"/>
 </bean>
         
 <bean id="rememberMeAuthenticationProvider"
-    class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider">
+    class="org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationProvider">
   <property name="key" value="springRocks"/>
 </bean>
 ]]>        

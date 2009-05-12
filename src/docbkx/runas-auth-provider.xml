@@ -87,12 +87,12 @@
             bean context with the same key:
             <programlisting>
 <![CDATA[
-<bean id="runAsManager" class="org.springframework.security.runas.RunAsManagerImpl">
+<bean id="runAsManager" class="org.springframework.security.access.intercept.RunAsManagerImpl">
   <property name="key" value="my_run_as_password"/>
 </bean>
 
 <bean id="runAsAuthenticationProvider"
-    class="org.springframework.security.runas.RunAsImplAuthenticationProvider">
+    class="org.springframework.security.access.intercept.RunAsImplAuthenticationProvider">
   <property name="key" value="my_run_as_password"/>
 </bean>]]></programlisting></para>
         <para>By using the same key, each <literal>RunAsUserToken</literal>

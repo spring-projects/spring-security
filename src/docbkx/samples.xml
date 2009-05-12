@@ -45,7 +45,7 @@
             and passwords are suggested on that page. Simply authenticate with any of these and view
             the resulting page. It should contain a success message similar to the following:
             <literallayout>
-        Authentication object is of type: org.springframework.security.providers.UsernamePasswordAuthenticationToken
+        Authentication object is of type: org.springframework.security.authentication.UsernamePasswordAuthenticationToken
         
         Authentication object as a String: 
           org.springframework.security.providers.UsernamePasswordAuthenticationToken@1f127853: 
