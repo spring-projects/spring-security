@@ -31,12 +31,12 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.test</artifactId>
+      <artifactId>spring-test</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
         <groupId>org.springframework</groupId>
-        <artifactId>org.springframework.jdbc</artifactId>
+        <artifactId>spring-jdbc</artifactId>
         <optional>true</optional>
     </dependency>
     <dependency>
@@ -57,11 +57,11 @@
     </dependency>
     <dependency>
         <groupId>org.aspectj</groupId>
-        <artifactId>com.springsource.org.aspectj.runtime</artifactId>
+        <artifactId>aspectjrt</artifactId>
     </dependency>
     <dependency>
         <groupId>org.aspectj</groupId>
-        <artifactId>com.springsource.org.aspectj.weaver</artifactId>
+        <artifactId>aspectjweaver</artifactId>
     </dependency>
     <dependency>
       <groupId>ldapsdk</groupId>

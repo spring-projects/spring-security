@@ -27,12 +27,12 @@
         </dependency>
         <dependency>
           <groupId>org.springframework</groupId>
-          <artifactId>org.springframework.web.portlet</artifactId>
+          <artifactId>spring-webmvc-portlet</artifactId>
           <version>${spring.version}</version>
         </dependency>
         <dependency>
           <groupId>org.springframework</groupId>
-          <artifactId>org.springframework.test</artifactId>
+          <artifactId>spring-test</artifactId>
           <version>${spring.version}</version>
           <scope>test</scope>
         </dependency>

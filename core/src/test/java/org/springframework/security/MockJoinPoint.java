@@ -161,5 +161,9 @@ public class MockJoinPoint implements JoinPoint {
         public String toShortString() {
             throw new UnsupportedOperationException("mock not implemented");
         }
+
+        public int getId() {
+            throw new UnsupportedOperationException("mock not implemented");
+        }
     }
 }

@@ -30,7 +30,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>org.springframework.jdbc</artifactId>
+            <artifactId>spring-jdbc</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>

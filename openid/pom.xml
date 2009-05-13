@@ -26,17 +26,17 @@
         </dependency>
         <dependency>
           <groupId>org.springframework</groupId>
-          <artifactId>org.springframework.core</artifactId>
+          <artifactId>spring-core</artifactId>
           <optional>true</optional>
         </dependency>
         <dependency>
           <groupId>org.springframework</groupId>
-          <artifactId>org.springframework.web</artifactId>
+          <artifactId>spring-web</artifactId>
           <optional>true</optional>
         </dependency>
         <dependency>
           <groupId>org.springframework</groupId>
-          <artifactId>org.springframework.test</artifactId>
+          <artifactId>spring-test</artifactId>
           <optional>true</optional>
         </dependency>
         <dependency>

@@ -75,6 +75,7 @@
     </distributionManagement>
 
     <repositories>
+<!-- 
         <repository>
             <releases>
               <enabled>true</enabled>
@@ -85,18 +86,7 @@
             <id>com.springsource.repository.bundles.release</id>
             <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
             <url>http://repository.springsource.com/maven/bundles/release</url>
-        </repository>
-        <repository>
-            <releases>
-              <enabled>true</enabled>
-            </releases>
-            <snapshots>
-              <enabled>false</enabled>
-            </snapshots>            
-            <id>com.springsource.repository.bundles.external</id>
-            <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
-            <url>http://repository.springsource.com/maven/bundles/external</url>
-        </repository>
+        </repository>       
         <repository>
             <releases>
               <enabled>false</enabled>
@@ -108,30 +98,18 @@
             <name>SpringSource Enterprise Bundle Repository - SpringSource Snapshot Releases</name>
             <url>http://repository.springsource.com/maven/bundles/snapshot</url>
         </repository>
-        <repository>
-            <releases>
-              <enabled>true</enabled>
-            </releases>
-            <snapshots>
-              <enabled>false</enabled>
-            </snapshots>            
-            <id>com.springsource.repository.bundles.milestone</id>
-            <name>SpringSource Enterprise Bundle Repository - SpringSource Milestone Releases</name>
-            <url>http://repository.springsource.com/maven/bundles/milestone</url>
-        </repository>
-<!--        
-        <repository>
-            <releases>
-              <enabled>true</enabled>
-            </releases>
-            <snapshots>
-              <enabled>false</enabled>
-            </snapshots>            
-            <id>spring-milestone</id>
-            <name>Spring Portfolio Milestone Repository</name>
-            <url>http://s3.amazonaws.com/maven.springframework.org/milestone</url>
-        </repository>
 -->        
+        <repository>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>            
+            <id>Spring Framework Maven Milestone Releases</id>
+            <name>Spring Framework Maven Milestone Releases (Maven Central Format)</name>
+            <url>http://maven.springframework.org/milestone</url>
+        </repository>      
     </repositories>
 
     <pluginRepositories>
@@ -607,23 +585,23 @@
         <dependencies>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>org.springframework.core</artifactId>
+                <artifactId>spring-core</artifactId>
                 <version>${spring.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>org.springframework.expression</artifactId>
+                <artifactId>spring-expression</artifactId>
                 <version>${spring.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
 <!--
                     <exclusion>
@@ -636,89 +614,94 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>org.springframework.test</artifactId>
+                <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>org.springframework.jdbc</artifactId>
+                <artifactId>spring-jdbc</artifactId>
                 <version>${spring.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>org.springframework.transaction</artifactId>
+                <artifactId>spring-tx</artifactId>
                 <version>${spring.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>org.springframework.aop</artifactId>
+                <artifactId>spring-aop</artifactId>
                 <version>${spring.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>org.springframework.context</artifactId>
+                <artifactId>spring-context</artifactId>
                 <version>${spring.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>org.springframework.context.support</artifactId>
+                <artifactId>spring-context-support</artifactId>
                 <version>${spring.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <!-- M3 Pom contains an invalid quartz dep -->
+                        <groupId>quartz</groupId>
+                        <artifactId>quartz</artifactId>
+                    </exclusion>                    
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>org.springframework.web</artifactId>
+                <artifactId>spring-webmvc</artifactId>
                 <version>${spring.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>org.springframework.web.servlet</artifactId>
-                <version>${spring.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -747,33 +730,32 @@
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
-                <artifactId>com.springsource.org.aspectj.runtime</artifactId>
-                <version>1.6.2.RELEASE</version>
+                <artifactId>aspectjrt</artifactId>
+                <version>1.6.4</version>
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
-                <artifactId>com.springsource.org.aspectj.weaver</artifactId>
-                <version>1.6.2.RELEASE</version>
+                <artifactId>aspectjweaver</artifactId>
+                <version>1.6.4</version>
             </dependency>
-            
-<!-- Used by SPEL     
-            <dependency>
 
+<!-- Used by SPEL
+            <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr</artifactId>
                 <version>3.0.1</version>
                 <optional>true</optional>
                 <scope>runtime</scope>
             </dependency>
--->              
+
             <dependency>
-                <!-- Required by SPEL -->
                 <groupId>asm</groupId>
                 <artifactId>asm-all</artifactId>
                 <version>2.2.3</version>
                 <optional>true</optional>
                 <scope>runtime</scope>
             </dependency>
+-->            
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib-nodep</artifactId>

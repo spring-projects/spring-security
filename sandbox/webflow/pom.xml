@@ -24,8 +24,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.webflow</groupId>
-            <artifactId>org.springframework.webflow</artifactId>
+            <groupId>spring-webflow</groupId>
+            <artifactId>spring-webflow</artifactId>
             <version>2.0.3.RELEASE</version>
         </dependency>
         <dependency>
@@ -35,22 +35,22 @@
         </dependency>        
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>org.springframework.web</artifactId>
+            <artifactId>spring-web</artifactId>
             <version>2.5.5</version>            
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>org.springframework.core</artifactId>
+            <artifactId>spring-core</artifactId>
             <version>2.5.5</version>            
         </dependency>                
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>org.springframework.context</artifactId>
+            <artifactId>spring-context</artifactId>
             <version>2.5.5</version>            
         </dependency>        
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>org.springframework.web.servlet</artifactId>
+            <artifactId>spring-webmvc</artifactId>
             <version>2.5.5</version>            
         </dependency>
         <dependency>
