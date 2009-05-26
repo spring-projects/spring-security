@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<article xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <info>
+        <title>The Spring Security 3.0 Codebase</title>
+        <subtitle>Why have the packages changed in Spring Security 3.0?</subtitle>
+        <author>
+            <personname>Luke Taylor</personname>
+            <affiliation><orgname>SpringSource</orgname></affiliation></author>
+        <abstract>
+            <para>An quick introduction to the code modules and package structure of the Spring
+                Security 3.0 codebase.</para>
+        </abstract>
+    </info>
+    <sect1>
+        <title>Introduction</title>
+        <para>In versions prior to 3.0, most of Spring Security's code was contained in the
+                <filename>spring-security-core</filename> jar<footnote>
+                <para>There was also an additional <filename>spring-security-core-tiger</filename>
+                    jar which contained the Java 5 specific code. In Spring Security 3.0 Java 5 is
+                    the minimum supported platform, so this code is now part of the core.</para>
+            </footnote>. Over the years, as more features have been added, it has become more
+            difficult to track the dependencies both within the codebase itself and also on third
+            party libraries. For example, it's hard for a user to determine which of the listed
+            dependencies in the core Maven <filename>pom.xml</filename> are required for a
+            particular set of features within the framework.</para>
+        <para>In addition, the original package structure and class names have been around since the
+            framework's origins as Acegi Security in 2004, when only a few basic authentication
+            mechanisms were supported. As the amount of code has increased and the feature set has
+            expanded, this package structure has begun to show its age.</para>
+        <figure xml:id="structure-2.0.4">
+            <title>Spring Security 2.0.4 Package Structure</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="images/spring-security-2.0.4.png" scale="80" align="center"
+                    />
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+            <xref linkend="structure-2.0.4"/> shows the high-level package diagram of the core,
+            core-tiger, cas-client and acl jars in the 2.0.4 release, as produced by the
+            Structure101 tool<footnote>
+                <para>Structure101 is an excellent tool for analyzing your own code or for
+                    understanding someone else's. It is developed by <link
+                        xlink:href="http://www.headwaysoftware.com">Headway Software</link>. </para>
+            </footnote>. You don't have to be an expert in code structure to realise that there is a
+            bit of a problem here. There are a lot of circular references and no clear overall
+            dependency structure within the packages. There are also some issues with packages being
+            split across jar boundaries, which can cause problems with OSGi, for example.<footnote>
+                <para>For more information on how to structure a large codebase, Juergen Hoeller's
+                        <quote>Organization of Large Code Bases</quote> is an excellent overview of
+                    the topic where he shares some of the insights gained from maintaining the
+                    Spring Framework through multiple versions. You can find him discussing the
+                    topic in an online interview <link
+                        xlink:href="http://www.se-radio.net/transcript-82-organization-large-code-bases-juergen-hoeller"
+                        >transcript</link> and an <link
+                        xlink:href="http://www.infoq.com/presentations/code-organization-large-projects"
+                        >InfoQ video</link>. </para>
+            </footnote>. This fragility in the code structure would likely have caused a maintenance
+            overhead as Spring Security evolved, so the decision was made to restructure the code
+            for the 3.0 release to give us a stable base for future development. </para>
+        <para>Let's take a look at how things are now organised.</para>
+    </sect1>
+    <sect1>
+        <title>Spring Security 3.0</title>
+        <sect2>
+            <title>Project Jars</title>
+            <para>The first thing we did was split the core out into several jars. The
+                    <filename>spring-security-core</filename> jar now contains only basic
+                authentication and access-control code and is much cleaner. It has no dependencies
+                on LDAP or the servlet API, for example, and there are now separate jars for
+                web-specific code and for LDAP. We've also split out the namespace parsing code out
+                int a separate jar, as it depends on most of the other jars and doesn't expose any
+                public APIs that you are likely to use directly in your application. You only need
+                to use it if you are using Spring Security namespace configuration in your
+                application context XML files. The main project jars are shown in the following
+                    table.<table xml:id="jar-files-3.0">
+                    <title>Spring Security Jars</title>
+                    <tgroup cols="3" align="left">
+                        <colspec colnum="1" colname="c1" colwidth="0.6*"/>
+                        <colspec colnum="2" colname="c2" colwidth="0.9*"/>
+                        <colspec colnum="3" colname="c3" colwidth="0.88*"/>
+                        <colspec colnum="4" colname="c4" colwidth="1.61*"/>
+                        <thead>
+                            <row>
+                                <entry align="center">Jar Name</entry>
+                                <entry align="center">Description</entry>
+                                <entry align="center">When to use</entry>
+                                <entry align="center">Root Package(s)</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry valign="middle">spring-security-core</entry>
+                                <entry>Core authentication and access-contol classes and interfaces.
+                                    Remoting support and basic provisioning APIs.</entry>
+                                <entry>Required by any application which uses Spring Security.
+                                    Supports standalone applications, remote clients, method
+                                    (service layer) security and JDBC user provisioning.</entry>
+                                <entry>
+                                    <literal>org.springframework.security.core</literal>,
+                                        <literal>org.springframework.security.access</literal>,
+                                        <literal>org.springframework.security.authentication</literal>,
+                                        <literal>org.springframework.security.provisioning</literal>,
+                                        <literal>org.springframework.security.remoting</literal>
+                                </entry>
+                            </row>
+                            <row>
+                                <entry valign="middle">spring-security-web</entry>
+                                <entry>Filters and other web-security infrastructure and related
+                                    code. Anything with a servlet API dependency.</entry>
+                                <entry>If you require Spring Security web authentication services
+                                    and URL-based access-control</entry>
+                                <entry><literal>org.springframework.security.web</literal></entry>
+                            </row>
+                            <row>
+                                <entry valign="middle">spring-security-config</entry>
+                                <entry>Namespace parsing code.</entry>
+                                <entry>If you are using the Spring Security XML namespace.</entry>
+                                <entry><literal>org.springframework.security.config</literal></entry>
+                            </row>
+                            <row>
+                                <entry valign="middle">spring-security-ldap</entry>
+                                <entry>LDAP authentication and provisioning code.</entry>
+                                <entry>If you need to use LDAP authentication or manage LDAP user
+                                    entries.</entry>
+                                <entry><literal>org.springframework.security.ldap</literal></entry>
+                            </row>
+                            <row>
+                                <entry valign="middle">spring-security-acl</entry>
+                                <entry>Domain object ACL implementation.</entry>
+                                <entry>If you need to apply security to specific domain object
+                                    instances within your application.</entry>
+                                <entry><literal>org.springframework.security.acls</literal></entry>
+                            </row>
+                            <row>
+                                <entry valign="middle">spring-security-cas</entry>
+                                <entry>Spring Security's CAS client integration.</entry>
+                                <entry>If you want to use Spring Security web authentication with a
+                                    CAS single sign-on server.</entry>
+                                <entry><literal>org.springframework.security.cas</literal></entry>
+                            </row>
+                            <row>
+                                <entry valign="middle">spring-security-openid</entry>
+                                <entry>OpenID web authentication support.</entry>
+                                <entry>If you need to authenticate users against an external OpenID
+                                    server.</entry>
+                                <entry><literal>org.springframework.security.openid</literal></entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table></para>
+            <para>There is now a clearer separation of concerns at the jar level. For example, you
+                only need the web jar (and its transitive dependencies) if you are writing a web
+                application. This also makes the code easier to navigate and understand. The
+                dependencies between the 3.0 jars which now make up the same code set of code we
+                looked at for version 2.0.4 are shown in <xref linkend="jar-deps-3.0"/>. <figure
+                    xml:id="jar-deps-3.0">
+                    <title>Inter-Jar Dependencies</title>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata fileref="images/spring-security-3.0.0.M2-jars.png"
+                                align="center"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure></para>
+        </sect2>
+        <sect2>
+            <title>Package Structure</title>
+            <para>The package layout in 3.0 is show in <xref linkend="structure-3.0"/>. As you can
+                see, there are no longer any circular references and the structure is much clearer.
+                The <filename>core</filename> package and sub packages contain the basic classes and
+                interfaces which are used throughout the framework and the other two main packages
+                within the core jar are <filename>authentication</filename> and
+                    <filename>access</filename>. The <filename>access</filename> package containst
+                access-control/authorization code such as the
+                    <interfacename>AccessDecisionManager</interfacename> and related voter-based
+                implementations, the interception and method security infrastructure, annotation
+                classes and support for Spring Security 3.0's expression-based access control. The
+                    <filename>authentication</filename> package contains the
+                    <interfacename>AuthenticationManager</interfacename> and related classes (such
+                as authentication exception classes), the simple DAO-based authentication provider
+                and password-encoders. <figure xml:id="structure-3.0">
+                    <title>Spring Security 2.0.4 Package Structure</title>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata fileref="images/spring-security-3.0.0.M1.png" align="center"
+                            />
+                        </imageobject>
+                    </mediaobject>
+                </figure></para>
+        </sect2>
+    </sect1>
+    <sect1>
+        <title>How will these changes affect you?</title>
+        <para>If you are developing a new application then obviously you won't be affected, other
+            than by starting out with new package names. But what if you are upgrading an existing
+            application or another framework to use Spring Security 3.0. The first thing is that you
+            will obviously need to update build paths and dependency lists to take account of the
+            new jar modules, but the divisions there are straightforward (see the table above). How
+            much the package restructuring will affect you will depend on how much you use the
+            framework classes directly or in explicit bean configurations (if you are only using the
+            namespace for configuration then it will hide the changes from you). Your IDE should be
+            able to help with changing imports and finding out where classes have moved to (a simple
+                <command>Ctrl-Shift-T</command>or <command>Ctrl-Shift-O</command> in Eclipse can do
+            wonders).</para>
+        <para>There are other changes in 3.0 that will affect some users who want to upgrade but for
+            the most part, the underlying architecture is unchanged.</para>
+        <para>We hope you enjoy using Spring Security 3.0.</para>
+    </sect1>
+</article>
