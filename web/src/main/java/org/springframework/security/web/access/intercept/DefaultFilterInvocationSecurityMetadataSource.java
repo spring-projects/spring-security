@@ -138,7 +138,7 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
     }
 
 
-    public List<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
+    public List<ConfigAttribute> getAttributes(Object object) {
         if ((object == null) || !this.supports(object.getClass())) {
             throw new IllegalArgumentException("Object must be a FilterInvocation");
         }
@@ -154,8 +154,6 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
      * <p>
      * By default, iterates through the stored URL map and calls the
      * {@link UrlMatcher#pathMatchesUrl(Object path, String url)} method until a match is found.
-     * <p>
-     * Subclasses can override if required to perform any modifications to the URL.
      *
      * @param url the URI to retrieve configuration attributes for
      * @param method the HTTP method (GET, POST, DELETE...), or null for any method.
