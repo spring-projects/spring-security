@@ -18,7 +18,7 @@
         <expression-handler ref="expressionHandler"/>
     </global-method-security>
 
-    <http auto-config="true" realm="Contacts Realm">
+    <http realm="Contacts Realm">
         <intercept-url pattern="/" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/hello.htm" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
@@ -28,6 +28,7 @@
         <intercept-url pattern="/**" access="ROLE_USER"/>
 
         <form-login login-page="/login.jsp" authentication-failure-url="/login.jsp?login_error=1"/>
+        <http-basic/>
         <logout logout-success-url="/index.jsp"/>
         <remember-me />
     </http>
@@ -49,10 +50,10 @@
     </b:bean>
 
     <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
-        <b:property name="permissionEvaluator">
-            <b:bean class="org.springframework.security.acls.AclPermissionEvaluator">
-                <b:constructor-arg ref="aclService"/>
-            </b:bean>
-        </b:property>
+        <b:property name="permissionEvaluator" ref="permissionEvaluator"/>
+    </b:bean>
+
+    <b:bean id="permissionEvaluator" class="org.springframework.security.acls.AclPermissionEvaluator">
+        <b:constructor-arg ref="aclService"/>
     </b:bean>
 </b:beans>
