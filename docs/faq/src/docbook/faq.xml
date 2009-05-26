@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<article class="faq" xml:id="spring-security-faq" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0"><info>
+        <title>Frequently Answered Questions (FAQ)</title>
+    </info>
+    <qandaset>
+        <qandadiv>
+            <title>General</title>
+            <qandaentry xml:id="faq-other-concerns">
+                <question>
+                    <para>Will Spring Security take care of all my application security
+                        requirements?</para>
+                </question>
+                <answer>
+                <para>
+                    Spring Security provides you with a very flexible framework for your authentication and authorization requirements, but there are many other considerations for building a secure application that are outside its scope. Web applications are vulnerable to all kinds of attacks which you should be familiar with, preferably before you start development so you can design and code with them in mind from the beginning. Check out the <link xlink:href="http://www.owasp.org/">OWASP web site</link> for information on the major issues facing web application developers and the countermeasures you can use against them.</para>
+                </answer>
+            </qandaentry>
+            <qandaentry xml:id="faq-web-xml">
+                <question>
+                    <para>Why not just use web.xml security?</para>
+                </question>
+                <answer>
+                    <para>Let's assume you're developing an enterprise application based on Spring. There are four security concerns you typically need to address: authentication, web request security, service layer security (i.e. your methods that implement business logic), and domain object instance security (i.e. different domain objects have different permissions). With these typical requirements in mind: <orderedlist>
+                            <listitem>
+                                <para><emphasis>Authentication</emphasis>: The servlet specification provides an approach to authentication. However, you will need to configure the container to perform authentication which typically requires editing of container-specific "realm" settings. This makes a non-portable configuration, and if you need to write an actual Java class to implement the container's authentication interface, it becomes even more non-portable. With Spring Security you achieve complete portability - right down to the WAR level. Also, Spring Security offers a choice of production-proven authentication providers and mechanisms, meaning you can switch your authentication approaches at deployment time. This is particularly valuable for software vendors writing products that need to work in an unknown target environment.</para>
+                            </listitem>
+                            <listitem>
+                                <para><emphasis>Web request security:</emphasis> The servlet specification provides an approach to secure your request URIs. However, these URIs can only be expressed in the servlet specification's own limited URI path format. Spring Security provides a far more comprehensive approach. For instance, you
+                                    can use Ant paths or regular expressions, you can consider parts
+                                    of the URI other than simply the requested page (eg you can
+                                    consider HTTP GET parameters), and you can implement your own
+                                    runtime source of configuration data. This means your web
+                                    request security can be dynamically changed during the actual
+                                    execution of your webapp.</para>
+                            </listitem>
+                            <listitem>
+                                <para><emphasis>Service layer and domain object security:</emphasis>
+                                    The absence of support in the servlet specification for services
+                                    layer security or domain object instance security represent
+                                    serious limitations for multi-tiered applications. Typically
+                                    developers either ignore these requirements, or implement
+                                    security logic within their MVC controller code (or even worse,
+                                    inside the views). There are serious disadvantages with this
+                                    approach: <orderedlist>
+                                        <listitem>
+                                            <para><emphasis>Separation of concerns:</emphasis>
+                                                Authorization is a crosscutting concern and should
+                                                be implemented as such. MVC controllers or views
+                                                implementing authorization code makes it more
+                                                difficult to test both the controller and
+                                                authorization logic, more difficult to debug, and
+                                                will often lead to code duplication.</para>
+                                        </listitem>
+                                        <listitem>
+                                            <para><emphasis>Support for rich clients and web
+                                                  services:</emphasis> If an additional client type
+                                                must ultimately be supported, any authorization code
+                                                embedded within the web layer is non-reusable. It
+                                                should be considered that Spring remoting exporters
+                                                only export service layer beans (not MVC
+                                                controllers). As such authorization logic needs to
+                                                be located in the services layer to support a
+                                                multitude of client types.</para>
+                                        </listitem>
+                                        <listitem>
+                                            <para><emphasis>Layering issues:</emphasis> An MVC
+                                                controller or view is simply the incorrect
+                                                architectural layer to implement authorization
+                                                decisions concerning services layer methods or
+                                                domain object instances. Whilst the Principal may be
+                                                passed to the services layer to enable it to make
+                                                the authorization decision, doing so would introduce
+                                                an additional argument on every services layer
+                                                method. A more elegant approach is to use a
+                                                ThreadLocal to hold the Principal, although this
+                                                would likely increase development time to a point
+                                                where it would become more economical (on a
+                                                cost-benefit basis) to simply use a dedicated
+                                                security framework.</para>
+                                        </listitem>
+                                        <listitem>
+                                            <para><emphasis>Authorisation code quality:</emphasis>
+                                                It is often said of web frameworks that they "make
+                                                it easier to do the right things, and harder to do
+                                                the wrong things". Security frameworks are the same,
+                                                because they are designed in an abstract manner for
+                                                a wide range of purposes. Writing your own
+                                                authorization code from scratch does not provide the
+                                                "design check" a framework would offer, and in-house
+                                                authorization code will typically lack the
+                                                improvements that emerge from widespread deployment,
+                                                peer review and new versions. </para>
+                                        </listitem>
+                                    </orderedlist></para>
+                            </listitem>
+                        </orderedlist></para>
+                    <para> For simple applications, servlet specification security may just be
+                        enough. Although when considered within the context of web container
+                        portability, configuration requirements, limited web request security
+                        flexibility, and non-existent services layer and domain object instance
+                        security, it becomes clear why developers often look to alternative
+                        solutions. </para>
+                </answer>
+            </qandaentry>
+            <qandaentry xml:id="faq-requirements">
+                <question>
+                    <para>What Java and Spring Framework versions are required?</para>
+                </question>
+                <answer>
+                    <para> Spring Security 2.0.x requires a minimum JDK version of 1.4 and is built
+                        against Spring 2.0.x. It should also be compatible with applications using
+                        Spring 2.5.x. </para>
+                    <para> Spring Security 3.0 will require JDK 1.5 as a minimum and will also
+                        require Spring 3.0. </para>
+                </answer>
+            </qandaentry></qandadiv>
+        <qandadiv>
+            <title>Common Problems</title>
+            <qandaentry xml:id="faq-login-loop">
+                <question>
+                    <para>My application goes into an "endless loop" when I try to login, what's
+                        going on?</para>
+                </question>
+                <answer>
+                    <para>A common user problem with infinite loop and redirecting to the login page
+                        is caused by accidently configuring the login page as a "secured" resource.
+                        Make sure your configuration allows anonymous access to the login page,
+                        either by excluding it from the security filter chain or marking it as
+                        requiring ROLE_ANONYMOUS.</para>
+                    <para>If your AccessDecisionManager includes an AutheticatedVoter, you can use
+                        the attribute "IS_AUTHENTICATED_ANONYMOUSLY". This is automatically
+                        available if you are using the standard namespace configuration setup. </para>
+                    <para> From Spring Security 2.0.1 onwards, when you are using namespace-based
+                        configuration, a check will be made on loading the application context and a
+                        warning message logged if your login page appears to be protected. </para>
+                </answer>
+            </qandaentry>
+            <qandaentry xml:id="faq-anon-access-denied">
+                <question>
+                    <para>I get an exception with the message "Access is denied (user is
+                        anonymous);". What's wrong?</para>
+                </question>
+                <answer>
+                    <para> This is a debug level message which occurs the first time an anonymous
+                        user attempts to access a protected resource.
+                        <programlisting>
+    DEBUG [ExceptionTranslationFilter] - Access is denied (user is anonymous); redirecting to authentication entry point
+    org.springframework.security.AccessDeniedException: Access is denied
+    at org.springframework.security.vote.AffirmativeBased.decide(AffirmativeBased.java:68)
+    at org.springframework.security.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:262)    				
+                </programlisting>
+                        It is normal and shouldn't be anything to worry about. </para>
+                </answer>
+            </qandaentry>
+            <qandaentry xml:id="auth-exception-credentials-not-found">
+                <question>
+                    <para>I get an exception with the message "An Authentication object was not
+                        found in the SecurityContext". What's wrong?</para>
+                </question>
+                <answer>
+                    <para> This is a another debug level message which occurs the first time an
+                        anonymous user attempts to access a protected resource, but when you do not
+                        have an AnonymousProcessingFilter in your filter chain configuration.
+                        <programlisting>
+    DEBUG [ExceptionTranslationFilter] - Authentication exception occurred; redirecting to authentication entry point
+    org.springframework.security.AuthenticationCredentialsNotFoundException: An Authentication object was not found in the SecurityContext
+    at org.springframework.security.intercept.AbstractSecurityInterceptor.credentialsNotFound(AbstractSecurityInterceptor.java:342)
+    at org.springframework.security.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:254)
+                </programlisting>
+                        It is normal and shouldn't be anything to worry about. </para>
+                </answer>
+            </qandaentry>
+            <qandaentry xml:id="faq-tomcat-https-session">
+                <question>
+                    <para> I'm using Tomcat and have enabled HTTPS for my login page, switching back
+                        to HTTP afterwards. It doesn't work - I just end up back at the login page
+                        after authenticating. </para>
+                </question>
+                <answer>
+                    <para> This happens because Tomcat sessions created under HTTPS cannot
+                        subsequently be used under HTTP and any session state is lost (including the
+                        security context information). Starting in HTTP first should work. </para>
+                </answer>
+            </qandaentry>
+            <qandaentry xml:id="faq-no-security-on-forward">
+                <question>
+                    <para> I'm forwarding a request to another URL using the RequestDispatcher, but
+                        my security constraints aren't being applied. </para>
+                </question>
+                <answer>
+                    <para> Filters are not applied by default to forwards or includes. If you really
+                        want the security filters to be applied to forwards and/or includes, then
+                        you have to configure these explicitly in your web.xml using the
+                        &lt;dispatcher&gt; element, a child element of &lt;filter-mapping&gt;.
+                    </para>
+                </answer>
+            </qandaentry>
+            <qandaentry xml:id="faq-session-listener-missing">
+                <question>
+                    <para> I'm trying to use the concurrent session-control support but it won't let
+                        me log back in, even if I'm sure I've logged out and haven't exceeded the
+                        allowed sessions. </para>
+                </question>
+                <answer>
+                    <para>Make sure you have added the listener to your web.xml file. It is
+                        essential to make sure that the Spring Security session registry is notified
+                        when a session is destroyed. Without it, the session information will not be
+                        removed from the registry.</para>
+                    <programlisting>
+                &lt;listener&gt;
+                &lt;listener-classorg.springframework.security.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
+                &lt;/listener&gt;    				
+            </programlisting>
+                </answer>
+            </qandaentry>
+        </qandadiv>
+        <qandadiv>
+            <title>Common <quote>Howto</quote> Requests</title>
+            <qandaentry xml:id="extra-login-fields">
+                <question>
+                    <para>I need to login in with more information than just the username. How do I
+                        add support for extra login fields (e.g. a company name)?</para>
+                </question>
+                <answer>
+                    <para>This question comes up repeatedly in the Spring Security forum so you will
+                        find more information there by searching the archives (or through
+                        google).</para>
+                    <para> The submitted login information is processed by an instance of
+                            <classname>AuthenticationProcessingFilter</classname>. You will need to
+                        customize this class to handle the extra data field(s). One option is to use
+                        your own customized authentication token class (rather than the standard
+                            <classname>UsernamePasswordAuthenticationToken</classname>), another is
+                        simply to concatenate the extra fields with the username (for example, using
+                        a ":" as the separator) and pass them in the username property of
+                            <classname>UsernamePasswordAuthenticationToken</classname>. </para>
+                    <para> You will also need to customize the actual authentication process. If you
+                        are using a custom authentication token class, for example, you will have to
+                        write an <classname>AuthenticationProvider</classname> to handle it (or
+                        extend the standard <classname>DaoAuthenticationProvider</classname>). If
+                        you have concatenated the fields, you can implement your own
+                            <interfacename>UserDetailsService</interfacename> which splits them up
+                        and loads the appropriate user data for authentication. </para>
+                </answer>
+            </qandaentry>
+            <qandaentry xml:id="what-dependencies">
+                <question>
+                    <para>How do I know what dependencies to add to my application to work with
+                        Spring Security?</para>
+                </question>
+                <answer>
+                    <para> There is no definite answer here, (it will depend on what features you
+                        are using), but a good starting point is to copy those from one of the
+                        pre-built sample applications WEB-INF/lib directories. For a basic
+                        application, you can start with the tutorial sample. If you want to use
+                        LDAP, with an embedded test server, then use the LDAP sample as a starting
+                        point. </para>
+                    <para> If you are building your project with maven, then adding the appropriate
+                        Spring Security modules to your pom.xml will automatically pull in the core
+                        jars that the framework requires. Any which are marked as "optional" in the
+                        Spring Security POM files will have to be added to your own pom.xml file if
+                        you need them. </para>
+                </answer>
+            </qandaentry>
+        </qandadiv>
+    </qandaset>
+</article>
