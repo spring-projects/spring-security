@@ -8,11 +8,8 @@
       <title>Runtime Environment</title>
     </info>
 
-    <para>Spring Security is written to execute within a standard Java 1.4
-    Runtime Environment. It also supports Java 5.0, although the Java
-    types which are specific to this release are packaged in a separate
-    package with the suffix "tiger" in their JAR filename. As Spring
-    Security aims to operate in a self-contained manner, there is no need
+    <para>Spring Security 3.0 requires a Java 5.0 Runtime Environment or higher.
+      As Spring Security aims to operate in a self-contained manner, there is no need
     to place any special configuration files into your Java Runtime
     Environment. In particular, there is no need to configure a special
     Java Authentication and Authorization Service (JAAS) policy file or
@@ -20,7 +17,8 @@
 
     <para>Similarly, if you are using an EJB Container or Servlet
     Container there is no need to put any special configuration files
-    anywhere, nor include Spring Security in a server classloader.</para>
+    anywhere, nor include Spring Security in a server classloader. All the required
+    files will be contained within your application.</para>
 
     <para>This design offers maximum deployment time flexibility, as
     you can simply copy your target artifact (be it a JAR, WAR or EAR)
@@ -184,23 +182,32 @@ if (obj instanceof UserDetails) {
     authenticate a user). Of course, Spring Security is expressly designed
     to handle this common requirement, but you'd instead use the project's
     domain object security capabilities for this purpose.</para>
-
-    <para>Last but not least, sometimes you will need to store the
-    <interfacename>SecurityContext</interfacename> between HTTP requests. Other times
-    the principal will re-authenticate on every request, although most of
-    the time it will be stored. The
-    <classname>HttpSessionContextIntegrationFilter</classname> is responsible
-    for storing a <interfacename>SecurityContext</interfacename> between HTTP
-    requests. As suggested by the name of the class, the
-    <literal>HttpSession</literal> is used to store this information. You
-    should never interact directly with the <literal>HttpSession</literal>
-    for security purposes. There is simply no justification for doing so -
-    always use the <classname>SecurityContextHolder</classname>
-    instead.</para>
-      
     </section>
     
-    
+    <section xml:id="tech-sec-context-persistence">
+      <title>Storing the <interfacename>SecurityContext</interfacename></title>
+      <para>Last but not least, depending on the type of application, there may need to be
+        a strategy in place to store the security context between user operations. 
+        In a typical web application, for example, a user logs in once and is subsequently identified
+        by their session Id. The server caches the principal information for the duration session.
+        In Spring Security, the responsibility for storing the <interfacename>SecurityContext</interfacename>
+        between requests falls to the <classname>SecurityContextPersistenceFilter</classname>, which
+        by default stores the context as an <literal>HttpSession</literal> attribute between HTTP
+        requests. It restores the context to the <classname>SecurityContextHolder</classname> for each request
+        and, crucially, clears the <classname>SecurityContextHolder</classname> when the request completes.
+        You should never interact directly with the <literal>HttpSession</literal> for security purposes. 
+        There is simply no justification for doing so - always use the <classname>SecurityContextHolder</classname> 
+        instead.
+      </para>
+      <para>
+        Many other types of application (for example, a stateless RESTful web service) do not use HTTP sessions and
+        will re-authenticate on every request. However, it is still important that the
+        <classname>SecurityContextPersistenceFilter</classname> is included in the
+        chain to make sure that the <classname>SecurityContextHolder</classname> is cleared after each request,
+        even if 
+      </para>
+    </section>
+        
     <section>
       <title>Summary</title>
     <para>Just to recap, the major building blocks of Spring Security
@@ -219,9 +226,9 @@ if (obj instanceof UserDetails) {
       </listitem>
 
       <listitem>
-        <para><classname>HttpSessionContextIntegrationFilter</classname>, to
-        store the <interfacename>SecurityContext</interfacename> in the
-        <literal>HttpSession</literal> between web requests.</para>
+        <para><classname>SecurityContextPersistenceFilter</classname>, to
+        store the <interfacename>SecurityContext</interfacename> (typically in the
+        <literal>HttpSession</literal>) between web requests.</para>
       </listitem>
 
       <listitem>
@@ -562,18 +569,18 @@ if (obj instanceof UserDetails) {
 
     <section>
       <title>Extending the Secure Object Model</title>
-    <para>Only developers contemplating an entirely new way of
-    intercepting and authorizing requests would need to use secure objects
-    directly. For example, it would be possible to build a new secure
-    object to secure calls to a messaging system. Anything that requires
-    security and also provides a way of intercepting a call (like the AOP
-    around advice semantics) is capable of being made into a secure
-    object. Having said that, most Spring applications will simply use the
-    three currently supported secure object types (AOP Alliance
-    <classname>MethodInvocation</classname>, AspectJ
-    <literal>JoinPoint</literal> and web request
-    <classname>FilterInvocation</classname>) with complete
-    transparency.</para>
+      <para>Only developers contemplating an entirely new way of
+      intercepting and authorizing requests would need to use secure objects
+      directly. For example, it would be possible to build a new secure
+      object to secure calls to a messaging system. Anything that requires
+      security and also provides a way of intercepting a call (like the AOP
+      around advice semantics) is capable of being made into a secure
+      object. Having said that, most Spring applications will simply use the
+      three currently supported secure object types (AOP Alliance
+      <classname>MethodInvocation</classname>, AspectJ
+      <literal>JoinPoint</literal> and web request
+      <classname>FilterInvocation</classname>) with complete
+      transparency.</para>
     </section>
   </section>
   </section>

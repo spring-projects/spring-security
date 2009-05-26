@@ -29,7 +29,7 @@
       you try out the <link xlink:href="http://www.springsource.com/products/sts">SpringSource Tool
         Suite</link> as it has special features for working with standard Spring namespaces. </para>
     <para> To start using the security namespace in your application context, all you need to do is
-      add the schema declaration to your application context file: <programlisting>
+      add the schema declaration to your application context file: <programlisting language="xml">
   <![CDATA[
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:security="http://www.springframework.org/schema/security"
@@ -43,7 +43,7 @@
       omit the prefix on all the security namespace elements, making the context easier to read. You
       may also want to do this if you have your application context divided up into separate files
       and have most of your security configuration in one of them. Your security application context
-      file would then start like this <programlisting><![CDATA[
+      file would then start like this <programlisting language="xml"><![CDATA[
 <beans:beans xmlns="http://www.springframework.org/schema/security"
   xmlns:beans="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -109,7 +109,7 @@
     <section xml:id="ns-web-xml">
       <title><literal>web.xml</literal> Configuration</title>
       <para> The first thing you need to do is add the following filter declaration to your
-          <literal>web.xml</literal> file: <programlisting>
+        <literal>web.xml</literal> file: <programlisting language="xml">
         <![CDATA[  
 <filter>
   <filter-name>springSecurityFilterChain</filter-name>
@@ -132,7 +132,7 @@
     </section>
     <section xml:id="ns-minimal">
       <title>A Minimal <literal>&lt;http&gt;</literal> Configuration</title>
-      <para> All you need to enable web security to begin with is <programlisting><![CDATA[
+      <para> All you need to enable web security to begin with is <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/**" access="ROLE_USER" />
   </http>
@@ -145,7 +145,7 @@
           the order listed and the first match will be used. So you must put the most specific
           matches at the top.</para>
       </note>
-      <para> To add some users, you can define a set of test data directly in the namespace: <programlisting><![CDATA[
+      <para> To add some users, you can define a set of test data directly in the namespace: <programlisting language="xml"><![CDATA[
   <authentication-provider>
     <user-service>
       <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
@@ -184,7 +184,7 @@
       <section xml:id="ns-auto-config">
         <title>What does <literal>auto-config</literal> Include?</title>
         <para> The <literal>auto-config</literal> attribute, as we have used it above, is just a
-          shorthand syntax for: <programlisting><![CDATA[
+          shorthand syntax for: <programlisting language="xml"><![CDATA[
   <http>
     <form-login />
     <http-basic />
@@ -210,7 +210,7 @@
           based on the features that are enabled and using standard values for the URL which
           processes the submitted login, the default target URL the user will be sent to and so on.
           However, the namespace offers plenty of suppport to allow you to customize these options.
-          For example, if you want to supply your own login page, you could use: <programlisting><![CDATA[
+          For example, if you want to supply your own login page, you could use: <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/login.jsp*" filters="none"/>  
     <intercept-url pattern="/**" access="ROLE_USER" />
@@ -223,7 +223,7 @@
           requests for the login page should be excluded from processing by the security filters.
           Otherwise the request would be matched by the pattern <literal>/**</literal> and it
           wouldn't be possible to access the login page itself! If you want to use basic
-          authentication instead of form login, then change the configuration to <programlisting><![CDATA[
+          authentication instead of form login, then change the configuration to <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <http-basic />
@@ -241,7 +241,7 @@
             that they user <emphasis>always</emphasis> ends up at this page (regardless of whether
             the login was "on-demand" or they explicitly chose to log in) by setting the
               <literal>always-use-default-target</literal> attribute to "true". This is useful if
-            your application always requires that the user starts at a "home" page, for example: <programlisting><![CDATA[
+            your application always requires that the user starts at a "home" page, for example: <programlisting language="xml"><![CDATA[
   <http>
     <intercept-url pattern='/login.htm*' filters='none'/>  
     <intercept-url pattern='/**' access='ROLE_USER' />
@@ -260,10 +260,10 @@
         dealt with in the <link xlink:href="#ldap">LDAP chapter</link>, so we won't cover it here.
         If you have a custom implementation of Spring Security's
           <classname>UserDetailsService</classname>, called "myUserDetailsService" in your
-        application context, then you can authenticate against this using <programlisting><![CDATA[
+        application context, then you can authenticate against this using <programlisting language="xml"><![CDATA[
   <authentication-provider user-service-ref='myUserDetailsService'/>
   ]]>
-        </programlisting> If you want to use a database, then you can use <programlisting><![CDATA[
+        </programlisting> If you want to use a database, then you can use <programlisting language="xml"><![CDATA[
   <authentication-provider>
     <jdbc-user-service data-source-ref="securityDataSource"/>
   </authentication-provider>
@@ -273,7 +273,7 @@
         containing the standard Spring Security <link xlink:href="#db_schema_users_authorities">user
           data tables</link>. Alternatively, you could configure a Spring Security
           <classname>JdbcDaoImpl</classname> bean and point at that using the
-          <literal>user-service-ref</literal> attribute: <programlisting><![CDATA[
+        <literal>user-service-ref</literal> attribute: <programlisting language="xml"><![CDATA[
   <authentication-provider user-service-ref='myUserDetailsService'/>
   
   <beans:bean id="myUserDetailsService" class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
@@ -288,7 +288,7 @@
         <title>Adding a Password Encoder</title>
         <para> Often your password data will be encoded using a hashing algorithm. This is supported
           by the <literal>&lt;password-encoder&gt;</literal> element. With SHA encoded passwords,
-          the original authentication provider configuration would look like this: <programlisting><![CDATA[
+          the original authentication provider configuration would look like this: <programlisting language="xml"><![CDATA[
 <authentication-provider>
   <password-encoder hash="sha"/>
   <user-service>
@@ -325,7 +325,7 @@
       <title>Adding HTTP/HTTPS Channel Security</title>
       <para>If your application supports both HTTP and HTTPS, and you require that particular URLs
         can only be accessed over HTTPS, then this is directly supported using the
-          <literal>requires-channel</literal> attribute on <literal>&lt;intercept-url&gt;</literal>: <programlisting><![CDATA[
+        <literal>requires-channel</literal> attribute on <literal>&lt;intercept-url&gt;</literal>: <programlisting language="xml"><![CDATA[
   <http>
     <intercept-url pattern="/secure/**" access="ROLE_USER" requires-channel="https"/>
     <intercept-url pattern="/**" access="ROLE_USER" requires-channel="any"/>  
@@ -352,19 +352,19 @@
       <para> If you wish to place constraints on a single user's ability to log in to your
         application, Spring Security supports this out of the box with the following simple
         additions. First you need to add the following listener to your <filename>web.xml</filename>
-        file to keep Spring Security updated about session lifecycle events: <programlisting>        
+        file to keep Spring Security updated about session lifecycle events: <programlisting language="xml">        
           <![CDATA[         
 <listener>
   <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
 </listener>
-]]></programlisting> Then add the following line to your application context: <programlisting><![CDATA[     
+]]></programlisting> Then add the following line to your application context: <programlisting language="xml"><![CDATA[     
   <http>
     ...
     <concurrent-session-control max-sessions="1" />
   </http>]]>
         </programlisting> This will prevent a user from logging in multiple times - a
         second login will cause the first to be invalidated. Often you would prefer to prevent a
-        second login, in which case you can use <programlisting><![CDATA[     
+        second login, in which case you can use <programlisting language="xml"><![CDATA[     
   <http>
     ...
     <concurrent-session-control max-sessions="1" exception-if-maximum-exceeded="true"/>
@@ -376,7 +376,7 @@
     <section xml:id="ns-openid">
       <title>OpenID Login</title>
       <para>The namespace supports <link xlink:href="http://openid.net/">OpenID</link> login either
-        instead of, or in addition to normal form-based login, with a simple change: <programlisting><![CDATA[
+        instead of, or in addition to normal form-based login, with a simple change: <programlisting language="xml"><![CDATA[
   <http>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <openid-login />
@@ -500,7 +500,7 @@
           </tgroup>
         </table> You can add your own filter to the stack, using the
           <literal>custom-filter</literal> element and one of these names to specify the position
-        your filter should appear at: <programlisting><![CDATA[
+        your filter should appear at: <programlisting language="xml"><![CDATA[
   <beans:bean id="myFilter" class="com.mycompany.MySpecialAuthenticationFilter">
     <custom-filter position="AUTHENTICATION_PROCESSING_FILTER"/>
   </beans:bean>
@@ -588,7 +588,7 @@
           <interfacename>AccessDecisionManager</interfacename> for it to make the actual decision.
         This example is taken from the <link xlink:href="#tutorial-sample">tutorial sample</link>,
         which is a good starting point if you want to use method security in your application:
-        <programlisting>
+        <programlisting language="java">
   public interface BankService {
   
     @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
@@ -605,7 +605,7 @@
         <title>Adding Security Pointcuts using <literal>protect-pointcut</literal></title>
         <para> The use of <literal>protect-pointcut</literal> is particularly powerful, as it allows
           you to apply security to many beans with only a simple declaration. Consider the following
-          example: <programlisting><![CDATA[
+          example: <programlisting language="xml"><![CDATA[
   <global-method-security>
     <protect-pointcut expression="execution(* com.mycompany.*Service.*(..))" access="ROLE_USER"/>
   </global-method-security>
@@ -620,7 +620,7 @@
     <section xml:id="ns-intercept-methods">
       <title>The <literal>intercept-methods</literal> Bean Decorator</title>
       <para> This alternative syntax allows you to specify security for a specific bean by adding
-        this element within the bean itself. <programlisting><![CDATA[
+        this element within the bean itself. <programlisting language="xml"><![CDATA[
 <bean:bean id="target" class="com.mycompany.myapp.MyBean">
     <intercept-methods>
         <protect method="set*" access="ROLE_ADMIN" />
@@ -654,7 +654,7 @@
       <para> For method security, you do this by setting the
           <literal>access-decision-manager-ref</literal> attribute on
           <literal>global-method-security</literal>to the Id of the appropriate
-          <interfacename>AccessDecisionManager</interfacename> bean in the application context: <programlisting><![CDATA[
+        <interfacename>AccessDecisionManager</interfacename> bean in the application context: <programlisting language="xml"><![CDATA[
   <global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
     ... 
   </global-method-security>
@@ -678,7 +678,7 @@
     <para> You may want to register additional <classname>AuthenticationProvider</classname> beans
       with the <classname>ProviderManager</classname> and you can do this using the
         <literal>&lt;custom-authentication-provider&gt;</literal> element within the bean. For
-      example: <programlisting><![CDATA[
+      example: <programlisting language="xml"><![CDATA[
   <bean id="casAuthenticationProvider" 
       class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
     <security:custom-authentication-provider />
@@ -688,7 +688,7 @@
     <para> Another common requirement is that another bean in the context may require a reference to
       the <interfacename>AuthenticationManager</interfacename>. There is a special element which
       lets you register an alias for the <interfacename>AuthenticationManager</interfacename> and
-      you can then use this name elsewhere in your application context. <programlisting><![CDATA[        
+      you can then use this name elsewhere in your application context. <programlisting language="xml"><![CDATA[        
   <security:authentication-manager alias="authenticationManager"/>
 
   <bean id="customizedFormLoginFilter" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter">

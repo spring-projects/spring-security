@@ -431,65 +431,6 @@
                     </dependenciesAsLibraries>
                 </configuration>
             </plugin>
-            <!-- Site -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>2.0</version>
-            </plugin>
-
-            <plugin>
-                <groupId>com.agilejava.docbkx</groupId>
-                <artifactId>docbkx-maven-plugin</artifactId>
-                <version>2.0.7</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate-html</goal>
-                            <goal>generate-pdf</goal>
-                        </goals>
-                        <phase>pre-site</phase>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.docbook</groupId>
-                        <artifactId>docbook-xml</artifactId>
-                        <version>4.4</version>
-                        <scope>runtime</scope>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <includes>springsecurity.xml</includes>
-                    <chunkedOutput>true</chunkedOutput>
-                    <htmlStylesheet>css/html.css</htmlStylesheet>
-                    <xincludeSupported>true</xincludeSupported>
-                    <htmlCustomization>src/docbkx/resources/xsl/html_chunk.xsl</htmlCustomization>
-                    <foCustomization>src/docbkx/resources/xsl/fopdf.xsl</foCustomization>
-                    <entities>
-                        <entity>
-                            <name>version</name>
-                            <value>${pom.version}</value>
-                        </entity>
-                    </entities>
-                    <postProcess>
-                        <copy todir="target/site/reference">
-                            <fileset dir="target/docbkx">
-                                <include name="**/*.html" />
-                                <include name="**/*.pdf" />
-                            </fileset>
-                        </copy>
-                        <copy todir="target/site/reference/html">
-                            <fileset dir="src/docbkx/resources">
-                                <include name="**/*.css" />
-                                <include name="**/*.png" />
-                                <include name="**/*.gif" />
-                                <include name="**/*.jpg" />
-                            </fileset>
-                        </copy>
-                    </postProcess>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
@@ -825,10 +766,7 @@
     <properties>
         <spring.version>3.0.0.M3</spring.version>
         <jstl.version>1.1.2</jstl.version>
-        <jetty.version>6.1.15</jetty.version>
-
-        <docbook.source>${basedir}/src/docbkx</docbook.source>
-        <docbook.target>${basedir}/target/site/guide</docbook.target>
+        <jetty.version>6.1.18</jetty.version>
     </properties>
 
 </project>

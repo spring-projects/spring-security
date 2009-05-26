@@ -7,7 +7,7 @@
                 xmlns:fo="http://www.w3.org/1999/XSL/Format"
                 version="1.0">
 
-    <xsl:import href="urn:docbkx:stylesheet"/>
+    <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl"/>
 
     <!--###################################################
                     HTML Settings
@@ -70,6 +70,7 @@
         table before
         procedure before
     </xsl:param>
+<!--    
     <xsl:template match="author" mode="titlepage.mode">
         <xsl:if test="name(preceding-sibling::*[1]) = 'author'">
             <xsl:text>, </xsl:text>
@@ -80,6 +81,7 @@
             <xsl:apply-templates mode="titlepage.mode" select="./affiliation"/>
         </span>
     </xsl:template>
+   
     <xsl:template match="authorgroup" mode="titlepage.mode">
         <div class="{name(.)}">
             <h2>Authors</h2>
@@ -87,5 +89,5 @@
             <xsl:apply-templates mode="titlepage.mode"/>
         </div>
     </xsl:template>
-
+--> 
 </xsl:stylesheet>
