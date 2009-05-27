@@ -64,16 +64,19 @@
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core</artifactId>
             <version>1.0.2</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-server-jndi</artifactId>
             <version>1.0.2</version>
+            <optional>true</optional>            
         </dependency>
         <dependency>
             <groupId>org.apache.mina</groupId>
             <artifactId>mina-core</artifactId>
             <version>1.0.5</version>
+            <optional>true</optional>            
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
