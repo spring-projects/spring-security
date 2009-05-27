@@ -3,13 +3,13 @@
     <parent>
         <artifactId>spring-security-parent</artifactId>
         <groupId>org.springframework.security</groupId>
-        <version>3.0.0.M1</version>
+        <version>3.0.0.CI-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-taglibs</artifactId>
     <name>Spring Security - JSP taglibs</name>
-    <version>3.0.0.M1</version>
+    <version>3.0.0.CI-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
