@@ -186,10 +186,9 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
      * Executes the SQL <tt>usersByUsernameQuery</tt> and returns a list of UserDetails objects.
      * There should normally only be one matching user.
      */
-    @SuppressWarnings("unchecked")
     protected List<UserDetails> loadUsersByUsername(String username) {
-        return getJdbcTemplate().query(usersByUsernameQuery, new String[] {username}, new RowMapper() {
-            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return getJdbcTemplate().query(usersByUsernameQuery, new String[] {username}, new RowMapper<UserDetails>() {
+            public UserDetails mapRow(ResultSet rs, int rowNum) throws SQLException {
                 String username = rs.getString(1);
                 String password = rs.getString(2);
                 boolean enabled = rs.getBoolean(3);
@@ -204,14 +203,13 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
      *
      * @return a list of GrantedAuthority objects for the user
      */
-    @SuppressWarnings("unchecked")
     protected List<GrantedAuthority> loadUserAuthorities(String username) {
-        return getJdbcTemplate().query(authoritiesByUsernameQuery, new String[] {username}, new RowMapper() {
-            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return getJdbcTemplate().query(authoritiesByUsernameQuery, new String[] {username}, new RowMapper<GrantedAuthority>() {
+            public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
                 String roleName = rolePrefix + rs.getString(2);
                 GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
 
-                 return authority;
+                return authority;
             }
         });
     }
@@ -221,10 +219,9 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
      *
      * @return a list of GrantedAuthority objects for the user
      */
-    @SuppressWarnings("unchecked")
     protected List<GrantedAuthority> loadGroupAuthorities(String username) {
-        return getJdbcTemplate().query(groupAuthoritiesByUsernameQuery, new String[] {username}, new RowMapper() {
-            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return getJdbcTemplate().query(groupAuthoritiesByUsernameQuery, new String[] {username}, new RowMapper<GrantedAuthority>() {
+            public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
                  String roleName = getRolePrefix() + rs.getString(3);
                  GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
 
@@ -234,7 +231,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     }
 
     /**
-     * Can be overridden to customize the creation of the final UserDetailsObject returnd from <tt>loadUserByUsername</tt>.
+     * Can be overridden to customize the creation of the final UserDetailsObject which is
+     * returned by the <tt>loadUserByUsername</tt> method.
      *
      * @param username the name originally passed to loadUserByUsername
      * @param userFromUserQuery the object returned from the execution of the
