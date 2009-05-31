@@ -16,7 +16,6 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.antlr.SpelAntlrExpressionParser;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.ExpressionUtils;
-import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
@@ -44,7 +43,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
 
     /**
      * Uses a {@link MethodSecurityEvaluationContext} as the <tt>EvaluationContext</tt> implementation and
-     * configures it with a {@link SecurityExpressionRoot} instance as the expression root object.
+     * configures it with a {@link MethodSecurityExpressionRoot} instance as the expression root object.
      */
     public EvaluationContext createEvaluationContext(Authentication auth, MethodInvocation mi) {
         MethodSecurityEvaluationContext ctx = new MethodSecurityEvaluationContext(auth, mi, parameterNameDiscoverer);
