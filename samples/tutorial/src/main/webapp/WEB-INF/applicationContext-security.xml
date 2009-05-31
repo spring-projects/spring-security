@@ -22,8 +22,8 @@
         <intercept-url pattern="/secure/extreme/**" access="hasRole('ROLE_SUPERVISOR')"/>
         <intercept-url pattern="/secure/**" access="isAuthenticated()" />
         <!-- Disable web URI authorization, as we're using <global-method-security> and have @Secured the services layer instead
-        <intercept-url pattern="/listAccounts.html" access="IS_AUTHENTICATED_REMEMBERED" />
-        <intercept-url pattern="/post.html" access="ROLE_TELLER" />
+        <intercept-url pattern="/listAccounts.html" access="isRememberMe()" />
+        <intercept-url pattern="/post.html" access="hasRole('ROLE_TELLER')" />
         -->
         <intercept-url pattern="/**" access="permitAll" />
         <form-login />
