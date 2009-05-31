@@ -20,8 +20,7 @@ import org.springframework.util.StringUtils;
 import java.beans.PropertyEditorSupport;
 
 /**
- * A property editor that can create a populated  {@link List<ConfigAttribute>} from a comma separated list of
- * values.
+ * A property editor that can create a populated <tt>List&lt;ConfigAttribute&gt;</tt> from a comma separated list of values.
  * <p>
  * Trims preceding and trailing spaces from presented command separated tokens, as this can be a source
  * of hard-to-spot configuration issues for end users.
