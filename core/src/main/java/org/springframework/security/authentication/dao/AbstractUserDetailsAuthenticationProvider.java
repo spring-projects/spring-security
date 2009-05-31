@@ -59,10 +59,13 @@ import org.springframework.util.Assert;
  * is returned. To override this
  * default, set the {@link #setForcePrincipalAsString} to <code>true</code>.
  * <p>
- * Caching is handled via the <code>UserDetails</code> object being placed in the {@link UserCache}. This
+ * Caching is handled by storing the <code>UserDetails</code> object being placed in the {@link UserCache}. This
  * ensures that subsequent requests with the same username can be validated without needing to query the {@link
  * UserDetailsService}. It should be noted that if a user appears to present an incorrect password, the {@link
- * UserDetailsService} will be queried to confirm the most up-to-date password was used for comparison.</p>
+ * UserDetailsService} will be queried to confirm the most up-to-date password was used for comparison.
+ * Caching is only likely to be required for stateless applications. In a normal web application, for example,
+ * the <tt>SecurityContext</tt> is stored in the user's session and the user isn't reauthenticated on
+ * each request. The default cache implementation is therefore {@link NullUserCache}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -133,7 +136,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         }
 
         preAuthenticationChecks.check(user);
-        
+
         try {
             additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
         } catch (AuthenticationException exception) {
@@ -272,7 +275,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
      * Sets the policy will be used to verify the status of the loaded <tt>UserDetails</tt> <em>before</em>
      * validation of the credentials takes place.
      *
-     * @param preAuthenticationChecks strategy to be invoked prior to authentication. 
+     * @param preAuthenticationChecks strategy to be invoked prior to authentication.
      */
     public void setPreAuthenticationChecks(UserDetailsChecker preAuthenticationChecks) {
         this.preAuthenticationChecks = preAuthenticationChecks;

@@ -16,17 +16,21 @@
 package org.springframework.security.core.userdetails;
 
 
-
 /**
  * Provides a cache of {@link UserDetails} objects.
  *
  * <p>
- * Implementations should provide appropriate methods to set their cache
- * parameters (e.g. time-to-live) and/or force removal of entities before their
- * normal expiration. These are not part of the <code>UserCache</code>
+ * Implementations should provide appropriate methods to set their cache parameters (e.g. time-to-live) and/or force
+ * removal of entities before their normal expiration. These are not part of the <code>UserCache</code>
  * interface contract because they vary depending on the type of caching
  * system used (e.g. in-memory vs disk vs cluster vs hybrid).
- * </p>
+ * <p>
+ * Caching is generally only required in applications which do not maintain server-side state, such as remote clients
+ * or web services. The authentication credentials are then presented on each invocation and the overhead of accessing
+ * a database or other persistent storage mechanism to validate would be excessive. In this case, you would configure
+ * a cache to store the <tt>UserDetails</tt> information rather than loading it each time.
+ *
+ * @see {@link org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider}
  *
  * @author Ben Alex
  * @version $Id$
@@ -54,9 +58,10 @@ public interface UserCache {
 
     /**
      * Removes the specified user from the cache. The <code>username</code> is the key used to remove the user.
-     * If the user is not found, the method should simply return (not thrown an exception).<P>Some cache
-     * implementations may not support eviction from the cache,  in which case they should provide appropriate
-     * behaviour to alter the user in either its documentation, via an exception, or through a log message.</p>
+     * If the user is not found, the method should simply return (not thrown an exception).
+     * <p>
+     * Some cache implementations may not support eviction from the cache, in which case they should provide appropriate
+     * behaviour to alter the user in either its documentation, via an exception, or through a log message.
      *
      * @param username to be evicted from the cache
      */
