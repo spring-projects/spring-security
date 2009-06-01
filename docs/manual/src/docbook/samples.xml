@@ -9,8 +9,8 @@
         files individually from the central Maven repository. We'd recommend the former. You can get
         the source as described in <link xlink:href="#get-source">the introduction</link> and it's
         easy to build the project using Maven. There is more information on the project web site at
-            <link xlink:href="http://www.springframework.org/spring-security/">
-            http://www.springframework.org/spring-security/ </link> if you need it. All paths
+            <link xlink:href="http://www.springsource.org/security/">
+            http://www.springsource.org/security/ </link> if you need it. All paths
         referred to in this chapter are relative to the source directory, once you have checked it
         out from subversion. </para>
     <section xml:id="tutorial-sample">
@@ -45,24 +45,29 @@
             and passwords are suggested on that page. Simply authenticate with any of these and view
             the resulting page. It should contain a success message similar to the following:
             <literallayout>
-        Authentication object is of type: org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-        
-        Authentication object as a String: 
-          org.springframework.security.providers.UsernamePasswordAuthenticationToken@1f127853: 
-          Principal: org.springframework.security.userdetails.User@b07ed00: 
-          Username: rod; Password: [PROTECTED]; Enabled: true; AccountNonExpired: true; 
-          credentialsNonExpired: true; AccountNonLocked: true; 
-          Granted Authorities: ROLE_SUPERVISOR, ROLE_USER; Password: [PROTECTED]; Authenticated: true; 
-          Details: org.springframework.security.ui.WebAuthenticationDetails@0: 
-          RemoteIpAddress: 127.0.0.1; SessionId: k5qypsawgpwb; 
-          Granted Authorities: ROLE_SUPERVISOR, ROLE_USER
-        
-        Authentication object holds the following granted authorities:
-        
-        ROLE_SUPERVISOR (getAuthority(): ROLE_SUPERVISOR)
-        ROLE_USER (getAuthority(): ROLE_USER)
-        
-        SUCCESS! Your web filters appear to be properly configured!        
+Security Debug Information
+
+Authentication object is of type: 
+org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+
+Authentication object as a String:
+
+org.springframework.security.authentication.UsernamePasswordAuthenticationToken@1f127853:
+Principal: org.springframework.security.core.userdetails.User@b07ed00: Username: rod; \
+Password: [PROTECTED]; Enabled: true; AccountNonExpired: true; 
+credentialsNonExpired: true; AccountNonLocked: true; \ 
+Granted Authorities: ROLE_SUPERVISOR, ROLE_USER; \
+Password: [PROTECTED]; Authenticated: true; \
+Details: org.springframework.security.web.authentication.WebAuthenticationDetails@0: \
+RemoteIpAddress: 127.0.0.1; SessionId: 8fkp8t83ohar; \
+Granted Authorities: ROLE_SUPERVISOR, ROLE_USER
+
+Authentication object holds the following granted authorities:
+
+ROLE_SUPERVISOR (getAuthority(): ROLE_SUPERVISOR)
+ROLE_USER (getAuthority(): ROLE_USER)
+
+Success! Your web filters appear to be properly configured!        
     </literallayout></para>
         <para>Once you successfully receive the above message, return to the sample application's
             home page and click "Manage". You can then try out the application. Notice that only the
