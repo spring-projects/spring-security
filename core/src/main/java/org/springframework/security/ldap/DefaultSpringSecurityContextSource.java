@@ -71,6 +71,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource implem
 
         env.put(Context.SECURITY_PRINCIPAL, userDn);
         env.put(Context.SECURITY_CREDENTIALS, credentials);
+        env.remove(SUN_LDAP_POOLING_FLAG);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Creating context with principal: '" + userDn + "'");
