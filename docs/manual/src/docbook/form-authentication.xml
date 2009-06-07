@@ -1,15 +1,17 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="form"><info><title>Form Authentication Mechanism</title></info>
-    
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="form">
+    <info><title>Form Authentication Mechanism</title></info>
     
     <section xml:id="form-overview">
         <info><title>Overview</title></info>
         
-        
         <para>HTTP Form Authentication involves using the
             <literal>UsernamePasswordAuthenticationProcessingFilter</literal> to process a login
             form. This is the most common way for an application to authenticate end
-            users. Form-based authentication is entirely compatible with the DAO
+            users. Form-based authentication is entirely compatible with the DAO, LDAP
             and JAAS authentication providers.</para>
+        <para>This is also the mechanism used by the &lt;form-login&gt; element from the namespace
+            and it's recommended that you use that unless you have specific customization requirements.
+        </para>
     </section>
     
     <section xml:id="form-config">
@@ -21,38 +23,47 @@
             <literal>/j_spring_security_check</literal>). You should add an 
             <literal>UsernamePasswordAuthenticationProcessingFilter</literal> to your application context:
             <programlisting><![CDATA[    
-<bean id="authenticationProcessingFilter"
-    class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter">
+<bean id="authenticationProcessingFilter" class=
+"org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
-  <property name="authenticationFailureUrl" value="/login.jsp?login_error=1"/>
-  <property name="defaultTargetUrl" value="/"/>
   <property name="filterProcessesUrl" value="/j_spring_security_check"/>
 </bean> ]]>        
             </programlisting></para>
-        
-        <para>The configured <interfacename>AuthenticationManager</interfacename>
-            processes each authentication request. If authentication fails, the
-            browser will be redirected to the
-            <literal>authenticationFailureUrl</literal>. The
-            <literal>AuthenticationException</literal> will be placed into the
-            <literal>HttpSession</literal> attribute indicated by
-            <literal>AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY</literal>,
-            enabling a reason to be provided to the user on the error page.</para>
+        <para>
+            The configured <interfacename>AuthenticationManager</interfacename>
+            processes each authentication request. The destination following a successful authentication
+            or an authentication failure is controlled by the <interfacename>AuthenticationSuccessHandler</interfacename>
+            and <interfacename>AuthenticationFailureHandler</interfacename> interfaces, respectively.
+            The filter has properties which allow you to set these 
+            <footnote><para>In versions prior to 3.0, the application flow at this point had evolved to a stage
+                was controlled by a mix of properties on this class and strategy plugins. The
+            decision was made for 3.0 to refactor the code to make these two strategies entirely responsible.
+            </para></footnote>.
+            Some standard implementations are supplied for these such as
+            <classname>SimpleUrlAuthenticationSuccessHandler</classname>,
+            <classname>SavedRequestAwareAuthenticationSuccessHandler</classname>, 
+            <classname>SimpleUrlAuthenticationFailureHandler</classname> and 
+            <classname>ExceptionMappingAuthenticationFailureHandler</classname>. Have a look at the Javadoc
+            for these classes to see how they work. 
+            </para>
         
         <para>If authentication is successful, the resulting
             <interfacename>Authentication</interfacename> object will be placed into the
-            <classname>SecurityContextHolder</classname>.</para>
+            <classname>SecurityContextHolder</classname>.
+            The configured AuthenticationSuccessHandler will then be called to either redirect or forward
+            the user to the approprate destination. By default a <classname>SavedRequestAwareAuthenticationSuccessHandler</classname>
+            is used, which means that the user will be redirected to the original destination they requested before they were asked to
+            login.
+            <note>
+                <para>
+                    The <classname>ExceptionTranslationFilter</classname> caches the original request a user makes.
+                    When the user authenticates, the request handler makes use of this cached request to obtain the original
+                    URL and redirect to it. The original request is then rebuilt and used as an alternative.  
+                </para>
+            </note>
+            If authentication fails, the configured <interfacename>AuthenticationFailureHandler</interfacename> will be invoked.
+        </para>
         
-        <para>Once the <classname>SecurityContextHolder</classname> has been
-            updated, the browser will need to be redirected to the target URL which 
-            is usually indicated by the <literal>HttpSession</literal> attribute stored under
-            <literal>AbstractAuthenticationProcessingFilter.SPRING_SECURITY_TARGET_URL_KEY</literal>.
-            This attribute is automatically set by the
-            <classname>ExceptionTranslationFilter</classname> when an
-            <literal>AuthenticationException</literal> occurs, so that after login
-            is completed the user can return to what they were originally trying to access.
-            If for some reason the <literal>HttpSession</literal> does not
-            indicate the target URL, the browser will be redirected to the
-            <literal>defaultTargetUrl</literal> property.</para>
+
     </section>
 </chapter>

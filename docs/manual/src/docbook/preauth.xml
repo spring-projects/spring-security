@@ -150,19 +150,19 @@
         <para>
           A typical configuration using this filter would look like this:
 <programlisting><![CDATA[
-	<bean id="siteminderFilter"
-      class="org.springframework.security.web.authentication.preauth.header.RequestHeaderPreAuthenticatedProcessingFilter">
+	<bean id="siteminderFilter" class=
+"org.springframework.security.web.authentication.preauth.header.RequestHeaderPreAuthenticatedProcessingFilter">
     <security:custom-filter position="PRE_AUTH_FILTER" />
     <property name="principalRequestHeader" value="SM_USER"/>
     <property name="authenticationManager" ref="authenticationManager" />
   </bean>
 
   <bean id="preauthAuthProvider"
-      class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
     <security:custom-authentication-provider />      
     <property name="preAuthenticatedUserDetailsService">
       <bean id="userDetailsServiceWrapper" 
-            class="org.springframework.security.userdetails.UserDetailsByNameServiceWrapper">
+          class="org.springframework.security.userdetails.UserDetailsByNameServiceWrapper">
         <property name="userDetailsService" ref="userDetailsService"/>
       </bean>    
     </property>

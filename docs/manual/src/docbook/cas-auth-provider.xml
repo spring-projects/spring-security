@@ -274,8 +274,10 @@
     to your application context. This represents your service:</para>
 
     <para><programlisting><![CDATA[
-  <bean id="serviceProperties" class="org.springframework.security.cas.ServiceProperties">
-    <property name="service" value="https://localhost:8443/cas-sample/j_spring_cas_security_check"/>
+  <bean id="serviceProperties" 
+        class="org.springframework.security.cas.ServiceProperties">
+    <property name="service" 
+        value="https://localhost:8443/cas-sample/j_spring_cas_security_check"/>
     <property name="sendRenew" value="false"/>
   </bean>]]>
     </programlisting></para>
@@ -294,7 +296,8 @@
     <para><programlisting><![CDATA[
 <security:authentication-manager alias="authenticationManager"/>      
       
-<bean id="casProcessingFilter" class="org.springframework.security.cas.web.CasProcessingFilter">
+<bean id="casProcessingFilter" 
+      class="org.springframework.security.cas.web.CasProcessingFilter">
   <security:custom-filter after="CAS_PROCESSING_FILTER"/>
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="authenticationFailureUrl" value="/casfailed.jsp"/>
@@ -335,7 +338,8 @@
     <para>Next you need to add a <literal>CasAuthenticationProvider</literal> and its
     collaborators:
       <programlisting><![CDATA[
-  <bean id="casAuthenticationProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+  <bean id="casAuthenticationProvider" 
+      class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
     <security:custom-authentication-provider />
     <property name="userDetailsService" ref="userService"/>
     <property name="serviceProperties" ref="serviceProperties" />

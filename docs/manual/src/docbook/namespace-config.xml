@@ -34,8 +34,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:security="http://www.springframework.org/schema/security"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-              http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">  
+  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+          http://www.springframework.org/schema/security 
+          http://www.springframework.org/schema/security/spring-security-3.0.xsd">  
     ...
 </beans>
   ]]></programlisting> In many of the examples you will see (and in the sample) applications, we
@@ -47,8 +49,10 @@
 <beans:beans xmlns="http://www.springframework.org/schema/security"
   xmlns:beans="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-              http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd"> 
+  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/security 
+           http://www.springframework.org/schema/security/spring-security-3.0.xsd"> 
     ...
 </beans:beans>
 ]]></programlisting> We'll assume this syntax is being used from now on in this chapter. </para>
@@ -109,8 +113,7 @@
     <section xml:id="ns-web-xml">
       <title><literal>web.xml</literal> Configuration</title>
       <para> The first thing you need to do is add the following filter declaration to your
-        <literal>web.xml</literal> file: <programlisting language="xml">
-        <![CDATA[  
+        <literal>web.xml</literal> file: <programlisting language="xml"><![CDATA[
 <filter>
   <filter-name>springSecurityFilterChain</filter-name>
   <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -245,7 +248,8 @@
   <http>
     <intercept-url pattern='/login.htm*' filters='none'/>  
     <intercept-url pattern='/**' access='ROLE_USER' />
-    <form-login login-page='/login.htm' default-target-url='/home.htm' always-use-default-target='true' />
+    <form-login login-page='/login.htm' default-target-url='/home.htm' 
+            always-use-default-target='true' />
   </http>
   ]]>
             </programlisting></para>
@@ -276,7 +280,8 @@
         <literal>user-service-ref</literal> attribute: <programlisting language="xml"><![CDATA[
   <authentication-provider user-service-ref='myUserDetailsService'/>
   
-  <beans:bean id="myUserDetailsService" class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
+  <beans:bean id="myUserDetailsService" 
+      class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
     <beans:property name="dataSource" ref="dataSource"/>
   </beans:bean>
   ]]>
@@ -292,8 +297,10 @@
 <authentication-provider>
   <password-encoder hash="sha"/>
   <user-service>
-    <user name="jimi" password="d7e6351eaa13189a5a3641bab846c8e8c69ba39f" authorities="ROLE_USER, ROLE_ADMIN" />
-    <user name="bob" password="4e7421b1b8765d8f9406d87e7cc6aa784c4ab97f" authorities="ROLE_USER" />
+    <user name="jimi" password="d7e6351eaa13189a5a3641bab846c8e8c69ba39f" 
+            authorities="ROLE_USER, ROLE_ADMIN" />
+    <user name="bob" password="4e7421b1b8765d8f9406d87e7cc6aa784c4ab97f" 
+            authorities="ROLE_USER" />
   </user-service>
 </authentication-provider>
   ]]>
@@ -304,9 +311,9 @@
             <classname>UserDetails</classname> object which is loaded by your
             <classname>UserDetailsService</classname>. For example, to use the
             <literal>username</literal> property, you would use <programlisting><![CDATA[
-<password-encoder hash="sha">
-  <salt-source user-property="username"/>
-</password-encoder>
+  <password-encoder hash="sha">
+    <salt-source user-property="username"/>
+  </password-encoder>
     ]]></programlisting> You can use a custom password encoder bean by using the
             <literal>ref</literal> attribute of <literal>password-encoder</literal>. This should
           contain the name of a bean in the application context which is an instance of Spring
@@ -336,8 +343,7 @@
         to an HTTPS URL. The available options are "http", "https" or "any". Using the value "any"
         means that either HTTP or HTTPS can be used. </para>
       <para> If your application uses non-standard ports for HTTP and/or HTTPS, you can specify a
-        list of port mappings as follows: <programlisting>        
-          <![CDATA[     
+        list of port mappings as follows: <programlisting><![CDATA[     
   <http>
     ...
     <port-mappings>
@@ -354,9 +360,11 @@
         additions. First you need to add the following listener to your <filename>web.xml</filename>
         file to keep Spring Security updated about session lifecycle events: <programlisting language="xml">        
           <![CDATA[         
-<listener>
-  <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
-</listener>
+  <listener>
+    <listener-class>
+      org.springframework.security.web.session.HttpSessionEventPublisher
+    </listener-class>
+  </listener>
 ]]></programlisting> Then add the following line to your application context: <programlisting language="xml"><![CDATA[     
   <http>
     ...
@@ -384,7 +392,8 @@
   ]]></programlisting> You should then register yourself with an OpenID provider (such as
         myopenid.com), and add the user information to your in-memory
           <literal>&lt;user-service&gt;</literal>: <programlisting><![CDATA[
-  <user name="http://jimi.hendrix.myopenid.com/" password="notused" authorities="ROLE_USER" />
+  <user name="http://jimi.hendrix.myopenid.com/" password="notused" 
+          authorities="ROLE_USER" />
   ]]></programlisting> You should be able to login using the <literal>myopenid.com</literal> site to
         authenticate. </para>
     </section>
@@ -566,9 +575,9 @@
   </section>
   <section xml:id="ns-method-security">
     <title>Method Security</title>
-    <para> Spring Security 2.0 has improved support substantially for adding security to your
-      service layer methods. If you are using Java 5 or greater, then support for JSR-250 security
-      annotations is provided, as well as the framework's native <literal>@Secured</literal>
+    <para>From version 2.0 onwards Spring Security has improved support substantially for adding security to your
+      service layer methods. It provides support for JSR-250 security
+      as well as the framework's native <literal>@Secured</literal>
       annotation. You can apply security to a single bean, using the
         <literal>intercept-methods</literal> element to decorate the bean declaration, or you can
       secure multiple beans across the entire service layer using the AspectJ style pointcuts. </para>
@@ -607,7 +616,8 @@
           you to apply security to many beans with only a simple declaration. Consider the following
           example: <programlisting language="xml"><![CDATA[
   <global-method-security>
-    <protect-pointcut expression="execution(* com.mycompany.*Service.*(..))" access="ROLE_USER"/>
+    <protect-pointcut expression="execution(* com.mycompany.*Service.*(..))" 
+         access="ROLE_USER"/>
   </global-method-security>
 ]]>
           </programlisting> This will protect all methods on beans declared in the application
@@ -691,7 +701,8 @@
       you can then use this name elsewhere in your application context. <programlisting language="xml"><![CDATA[        
   <security:authentication-manager alias="authenticationManager"/>
 
-  <bean id="customizedFormLoginFilter" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter">
+  <bean id="customizedFormLoginFilter" 
+        class="com.somecompany.security.web.CustomFormLoginFilter">
      <security:custom-filter position="AUTHENTICATION_PROCESSING_FILTER "/>
      <property name="authenticationManager" ref="authenticationManager"/>
      ...

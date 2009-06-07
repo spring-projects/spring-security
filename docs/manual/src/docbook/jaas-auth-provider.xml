@@ -32,14 +32,16 @@ JAASTest {
             above JAAS login configuration file:
 <programlisting><![CDATA[
 <bean id="jaasAuthenticationProvider"
-            class="org.springframework.security.authentication.jaas.JaasAuthenticationProvider">
-  <property name="loginConfig" value="/WEB-INF/login.conf"/>
-  <property name="loginContextName" value="JAASTest"/>
-  <property name="callbackHandlers">
-    <list>
-      <bean class="org.springframework.security.authentication.jaas.JaasNameCallbackHandler"/>
-      <bean class="org.springframework.security.authentication.jaas.JaasPasswordCallbackHandler"/>
-    </list>
+   class="org.springframework.security.authentication.jaas.JaasAuthenticationProvider">
+ <property name="loginConfig" value="/WEB-INF/login.conf"/>
+ <property name="loginContextName" value="JAASTest"/>
+ <property name="callbackHandlers">
+  <list>
+   <bean 
+     class="org.springframework.security.authentication.jaas.JaasNameCallbackHandler"/>
+   <bean 
+     class="org.springframework.security.authentication.jaas.JaasPasswordCallbackHandler"/>
+  </list>
   </property>
   <property name="authorityGranters">
     <list>

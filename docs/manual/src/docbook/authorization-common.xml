@@ -70,7 +70,8 @@
     <interfacename>AccessDecisionManager</interfacename> interface contains three
     methods:
       <programlisting>
- void decide(Authentication authentication, Object secureObject, List&lt;ConfigAttribute&gt; config) throws AccessDeniedException;
+ void decide(Authentication authentication, Object secureObject, 
+     List&lt;ConfigAttribute&gt; config) throws AccessDeniedException;
  boolean supports(ConfigAttribute attribute);
  boolean supports(Class clazz);
       </programlisting>
@@ -106,11 +107,13 @@
       <figure xml:id="authz-access-voting">
         <title>Voting Decision Manager</title>
       <mediaobject>
+<!--        
         <imageobject role="fo">
           <imagedata align="center" fileref="resources/images/AccessDecisionVoting.gif" format="GIF"/>
         </imageobject>
-        <imageobject role="html">
-          <imagedata align="center" fileref="images/AccessDecisionVoting.gif" format="GIF"/>
+-->        
+        <imageobject>
+          <imagedata align="center" scalefit="1" fileref="images/AccessDecisionVoting.gif" format="GIF"/>
         </imageobject>
       </mediaobject>
       </figure>
@@ -227,11 +230,8 @@ boolean supports(Class clazz);
     <figure xml:id="authz-after-invocation">
       <title>After Invocation Implementation</title>
       <mediaobject>
-        <imageobject role="fo">
-          <imagedata  align="center" fileref="resources/images/AfterInvocation.gif" format="GIF"/>
-        </imageobject>
-        <imageobject role="html">
-          <imagedata  align="center" fileref="images/AfterInvocation.gif" format="GIF"/>
+        <imageobject>
+          <imagedata  align="center" scalefit="1" fileref="images/AfterInvocation.gif" format="GIF"/>
         </imageobject>
       </mediaobject>
 
@@ -319,7 +319,7 @@ boolean supports(Class clazz);
       follows:
 <programlisting><![CDATA[
 <bean id="afterAclCollectionRead"
-    class="org.springframework.security.acls.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider">
+  class="org.springframework.security.acls.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider">
   <constructor-arg ref="aclService"/>
   <constructor-arg>
     <list>

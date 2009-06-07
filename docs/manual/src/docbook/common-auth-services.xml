@@ -48,7 +48,17 @@
 <bean id="filterChainProxy"
         class="org.springframework.security.web.FilterChainProxy">
   <security:filter-chain-map path-type="ant">
-    <security:filter-chain pattern="/**" filters="httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor,switchUserProcessingFilter"/>
+    <security:filter-chain pattern="/**" filters="
+        securityContextPersistenceFilter,
+        logoutFilter,
+        authenticationProcessingFilter,
+        basicProcessingFilter,
+        securityContextHolderAwareRequestFilter,
+        rememberMeProcessingFilter,
+        anonymousProcessingFilter,
+        exceptionTranslationFilter,
+        filterInvocationInterceptor,
+        switchUserProcessingFilter"/>
   </security:filter-chain-map>
 </bean>]]></programlisting></para>
 
@@ -123,16 +133,17 @@
     shipped with Spring Security, so let's look at how it's configured for
     the example we're using in this chapter:</para>
 
-    <para><programlisting>&lt;bean id="authenticationManager"
-        class="org.springframework.security.authentication.ProviderManager"&gt;
-&lt;property name="providers"&gt;
-&lt;list&gt;
-  &lt;ref local="daoAuthenticationProvider"/&gt;
-  &lt;ref local="anonymousAuthenticationProvider"/&gt;
-  &lt;ref local="rememberMeAuthenticationProvider"/&gt;
-&lt;/list&gt;
-&lt;/property&gt;
-&lt;/bean&gt;</programlisting></para>
+    <para><programlisting><![CDATA[
+<bean id="authenticationManager"
+        class="org.springframework.security.authentication.ProviderManager">
+  <property name="providers">
+    <list>
+      <ref local="daoAuthenticationProvider"/>
+      <ref local="anonymousAuthenticationProvider"/>
+      <ref local="rememberMeAuthenticationProvider"/>
+    </list>
+  </property>
+</bean>]]></programlisting></para>
 
     <para>It's probably worth mentioning at this point that your
     authentication mechanisms (which are usually filters) are also
@@ -187,8 +198,8 @@
 
     <para><programlisting><![CDATA[
 <bean id="exceptionTranslationFilter"
-        class="org.springframework.security.web.access.ExceptionTranslationFilter">
-  <property name="authenticationEntryPoint" ref="authenticationProcessingFilterEntryPoint"/>
+     class="org.springframework.security.web.access.ExceptionTranslationFilter">
+  <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
   <property name="accessDeniedHandler">
     <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
       <property name="errorPage" value="/accessDenied.jsp"/>
@@ -196,10 +207,10 @@
   </property>
 </bean>
 
-<bean id="authenticationProcessingFilterEntryPoint"
-        class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+<bean id="authenticationEntryPoint"
+     class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
   <property name="loginFormUrl" value="/login.jsp"/>
-  <property name="forceHttps">< value="false"/>
+  <property name="forceHttps"   value="false"/>
 </bean>]]></programlisting></para>
 
     <para>Notice that the <classname>ExceptionTranslationFilter</classname>
@@ -288,17 +299,16 @@
       use the <literal>user-service</literal> element from the security 
         <link xlink:href="#namespace-minimal" >namespace</link>:
 <programlisting><![CDATA[
-    <user-service id="userDetailsService">
-      <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
-      <user name="bob" password="bobspassword" authorities="ROLE_USER" />
-    </user-service>
+  <user-service id="userDetailsService">
+    <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
+    <user name="bob" password="bobspassword" authorities="ROLE_USER" />
+  </user-service>
   ]]>
 </programlisting>
         This also suppots the use of an external properties file:
         <programlisting><![CDATA[
-    <user-service id="userDetailsService" properties="users.properties"/>
-  ]]>
-        </programlisting>
+  <user-service id="userDetailsService" properties="users.properties"/>
+  ]]></programlisting>
         The properties file should contain entries in the form
 <programlisting>
   username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]
@@ -363,7 +373,8 @@
   authority VARCHAR(50) NOT NULL
   );
   
-  ALTER TABLE authorities ADD CONSTRAINT fk_authorities_users foreign key (username) REFERENCES users(username);
+  ALTER TABLE authorities ADD CONSTRAINT fk_authorities_users \
+  foreign key (username) REFERENCES users(username);
 </programlisting>      
       </para>
 
@@ -394,10 +405,12 @@
 
     <para>To use concurrent session support, you'll need to add the
     following to <literal>web.xml</literal>:
-      <programlisting>
-&lt;listener&gt;
-    &lt;listener-class&gt;org.springframework.security.web.session.HttpSessionEventPublisher&lt;/listener-class&gt;
-&lt;/listener&gt;        
+      <programlisting><![CDATA[
+  <listener>
+    <listener-class>
+      org.springframework.security.web.session.HttpSessionEventPublisher
+    </listener-class>
+  </listener> ]]>       
       </programlisting>
     </para>
 
@@ -424,7 +437,7 @@
 
     <para>
       <programlisting><![CDATA[
-<bean id="authenticationManager"
+<bean id="authenticationManager" 
     class="org.springframework.security.authentication.ProviderManager">
   <property name="providers">
     <!-- your providers go here -->
@@ -432,11 +445,12 @@
   <property name="sessionController" ref="concurrentSessionController"/>
 </bean>
 
-<bean id="concurrentSessionController"
-    class="org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl">
+<bean id="concurrentSessionController" class=
+    "org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl">
   <property name="maximumSessions" value="1"/>
   <property name="sessionRegistry">
-    <bean class="org.springframework.security.authentication.concurrent.SessionRegistryImpl"/>
+    <bean 
+      class="org.springframework.security.authentication.concurrent.SessionRegistryImpl"/>
   <property>
 </bean>
 ]]></programlisting></para>

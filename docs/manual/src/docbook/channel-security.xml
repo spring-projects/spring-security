@@ -38,23 +38,28 @@
     <info><title>Configuration</title></info>
     <para>Channel security is supported by the <link xlink:href="#ns-requires-channel">security namespace</link>
         by means of the <literal>requires-channel</literal> attribute on the <literal>&lt;intercept-url&gt;</literal>
-        element and this is the simplest (and recommended approach)</para>
+        element and this is the simplest (and recommended approach).</para>
     <para>To confiure channel security explicitly, you would define the following the filter in your application
         context:
 <programlisting><![CDATA[
-<bean id="channelProcessingFilter" class="org.springframework.security.web.access.channel.ChannelProcessingFilter">
+<bean id="channelProcessingFilter" 
+    class="org.springframework.security.web.access.channel.ChannelProcessingFilter">
   <property name="channelDecisionManager" ref="channelDecisionManager"/>
-  <property name="filterInvocationDefinitionSource">
+  <property name="filterInvocationSecurityMetadataSource">
     <security:filter-invocation-definition-source path-type="regex">
-      <security:intercept-url pattern="\A/secure/.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
-      <security:intercept-url pattern="\A/acegilogin.jsp.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
-      <security:intercept-url pattern="\A/j_spring_security_check.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
+      <security:intercept-url pattern="\A/secure/.*\Z" 
+          access="REQUIRES_SECURE_CHANNEL"/>
+      <security:intercept-url pattern="\A/acegilogin.jsp.*\Z" 
+          access="REQUIRES_SECURE_CHANNEL"/>
+      <security:intercept-url pattern="\A/j_spring_security_check.*\Z" 
+          access="REQUIRES_SECURE_CHANNEL"/>
       <security:intercept-url pattern="\A/.*\Z" access="ANY_CHANNEL"/>
     </security:filter-invocation-definition-source>                
   </property>
 </bean>
     
-<bean id="channelDecisionManager" class="org.springframework.security.access.channel.ChannelDecisionManagerImpl">
+<bean id="channelDecisionManager" 
+    class="org.springframework.security.access.channel.ChannelDecisionManagerImpl">
   <property name="channelProcessors">
     <list>
     <ref bean="secureChannelProcessor"/>
@@ -63,8 +68,10 @@
   </property>
 </bean>
     
-<bean id="secureChannelProcessor" class="org.springframework.security.access.channel.SecureChannelProcessor"/>
-<bean id="insecureChannelProcessor" class="org.springframework.security.access.channel.InsecureChannelProcessor"/>]]>      
+<bean id="secureChannelProcessor" 
+  class="org.springframework.security.access.channel.SecureChannelProcessor"/>
+<bean id="insecureChannelProcessor" 
+  class="org.springframework.security.access.channel.InsecureChannelProcessor"/>]]>      
 </programlisting>
         Like <classname>FilterSecurityInterceptor</classname>, Apache Ant
         style paths are also supported by the

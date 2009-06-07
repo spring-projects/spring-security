@@ -32,7 +32,8 @@
         <info><title>Configuration</title></info>
         <para>A <literal>RunAsManager</literal> interface is provided by Spring Security:
             <programlisting>
-  Authentication buildRunAs(Authentication authentication, Object object, List&lt;ConfigAttribute&gt; config);
+  Authentication buildRunAs(Authentication authentication, Object object, 
+      List&lt;ConfigAttribute&gt; config);
   boolean supports(ConfigAttribute attribute);
   boolean supports(Class clazz);
             </programlisting>
@@ -87,7 +88,8 @@
             bean context with the same key:
             <programlisting>
 <![CDATA[
-<bean id="runAsManager" class="org.springframework.security.access.intercept.RunAsManagerImpl">
+<bean id="runAsManager" 
+    class="org.springframework.security.access.intercept.RunAsManagerImpl">
   <property name="key" value="my_run_as_password"/>
 </bean>
 

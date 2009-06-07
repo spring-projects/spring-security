@@ -38,7 +38,8 @@
     is shown below:</para>
 
     <para><programlisting><![CDATA[
-<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+<bean id="messageSource" 
+    class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
   <property name="basename" value="org/springframework/security/messages"/>
 </bean>
 ]]></programlisting></para>
@@ -91,16 +92,16 @@
     <para>When using <literal>DelegatingFilterProxy</literal>, you will see
       something like this in the web.xml file:
       
-        <programlisting>
-    &lt;filter&gt;
-        &lt;filter-name&gt;myFilter&lt;/filter-name&gt;
-        &lt;filter-class&gt;org.springframework.web.filter.DelegatingFilterProxy&lt;/filter-class&gt;
-    &lt;/filter&gt;
+        <programlisting><![CDATA[    
+  <filter>
+    <filter-name>myFilter</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+  </filter>
 
-    &lt;filter-mapping&gt;
-      &lt;filter-name&gt;myFilter&lt;/filter-name&gt;
-      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-    &lt;/filter-mapping&gt;
+  <filter-mapping>
+    <filter-name>myFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>]]>
         </programlisting>     
        
         Notice that the filter  is actually a <literal>DelegatingFilterProxy</literal>, 
@@ -152,10 +153,16 @@
     <para><programlisting><![CDATA[
 <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
   <sec:filter-chain-map path-type="ant">
-     <sec:filter-chain pattern="/webServices/**" 
-         filters="httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
-     <sec:filter-chain pattern="/**" 
-         filters="httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
+     <sec:filter-chain pattern="/webServices/**" filters="
+           httpSessionContextIntegrationFilterWithASCFalse,
+           basicProcessingFilter,
+           exceptionTranslationFilter,
+           filterSecurityInterceptor" />
+     <sec:filter-chain pattern="/**" filters="
+           httpSessionContextIntegrationFilterWithASCTrue,
+           authenticationProcessingFilter,
+           exceptionTranslationFilter,
+           filterSecurityInterceptor" />
   </sec:filter-chain-map>
 </bean>
 ]]>         
@@ -335,8 +342,7 @@
         in your JSP: 
 <programlisting>
   &lt;%@ taglib prefix='security' uri='http://www.springframework.org/security/tags' %&gt;
-          
-        </programlisting></para>
+</programlisting></para>
     </section>
   </section>
 </chapter>

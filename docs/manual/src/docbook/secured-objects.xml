@@ -76,7 +76,7 @@
 
     <programlisting><![CDATA[
 <bean id="bankManagerSecurity"
-        class="org.springframework.security.intercept.aspectj.AspectJSecurityInterceptor">
+     class="org.springframework.security.intercept.aspectj.AspectJSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="afterInvocationManager" ref="afterInvocationManager"/>
@@ -115,7 +115,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 private AspectJSecurityInterceptor securityInterceptor;
 
 pointcut domainObjectInstanceExecution(): target(PersistableEntity)
-      &amp;&amp; execution(public * *(..)) &amp;&amp; !within(DomainObjectInstanceSecurityAspect);
+     &amp;&amp; execution(public * *(..)) &amp;&amp; !within(DomainObjectInstanceSecurityAspect);
 
 Object around(): domainObjectInstanceExecution() {
   if (this.securityInterceptor == null) {
@@ -162,8 +162,8 @@ public void afterPropertiesSet() throws Exception {
 
     <programlisting><![CDATA[
 <bean id="domainObjectInstanceSecurityAspect"
-     class="org.springframework.security.samples.aspectj.DomainObjectInstanceSecurityAspect"
-     factory-method="aspectOf">
+   class="org.springframework.security.samples.aspectj.DomainObjectInstanceSecurityAspect"
+   factory-method="aspectOf">
   <property name="securityInterceptor" ref="aspectJSecurityInterceptor"/>
 </bean>]]>
     </programlisting>
@@ -187,12 +187,12 @@ public void afterPropertiesSet() throws Exception {
     <programlisting>
 <![CDATA[
 <bean id="exceptionTranslationFilter"
-        class="org.springframework.security.web.access.ExceptionTranslationFilter">
+    class="org.springframework.security.web.access.ExceptionTranslationFilter">
   <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
 </bean>
 
 <bean id="authenticationEntryPoint"
-        class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+     class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
   <property name="loginFormUrl" value="/acegilogin.jsp"/>
   <property name="forceHttps" value="false"/>
 </bean>
@@ -291,7 +291,7 @@ public void afterPropertiesSet() throws Exception {
 
     <programlisting><![CDATA[
 <bean id="filterInvocationInterceptor"
-        class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+     class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="runAsManager" ref="runAsManager"/>

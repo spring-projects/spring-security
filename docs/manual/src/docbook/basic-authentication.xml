@@ -27,17 +27,17 @@
         <literal>BasicProcessingFilter</literal> and its required
         collaborator:</para>
     
-    <para><programlisting language="xml">
-        &lt;bean id="basicProcessingFilter" class="org.springframework.security.web.authentication.www.BasicProcessingFilter"&gt;
-        &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
-        &lt;property name="authenticationEntryPoint"&gt;&lt;ref bean="authenticationEntryPoint"/&gt;&lt;/property&gt;
-        &lt;/bean&gt;
-        
-        &lt;bean id="authenticationEntryPoint"
-        class="org.springframework.security.web.authentication.www.BasicProcessingFilterEntryPoint"&gt;
-        &lt;property name="realmName"&gt;&lt;value&gt;Name Of Your Realm&lt;/value&gt;&lt;/property&gt;
-        &lt;/bean&gt;
-        
+    <para><programlisting language="xml"><![CDATA[
+<bean id="basicProcessingFilter" 
+  class="org.springframework.security.web.authentication.www.BasicProcessingFilter">
+  <property name="authenticationManager" ref="authenticationManager"/>
+  <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
+</bean>
+
+<bean id="authenticationEntryPoint"
+  class="org.springframework.security.web.authentication.www.BasicProcessingFilterEntryPoint">
+  <property name="realmName" value="Name Of Your Realm"/>
+</bean>]]> 
     </programlisting></para>
     
     <para>The configured <interfacename>AuthenticationManager</interfacename>

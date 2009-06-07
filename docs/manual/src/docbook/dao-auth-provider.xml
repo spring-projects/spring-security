@@ -85,7 +85,8 @@
   <property name="cacheName" value="userCache"/>
 </bean>
 
-<bean id="userCache" class="org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache">
+<bean id="userCache" 
+    class="org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache">
   <property name="cache" ref="userCacheBackend"/>
 </bean>]]>        
     </programlisting></para>
