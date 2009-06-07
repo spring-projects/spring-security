@@ -57,3 +57,7 @@ div.table td {
   padding-left:  7px;
   padding-right: 7px;
 }
+
+.question {
+  font-weight: bold;
+}

@@ -9,7 +9,7 @@
             <personname>Luke Taylor</personname>
             <affiliation><orgname>SpringSource</orgname></affiliation></author>
         <abstract>
-            <para>An quick introduction to the code modules and package structure of the Spring
+            <para>A quick introduction to the code modules and package structure of the Spring
                 Security 3.0 codebase.</para>
         </abstract>
     </info>
@@ -18,7 +18,7 @@
         <para>In versions prior to 3.0, most of Spring Security's code was contained in the
                 <filename>spring-security-core</filename> jar<footnote>
                 <para>There was also an additional <filename>spring-security-core-tiger</filename>
-                    jar which contained the Java 5 specific code. In Spring Security 3.0 Java 5 is
+                    jar which contained the Java 5 specific code. In Spring Security 3.0, Java 5 is
                     the minimum supported platform, so this code is now part of the core.</para>
             </footnote>. Over the years, as more features have been added, it has become more
             difficult to track the dependencies both within the codebase itself and also on third
@@ -79,8 +79,8 @@
                     table.<table xml:id="jar-files-3.0">
                     <title>Spring Security Jars</title>
                     <tgroup cols="3" align="left">
-                        <colspec colnum="1" colname="c1" colwidth="0.6*"/>
-                        <colspec colnum="2" colname="c2" colwidth="0.9*"/>
+                        <colspec colnum="1" colname="c1" colwidth="0.59*"/>
+                        <colspec colnum="2" colname="c2" colwidth="0.92*"/>
                         <colspec colnum="3" colname="c3" colwidth="0.88*"/>
                         <colspec colnum="4" colname="c4" colwidth="1.61*"/>
                         <thead>
@@ -183,7 +183,7 @@
                     <interfacename>AuthenticationManager</interfacename> and related classes (such
                 as authentication exception classes), the simple DAO-based authentication provider
                 and password-encoders. <figure xml:id="structure-3.0">
-                    <title>Spring Security 2.0.4 Package Structure</title>
+                    <title>Spring Security 3.0.0.M1 Package Structure</title>
                     <mediaobject>
                         <imageobject>
                             <imagedata fileref="images/spring-security-3.0.0.M1.png" align="center"
