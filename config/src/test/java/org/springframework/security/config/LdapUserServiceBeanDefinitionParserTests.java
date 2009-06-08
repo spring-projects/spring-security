@@ -141,6 +141,18 @@ public class LdapUserServiceBeanDefinitionParserTests {
         assertTrue(ben instanceof InetOrgPerson);
     }
 
+    @Test
+    public void externalContextMapperIsSupported() {
+        setContext(
+                "<ldap-server id='someServer'/>" +
+                "<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' user-context-mapper-ref='mapper'/>" +
+                "<b:bean id='mapper' class='"+ InetOrgPersonContextMapper.class.getName() +"'/>");
+
+        UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+        UserDetails ben = uds.loadUserByUsername("ben");
+        assertTrue(ben instanceof InetOrgPerson);
+    }
+
 
     private void setContext(String context) {
         appCtx = new InMemoryXmlApplicationContext(context);

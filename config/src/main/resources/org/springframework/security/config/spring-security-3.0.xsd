@@ -301,6 +301,15 @@
          </xs:simpleType>
       </xs:attribute>
    </xs:attributeGroup>
+   <xs:attributeGroup name="user-context-mapper-attribute">
+      <xs:attribute name="user-context-mapper-ref" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Allows explicit customization of the loaded user object by specifying
+               a UserDetailsContextMapper bean which will be called with the context information
+               from the user's directory entry</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:attributeGroup>
    <xs:element name="ldap-user-service" substitutionGroup="security:any-user-service">
       <xs:complexType>
          <xs:attributeGroup ref="security:ldap-us.attlist"/>
@@ -375,6 +384,13 @@
                <xs:enumeration value="inetOrgPerson"/>
             </xs:restriction>
          </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="user-context-mapper-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Allows explicit customization of the loaded user object by specifying
+               a UserDetailsContextMapper bean which will be called with the context information
+               from the user's directory entry</xs:documentation>
+         </xs:annotation>
       </xs:attribute>
    </xs:attributeGroup>
    <xs:element name="ldap-authentication-provider">
@@ -504,6 +520,13 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
+      <xs:attribute name="user-context-mapper-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Allows explicit customization of the loaded user object by specifying
+               a UserDetailsContextMapper bean which will be called with the context information
+               from the user's directory entry</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
    </xs:attributeGroup>
    <xs:attributeGroup name="password-compare.attlist">
       <xs:attribute name="password-attribute" type="xs:token">
@@ -623,7 +646,16 @@
                      </xs:sequence>
                   </xs:complexType>
                </xs:element>
-               <xs:element ref="security:expression-handler"/>
+               <xs:element name="expression-handler">
+                  <xs:annotation>
+                     <xs:documentation>Defines the SecurityExpressionHandler instance which will be
+                        used if expression-based access-control is enabled. A default implementation
+                        (with no ACL support) will be used if not supplied.</xs:documentation>
+                  </xs:annotation>
+                  <xs:complexType>
+                     <xs:attributeGroup ref="security:ref"/>
+                  </xs:complexType>
+               </xs:element>
             </xs:choice>
             <xs:element minOccurs="0" maxOccurs="unbounded" name="protect-pointcut">
                <xs:annotation>
@@ -693,16 +725,6 @@
          </xs:annotation>
       </xs:attribute>
    </xs:attributeGroup>
-   <xs:element name="expression-handler">
-      <xs:annotation>
-         <xs:documentation>Defines the SecurityExpressionHandler instance which will be used if
-            expression-based access-control is enabled. A default implementation (with no ACL
-            support) will be used if not supplied.</xs:documentation>
-      </xs:annotation>
-      <xs:complexType>
-         <xs:attributeGroup ref="security:ref"/>
-      </xs:complexType>
-   </xs:element>
    <xs:element name="custom-after-invocation-provider">
       <xs:annotation>
          <xs:documentation>Used to decorate an AfterInvocationProvider to specify that it should be
@@ -759,7 +781,21 @@
                   <xs:attributeGroup ref="security:form-login.attlist"/>
                </xs:complexType>
             </xs:element>
-            <xs:element ref="security:openid-login"/>
+            <xs:element name="openid-login">
+               <xs:annotation>
+                  <xs:documentation>Sets up form login for authentication with an Open ID
+                     identity</xs:documentation>
+               </xs:annotation>
+               <xs:complexType>
+                  <xs:attributeGroup ref="security:form-login.attlist"/>
+                  <xs:attribute name="user-service-ref" type="xs:token">
+                     <xs:annotation>
+                        <xs:documentation>A reference to a user-service (or UserDetailsService bean)
+                           Id</xs:documentation>
+                     </xs:annotation>
+                  </xs:attribute>
+               </xs:complexType>
+            </xs:element>
             <xs:element name="x509">
                <xs:annotation>
                   <xs:documentation>Adds support for X.509 client authentication.</xs:documentation>
@@ -823,7 +859,12 @@
                </xs:annotation>
                <xs:complexType>
                   <xs:sequence>
-                     <xs:element maxOccurs="unbounded" ref="security:port-mapping"/>
+                     <xs:element maxOccurs="unbounded" name="port-mapping">
+                        <xs:complexType>
+                           <xs:attributeGroup ref="security:http-port"/>
+                           <xs:attributeGroup ref="security:https-port"/>
+                        </xs:complexType>
+                     </xs:element>
                   </xs:sequence>
                </xs:complexType>
             </xs:element>
@@ -1108,21 +1149,6 @@
          </xs:annotation>
       </xs:attribute>
    </xs:attributeGroup>
-   <xs:element name="openid-login">
-      <xs:annotation>
-         <xs:documentation>Sets up form login for authentication with an Open ID
-            identity</xs:documentation>
-      </xs:annotation>
-      <xs:complexType>
-         <xs:attributeGroup ref="security:form-login.attlist"/>
-         <xs:attribute name="user-service-ref" type="xs:token">
-            <xs:annotation>
-               <xs:documentation>A reference to a user-service (or UserDetailsService bean)
-                  Id</xs:documentation>
-            </xs:annotation>
-         </xs:attribute>
-      </xs:complexType>
-   </xs:element>
    <xs:element name="filter-chain-map">
       <xs:annotation>
          <xs:documentation>Used to explicitly configure a FilterChainProxy instance with a
@@ -1348,12 +1374,6 @@
          </xs:annotation>
       </xs:attribute>
    </xs:attributeGroup>
-   <xs:element name="port-mapping">
-      <xs:complexType>
-         <xs:attributeGroup ref="security:http-port"/>
-         <xs:attributeGroup ref="security:https-port"/>
-      </xs:complexType>
-   </xs:element>
    <xs:attributeGroup name="http-port">
       <xs:attribute name="http" use="required" type="xs:token"/>
    </xs:attributeGroup>
@@ -1474,7 +1494,14 @@
       </xs:annotation>
       <xs:complexType>
          <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:user"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="user">
+               <xs:annotation>
+                  <xs:documentation>Represents a user in the application.</xs:documentation>
+               </xs:annotation>
+               <xs:complexType>
+                  <xs:attributeGroup ref="security:user.attlist"/>
+               </xs:complexType>
+            </xs:element>
          </xs:sequence>
          <xs:attribute name="id" type="xs:ID">
             <xs:annotation>
@@ -1488,14 +1515,6 @@
    <xs:attributeGroup name="properties-file">
       <xs:attribute name="properties" type="xs:token"/>
    </xs:attributeGroup>
-   <xs:element name="user">
-      <xs:annotation>
-         <xs:documentation>Represents a user in the application.</xs:documentation>
-      </xs:annotation>
-      <xs:complexType>
-         <xs:attributeGroup ref="security:user.attlist"/>
-      </xs:complexType>
-   </xs:element>
    <xs:attributeGroup name="user.attlist">
       <xs:attribute name="name" use="required" type="xs:token">
          <xs:annotation>

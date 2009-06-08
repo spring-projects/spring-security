@@ -1,5 +1,6 @@
 package org.springframework.security.config;
 
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -29,6 +30,7 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 
     static final String ATT_ROLE_PREFIX = "role-prefix";
     static final String ATT_USER_CLASS = "user-details-class";
+    static final String ATT_USER_CONTEXT_MAPPER_REF = "user-context-mapper-ref";
     static final String OPT_PERSON = "person";
     static final String OPT_INETORGPERSON = "inetOrgPerson";
 
@@ -49,8 +51,9 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
         }
 
         builder.addConstructorArgValue(parseSearchBean(elt, parserContext));
+        builder.getRawBeanDefinition().setSource(parserContext.extractSource(elt));
         builder.addConstructorArgValue(parseAuthoritiesPopulator(elt, parserContext));
-        builder.addPropertyValue("userDetailsMapper", parseUserDetailsClass(elt, parserContext));
+        builder.addPropertyValue("userDetailsMapper", parseUserDetailsClassOrUserMapperRef(elt, parserContext));
     }
 
     static RootBeanDefinition parseSearchBean(Element elt, ParserContext parserContext) {
@@ -109,15 +112,32 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
         registry.registerBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR, bdb.getBeanDefinition());
     }
 
-    static RootBeanDefinition parseUserDetailsClass(Element elt, ParserContext parserContext) {
+    static BeanMetadataElement parseUserDetailsClassOrUserMapperRef(Element elt, ParserContext parserContext) {
         String userDetailsClass = elt.getAttribute(ATT_USER_CLASS);
+        String userMapperRef = elt.getAttribute(ATT_USER_CONTEXT_MAPPER_REF);
+
+        if (StringUtils.hasText(userDetailsClass) && StringUtils.hasText(userMapperRef)) {
+            parserContext.getReaderContext().error("Attributes " + ATT_USER_CLASS + " and " + ATT_USER_CONTEXT_MAPPER_REF
+                    + " cannot be used together.", parserContext.extractSource(elt));
+        }
+
+        if (StringUtils.hasText(userMapperRef)) {
+            return new RuntimeBeanReference(userMapperRef);
+        }
+
+        RootBeanDefinition mapper;
 
         if (OPT_PERSON.equals(userDetailsClass)) {
-            return new RootBeanDefinition(PERSON_MAPPER_CLASS, null, null);
+            mapper = new RootBeanDefinition(PERSON_MAPPER_CLASS, null, null);
         } else if (OPT_INETORGPERSON.equals(userDetailsClass)) {
-            return new RootBeanDefinition(INET_ORG_PERSON_MAPPER_CLASS, null, null);
+            mapper = new RootBeanDefinition(INET_ORG_PERSON_MAPPER_CLASS, null, null);
+        } else {
+            mapper = new RootBeanDefinition(LDAP_USER_MAPPER_CLASS, null, null);
         }
-        return new RootBeanDefinition(LDAP_USER_MAPPER_CLASS, null, null);
+
+        mapper.setSource(parserContext.extractSource(elt));
+
+        return mapper;
     }
 
     static RootBeanDefinition parseAuthoritiesPopulator(Element elt, ParserContext parserContext) {

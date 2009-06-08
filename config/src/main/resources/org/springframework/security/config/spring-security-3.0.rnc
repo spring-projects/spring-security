@@ -106,6 +106,9 @@ group-role-attribute-attribute =
 user-details-class-attribute = 
     ## Allows the objectClass of the user entry to be specified. If set, the framework will attempt to load standard attributes for the defined class into the returned UserDetails object
     attribute user-details-class {"person" | "inetOrgPerson"}
+user-context-mapper-attribute =
+    ## Allows explicit customization of the loaded user object by specifying a UserDetailsContextMapper bean which will be called with the context information from the user's directory entry
+    attribute user-context-mapper-ref {xsd:token}
 
 
 ldap-user-service =
@@ -128,7 +131,7 @@ ldap-us.attlist &=
 ldap-us.attlist &=
     role-prefix?
 ldap-us.attlist &=
-    user-details-class-attribute?
+    (user-details-class-attribute | user-context-mapper-attribute)?
 
 ldap-authentication-provider =
     ## Sets up an ldap authentication provider
@@ -151,7 +154,7 @@ ldap-ap.attlist &=
 ldap-ap.attlist &=
     role-prefix?
 ldap-ap.attlist &=
-    user-details-class-attribute?
+    (user-details-class-attribute | user-context-mapper-attribute)?
 
 password-compare-element =
     ## Specifies that an LDAP provider should use an LDAP compare operation of the user's password to authenticate the user
