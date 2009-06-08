@@ -22,7 +22,7 @@ public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
     static final String DEF_KEY = "doesNotMatter";
 
     static final String ATT_USERNAME = "username";
-    static final String DEF_USERNAME = "roleAnonymous";
+    static final String DEF_USERNAME = "anonymousUser";
 
     static final String ATT_GRANTED_AUTHORITY = "granted-authority";
     static final String DEF_GRANTED_AUTHORITY = "ROLE_ANONYMOUS";
