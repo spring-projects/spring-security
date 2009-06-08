@@ -66,14 +66,7 @@ located at the Spring Community's forum site:
 
   http://forum.springframework.org
 
-If you start using Spring Security in your project, please consider joining
-the acegisecurity-developer mailing list. This is currently the best way to
-keep informed about the project's status and provide feedback in design 
-discussions. You can join at:
-
-  https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer.
-
-Links to mailing list archives, the forums, and other useful resources are
+Links to the forums, and other useful resources are
 available from the web site.
 
 
