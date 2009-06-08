@@ -139,12 +139,13 @@ public class AnonymousProcessingFilter  extends SpringSecurityFilter  implements
     /**
      * Controls whether the filter will remove the Anonymous token after the request is complete. Generally
      * this is desired to avoid the expense of a session being created by {@link
-     * org.springframework.security.web.context.HttpSessionContextIntegrationFilter HttpSessionContextIntegrationFilter} simply to
-     * store the Anonymous authentication token.<p>Defaults to <code>true</code>, being the most optimal and
-     * appropriate option (ie <code>AnonymousProcessingFilter</code> will clear the token at the end of each request,
-     * thus avoiding the session creation overhead in a typical configuration.</p>
+     * org.springframework.security.web.context.HttpSessionContextIntegrationFilter HttpSessionContextIntegrationFilter}
+     * simply to store the Anonymous authentication token.
+     * <p>
+     * Defaults to <code>true</code>, being the most optimal and appropriate
+     * option &ndash; <code>AnonymousProcessingFilter</code> will clear the token at the end of each request,
+     * thus avoiding session creation overhead in a typical configuration.
      *
-     * @param removeAfterRequest DOCUMENT ME!
      */
     public void setRemoveAfterRequest(boolean removeAfterRequest) {
         this.removeAfterRequest = removeAfterRequest;
