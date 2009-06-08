@@ -44,6 +44,8 @@ public abstract class Elements {
     public static final String CUSTOM_AUTH_PROVIDER = "custom-authentication-provider";
     public static final String CUSTOM_AFTER_INVOCATION_PROVIDER = "custom-after-invocation-provider";
     public static final String X509 = "x509";
+    public static final String FILTER_SECURITY_METADATA_SOURCE = "filter-security-metadata-source";
+    @Deprecated
     public static final String FILTER_INVOCATION_DEFINITION_SOURCE = "filter-invocation-definition-source";
     public static final String LDAP_PASSWORD_COMPARE = "password-compare";
 }

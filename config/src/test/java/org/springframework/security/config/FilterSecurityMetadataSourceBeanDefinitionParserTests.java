@@ -23,7 +23,7 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  * @version $Id$
  */
-public class FilterInvocationSecurityMetadataSourceBeanDefinitionParserTests {
+public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
     private AbstractXmlApplicationContext appContext;
 
     @After
@@ -46,9 +46,9 @@ public class FilterInvocationSecurityMetadataSourceBeanDefinitionParserTests {
     @Test
     public void parsingMinimalConfigurationIsSuccessful() {
         setContext(
-                "<filter-invocation-definition-source id='fids'>" +
+                "<filter-security-metadata-source id='fids'>" +
                 "   <intercept-url pattern='/**' access='ROLE_A'/>" +
-                "</filter-invocation-definition-source>");
+                "</filter-security-metadata-source>");
         DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) appContext.getBean("fids");
         List<? extends ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
         assertNotNull(cad);
@@ -61,11 +61,11 @@ public class FilterInvocationSecurityMetadataSourceBeanDefinitionParserTests {
                 "<http auto-config='true'/>" +
                 "<b:bean id='fsi' class='org.springframework.security.web.access.intercept.FilterSecurityInterceptor' autowire='byType'>" +
                 "   <b:property name='securityMetadataSource'>" +
-                "       <filter-invocation-definition-source>" +
+                "       <filter-security-metadata-source>" +
                 "           <intercept-url pattern='/secure/extreme/**' access='ROLE_SUPERVISOR'/>" +
                 "           <intercept-url pattern='/secure/**' access='ROLE_USER'/>" +
                 "           <intercept-url pattern='/**' access='ROLE_USER'/>" +
-                "       </filter-invocation-definition-source>" +
+                "       </filter-security-metadata-source>" +
                 "   </b:property>" +
                 "</b:bean>" + ConfigTestUtils.AUTH_PROVIDER_XML);
 

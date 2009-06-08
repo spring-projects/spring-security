@@ -51,15 +51,15 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
     //~ Instance fields ================================================================================================
 
     private ChannelDecisionManager channelDecisionManager;
-    private FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource;
+    private FilterInvocationSecurityMetadataSource securityMetadataSource;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(filterInvocationSecurityMetadataSource, "filterInvocationSecurityMetadataSource must be specified");
+        Assert.notNull(securityMetadataSource, "securityMetadataSource must be specified");
         Assert.notNull(channelDecisionManager, "channelDecisionManager must be specified");
 
-        Collection<ConfigAttribute> attrDefs = this.filterInvocationSecurityMetadataSource.getAllConfigAttributes();
+        Collection<ConfigAttribute> attrDefs = this.securityMetadataSource.getAllConfigAttributes();
 
         if (attrDefs == null) {
             if (logger.isWarnEnabled()) {
@@ -91,7 +91,7 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
             throws IOException, ServletException {
 
         FilterInvocation fi = new FilterInvocation(request, response, chain);
-        List<ConfigAttribute> attr = this.filterInvocationSecurityMetadataSource.getAttributes(fi);
+        List<ConfigAttribute> attr = this.securityMetadataSource.getAttributes(fi);
 
         if (attr != null) {
             if (logger.isDebugEnabled()) {
@@ -112,16 +112,16 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
         return channelDecisionManager;
     }
 
-    public FilterInvocationSecurityMetadataSource getFilterInvocationSecurityMetadataSource() {
-        return filterInvocationSecurityMetadataSource;
+    public FilterInvocationSecurityMetadataSource getSecurityMetadataSource() {
+        return securityMetadataSource;
     }
 
     public void setChannelDecisionManager(ChannelDecisionManager channelDecisionManager) {
         this.channelDecisionManager = channelDecisionManager;
     }
 
-    public void setFilterInvocationSecurityMetadataSource(FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource) {
-        this.filterInvocationSecurityMetadataSource = filterInvocationSecurityMetadataSource;
+    public void setSecurityMetadataSource(FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource) {
+        this.securityMetadataSource = filterInvocationSecurityMetadataSource;
     }
 
     public int getOrder() {

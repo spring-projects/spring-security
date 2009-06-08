@@ -15,7 +15,7 @@
 
 package org.springframework.security.web.access.channel;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
@@ -31,8 +31,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.access.channel.ChannelDecisionManager;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 
 
@@ -50,7 +48,7 @@ public class ChannelProcessingFilterTests {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "MOCK");
-        filter.setFilterInvocationSecurityMetadataSource(fids);
+        filter.setSecurityMetadataSource(fids);
 
         filter.afterPropertiesSet();
     }
@@ -69,7 +67,7 @@ public class ChannelProcessingFilterTests {
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SUPPORTS_MOCK_ONLY");
 
-        filter.setFilterInvocationSecurityMetadataSource(fids);
+        filter.setSecurityMetadataSource(fids);
 
         filter.afterPropertiesSet();
     }
@@ -81,7 +79,7 @@ public class ChannelProcessingFilterTests {
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SUPPORTS_MOCK_ONLY", "INVALID_ATTRIBUTE");
 
-        filter.setFilterInvocationSecurityMetadataSource(fids);
+        filter.setSecurityMetadataSource(fids);
         filter.afterPropertiesSet();
     }
 
@@ -92,7 +90,7 @@ public class ChannelProcessingFilterTests {
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SOME_ATTRIBUTE");
 
-        filter.setFilterInvocationSecurityMetadataSource(fids);
+        filter.setSecurityMetadataSource(fids);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=now");
@@ -110,7 +108,7 @@ public class ChannelProcessingFilterTests {
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SOME_ATTRIBUTE");
 
-        filter.setFilterInvocationSecurityMetadataSource(fids);
+        filter.setSecurityMetadataSource(fids);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=now");
@@ -129,7 +127,7 @@ public class ChannelProcessingFilterTests {
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "NOT_USED");
 
-        filter.setFilterInvocationSecurityMetadataSource(fids);
+        filter.setSecurityMetadataSource(fids);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setQueryString("info=now");
@@ -148,8 +146,8 @@ public class ChannelProcessingFilterTests {
 
         MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", false, "MOCK");
 
-        filter.setFilterInvocationSecurityMetadataSource(fids);
-        assertTrue(filter.getFilterInvocationSecurityMetadataSource() != null);
+        filter.setSecurityMetadataSource(fids);
+        assertSame(fids, filter.getSecurityMetadataSource());
 
         filter.init(null);
         filter.afterPropertiesSet();

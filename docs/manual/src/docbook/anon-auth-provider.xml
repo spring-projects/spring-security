@@ -1,47 +1,41 @@
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="anonymous">
-
-<info><title>Anonymous Authentication</title></info>
-
-
-<section xml:id="anonymous-overview">
-    <info><title>Overview</title></info>
-
-    <para>Particularly in the case of web request URI security, sometimes
-        it is more convenient to assign configuration attributes against every
-        possible secure object invocation. Put differently, sometimes it is
-        nice to say <literal>ROLE_SOMETHING</literal> is required by default
-        and only allow certain exceptions to this rule, such as for login,
-        logout and home pages of an application. There are also other
-        situations where anonymous authentication would be desired, such as
-        when an auditing interceptor queries the
-        <classname>SecurityContextHolder</classname> to identify which principal
-        was responsible for a given operation. Such classes can be authored
-        with more robustness if they know the
-        <classname>SecurityContextHolder</classname> always contains an
-        <interfacename>Authentication</interfacename> object, and never
-        <literal>null</literal>.</para>
-</section>
-
-<section xml:id="anonymous-config">
-    <info><title>Configuration</title></info>
-
-    <para>Spring Security provides three classes that together provide an
-        anonymous authentication feature.
-        <literal>AnonymousAuthenticationToken</literal> is an implementation
-        of <interfacename>Authentication</interfacename>, and stores the
-        <interfacename>GrantedAuthority</interfacename>[]s which apply to the anonymous
-        principal. There is a corresponding
-        <literal>AnonymousAuthenticationProvider</literal>, which is chained
-        into the <literal>ProviderManager</literal> so that
-        <literal>AnonymousAuthenticationTokens</literal> are accepted.
-        Finally, there is an AnonymousProcessingFilter, which is chained after
-        the normal authentication mechanisms and automatically add an
-        <literal>AnonymousAuthenticationToken</literal> to the
-        <classname>SecurityContextHolder</classname> if there is no existing
-        <interfacename>Authentication</interfacename> held there. The definition of the
-        filter and authentication provider appears as follows:</para>
-
-    <para><programlisting>
+    <info>
+        <title>Anonymous Authentication</title>
+    </info>
+    <section xml:id="anonymous-overview">
+        <info>
+            <title>Overview</title>
+        </info>
+        <para>Particularly in the case of web request URI security, sometimes it is more convenient
+            to assign configuration attributes against every possible secure object invocation. Put
+            differently, sometimes it is nice to say <literal>ROLE_SOMETHING</literal> is required
+            by default and only allow certain exceptions to this rule, such as for login, logout and
+            home pages of an application. There are also other situations where anonymous
+            authentication would be desired, such as when an auditing interceptor queries the
+                <classname>SecurityContextHolder</classname> to identify which principal was
+            responsible for a given operation. Such classes can be authored with more robustness if
+            they know the <classname>SecurityContextHolder</classname> always contains an
+                <interfacename>Authentication</interfacename> object, and never
+                <literal>null</literal>.</para>
+    </section>
+    <section xml:id="anonymous-config">
+        <info>
+            <title>Configuration</title>
+        </info>
+        <para>Spring Security provides three classes that together provide an anonymous
+            authentication feature. <literal>AnonymousAuthenticationToken</literal> is an
+            implementation of <interfacename>Authentication</interfacename>, and stores the
+                <interfacename>GrantedAuthority</interfacename>[]s which apply to the anonymous
+            principal. There is a corresponding <literal>AnonymousAuthenticationProvider</literal>,
+            which is chained into the <literal>ProviderManager</literal> so that
+                <literal>AnonymousAuthenticationTokens</literal> are accepted. Finally, there is an
+            AnonymousProcessingFilter, which is chained after the normal authentication mechanisms
+            and automatically add an <literal>AnonymousAuthenticationToken</literal> to the
+                <classname>SecurityContextHolder</classname> if there is no existing
+                <interfacename>Authentication</interfacename> held there. The definition of the
+            filter and authentication provider appears as follows:</para>
+        <para>
+            <programlisting>
 <![CDATA[
 <bean id="anonymousProcessingFilter"
     class="org.springframework.security.web.authentication.AnonymousProcessingFilter">
@@ -53,53 +47,44 @@
     class="org.springframework.security.authentication.AnonymousAuthenticationProvider">
   <property name="key" value="foobar"/>
 </bean>]]>
-    </programlisting></para>
-
-    <para>The <literal>key</literal> is shared between the filter and
-        authentication provider, so that tokens created by the former are
-        accepted by the latter. The <literal>userAttribute</literal> is
-        expressed in the form of
-        <literal>usernameInTheAuthenticationToken,grantedAuthority[,grantedAuthority]</literal>.
-        This is the same syntax as used after the equals sign for
-        <literal>InMemoryDaoImpl</literal>'s <literal>userMap</literal>
-        property.</para>
-
-    <para>As explained earlier, the benefit of anonymous authentication is
-        that all URI patterns can have security applied to them. For
-        example:</para>
-
-    <para><programlisting>
+    </programlisting>
+        </para>
+        <para>The <literal>key</literal> is shared between the filter and authentication provider,
+            so that tokens created by the former are accepted by the latter. The
+                <literal>userAttribute</literal> is expressed in the form of
+                <literal>usernameInTheAuthenticationToken,grantedAuthority[,grantedAuthority]</literal>.
+            This is the same syntax as used after the equals sign for
+                <literal>InMemoryDaoImpl</literal>'s <literal>userMap</literal> property.</para>
+        <para>As explained earlier, the benefit of anonymous authentication is that all URI patterns
+            can have security applied to them. For example:</para>
+        <para><programlisting>
 <![CDATA[
 <bean id="filterInvocationInterceptor"
     class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="httpRequestAccessDecisionManager"/>
-  <property name="objectDefinitionSource">
-    <security:filter-invocation-definition-source>
+  <property name="securityMetadata">
+    <security:filter-security-metadata-source>
       <security:intercept-url pattern='/index.jsp' access='ROLE_ANONYMOUS,ROLE_USER'/>
       <security:intercept-url pattern='/hello.htm' access='ROLE_ANONYMOUS,ROLE_USER'/>
       <security:intercept-url pattern='/logoff.jsp' access='ROLE_ANONYMOUS,ROLE_USER'/>
       <security:intercept-url pattern='/login.jsp' access='ROLE_ANONYMOUS,ROLE_USER'/>
       <security:intercept-url pattern='/**' access='ROLE_USER'/>
-    </security:filter-invocation-definition-source>" +
+    </security:filter-security-metadata-source>" +
   </property>
 </bean>]]>
-    </programlisting>Rounding out the anonymous authentication discussion
-        is the <literal>AuthenticationTrustResolver</literal> interface, with
-        its corresponding <literal>AuthenticationTrustResolverImpl</literal>
-        implementation. This interface provides an
-        <literal>isAnonymous(Authentication)</literal> method, which allows
-        interested classes to take into account this special type of
-        authentication status. The
-        <classname>ExceptionTranslationFilter</classname> uses this interface in
-        processing <literal>AccessDeniedException</literal>s. If an
-        <literal>AccessDeniedException</literal> is thrown, and the
-        authentication is of an anonymous type, instead of throwing a 403
-        (forbidden) response, the filter will instead commence the
-        <interfacename>AuthenticationEntryPoint</interfacename> so the principal can
-        authenticate properly. This is a necessary distinction, otherwise
-        principals would always be deemed "authenticated" and never be given
-        an opportunity to login via form, basic, digest or some other normal
-        authentication mechanism</para>
-</section>
+    </programlisting>Rounding out the anonymous authentication discussion is the
+                <literal>AuthenticationTrustResolver</literal> interface, with its corresponding
+                <literal>AuthenticationTrustResolverImpl</literal> implementation. This interface
+            provides an <literal>isAnonymous(Authentication)</literal> method, which allows
+            interested classes to take into account this special type of authentication status. The
+                <classname>ExceptionTranslationFilter</classname> uses this interface in processing
+                <literal>AccessDeniedException</literal>s. If an
+                <literal>AccessDeniedException</literal> is thrown, and the authentication is of an
+            anonymous type, instead of throwing a 403 (forbidden) response, the filter will instead
+            commence the <interfacename>AuthenticationEntryPoint</interfacename> so the principal
+            can authenticate properly. This is a necessary distinction, otherwise principals would
+            always be deemed "authenticated" and never be given an opportunity to login via form,
+            basic, digest or some other normal authentication mechanism</para>
+    </section>
 </chapter>

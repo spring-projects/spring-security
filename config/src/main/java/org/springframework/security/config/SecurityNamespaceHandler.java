@@ -12,6 +12,7 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  */
 public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
 
+    @SuppressWarnings("deprecation")
     public void init() {
         // Parsers
         registerBeanDefinitionParser(Elements.LDAP_PROVIDER, new LdapProviderBeanDefinitionParser());
@@ -24,12 +25,13 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser(Elements.GLOBAL_METHOD_SECURITY, new GlobalMethodSecurityBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.AUTHENTICATION_MANAGER, new AuthenticationManagerBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.FILTER_INVOCATION_DEFINITION_SOURCE, new FilterInvocationSecurityMetadataSourceBeanDefinitionParser());
+        registerBeanDefinitionParser(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceBeanDefinitionParser());
 
         // Decorators
         registerBeanDefinitionDecorator(Elements.INTERCEPT_METHODS, new InterceptMethodsBeanDefinitionDecorator());
         registerBeanDefinitionDecorator(Elements.FILTER_CHAIN_MAP, new FilterChainMapBeanDefinitionDecorator());
         registerBeanDefinitionDecorator(Elements.CUSTOM_FILTER, new OrderedFilterBeanDefinitionDecorator());
         registerBeanDefinitionDecorator(Elements.CUSTOM_AUTH_PROVIDER, new CustomAuthenticationProviderBeanDefinitionDecorator());
-        registerBeanDefinitionDecorator(Elements.CUSTOM_AFTER_INVOCATION_PROVIDER, new CustomAfterInvocationProviderBeanDefinitionDecorator());        
+        registerBeanDefinitionDecorator(Elements.CUSTOM_AFTER_INVOCATION_PROVIDER, new CustomAfterInvocationProviderBeanDefinitionDecorator());
     }
 }

@@ -409,8 +409,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             new DefaultFilterInvocationSecurityMetadataSource(matcher, channelRequestMap);
         channelFilterInvDefSource.setStripQueryStringFromUrls(matcher instanceof AntUrlPathMatcher);
 
-        channelFilter.getPropertyValues().addPropertyValue("filterInvocationSecurityMetadataSource",
-                channelFilterInvDefSource);
+        channelFilter.getPropertyValues().addPropertyValue("securityMetadataSource", channelFilterInvDefSource);
         RootBeanDefinition channelDecisionManager = new RootBeanDefinition(ChannelDecisionManagerImpl.class);
         ManagedList channelProcessors = new ManagedList(3);
         RootBeanDefinition secureChannelProcessor = new RootBeanDefinition(SecureChannelProcessor.class);

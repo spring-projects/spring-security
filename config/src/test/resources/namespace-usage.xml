@@ -16,10 +16,17 @@
 
     <global-method-security run-as-manager-ref="myRunAsManager">
         <pre-post-annotation-handling>
-            <
+            <invocation-attribute-factory ref=""/>
+            <pre-invocation-advice ref=""/>
+            <post-invocation-advice ref=""/>
         </pre-post-annotation-handling>
     </global-method-security>
 
+    <filter-security-metadata-source>
+        <intercept-url pattern=""/>
+    </filter-security-metadata-source>
+    
+    
     <http>
         <access-denied-handler error-page="/go-away.html"/>
         <intercept-url pattern="/**" access="ROLE_USER" />

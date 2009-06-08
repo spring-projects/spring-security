@@ -1,36 +1,32 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="secure-object-impls" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <info><title>Secure Object Implementations</title></info>
-
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="secure-object-impls"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <info>
+    <title>Secure Object Implementations</title>
+  </info>
   <section xml:id="aop-alliance">
     <info>
       <title>AOP Alliance (MethodInvocation) Security Interceptor</title>
     </info>
-
-    <para>
-      Prior to Spring Security 2.0, securing <classname>MethodInvocation</classname>s needed quite a
-      lot of boiler plate configuration. Now the recommended approach for method security
-      is to use <link xlink:href="#ns-method-security">namespace configuration</link>.
-      This way the method security infrastructure beans are configured automatically for you so you don't really need to
-      know about the implementation classes. We'll just provide a quick overview of the classes that are involved here.
-    </para>
-
-    <para>
-      Method security in enforced using a <classname>MethodSecurityInterceptor</classname>, which secures
-     <classname>MethodInvocation</classname>s. Depending on the configuration approach, an interceptor may be specific to a single
-      bean or shared between multiple beans. The interceptor uses a <interfacename>MethodDefinitionSource</interfacename>
-      instance to obtain the configuration attributes that apply to a particular method invocation.
-      <classname>MapBasedMethodDefinitionSource</classname> is used to store configuration attributes keyed by method names
-      (which can be wildcarded) and will be used internally when the attributes are defined in the application context using
-      the <literal>&lt;intercept-methods&gt;</literal> or <literal>&lt;protect-point&gt;</literal> elements. Other implementations
-      will be used to handle annotation-based configuration.
-    </para>
-
+    <para> Prior to Spring Security 2.0, securing <classname>MethodInvocation</classname>s needed
+      quite a lot of boiler plate configuration. Now the recommended approach for method security is
+      to use <link xlink:href="#ns-method-security">namespace configuration</link>. This way the
+      method security infrastructure beans are configured automatically for you so you don't really
+      need to know about the implementation classes. We'll just provide a quick overview of the
+      classes that are involved here. </para>
+    <para> Method security in enforced using a <classname>MethodSecurityInterceptor</classname>,
+      which secures <classname>MethodInvocation</classname>s. Depending on the configuration
+      approach, an interceptor may be specific to a single bean or shared between multiple beans.
+      The interceptor uses a <interfacename>MethodDefinitionSource</interfacename> instance to
+      obtain the configuration attributes that apply to a particular method invocation.
+        <classname>MapBasedMethodDefinitionSource</classname> is used to store configuration
+      attributes keyed by method names (which can be wildcarded) and will be used internally when
+      the attributes are defined in the application context using the
+        <literal>&lt;intercept-methods&gt;</literal> or <literal>&lt;protect-point&gt;</literal>
+      elements. Other implementations will be used to handle annotation-based configuration. </para>
     <section>
       <title>Explicit MethodSecurityIterceptor Configuration</title>
-      <para>
-        You can of course configure a <classname>MethodSecurityIterceptor</classname> directly in your application context
-        for use with one of Spring AOP's proxying mechanisms:
-<programlisting><![CDATA[
+      <para> You can of course configure a <classname>MethodSecurityIterceptor</classname> directly
+        in your application context for use with one of Spring AOP's proxying mechanisms: <programlisting><![CDATA[
 <bean id="bankManagerSecurity"
     class="org.springframework.security.intercept.aopalliance.MethodSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
@@ -43,37 +39,26 @@
     </value>
   </property>
 </bean> ]]>
-</programlisting>
-      </para>
+</programlisting></para>
     </section>
-
   </section>
-
   <section xml:id="aspectj">
     <info>
       <title>AspectJ (JoinPoint) Security Interceptor</title>
     </info>
-
-    <para>The AspectJ security interceptor is very similar to the AOP
-    Alliance security interceptor discussed in the previous section.
-    Indeed we will only discuss the differences in this section.</para>
-
-    <para>The AspectJ interceptor is named
-    <literal>AspectJSecurityInterceptor</literal>. Unlike the AOP Alliance
-    security interceptor, which relies on the Spring application context
-    to weave in the security interceptor via proxying, the
-    <literal>AspectJSecurityInterceptor</literal> is weaved in via the
-    AspectJ compiler. It would not be uncommon to use both types of
-    security interceptors in the same application, with
-    <literal>AspectJSecurityInterceptor</literal> being used for domain
-    object instance security and the AOP Alliance
-    <classname>MethodSecurityInterceptor</classname> being used for services
-    layer security.</para>
-
-    <para>Let's first consider how the
-    <literal>AspectJSecurityInterceptor</literal> is configured in the
-    Spring application context:</para>
-
+    <para>The AspectJ security interceptor is very similar to the AOP Alliance security interceptor
+      discussed in the previous section. Indeed we will only discuss the differences in this
+      section.</para>
+    <para>The AspectJ interceptor is named <literal>AspectJSecurityInterceptor</literal>. Unlike the
+      AOP Alliance security interceptor, which relies on the Spring application context to weave in
+      the security interceptor via proxying, the <literal>AspectJSecurityInterceptor</literal> is
+      weaved in via the AspectJ compiler. It would not be uncommon to use both types of security
+      interceptors in the same application, with <literal>AspectJSecurityInterceptor</literal> being
+      used for domain object instance security and the AOP Alliance
+        <classname>MethodSecurityInterceptor</classname> being used for services layer
+      security.</para>
+    <para>Let's first consider how the <literal>AspectJSecurityInterceptor</literal> is configured
+      in the Spring application context:</para>
     <programlisting><![CDATA[
 <bean id="bankManagerSecurity"
      class="org.springframework.security.intercept.aspectj.AspectJSecurityInterceptor">
@@ -87,23 +72,18 @@
     </value>
 </property>
 </bean>]]>        </programlisting>
-
     <para>As you can see, aside from the class name, the
-    <literal>AspectJSecurityInterceptor</literal> is exactly the same as
-    the AOP Alliance security interceptor. Indeed the two interceptors can
-    share the same <literal>securityMetadataSource</literal>, as the
-    <interfacename>SecurityMetadataSource</interfacename> works with
-    <literal>java.lang.reflect.Method</literal>s rather than an AOP
-    library-specific class. Of course, your access decisions have access
-    to the relevant AOP library-specific invocation (ie
-    <classname>MethodInvocation</classname> or <literal>JoinPoint</literal>)
-    and as such can consider a range of addition criteria when making
-    access decisions (such as method arguments).</para>
-
-    <para>Next you'll need to define an AspectJ <literal>aspect</literal>.
-    For example:</para>
-
-    <programlisting>
+        <literal>AspectJSecurityInterceptor</literal> is exactly the same as the AOP Alliance
+      security interceptor. Indeed the two interceptors can share the same
+        <literal>securityMetadataSource</literal>, as the
+        <interfacename>SecurityMetadataSource</interfacename> works with
+        <literal>java.lang.reflect.Method</literal>s rather than an AOP library-specific class. Of
+      course, your access decisions have access to the relevant AOP library-specific invocation (ie
+        <classname>MethodInvocation</classname> or <literal>JoinPoint</literal>) and as such can
+      consider a range of addition criteria when making access decisions (such as method
+      arguments).</para>
+    <para>Next you'll need to define an AspectJ <literal>aspect</literal>. For example:</para>
+    <programlisting language="java">
 package org.springframework.security.samples.aspectj;
 
 import org.springframework.security.intercept.aspectj.AspectJSecurityInterceptor;
@@ -144,22 +124,16 @@ public void afterPropertiesSet() throws Exception {
     throw new IllegalArgumentException("securityInterceptor required");
   }
 }</programlisting>
-
-    <para>In the above example, the security interceptor will be applied
-    to every instance of <literal>PersistableEntity</literal>, which is an
-    abstract class not shown (you can use any other class or
-    <literal>pointcut</literal> expression you like). For those curious,
-    <literal>AspectJCallback</literal> is needed because the
-    <literal>proceed();</literal> statement has special meaning only
-    within an <literal>around()</literal> body. The
-    <literal>AspectJSecurityInterceptor</literal> calls this anonymous
-    <literal>AspectJCallback</literal> class when it wants the target
-    object to continue.</para>
-
-    <para>You will need to configure Spring to load the aspect and wire it
-    with the <literal>AspectJSecurityInterceptor</literal>. A bean
-    declaration which achieves this is shown below:</para>
-
+    <para>In the above example, the security interceptor will be applied to every instance of
+        <literal>PersistableEntity</literal>, which is an abstract class not shown (you can use any
+      other class or <literal>pointcut</literal> expression you like). For those curious,
+        <literal>AspectJCallback</literal> is needed because the <literal>proceed();</literal>
+      statement has special meaning only within an <literal>around()</literal> body. The
+        <literal>AspectJSecurityInterceptor</literal> calls this anonymous
+        <literal>AspectJCallback</literal> class when it wants the target object to continue.</para>
+    <para>You will need to configure Spring to load the aspect and wire it with the
+        <literal>AspectJSecurityInterceptor</literal>. A bean declaration which achieves this is
+      shown below:</para>
     <programlisting><![CDATA[
 <bean id="domainObjectInstanceSecurityAspect"
    class="org.springframework.security.samples.aspectj.DomainObjectInstanceSecurityAspect"
@@ -167,23 +141,18 @@ public void afterPropertiesSet() throws Exception {
   <property name="securityInterceptor" ref="aspectJSecurityInterceptor"/>
 </bean>]]>
     </programlisting>
-
-    <para>That's it! Now you can create your beans from anywhere within
-    your application, using whatever means you think fit (eg <literal>new
-    Person();</literal>) and they will have the security interceptor
-    applied.</para>
+    <para>That's it! Now you can create your beans from anywhere within your application, using
+      whatever means you think fit (eg <literal>new Person();</literal>) and they will have the
+      security interceptor applied.</para>
   </section>
-
   <section xml:id="filter-invocation-authorization">
-    <info><title>FilterInvocation Security Interceptor</title></info>
-
-      <para>To secure <classname>FilterInvocation</classname>s, developers need
-    to add a <classname>FilterSecurityInterceptor</classname> to their filter chain.
-    A typical configuration example is provided below:</para>
-
-    <para>In the application context you will need to configure three
-    beans:</para>
-
+    <info>
+      <title>FilterInvocation Security Interceptor</title>
+    </info>
+    <para>To secure <classname>FilterInvocation</classname>s, developers need to add a
+        <classname>FilterSecurityInterceptor</classname> to their filter chain. A typical
+      configuration example is provided below:</para>
+    <para>In the application context you will need to configure three beans:</para>
     <programlisting>
 <![CDATA[
 <bean id="exceptionTranslationFilter"
@@ -202,93 +171,69 @@ public void afterPropertiesSet() throws Exception {
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="securityMetadataSource">
-    <security:filter-invocation-definition-source>
+    <security:filter-security-metadata-source>
       <security:intercept-url pattern="/secure/super/**" access="ROLE_WE_DONT_HAVE"/>
       <security:intercept-url pattern="/secure/**" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
-    </security:filter-invocation-definition-source>
+    </security:filter-security-metadata-source>
   </property>
 </bean>]]>         </programlisting>
-
-    <para>The <classname>ExceptionTranslationFilter</classname> provides
-    the bridge between Java exceptions and HTTP responses. It is solely
-    concerned with maintaining the user interface. This filter does not do
-    any actual security enforcement. If an
-    <exceptionname>AuthenticationException</exceptionname> is detected,
-    the filter will call the AuthenticationEntryPoint to commence the
-    authentication process (e.g. a user login).</para>
-
-    <para>The <interfacename>AuthenticationEntryPoint</interfacename> will be called
-    if the user requests a secure HTTP resource but they are not
-    authenticated. The class handles presenting the appropriate response
-    to the user so that authentication can begin. Three concrete
-    implementations are provided with Spring Security:
-    <classname>LoginUrlAuthenticationEntryPoint</classname> for
-    commencing a form-based authentication,
-    <literal>BasicProcessingFilterEntryPoint</literal> for commencing a
-    HTTP Basic authentication process, and
-    <literal>CasProcessingFilterEntryPoint</literal> for commencing a
-    JA-SIG Central Authentication Service (CAS) login. The
-    <classname>LoginUrlAuthenticationEntryPoint</classname> and
-    <literal>CasProcessingFilterEntryPoint</literal> have optional
-    properties related to forcing the use of HTTPS, so please refer to the
-    JavaDocs if you require this.</para>
-
-    <para><classname>FilterSecurityInterceptor</classname> is responsible for
-    handling the security of HTTP resources. Like any other security
-    interceptor, it requires a reference to an
-    <interfacename>AuthenticationManager</interfacename> and an
-    <interfacename>AccessDecisionManager</interfacename>, which are both discussed in
-    separate sections below. The
-    <classname>FilterSecurityInterceptor</classname> is also configured with
-    configuration attributes that apply to different HTTP URL requests. A
-    full discussion of configuration attributes is provided in the High
-    Level Design section of this document.</para>
-
-    <para>The <classname>FilterSecurityInterceptor</classname> can be
-    configured with configuration attributes in two ways. The first,
-    which is shown above, is using the <literal>&lt;filter-invocation-definition-source&gt;</literal>
-    namespace element. This is similar to the <literal>&lt;filter-chain-map&gt;</literal>
-    used to configure a <classname>FilterChainProxy</classname> but the <literal>&lt;intercept-url&gt;</literal>
-    child elements only use the <literal>pattern</literal> and <literal>access</literal> attributes.
-    The second is by writing your own
-    <interfacename>SecurityMetadataSource</interfacename>, although this is beyond the
-    scope of this document. Irrespective of the approach used, the
-    <interfacename>SecurityMetadataSource</interfacename> is responsible for returning
-    a <literal>List&lt;ConfigAttribute&gt;</literal> containing
-    all of the configuration attributes associated with a single secure
-    HTTP URL.</para>
-
+    <para>The <classname>ExceptionTranslationFilter</classname> provides the bridge between Java
+      exceptions and HTTP responses. It is solely concerned with maintaining the user interface.
+      This filter does not do any actual security enforcement. If an
+        <exceptionname>AuthenticationException</exceptionname> is detected, the filter will call the
+      AuthenticationEntryPoint to commence the authentication process (e.g. a user login).</para>
+    <para>The <interfacename>AuthenticationEntryPoint</interfacename> will be called if the user
+      requests a secure HTTP resource but they are not authenticated. The class handles presenting
+      the appropriate response to the user so that authentication can begin. Three concrete
+      implementations are provided with Spring Security:
+        <classname>LoginUrlAuthenticationEntryPoint</classname> for commencing a form-based
+      authentication, <literal>BasicProcessingFilterEntryPoint</literal> for commencing a HTTP Basic
+      authentication process, and <literal>CasProcessingFilterEntryPoint</literal> for commencing a
+      JA-SIG Central Authentication Service (CAS) login. The
+        <classname>LoginUrlAuthenticationEntryPoint</classname> and
+        <literal>CasProcessingFilterEntryPoint</literal> have optional properties related to forcing
+      the use of HTTPS, so please refer to the JavaDocs if you require this.</para>
+    <para><classname>FilterSecurityInterceptor</classname> is responsible for handling the security
+      of HTTP resources. Like any other security interceptor, it requires a reference to an
+        <interfacename>AuthenticationManager</interfacename> and an
+        <interfacename>AccessDecisionManager</interfacename>, which are both discussed in separate
+      sections below. The <classname>FilterSecurityInterceptor</classname> is also configured with
+      configuration attributes that apply to different HTTP URL requests. A full discussion of
+      configuration attributes is provided in the High Level Design section of this document.</para>
+    <para>The <classname>FilterSecurityInterceptor</classname> can be configured with configuration
+      attributes in two ways. The first, which is shown above, is using the
+        <literal>&lt;filter-security-metadata-source&gt;</literal> namespace element. This is
+      similar to the <literal>&lt;filter-chain-map&gt;</literal> used to configure a
+        <classname>FilterChainProxy</classname> but the <literal>&lt;intercept-url&gt;</literal>
+      child elements only use the <literal>pattern</literal> and <literal>access</literal>
+      attributes. The second is by writing your own
+        <interfacename>SecurityMetadataSource</interfacename>, although this is beyond the scope of
+      this document. Irrespective of the approach used, the
+        <interfacename>SecurityMetadataSource</interfacename> is responsible for returning a
+        <literal>List&lt;ConfigAttribute&gt;</literal> containing all of the configuration
+      attributes associated with a single secure HTTP URL.</para>
     <para>It should be noted that the
-    <literal>FilterSecurityInterceptor.setSecurityMetadataSource()</literal>
-    method actually expects an instance of
-    <interfacename>FilterInvocationDefinitionSource</interfacename>. This is a marker
-    interface which subclasses <interfacename>SecurityMetadataSource</interfacename>.
-    It simply denotes the <interfacename>SecurityMetadataSource</interfacename>
-    understands <classname>FilterInvocation</classname>s. In the interests of
-    simplicity we'll continue to refer to the
-    <interfacename>FilterInvocationDefinitionSource</interfacename> as an
-    <interfacename>SecurityMetadataSource</interfacename>, as the distinction is of
-    little relevance to most users of the
-    <classname>FilterSecurityInterceptor</classname>.</para>
-
-    <para>When using the namespace option to configure the interceptor,
-        commas are used to delimit the different configuration
-    attributes that apply to each HTTP URL. Each configuration attribute
-    is assigned into its own <literal>SecurityConfig</literal> object. The
-    <literal>SecurityConfig</literal> object is discussed in the High
-    Level Design section. The <interfacename>SecurityMetadataSource</interfacename>
-    created by the property editor,
-    <interfacename>FilterInvocationDefinitionSource</interfacename>, matches
-    configuration attributes against <literal>FilterInvocations</literal>
-    based on expression evaluation of the request URL. Two standard
-    expression syntaxes are supported. The default is to treat all
-    expressions as Apache Ant paths and regular expressions are also supported
-    for ore complex cases. The <literal>path-type</literal> attribute is used
-    to specify the type of pattern being used. It is not possible to
-    mix expression syntaxes within the same definition. For example, the
-    previous configuration using regular expressions instead of Ant paths would be
-    written as follows:</para>
-
+        <literal>FilterSecurityInterceptor.setSecurityMetadataSource()</literal> method actually
+      expects an instance of <interfacename>FilterInvocationDefinitionSource</interfacename>. This
+      is a marker interface which subclasses <interfacename>SecurityMetadataSource</interfacename>.
+      It simply denotes the <interfacename>SecurityMetadataSource</interfacename> understands
+        <classname>FilterInvocation</classname>s. In the interests of simplicity we'll continue to
+      refer to the <interfacename>FilterInvocationDefinitionSource</interfacename> as an
+        <interfacename>SecurityMetadataSource</interfacename>, as the distinction is of little
+      relevance to most users of the <classname>FilterSecurityInterceptor</classname>.</para>
+    <para>When using the namespace option to configure the interceptor, commas are used to delimit
+      the different configuration attributes that apply to each HTTP URL. Each configuration
+      attribute is assigned into its own <literal>SecurityConfig</literal> object. The
+        <literal>SecurityConfig</literal> object is discussed in the High Level Design section. The
+        <interfacename>SecurityMetadataSource</interfacename> created by the property editor,
+        <interfacename>FilterInvocationDefinitionSource</interfacename>, matches configuration
+      attributes against <literal>FilterInvocations</literal> based on expression evaluation of the
+      request URL. Two standard expression syntaxes are supported. The default is to treat all
+      expressions as Apache Ant paths and regular expressions are also supported for ore complex
+      cases. The <literal>path-type</literal> attribute is used to specify the type of pattern being
+      used. It is not possible to mix expression syntaxes within the same definition. For example,
+      the previous configuration using regular expressions instead of Ant paths would be written as
+      follows:</para>
     <programlisting><![CDATA[
 <bean id="filterInvocationInterceptor"
      class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
@@ -296,32 +241,25 @@ public void afterPropertiesSet() throws Exception {
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="runAsManager" ref="runAsManager"/>
   <property name="securityMetadataSource">
-    <security:filter-invocation-definition-source path-type="regex">
+    <security:filter-security-metadata-source path-type="regex">
       <security:intercept-url pattern="\A/secure/super/.*\Z" access="ROLE_WE_DONT_HAVE"/>
       <security:intercept-url pattern="\A/secure/.*\" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
-    </security:filter-invocation-definition-source>
+    </security:filter-security-metadata-source>
   </property>
 </bean>]]>        </programlisting>
-
-    <para>Irrespective of the type of expression syntax used, expressions
-    are always evaluated in the order they are defined. Thus it is
-    important that more specific expressions are defined higher in the
-    list than less specific expressions. This is reflected in our example
-    above, where the more specific <literal>/secure/super/</literal>
-    pattern appears higher than the less specific
-    <literal>/secure/</literal> pattern. If they were reversed, the
-    <literal>/secure/</literal> pattern would always match and the
-    <literal>/secure/super/</literal> pattern would never be
-    evaluated.</para>
-
-    <para>As with other security interceptors, the
-    <literal>validateConfigAttributes</literal> property is observed. When
-    set to <literal>true</literal> (the default), at startup time the
-    <classname>FilterSecurityInterceptor</classname> will evaluate if the
-    provided configuration attributes are valid. It does this by checking
-    each configuration attribute can be processed by either the
-    <interfacename>AccessDecisionManager</interfacename> or the
-    <literal>RunAsManager</literal>. If neither of these can process a
-    given configuration attribute, an exception is thrown.</para>
+    <para>Irrespective of the type of expression syntax used, expressions are always evaluated in
+      the order they are defined. Thus it is important that more specific expressions are defined
+      higher in the list than less specific expressions. This is reflected in our example above,
+      where the more specific <literal>/secure/super/</literal> pattern appears higher than the less
+      specific <literal>/secure/</literal> pattern. If they were reversed, the
+        <literal>/secure/</literal> pattern would always match and the
+        <literal>/secure/super/</literal> pattern would never be evaluated.</para>
+    <para>As with other security interceptors, the <literal>validateConfigAttributes</literal>
+      property is observed. When set to <literal>true</literal> (the default), at startup time the
+        <classname>FilterSecurityInterceptor</classname> will evaluate if the provided configuration
+      attributes are valid. It does this by checking each configuration attribute can be processed
+      by either the <interfacename>AccessDecisionManager</interfacename> or the
+        <literal>RunAsManager</literal>. If neither of these can process a given configuration
+      attribute, an exception is thrown.</para>
   </section>
 </chapter>

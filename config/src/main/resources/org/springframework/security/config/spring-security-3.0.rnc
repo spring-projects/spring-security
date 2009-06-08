@@ -367,19 +367,23 @@ filter-chain.attlist &=
 filter-chain.attlist &=
     attribute filters {xsd:token}
 
-filter-invocation-definition-source =
-    ## Used to explicitly configure a FilterInvocationDefinitionSource bean for use with a FilterSecurityInterceptor. Usually only needed if you are configuring a FilterChainProxy explicitly, rather than using the <http> element. The intercept-url elements used should only contain pattern, method and access attributes. Any others will result in a configuration error. 
-    element filter-invocation-definition-source {fids.attlist, intercept-url+}
-fids.attlist &=
+filter-security-metadata-source =
+    ## Used to explicitly configure a FilterSecurityMetadataSource bean for use with a FilterSecurityInterceptor. Usually only needed if you are configuring a FilterChainProxy explicitly, rather than using the <http> element. The intercept-url elements used should only contain pattern, method and access attributes. Any others will result in a configuration error. 
+    element filter-security-metadata-source {fsmds.attlist, intercept-url+}
+fsmds.attlist &=
     use-expressions?
-fids.attlist &=
+fsmds.attlist &=
     id?
-fids.attlist &=
+fsmds.attlist &=
     ## as for http element
     attribute lowercase-comparisons {boolean}?
-fids.attlist &=
+fsmds.attlist &=
     ## as for http element
     path-type?
+
+filter-invocation-definition-source = 
+    ## Deprecated synonym for filter-security-metadata-source
+    element filter-invocation-definition-source {fsmds.attlist, intercept-url+}
 
 http-basic =
     ## Adds support for basic authentication (this is an element to permit future expansion, such as supporting an "ignoreFailure" attribute)
