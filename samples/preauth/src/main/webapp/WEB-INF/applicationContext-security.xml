@@ -9,8 +9,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:sec="http://www.springframework.org/schema/security"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.1.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
@@ -32,7 +32,18 @@
 
     <bean id="j2eePreAuthFilter" class="org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthenticatedProcessingFilter">
         <property name="authenticationManager" ref="authenticationManager"/>
-        <property name="authenticationDetailsSource" ref="authenticationDetailsSource"/>
+        <property name="authenticationDetailsSource">
+            <bean class="org.springframework.security.web.authentication.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource">
+                <property name="mappableRolesRetriever">
+                    <bean class="org.springframework.security.web.authentication.preauth.j2ee.WebXmlMappableAttributesRetriever" />
+                </property>
+                <property name="userRoles2GrantedAuthoritiesMapper">
+                    <bean class="org.springframework.security.core.authority.mapping.SimpleAttributes2GrantedAuthoritiesMapper">
+                        <property name="convertAttributeToUpperCase" value="true"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
     </bean>
 
     <bean id="preAuthenticatedProcessingFilterEntryPoint"
@@ -45,26 +56,6 @@
                 <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
             </list>
         </constructor-arg>
-    </bean>
-
-    <bean id="authenticationDetailsSource" class="org.springframework.security.web.authentication.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource">
-        <property name="mappableRolesRetriever" ref="j2eeMappableRolesRetriever"/>
-        <property name="userRoles2GrantedAuthoritiesMapper" ref="j2eeUserRoles2GrantedAuthoritiesMapper"/>
-    </bean>
-
-    <bean id="j2eeUserRoles2GrantedAuthoritiesMapper" class="org.springframework.security.core.authority.mapping.SimpleAttributes2GrantedAuthoritiesMapper">
-        <property name="convertAttributeToUpperCase" value="true"/>
-    </bean>
-
-    <bean id="j2eeMappableRolesRetriever" class="org.springframework.security.web.authentication.preauth.j2ee.WebXmlMappableAttributesRetriever">
-
-    <property name="webXmlInputStream"><bean factory-bean="webXmlResource" factory-method="getInputStream"/>
-    </property>
-    </bean>
-
-    <bean id="webXmlResource" class="org.springframework.web.context.support.ServletContextResource">
-        <constructor-arg ref="servletContext"/>
-        <constructor-arg value="/WEB-INF/web.xml"/>
     </bean>
 
     <bean id="servletContext" class="org.springframework.web.context.support.ServletContextFactoryBean"/>

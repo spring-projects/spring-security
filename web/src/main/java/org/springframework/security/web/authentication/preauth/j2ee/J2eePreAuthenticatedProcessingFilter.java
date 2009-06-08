@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
  * @since 2.0
  */
 public class J2eePreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
+
     /**
      * Return the J2EE user name.
      */

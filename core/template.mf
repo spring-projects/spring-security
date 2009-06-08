@@ -23,10 +23,7 @@ Import-Template:
  org.springframework.transaction.*;version="[3.0.0, 3.1.0)";resolution:=optional,
  org.springframework.util;version="[3.0.0, 3.1.0)",
  net.sf.ehcache.*;version="[1.4.1, 2.0.0)";resolution:=optional, 
- org.w3c.dom;version="0";resolution:=optional,
- org.xml.sax;version="0";resolution:=optional, 
  javax.annotation.security.*;version="0";resolution:=optional,
  javax.crypto.*;version="0";resolution:=optional,
- javax.xml.*;version="0";resolution:=optional,
  javax.security.auth.*;version="0";resolution:=optional
  

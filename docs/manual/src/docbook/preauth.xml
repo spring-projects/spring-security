@@ -187,6 +187,11 @@ class="org.springframework.security.web.authentication.preauth.PreAuthenticatedA
         <literal>userPrincipal</literal> property of the <interfacename>HttpServletRequest</interfacename>. use of this
         filter would usually be combined with the use of J2EE roles as described above in <xref linkend="j2ee-preauth-details"/>. 
       </para>
+      <para>
+        There is a sample application in the codebase which uses this approach, so get hold of the code from subversion and 
+        have a look at the application context file if you are interested. The code is in the <filename>samples/preauth</filename>
+        directory.
+      </para>
       
     </section>
   </section>

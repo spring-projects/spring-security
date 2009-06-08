@@ -24,6 +24,7 @@ Import-Template:
  org.springframework.beans.*;version="[3.0.0, 3.1.0)",
  org.springframework.context.*;version="[3.0.0, 3.1.0)",
  org.springframework.core;version="[3.0.0, 3.1.0)",
+ org.springframework.core.io;version="[3.0.0, 3.1.0)",
  org.springframework.dao;version="[3.0.0, 3.1.0)";resolution:=optional,
  org.springframework.expression;version="[3.0.0, 3.1.0)";resolution:=optional,
  org.springframework.expression.spel.*;version="[3.0.0, 3.1.0)";resolution:=optional,
@@ -31,4 +32,7 @@ Import-Template:
  org.springframework.mock.web;version="[3.0.0, 3.1.0)";resolution:=optional,
  org.springframework.web.context.*;version="[3.0.0, 3.1.0)";resolution:=optional,
  org.springframework.util;version="[3.0.0, 3.1.0)";resolution:=optional,
- javax.servlet.*;version="0"
+ org.w3c.dom;version="0";resolution:=optional,
+ org.xml.sax;version="0";resolution:=optional,
+ javax.servlet.*;version="0",
+ javax.xml.parsers.*;version="0";resolution:=optional
