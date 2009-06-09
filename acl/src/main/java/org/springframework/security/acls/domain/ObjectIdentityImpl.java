@@ -34,37 +34,36 @@ import org.springframework.util.ClassUtils;
 public class ObjectIdentityImpl implements ObjectIdentity {
     //~ Instance fields ================================================================================================
 
-    private Class<?> javaType;
+    private final String type;
     private Serializable identifier;
 
     //~ Constructors ===================================================================================================
 
-    public ObjectIdentityImpl(String javaType, Serializable identifier) {
-        Assert.hasText(javaType, "Java Type required");
+    public ObjectIdentityImpl(String type, Serializable identifier) {
+        Assert.hasText(type, "Type required");
         Assert.notNull(identifier, "identifier required");
 
-        try {
-            this.javaType = ClassUtils.forName(javaType, ClassUtils.getDefaultClassLoader());
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("Unable to load javaType: " + javaType, e);
-        }
-
         this.identifier = identifier;
+        this.type = type;
     }
 
+    /**
+     * Constructor which uses the name of the supplied class as the <tt>type</tt> property.
+     */
     public ObjectIdentityImpl(Class<?> javaType, Serializable identifier) {
         Assert.notNull(javaType, "Java Type required");
         Assert.notNull(identifier, "identifier required");
-        this.javaType = javaType;
+        this.type = javaType.getName();
         this.identifier = identifier;
     }
 
     /**
      * Creates the <code>ObjectIdentityImpl</code> based on the passed
      * object instance. The passed object must provide a <code>getId()</code>
-     * method, otherwise an exception will be thrown. The object passed will
-     * be considered the {@link #javaType}, so if more control is required,
-     * an alternate constructor should be used instead.
+     * method, otherwise an exception will be thrown.
+     * <p>
+     * The class name of the object passed will be considered the {@link #type}, so if more control is required,
+     * a different constructor should be used.
      *
      * @param object the domain object instance to create an identity for.
      *
@@ -73,12 +72,13 @@ public class ObjectIdentityImpl implements ObjectIdentity {
     public ObjectIdentityImpl(Object object) throws IdentityUnavailableException {
         Assert.notNull(object, "object cannot be null");
 
-        this.javaType = ClassUtils.getUserClass(object.getClass());
+        Class<?> typeClass = ClassUtils.getUserClass(object.getClass());
+        type = typeClass.getName();
 
         Object result;
 
         try {
-            Method method = this.javaType.getMethod("getId", new Class[] {});
+            Method method = typeClass.getMethod("getId", new Class[] {});
             result = method.invoke(object, new Object[] {});
         } catch (Exception e) {
             throw new IdentityUnavailableException("Could not extract identity from object " + object, e);
@@ -123,15 +123,15 @@ public class ObjectIdentityImpl implements ObjectIdentity {
             }
         }
 
-        return javaType.equals(other.javaType);
+        return type.equals(other.type);
     }
 
     public Serializable getIdentifier() {
         return identifier;
     }
 
-    public Class<?> getJavaType() {
-        return javaType;
+    public String getType() {
+        return type;
     }
 
     /**
@@ -141,7 +141,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
      */
     public int hashCode() {
         int code = 31;
-        code ^= this.javaType.hashCode();
+        code ^= this.type.hashCode();
         code ^= this.identifier.hashCode();
 
         return code;
@@ -150,7 +150,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.getClass().getName()).append("[");
-        sb.append("Java Type: ").append(this.javaType.getName());
+        sb.append("Type: ").append(this.type);
         sb.append("; Identifier: ").append(this.identifier).append("]");
 
         return sb.toString();

@@ -148,7 +148,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      */
     protected void createObjectIdentity(ObjectIdentity object, Sid owner) {
         Long sidId = createOrRetrieveSidPrimaryKey(owner, true);
-        Long classId = createOrRetrieveClassPrimaryKey(object.getJavaType(), true);
+        Long classId = createOrRetrieveClassPrimaryKey(object.getType(), true);
         jdbcTemplate.update(insertObjectIdentity, classId, object.getIdentifier(), sidId, Boolean.TRUE);
     }
 
@@ -161,15 +161,15 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      *
      * @return the primary key or null if not found
      */
-    protected Long createOrRetrieveClassPrimaryKey(Class<?> clazz, boolean allowCreate) {
-        List<Long> classIds = jdbcTemplate.queryForList(selectClassPrimaryKey, new Object[] {clazz.getName()}, Long.class);
+    protected Long createOrRetrieveClassPrimaryKey(String type, boolean allowCreate) {
+        List<Long> classIds = jdbcTemplate.queryForList(selectClassPrimaryKey, new Object[] {type}, Long.class);
 
         if (!classIds.isEmpty()) {
             return classIds.get(0);
         }
 
         if (allowCreate) {
-            jdbcTemplate.update(insertClass, new Object[] {clazz.getName()});
+            jdbcTemplate.update(insertClass, type);
             Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
                     "Transaction must be running");
             return new Long(jdbcTemplate.queryForLong(classIdentityQuery));
@@ -290,7 +290,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     protected Long retrieveObjectIdentityPrimaryKey(ObjectIdentity oid) {
         try {
             return new Long(jdbcTemplate.queryForLong(selectObjectIdentityPrimaryKey,
-                    new Object[] {oid.getJavaType().getName(), oid.getIdentifier()}));
+                    new Object[] {oid.getType(), oid.getIdentifier()}));
         } catch (DataAccessException notFound) {
             return null;
         }

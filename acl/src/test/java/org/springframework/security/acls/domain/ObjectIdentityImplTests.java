@@ -64,7 +64,7 @@ public class ObjectIdentityImplTests {
     public void gettersReturnExpectedValues() throws Exception {
         ObjectIdentity obj = new ObjectIdentityImpl(DOMAIN_CLASS, Long.valueOf(1));
         assertEquals(Long.valueOf(1), obj.getIdentifier());
-        assertEquals(MockIdDomainObject.class, obj.getJavaType());
+        assertEquals(MockIdDomainObject.class.getName(), obj.getType());
     }
 
     @Test
@@ -106,9 +106,9 @@ public class ObjectIdentityImplTests {
         }
     }
 
-    @Test(expected=IllegalStateException.class)
-    public void testConstructorInvalidClassParameter() throws Exception {
-        new ObjectIdentityImpl("not.a.Class", Long.valueOf(1));
+    @Test(expected=IllegalArgumentException.class)
+    public void constructorRejectsInvalidTypeParameter() throws Exception {
+        new ObjectIdentityImpl("", Long.valueOf(1));
     }
 
     @Test

@@ -72,7 +72,7 @@ public class JdbcAclService implements AclService {
     //~ Methods ========================================================================================================
 
     public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
-        Object[] args = {parentIdentity.getIdentifier(), parentIdentity.getJavaType().getName()};
+        Object[] args = {parentIdentity.getIdentifier(), parentIdentity.getType()};
         List<ObjectIdentity> objects = jdbcTemplate.query(selectAclObjectWithParent, args,
                 new RowMapper<ObjectIdentity>() {
                     public ObjectIdentity mapRow(ResultSet rs, int rowNum) throws SQLException {

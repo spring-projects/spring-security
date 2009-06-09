@@ -21,11 +21,11 @@ import java.io.Serializable;
  * Represents the identity of an individual domain object instance.
  *
  * <p>
- * As implementations of <tt>ObjectIdentity</tt> are used as the key to represent 
+ * As implementations of <tt>ObjectIdentity</tt> are used as the key to represent
  * domain objects in the ACL subsystem, it is essential that implementations provide
  * methods so that object-equality rather than reference-equality can be relied upon
- * reliably. In other words, the ACL subsystem can consider two 
- * <tt>ObjectIdentity</tt>s equal if <tt>identity1.equals(identity2)</tt>, rather than 
+ * reliably. In other words, the ACL subsystem can consider two
+ * <tt>ObjectIdentity</tt>s equal if <tt>identity1.equals(identity2)</tt>, rather than
  * reference-equality of <tt>identity1==identity2</tt>.
  * </p>
  *
@@ -46,10 +46,10 @@ public interface ObjectIdentity extends Serializable {
     /**
      * Obtains the actual identifier. This identifier must not be reused to represent other domain objects with
      * the same <tt>javaType</tt>.
-     * 
+     *
      * <p>Because ACLs are largely immutable, it is strongly recommended to use
      * a synthetic identifier (such as a database sequence number for the primary key). Do not use an identifier with
-     * business meaning, as that business meaning may change in the future such change will cascade to the ACL 
+     * business meaning, as that business meaning may change in the future such change will cascade to the ACL
      * subsystem data.</p>
      *
      * @return the identifier (unique within this <tt>javaType</tt>; never <tt>null</tt>)
@@ -57,12 +57,12 @@ public interface ObjectIdentity extends Serializable {
     Serializable getIdentifier();
 
     /**
-     * Obtains the Java type represented by the domain object. The Java type can be an interface or a class, but is
-     * most often the domain object implementation class.
+     * Obtains the "type" metadata for the domain object. This will often be a Java type name (an interface or a class)
+     * &ndash; traditionally it is the name of the domain object implementation class.
      *
-     * @return the Java type of the domain object (never <tt>null</tt>)
+     * @return the "type" of the domain object (never <tt>null</tt>).
      */
-    Class<?> getJavaType();
+    String getType();
 
     /**
      * @return a hash code representation of the <tt>ObjectIdentity</tt>
