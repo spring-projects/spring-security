@@ -23,7 +23,7 @@ package org.springframework.security.core.userdetails;
  * Implementations should provide appropriate methods to set their cache parameters (e.g. time-to-live) and/or force
  * removal of entities before their normal expiration. These are not part of the <code>UserCache</code>
  * interface contract because they vary depending on the type of caching
- * system used (e.g. in-memory vs disk vs cluster vs hybrid).
+ * system used (in-memory, disk, cluster, hybrid etc.).
  * <p>
  * Caching is generally only required in applications which do not maintain server-side state, such as remote clients
  * or web services. The authentication credentials are then presented on each invocation and the overhead of accessing
