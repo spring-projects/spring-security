@@ -72,6 +72,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     @SuppressWarnings("unchecked")
     public BeanDefinition parse(Element element, ParserContext parserContext) {
+        ConfigUtils.registerProviderManagerIfNecessary(parserContext);
         Object source = parserContext.extractSource(element);
         // The list of method metadata delegates
         ManagedList delegates = new ManagedList();
