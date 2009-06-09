@@ -32,7 +32,7 @@ public interface AccessDecisionManager {
     /**
      * Resolves an access control decision for the passed parameters.
      *
-     * @param authentication the caller invoking the method
+     * @param authentication the caller invoking the method (not null)
      * @param object the secured object being called
      * @param configAttributes the configuration attributes associated with the secured object being invoked
      *
