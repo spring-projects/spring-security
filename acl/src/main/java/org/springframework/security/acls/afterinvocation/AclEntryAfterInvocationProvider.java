@@ -68,6 +68,11 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
         super(aclService, "AFTER_ACL_READ", requirePermission);
     }
 
+    public AclEntryAfterInvocationProvider(AclService aclService, String processConfigAttribute,
+            List<Permission> requirePermission) {
+        super(aclService, processConfigAttribute, requirePermission);
+    }
+
     //~ Methods ========================================================================================================
 
     public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
