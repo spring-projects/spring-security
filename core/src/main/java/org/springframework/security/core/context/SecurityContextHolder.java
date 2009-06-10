@@ -43,7 +43,6 @@ import java.lang.reflect.Constructor;
  * @author Ben Alex
  * @version $Id$
  *
- * @see org.springframework.security.core.context.web.HttpSessionContextIntegrationFilter
  */
 public class SecurityContextHolder {
     //~ Static fields/initializers =====================================================================================
