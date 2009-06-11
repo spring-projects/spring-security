@@ -580,4 +580,67 @@ Successfully authenticated. Security context contains: \
       </section>
     </section>
   </section>
+  <section xml:id="localization">
+    <title>Localization</title>
+    <para>Spring Security supports localization of exception messages that
+      end users are likely to see. If your application is designed for
+      English-speaking users, you don't need to do anything as by default all
+      Security Security messages are in English. If you need to support
+      other locales, everything you need to know is contained in this
+      section.</para>
+    
+    <para>All exception messages can be localized, including messages
+      related to authentication failures and access being denied
+      (authorization failures). Exceptions and logging that is focused on
+      developers or system deployers (including incorrect attributes,
+      interface contract violations, using incorrect constructors, startup
+      time validation, debug-level logging) etc are not localized and
+      instead are hard-coded in English within Spring Security's
+      code.</para>
+    
+    <para>Shipping in the <literal>spring-security-core-xx.jar</literal> you
+      will find an <literal>org.springframework.security</literal> package
+      that in turn contains a <literal>messages.properties</literal> file.
+      This should be referred to by your
+      <literal>ApplicationContext</literal>, as Spring Security classes
+      implement Spring's <literal>MessageSourceAware</literal> interface and
+      expect the message resolver to be dependency injected at application
+      context startup time. Usually all you need to do is register a bean
+      inside your application context to refer to the messages. An example
+      is shown below:</para>
+    
+    <para><programlisting><![CDATA[
+<bean id="messageSource" 
+    class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+  <property name="basename" value="org/springframework/security/messages"/>
+</bean>
+]]></programlisting></para>
+    
+    <para>The <literal>messages.properties</literal> is named in
+      accordance with standard resource bundles and represents the default
+      language supported by Spring Security messages. This default file is
+      in English. If you do not register a message source, Spring Security
+      will still work correctly and fallback to hard-coded English versions
+      of the messages.</para>
+    
+    <para>If you wish to customize the
+      <literal>messages.properties</literal> file, or support other
+      languages, you should copy the file, rename it accordingly, and
+      register it inside the above bean definition. There are not a large
+      number of message keys inside this file, so localization should not be
+      considered a major initiative. If you do perform localization of this
+      file, please consider sharing your work with the community by logging
+      a JIRA task and attaching your appropriately-named localized version
+      of <literal>messages.properties</literal>.</para>
+    
+    <para>Rounding out the discussion on localization is the Spring
+      <literal>ThreadLocal</literal> known as
+      <classname>org.springframework.context.i18n.LocaleContextHolder</classname>.
+      You should set the <classname>LocaleContextHolder</classname> to represent
+      the preferred <literal>Locale</literal> of each user. Spring Security
+      will attempt to locate a message from the message source using the
+      <literal>Locale</literal> obtained from this
+      <literal>ThreadLocal</literal>. Please refer to the Spring Framework documentation
+      for further details on using <literal>LocaleContextHolder</literal>.</para>
+  </section>  
 </chapter>
