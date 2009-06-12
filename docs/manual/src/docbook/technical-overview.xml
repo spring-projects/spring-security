@@ -108,8 +108,8 @@ if (principal instanceof UserDetails) {
         required.</para>
       <para> On successful authentication, <interfacename>UserDetails</interfacename> is used to
         build the <interfacename>Authentication</interfacename> object that is stored in the
-          <classname>SecurityContextHolder</classname> (more on this in <link
-          xlink:href="#tech-intro-authentication-mgr"/> below). The good news is that we provide a
+          <classname>SecurityContextHolder</classname> (more on this <link
+          xlink:href="#tech-intro-authentication-mgr">below</link>). The good news is that we provide a
         number of <interfacename>UserDetailsService</interfacename> implementations, including one
         that uses an in-memory map (<classname>InMemoryDaoImpl</classname>) and another that uses
         JDBC (<interfacename>JdbcDaoImpl</interfacename>). Most users tend to write their own,
@@ -321,33 +321,14 @@ Successfully authenticated. Security context contains: \
           (or equivalent) that reads the third-party user information from a location, build a
           Spring Security-specific <interfacename>Authentication</interfacename> object, and put it
           onto the <classname>SecurityContextHolder</classname>.</para>
+        <para>
+          If you're wondering how the <interfacename>AuthenticationManager</interfacename> 
+          manager is implemented in a real world example, we'll look at that in 
+        </para>
       </section>
     </section>
-    <section xml:id="tech-intro-authentication-mgr">
-      <title>The <interfacename>AuthenticationManager</interfacename></title>
-      <para>The <interfacename>AuthenticationManager</interfacename> is just an interface, so the
-        implementation can be anything we choose, but how does it work in practice. What if we need
-        to check multiple authentication databases? The default implementation in Spring Security is
-        called <classname>ProviderManager</classname> and rather than handling the authentication
-        request itself, it delegates to a list of configured
-          <classname>AuthenticationProvider</classname>s, each of which is queried in turn to see if
-        it can perform the authentication. Each provider will either throw an exception or return a
-        fully populated <interfacename>Authentication</interfacename> object. Remember our good
-        friends, <interfacename>UserDetails</interfacename> and
-          <interfacename>UserDetailsService</interfacename>? If not, head back to the previous
-        section and refresh your memory. The most common approach to verifying an authentication
-        request is to load the corresponding <interfacename>UserDetails</interfacename> and check
-        the loaded password against the one that has been entered by the user. This is the approach
-        used by the <classname>DaoAuthenticationProvider</classname>, which is most commonly used to
-        wrap a <interfacename>UserDetailsService</interfacename> to implement an
-          <interfacename>AuthenticationProvider</interfacename>. The loaded
-          <interfacename>UserDetails</interfacename> object - and particularly the
-          <literal>GrantedAuthority</literal>s it contains - will be used when building the fully
-        populated <interfacename>Authentication</interfacename> object which is returned from a
-        successful authentication and stored in the <classname>SecurityContext</classname>.</para>
-    </section>
   </section>
-  <section>
+  <section xml:id="tech-intro-web-authentication">
     <title>Authentication in a Web Application</title>
     <para> Now let's explore the situation where you are using Spring Security in a web application
       (without <filename>web.xml</filename> security enabled). How is a user authenticated and the
@@ -410,7 +391,7 @@ Successfully authenticated. Security context contains: \
           <interfacename>AuthenticationEntryPoint</interfacename> (if the principal has not been
         authenticated and therefore we need to go commence step three).</para>
     </section>
-    <section xml:id="tech-auth-entry-point">
+    <section xml:id="tech-intro-auth-entry-point">
       <title>AuthenticationEntryPoint</title>
       <para>The <interfacename>AuthenticationEntryPoint</interfacename> is responsible for step
         three in the above list. As you can imagine, each web application will have a default
@@ -438,7 +419,7 @@ Successfully authenticated. Security context contains: \
         rejected the request, the authentication mechanism will ask the user agent to retry (step
         two above).</para>
     </section>
-    <section xml:id="tech-sec-context-persistence">
+    <section xml:id="tech-intro-sec-context-persistence">
       <title>Storing the <interfacename>SecurityContext</interfacename> between requests</title>
       <para>Depending on the type of application, there may need to be a strategy in place to store
         the security context between user operations. In a typical web application, a user logs in

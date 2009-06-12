@@ -63,7 +63,5 @@
             </note>
             If authentication fails, the configured <interfacename>AuthenticationFailureHandler</interfacename> will be invoked.
         </para>
-        
-
     </section>
 </chapter>

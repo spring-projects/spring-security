@@ -117,10 +117,7 @@
       <section xml:id="nsa-access-denied-page">
         <title><literal>access-denied-page</literal></title>
         <para>
-          Allows the access denied page to be set (the user will be redirected here if an
-          <exceptionname>AccessDeniedException</exceptionname> is raised). Corresponds to the
-          <literal>errorPage</literal> property set on the <classname>AccessDeniedHandlerImpl</classname> which is
-          used by the <classname>ExceptionTranslationFilter</classname>.
+          Deprecated in favour of the <literal>access-denied-handler</literal> child element.
         </para>
       </section>
 
@@ -144,6 +141,16 @@
           then cause an exception during the initialization of <classname>HttpSessionContextIntegrationFilter</classname>.
         </para>
       </section>
+    </section>
+    
+    <section xml:id="nsa-access-denied-handler">
+      <title><literal>access-denied-handler</literal></title>
+      <para>
+        This element allows you to set the <literal>errorPage</literal> property for the default 
+        <interfacename>AccessDeniedHandler</interfacename> used by the <classname>ExceptionTranslationFilter</classname>,
+        (using the <literal>error-page</literal> attribute, or to supply your own implementation using the <literal>ref</literal>
+        attribute. See <link xlink:href="#access-denied-handler"/> for more information on the implementation details.
+      </para>
     </section>
 
     <section>

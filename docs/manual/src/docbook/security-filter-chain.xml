@@ -1,0 +1,226 @@
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="security-filter-chain"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <info>
+    <title>The Security Filter Chain</title>
+  </info>
+  <para>Spring Security's web infrastructure is based entirely on standard servlet filters. It
+    doesn't use servlets or any other servlet-based frameworks (such as Spring MVC) internally, so
+    it has no strong links to any particular web technology. It deals in
+      <classname>HttpServletRequest</classname>s and <classname>HttpServletResponse</classname>s
+    and doesn't care whether the requests come from a browser, a web service client, an
+      <classname>HttpInvoker</classname> or an AJAX application. </para>
+  <para> Spring Security maintains a filter chain internally where each of the filters has a
+    particular responsibility and filters are added or removed from the configuration depending on
+    which services are required. The ordering of the filters is important as there are
+    dependencies between them. If you have been using <link xlink:href="#ns-config">namespace
+      configuration</link>, then the filters are automatically configured for you and you don't
+    have to define any Spring beans explicitly but here may be times when you want full control
+    over the security filter chain, either because you are using features which aren't supported
+    in the namespace, or you are using your own customized versions of classes.</para>
+  <section xml:id="delegating-filter-proxy">
+    <title><classname>DelegatingFilterProxy</classname></title>
+    <para> When using servlet filters, you obviously need to declare them in your
+        <filename>web.xml</filename>, or they will be ignored by the servlet container. In Spring
+      Security, the filter classes are also Spring beans defined in the application context and
+      thus able to take advantage of Spring's rich dependency-injection facilities and lifecycle
+      interfaces. Spring's <classname>DelegatingFilterProxy</classname> provides the link between
+        <filename>web.xml</filename> and the application context. </para>
+    <para>When using <classname>DelegatingFilterProxy</classname>, you will see something like
+      this in the <filename>web.xml</filename> file: <programlisting><![CDATA[    
+  <filter>
+    <filter-name>myFilter</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>myFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>]]>
+      </programlisting> Notice that the filter is actually a
+        <literal>DelegatingFilterProxy</literal>, and not the class that will actually implement
+      the logic of the filter. What <classname>DelegatingFilterProxy</classname> does is delegate
+      the <interfacename>Filter</interfacename>'s methods through to a bean which is obtained from
+      the Spring application context. This enables the bean to benefit from the Spring web
+      application context lifecycle support and configuration flexibility. The bean must implement
+        <interfacename>javax.servlet.Filter</interfacename> and it must have the same name as that
+      in the <literal>filter-name</literal> element. Read the Javadoc for
+        <classname>DelegatingFilterProxy</classname> for more information</para>
+  </section>
+  <section xml:id="filter-chain-proxy">
+    <title><classname>FilterChainProxy</classname></title>
+    <para> It should now be clear that you can declare each Spring Security filter bean that you
+      require in your application context file and add a corresponding
+        <classname>DelegatingFilterProxy</classname> entry to <filename>web.xml</filename> for
+      each filter, making sure that they are ordered correctly. This is a cumbersome approach and
+      clutters up the <filename>web.xml</filename> file quickly if we have a lot of filters. We
+      would prefer to just add a single entry to <filename>web.xml</filename> and deal entirely
+      with the application context file for managing our web security beans. This is where Spring
+      Secuiryt's <classname>FilterChainProxy</classname> comes in. It is wired using a
+        <literal>DelegatingFilterProxy</literal>, just like in the example above, but with the
+        <literal>filter-name</literal> set to the bean name <quote>filterChainProxy</quote>. The
+      filter chain is then declared in the application context with the same bean name. Here's an
+      example: <programlisting language="xml"><![CDATA[
+<bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+  <sec:filter-chain-map path-type="ant">
+     <sec:filter-chain pattern="/webServices/**" filters="
+           securityContextPersistenceFilterWithASCFalse,
+           basicProcessingFilter,
+           exceptionTranslationFilter,
+           filterSecurityInterceptor" />
+     <sec:filter-chain pattern="/**" filters="
+           securityContextPersistenceFilterWithASCTrue,
+           authenticationProcessingFilter,
+           exceptionTranslationFilter,
+           filterSecurityInterceptor" />
+  </sec:filter-chain-map>
+</bean>
+]]>         
+    </programlisting> The namespace element <literal>filter-chain-map</literal> is
+      used to set up the security filter chain(s) which are required within the application<footnote>
+        <para>Note that you'll need to include the security namespace in your application context
+          XML file in order to use this syntax.</para>
+      </footnote>. It maps a particular URL pattern to a chain of filters built up from the bean
+      names specified in the <literal>filters</literal> element. Both regular expressions and Ant
+      Paths are supported, and the most specific URIs appear first. At runtime the
+        <classname>FilterChainProxy</classname> will locate the first URI pattern that matches the
+      current web request and the list of filter beans specified by the <literal>filters</literal>
+      attribute will be applied to that request. The filters will be invoked in the order they are
+      defined, so you have complete control over the filter chain which is applied to a particular
+      URL.</para>
+    <para>You may have noticed we have declared two
+        <classname>SecurityContextPersistenceFilter</classname>s in the filter chain
+        (<literal>ASC</literal> is short for <literal>allowSessionCreation</literal>, a property
+      of <classname>SecurityContextPersistenceFilter</classname>). As web services will never
+      present a <literal>jsessionid</literal> on future requests, creating
+        <literal>HttpSession</literal>s for such user agents would be wasteful. If you had a
+      high-volume application which required maximum scalability, we recommend you use the
+      approach shown above. For smaller applications, using a single
+        <classname>SecurityContextPersistenceFilter</classname> (with its default
+        <literal>allowSessionCreation</literal> as <literal>true</literal>) would likely be
+      sufficient.</para>
+    <para>In relation to lifecycle issues, the <classname>FilterChainProxy</classname> will always
+      delegate <methodname>init(FilterConfig)</methodname> and <methodname>destroy()</methodname>
+      methods through to the underlaying <interfacename>Filter</interfacename>s if such methods
+      are called against <classname>FilterChainProxy</classname> itself. In this case,
+        <classname>FilterChainProxy</classname> guarantees to only initialize and destroy each
+        <literal>Filter</literal> bean once, no matter how many times it is declared in the filter
+      chain(s). You control the overall choice as to whether these methods are called or not via
+      the <literal>targetFilterLifecycle</literal> initialization parameter of
+        <literal>DelegatingFilterProxy</literal>. By default this property is
+        <literal>false</literal> and servlet container lifecycle invocations are not delegated
+      through <literal>DelegatingFilterProxy</literal>.</para>
+    <para> When we looked at how to set up web security using <link
+        xlink:href="#namespace-auto-config">namespace configuration</link>, we used a
+        <literal>DelegatingFilterProxy</literal> with the name
+        <quote>springSecurityFilterChain</quote>. You should now be able to see that this is the
+      name of the <classname>FilterChainProxy</classname> which is created by the namespace. </para>
+    <section>
+      <title>Bypassing the Filter Chain</title>
+      <para> As with the namespace, you can use the attribute <literal>filters = "none"</literal>
+        as an alternative to supplying a filter bean list. This will omit the request pattern from
+        the security filter chain entirely. Note that anything matching this path will then have
+        no authentication or authorization services applied and will be freely accessible. If you
+        want to make use of the contents of the <classname>SecurityContext</classname> contents
+        during a request, then it must have passed through the security filter chain. Otherwise
+        the <classname>SecurityContextHolder</classname> will not have been populated and the
+        contents will be null.</para>
+    </section>
+  </section>
+  <section>
+    <title>Filter Ordering</title>
+    <para>The order that filters are defined in the chain is very important. Irrespective of which
+      filters you are actually using, the order should be as follows: 
+      <orderedlist>
+        <listitem>
+          <para><classname>ChannelProcessingFilter</classname>, because it might need to redirect
+            to a different protocol</para>
+        </listitem>
+        <listitem>
+          <para><classname>ConcurrentSessionFilter</classname>, because it doesn't use any
+              <classname>SecurityContextHolder</classname> functionality but needs to update the
+              <interfacename>SessionRegistry</interfacename> to reflect ongoing requests from the
+            principal</para>
+        </listitem>
+        <listitem>
+          <para><classname>SecurityContextPersistenceFilter</classname>, so a
+              <interfacename>SecurityContext</interfacename> can be set up in the
+              <classname>SecurityContextHolder</classname> at the beginning of a web request, and
+            any changes to the <interfacename>SecurityContext</interfacename> can be copied to the
+              <literal>HttpSession</literal> when the web request ends (ready for use with the
+            next web request)</para>
+        </listitem>
+        <listitem>
+          <para>Authentication processing mechanisms -
+              <classname>UsernamePasswordAuthenticationProcessingFilter</classname>,
+              <classname>CasProcessingFilter</classname>,
+              <classname>BasicProcessingFilter</classname> etc - so that the
+              <classname>SecurityContextHolder</classname> can be modified to contain a valid
+              <interfacename>Authentication</interfacename> request token</para>
+        </listitem>
+        <listitem>
+          <para>The <literal>SecurityContextHolderAwareRequestFilter</literal>, if you are using
+            it to install a Spring Security aware <literal>HttpServletRequestWrapper</literal>
+            into your servlet container</para>
+        </listitem>
+        <listitem>
+          <para><classname>RememberMeProcessingFilter</classname>, so that if no earlier
+            authentication processing mechanism updated the
+              <classname>SecurityContextHolder</classname>, and the request presents a cookie that
+            enables remember-me services to take place, a suitable remembered
+              <interfacename>Authentication</interfacename> object will be put there</para>
+        </listitem>
+        <listitem>
+          <para><classname>AnonymousProcessingFilter</classname>, so that if no earlier
+            authentication processing mechanism updated the
+              <classname>SecurityContextHolder</classname>, an anonymous
+              <interfacename>Authentication</interfacename> object will be put there</para>
+        </listitem>
+        <listitem>
+          <para><classname>ExceptionTranslationFilter</classname>, to catch any Spring Security
+            exceptions so that either an HTTP error response can be returned or an appropriate
+              <interfacename>AuthenticationEntryPoint</interfacename> can be launched</para>
+        </listitem>
+        <listitem>
+          <para><classname>FilterSecurityInterceptor</classname>, to protect web URIs and raise
+            exceptions when access is denied</para>
+        </listitem>
+      </orderedlist></para>
+  </section>
+  <section>
+    <title>Use with other Filter-Based Frameworks</title>
+    <para>If you're using some other framework that is also filter-based, then you need to make
+      sure that the Spring Security filters come first. This enables the
+        <classname>SecurityContextHolder</classname> to be populated in time for use by the other
+      filters. Examples are the use of SiteMesh to decorate your web pages or a web framework like
+      Wicket which uses a filter to handle its requests. </para>
+  </section>
+<!--
+  <section xml:id="taglib">
+    <info>
+      <title>Tag Libraries</title>
+    </info>
+    <para>Spring Security comes bundled with several JSP tag libraries which provide a range of
+      different services.</para>
+    <section xml:id="taglib-config">
+      <info>
+        <title>Configuration</title>
+      </info>
+      <para>All taglib classes are included in the core
+          <literal>spring-security-taglibs-&lt;version>.jar</literal> file, with the
+          <literal>security.tld</literal> located in the JAR's <literal>META-INF</literal>
+        directory. This means for JSP 1.2+ web containers you can simply include the JAR in the
+        WAR's <literal>WEB-INF/lib</literal> directory and it will be available.</para>
+    </section>
+    <section xml:id="taglib-usage">
+      <info>
+        <title>Usage</title>
+      </info>
+      <para>Now that you've configured the tag libraries, refer to the individual reference guide
+        sections for details on how to use them. Note that when using the tags, you should include
+        the taglib reference in your JSP:
+        <programlisting>
+  &lt;%@ taglib prefix='security' uri='http://www.springframework.org/security/tags' %&gt;
+</programlisting></para>
+    </section>
+  </section>-->
+</chapter>
