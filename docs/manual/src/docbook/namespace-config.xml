@@ -681,8 +681,8 @@
     <para> We've touched on the idea that the namespace configuration automatically registers an
       authentication manager bean for you. This is an instance of Spring Security's
         <classname>ProviderManager</classname> class, which you may already be familiar with if
-      you've used the framework before. You can't use a custom
-        <classname>AuthenticationManager</classname> if you are using either HTTP or method security
+      you've used the framework before. If not, it will be covered later, in <link xlink:href="#tech-intro-authentication"/>. 
+      You can't use a custom <classname>AuthenticationManager</classname> if you are using either HTTP or method security
       through the namespace, but this should not be a problem as you have full control over the
         <classname>AuthenticationProvider</classname>s that are used. </para>
     <para> You may want to register additional <classname>AuthenticationProvider</classname> beans
