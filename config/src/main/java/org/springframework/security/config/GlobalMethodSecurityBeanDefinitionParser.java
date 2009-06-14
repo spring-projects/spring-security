@@ -82,17 +82,6 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         boolean prePostAnnotationsEnabled = "enabled".equals(element.getAttribute(ATT_USE_PREPOST));
         BeanDefinition preInvocationVoter = null;
 
-        // Now create a Map<String, ConfigAttribute> for each <protect-pointcut> sub-element
-        Map<String, List<ConfigAttribute>> pointcutMap = parseProtectPointcuts(parserContext,
-                DomUtils.getChildElementsByTagName(element, PROTECT_POINTCUT));
-
-        if (pointcutMap.size() > 0) {
-            // SEC-1016: Put the pointcut MDS first, but only add it if there are actually any pointcuts defined.
-            MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource = new MapBasedMethodSecurityMetadataSource();
-            delegates.add(mapBasedMethodSecurityMetadataSource);
-            registerProtectPointcutPostProcessor(parserContext, pointcutMap, mapBasedMethodSecurityMetadataSource, source);
-        }
-
         if (prePostAnnotationsEnabled) {
             Element prePostElt = DomUtils.getChildElementByTagName(element, INVOCATION_HANDLING);
             Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, EXPRESSION_HANDLER);
@@ -157,6 +146,17 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         if (jsr250Enabled) {
             delegates.add(BeanDefinitionBuilder.rootBeanDefinition(Jsr250MethodSecurityMetadataSource.class).getBeanDefinition());
+        }
+
+        // Now create a Map<String, ConfigAttribute> for each <protect-pointcut> sub-element
+        Map<String, List<ConfigAttribute>> pointcutMap = parseProtectPointcuts(parserContext,
+                DomUtils.getChildElementsByTagName(element, PROTECT_POINTCUT));
+
+        if (pointcutMap.size() > 0) {
+            // Only add it if there are actually any pointcuts defined.
+            MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource = new MapBasedMethodSecurityMetadataSource();
+            delegates.add(mapBasedMethodSecurityMetadataSource);
+            registerProtectPointcutPostProcessor(parserContext, pointcutMap, mapBasedMethodSecurityMetadataSource, source);
         }
 
         registerDelegatingMethodSecurityMetadataSource(parserContext, delegates, source);
