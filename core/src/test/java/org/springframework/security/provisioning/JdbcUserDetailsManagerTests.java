@@ -1,9 +1,6 @@
 package org.springframework.security.provisioning;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,7 +27,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
 
 /**
  * Tests for {@link JdbcUserDetailsManager}
@@ -282,6 +278,24 @@ public class JdbcUserDetailsManagerTests {
         assertEquals(2, template.queryForList("select authority from group_authorities where group_id = 2").size());
     }
 
+    // SEC-1156
+    @Test
+    public void createUserDoesNotSaveAuthoritiesIfEnableAuthoritiesIsFalse() throws Exception {
+        manager.setEnableAuthorities(false);
+        manager.createUser(joe);
+        assertEquals(0, template.queryForList(SELECT_JOE_AUTHORITIES_SQL).size());
+    }
+
+    // SEC-1156
+    @Test
+    public void updateUserDoesNotSaveAuthoritiesIfEnableAuthoritiesIsFalse() throws Exception {
+        manager.setEnableAuthorities(false);
+        insertJoe();
+        template.execute("delete from authorities where username='joe'");
+        manager.updateUser(joe);
+        assertEquals(0, template.queryForList(SELECT_JOE_AUTHORITIES_SQL).size());
+    }
+
     private Authentication authenticateJoe() {
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken("joe","password", joe.getAuthorities());
@@ -289,6 +303,7 @@ public class JdbcUserDetailsManagerTests {
 
         return auth;
     }
+
 
     private void insertJoe() {
         template.execute("insert into users (username, password, enabled) values ('joe','password','true')");

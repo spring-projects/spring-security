@@ -28,7 +28,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Jdbc user management service.
+ * Jdbc user management service, based on the same table structure as its parent class, <tt>JdbcDaoImpl</tt>.
+ * <p>
+ * Provides CRUD operations for both users and groups. Note that if the {@link #setEnableAuthorities(boolean)
+ * enableAuthorities} property is set to false, calls to createUser and updateUser will not store the
+ * authorities from the <tt>UserDetails</tt>. Since this class cannot differentiate between authorities which were
+ * loaded for an individual or for a group of which the individual is a member, it's important that you take this
+ * into account when using this implementation for managing your users.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -141,7 +147,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
         });
 
-        insertUserAuthorities(user);
+        if (getEnableAuthorities()) {
+            insertUserAuthorities(user);
+        }
     }
 
     public void updateUser(final UserDetails user) {
@@ -154,8 +162,10 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
             }
         });
 
-        deleteUserAuthorities(user.getUsername());
-        insertUserAuthorities(user);
+        if (getEnableAuthorities()) {
+            deleteUserAuthorities(user.getUsername());
+            insertUserAuthorities(user);
+        }
 
         userCache.removeUserFromCache(user.getUsername());
     }
