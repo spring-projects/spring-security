@@ -15,18 +15,20 @@
 
 package org.springframework.security.core.userdetails;
 
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-
 import org.springframework.dao.DataAccessException;
 
 
 /**
- * Defines an interface for implementations that wish to provide data access
- * services to the {@link DaoAuthenticationProvider}.
+ * Core interface which loads user-specific data.
+ * <p>
+ * It is used throughout the framework as a user DAO and is the strategy used by the
+ * {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider DaoAuthenticationProvider}.
  *
  * <p>
- * The interface requires only one read-only method, which simplifies support
- * of new data access strategies.
+ * The interface requires only one read-only method, which simplifies support for new data-access strategies.
+ *
+ * @see org.springframework.security.authentication.dao.DaoAuthenticationProvider
+ * @see UserDetails
  *
  * @author Ben Alex
  * @version $Id$
