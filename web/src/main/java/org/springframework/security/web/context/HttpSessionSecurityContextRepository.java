@@ -70,7 +70,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
     /**
-     * Gets the security context from the session (if available) and returns it.
+     * Gets the security context for the current request (if available) and returns it.
      * <p>
      * If the session is null, the context object is null or the context object stored in the session
      * is not an instance of <tt>SecurityContext</tt>, a new context object will be generated and
