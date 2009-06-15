@@ -12,5 +12,14 @@ import org.springframework.security.core.Authentication;
  */
 public interface PreInvocationAuthorizationAdvice {
 
+    /**
+     * The "before" advice which should be executed to perform any filtering necessary and to decide whether
+     * the method call is authorised.
+     *
+     * @param authentication the information on the principal on whose account the decision should be made
+     * @param mi the method invocation being attempted
+     * @param preInvocationAttribute the attribute built from the @PreFilte and @PostFilter annotations.
+     * @return true if authorised, false otherwise
+     */
     boolean before(Authentication authentication, MethodInvocation mi, PreInvocationAttribute preInvocationAttribute);
 }

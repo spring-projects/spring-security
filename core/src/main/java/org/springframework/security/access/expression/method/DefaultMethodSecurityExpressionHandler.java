@@ -13,7 +13,7 @@ import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.antlr.SpelAntlrExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -36,7 +36,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
     private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
     private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-    private ExpressionParser expressionParser = new SpelAntlrExpressionParser();
+    private ExpressionParser expressionParser = new SpelExpressionParser();
 
     public DefaultMethodSecurityExpressionHandler() {
     }

@@ -16,8 +16,6 @@
 package org.springframework.security.util;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.framework.Advised;
@@ -57,13 +55,11 @@ public final class MethodInvocationUtils {
         Class<?>[] classArgs = null;
 
         if (args != null) {
-            List<Class<?>> list = new ArrayList<Class<?>>();
+            classArgs = new Class<?>[args.length];
 
             for (int i = 0; i < args.length; i++) {
-                list.add(args[i].getClass());
+                classArgs[i] = args[i].getClass();
             }
-
-            classArgs = list.toArray(new Class[] {});
         }
 
         // Determine the type that declares the requested method, taking into account proxies
@@ -109,7 +105,8 @@ public final class MethodInvocationUtils {
      * @param args the actual arguments that should be passed to SimpleMethodInvocation
      * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a problem
      */
-    public static MethodInvocation createFromClass(Object targetObject, Class<?> clazz, String methodName, Class<?>[] classArgs, Object[] args) {
+    public static MethodInvocation createFromClass(Object targetObject, Class<?> clazz, String methodName,
+            Class<?>[] classArgs, Object[] args) {
         Assert.notNull(clazz, "Class required");
         Assert.hasText(methodName, "MethodName required");
 
@@ -117,7 +114,7 @@ public final class MethodInvocationUtils {
 
         try {
             method = clazz.getMethod(methodName, classArgs);
-        } catch (Exception e) {
+        } catch (NoSuchMethodException e) {
             return null;
         }
 

@@ -86,7 +86,8 @@
             <id>com.springsource.repository.bundles.release</id>
             <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
             <url>http://repository.springsource.com/maven/bundles/release</url>
-        </repository>       
+        </repository>  
+-->               
         <repository>
             <releases>
               <enabled>false</enabled>
@@ -94,11 +95,11 @@
             <snapshots>
               <enabled>true</enabled>
             </snapshots>            
-            <id>com.springsource.repository.bundles.snapshot</id>
-            <name>SpringSource Enterprise Bundle Repository - SpringSource Snapshot Releases</name>
-            <url>http://repository.springsource.com/maven/bundles/snapshot</url>
+            <id>com.springsource.repository.maven.snapshot</id>
+            <name>SpringSource Enterprise Bundle Maven Repository - SpringSource Snapshot Releases</name>
+            <url>http://maven.springframework.org/snapshot</url>
         </repository>
--->        
+      
         <repository>
             <releases>
               <enabled>true</enabled>
@@ -106,7 +107,7 @@
             <snapshots>
               <enabled>false</enabled>
             </snapshots>            
-            <id>Spring Framework Maven Milestone Releases</id>
+            <id>com.springsource.repository.maven.milestone</id>
             <name>Spring Framework Maven Milestone Releases (Maven Central Format)</name>
             <url>http://maven.springframework.org/milestone</url>
         </repository>      
@@ -114,7 +115,7 @@
 
     <pluginRepositories>
         <pluginRepository>
-            <id>com.springsource.repository.bundles.milestone</id>
+            <id>com.springsource.repository.maven.milestone</id>
             <name>SpringSource Enterprise Bundle Repository - SpringSource Milestone Releases</name>
             <url>http://repository.springsource.com/maven/bundles/milestone</url>
         </pluginRepository>
@@ -766,7 +767,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>        
-        <spring.version>3.0.0.M3</spring.version>
+        <spring.version>3.0.0.BUILD-SNAPSHOT</spring.version>
         <jstl.version>1.1.2</jstl.version>
         <jetty.version>6.1.18</jetty.version>
     </properties>

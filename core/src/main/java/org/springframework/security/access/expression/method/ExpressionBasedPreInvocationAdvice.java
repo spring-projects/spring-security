@@ -14,10 +14,8 @@ import org.springframework.security.access.prepost.PreInvocationAuthorizationAdv
 import org.springframework.security.core.Authentication;
 
 /**
- * If only a @PreFilter condition is specified, it will vote to grant access, otherwise it will vote
- * to grant or deny access depending on whether the @PreAuthorize expression evaluates to 'true' or 'false',
- * respectively.
-
+ * Method pre-invocation handling based on expressions.
+ *
  * @author Luke Taylor
  * @version $Id$
  * @since

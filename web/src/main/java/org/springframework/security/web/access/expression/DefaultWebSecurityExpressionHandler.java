@@ -2,7 +2,7 @@ package org.springframework.security.web.access.expression;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.antlr.SpelAntlrExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -21,7 +21,7 @@ import org.springframework.security.web.FilterInvocation;
 public class DefaultWebSecurityExpressionHandler implements WebSecurityExpressionHandler {
 
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-    private ExpressionParser expressionParser = new SpelAntlrExpressionParser();
+    private ExpressionParser expressionParser = new SpelExpressionParser();
 
     public ExpressionParser getExpressionParser() {
         return expressionParser;

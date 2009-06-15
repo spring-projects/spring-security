@@ -2,7 +2,7 @@ package org.springframework.security.access.expression.method;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;
-import org.springframework.expression.spel.antlr.SpelAntlrExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.util.Assert;
 
@@ -26,7 +26,7 @@ abstract class AbstractExpressionBasedMethodConfigAttribute implements ConfigAtt
      */
     AbstractExpressionBasedMethodConfigAttribute(String filterExpression, String authorizeExpression) throws ParseException {
         Assert.isTrue(filterExpression != null || authorizeExpression != null, "Filter and authorization Expressions cannot both be null");
-        SpelAntlrExpressionParser parser = new SpelAntlrExpressionParser();
+        SpelExpressionParser parser = new SpelExpressionParser();
         this.filterExpression = filterExpression == null ? null : parser.parseExpression(filterExpression);
         this.authorizeExpression = authorizeExpression == null ? null : parser.parseExpression(authorizeExpression);
     }
