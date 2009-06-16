@@ -1,0 +1,54 @@
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"
+  xml:id="concurrent-sessions" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <info>
+    <title>Concurrent Session Handling</title>
+  </info>
+  <!-- TODO: Expand and refer to namespace options -->
+    <para>Spring Security is able to prevent a principal from concurrently authenticating to the
+      same application more than a specified number of times. Many ISVs take advantage of this to
+      enforce licensing, whilst network administrators like this feature because it helps prevent
+      people from sharing login names. You can, for example, stop user "Batman" from logging onto
+      the web application from two different sessions.</para>
+    <para>To use concurrent session support, you'll need to add the following to
+        <literal>web.xml</literal>: <programlisting><![CDATA[
+  <listener>
+    <listener-class>
+      org.springframework.security.web.session.HttpSessionEventPublisher
+    </listener-class>
+  </listener> ]]>       
+      </programlisting></para>
+    <para>In addition, you will need to add the
+        <literal>org.springframework.security.web.authentication.concurrent.ConcurrentSessionFilter</literal>
+      to your <classname>FilterChainProxy</classname>. The
+        <classname>ConcurrentSessionFilter</classname> requires two properties,
+        <literal>sessionRegistry</literal>, which generally points to an instance of
+        <literal>SessionRegistryImpl</literal>, and <literal>expiredUrl</literal>, which points to
+      the page to display when a session has expired.</para>
+    <para>The <literal>web.xml</literal>
+      <literal>HttpSessionEventPublisher</literal> causes an <literal>ApplicationEvent</literal> to
+      be published to the Spring <literal>ApplicationContext</literal> every time a
+        <literal>HttpSession</literal> commences or terminates. This is critical, as it allows the
+        <classname>SessionRegistryImpl</classname> to be notified when a session ends.</para>
+    <para>You will also need to wire up the <classname>ConcurrentSessionControllerImpl</classname>
+      and refer to it from your <literal>ProviderManager</literal> bean:</para>
+    <para>
+      <programlisting><![CDATA[
+<bean id="authenticationManager" 
+    class="org.springframework.security.authentication.ProviderManager">
+  <property name="providers">
+    <!-- your providers go here -->
+  </property>
+  <property name="sessionController" ref="concurrentSessionController"/>
+</bean>
+
+<bean id="concurrentSessionController" class=
+    "org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl">
+  <property name="maximumSessions" value="1"/>
+  <property name="sessionRegistry">
+    <bean 
+      class="org.springframework.security.authentication.concurrent.SessionRegistryImpl"/>
+  <property>
+</bean>
+]]></programlisting>
+    </para>
+</chapter>

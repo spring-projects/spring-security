@@ -1,0 +1,169 @@
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="core-services"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Core Services</title>
+    <para> Now that we have a high-level overview of the Spring Security architecture and its core
+        classes, let's take a closer look at one or two of the core interfaces and their
+        implementations, in particular the <interfacename>AuthenticationManager</interfacename>,
+            <interfacename>UserDetailsService</interfacename> and the
+            <interfacename>AccessDecisionManager</interfacename>. These crop up regularly throughout
+        the remainder of this document so it's important you know how they are configured and how
+        they operate. </para>
+    <section xml:id="authentication-manager">
+        <title>The <interfacename>AuthenticationManager</interfacename>,
+                <classname>ProviderManager</classname> and
+                <classname>AuthenticationProvider</classname>s</title>
+        <para>The <interfacename>AuthenticationManager</interfacename> is just an interface, so the
+            implementation can be anything we choose, but how does it work in practice? What if we
+            need to check multiple authentication databases or a combination of different
+            authentication services such as a database and an LDAP server?</para>
+        <para>The default implementation in Spring Security is called
+                <classname>ProviderManager</classname> and rather than handling the authentication
+            request itself, it delegates to a list of configured
+                <classname>AuthenticationProvider</classname>s, each of which is queried in turn to
+            see if it can perform the authentication. Each provider will either throw an exception
+            or return a fully populated <interfacename>Authentication</interfacename> object.
+            Remember our good friends, <interfacename>UserDetails</interfacename> and
+                <interfacename>UserDetailsService</interfacename>? If not, head back to the previous
+            chapter and refresh your memory. The most common approach to verifying an authentication
+            request is to load the corresponding <interfacename>UserDetails</interfacename> and
+            check the loaded password against the one that has been entered by the user. This is the
+            approach used by the <classname>DaoAuthenticationProvider</classname>, which wraps a
+                <interfacename>UserDetailsService</interfacename> to implement an
+                <interfacename>AuthenticationProvider</interfacename>. The loaded
+                <interfacename>UserDetails</interfacename> object - and particularly the
+                <literal>GrantedAuthority</literal>s it contains - will be used when building the
+            fully populated <interfacename>Authentication</interfacename> object which is returned
+            from a successful authentication and stored in the
+                <classname>SecurityContext</classname>. </para>
+        <para> If you are using the namespace, an instance of
+                <classname>ProviderMananger</classname> is created and maintained internally, and
+            you add providers to it either by using the namespace authentication provired elements,
+            or by adding the <literal>&lt;custom-authentication-provider&gt;</literal> element to a
+            bean (see <link xlink:href="#ns-auth-manager">the namespace chapter</link>). In this
+            case, you should not declare a <classname>ProviderManager</classname> bean in your
+            application context. However, if you are not using the namespace then you would declare
+            it like so: <programlisting language="xml"><![CDATA[
+<bean id="authenticationManager"
+     class="org.springframework.security.authentication.ProviderManager">
+  <property name="providers">
+    <list>
+      <ref local="daoAuthenticationProvider"/>
+      <ref local="anonymousAuthenticationProvider"/>
+      <ref local="ldapAuthenticationProvider"/>
+    </list>
+  </property>
+</bean>]]></programlisting></para>
+        <para>In the above example we have three providers. They are tried in the order shown (which
+            is implied by the use of a <literal>List</literal>), with each provider able to attempt
+            authentication, or skip authentication by simply returning <literal>null</literal>. If
+            all implementations return null, the <literal>ProviderManager</literal> will throw a
+                <exceptionname>ProviderNotFoundException</exceptionname>. If you're interested in
+            learning more about chaining providers, please refer to the
+                <literal>ProviderManager</literal> JavaDocs.</para>
+        <para> Authentication mechanisms such as a web form-login processing filter are injected
+            with a reference to the <interfacename>ProviderManager</interfacename> and will call it
+            to handle their authentication requests. The providers you require will sometimes be
+            interchangeable with the authentication mechanisms, while at other times they will
+            depend on a specific authentication mechanism. For example,
+                <classname>DaoAuthenticationProvider</classname> and
+                <classname>LdapAuthenticationProvider</classname> are compatible with any mechanism
+            which submits a simple username/password authentication request and so will work with
+            form-based logins or HTTP Basic authentication. On the other hand, some authentication
+            mechanisms create an authentication request object which can only be interpreted by a
+            single type of <classname>AuthenticationProvider</classname>. An example of this would
+            be JA-SIG CAS, which uses the notion of a service ticket and so can therefore only be
+            authenticated by a <classname>CasAuthenticationProvider</classname>. You needn't be too
+            concerned about this, because if you forget to register a suitable provider, you'll
+            simply receive a <literal>ProviderNotFoundException</literal> when an attempt to
+            authenticate is made.</para>
+    </section>
+    <section>
+        <title><interfacename>UserDetailsService</interfacename> Implementations</title>
+        <para>As mentioned in the earlier in this reference guide, most authentication providers
+            take advantage of the <interfacename>UserDetails</interfacename> and
+                <interfacename>UserDetailsService</interfacename> interfaces. Recall that the
+            contract for <interfacename>UserDetailsService</interfacename> is a single
+            method:</para>
+        <para>
+            <programlisting>
+  UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+            </programlisting>
+        </para>
+        <para>The returned <interfacename>UserDetails</interfacename> is an interface that provides
+            getters that guarantee non-null provision of authentication information such as the
+            username, password, granted authorities and whether the user account is enabled or
+            disabled. Most authentication providers will use a
+                <interfacename>UserDetailsService</interfacename>, even if the username and password
+            are not actually used as part of the authentication decision. They may use the returned
+                <interfacename>UserDetails</interfacename> object just for its
+                <literal>GrantedAuthority</literal> information, because some other system (like
+            LDAP or X.509 or CAS etc) has undertaken the responsibility of actually validating the
+            credentials.</para>
+        <para>Given <interfacename>UserDetailsService</interfacename> is so simple to implement, it
+            should be easy for users to retrieve authentication information using a persistence
+            strategy of their choice. Having said that, Spring Security does include a couple of
+            useful base implementations, which we'll look at below.</para>
+        <section xml:id="in-memory-service">
+            <title>In-Memory Authentication</title>
+            <para>Is easy to use create a custom <interfacename>UserDetailsService</interfacename>
+                implementation that extracts information from a persistence engine of choice, but
+                many applications do not require such complexity. This is particularly true if
+                you're building a prototype application or just starting integrating Spring
+                Security, when you don't really want to spend time configuring databases or writing
+                    <interfacename>UserDetailsService</interfacename> implementations. For this sort
+                of situation, a simple option is to use the <literal>user-service</literal> element
+                from the security <link xlink:href="#namespace-minimal">namespace</link>: <programlisting><![CDATA[
+  <user-service id="userDetailsService">
+    <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
+    <user name="bob" password="bobspassword" authorities="ROLE_USER" />
+  </user-service>
+  ]]>
+                    </programlisting> This also supports the use of an external properties
+                file: <programlisting><![CDATA[
+  <user-service id="userDetailsService" properties="users.properties"/>
+  ]]></programlisting> The properties file should contain entries in the form
+                <programlisting>username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]</programlisting>
+                For example
+                <programlisting>
+ jimi=jimispassword,ROLE_USER,ROLE_ADMIN,enabled
+ bob=bobspassword,ROLE_USER,enabled</programlisting></para>
+        </section>
+        <section xml:id="jdbc-service">
+            <title><literal>JdbcDaoImpl</literal></title>
+            <para>Spring Security also includes a <interfacename>UserDetailsService</interfacename>
+                that can obtain authentication information from a JDBC data source. Internally
+                Spring JDBC is used, so it avoids the complexity of a fully-featured object
+                relational mapper (ORM) just to store user details. If your application does use an
+                ORM tool, you might prefer to write a custom
+                    <interfacename>UserDetailsService</interfacename> to reuse the mapping files
+                you've probably already created. Returning to <literal>JdbcDaoImpl</literal>, an
+                example configuration is shown below:</para>
+            <para>
+                <programlisting language="xml"><![CDATA[
+<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+  <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+  <property name="url" value="jdbc:hsqldb:hsql://localhost:9001"/>
+  <property name="username" value="sa"/>
+  <property name="password" value=""/>
+</bean>
+
+<bean id="userDetailsService" class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
+  <property name="dataSource" ref="dataSource"/>
+</bean> ]]>       </programlisting>
+            </para>
+            <para>You can use different relational database management systems by modifying the
+                    <literal>DriverManagerDataSource</literal> shown above. You can also use a
+                global data source obtained from JNDI, as with any other Spring configuration. </para>
+            <!--
+                <para>If the default schema is unsuitable for your needs, <literal>JdbcDaoImpl</literal>
+                provides properties that allow customisation of the SQL statements. Please refer to the
+                JavaDocs for details, but note that the class is not intended for complex custom
+                subclasses. If you have a complex schema or would like a custom
+                <interfacename>UserDetails</interfacename> implementation returned, you'd be better off
+                writing your own <interfacename>UserDetailsService</interfacename>. The base
+                implementation provided with Spring Security is intended for typical situations, rather
+                than catering for all possible requirements.</para>
+            -->
+        </section>
+    </section>
+</chapter>
