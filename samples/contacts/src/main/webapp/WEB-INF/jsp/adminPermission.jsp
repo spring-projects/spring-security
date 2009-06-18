@@ -9,7 +9,6 @@
 <c:out value="${model.contact}"/>
 </code>
 </p>
-<p>
 <table cellpadding="3" border="0">
 <c:forEach var="acl" items="${model.acl.entries}">
     <tr>
@@ -24,7 +23,6 @@
     </tr>
 </c:forEach>
 </table>
-</p>
 <p>
 <a href="<c:url value="addPermission.htm"><c:param name="contactId" value="${model.contact.id}"/></c:url>">Add Permission</a>   <a href="<c:url value="index.htm"/>">Manage</a>
 </p>

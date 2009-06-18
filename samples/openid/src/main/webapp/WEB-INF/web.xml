@@ -9,7 +9,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
 
-    <display-name>Spring Security Preauthentication Demo Application</display-name>
+    <display-name>Spring Security OpenID Demo Application</display-name>
 
     <!--
       - Location of the XML file that defines the root application context
@@ -53,14 +53,6 @@
 
     <listener>
         <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-    </listener>
-
-    <!--
-      - Publishes events for session creation and destruction through the application
-      - context. Optional unless concurrent session control is being used.
-      -->
-    <listener>
-      <listener-class>org.springframework.security.ui.session.HttpSessionEventPublisher</listener-class>
     </listener>
 
 </web-app>

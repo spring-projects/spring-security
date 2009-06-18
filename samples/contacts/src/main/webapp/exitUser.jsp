@@ -2,7 +2,7 @@
 
 <%@ page import="org.springframework.security.core.context.SecurityContextHolder" %>
 <%@ page import="org.springframework.security.core.Authentication" %>
-<%@ page import="org.springframework.security.ui.AbstractProcessingFilter" %>
+<%@ page import="org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter" %>
 <%@ page import="org.springframework.security.core.AuthenticationException" %>
 
 <html>
@@ -15,8 +15,8 @@
 
     <c:if test="${not empty param.login_error}">
       <font color="red">
-        Your 'Exit User' attempt was not successful, try again.<BR><BR>
-        Reason: <%= ((AuthenticationException) session.getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY)).getMessage() %>
+        Your 'Exit User' attempt was not successful, try again.<br/><br/>
+        Reason: <%= ((AuthenticationException) session.getAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY)).getMessage() %>
       </font>
     </c:if>
 
