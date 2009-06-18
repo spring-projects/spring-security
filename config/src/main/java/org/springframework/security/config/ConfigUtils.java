@@ -8,6 +8,7 @@ import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -116,6 +117,7 @@ abstract class ConfigUtils {
         RootBeanDefinition filterList = new RootBeanDefinition(FilterChainList.class);
         filterList.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_LIST, filterList);
+        pc.registerBeanComponent(new BeanComponentDefinition(filterList, BeanIds.FILTER_LIST));
     }
 
     @SuppressWarnings("unchecked")

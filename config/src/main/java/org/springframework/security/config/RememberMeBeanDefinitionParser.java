@@ -116,9 +116,7 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
         registerProvider(parserContext, source, key);
 
-        registerFilter(parserContext, source);
-
-        return null;
+        return createFilter(parserContext, source);
     }
 
     String getServicesName() {
@@ -134,7 +132,7 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         ConfigUtils.addAuthenticationProvider(pc, BeanIds.REMEMBER_ME_AUTHENTICATION_PROVIDER);
     }
 
-    private void registerFilter(ParserContext pc, Object source) {
+    private BeanDefinition createFilter(ParserContext pc, Object source) {
         RootBeanDefinition filter = new RootBeanDefinition(RememberMeProcessingFilter.class);
         filter.setSource(source);
         filter.getPropertyValues().addPropertyValue("authenticationManager",
@@ -143,7 +141,6 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         filter.getPropertyValues().addPropertyValue("rememberMeServices",
                 new RuntimeBeanReference(BeanIds.REMEMBER_ME_SERVICES));
 
-        pc.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_FILTER, filter);
-        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.REMEMBER_ME_FILTER));
+        return filter;
     }
 }

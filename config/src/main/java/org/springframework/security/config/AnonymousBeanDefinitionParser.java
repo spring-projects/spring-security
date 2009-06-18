@@ -68,10 +68,6 @@ public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
         parserContext.getRegistry().registerBeanDefinition(BeanIds.ANONYMOUS_AUTHENTICATION_PROVIDER, provider);
         ConfigUtils.addAuthenticationProvider(parserContext, BeanIds.ANONYMOUS_AUTHENTICATION_PROVIDER);
 
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.ANONYMOUS_PROCESSING_FILTER, filter);
-        ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.ANONYMOUS_PROCESSING_FILTER));
-        parserContext.registerComponent(new BeanComponentDefinition(filter, BeanIds.ANONYMOUS_PROCESSING_FILTER));
-
-        return null;
+        return filter;
     }
 }

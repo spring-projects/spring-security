@@ -93,14 +93,10 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
 
         beanRegistry.registerBeanDefinition(BeanIds.CONCURRENT_SESSION_CONTROLLER, controller);
         parserContext.registerComponent(new BeanComponentDefinition(controller, BeanIds.CONCURRENT_SESSION_CONTROLLER));
-        beanRegistry.registerBeanDefinition(BeanIds.CONCURRENT_SESSION_FILTER, filterBuilder.getBeanDefinition());
-        parserContext.registerComponent(new BeanComponentDefinition(filterBuilder.getBeanDefinition(), BeanIds.CONCURRENT_SESSION_FILTER));
-        ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.CONCURRENT_SESSION_FILTER));
-
         ConfigUtils.setSessionControllerOnAuthenticationManager(parserContext, BeanIds.CONCURRENT_SESSION_CONTROLLER, element);
 
         parserContext.popAndRegisterContainingComponent();
 
-        return null;
+        return filterBuilder.getBeanDefinition();
     }
 }

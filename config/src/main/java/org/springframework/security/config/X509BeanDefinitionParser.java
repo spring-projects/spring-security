@@ -61,9 +61,6 @@ public class X509BeanDefinitionParser implements BeanDefinitionParser {
 
         filterBuilder.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
 
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.X509_FILTER, filterBuilder.getBeanDefinition());
-        ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.X509_FILTER));
-
-        return null;
+        return filterBuilder.getBeanDefinition();
     }
 }

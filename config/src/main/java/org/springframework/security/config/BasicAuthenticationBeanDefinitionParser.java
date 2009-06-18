@@ -31,19 +31,14 @@ public class BasicAuthenticationBeanDefinitionParser implements BeanDefinitionPa
         RootBeanDefinition entryPoint = new RootBeanDefinition(BasicProcessingFilterEntryPoint.class);
         entryPoint.setSource(parserContext.extractSource(elt));
         entryPoint.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        
+
         entryPoint.getPropertyValues().addPropertyValue("realmName", realmName);
-    
+
         parserContext.getRegistry().registerBeanDefinition(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT, entryPoint);
 
         filterBuilder.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
         filterBuilder.addPropertyValue("authenticationEntryPoint", new RuntimeBeanReference(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT));
 
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.BASIC_AUTHENTICATION_FILTER,
-                filterBuilder.getBeanDefinition());
-        ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.BASIC_AUTHENTICATION_FILTER));
-        parserContext.registerComponent(new BeanComponentDefinition(filterBuilder.getBeanDefinition(), 
-                BeanIds.BASIC_AUTHENTICATION_FILTER));
-        return null;
+        return filterBuilder.getBeanDefinition();
     }
 }

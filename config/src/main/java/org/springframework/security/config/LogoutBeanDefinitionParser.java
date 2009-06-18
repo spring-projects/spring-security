@@ -79,9 +79,6 @@ public class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
         builder.addConstructorArgValue(handlers);
 
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.LOGOUT_FILTER, builder.getBeanDefinition());
-        ConfigUtils.addHttpFilter(parserContext, new RuntimeBeanReference(BeanIds.LOGOUT_FILTER));
-
-        return null;
+        return builder.getBeanDefinition();
     }
 }
