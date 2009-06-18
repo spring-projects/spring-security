@@ -1,6 +1,8 @@
 package org.springframework.security.config;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.aop.config.AbstractInterceptorDrivenBeanDefinitionDecorator;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -10,7 +12,10 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
+import org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -65,11 +70,10 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
 
         // Parse the included methods
         List<Element> methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);
-
-        StringBuffer sb = new StringBuffer();
+        Map<String, List<ConfigAttribute>> mappings = new LinkedHashMap<String, List<ConfigAttribute>>();
 
         for (Element protectmethodElt : methods) {
-            String accessConfig = protectmethodElt.getAttribute(ATT_ACCESS);
+            String[] tokens = StringUtils.commaDelimitedListToStringArray(protectmethodElt.getAttribute(ATT_ACCESS));
 
             // Support inference of class names
             String methodName = protectmethodElt.getAttribute(ATT_METHOD);
@@ -80,11 +84,11 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
                 }
             }
 
-            // Rely on the default property editor for MethodSecurityInterceptor.setSecurityMetadataSource to setup the MethodSecurityMetadataSource
-            sb.append(methodName + "=" + accessConfig).append("\r\n");
+            mappings.put(methodName, SecurityConfig.createList(tokens));
         }
 
-        interceptor.addPropertyValue("securityMetadataSource", sb.toString());
+        // TODO: Use a bean for the metadata source
+        interceptor.addPropertyValue("securityMetadataSource", new MapBasedMethodSecurityMetadataSource(mappings));
 
         return interceptor.getBeanDefinition();
     }
