@@ -26,6 +26,7 @@ import java.beans.PropertyEditorSupport;
  * of hard-to-spot configuration issues for end users.
  *
  * @author Ben Alex
+ * @deprecated
  * @version $Id$
  */
 public class ConfigAttributeEditor extends PropertyEditorSupport {
