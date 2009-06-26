@@ -29,10 +29,6 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
             protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
                 return "doesntmatter";
             }
-
-            public int getOrder() {
-                return 0;
-            }
         };
         SecurityContextHolder.getContext().setAuthentication(null);
     }

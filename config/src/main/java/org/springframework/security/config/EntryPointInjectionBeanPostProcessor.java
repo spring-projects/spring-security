@@ -24,28 +24,28 @@ public class EntryPointInjectionBeanPostProcessor implements BeanPostProcessor, 
 
     @SuppressWarnings("unchecked")
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if (!BeanIds.EXCEPTION_TRANSLATION_FILTER.equals(beanName)) {
-            return bean;
-        }
-
-        logger.info("Selecting AuthenticationEntryPoint for use in ExceptionTranslationFilter");
-
-        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) beanFactory.getBean(BeanIds.EXCEPTION_TRANSLATION_FILTER);
-
-        Object entryPoint = null;
-
-        if (beanFactory.containsBean(BeanIds.MAIN_ENTRY_POINT)) {
-            entryPoint = beanFactory.getBean(BeanIds.MAIN_ENTRY_POINT);
-            logger.info("Using main configured AuthenticationEntryPoint.");
-        } else {
-            Map entryPoints = beanFactory.getBeansOfType(AuthenticationEntryPoint.class);
-            Assert.isTrue(entryPoints.size() != 0, "No AuthenticationEntryPoint instances defined");
-            Assert.isTrue(entryPoints.size() == 1, "More than one AuthenticationEntryPoint defined in context");
-            entryPoint = entryPoints.values().toArray()[0];
-        }
-
-        logger.info("Using bean '" + entryPoint + "' as the entry point.");
-        etf.setAuthenticationEntryPoint((AuthenticationEntryPoint) entryPoint);
+//        if (!BeanIds.EXCEPTION_TRANSLATION_FILTER.equals(beanName)) {
+//            return bean;
+//        }
+//
+//        logger.info("Selecting AuthenticationEntryPoint for use in ExceptionTranslationFilter");
+//
+//        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) beanFactory.getBean(BeanIds.EXCEPTION_TRANSLATION_FILTER);
+//
+//        Object entryPoint = null;
+//
+//        if (beanFactory.containsBean(BeanIds.MAIN_ENTRY_POINT)) {
+//            entryPoint = beanFactory.getBean(BeanIds.MAIN_ENTRY_POINT);
+//            logger.info("Using main configured AuthenticationEntryPoint.");
+//        } else {
+//            Map entryPoints = beanFactory.getBeansOfType(AuthenticationEntryPoint.class);
+//            Assert.isTrue(entryPoints.size() != 0, "No AuthenticationEntryPoint instances defined");
+//            Assert.isTrue(entryPoints.size() == 1, "More than one AuthenticationEntryPoint defined in context");
+//            entryPoint = entryPoints.values().toArray()[0];
+//        }
+//
+//        logger.info("Using bean '" + entryPoint + "' as the entry point.");
+//        etf.setAuthenticationEntryPoint((AuthenticationEntryPoint) entryPoint);
 
         return bean;
     }

@@ -13,6 +13,7 @@ import org.springframework.aop.config.AopNamespaceUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
+import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -71,9 +72,13 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_USE_PREPOST = "pre-post-annotations";
 
     @SuppressWarnings("unchecked")
-    public BeanDefinition parse(Element element, ParserContext parserContext) {
-        ConfigUtils.registerProviderManagerIfNecessary(parserContext);
-        Object source = parserContext.extractSource(element);
+    public BeanDefinition parse(Element element, ParserContext pc) {
+        ConfigUtils.registerProviderManagerIfNecessary(pc, element);
+        CompositeComponentDefinition compositeDef =
+            new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element));
+        pc.pushContainingComponent(compositeDef);
+
+        Object source = pc.extractSource(element);
         // The list of method metadata delegates
         ManagedList delegates = new ManagedList();
 
@@ -87,7 +92,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
             Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, EXPRESSION_HANDLER);
 
             if (prePostElt != null && expressionHandlerElt != null) {
-                parserContext.getReaderContext().error(INVOCATION_HANDLING + " and " +
+                pc.getReaderContext().error(INVOCATION_HANDLING + " and " +
                         EXPRESSION_HANDLER + " cannot be used together ", source);
             }
 
@@ -116,7 +121,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 if (StringUtils.hasText(expressionHandlerRef)) {
                     logger.info("Using bean '" + expressionHandlerRef + "' as method ExpressionHandler implementation");
                 } else {
-                    parserContext.getRegistry().registerBeanDefinition(EXPRESSION_HANDLER_ID, new RootBeanDefinition(DefaultMethodSecurityExpressionHandler.class));
+                    pc.getRegistry().registerBeanDefinition(EXPRESSION_HANDLER_ID, new RootBeanDefinition(DefaultMethodSecurityExpressionHandler.class));
                     logger.warn("Expressions were enabled for method security but no SecurityExpressionHandler was configured. " +
                             "All hasPermision() expressions will evaluate to false.");
                     expressionHandlerRef = EXPRESSION_HANDLER_ID;
@@ -136,7 +141,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
             }
 
             preInvocationVoter = preInvocationVoterBldr.getBeanDefinition();
-            ConfigUtils.getRegisteredAfterInvocationProviders(parserContext).add(afterInvocationBldr.getBeanDefinition());
+            ConfigUtils.getRegisteredAfterInvocationProviders(pc).add(afterInvocationBldr.getBeanDefinition());
             delegates.add(mds.getBeanDefinition());
         }
 
@@ -149,33 +154,33 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         // Now create a Map<String, ConfigAttribute> for each <protect-pointcut> sub-element
-        Map<String, List<ConfigAttribute>> pointcutMap = parseProtectPointcuts(parserContext,
+        Map<String, List<ConfigAttribute>> pointcutMap = parseProtectPointcuts(pc,
                 DomUtils.getChildElementsByTagName(element, PROTECT_POINTCUT));
 
         if (pointcutMap.size() > 0) {
             // Only add it if there are actually any pointcuts defined.
             MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource = new MapBasedMethodSecurityMetadataSource();
             delegates.add(mapBasedMethodSecurityMetadataSource);
-            registerProtectPointcutPostProcessor(parserContext, pointcutMap, mapBasedMethodSecurityMetadataSource, source);
+            registerProtectPointcutPostProcessor(pc, pointcutMap, mapBasedMethodSecurityMetadataSource, source);
         }
 
-        registerDelegatingMethodSecurityMetadataSource(parserContext, delegates, source);
+        registerDelegatingMethodSecurityMetadataSource(pc, delegates, source);
 
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
         if (!StringUtils.hasText(accessManagerId)) {
-            registerAccessManager(parserContext, jsr250Enabled, preInvocationVoter);
+            registerAccessManager(pc, jsr250Enabled, preInvocationVoter);
             accessManagerId = ACCESS_MANAGER_ID;
         }
 
         String runAsManagerId = element.getAttribute(ATT_RUN_AS_MGR);
 
-        registerMethodSecurityInterceptor(parserContext, accessManagerId, runAsManagerId, source);
+        registerMethodSecurityInterceptor(pc, accessManagerId, runAsManagerId, source);
 
-        registerAdvisor(parserContext, source);
+        registerAdvisor(pc, source);
 
-        AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
-
+        AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(pc, element);
+        pc.popAndRegisterContainingComponent();
         return null;
     }
 

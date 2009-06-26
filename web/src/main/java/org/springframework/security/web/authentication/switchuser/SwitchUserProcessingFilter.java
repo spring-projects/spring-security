@@ -48,7 +48,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -486,9 +485,5 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         }
 
         return uri;
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.SWITCH_USER_FILTER;
     }
 }

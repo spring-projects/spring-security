@@ -18,7 +18,6 @@ package org.springframework.security.web.access.intercept;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.access.intercept.InterceptorStatusToken;
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.core.Ordered;
 
@@ -43,7 +42,7 @@ import javax.servlet.ServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter, Ordered {
+public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter {
     //~ Static fields/initializers =====================================================================================
 
     private static final String FILTER_APPLIED = "__spring_security_filterSecurityInterceptor_filterApplied";
@@ -148,9 +147,5 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 
     public void setObserveOncePerRequest(boolean observeOncePerRequest) {
         this.observeOncePerRequest = observeOncePerRequest;
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.FILTER_SECURITY_INTERCEPTOR;
     }
 }

@@ -1,10 +1,10 @@
 package org.springframework.security.web.authentication.preauth.x509;
 
-import org.springframework.security.web.FilterChainOrder;
-import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import java.security.cert.X509Certificate;
 
 import javax.servlet.http.HttpServletRequest;
-import java.security.cert.X509Certificate;
+
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 /**
  * @author Luke Taylor
@@ -47,9 +47,5 @@ public class X509PreAuthenticatedProcessingFilter extends AbstractPreAuthenticat
 
     public void setPrincipalExtractor(X509PrincipalExtractor principalExtractor) {
         this.principalExtractor = principalExtractor;
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.X509_FILTER;
     }
 }

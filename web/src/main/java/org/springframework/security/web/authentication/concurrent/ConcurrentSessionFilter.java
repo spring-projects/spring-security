@@ -15,24 +15,24 @@
 
 package org.springframework.security.web.authentication.concurrent;
 
-import org.springframework.security.authentication.concurrent.SessionInformation;
-import org.springframework.security.authentication.concurrent.SessionRegistry;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.FilterChainOrder;
-import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.security.web.util.UrlUtils;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
+import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.authentication.concurrent.SessionInformation;
+import org.springframework.security.authentication.concurrent.SessionRegistry;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.SpringSecurityFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.Assert;
 
 
 /**
@@ -125,9 +125,5 @@ public class ConcurrentSessionFilter extends SpringSecurityFilter implements Ini
     public void setLogoutHandlers(LogoutHandler[] handlers) {
         Assert.notNull(handlers);
         this.handlers = handlers;
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.CONCURRENT_SESSION_FILTER;
     }
 }

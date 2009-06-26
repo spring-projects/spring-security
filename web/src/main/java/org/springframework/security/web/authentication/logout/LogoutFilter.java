@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
@@ -141,9 +140,5 @@ public class LogoutFilter extends SpringSecurityFilter {
 
     protected String getFilterProcessesUrl() {
         return filterProcessesUrl;
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.LOGOUT_FILTER;
     }
 }

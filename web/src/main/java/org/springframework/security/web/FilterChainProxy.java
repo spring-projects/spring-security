@@ -119,11 +119,13 @@ public class FilterChainProxy implements Filter, InitializingBean {
     private Map<Object, List<Filter>> filterChainMap;
     private UrlMatcher matcher = new AntUrlPathMatcher();
     private boolean stripQueryStringFromUrls = true;
+    private FilterChainValidator filterChainValidator = new NullFilterChainValidator();
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(uncompiledFilterChainMap, "filterChainMap must be set");
+        filterChainValidator.validate(this);
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -316,7 +318,16 @@ public class FilterChainProxy implements Filter, InitializingBean {
         this.stripQueryStringFromUrls = stripQueryStringFromUrls;
     }
 
-    public String toString() {
+    /**
+     * Used (internally) to specify a validation strategy for the filters in each configured chain.
+     *
+     * @param filterChainValidator
+     */
+    public void setFilterChainValidator(FilterChainValidator filterChainValidator) {
+		this.filterChainValidator = filterChainValidator;
+	}
+
+	public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("FilterChainProxy[");
         sb.append(" UrlMatcher = ").append(matcher);
@@ -368,6 +379,15 @@ public class FilterChainProxy implements Filter, InitializingBean {
                nextFilter.doFilter(request, response, this);
             }
         }
+    }
+
+    public interface FilterChainValidator {
+    	void validate(FilterChainProxy filterChainProxy);
+    }
+
+    private class NullFilterChainValidator implements FilterChainValidator {
+		public void validate(FilterChainProxy filterChainProxy) {
+		}
     }
 
 }

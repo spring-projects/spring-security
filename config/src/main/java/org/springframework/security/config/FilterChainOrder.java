@@ -1,4 +1,4 @@
-package org.springframework.security.web;
+package org.springframework.security.config;
 
 import org.springframework.util.Assert;
 

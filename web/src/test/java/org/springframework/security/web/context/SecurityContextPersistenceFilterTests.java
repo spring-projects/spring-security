@@ -1,6 +1,9 @@
 package org.springframework.security.web.context;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
@@ -22,10 +25,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
-import org.springframework.security.web.FilterChainOrder;
-import org.springframework.security.web.context.HttpRequestResponseHolder;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.context.SecurityContextRepository;
 
 public class SecurityContextPersistenceFilterTests {
     Mockery jmock = new JUnit4Mockery();
@@ -130,10 +129,5 @@ public class SecurityContextPersistenceFilterTests {
         filter.setForceEagerSessionCreation(true);
         filter.doFilter(request, response, chain);
         assertNotNull(request.getSession(false));
-    }
-
-    @Test
-    public void filterOrderHasExpectedValue() throws Exception {
-        assertEquals(FilterChainOrder.SECURITY_CONTEXT_FILTER, (new SecurityContextPersistenceFilter()).getOrder());
     }
 }

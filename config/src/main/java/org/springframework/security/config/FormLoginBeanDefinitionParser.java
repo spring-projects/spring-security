@@ -1,28 +1,25 @@
 package org.springframework.security.config;
 
-import org.springframework.beans.PropertyValue;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.util.StringUtils;
-
 import org.w3c.dom.Element;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Luke Taylor
  * @author Ben Alex
  * @version $Id$
  */
-public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
+public class FormLoginBeanDefinitionParser {
     protected final Log logger = LogFactory.getLog(getClass());
 
     private static final String ATT_LOGIN_URL = "login-processing-url";
@@ -52,7 +49,7 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
         this.filterClassName = filterClassName;
     }
 
-    public BeanDefinition parse(Element elt, ParserContext pc) {
+    public BeanDefinition parse(Element elt, ParserContext pc, RootBeanDefinition sfpf) {
         String loginUrl = null;
         String defaultTargetUrl = null;
         String authenticationFailureUrl = null;
@@ -62,17 +59,16 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
 
         Object source = null;
 
-        // Copy values from the session fixation protection filter
-        final Boolean sessionFixationProtectionEnabled =
-            new Boolean(pc.getRegistry().containsBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER));
-        Boolean migrateSessionAttributes = Boolean.FALSE;
-
-        if (sessionFixationProtectionEnabled.booleanValue()) {
-            PropertyValue pv =
-                    pc.getRegistry().getBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER)
-                        .getPropertyValues().getPropertyValue("migrateSessionAttributes");
-            migrateSessionAttributes = (Boolean)pv.getValue();
-        }
+//        final Boolean sessionFixationProtectionEnabled =
+//            new Boolean(pc.getRegistry().containsBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER));
+//        Boolean migrateSessionAttributes = Boolean.FALSE;
+//
+//        if (sessionFixationProtectionEnabled.booleanValue()) {
+//            PropertyValue pv =
+//                    pc.getRegistry().getBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER)
+//                        .getPropertyValues().getPropertyValue("migrateSessionAttributes");
+//            migrateSessionAttributes = (Boolean)pv.getValue();
+//        }
 
         if (elt != null) {
             source = pc.extractSource(elt);
@@ -93,18 +89,22 @@ public class FormLoginBeanDefinitionParser implements BeanDefinitionParser {
             ConfigUtils.validateHttpRedirect(loginPage, pc, source);
         }
 
-        ConfigUtils.registerProviderManagerIfNecessary(pc);
-
         filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault, loginPage, authenticationFailureUrl,
                 successHandlerRef, failureHandlerRef);
         filterBean.setSource(source);
         filterBean.getPropertyValues().addPropertyValue("authenticationManager",
                 new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
 
-        filterBean.getPropertyValues().addPropertyValue("invalidateSessionOnSuccessfulAuthentication",
-                sessionFixationProtectionEnabled);
-        filterBean.getPropertyValues().addPropertyValue("migrateInvalidatedSessionAttributes",
-                migrateSessionAttributes);
+        // Copy session migration values from the session fixation protection filter
+        if (sfpf != null) {
+            filterBean.getPropertyValues().addPropertyValue("migrateInvalidatedSessionAttributes", sfpf.getPropertyValues().getPropertyValue("migrateSessionAttributes").getValue());
+            filterBean.getPropertyValues().addPropertyValue("invalidateSessionOnSuccessfulAuthentication", Boolean.TRUE);
+        }
+
+//        filterBean.getPropertyValues().addPropertyValue("invalidateSessionOnSuccessfulAuthentication",
+//                sessionFixationProtectionEnabled);
+//        filterBean.getPropertyValues().addPropertyValue("migrateInvalidatedSessionAttributes",
+//                migrateSessionAttributes);
 
         if (pc.getRegistry().containsBeanDefinition(BeanIds.REMEMBER_ME_SERVICES)) {
             filterBean.getPropertyValues().addPropertyValue("rememberMeServices",

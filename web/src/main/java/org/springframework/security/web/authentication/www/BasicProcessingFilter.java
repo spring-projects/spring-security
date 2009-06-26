@@ -32,7 +32,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
@@ -147,8 +146,8 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
 
                     rememberMeServices.loginFail(request, response);
 
-                    onUnsuccessfulAuthentication(request, response, failed);                    
-                    
+                    onUnsuccessfulAuthentication(request, response, failed);
+
                     if (ignoreFailure) {
                         chain.doFilter(request, response);
                     } else {
@@ -166,8 +165,8 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
                 SecurityContextHolder.getContext().setAuthentication(authResult);
 
                 rememberMeServices.loginSuccess(request, response, authResult);
-                
-                onSuccessfulAuthentication(request, response, authResult);                
+
+                onSuccessfulAuthentication(request, response, authResult);
             }
         }
 
@@ -203,7 +202,7 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
 
         return false;
     }
-    
+
     protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
             Authentication authResult) throws IOException {
     }
@@ -234,7 +233,7 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
 
     public void setIgnoreFailure(boolean ignoreFailure) {
         this.ignoreFailure = ignoreFailure;
-    }    
+    }
 
     public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
         Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
@@ -250,12 +249,8 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
         Assert.hasText(credentialsCharset, "credentialsCharset cannot be null or empty");
         this.credentialsCharset = credentialsCharset;
     }
-    
+
     protected String getCredentialsCharset(HttpServletRequest httpRequest) {
         return credentialsCharset;
-    }    
-    
-    public int getOrder() {
-        return FilterChainOrder.BASIC_PROCESSING_FILTER;
     }
 }

@@ -27,13 +27,10 @@ public class X509BeanDefinitionParser implements BeanDefinitionParser {
     public static final String ATT_REGEX = "subject-principal-regex";
     public static final String ATT_USER_SERVICE_REF = "user-service-ref";
 
-    public BeanDefinition parse(Element element, ParserContext parserContext) {
+    public RootBeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(X509PreAuthenticatedProcessingFilter.class);
-        RootBeanDefinition entryPoint = new RootBeanDefinition(Http403ForbiddenEntryPoint.class);
-
         Object source = parserContext.extractSource(element);
         filterBuilder.getRawBeanDefinition().setSource(source);
-        entryPoint.setSource(source);
 
         String regex = element.getAttribute(ATT_REGEX);
 
@@ -57,10 +54,8 @@ public class X509BeanDefinitionParser implements BeanDefinitionParser {
             provider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService", preAuthUserService);
         }
 
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.PRE_AUTH_ENTRY_POINT, entryPoint);
-
         filterBuilder.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
 
-        return filterBuilder.getBeanDefinition();
+        return (RootBeanDefinition) filterBuilder.getBeanDefinition();
     }
 }

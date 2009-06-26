@@ -24,6 +24,7 @@ import java.io.IOException;
  */
 public abstract class SpringSecurityFilter implements Filter, Ordered {
     protected final Log logger = LogFactory.getLog(this.getClass());
+    private int order;
 
     /**
      * Does nothing. We use IoC container lifecycle services instead.
@@ -46,7 +47,15 @@ public abstract class SpringSecurityFilter implements Filter, Ordered {
 
     protected abstract void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException;
 
-    public String toString() {
+    public final int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	public String toString() {
         return getClass().getName() + "[ order=" + getOrder() + "; ]";
     }
 }

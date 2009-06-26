@@ -1,10 +1,13 @@
 package org.springframework.security.config;
 
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+
 /**
- * @author luke
+ * @author Luke Taylor
  * @version $Id$
  */
-public class TestBusinessBeanImpl implements TestBusinessBean {
+public class TestBusinessBeanImpl implements TestBusinessBean, ApplicationListener<ApplicationEvent> {
     public void setInteger(int i) {
     }
 
@@ -23,5 +26,9 @@ public class TestBusinessBeanImpl implements TestBusinessBean {
     }
 
     public void unprotected() {
+    }
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        System.out.println(event);
     }
 }

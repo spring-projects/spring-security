@@ -26,23 +26,23 @@ public class RememberMeServicesInjectionBeanPostProcessor implements BeanPostPro
     private ListableBeanFactory beanFactory;
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if (bean instanceof AbstractAuthenticationProcessingFilter) {
-            AbstractAuthenticationProcessingFilter pf = (AbstractAuthenticationProcessingFilter) bean;
-
-            if (pf.getRememberMeServices() == null) {
-                logger.info("Setting RememberMeServices on bean " + beanName);
-                pf.setRememberMeServices(getRememberMeServices());
-            }
-        } else if (BeanIds.BASIC_AUTHENTICATION_FILTER.equals(beanName)) {
-            // NB: For remember-me to be sent back, a user must submit a "_spring_security_remember_me" with their login request.
-            // Most of the time a user won't present such a parameter with their BASIC authentication request.
-            // In the future we might support setting the AbstractRememberMeServices.alwaysRemember = true, but I am reluctant to
-            // do so because it seems likely to lead to lower security for 99.99% of users if they set the property to true.
-
-            BasicProcessingFilter bf = (BasicProcessingFilter) bean;
-            logger.info("Setting RememberMeServices on bean " + beanName);
-            bf.setRememberMeServices(getRememberMeServices());
-        }
+//        if (bean instanceof AbstractAuthenticationProcessingFilter) {
+//            AbstractAuthenticationProcessingFilter pf = (AbstractAuthenticationProcessingFilter) bean;
+//
+//            if (pf.getRememberMeServices() == null) {
+//                logger.info("Setting RememberMeServices on bean " + beanName);
+//                pf.setRememberMeServices(getRememberMeServices());
+//            }
+//        } else if (BeanIds.BASIC_AUTHENTICATION_FILTER.equals(beanName)) {
+//            // NB: For remember-me to be sent back, a user must submit a "_spring_security_remember_me" with their login request.
+//            // Most of the time a user won't present such a parameter with their BASIC authentication request.
+//            // In the future we might support setting the AbstractRememberMeServices.alwaysRemember = true, but I am reluctant to
+//            // do so because it seems likely to lead to lower security for 99.99% of users if they set the property to true.
+//
+//            BasicProcessingFilter bf = (BasicProcessingFilter) bean;
+//            logger.info("Setting RememberMeServices on bean " + beanName);
+//            bf.setRememberMeServices(getRememberMeServices());
+//        }
 
         return bean;
     }

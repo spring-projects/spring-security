@@ -22,31 +22,32 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
     private static final String ATT_ALIAS = "alias";
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        ConfigUtils.registerProviderManagerIfNecessary(parserContext);
-        
+        ConfigUtils.registerProviderManagerIfNecessary(parserContext, element);
+
         String alias = element.getAttribute(ATT_ALIAS);
 
         if (!StringUtils.hasText(alias)) {
             parserContext.getReaderContext().error(ATT_ALIAS + " is required.", element );
         }
-        
+
         String sessionControllerRef = element.getAttribute(ATT_SESSION_CONTROLLER_REF);
-        
+
         if (StringUtils.hasText(sessionControllerRef)) {
             BeanDefinition authManager = parserContext.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
-            ConfigUtils.setSessionControllerOnAuthenticationManager(parserContext, 
+            ConfigUtils.setSessionControllerOnAuthenticationManager(parserContext,
                     BeanIds.CONCURRENT_SESSION_CONTROLLER, element);
-            authManager.getPropertyValues().addPropertyValue("sessionController", 
+            authManager.getPropertyValues().addPropertyValue("sessionController",
                     new RuntimeBeanReference(sessionControllerRef));
             RootBeanDefinition sessionRegistryInjector = new RootBeanDefinition(SessionRegistryInjectionBeanPostProcessor.class);
             sessionRegistryInjector.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
             sessionRegistryInjector.getConstructorArgumentValues().addGenericArgumentValue(sessionControllerRef);
-            
+
             parserContext.getRegistry().registerBeanDefinition(BeanIds.SESSION_REGISTRY_INJECTION_POST_PROCESSOR, sessionRegistryInjector);
         }
 
         parserContext.getRegistry().registerAlias(BeanIds.AUTHENTICATION_MANAGER, alias);
+        parserContext.getReaderContext().fireAliasRegistered(BeanIds.AUTHENTICATION_MANAGER, alias, parserContext.extractSource(element));
 
         return null;
-    }    
+    }
 }

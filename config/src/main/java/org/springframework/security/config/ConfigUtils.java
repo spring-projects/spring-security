@@ -3,8 +3,6 @@ package org.springframework.security.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.BeanMetadataElement;
-import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -20,6 +18,7 @@ import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -40,7 +39,7 @@ abstract class ConfigUtils {
     }
 
     @SuppressWarnings("unchecked")
-    static BeanDefinition createAccessManagerBean(Class<? extends AccessDecisionVoter>... voters) {
+    static RootBeanDefinition createAccessManagerBean(Class<? extends AccessDecisionVoter>... voters) {
         ManagedList defaultVoters = new ManagedList(voters.length);
 
         for(Class<? extends AccessDecisionVoter> voter : voters) {
@@ -49,7 +48,7 @@ abstract class ConfigUtils {
 
         BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
         accessMgrBuilder.addPropertyValue("decisionVoters", defaultVoters);
-        return accessMgrBuilder.getBeanDefinition();
+        return (RootBeanDefinition) accessMgrBuilder.getBeanDefinition();
     }
 
     public static int countNonEmpty(String[] objects) {
@@ -69,20 +68,24 @@ abstract class ConfigUtils {
      * the BeanDefinition for it. This method will typically be called when registering authentication providers
      * using the &lt;security:provider /> tag or by other beans which have a dependency on the
      * authentication manager.
+     * @param element the source element under which this bean should be registered.
      */
-    static void registerProviderManagerIfNecessary(ParserContext parserContext) {
-        if(parserContext.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER)) {
+    static void registerProviderManagerIfNecessary(ParserContext pc, Element element) {
+
+        if(pc.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER)) {
             return;
         }
 
-        BeanDefinition authManager = new RootBeanDefinition(NamespaceAuthenticationManager.class);
+        RootBeanDefinition authManager = new RootBeanDefinition(NamespaceAuthenticationManager.class);
         authManager.getPropertyValues().addPropertyValue("providerBeanNames", new ArrayList<String>());
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.AUTHENTICATION_MANAGER, authManager);
+        authManager.setSource(pc.extractSource(element.getOwnerDocument().getFirstChild()));
+        pc.getRegistry().registerBeanDefinition(BeanIds.AUTHENTICATION_MANAGER, authManager);
+        pc.registerBeanComponent(new BeanComponentDefinition(authManager, BeanIds.AUTHENTICATION_MANAGER));
     }
 
     @SuppressWarnings("unchecked")
     static void addAuthenticationProvider(ParserContext parserContext, String beanName) {
-        registerProviderManagerIfNecessary(parserContext);
+        registerProviderManagerIfNecessary(parserContext, null);
         BeanDefinition authManager = parserContext.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
         ((ArrayList) authManager.getPropertyValues().getPropertyValue("providerBeanNames").getValue()).add(beanName);
     }
@@ -106,37 +109,37 @@ abstract class ConfigUtils {
         return manager;
     }
 
-    private static void registerFilterChainPostProcessorIfNecessary(ParserContext pc) {
-        if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR)) {
-            return;
-        }
-        // Post processor specifically to assemble and order the filter chain immediately before the FilterChainProxy is initialized.
-        RootBeanDefinition filterChainPostProcessor = new RootBeanDefinition(FilterChainProxyPostProcessor.class);
-        filterChainPostProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR, filterChainPostProcessor);
-        RootBeanDefinition filterList = new RootBeanDefinition(FilterChainList.class);
-        filterList.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_LIST, filterList);
-        pc.registerBeanComponent(new BeanComponentDefinition(filterList, BeanIds.FILTER_LIST));
-    }
+//    private static void registerFilterChainPostProcessorIfNecessary(ParserContext pc) {
+//        if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR)) {
+//            return;
+//        }
+//        // Post processor specifically to assemble and order the filter chain immediately before the FilterChainProxy is initialized.
+//        RootBeanDefinition filterChainPostProcessor = new RootBeanDefinition(FilterChainProxyPostProcessor.class);
+//        filterChainPostProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+//        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR, filterChainPostProcessor);
+//        RootBeanDefinition filterList = new RootBeanDefinition(FilterChainList.class);
+//        filterList.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+//        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_LIST, filterList);
+//        pc.registerBeanComponent(new BeanComponentDefinition(filterList, BeanIds.FILTER_LIST));
+//    }
 
-    @SuppressWarnings("unchecked")
-    static void addHttpFilter(ParserContext pc, BeanMetadataElement filter) {
-        registerFilterChainPostProcessorIfNecessary(pc);
-
-        RootBeanDefinition filterList = (RootBeanDefinition) pc.getRegistry().getBeanDefinition(BeanIds.FILTER_LIST);
-
-        ManagedList filters;
-        MutablePropertyValues pvs = filterList.getPropertyValues();
-        if (pvs.contains("filters")) {
-            filters = (ManagedList) pvs.getPropertyValue("filters").getValue();
-        } else {
-            filters = new ManagedList();
-            pvs.addPropertyValue("filters", filters);
-        }
-
-        filters.add(filter);
-    }
+ //   @SuppressWarnings("unchecked")
+//    static void addHttpFilter(ParserContext pc, BeanMetadataElement filter) {
+//        registerFilterChainPostProcessorIfNecessary(pc);
+//
+//        RootBeanDefinition filterList = (RootBeanDefinition) pc.getRegistry().getBeanDefinition(BeanIds.FILTER_LIST);
+//
+//        ManagedList filters;
+//        MutablePropertyValues pvs = filterList.getPropertyValues();
+//        if (pvs.contains("filters")) {
+//            filters = (ManagedList) pvs.getPropertyValue("filters").getValue();
+//        } else {
+//            filters = new ManagedList();
+//            pvs.addPropertyValue("filters", filters);
+//        }
+//
+//        filters.add(filter);
+//    }
 
     /**
      * Bean which holds the list of filters which are maintained in the context and modified by calls to
@@ -167,7 +170,6 @@ abstract class ConfigUtils {
     }
 
     static void setSessionControllerOnAuthenticationManager(ParserContext pc, String beanName, Element sourceElt) {
-        registerProviderManagerIfNecessary(pc);
         BeanDefinition authManager = pc.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
         PropertyValue pv = authManager.getPropertyValues().getPropertyValue("sessionController");
 

@@ -553,10 +553,6 @@ public class AbstractProcessingFilterTests extends TestCase {
         public boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
             return super.requiresAuthentication(request, response);
         }
-
-        public int getOrder() {
-            return 0;
-        }
     }
 
     private class MockFilterChain implements FilterChain {

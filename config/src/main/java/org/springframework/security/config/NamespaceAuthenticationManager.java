@@ -20,8 +20,8 @@ import org.springframework.util.Assert;
  * @since 2.0.4
  */
 public class NamespaceAuthenticationManager extends ProviderManager implements BeanFactoryAware {
-    BeanFactory beanFactory;
-    List<String> providerBeanNames;
+    private BeanFactory beanFactory;
+    private List<String> providerBeanNames;
 
     public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;

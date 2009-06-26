@@ -1,8 +1,10 @@
 package org.springframework.security.web.authentication.preauth;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,7 +20,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.FilterChainOrder;
 
 public class PreAuthenticatedProcessingFilterTests {
     @After
@@ -81,10 +82,6 @@ public class PreAuthenticatedProcessingFilterTests {
         }
         protected Object getPreAuthenticatedCredentials(HttpServletRequest httpRequest) {
             return "testCredentials";
-        }
-
-        public int getOrder() {
-            return FilterChainOrder.PRE_AUTH_FILTER;
         }
     }
 }

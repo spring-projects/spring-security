@@ -31,7 +31,7 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
     private BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
 
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
-        ConfigUtils.registerProviderManagerIfNecessary(parserContext);
+        ConfigUtils.registerProviderManagerIfNecessary(parserContext, (Element) node);
         ConfigUtils.registerDefaultMethodAccessManagerIfNecessary(parserContext);
 
         return delegate.decorate(node, definition, parserContext);

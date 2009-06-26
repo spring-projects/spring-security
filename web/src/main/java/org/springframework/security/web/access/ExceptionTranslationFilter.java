@@ -30,7 +30,6 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.SpringSecurityFilter;
@@ -245,10 +244,6 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
      */
     public void setJustUseSavedRequestOnGet(boolean justUseSavedRequestOnGet) {
         this.justUseSavedRequestOnGet = justUseSavedRequestOnGet;
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.EXCEPTION_TRANSLATION_FILTER;
     }
 
     /**

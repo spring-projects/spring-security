@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
@@ -122,9 +121,5 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
 
     public void setSecurityMetadataSource(FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource) {
         this.securityMetadataSource = filterInvocationSecurityMetadataSource;
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.CHANNEL_FILTER;
     }
 }

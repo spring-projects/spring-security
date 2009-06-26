@@ -16,7 +16,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 
 /**
@@ -51,10 +50,6 @@ public class DefaultLoginPageGeneratingFilterTests {
         @Override
         public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
             return null;
-        }
-
-        public int getOrder() {
-            return FilterChainOrder.AUTHENTICATION_PROCESSING_FILTER;
         }
 
         public String getClaimedIdentityFieldName() {

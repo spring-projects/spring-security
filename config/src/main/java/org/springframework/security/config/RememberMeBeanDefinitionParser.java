@@ -4,6 +4,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.parsing.BeanComponentDefinition;
+import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -33,24 +35,18 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     protected final Log logger = LogFactory.getLog(getClass());
     private String servicesName;
 
-    public BeanDefinition parse(Element element, ParserContext parserContext) {
-        String tokenRepository = null;
-        String dataSource = null;
-        String key = null;
-        Object source = null;
-        String userServiceRef = null;
-        String rememberMeServicesRef = null;
-        String tokenValiditySeconds = null;
+    public BeanDefinition parse(Element element, ParserContext pc) {
+        CompositeComponentDefinition compositeDef =
+            new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element));
+        pc.pushContainingComponent(compositeDef);
 
-        if (element != null) {
-            tokenRepository = element.getAttribute(ATT_TOKEN_REPOSITORY);
-            dataSource = element.getAttribute(ATT_DATA_SOURCE);
-            key = element.getAttribute(ATT_KEY);
-            userServiceRef = element.getAttribute(ATT_USER_SERVICE_REF);
-            rememberMeServicesRef = element.getAttribute(ATT_SERVICES_REF);
-            tokenValiditySeconds = element.getAttribute(ATT_TOKEN_VALIDITY);
-            source = parserContext.extractSource(element);
-        }
+        String tokenRepository = element.getAttribute(ATT_TOKEN_REPOSITORY);
+        String dataSource = element.getAttribute(ATT_DATA_SOURCE);
+        String key = element.getAttribute(ATT_KEY);
+        String userServiceRef = element.getAttribute(ATT_USER_SERVICE_REF);
+        String rememberMeServicesRef = element.getAttribute(ATT_SERVICES_REF);
+        String tokenValiditySeconds = element.getAttribute(ATT_TOKEN_VALIDITY);
+        Object source = pc.extractSource(element);
 
         if (!StringUtils.hasText(key)) {
             key = DEF_KEY;
@@ -65,12 +61,12 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         boolean tokenValiditySet = StringUtils.hasText(tokenValiditySeconds);
 
         if (servicesRefSet && (dataSourceSet || tokenRepoSet || userServiceSet || tokenValiditySet)) {
-            parserContext.getReaderContext().error(ATT_SERVICES_REF + " can't be used in combination with attributes "
+            pc.getReaderContext().error(ATT_SERVICES_REF + " can't be used in combination with attributes "
                     + ATT_TOKEN_REPOSITORY + "," + ATT_DATA_SOURCE + ", " + ATT_USER_SERVICE_REF + " or " + ATT_TOKEN_VALIDITY, source);
         }
 
         if (dataSourceSet && tokenRepoSet) {
-            parserContext.getReaderContext().error("Specify " + ATT_TOKEN_REPOSITORY + " or " +
+            pc.getReaderContext().error("Specify " + ATT_TOKEN_REPOSITORY + " or " +
                     ATT_DATA_SOURCE +" but not both", source);
         }
 
@@ -100,23 +96,27 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             if (tokenValiditySet) {
                 Integer tokenValidity = new Integer(tokenValiditySeconds);
                 if (tokenValidity.intValue() < 0 && isPersistent) {
-                    parserContext.getReaderContext().error(ATT_TOKEN_VALIDITY + " cannot be negative if using" +
+                    pc.getReaderContext().error(ATT_TOKEN_VALIDITY + " cannot be negative if using" +
                             " a persistent remember-me token repository", source);
                 }
                 services.getPropertyValues().addPropertyValue("tokenValiditySeconds", tokenValidity);
             }
             services.setSource(source);
             services.getPropertyValues().addPropertyValue(ATT_KEY, key);
-            parserContext.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES, services);
+            pc.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES, services);
+            pc.registerBeanComponent(new BeanComponentDefinition(services, BeanIds.REMEMBER_ME_SERVICES));
             servicesName = BeanIds.REMEMBER_ME_SERVICES;
         } else {
             servicesName = rememberMeServicesRef;
-            parserContext.getRegistry().registerAlias(rememberMeServicesRef, BeanIds.REMEMBER_ME_SERVICES);
+            pc.getRegistry().registerAlias(rememberMeServicesRef, BeanIds.REMEMBER_ME_SERVICES);
         }
 
-        registerProvider(parserContext, source, key);
+        registerProvider(pc, source, key);
 
-        return createFilter(parserContext, source);
+        BeanDefinition filter = createFilter(pc, source);
+        pc.popAndRegisterContainingComponent();
+
+        return filter;
     }
 
     String getServicesName() {

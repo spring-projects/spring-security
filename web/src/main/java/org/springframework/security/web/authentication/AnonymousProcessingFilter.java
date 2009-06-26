@@ -16,23 +16,21 @@
 package org.springframework.security.web.authentication;
 
 
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationDetailsSource;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.memory.UserAttribute;
-
-import org.springframework.security.web.FilterChainOrder;
-import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
-
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.memory.UserAttribute;
+import org.springframework.security.web.SpringSecurityFilter;
+import org.springframework.util.Assert;
 
 
 /**
@@ -109,10 +107,6 @@ public class AnonymousProcessingFilter  extends SpringSecurityFilter  implements
                 SecurityContextHolder.getContext().setAuthentication(null);
             }
         }
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.ANONYMOUS_FILTER;
     }
 
     public String getKey() {

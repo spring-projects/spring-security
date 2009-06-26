@@ -10,7 +10,6 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
@@ -157,10 +156,6 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
         sb.append("</body></html>");
 
         return sb.toString();
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.LOGIN_PAGE_FILTER;
     }
 
     private boolean isLoginUrlRequest(HttpServletRequest request) {

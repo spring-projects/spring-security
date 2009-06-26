@@ -21,7 +21,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
-import org.springframework.security.web.FilterChainOrder;
 
 /**
  * Populates the {@link SecurityContextHolder} with information obtained from
@@ -185,10 +184,6 @@ public class HttpSessionContextIntegrationFilter extends SecurityContextPersiste
       super.setForceEagerSessionCreation(forceEagerSessionCreation);
     }
 
-    public int getOrder() {
-      return FilterChainOrder.HTTP_SESSION_CONTEXT_FILTER;
-    }
-
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
@@ -197,6 +192,4 @@ public class HttpSessionContextIntegrationFilter extends SecurityContextPersiste
                     "If using forceEagerSessionCreation, you must set allowSessionCreation to also be true");
         }
     }
-
-
 }

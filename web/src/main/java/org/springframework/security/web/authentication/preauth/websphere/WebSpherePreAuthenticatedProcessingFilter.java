@@ -47,8 +47,4 @@ public class WebSpherePreAuthenticatedProcessingFilter extends AbstractPreAuthen
     protected Object getPreAuthenticatedCredentials(HttpServletRequest httpRequest) {
         return "N/A";
     }
-
-    public int getOrder() {
-        return 0;
-    }
 }

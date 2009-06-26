@@ -10,7 +10,6 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
 
 /**
@@ -95,9 +94,5 @@ public class SecurityContextPersistenceFilter extends SpringSecurityFilter {
 
     public void setForceEagerSessionCreation(boolean forceEagerSessionCreation) {
         this.forceEagerSessionCreation = forceEagerSessionCreation;
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.SECURITY_CONTEXT_FILTER;
     }
 }

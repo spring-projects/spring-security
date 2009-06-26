@@ -14,7 +14,6 @@ import org.springframework.security.authentication.concurrent.SessionRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
@@ -80,10 +79,6 @@ public class SessionFixationProtectionFilter extends SpringSecurityFilter {
 
     public void setSessionRegistry(SessionRegistry sessionRegistry) {
         this.sessionRegistry = sessionRegistry;
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.SESSION_FIXATION_FILTER;
     }
 
     /**

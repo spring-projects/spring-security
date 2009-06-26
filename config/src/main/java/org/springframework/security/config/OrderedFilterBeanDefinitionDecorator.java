@@ -15,7 +15,6 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.Ordered;
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
@@ -47,7 +46,7 @@ public class OrderedFilterBeanDefinitionDecorator implements BeanDefinitionDecor
             wrapper.addPropertyValue("order", order);
         }
 
-        ConfigUtils.addHttpFilter(parserContext, wrapper.getBeanDefinition());
+//        ConfigUtils.addHttpFilter(parserContext, wrapper.getBeanDefinition());
 
         return holder;
     }
