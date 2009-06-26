@@ -17,20 +17,17 @@ package org.springframework.security.cas.web;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.validation.TicketValidator;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-
-import org.springframework.security.web.FilterChainOrder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -131,9 +128,5 @@ public class CasProcessingFilter extends AbstractAuthenticationProcessingFilter 
     public final void setProxyGrantingTicketStorage(
             final ProxyGrantingTicketStorage proxyGrantingTicketStorage) {
         this.proxyGrantingTicketStorage = proxyGrantingTicketStorage;
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.CAS_PROCESSING_FILTER;
     }
 }

@@ -15,22 +15,16 @@
 
 package org.springframework.security.ui.ntlm;
 
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authentication.AuthenticationDetailsSource;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.FilterChainOrder;
-import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
+import java.util.Properties;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import jcifs.Config;
 import jcifs.UniAddress;
@@ -43,18 +37,24 @@ import jcifs.smb.SmbAuthException;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbSession;
 import jcifs.util.Base64;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.Enumeration;
-import java.util.Properties;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.SpringSecurityFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.util.Assert;
 
 /**
  * A clean-room implementation for Spring Security of an NTLM HTTP filter
@@ -512,9 +512,5 @@ public class NtlmProcessingFilter extends SpringSecurityFilter implements Initia
         }
 
         return SmbSession.getChallenge(dcAddress);
-    }
-
-    public int getOrder() {
-        return FilterChainOrder.NTLM_FILTER;
     }
 }
