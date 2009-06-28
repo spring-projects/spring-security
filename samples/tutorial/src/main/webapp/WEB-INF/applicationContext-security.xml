@@ -38,6 +38,8 @@
         -->
     </http>
 
+    <authentication-manager alias="authManager"/>
+
     <!--
     Usernames/Passwords are
         rod/koala

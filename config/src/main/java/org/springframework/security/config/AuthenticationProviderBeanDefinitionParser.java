@@ -94,7 +94,7 @@ class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser
         parserContext.getRegistry().registerBeanDefinition(name , cacheResolver);
         parserContext.registerComponent(new BeanComponentDefinition(cacheResolver, name));
 
-        ConfigUtils.addAuthenticationProvider(parserContext, id);
+        ConfigUtils.addAuthenticationProvider(parserContext, id, element);
 
         return null;
     }

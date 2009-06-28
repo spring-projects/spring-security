@@ -64,7 +64,7 @@ public class AnonymousBeanDefinitionParser implements BeanDefinitionParser {
         provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.ANONYMOUS_AUTHENTICATION_PROVIDER, provider);
-        ConfigUtils.addAuthenticationProvider(parserContext, BeanIds.ANONYMOUS_AUTHENTICATION_PROVIDER);
+        ConfigUtils.addAuthenticationProvider(parserContext, BeanIds.ANONYMOUS_AUTHENTICATION_PROVIDER, null);
 
         return filter;
     }

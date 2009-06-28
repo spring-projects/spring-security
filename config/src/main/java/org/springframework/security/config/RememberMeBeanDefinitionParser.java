@@ -111,7 +111,11 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             pc.getRegistry().registerAlias(rememberMeServicesRef, BeanIds.REMEMBER_ME_SERVICES);
         }
 
-        registerProvider(pc, source, key);
+        RootBeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
+        provider.setSource(source);
+        provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
+        pc.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_AUTHENTICATION_PROVIDER, provider);
+        ConfigUtils.addAuthenticationProvider(pc, BeanIds.REMEMBER_ME_AUTHENTICATION_PROVIDER, element);
 
         BeanDefinition filter = createFilter(pc, source);
         pc.popAndRegisterContainingComponent();
@@ -121,15 +125,6 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
     String getServicesName() {
         return servicesName;
-    }
-
-    private void registerProvider(ParserContext pc, Object source, String key) {
-        //BeanDefinition authManager = ConfigUtils.registerProviderManagerIfNecessary(pc);
-        RootBeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
-        provider.setSource(source);
-        provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
-        pc.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_AUTHENTICATION_PROVIDER, provider);
-        ConfigUtils.addAuthenticationProvider(pc, BeanIds.REMEMBER_ME_AUTHENTICATION_PROVIDER);
     }
 
     private BeanDefinition createFilter(ParserContext pc, Object source) {

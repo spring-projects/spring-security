@@ -31,6 +31,7 @@
         <http-basic/>
         <logout logout-success-url="/index.jsp"/>
         <remember-me />
+        <custom-filter ref="switchUserProcessingFilter" position="SWITCH_USER_FILTER"/>
     </http>
 
     <authentication-provider>
@@ -45,7 +46,6 @@
         based on the role granted the ability to 'switch' to another user -->
     <!-- In this example 'rod' has ROLE_SUPERVISOR that can switch to regular ROLE_USER(s) -->
     <b:bean id="switchUserProcessingFilter" class="org.springframework.security.web.authentication.switchuser.SwitchUserProcessingFilter" autowire="byType">
-       <custom-filter position="SWITCH_USER_FILTER"/>
        <b:property name="targetUrl" value="/secure/index.htm"/>
     </b:bean>
 

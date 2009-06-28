@@ -3,6 +3,7 @@ package org.springframework.security.config;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
@@ -14,7 +15,7 @@ import org.w3c.dom.Node;
  */
 public class CustomAuthenticationProviderBeanDefinitionDecorator implements BeanDefinitionDecorator {
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder, ParserContext parserContext) {
-        ConfigUtils.addAuthenticationProvider(parserContext, holder.getBeanName());
+        ConfigUtils.addAuthenticationProvider(parserContext, holder.getBeanName(), (Element) node);
 
         return holder;
     }

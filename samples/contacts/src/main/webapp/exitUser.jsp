@@ -37,8 +37,6 @@
          </td></tr>
         <tr><td colspan='2'><input name="exit" type="submit" value="Exit"></td></tr>
       </table>
-
     </form>
-
   </body>
 </html>

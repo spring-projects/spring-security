@@ -84,8 +84,8 @@ abstract class ConfigUtils {
     }
 
     @SuppressWarnings("unchecked")
-    static void addAuthenticationProvider(ParserContext parserContext, String beanName) {
-        registerProviderManagerIfNecessary(parserContext, null);
+    static void addAuthenticationProvider(ParserContext parserContext, String beanName, Element element) {
+        registerProviderManagerIfNecessary(parserContext, element);
         BeanDefinition authManager = parserContext.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
         ((ArrayList) authManager.getPropertyValues().getPropertyValue("providerBeanNames").getValue()).add(beanName);
     }

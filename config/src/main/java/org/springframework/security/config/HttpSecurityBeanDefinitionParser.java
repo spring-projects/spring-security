@@ -2,6 +2,8 @@ package org.springframework.security.config;
 
 import static org.springframework.security.config.FilterChainOrder.*;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -30,6 +32,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
+import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
@@ -43,6 +46,7 @@ import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.access.intercept.RequestKey;
+import org.springframework.security.web.authentication.AnonymousProcessingFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicProcessingFilter;
@@ -125,6 +129,17 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String EXPRESSION_FIMDS_CLASS = "org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource";
     static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler";
     private static final String EXPRESSION_HANDLER_ID = "_webExpressionHandler";
+
+    final SecureRandom random;
+
+    public HttpSecurityBeanDefinitionParser() {
+         try {
+            random = SecureRandom.getInstance("SHA1PRNG");
+        } catch (NoSuchAlgorithmException e) {
+            // Shouldn't happen...
+            throw new RuntimeException("Failed find SHA1PRNG algorithm!");
+        }
+    }
 
     /**
      * The aim of this method is to build the list of filters which have been defined by the namespace elements
@@ -454,12 +469,50 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private BeanDefinition createAnonymousFilter(Element element, ParserContext pc) {
         Element anonymousElt = DomUtils.getChildElementByTagName(element, Elements.ANONYMOUS);
 
-        if (anonymousElt == null || !"false".equals(anonymousElt.getAttribute("enabled"))) {
-            return new AnonymousBeanDefinitionParser().parse(anonymousElt, pc);
+        if (anonymousElt != null && "false".equals(anonymousElt.getAttribute("enabled"))) {
+            return null;
         }
 
-        return null;
+        String grantedAuthority = null;
+        String username = null;
+        String key = null;
+        Object source = null;
 
+        if (element != null) {
+            grantedAuthority = element.getAttribute("granted-authority");
+            username = element.getAttribute("username");
+            key = element.getAttribute("key");
+            source = pc.extractSource(element);
+        }
+
+        if (!StringUtils.hasText(grantedAuthority)) {
+            grantedAuthority = "ROLE_ANONYMOUS";
+        }
+
+        if (!StringUtils.hasText(username)) {
+            username = "anonymousUser";
+        }
+
+        if (!StringUtils.hasText(key)) {
+            // Generate a random key for the Anonymous provider
+            key = Long.toString(random.nextLong());
+        }
+
+        RootBeanDefinition filter = new RootBeanDefinition(AnonymousProcessingFilter.class);
+
+        PropertyValue keyPV = new PropertyValue("key", key);
+        filter.setSource(source);
+        filter.getPropertyValues().addPropertyValue("userAttribute", username + "," + grantedAuthority);
+        filter.getPropertyValues().addPropertyValue(keyPV);
+
+        RootBeanDefinition provider = new RootBeanDefinition(AnonymousAuthenticationProvider.class);
+        provider.setSource(source);
+        provider.getPropertyValues().addPropertyValue(keyPV);
+
+        pc.getRegistry().registerBeanDefinition(BeanIds.ANONYMOUS_AUTHENTICATION_PROVIDER, provider);
+        ConfigUtils.addAuthenticationProvider(pc, BeanIds.ANONYMOUS_AUTHENTICATION_PROVIDER, element);
+
+        return filter;
     }
 
     private FilterAndEntryPoint createBasicFilter(Element elt, ParserContext pc, boolean autoConfig) {
@@ -804,7 +857,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
             BeanDefinition openIDProvider = openIDProviderBuilder.getBeanDefinition();
             pc.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_PROVIDER, openIDProvider);
-            ConfigUtils.addAuthenticationProvider(pc, BeanIds.OPEN_ID_PROVIDER);
+            ConfigUtils.addAuthenticationProvider(pc, BeanIds.OPEN_ID_PROVIDER, element);
         }
 
         if (openIDFilter != null) {
