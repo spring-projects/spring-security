@@ -28,8 +28,8 @@
       web-application security, LDAP or namespace configuration. We'll take a look here at some of
       the Java types that you'll find in the core module. They represent the building blocks of the
       the framework, so if you ever need to go beyond a simple namespace configuration then it's
-      important that you understand what they are, even if you don't actually need to directly
-      interact with them.</para>
+      important that you understand what they are, even if you don't actually need to interact with
+      them directly.</para>
     <section>
       <title> SecurityContextHolder, SecurityContext and Authentication Objects </title>
       <para>The most fundamental object is <classname>SecurityContextHolder</classname>. This is
@@ -44,13 +44,15 @@
         no need to worry about it.</para>
       <para>Some applications aren't entirely suitable for using a <literal>ThreadLocal</literal>,
         because of the specific way they work with threads. For example, a Swing client might want
-        all threads in a Java Virtual Machine to use the same security context. For this situation
-        you would use the <literal>SecurityContextHolder.MODE_GLOBAL</literal>. Other applications
-        might want to have threads spawned by the secure thread also assume the same security
-        identity. This is achieved by using
+        all threads in a Java Virtual Machine to use the same security context.
+          <classname>SecurityContextHolder</classname> can be configured with a strategy on startup
+        to specify how you would like the contex to be stored. For a standalone application you
+        would use the <literal>SecurityContextHolder.MODE_GLOBAL</literal> strategy. Other
+        applications might want to have threads spawned by the secure thread also assume the same
+        security identity. This is achieved by using
           <literal>SecurityContextHolder.MODE_INHERITABLETHREADLOCAL</literal>. You can change the
         mode from the default <literal>SecurityContextHolder.MODE_THREADLOCAL</literal> in two ways.
-        The first is to set a system property. Alternatively, call a static method on
+        The first is to set a system property, the second is to call a static method on
           <classname>SecurityContextHolder</classname>. Most applications won't need to change from
         the default, but if you do, take a look at the JavaDocs for
           <classname>SecurityContextHolder</classname> to learn more.</para>
@@ -74,9 +76,9 @@ if (principal instanceof UserDetails) {
 }</programlisting>
         <para>The object returned by the call to <methodname>getContext()</methodname> is an
           instance of the <interfacename>SecurityContext</interfacename> interface. This is the
-          object that is kept in thread-local storage. Most authentication mechanisms withing Spring
-          Security return an instance of <interfacename>UserDetails</interfacename> as the principal
-          as we'll see below. </para>
+          object that is kept in thread-local storage.  As we'll see below, Most authentication
+          mechanisms withing Spring Security return an instance of
+            <interfacename>UserDetails</interfacename> as the principal. </para>
       </section>
     </section>
     <section>
@@ -109,15 +111,15 @@ if (principal instanceof UserDetails) {
       <para> On successful authentication, <interfacename>UserDetails</interfacename> is used to
         build the <interfacename>Authentication</interfacename> object that is stored in the
           <classname>SecurityContextHolder</classname> (more on this <link
-          xlink:href="#tech-intro-authentication-mgr">below</link>). The good news is that we provide a
-        number of <interfacename>UserDetailsService</interfacename> implementations, including one
-        that uses an in-memory map (<classname>InMemoryDaoImpl</classname>) and another that uses
-        JDBC (<interfacename>JdbcDaoImpl</interfacename>). Most users tend to write their own,
-        though, with their implementations often simply sitting on top of an existing Data Access
-        Object (DAO) that represents their employees, customers, or other users of the application.
-        Remember the advantage that whatever your <interfacename>UserDetailsService</interfacename>
-        returns can always be obtained from the <classname>SecurityContextHolder</classname> using
-        the above code fragment. </para>
+          xlink:href="#tech-intro-authentication-mgr">below</link>). The good news is that we
+        provide a number of <interfacename>UserDetailsService</interfacename> implementations,
+        including one that uses an in-memory map (<classname>InMemoryDaoImpl</classname>) and
+        another that uses JDBC (<interfacename>JdbcDaoImpl</interfacename>). Most users tend to
+        write their own, though, with their implementations often simply sitting on top of an
+        existing Data Access Object (DAO) that represents their employees, customers, or other users
+        of the application. Remember the advantage that whatever your
+          <interfacename>UserDetailsService</interfacename> returns can always be obtained from the
+          <classname>SecurityContextHolder</classname> using the above code fragment. </para>
     </section>
     <section xml:id="tech-granted-authority">
       <title>GrantedAuthority</title>
@@ -321,10 +323,8 @@ Successfully authenticated. Security context contains: \
           (or equivalent) that reads the third-party user information from a location, build a
           Spring Security-specific <interfacename>Authentication</interfacename> object, and put it
           onto the <classname>SecurityContextHolder</classname>.</para>
-        <para>
-          If you're wondering how the <interfacename>AuthenticationManager</interfacename> 
-          manager is implemented in a real world example, we'll look at that in 
-        </para>
+        <para> If you're wondering how the <interfacename>AuthenticationManager</interfacename>
+          manager is implemented in a real world example, we'll look at that in </para>
       </section>
     </section>
   </section>
@@ -511,10 +511,11 @@ Successfully authenticated. Security context contains: \
         <title>What are Configuration Attributes?</title>
         <para> A <quote>configuration attribute</quote> can be thought of as a String that has
           special meaning to the classes used by <classname>AbstractSecurityInterceptor</classname>.
-          They are represented by the interface <interfacename>ConfigAttribute</interfacename> within
-          the framework. They may be simple role names or have more complex meaning, depending on the how
-          sophisticated the <interfacename>AccessDecisionManager</interfacename> implementation is.
-          The <classname>AbstractSecurityInterceptor</classname> is configured with a
+          They are represented by the interface <interfacename>ConfigAttribute</interfacename>
+          within the framework. They may be simple role names or have more complex meaning,
+          depending on the how sophisticated the
+            <interfacename>AccessDecisionManager</interfacename> implementation is. The
+            <classname>AbstractSecurityInterceptor</classname> is configured with a
             <interfacename>SecurityMetadataSource</interfacename> which it uses to look up the
           attributes for a secure object. Usually this configuration will be hidden from the user.
           Configuration attributes will be entered as annotations on secured methods, or as access

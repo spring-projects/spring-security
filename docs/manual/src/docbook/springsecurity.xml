@@ -115,7 +115,9 @@
     <xi:include href="basic-and-digest-auth.xml"/>
     <xi:include href="remember-me-authentication.xml"/>
     <xi:include href="concurrent-sessions.xml"/>
+    <xi:include href="anon-auth-provider.xml"/>    
   </part>
+<!--  
   <part xml:id="authentication">
     <title>Authentication</title>
     <partintro>
@@ -138,9 +140,8 @@
         </footnote>. </para>
     </partintro>
     <xi:include href="dao-auth-provider.xml"/>
-    <xi:include href="anon-auth-provider.xml"/>
-    <xi:include href="runas-auth-provider.xml"/>
   </part>
+-->  
   <part xml:id="authorization">
     <title>Authorization</title>
     <partintro>
@@ -164,7 +165,7 @@
       Essentially standalone features which do not have to follow on directly from earlier chapters 
     -->
     <partintro>
-      <para> In this part we cover some of the more advanced features of the framework. </para>
+      <para> In this part we cover some of the more advanced and less-commonly used features of the framework.</para>
     </partintro>
     <xi:include href="domain-acls.xml"/>    
     <xi:include href="preauth.xml"/>
@@ -172,6 +173,7 @@
     <xi:include href="jaas-auth-provider.xml"/>
     <xi:include href="cas-auth-provider.xml"/>
     <xi:include href="x509-auth-provider.xml"/>
+    <xi:include href="runas-auth-provider.xml"/>    
   </part>
   <xi:include href="appendix-db-schema.xml"/>
   <xi:include href="appendix-namespace.xml"/>

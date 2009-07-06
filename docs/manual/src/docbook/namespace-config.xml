@@ -113,7 +113,7 @@
     <section xml:id="ns-web-xml">
       <title><literal>web.xml</literal> Configuration</title>
       <para> The first thing you need to do is add the following filter declaration to your
-        <literal>web.xml</literal> file: <programlisting language="xml"><![CDATA[
+          <literal>web.xml</literal> file: <programlisting language="xml"><![CDATA[
 <filter>
   <filter-name>springSecurityFilterChain</filter-name>
   <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -277,7 +277,7 @@
         containing the standard Spring Security <link xlink:href="#db_schema_users_authorities">user
           data tables</link>. Alternatively, you could configure a Spring Security
           <classname>JdbcDaoImpl</classname> bean and point at that using the
-        <literal>user-service-ref</literal> attribute: <programlisting language="xml"><![CDATA[
+          <literal>user-service-ref</literal> attribute: <programlisting language="xml"><![CDATA[
   <authentication-provider user-service-ref='myUserDetailsService'/>
   
   <beans:bean id="myUserDetailsService" 
@@ -332,7 +332,7 @@
       <title>Adding HTTP/HTTPS Channel Security</title>
       <para>If your application supports both HTTP and HTTPS, and you require that particular URLs
         can only be accessed over HTTPS, then this is directly supported using the
-        <literal>requires-channel</literal> attribute on <literal>&lt;intercept-url&gt;</literal>: <programlisting language="xml"><![CDATA[
+          <literal>requires-channel</literal> attribute on <literal>&lt;intercept-url&gt;</literal>: <programlisting language="xml"><![CDATA[
   <http>
     <intercept-url pattern="/secure/**" access="ROLE_USER" requires-channel="https"/>
     <intercept-url pattern="/**" access="ROLE_USER" requires-channel="any"/>  
@@ -406,14 +406,21 @@
         version of a standard namespace filter, such as the
           <literal>UsernamePasswordAuthenticationProcessingFilter</literal> which is created by the
           <literal>&lt;form-login&gt;</literal> element, taking advantage of some of the extra
-        configuration options which are available by using defining the bean directly. How can you
-        do this with namespace configuration, since the filter chain is not directly exposed? </para>
-      <para>The order of the filters is always strictly enforced when using the namespace. Each
-        Spring Security filter implements the Spring <interfacename>Ordered</interfacename>
-        interface and the filters created by the namespace are sorted during initialization. The
-        standard Spring Security filters each have an alias in the namespace. The filters, aliases
-        and namespace elements/attributes which create the filters are shown in <xref
-          linkend="filter-stack"/>. <table xml:id="filter-stack">
+        configuration options which are available by using the bean explicitly. How can you do this
+        with namespace configuration, since the filter chain is not directly exposed? </para>
+      <para>The order of the filters is always strictly enforced when using the namespace. When the
+        application context is being created, the filter beans are sorted by the namespace handling
+        code and the standard Spring Security filters each have an alias in the namespace and a
+        well-known position.<note>
+          <para>In previous versions, the sorting took place after the filter instances had been
+            created, during post-processing of the application context. In version 3.0+ the sorting
+            is now done at the bean metadata level, before the classes have been instantiated. This
+            has implications for how you add your own filters to the stack as the entire filter list
+            must be known during the parsing of the <literal>&lt;http></literal> element, so the
+            syntax has changed slightly in 3.0.</para>
+        </note>The filters, aliases and namespace elements/attributes which create the filters are
+        shown in <xref linkend="filter-stack"/>. The filters are listed in the order in which they
+        occur in the filter chain. <table xml:id="filter-stack">
           <title>Standard Filter Aliases and Ordering</title>
           <tgroup cols="3" align="left">
             <thead>
@@ -510,10 +517,13 @@
         </table> You can add your own filter to the stack, using the
           <literal>custom-filter</literal> element and one of these names to specify the position
         your filter should appear at: <programlisting language="xml"><![CDATA[
-  <beans:bean id="myFilter" class="com.mycompany.MySpecialAuthenticationFilter">
-    <custom-filter position="AUTHENTICATION_PROCESSING_FILTER"/>
-  </beans:bean>
-  ]]></programlisting> You can also use the <literal>after</literal> or <literal>before</literal>
+  <http>
+     <custom-filter position="AUTHENTICATION_PROCESSING_FILTER" ref="myFilter" />
+  </http>
+          
+  <beans:bean id="myFilter" class="com.mycompany.MySpecialAuthenticationFilter"/> 
+  ]]>
+  </programlisting> You can also use the <literal>after</literal> or <literal>before</literal>
         attributes if you want your filter to be inserted before or after another filter in the
         stack. The names "FIRST" and "LAST" can be used with the <literal>position</literal>
         attribute to indicate that you want your filter to appear before or after the entire stack,
@@ -575,12 +585,12 @@
   </section>
   <section xml:id="ns-method-security">
     <title>Method Security</title>
-    <para>From version 2.0 onwards Spring Security has improved support substantially for adding security to your
-      service layer methods. It provides support for JSR-250 security
-      as well as the framework's native <literal>@Secured</literal>
-      annotation. You can apply security to a single bean, using the
-        <literal>intercept-methods</literal> element to decorate the bean declaration, or you can
-      secure multiple beans across the entire service layer using the AspectJ style pointcuts. </para>
+    <para>From version 2.0 onwards Spring Security has improved support substantially for adding
+      security to your service layer methods. It provides support for JSR-250 security as well as
+      the framework's native <literal>@Secured</literal> annotation. You can apply security to a
+      single bean, using the <literal>intercept-methods</literal> element to decorate the bean
+      declaration, or you can secure multiple beans across the entire service layer using the
+      AspectJ style pointcuts. </para>
     <section xml:id="ns-global-method">
       <title>The <literal>&lt;global-method-security&gt;</literal> Element</title>
       <para> This element is used to enable annotation-based security in your application (by
@@ -664,7 +674,7 @@
       <para> For method security, you do this by setting the
           <literal>access-decision-manager-ref</literal> attribute on
           <literal>global-method-security</literal>to the Id of the appropriate
-        <interfacename>AccessDecisionManager</interfacename> bean in the application context: <programlisting language="xml"><![CDATA[
+          <interfacename>AccessDecisionManager</interfacename> bean in the application context: <programlisting language="xml"><![CDATA[
   <global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
     ... 
   </global-method-security>
@@ -681,8 +691,9 @@
     <para> We've touched on the idea that the namespace configuration automatically registers an
       authentication manager bean for you. This is an instance of Spring Security's
         <classname>ProviderManager</classname> class, which you may already be familiar with if
-      you've used the framework before. If not, it will be covered later, in <link xlink:href="#tech-intro-authentication"/>. 
-      You can't use a custom <classname>AuthenticationManager</classname> if you are using either HTTP or method security
+      you've used the framework before. If not, it will be covered later, in <link
+        xlink:href="#tech-intro-authentication"/>. You can't use a custom
+        <classname>AuthenticationManager</classname> if you are using either HTTP or method security
       through the namespace, but this should not be a problem as you have full control over the
         <classname>AuthenticationProvider</classname>s that are used. </para>
     <para> You may want to register additional <classname>AuthenticationProvider</classname> beans

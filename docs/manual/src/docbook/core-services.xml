@@ -27,17 +27,15 @@
             chapter and refresh your memory. The most common approach to verifying an authentication
             request is to load the corresponding <interfacename>UserDetails</interfacename> and
             check the loaded password against the one that has been entered by the user. This is the
-            approach used by the <classname>DaoAuthenticationProvider</classname>, which wraps a
-                <interfacename>UserDetailsService</interfacename> to implement an
-                <interfacename>AuthenticationProvider</interfacename>. The loaded
-                <interfacename>UserDetails</interfacename> object - and particularly the
+            approach used by the <classname>DaoAuthenticationProvider</classname> (see below). The
+            loaded <interfacename>UserDetails</interfacename> object - and particularly the
                 <literal>GrantedAuthority</literal>s it contains - will be used when building the
             fully populated <interfacename>Authentication</interfacename> object which is returned
             from a successful authentication and stored in the
                 <classname>SecurityContext</classname>. </para>
         <para> If you are using the namespace, an instance of
                 <classname>ProviderMananger</classname> is created and maintained internally, and
-            you add providers to it either by using the namespace authentication provired elements,
+            you add providers to it either by using the namespace authentication provider elements,
             or by adding the <literal>&lt;custom-authentication-provider&gt;</literal> element to a
             bean (see <link xlink:href="#ns-auth-manager">the namespace chapter</link>). In this
             case, you should not declare a <classname>ProviderManager</classname> bean in your
@@ -76,6 +74,33 @@
             concerned about this, because if you forget to register a suitable provider, you'll
             simply receive a <literal>ProviderNotFoundException</literal> when an attempt to
             authenticate is made.</para>
+        <section>
+            <title><literal>DaoAuthenticationProvider</literal></title>
+            <para>The simplest <interfacename>AuthenticationProvider</interfacename> implemented by
+                Spring Security is <literal>DaoAuthenticationProvider</literal>, which is is also
+                one of the earliest supported by the framework. It leverages a
+                    <interfacename>UserDetailsService</interfacename>  (as a DAO) in order to lookup
+                the username, password and <interfacename>GrantedAuthority</interfacename>s. It
+                authenticates the user simply by comparing the password submitted in a
+                    <classname>UsernamePasswordAuthenticationToken</classname> against the one
+                loaded by the <interfacename>UserDetailsService</interfacename>. Configuring the
+                provider is quite simple: 
+<programlisting language="xml"><![CDATA[
+<bean id="daoAuthenticationProvider"
+    class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+  <property name="userDetailsService" ref="inMemoryDaoImpl"/>
+  <property name="saltSource" ref bean="saltSource"/>
+  <property name="passwordEncoder" ref="passwordEncoder"/>
+</bean>]]></programlisting>
+                The <interfacename>PasswordEncoder</interfacename> and <interfacename>SaltSource</interfacename> are 
+                optional. A <interfacename>PasswordEncoder</interfacename> provides encoding and decoding of passwords 
+                presented in the <interfacename>UserDetails</interfacename> object that is returned from the configured 
+                <interfacename>UserDetailsService</interfacename>. A <interfacename>SaltSource</interfacename> enables 
+                the passwords to be populated with a "salt", which enhances the security of the 
+                passwords in the authentication repository. These will be discussed in more detail in ???. 
+                <!-- TODO: Add sections on password encoding and user caching to advaced topics -->
+            </para>
+        </section>
     </section>
     <section>
         <title><interfacename>UserDetailsService</interfacename> Implementations</title>
