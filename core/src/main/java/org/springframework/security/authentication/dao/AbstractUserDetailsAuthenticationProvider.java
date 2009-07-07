@@ -135,16 +135,16 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
             Assert.notNull(user, "retrieveUser returned null - a violation of the interface contract");
         }
 
-        preAuthenticationChecks.check(user);
-
         try {
+            preAuthenticationChecks.check(user);
             additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
         } catch (AuthenticationException exception) {
             if (cacheWasUsed) {
                 // There was a problem, so try again after checking
-                // we're using latest data (ie not from the cache)
+                // we're using latest data (i.e. not from the cache)
                 cacheWasUsed = false;
                 user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
+                preAuthenticationChecks.check(user);
                 additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
             } else {
                 throw exception;
