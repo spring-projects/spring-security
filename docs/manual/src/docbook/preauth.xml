@@ -162,7 +162,7 @@ class="org.springframework.security.web.authentication.preauth.PreAuthenticatedA
     <security:custom-authentication-provider />      
     <property name="preAuthenticatedUserDetailsService">
       <bean id="userDetailsServiceWrapper" 
-          class="org.springframework.security.userdetails.UserDetailsByNameServiceWrapper">
+          class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
         <property name="userDetailsService" ref="userDetailsService"/>
       </bean>    
     </property>
