@@ -1,7 +1,5 @@
 package org.springframework.security.config.util;
 
-import java.util.Map;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.core.io.Resource;
