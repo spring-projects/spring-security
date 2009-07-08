@@ -363,7 +363,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     private PortMapperImpl getPortMapper() {
-	    Map<String,PortMapperImpl> beans = appContext.getBeansOfType(PortMapperImpl.class);
+        Map<String,PortMapperImpl> beans = appContext.getBeansOfType(PortMapperImpl.class);
         return new ArrayList<PortMapperImpl>(beans.values()).get(0);
     }
 
@@ -456,20 +456,20 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void rememberMeServiceWorksWithTokenRepoRef() {
+    public void rememberMeServiceWorksWithTokenRepoRef() throws Exception {
         setContext(
             "<http auto-config='true'>" +
             "    <remember-me token-repository-ref='tokenRepo'/>" +
             "</http>" +
             "<b:bean id='tokenRepo' " +
                     "class='" + InMemoryTokenRepositoryImpl.class.getName() + "'/> " + AUTH_PROVIDER_XML);
-        Object rememberMeServices = appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
+        RememberMeServices rememberMeServices = getRememberMeServices();
 
         assertTrue(rememberMeServices instanceof PersistentTokenBasedRememberMeServices);
     }
 
     @Test
-    public void rememberMeServiceWorksWithDataSourceRef() {
+    public void rememberMeServiceWorksWithDataSourceRef() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
                 "    <remember-me data-source-ref='ds'/>" +
@@ -477,7 +477,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='ds' class='org.springframework.security.TestDataSource'> " +
                 "    <b:constructor-arg value='tokendb'/>" +
                 "</b:bean>" + AUTH_PROVIDER_XML);
-        Object rememberMeServices = appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
+        RememberMeServices rememberMeServices = getRememberMeServices();
 
         assertTrue(rememberMeServices instanceof PersistentTokenBasedRememberMeServices);
     }

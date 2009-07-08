@@ -54,7 +54,7 @@ public class X509BeanDefinitionParser implements BeanDefinitionParser {
             provider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService", preAuthUserService);
         }
 
-        filterBuilder.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
+        filterBuilder.addPropertyReference("authenticationManager", BeanIds.AUTHENTICATION_MANAGER);
 
         return (RootBeanDefinition) filterBuilder.getBeanDefinition();
     }

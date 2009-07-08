@@ -59,17 +59,6 @@ public class FormLoginBeanDefinitionParser {
 
         Object source = null;
 
-//        final Boolean sessionFixationProtectionEnabled =
-//            new Boolean(pc.getRegistry().containsBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER));
-//        Boolean migrateSessionAttributes = Boolean.FALSE;
-//
-//        if (sessionFixationProtectionEnabled.booleanValue()) {
-//            PropertyValue pv =
-//                    pc.getRegistry().getBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER)
-//                        .getPropertyValues().getPropertyValue("migrateSessionAttributes");
-//            migrateSessionAttributes = (Boolean)pv.getValue();
-//        }
-
         if (elt != null) {
             source = pc.extractSource(elt);
             loginUrl = elt.getAttribute(ATT_LOGIN_URL);
@@ -99,21 +88,6 @@ public class FormLoginBeanDefinitionParser {
         if (sfpf != null) {
             filterBean.getPropertyValues().addPropertyValue("migrateInvalidatedSessionAttributes", sfpf.getPropertyValues().getPropertyValue("migrateSessionAttributes").getValue());
             filterBean.getPropertyValues().addPropertyValue("invalidateSessionOnSuccessfulAuthentication", Boolean.TRUE);
-        }
-
-//        filterBean.getPropertyValues().addPropertyValue("invalidateSessionOnSuccessfulAuthentication",
-//                sessionFixationProtectionEnabled);
-//        filterBean.getPropertyValues().addPropertyValue("migrateInvalidatedSessionAttributes",
-//                migrateSessionAttributes);
-
-        if (pc.getRegistry().containsBeanDefinition(BeanIds.REMEMBER_ME_SERVICES)) {
-            filterBean.getPropertyValues().addPropertyValue("rememberMeServices",
-                    new RuntimeBeanReference(BeanIds.REMEMBER_ME_SERVICES) );
-        }
-
-        if (pc.getRegistry().isBeanNameInUse(BeanIds.SESSION_REGISTRY)) {
-            filterBean.getPropertyValues().addPropertyValue("sessionRegistry",
-                    new RuntimeBeanReference(BeanIds.SESSION_REGISTRY));
         }
 
         BeanDefinitionBuilder entryPointBuilder =

@@ -16,6 +16,7 @@ import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
@@ -168,15 +169,16 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 filterChainMap, channelRequestMap, convertPathsToLowerCase, pc);
 
         BeanDefinition cpf = null;
+        BeanReference sessionRegistryRef = null;
         BeanDefinition concurrentSessionFilter = createConcurrentSessionFilterAndRelatedBeansIfRequired(element, pc);
-        boolean sessionControlEnabled = concurrentSessionFilter != null;
 
         BeanDefinition scpf = createSecurityContextPersistenceFilter(element, pc);
 
-        if (sessionControlEnabled) {
+        if (concurrentSessionFilter != null) {
+            sessionRegistryRef = (BeanReference)
+                    concurrentSessionFilter.getPropertyValues().getPropertyValue("sessionRegistry").getValue();
             logger.info("Concurrent session filter in use, setting 'forceEagerSessionCreation' to true");
             scpf.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
-
         }
 
         BeanDefinition servApiFilter = createServletApiFilter(element, pc);
@@ -188,7 +190,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         BeanDefinition etf = createExceptionTranslationFilter(element, pc, allowSessionCreation);
         RootBeanDefinition sfpf = createSessionFixationProtectionFilter(pc, element.getAttribute(ATT_SESSION_FIXATION_PROTECTION),
-                sessionControlEnabled);
+                sessionRegistryRef);
         BeanDefinition fsi = createFilterSecurityInterceptor(element, pc, matcher, convertPathsToLowerCase);
 
         String portMapperName = pc.getReaderContext().registerWithGeneratedName(portMapper);
@@ -200,7 +202,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (sfpf != null) {
             // Used by SessionRegistrynjectionPP
             pc.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, sfpf);
-//        	ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.SESSION_FIXATION_PROTECTION_FILTER));
         }
 
         final FilterAndEntryPoint basic = createBasicFilter(element, pc, autoConfig);
@@ -209,14 +210,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         String rememberMeServicesId = null;
         if (rememberMeFilter != null) {
-            //pc.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_FILTER, rememberMeFilter);
             rememberMeServicesId = ((RuntimeBeanReference) rememberMeFilter.getPropertyValues().getPropertyValue("rememberMeServices").getValue()).getBeanName();
-            //ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.REMEMBER_ME_FILTER));
-            // Post processor to inject RememberMeServices into filters which need it
-
-            RootBeanDefinition rememberMeInjectionPostProcessor = new RootBeanDefinition(RememberMeServicesInjectionBeanPostProcessor.class);
-            rememberMeInjectionPostProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            pc.getReaderContext().registerWithGeneratedName(rememberMeInjectionPostProcessor);
         }
 
         final BeanDefinition logoutFilter = createLogoutFilter(element, autoConfig, pc, rememberMeServicesId);
@@ -227,18 +221,16 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             // Required by login page filter
             pc.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_FILTER, form.filter);
             pc.registerBeanComponent(new BeanComponentDefinition(form.filter, BeanIds.FORM_LOGIN_FILTER));
-            if (rememberMeServicesId != null) {
-                form.filter.getPropertyValues().addPropertyValue("rememberMeServices", new RuntimeBeanReference(rememberMeServicesId));
-            }
+            injectRememberMeServicesRef(form.filter, rememberMeServicesId);
+            injectSessionRegistryRef(form.filter, sessionRegistryRef);
         }
 
         if (openID.filter != null) {
             // Required by login page filter
             pc.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_FILTER, openID.filter);
             pc.registerBeanComponent(new BeanComponentDefinition(openID.filter, BeanIds.OPEN_ID_FILTER));
-            if (rememberMeServicesId != null) {
-                openID.filter.getPropertyValues().addPropertyValue("rememberMeServices", new RuntimeBeanReference(rememberMeServicesId));
-            }
+            injectRememberMeServicesRef(openID.filter, rememberMeServicesId);
+            injectSessionRegistryRef(openID.filter, sessionRegistryRef);
         }
 
         FilterAndEntryPoint x509 = createX509Filter(element, pc);
@@ -320,12 +312,27 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         registerFilterChainProxy(pc, filterChainMap, matcher, source);
 
-        RootBeanDefinition postProcessor2 = new RootBeanDefinition(UserDetailsServiceInjectionBeanPostProcessor.class);
-        postProcessor2.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        pc.getReaderContext().registerWithGeneratedName(postProcessor2);
+        BeanDefinitionBuilder userServiceInjector = BeanDefinitionBuilder.rootBeanDefinition(UserDetailsServiceInjectionBeanPostProcessor.class);
+        userServiceInjector.addConstructorArgValue(BeanIds.X509_AUTH_PROVIDER);
+        userServiceInjector.addConstructorArgValue(rememberMeServicesId);
+        userServiceInjector.addConstructorArgValue(rememberMeServicesId);
+        userServiceInjector.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        pc.getReaderContext().registerWithGeneratedName(userServiceInjector.getBeanDefinition());
 
         pc.popAndRegisterContainingComponent();
         return null;
+    }
+
+    private void injectRememberMeServicesRef(RootBeanDefinition bean, String rememberMeServicesId) {
+        if (rememberMeServicesId != null) {
+            bean.getPropertyValues().addPropertyValue("rememberMeServices", new RuntimeBeanReference(rememberMeServicesId));
+        }
+    }
+
+    private void injectSessionRegistryRef(RootBeanDefinition bean, BeanReference sessionRegistryRef){
+        if (sessionRegistryRef != null) {
+            bean.getPropertyValues().addPropertyValue("sessionRegistry", sessionRegistryRef);
+        }
     }
 
     private void checkFilterChainOrder(List<OrderDecorator> filters, ParserContext pc, Object source) {
@@ -370,7 +377,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         final String ATT_BEFORE = "before";
         final String ATT_POSITION = "position";
         final String REF = "ref";
-
 
         for (Element elt: customFilterElts) {
             String after = elt.getAttribute(ATT_AFTER);
@@ -732,7 +738,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return channelFilter;
     }
 
-    private RootBeanDefinition createSessionFixationProtectionFilter(ParserContext pc, String sessionFixationAttribute, boolean sessionControlEnabled) {
+    private RootBeanDefinition createSessionFixationProtectionFilter(ParserContext pc, String sessionFixationAttribute,
+            BeanReference sessionRegistryRef) {
         if(!StringUtils.hasText(sessionFixationAttribute)) {
             sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
         }
@@ -742,8 +749,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionFilter.class);
             sessionFixationFilter.addPropertyValue("migrateSessionAttributes",
                     Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
-            if (sessionControlEnabled) {
-                sessionFixationFilter.addPropertyReference("sessionRegistry", BeanIds.SESSION_REGISTRY);
+            if (sessionRegistryRef != null) {
+                sessionFixationFilter.addPropertyValue("sessionRegistry", sessionRegistryRef);
             }
             return (RootBeanDefinition) sessionFixationFilter.getBeanDefinition();
         }

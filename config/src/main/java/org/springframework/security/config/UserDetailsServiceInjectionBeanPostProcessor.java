@@ -28,13 +28,26 @@ import org.springframework.util.Assert;
  */
 public class UserDetailsServiceInjectionBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware {
     private ConfigurableListableBeanFactory beanFactory;
+    private final String x509ProviderId;
+    private final String rememberMeServicesId;
+    private final String openIDProviderId;
+
+    public UserDetailsServiceInjectionBeanPostProcessor(String x509ProviderId, String rememberMeServicesId,
+            String openIDProviderId) {
+        this.x509ProviderId = x509ProviderId;
+        this.rememberMeServicesId = rememberMeServicesId;
+        this.openIDProviderId = openIDProviderId;
+    }
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if (BeanIds.X509_AUTH_PROVIDER.equals(beanName)) {
+        if(beanName == null) {
+            return bean;
+        }
+        if (beanName.equals(x509ProviderId)) {
             injectUserDetailsServiceIntoX509Provider((PreAuthenticatedAuthenticationProvider) bean);
-        } else if (BeanIds.REMEMBER_ME_SERVICES.equals(beanName)) {
+        } else if (beanName.equals(rememberMeServicesId)) {
             injectUserDetailsServiceIntoRememberMeServices((AbstractRememberMeServices)bean);
-        } else if (BeanIds.OPEN_ID_PROVIDER.equals(beanName)) {
+        } else if (beanName.equals(openIDProviderId)) {
             injectUserDetailsServiceIntoOpenIDProvider(bean);
         }
 
@@ -46,7 +59,7 @@ public class UserDetailsServiceInjectionBeanPostProcessor implements BeanPostPro
     }
 
     private void injectUserDetailsServiceIntoRememberMeServices(AbstractRememberMeServices services) {
-        BeanDefinition beanDefinition = beanFactory.getBeanDefinition(BeanIds.REMEMBER_ME_SERVICES);
+        BeanDefinition beanDefinition = beanFactory.getBeanDefinition(rememberMeServicesId);
         PropertyValue pv = beanDefinition.getPropertyValues().getPropertyValue("userDetailsService");
 
         if (pv == null) {
@@ -61,7 +74,7 @@ public class UserDetailsServiceInjectionBeanPostProcessor implements BeanPostPro
     }
 
     private void injectUserDetailsServiceIntoX509Provider(PreAuthenticatedAuthenticationProvider provider) {
-        BeanDefinition beanDefinition = beanFactory.getBeanDefinition(BeanIds.X509_AUTH_PROVIDER);
+        BeanDefinition beanDefinition = beanFactory.getBeanDefinition(x509ProviderId);
         PropertyValue pv = beanDefinition.getPropertyValues().getPropertyValue("preAuthenticatedUserDetailsService");
         UserDetailsByNameServiceWrapper wrapper = new UserDetailsByNameServiceWrapper();
 
@@ -83,7 +96,7 @@ public class UserDetailsServiceInjectionBeanPostProcessor implements BeanPostPro
     }
 
     private void injectUserDetailsServiceIntoOpenIDProvider(Object bean) {
-        BeanDefinition beanDefinition = beanFactory.getBeanDefinition(BeanIds.OPEN_ID_PROVIDER);
+        BeanDefinition beanDefinition = beanFactory.getBeanDefinition(openIDProviderId);
         PropertyValue pv = beanDefinition.getPropertyValues().getPropertyValue("userDetailsService");
 
         if (pv == null) {

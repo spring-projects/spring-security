@@ -22,13 +22,13 @@ public abstract class BeanIds {
 //    static final String FILTER_CHAIN_POST_PROCESSOR = "_filterChainProxyPostProcessor";
 //    static final String FILTER_LIST = "_filterChainList";
 
-    public static final String JDBC_USER_DETAILS_MANAGER = "_jdbcUserDetailsManager";
+//    public static final String JDBC_USER_DETAILS_MANAGER = "_jdbcUserDetailsManager";
     public static final String USER_DETAILS_SERVICE = "_userDetailsService";
 //    public static final String ANONYMOUS_PROCESSING_FILTER = "_anonymousProcessingFilter";
     public static final String ANONYMOUS_AUTHENTICATION_PROVIDER = "_anonymousAuthenticationProvider";
 //    public static final String BASIC_AUTHENTICATION_FILTER = "_basicAuthenticationFilter";
     public static final String BASIC_AUTHENTICATION_ENTRY_POINT = "_basicAuthenticationEntryPoint";
-    public static final String SESSION_REGISTRY = "_sessionRegistry";
+//    public static final String SESSION_REGISTRY = "_sessionRegistry";
 //    public static final String CONCURRENT_SESSION_FILTER = "_concurrentSessionFilter";
     public static final String CONCURRENT_SESSION_CONTROLLER = "_concurrentSessionController";
     public static final String METHOD_ACCESS_MANAGER = "_defaultMethodAccessManager";
@@ -50,13 +50,13 @@ public abstract class BeanIds {
 //    public static final String CHANNEL_PROCESSING_FILTER = "_channelProcessingFilter";
     public static final String CHANNEL_DECISION_MANAGER = "_channelDecisionManager";
 //    public static final String REMEMBER_ME_FILTER = "_rememberMeFilter";
-    public static final String REMEMBER_ME_SERVICES = "_rememberMeServices";
+//    public static final String REMEMBER_ME_SERVICES = "_rememberMeServices";
     public static final String REMEMBER_ME_AUTHENTICATION_PROVIDER = "_rememberMeAuthenticationProvider";
 //    public static final String DEFAULT_LOGIN_PAGE_GENERATING_FILTER = "_defaultLoginPageFilter";
 //    public static final String SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER = "_securityContextHolderAwareRequestFilter";
     public static final String SESSION_FIXATION_PROTECTION_FILTER = "_sessionFixationProtectionFilter";
     public static final String METHOD_SECURITY_METADATA_SOURCE_ADVISOR = "_methodSecurityMetadataSourceAdvisor";
-    public static final String PROTECT_POINTCUT_POST_PROCESSOR = "_protectPointcutPostProcessor";
+//    public static final String PROTECT_POINTCUT_POST_PROCESSOR = "_protectPointcutPostProcessor";
 //    public static final String SECURED_METHOD_SECURITY_METADATA_SOURCE = "_securedSecurityMetadataSource";
 //    public static final String JSR_250_METHOD_SECURITY_METADATA_SOURCE = "_jsr250SecurityMetadataSource";
     public static final String EMBEDDED_APACHE_DS = "_apacheDirectoryServerContainer";

@@ -229,7 +229,7 @@ class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
         ppbp.setSource(source);
         ppbp.getConstructorArgumentValues().addGenericArgumentValue(mapBasedMethodSecurityMetadataSource);
         ppbp.getPropertyValues().addPropertyValue("pointcutMap", pointcutMap);
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.PROTECT_POINTCUT_POST_PROCESSOR, ppbp);
+        parserContext.getReaderContext().registerWithGeneratedName(ppbp);
     }
 
     private Map<String, List<ConfigAttribute>> parseProtectPointcuts(ParserContext parserContext, List<Element> protectPointcutElts) {

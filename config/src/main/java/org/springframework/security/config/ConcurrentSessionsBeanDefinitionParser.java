@@ -1,7 +1,6 @@
 package org.springframework.security.config;
 
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -32,23 +31,20 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
     static final String ATT_SESSION_REGISTRY_ALIAS = "session-registry-alias";
     static final String ATT_SESSION_REGISTRY_REF = "session-registry-ref";
 
-    public BeanDefinition parse(Element element, ParserContext parserContext) {
+    public BeanDefinition parse(Element element, ParserContext pc) {
         CompositeComponentDefinition compositeDef =
-            new CompositeComponentDefinition(element.getTagName(), parserContext.extractSource(element));
-        parserContext.pushContainingComponent(compositeDef);
+            new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element));
+        pc.pushContainingComponent(compositeDef);
 
-        BeanDefinitionRegistry beanRegistry = parserContext.getRegistry();
+        BeanDefinitionRegistry beanRegistry = pc.getRegistry();
 
         String sessionRegistryId = element.getAttribute(ATT_SESSION_REGISTRY_REF);
 
         if (!StringUtils.hasText(sessionRegistryId)) {
+            // Register an internal SessionRegistryImpl if no external reference supplied.
             RootBeanDefinition sessionRegistry = new RootBeanDefinition(SessionRegistryImpl.class);
-            beanRegistry.registerBeanDefinition(BeanIds.SESSION_REGISTRY, sessionRegistry);
-            parserContext.registerComponent(new BeanComponentDefinition(sessionRegistry, BeanIds.SESSION_REGISTRY));
-            sessionRegistryId = BeanIds.SESSION_REGISTRY;
-        } else {
-            // Register the default ID as an alias so that things like session fixation filter can access it
-            beanRegistry.registerAlias(sessionRegistryId, BeanIds.SESSION_REGISTRY);
+            sessionRegistryId = pc.getReaderContext().registerWithGeneratedName(sessionRegistry);
+            pc.registerComponent(new BeanComponentDefinition(sessionRegistry, sessionRegistryId));
         }
 
         String registryAlias = element.getAttribute(ATT_SESSION_REGISTRY_ALIAS);
@@ -58,16 +54,16 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
 
         BeanDefinitionBuilder filterBuilder =
                 BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionFilter.class);
-        filterBuilder.addPropertyValue("sessionRegistry", new RuntimeBeanReference(sessionRegistryId));
+        filterBuilder.addPropertyReference("sessionRegistry", sessionRegistryId);
 
-        Object source = parserContext.extractSource(element);
+        Object source = pc.extractSource(element);
         filterBuilder.getRawBeanDefinition().setSource(source);
         filterBuilder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
         String expiryUrl = element.getAttribute(ATT_EXPIRY_URL);
 
         if (StringUtils.hasText(expiryUrl)) {
-            ConfigUtils.validateHttpRedirect(expiryUrl, parserContext, source);
+            ConfigUtils.validateHttpRedirect(expiryUrl, pc, source);
             filterBuilder.addPropertyValue("expiredUrl", expiryUrl);
         }
 
@@ -75,7 +71,7 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
             = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControllerImpl.class);
         controllerBuilder.getRawBeanDefinition().setSource(source);
         controllerBuilder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        controllerBuilder.addPropertyValue("sessionRegistry", new RuntimeBeanReference(sessionRegistryId));
+        controllerBuilder.addPropertyReference("sessionRegistry", sessionRegistryId);
 
         String maxSessions = element.getAttribute(ATT_MAX_SESSIONS);
 
@@ -92,10 +88,10 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
         BeanDefinition controller = controllerBuilder.getBeanDefinition();
 
         beanRegistry.registerBeanDefinition(BeanIds.CONCURRENT_SESSION_CONTROLLER, controller);
-        parserContext.registerComponent(new BeanComponentDefinition(controller, BeanIds.CONCURRENT_SESSION_CONTROLLER));
-        ConfigUtils.setSessionControllerOnAuthenticationManager(parserContext, BeanIds.CONCURRENT_SESSION_CONTROLLER, element);
+        pc.registerComponent(new BeanComponentDefinition(controller, BeanIds.CONCURRENT_SESSION_CONTROLLER));
+        ConfigUtils.setSessionControllerOnAuthenticationManager(pc, BeanIds.CONCURRENT_SESSION_CONTROLLER, element);
 
-        parserContext.popAndRegisterContainingComponent();
+        pc.popAndRegisterContainingComponent();
 
         return filterBuilder.getBeanDefinition();
     }
