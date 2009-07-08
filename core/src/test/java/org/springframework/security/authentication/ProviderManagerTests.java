@@ -16,7 +16,7 @@
 package org.springframework.security.authentication;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,8 +44,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * @version $Id$
  */
 public class ProviderManagerTests {
-
-    //~ Methods ========================================================================================================
 
     @Test(expected=ProviderNotFoundException.class)
     public void authenticationFailsWithUnsupportedToken() throws Exception {
@@ -185,11 +183,14 @@ public class ProviderManagerTests {
     @Test(expected=ConcurrentLoginException.class)
     public void concurrentLoginExceptionPreventsCallsToSubsequentProviders() throws Exception {
         ProviderManager authMgr = makeProviderManager();
+        // Two providers so if the second is polled it will throw an AccountStatusException
+        authMgr.setProviders(Arrays.asList(new MockProvider(), new MockProviderWhichThrowsAccountStatusException()) );
+        TestingAuthenticationToken request = createAuthenticationToken();
+        ConcurrentSessionController ctrlr = mock(ConcurrentSessionController.class);
+        doThrow(new ConcurrentLoginException("mocked")).when(ctrlr).checkAuthenticationAllowed(request);
+        authMgr.setSessionController(ctrlr);
 
-        authMgr.setProviders(Arrays.asList(new MockProviderWhichThrowsConcurrentLoginException(),
-                new MockProviderWhichThrowsAccountStatusException()) );
-
-        authMgr.authenticate(createAuthenticationToken());
+        authMgr.authenticate(request);
     }
 
     private TestingAuthenticationToken createAuthenticationToken() {

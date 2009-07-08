@@ -170,27 +170,34 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
             try {
                 result = provider.authenticate(authentication);
 
-                if (result != null) {
-                    copyDetails(authentication, result);
-                    sessionController.checkAuthenticationAllowed(result);
+                if (result == null) {
+                    continue;
                 }
-            } catch (AuthenticationException ae) {
-                lastException = ae;
-                result = null;
+            } catch (AccountStatusException e) {
+                // SEC-546: Avoid polling additional providers if auth failure is due to invalid account status
+                lastException = e;
+                break;
+            } catch (AuthenticationException e) {
+                lastException = e;
+                continue;
             }
 
-            // SEC-546: Avoid polling additional providers if auth failure is due to invalid account status or
-            // disallowed concurrent login.
-            if (lastException instanceof AccountStatusException || lastException instanceof ConcurrentLoginException) {
+            assert result != null;
+
+            copyDetails(authentication, result);
+
+            try {
+                sessionController.checkAuthenticationAllowed(result);
+            } catch (AuthenticationException e) {
+             // SEC-546: Avoid polling additional providers if concurrent login check fails
+                lastException = e;
                 break;
             }
 
-            if (result != null) {
-                sessionController.registerSuccessfulAuthentication(result);
-                publishEvent(new AuthenticationSuccessEvent(result));
+            sessionController.registerSuccessfulAuthentication(result);
+            publishEvent(new AuthenticationSuccessEvent(result));
 
-                return result;
-            }
+            return result;
         }
 
         if (lastException == null) {
