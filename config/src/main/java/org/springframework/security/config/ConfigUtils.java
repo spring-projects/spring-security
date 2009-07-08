@@ -1,7 +1,6 @@
 package org.springframework.security.config;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -18,7 +17,6 @@ import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -108,38 +106,6 @@ abstract class ConfigUtils {
 
         return manager;
     }
-
-//    private static void registerFilterChainPostProcessorIfNecessary(ParserContext pc) {
-//        if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR)) {
-//            return;
-//        }
-//        // Post processor specifically to assemble and order the filter chain immediately before the FilterChainProxy is initialized.
-//        RootBeanDefinition filterChainPostProcessor = new RootBeanDefinition(FilterChainProxyPostProcessor.class);
-//        filterChainPostProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-//        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_CHAIN_POST_PROCESSOR, filterChainPostProcessor);
-//        RootBeanDefinition filterList = new RootBeanDefinition(FilterChainList.class);
-//        filterList.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-//        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_LIST, filterList);
-//        pc.registerBeanComponent(new BeanComponentDefinition(filterList, BeanIds.FILTER_LIST));
-//    }
-
- //   @SuppressWarnings("unchecked")
-//    static void addHttpFilter(ParserContext pc, BeanMetadataElement filter) {
-//        registerFilterChainPostProcessorIfNecessary(pc);
-//
-//        RootBeanDefinition filterList = (RootBeanDefinition) pc.getRegistry().getBeanDefinition(BeanIds.FILTER_LIST);
-//
-//        ManagedList filters;
-//        MutablePropertyValues pvs = filterList.getPropertyValues();
-//        if (pvs.contains("filters")) {
-//            filters = (ManagedList) pvs.getPropertyValue("filters").getValue();
-//        } else {
-//            filters = new ManagedList();
-//            pvs.addPropertyValue("filters", filters);
-//        }
-//
-//        filters.add(filter);
-//    }
 
     /**
      * Checks the value of an XML attribute which represents a redirect URL.

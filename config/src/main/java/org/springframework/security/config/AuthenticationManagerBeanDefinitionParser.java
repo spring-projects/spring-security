@@ -42,7 +42,7 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
             sessionRegistryInjector.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
             sessionRegistryInjector.getConstructorArgumentValues().addGenericArgumentValue(sessionControllerRef);
 
-            parserContext.getRegistry().registerBeanDefinition(BeanIds.SESSION_REGISTRY_INJECTION_POST_PROCESSOR, sessionRegistryInjector);
+            parserContext.getReaderContext().registerWithGeneratedName(sessionRegistryInjector);
         }
 
         parserContext.getRegistry().registerAlias(BeanIds.AUTHENTICATION_MANAGER, alias);

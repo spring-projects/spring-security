@@ -8,6 +8,8 @@ import static org.springframework.security.config.HttpSecurityBeanDefinitionPars
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
 
 import javax.servlet.Filter;
 
@@ -336,7 +338,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "        </port-mappings>" +
                 "    </http>" + AUTH_PROVIDER_XML);
 
-        PortMapperImpl pm = (PortMapperImpl) appContext.getBean(BeanIds.PORT_MAPPER);
+        PortMapperImpl pm = getPortMapper();
         assertEquals(1, pm.getTranslatedPortMappings().size());
         assertEquals(Integer.valueOf(9080), pm.lookupHttpPort(9443));
         assertEquals(Integer.valueOf(9443), pm.lookupHttpsPort(9080));
@@ -354,10 +356,15 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "        </port-mappings>" +
                 "    </http>" + AUTH_PROVIDER_XML);
 
-        PortMapperImpl pm = (PortMapperImpl) appContext.getBean(BeanIds.PORT_MAPPER);
+        PortMapperImpl pm = getPortMapper();
         assertEquals(1, pm.getTranslatedPortMappings().size());
         assertEquals(Integer.valueOf(9080), pm.lookupHttpPort(9443));
         assertEquals(Integer.valueOf(9443), pm.lookupHttpsPort(9080));
+    }
+
+    private PortMapperImpl getPortMapper() {
+	    Map<String,PortMapperImpl> beans = appContext.getBeansOfType(PortMapperImpl.class);
+        return new ArrayList<PortMapperImpl>(beans.values()).get(0);
     }
 
     @Test

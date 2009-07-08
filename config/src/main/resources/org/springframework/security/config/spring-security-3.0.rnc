@@ -552,7 +552,7 @@ jdbc-user-service.attlist &=
 any-user-service = user-service | jdbc-user-service | ldap-user-service
     
 custom-filter =
-    ## Used to indicate that a filter bean declaration should be incorporated into the security filter chain. If neither the 'after' or 'before' options are supplied, then the filter must implement the Ordered interface directly. 
+    ## Used to indicate that a filter bean declaration should be incorporated into the security filter chain. 
     element custom-filter {custom-filter.attlist}
 
 custom-filter.attlist &=

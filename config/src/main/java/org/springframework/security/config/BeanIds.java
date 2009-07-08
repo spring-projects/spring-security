@@ -17,8 +17,8 @@ public abstract class BeanIds {
     static final String INTERCEPT_METHODS_BEAN_FACTORY_POST_PROCESSOR = "_interceptMethodsBeanfactoryPP";
     static final String CONTEXT_SOURCE_SETTING_POST_PROCESSOR = "_contextSettingPostProcessor";
 //    static final String ENTRY_POINT_INJECTION_POST_PROCESSOR = "_entryPointInjectionBeanPostProcessor";
-    static final String USER_DETAILS_SERVICE_INJECTION_POST_PROCESSOR = "_userServiceInjectionPostProcessor";
-    static final String SESSION_REGISTRY_INJECTION_POST_PROCESSOR = "_sessionRegistryInjectionPostProcessor";
+//    static final String USER_DETAILS_SERVICE_INJECTION_POST_PROCESSOR = "_userServiceInjectionPostProcessor";
+//    static final String SESSION_REGISTRY_INJECTION_POST_PROCESSOR = "_sessionRegistryInjectionPostProcessor";
 //    static final String FILTER_CHAIN_POST_PROCESSOR = "_filterChainProxyPostProcessor";
 //    static final String FILTER_LIST = "_filterChainList";
 
@@ -40,7 +40,7 @@ public abstract class BeanIds {
     public static final String OPEN_ID_FILTER = "_openIDFilter";
     public static final String OPEN_ID_ENTRY_POINT = "_openIDFilterEntryPoint";
     public static final String OPEN_ID_PROVIDER = "_openIDAuthenticationProvider";
-    public static final String MAIN_ENTRY_POINT = "_mainEntryPoint";
+//    public static final String MAIN_ENTRY_POINT = "_mainEntryPoint";
     public static final String FILTER_CHAIN_PROXY = "_filterChainProxy";
 //    public static final String SECURITY_CONTEXT_PERSISTENCE_FILTER = "_securityContextPersistenceFilter";
     public static final String LDAP_AUTHENTICATION_PROVIDER = "_ldapAuthenticationProvider";
@@ -57,13 +57,13 @@ public abstract class BeanIds {
     public static final String SESSION_FIXATION_PROTECTION_FILTER = "_sessionFixationProtectionFilter";
     public static final String METHOD_SECURITY_METADATA_SOURCE_ADVISOR = "_methodSecurityMetadataSourceAdvisor";
     public static final String PROTECT_POINTCUT_POST_PROCESSOR = "_protectPointcutPostProcessor";
-    public static final String SECURED_METHOD_SECURITY_METADATA_SOURCE = "_securedSecurityMetadataSource";
-    public static final String JSR_250_METHOD_SECURITY_METADATA_SOURCE = "_jsr250SecurityMetadataSource";
+//    public static final String SECURED_METHOD_SECURITY_METADATA_SOURCE = "_securedSecurityMetadataSource";
+//    public static final String JSR_250_METHOD_SECURITY_METADATA_SOURCE = "_jsr250SecurityMetadataSource";
     public static final String EMBEDDED_APACHE_DS = "_apacheDirectoryServerContainer";
     public static final String CONTEXT_SOURCE = "_securityContextSource";
-    public static final String PORT_MAPPER = "_portMapper";
+//    public static final String PORT_MAPPER = "_portMapper";
 //    public static final String X509_FILTER = "_x509ProcessingFilter";
     public static final String X509_AUTH_PROVIDER = "_x509AuthenticationProvider";
-    public static final String PRE_AUTH_ENTRY_POINT = "_preAuthenticatedProcessingFilterEntryPoint";
-    public static final String REMEMBER_ME_SERVICES_INJECTION_POST_PROCESSOR = "_rememberMeServicesInjectionBeanPostProcessor";
+//    public static final String PRE_AUTH_ENTRY_POINT = "_preAuthenticatedProcessingFilterEntryPoint";
+//    public static final String REMEMBER_ME_SERVICES_INJECTION_POST_PROCESSOR = "_rememberMeServicesInjectionBeanPostProcessor";
 }

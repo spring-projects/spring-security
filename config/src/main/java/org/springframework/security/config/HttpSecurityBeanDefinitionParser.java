@@ -20,7 +20,6 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -128,7 +127,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     static final String EXPRESSION_FIMDS_CLASS = "org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource";
     static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler";
-    private static final String EXPRESSION_HANDLER_ID = "_webExpressionHandler";
 
     final SecureRandom random;
 
@@ -155,7 +153,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element));
         pc.pushContainingComponent(compositeDef);
 
-        final BeanDefinitionRegistry registry = pc.getRegistry();
         final UrlMatcher matcher = createUrlMatcher(element);
         final Object source = pc.extractSource(element);
         // SEC-501 - should paths stored in request maps be converted to lower case
@@ -194,41 +191,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 sessionControlEnabled);
         BeanDefinition fsi = createFilterSecurityInterceptor(element, pc, matcher, convertPathsToLowerCase);
 
-        registry.registerBeanDefinition(BeanIds.PORT_MAPPER, portMapper);
+        String portMapperName = pc.getReaderContext().registerWithGeneratedName(portMapper);
         if (channelRequestMap.size() > 0) {
             // At least one channel requirement has been specified
-            cpf = createChannelProcessingFilter(pc, matcher, channelRequestMap);
+            cpf = createChannelProcessingFilter(pc, matcher, channelRequestMap, portMapperName);
         }
-
-//        if (cpf != null) {
-//            pc.getRegistry().registerBeanDefinition(BeanIds.CHANNEL_PROCESSING_FILTER, cpf);
-//            ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.CHANNEL_PROCESSING_FILTER));
-//        }
-
-//          pc.getRegistry().registerBeanDefinition(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER, scpf);
-//        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.SECURITY_CONTEXT_PERSISTENCE_FILTER));
-
-//        if (anonFilter != null) {
-//            pc.getRegistry().registerBeanDefinition(BeanIds.ANONYMOUS_PROCESSING_FILTER, anonFilter);
-//            ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.ANONYMOUS_PROCESSING_FILTER));
-//        }
-//
-//        if (servApiFilter != null) {
-//	        pc.getRegistry().registerBeanDefinition(BeanIds.SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER,servApiFilter);
-//	        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.SECURITY_CONTEXT_HOLDER_AWARE_REQUEST_FILTER));
-//        }
-
-//        pc.getRegistry().registerBeanDefinition(BeanIds.EXCEPTION_TRANSLATION_FILTER, etf);
-//        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.EXCEPTION_TRANSLATION_FILTER));
-//
-
-//          pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_SECURITY_INTERCEPTOR, fsi);
-//        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.FILTER_SECURITY_INTERCEPTOR));
-
-//        if (sessionControlEnabled) {
-//	        pc.getRegistry().registerBeanDefinition(BeanIds.CONCURRENT_SESSION_FILTER, concurrentSessionFilter);
-//	        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.CONCURRENT_SESSION_FILTER));
-//        }
 
         if (sfpf != null) {
             // Used by SessionRegistrynjectionPP
@@ -249,61 +216,37 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
             RootBeanDefinition rememberMeInjectionPostProcessor = new RootBeanDefinition(RememberMeServicesInjectionBeanPostProcessor.class);
             rememberMeInjectionPostProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            pc.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES_INJECTION_POST_PROCESSOR, rememberMeInjectionPostProcessor);
+            pc.getReaderContext().registerWithGeneratedName(rememberMeInjectionPostProcessor);
         }
 
         final BeanDefinition logoutFilter = createLogoutFilter(element, autoConfig, pc, rememberMeServicesId);
 
-//        if (logoutFilter != null) {
-//	        pc.getRegistry().registerBeanDefinition(BeanIds.LOGOUT_FILTER, logoutFilter);
-//	        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.LOGOUT_FILTER));
-//        }
-
         BeanDefinition loginPageGenerationFilter = createLoginPageFilterIfNeeded(form, openID);
-
-//        if (basic.filter != null) {
-//	        pc.getRegistry().registerBeanDefinition(BeanIds.BASIC_AUTHENTICATION_FILTER, basic.filter);
-//	        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.BASIC_AUTHENTICATION_FILTER));
-//        }
 
         if (form.filter != null) {
             // Required by login page filter
             pc.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_FILTER, form.filter);
+            pc.registerBeanComponent(new BeanComponentDefinition(form.filter, BeanIds.FORM_LOGIN_FILTER));
             if (rememberMeServicesId != null) {
                 form.filter.getPropertyValues().addPropertyValue("rememberMeServices", new RuntimeBeanReference(rememberMeServicesId));
             }
-//		    ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.FORM_LOGIN_FILTER));
-//		    pc.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_ENTRY_POINT, form.entryPoint);
         }
 
         if (openID.filter != null) {
             // Required by login page filter
             pc.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_FILTER, openID.filter);
+            pc.registerBeanComponent(new BeanComponentDefinition(openID.filter, BeanIds.OPEN_ID_FILTER));
             if (rememberMeServicesId != null) {
                 openID.filter.getPropertyValues().addPropertyValue("rememberMeServices", new RuntimeBeanReference(rememberMeServicesId));
             }
-//		    ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.OPEN_ID_FILTER));
-//		    pc.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_ENTRY_POINT, openID.entryPoint);
         }
-//
-//		if (loginPageGenerationFilter != null) {
-//		    pc.getRegistry().registerBeanDefinition(BeanIds.DEFAULT_LOGIN_PAGE_GENERATING_FILTER, loginPageGenerationFilter);
-//		    ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.DEFAULT_LOGIN_PAGE_GENERATING_FILTER));
-//		}
 
         FilterAndEntryPoint x509 = createX509Filter(element, pc);
-//		if (x509.filter != null) {
-//	        pc.getRegistry().registerBeanDefinition(BeanIds.X509_FILTER, x509.filter);
-//            pc.getRegistry().registerBeanDefinition(BeanIds.PRE_AUTH_ENTRY_POINT, x509.entryPoint);
-//	        ConfigUtils.addHttpFilter(pc, new RuntimeBeanReference(BeanIds.X509_FILTER));
-//		}
 
         BeanMetadataElement entryPoint = selectEntryPoint(element, pc, basic, form, openID, x509);
         etf.getPropertyValues().addPropertyValue("authenticationEntryPoint", entryPoint);
 
-        // Now build the filter chain and add it to the map
         List<OrderDecorator> unorderedFilterChain = new ArrayList<OrderDecorator>();
-//        List<BeanMetadataElement> filterChain = new ManagedList<BeanMetadataElement>();
 
         if (cpf != null) {
             unorderedFilterChain.add(new OrderDecorator(cpf, CHANNEL_FILTER));
@@ -377,14 +320,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         registerFilterChainProxy(pc, filterChainMap, matcher, source);
 
-
-        // Register the post processors which will tie up the loose ends in the configuration once the app context has been created and all beans are available.
-//        RootBeanDefinition postProcessor = new RootBeanDefinition(EntryPointInjectionBeanPostProcessor.class);
-//        postProcessor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-//        registry.registerBeanDefinition(BeanIds.ENTRY_POINT_INJECTION_POST_PROCESSOR, postProcessor);
         RootBeanDefinition postProcessor2 = new RootBeanDefinition(UserDetailsServiceInjectionBeanPostProcessor.class);
         postProcessor2.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        registry.registerBeanDefinition(BeanIds.USER_DETAILS_SERVICE_INJECTION_POST_PROCESSOR, postProcessor2);
+        pc.getReaderContext().registerWithGeneratedName(postProcessor2);
 
         pc.popAndRegisterContainingComponent();
         return null;
@@ -724,9 +662,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             if (StringUtils.hasText(expressionHandlerRef)) {
                 logger.info("Using bean '" + expressionHandlerRef + "' as web SecurityExpressionHandler implementation");
             } else {
-                pc.getRegistry().registerBeanDefinition(EXPRESSION_HANDLER_ID,
-                        BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_HANDLER_CLASS).getBeanDefinition());
-                expressionHandlerRef = EXPRESSION_HANDLER_ID;
+                BeanDefinition expressionHandler = BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_HANDLER_CLASS).getBeanDefinition();
+                expressionHandlerRef = pc.getReaderContext().registerWithGeneratedName(expressionHandler);
+                pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
             }
 
             fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_FIMDS_CLASS);
@@ -765,7 +703,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return builder.getBeanDefinition();
     }
 
-    private BeanDefinition createChannelProcessingFilter(ParserContext pc, UrlMatcher matcher, LinkedHashMap<RequestKey, List<ConfigAttribute>> channelRequestMap) {
+    private BeanDefinition createChannelProcessingFilter(ParserContext pc, UrlMatcher matcher,
+            LinkedHashMap<RequestKey, List<ConfigAttribute>> channelRequestMap, String portMapperBeanName) {
         RootBeanDefinition channelFilter = new RootBeanDefinition(ChannelProcessingFilter.class);
         channelFilter.getPropertyValues().addPropertyValue("channelDecisionManager",
                 new RuntimeBeanReference(BeanIds.CHANNEL_DECISION_MANAGER));
@@ -779,7 +718,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         RootBeanDefinition secureChannelProcessor = new RootBeanDefinition(SecureChannelProcessor.class);
         RootBeanDefinition retryWithHttp = new RootBeanDefinition(RetryWithHttpEntryPoint.class);
         RootBeanDefinition retryWithHttps = new RootBeanDefinition(RetryWithHttpsEntryPoint.class);
-        RuntimeBeanReference portMapper = new RuntimeBeanReference(BeanIds.PORT_MAPPER);
+        RuntimeBeanReference portMapper = new RuntimeBeanReference(portMapperBeanName);
         retryWithHttp.getPropertyValues().addPropertyValue("portMapper", portMapper);
         retryWithHttps.getPropertyValues().addPropertyValue("portMapper", portMapper);
         secureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttps);
