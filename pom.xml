@@ -74,20 +74,7 @@
         </site>
     </distributionManagement>
 
-    <repositories>
-<!-- 
-        <repository>
-            <releases>
-              <enabled>true</enabled>
-            </releases>
-            <snapshots>
-              <enabled>false</enabled>
-            </snapshots>            
-            <id>com.springsource.repository.bundles.release</id>
-            <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
-            <url>http://repository.springsource.com/maven/bundles/release</url>
-        </repository>  
--->               
+    <repositories>            
         <repository>
             <releases>
               <enabled>false</enabled>
@@ -119,6 +106,11 @@
             <name>SpringSource Enterprise Bundle Repository - SpringSource Milestone Releases</name>
             <url>http://repository.springsource.com/maven/bundles/milestone</url>
         </pluginRepository>
+        <pluginRepository>
+            <id>com.springsource.repository.bundles.snapshot</id>
+            <name>SpringSource Enterprise Bundle Repository - Snapshots</name>
+            <url>http://repository.springsource.com/maven/bundles/snapshot</url>
+        </pluginRepository>        
     </pluginRepositories>
 
     <mailingLists>
@@ -265,7 +257,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.5</version>
+            <version>4.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -295,7 +287,7 @@
                 <plugin>
                     <groupId>com.springsource.bundlor</groupId>
                     <artifactId>com.springsource.bundlor.maven</artifactId>
-                    <version>1.0.0.M2</version>
+                    <version>1.0.0.BUILD-20090617.134232-66</version>
                     <executions>
                         <execution>
                             <id>bundlor</id>
