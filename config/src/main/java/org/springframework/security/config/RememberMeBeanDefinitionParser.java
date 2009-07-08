@@ -6,6 +6,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -28,6 +29,7 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
     static final String ATT_DATA_SOURCE = "data-source-ref";
     static final String ATT_SERVICES_REF = "services-ref";
+    static final String ATT_SERVICES_ALIAS = "services-alias";
     static final String ATT_TOKEN_REPOSITORY = "token-repository-ref";
     static final String ATT_USER_SERVICE_REF = "user-service-ref";
     static final String ATT_TOKEN_VALIDITY = "token-validity-seconds";
@@ -103,12 +105,14 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             }
             services.setSource(source);
             services.getPropertyValues().addPropertyValue(ATT_KEY, key);
-            pc.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_SERVICES, services);
-            pc.registerBeanComponent(new BeanComponentDefinition(services, BeanIds.REMEMBER_ME_SERVICES));
-            servicesName = BeanIds.REMEMBER_ME_SERVICES;
+            servicesName = pc.getReaderContext().registerWithGeneratedName(services);
+            pc.registerBeanComponent(new BeanComponentDefinition(services, servicesName));
         } else {
             servicesName = rememberMeServicesRef;
-            pc.getRegistry().registerAlias(rememberMeServicesRef, BeanIds.REMEMBER_ME_SERVICES);
+        }
+
+        if (StringUtils.hasText(element.getAttribute(ATT_SERVICES_ALIAS))) {
+            pc.getRegistry().registerAlias(servicesName, element.getAttribute(ATT_SERVICES_ALIAS));
         }
 
         RootBeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
@@ -128,14 +132,11 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private BeanDefinition createFilter(ParserContext pc, Object source) {
-        RootBeanDefinition filter = new RootBeanDefinition(RememberMeProcessingFilter.class);
-        filter.setSource(source);
-        filter.getPropertyValues().addPropertyValue("authenticationManager",
-                new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
+        BeanDefinitionBuilder filter = BeanDefinitionBuilder.rootBeanDefinition(RememberMeProcessingFilter.class);
+        filter.getRawBeanDefinition().setSource(source);
+        filter.addPropertyReference("authenticationManager", BeanIds.AUTHENTICATION_MANAGER);
+        filter.addPropertyReference("rememberMeServices", servicesName);
 
-        filter.getPropertyValues().addPropertyValue("rememberMeServices",
-                new RuntimeBeanReference(BeanIds.REMEMBER_ME_SERVICES));
-
-        return filter;
+        return filter.getBeanDefinition();
     }
 }
