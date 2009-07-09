@@ -3,9 +3,9 @@
     <parent>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-parent</artifactId>
-        <version>2.0.5-SNAPSHOT</version>
+        <version>2.0.5.CI-SNAPSHOT</version>
     </parent>
-    <packaging>bundle</packaging>    
+    <packaging>jar</packaging>    
     <artifactId>spring-security-core-tiger</artifactId>
     <name>Spring Security - Java 5 (Tiger)</name>
 
@@ -59,39 +59,10 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.springsource.bundlor</groupId>
+                <artifactId>com.springsource.bundlor.maven</artifactId>
+            </plugin>            
         </plugins>
     </build>
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <configuration>
-                    <targetJdk>1.5</targetJdk>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
-
-    <properties>
-      	<spring.osgi.export>
-      	    org.springframework.security.*;version=${pom.version}
-      	</spring.osgi.export>
-            
-    	<spring.osgi.import>
-    	    javax.annotation.*;version="[1.0.0, 2.0.0)",
-    	    org.springframework.security.*;version="[${pom.version.osgi},${pom.version.osgi}]",
-    	    org.springframework.core.*;version="${spring.version.osgi}"
-    	</spring.osgi.import>
-
-    	<spring.osgi.private.pkg>
-    	    !org.springframework.security.*
-    	</spring.osgi.private.pkg>
-    	
-    	<spring.osgi.include.res>
-    	    src/main/resources
-    	</spring.osgi.include.res>
-
-    	<spring.osgi.symbolic.name>org.springframework.security.annotation</spring.osgi.symbolic.name>        
-    </properties>    
 </project>

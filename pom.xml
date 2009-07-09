@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-parent</artifactId>
-    <version>2.0.5-SNAPSHOT</version>
+    <version>2.0.5.CI-SNAPSHOT</version>
     <name>Spring Security</name>
     <packaging>pom</packaging>
 
@@ -38,9 +38,9 @@
 
     <!-- Note when doing releases: tagBase is set in release plugin configuration below -->
     <scm>
-        <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk</connection>
-        <developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk</developerConnection>
-        <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/spring-security/trunk/</url>
+        <connection>scm:svn:https://src.springframework.org/svn/spring-security/branches/2.0.x-branch/</connection>
+        <developerConnection>scm:svn:https://src.springframework.org/svn/spring-security/branches/2.0.x-branch/</developerConnection>
+        <url>https://src.springframework.org/svn/spring-security/branches/2.0.x-branch/</url>
     </scm>
 
     <issueManagement>
@@ -64,16 +64,6 @@
             <name>Spring Snapshot Repository</name>
             <url>s3://maven.springframework.org/snapshot</url>
         </snapshotRepository>
-
-        <site>
-            <id>local</id>
-            <name>Local Site Directory</name>
-            <!--
-            This variable is set by the build release script. You can also set it on the command line if
-            you are running maven directly. e.g. mvn site -DsiteDirectory=file:///home/joe/mysite
-            -->
-            <url>${siteDirectory}</url>
-        </site>
     </distributionManagement>
 
     <repositories>
@@ -83,6 +73,19 @@
 			<url>http://s3.amazonaws.com/maven.springframework.org/external</url>
 		</repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>com.springsource.repository.maven.milestone</id>
+            <name>SpringSource Enterprise Bundle Repository - SpringSource Milestone Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/milestone</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>com.springsource.repository.bundles.snapshot</id>
+            <name>SpringSource Enterprise Bundle Repository - Snapshots</name>
+            <url>http://repository.springsource.com/maven/bundles/snapshot</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <mailingLists>
         <mailingList>
@@ -236,11 +239,29 @@
     <build>
         <extensions>
             <extension>
-                <groupId>org.springframework.aws</groupId>
-                <artifactId>spring-aws-maven</artifactId>
-                <version>1.2.2</version>
+                <groupId>org.springframework.build.aws</groupId>
+                <artifactId>org.springframework.build.aws.maven</artifactId>
+                <version>2.0.0.RELEASE</version>
             </extension>
         </extensions>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.springsource.bundlor</groupId>
+                    <artifactId>com.springsource.bundlor.maven</artifactId>
+                    <version>1.0.0.BUILD-20090617.134232-66</version>
+                    <executions>
+                        <execution>
+                            <id>bundlor</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>transform</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -364,7 +385,7 @@
                 <version>2.0-beta-7</version>
                 <configuration>
                     <tagBase>
-                        https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/tags
+                        https://src.springframework.org/svn/spring-security/tags
                     </tagBase>
                 </configuration>
             </plugin>
@@ -449,35 +470,6 @@
                     </postProcess>
                 </configuration>
             </plugin>
-             <!-- OSGi Felix bundle plugin -->
-             <plugin>
-                 <groupId>org.apache.felix</groupId>
-                 <artifactId>maven-bundle-plugin</artifactId>
-                 <version>1.4.0</version>
-                 <extensions>true</extensions>
-
-                 <configuration>
-                     <obrRepository>NONE</obrRepository>        
-                     <instructions>
-                         <!-- bundle specific conf -->      
-                         <Bundle-Name>${artifactId}</Bundle-Name>
-                         <Bundle-SymbolicName>${spring.osgi.symbolic.name}</Bundle-SymbolicName>
-                         <Bundle-Vendor>SpringSource</Bundle-Vendor>
-                         <Export-Package>${spring.osgi.export}</Export-Package>
-                         <Import-Package>${spring.osgi.import}</Import-Package>
-                         <Private-Package>${spring.osgi.private.pkg}</Private-Package>
-                         <!--Include-Resource>${spring.osgi.include.res}</Include-Resource-->
-                         <!-- jar entries -->
-                         <Implementation-Title>Spring Security</Implementation-Title>
-                         <Implementation-Version>${pom.version}</Implementation-Version>
-                         <Implementation-Vendor>SpringSource</Implementation-Vendor>
-                         <Implementation-Vendor-Id>org.springframework.security</Implementation-Vendor-Id>
-                         <!-- Spring specific entries -->                         
-                         <!--Spring-Version>${spring.maven.artifact.version}</Spring-Version-->
-                     </instructions>
-                     <excludeDependencies>true</excludeDependencies> 
-                 </configuration>
-             </plugin>             
         </plugins>
     </build>
 
@@ -723,13 +715,11 @@
                 <artifactId>standard</artifactId>
                 <version>${jstl.version}</version>
                 <scope>runtime</scope>
-            </dependency>                        
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <properties>
-        <pom.version.osgi>2.0.3.RELEASE</pom.version.osgi>
         <spring.version>2.0.8</spring.version>
-        <spring.version.osgi>[2.0.8, 3.0.0)</spring.version.osgi>
         <jstl.version>1.1.2</jstl.version>
 
         <docbook.source>${basedir}/src/docbkx</docbook.source>
