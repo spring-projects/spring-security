@@ -1,0 +1,15 @@
+Bundle-SymbolicName: org.springframework.security.openid
+Bundle-Name: Spring Security OpenID Support
+Bundle-Vendor: SpringSource
+Bundle-Version: ${version}
+Bundle-ManifestVersion: 2
+Ignored-Existing-Headers: 
+ Import-Package,
+ Export-Package
+Import-Template:
+ javax.servlet.*;version="[2.4.0, 3.0.0)",
+ org.apache.commons.logging.*;version="[1.0.4, 2.0.0)",
+ org.openid4java.*;version="[0.9.3, 1.0.0)", 
+ org.springframework.security.*;version="[${version},${version}]",
+ org.springframework.beans.*;version="[2.0.8, 3.1.0)",
+ org.springframework.util.*;version="[2.0.8, 3.1.0)" 
