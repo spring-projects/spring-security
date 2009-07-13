@@ -44,7 +44,7 @@ Release jars for the project are available from the central maven repository
 http://repo1.maven.org/maven2/org/springframework/security/
 
 Note that milestone releases and snapshots are not uploaded to the central
-repository, but can be obtained from te Spring milestone repository.
+repository, but can be obtained from the Spring milestone repository.
 This blog article has full details on how to download milestone or snapshot
 jars or use them in a Maven-based project build:
 
@@ -64,14 +64,7 @@ people who wrote Spring Security, and lead the development of the project:
 For peer help and assistance, please use the Spring Security forum
 located at the Spring Community's forum site: 
 
-  http://forum.springframework.org
-
-If you start using Spring Security in your project, please consider joining
-the acegisecurity-developer mailing list. This is currently the best way to
-keep informed about the project's status and provide feedback in design 
-discussions. You can join at:
-
-  https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer.
+  http://forum.springsource.org
 
 Links to mailing list archives, the forums, and other useful resources are
 available from the web site.
