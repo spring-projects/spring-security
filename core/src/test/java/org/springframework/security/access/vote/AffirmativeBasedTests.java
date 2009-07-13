@@ -16,19 +16,20 @@
 package org.springframework.security.access.vote;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.vote.AffirmativeBased;
-import org.springframework.security.access.vote.RoleVoter;
+import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.Authentication;
 
 
 /**
@@ -38,75 +39,66 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  * @version $Id$
  */
 public class AffirmativeBasedTests {
+    private final List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>();
+    private final Authentication user = new TestingAuthenticationToken("somebody", "password","ROLE_1", "ROLE_2");
+    private AffirmativeBased mgr;
+    private AccessDecisionVoter grant;
+    private AccessDecisionVoter abstain;
+    private AccessDecisionVoter deny;
 
-    private AffirmativeBased makeDecisionManager() {
-        AffirmativeBased decisionManager = new AffirmativeBased();
-        RoleVoter roleVoter = new RoleVoter();
-        DenyVoter denyForSureVoter = new DenyVoter();
-        DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
-        List<AccessDecisionVoter> voters = new ArrayList<AccessDecisionVoter>();
-        voters.add(roleVoter);
-        voters.add(denyForSureVoter);
-        voters.add(denyAgainForSureVoter);
-        decisionManager.setDecisionVoters(voters);
+    @Before
+    @SuppressWarnings("unchecked")
+    public void setup() {
+        mgr = new AffirmativeBased();
 
-        return decisionManager;
-    }
+        grant = mock(AccessDecisionVoter.class);
+        abstain = mock(AccessDecisionVoter.class);
+        deny = mock(AccessDecisionVoter.class);
 
-    private TestingAuthenticationToken makeTestToken() {
-        return new TestingAuthenticationToken("somebody", "password",
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl("ROLE_2")});
-    }
-
-    @Test
-    public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccess() throws Exception {
-        TestingAuthenticationToken auth = makeTestToken();
-        AffirmativeBased mgr = makeDecisionManager();
-
-        mgr.decide(auth, new Object(), SecurityConfig.createList(new String[]{"ROLE_1", "DENY_FOR_SURE"}));
+        when(grant.vote(any(Authentication.class), any(Object.class), any(List.class))).thenReturn(AccessDecisionVoter.ACCESS_GRANTED);
+        when(abstain.vote(any(Authentication.class), any(Object.class), any(List.class))).thenReturn(AccessDecisionVoter.ACCESS_ABSTAIN);
+        when(deny.vote(any(Authentication.class), any(Object.class), any(List.class))).thenReturn(AccessDecisionVoter.ACCESS_DENIED);
     }
 
     @Test
-    public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() throws Exception {
-        TestingAuthenticationToken auth = makeTestToken();
-        AffirmativeBased mgr = makeDecisionManager();
+    public void oneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccess() throws Exception {
+        mgr.setDecisionVoters(Arrays.asList(grant, deny, abstain));
+        mgr.afterPropertiesSet();
+        mgr.decide(user, new Object(), attrs);
+    }
 
-        mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_2"));
+    @Test
+    public void oneDenyVoteOneAbstainVoteOneAffirmativeVoteGrantsAccess() throws Exception {
+        mgr.setDecisionVoters(Arrays.asList(deny, abstain, grant));
+        mgr.decide(user, new Object(), attrs);
+    }
+
+    @Test
+    public void oneAffirmativeVoteTwoAbstainVotesGrantsAccess() throws Exception {
+        mgr.setDecisionVoters(Arrays.asList(grant, abstain, abstain));
+        mgr.decide(user, new Object(), attrs);
     }
 
     @Test(expected=AccessDeniedException.class)
-    public void testOneDenyVoteTwoAbstainVotesDeniesAccess() throws Exception {
-        TestingAuthenticationToken auth = makeTestToken();
-        AffirmativeBased mgr = makeDecisionManager();
-
-        mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_WE_DO_NOT_HAVE"));
+    public void oneDenyVoteTwoAbstainVotesDeniesAccess() throws Exception {
+        mgr.setDecisionVoters(Arrays.asList(deny, abstain, abstain));
+        mgr.decide(user, new Object(), attrs);
     }
 
     @Test(expected=AccessDeniedException.class)
-    public void testThreeAbstainVotesDeniesAccessWithDefault() throws Exception {
-        TestingAuthenticationToken auth = makeTestToken();
-        AffirmativeBased mgr = makeDecisionManager();
-
+    public void onlyAbstainVotesDeniesAccessWithDefault() throws Exception {
+        mgr.setDecisionVoters(Arrays.asList(abstain, abstain, abstain));
         assertTrue(!mgr.isAllowIfAllAbstainDecisions()); // check default
 
-        mgr.decide(auth, new Object(), SecurityConfig.createList("IGNORED_BY_ALL"));
+        mgr.decide(user, new Object(), attrs);
     }
 
     @Test
-    public void testThreeAbstainVotesGrantsAccessWithoutDefault() throws Exception {
-        TestingAuthenticationToken auth = makeTestToken();
-        AffirmativeBased mgr = makeDecisionManager();
+    public void testThreeAbstainVotesGrantsAccessIfAllowIfAllAbstainDecisionsIsSet() throws Exception {
+        mgr.setDecisionVoters(Arrays.asList(abstain, abstain, abstain));
         mgr.setAllowIfAllAbstainDecisions(true);
         assertTrue(mgr.isAllowIfAllAbstainDecisions()); // check changed
 
-        mgr.decide(auth, new Object(), SecurityConfig.createList("IGNORED_BY_ALL"));
-    }
-
-    @Test
-    public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() throws Exception {
-        TestingAuthenticationToken auth = makeTestToken();
-        AffirmativeBased mgr = makeDecisionManager();
-
-        mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_1", "ROLE_2"));
+        mgr.decide(user, new Object(), attrs);
     }
 }
