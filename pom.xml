@@ -66,24 +66,11 @@
         </snapshotRepository>
     </distributionManagement>
 
-    <repositories>
-		<repository>
-			<id>spring-external</id>
-			<name>Spring Portfolio Release Repository</name>
-			<url>http://s3.amazonaws.com/maven.springframework.org/external</url>
-		</repository>
-    </repositories>
-
     <pluginRepositories>
         <pluginRepository>
             <id>com.springsource.repository.maven.milestone</id>
             <name>SpringSource Enterprise Bundle Repository - SpringSource Milestone Releases</name>
             <url>http://repository.springsource.com/maven/bundles/milestone</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>com.springsource.repository.bundles.snapshot</id>
-            <name>SpringSource Enterprise Bundle Repository - Snapshots</name>
-            <url>http://repository.springsource.com/maven/bundles/snapshot</url>
         </pluginRepository>
     </pluginRepositories>
 
