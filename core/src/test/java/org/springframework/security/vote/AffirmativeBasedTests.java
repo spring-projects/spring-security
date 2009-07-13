@@ -35,15 +35,6 @@ import java.util.Vector;
  * @version $Id$
  */
 public class AffirmativeBasedTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AffirmativeBasedTests() {
-        super();
-    }
-
-    public AffirmativeBasedTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
 
@@ -53,25 +44,24 @@ public class AffirmativeBasedTests extends TestCase {
 
     private AffirmativeBased makeDecisionManager() {
         AffirmativeBased decisionManager = new AffirmativeBased();
-        RoleVoter roleVoter = new RoleVoter();
-        DenyVoter denyForSureVoter = new DenyVoter();
-        DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
         List voters = new Vector();
-        voters.add(roleVoter);
-        voters.add(denyForSureVoter);
-        voters.add(denyAgainForSureVoter);
+        voters.add(new RoleVoter());
+        voters.add(new DenyVoter());
+        voters.add(new DenyAgainVoter());
         decisionManager.setDecisionVoters(voters);
 
         return decisionManager;
     }
 
     private TestingAuthenticationToken makeTestToken() {
-        return new TestingAuthenticationToken("somebody", "password",
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl("ROLE_2")});
+        return new TestingAuthenticationToken("somebody", "password", "ROLE_1","ROLE_2");
     }
 
-    public final void setUp() throws Exception {
-        super.setUp();
+    public void testOneAffirmativeGrantsAccess(){
+        AffirmativeBased mgr = makeDecisionManager();
+
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "ROLE_2"});
+        mgr.decide(new TestingAuthenticationToken("somebody", "password", "ROLE_1"), new Object(), config);
     }
 
     public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccess()
@@ -82,7 +72,6 @@ public class AffirmativeBasedTests extends TestCase {
         ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "DENY_FOR_SURE"});
 
         mgr.decide(auth, new Object(), config);
-        assertTrue(true);
     }
 
     public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess()
@@ -93,7 +82,6 @@ public class AffirmativeBasedTests extends TestCase {
         ConfigAttributeDefinition config = new ConfigAttributeDefinition("ROLE_2");
 
         mgr.decide(auth, new Object(), config);
-        assertTrue(true);
     }
 
     public void testOneDenyVoteTwoAbstainVotesDeniesAccess()
@@ -107,7 +95,6 @@ public class AffirmativeBasedTests extends TestCase {
             mgr.decide(auth, new Object(), config);
             fail("Should have thrown AccessDeniedException");
         } catch (AccessDeniedException expected) {
-            assertTrue(true);
         }
     }
 
@@ -124,7 +111,6 @@ public class AffirmativeBasedTests extends TestCase {
             mgr.decide(auth, new Object(), config);
             fail("Should have thrown AccessDeniedException");
         } catch (AccessDeniedException expected) {
-            assertTrue(true);
         }
     }
 
@@ -138,10 +124,9 @@ public class AffirmativeBasedTests extends TestCase {
         ConfigAttributeDefinition config = new ConfigAttributeDefinition("IGNORED_BY_ALL");
 
         mgr.decide(auth, new Object(), config);
-        assertTrue(true);
     }
 
-    public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess()
+    public void testOneAffirmativeVotesTwoAbstainVotesGrantsAccess()
         throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         AffirmativeBased mgr = makeDecisionManager();
@@ -149,6 +134,5 @@ public class AffirmativeBasedTests extends TestCase {
         ConfigAttributeDefinition config = new ConfigAttributeDefinition(new String[]{"ROLE_1", "ROLE_2"});
 
         mgr.decide(auth, new Object(), config);
-        assertTrue(true);
     }
 }
