@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-parent</artifactId>
-    <version>2.0.5.CI-SNAPSHOT</version>
+    <version>2.0.5.RELEASE</version>
     <name>Spring Security</name>
     <packaging>pom</packaging>
 
@@ -38,9 +38,9 @@
 
     <!-- Note when doing releases: tagBase is set in release plugin configuration below -->
     <scm>
-        <connection>scm:svn:https://src.springframework.org/svn/spring-security/branches/2.0.x-branch/</connection>
-        <developerConnection>scm:svn:https://src.springframework.org/svn/spring-security/branches/2.0.x-branch/</developerConnection>
-        <url>https://src.springframework.org/svn/spring-security/branches/2.0.x-branch/</url>
+        <connection>scm:svn:https://src.springframework.org/svn/spring-security/tags/spring-security-2.0.5.RELEASE</connection>
+        <developerConnection>scm:svn:https://src.springframework.org/svn/spring-security/tags/spring-security-2.0.5.RELEASE</developerConnection>
+        <url>https://src.springframework.org/svn/spring-security/tags/spring-security-2.0.5.RELEASE</url>
     </scm>
 
     <issueManagement>
