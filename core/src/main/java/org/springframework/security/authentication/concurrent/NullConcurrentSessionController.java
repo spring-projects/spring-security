@@ -25,7 +25,7 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  * @version $Id$
  */
-public class NullConcurrentSessionController implements ConcurrentSessionController {
+class NullConcurrentSessionController implements ConcurrentSessionController {
     //~ Methods ========================================================================================================
 
     public void checkAuthenticationAllowed(Authentication request)

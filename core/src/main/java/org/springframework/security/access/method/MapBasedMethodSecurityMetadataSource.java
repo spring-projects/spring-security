@@ -106,7 +106,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
      * @param name type and method name, separated by a dot
      * @param attr required authorities associated with the method
      */
-    public void addSecureMethod(String name, List<ConfigAttribute> attr) {
+    private void addSecureMethod(String name, List<ConfigAttribute> attr) {
         int lastDotIndex = name.lastIndexOf(".");
 
         if (lastDotIndex == -1) {

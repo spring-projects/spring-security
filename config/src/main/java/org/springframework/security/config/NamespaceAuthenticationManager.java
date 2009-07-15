@@ -30,8 +30,6 @@ public class NamespaceAuthenticationManager extends ProviderManager implements B
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(providerBeanNames, "provideBeanNames has not been set");
         Assert.notEmpty(providerBeanNames, "No authentication providers were found in the application context");
-
-        super.afterPropertiesSet();
     }
 
     /**

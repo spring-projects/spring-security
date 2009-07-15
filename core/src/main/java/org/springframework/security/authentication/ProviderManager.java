@@ -15,38 +15,18 @@
 
 package org.springframework.security.authentication;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
 import org.springframework.security.authentication.concurrent.ConcurrentSessionController;
-import org.springframework.security.authentication.concurrent.NullConcurrentSessionController;
-import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
-import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
-import org.springframework.security.authentication.event.AuthenticationFailureConcurrentLoginEvent;
-import org.springframework.security.authentication.event.AuthenticationFailureCredentialsExpiredEvent;
-import org.springframework.security.authentication.event.AuthenticationFailureDisabledEvent;
-import org.springframework.security.authentication.event.AuthenticationFailureExpiredEvent;
-import org.springframework.security.authentication.event.AuthenticationFailureLockedEvent;
-import org.springframework.security.authentication.event.AuthenticationFailureProviderNotFoundEvent;
-import org.springframework.security.authentication.event.AuthenticationFailureProxyUntrustedEvent;
-import org.springframework.security.authentication.event.AuthenticationFailureServiceExceptionEvent;
-import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 
@@ -69,72 +49,40 @@ import org.springframework.util.Assert;
  * concurrent session controller throws a {@link ConcurrentLoginException}. In both these cases, no further providers
  * in the list will be queried.
  *
+ * <h2>Event Publishing</h2>
  * <p>
- * If a valid <code>Authentication</code> is returned by an <code>AuthenticationProvider</code>, the
- * <code>ProviderManager</code> will publish an
- * {@link org.springframework.security.authentication.event.AuthenticationSuccessEvent}. If an
- * <code>AuthenticationException</code> is detected, the final <code>AuthenticationException</code> thrown will be
- * used to publish an appropriate failure event. By default <code>ProviderManager</code> maps common exceptions to
- * events, but this can be fine-tuned by providing a new <code>exceptionMappings</code><code>java.util.Properties</code>
- * object. In the properties object, each of the keys represent the fully qualified classname of the exception, and
- * each of the values represent the name of an event class which subclasses
- * {@link org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent}
- * and provides its constructor.
- *
+ * Authentication event publishing is delegated to the configured {@link AuthenticationEventPublisher} which defaults
+ * to a null implementation which doesn't publish events, so if you are configuring the bean yourself you must inject
+ * a publisher bean if you want to receive events. The standard implementation is {@link DefaultAuthenticationEventPublisher}
+ * which maps common exceptions to events (in the case of authentication failure) and publishes an
+ * {@link org.springframework.security.authentication.event.AuthenticationSuccessEvent AuthenticationSuccessEvent} if
+ * authentication succeeds. If you are using the namespace then an instance of this bean will be used automatically by
+ * the <tt>&lt;http&gt;</tt> configuration, so you will receive events from the web part of your application automatically.
+ * <p>
+ * Note that the implementation also publishes authentication failure events when it obtains an authentication result
+ * (or an exception) from the "parent" <tt>AuthenticationManager</tt> if one has been set. So in this situation, the
+ * parent should not generally be configured to publish events or there will be duplicates.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  * @version $Id$
  * @see ConcurrentSessionController
+ * @see DefaultAuthenticationEventPublisher
  */
-public class ProviderManager extends AbstractAuthenticationManager implements InitializingBean, MessageSourceAware,
-        ApplicationEventPublisherAware  {
+public class ProviderManager extends AbstractAuthenticationManager implements MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(ProviderManager.class);
-    private static final Properties DEFAULT_EXCEPTION_MAPPINGS = new Properties();
 
     //~ Instance fields ================================================================================================
 
-    private ApplicationEventPublisher applicationEventPublisher;
+    private AuthenticationEventPublisher eventPublisher = new NullEventPublisher();
     private ConcurrentSessionController sessionController = new NullConcurrentSessionController();
     private List<AuthenticationProvider> providers;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-    private Properties exceptionMappings = new Properties();
-    private Properties additionalExceptionMappings = new Properties();
-
-    static {
-        DEFAULT_EXCEPTION_MAPPINGS.put(AccountExpiredException.class.getName(),
-                AuthenticationFailureExpiredEvent.class.getName());
-        DEFAULT_EXCEPTION_MAPPINGS.put(AuthenticationServiceException.class.getName(),
-                AuthenticationFailureServiceExceptionEvent.class.getName());
-        DEFAULT_EXCEPTION_MAPPINGS.put(LockedException.class.getName(),
-                AuthenticationFailureLockedEvent.class.getName());
-        DEFAULT_EXCEPTION_MAPPINGS.put(CredentialsExpiredException.class.getName(),
-                AuthenticationFailureCredentialsExpiredEvent.class.getName());
-        DEFAULT_EXCEPTION_MAPPINGS.put(DisabledException.class.getName(),
-                AuthenticationFailureDisabledEvent.class.getName());
-        DEFAULT_EXCEPTION_MAPPINGS.put(BadCredentialsException.class.getName(),
-                AuthenticationFailureBadCredentialsEvent.class.getName());
-        DEFAULT_EXCEPTION_MAPPINGS.put(UsernameNotFoundException.class.getName(),
-                AuthenticationFailureBadCredentialsEvent.class.getName());
-        DEFAULT_EXCEPTION_MAPPINGS.put(ConcurrentLoginException.class.getName(),
-                AuthenticationFailureConcurrentLoginEvent.class.getName());
-        DEFAULT_EXCEPTION_MAPPINGS.put(ProviderNotFoundException.class.getName(),
-                AuthenticationFailureProviderNotFoundEvent.class.getName());
-        DEFAULT_EXCEPTION_MAPPINGS.put("org.springframework.security.authentication.cas.ProxyUntrustedException",
-                AuthenticationFailureProxyUntrustedEvent.class.getName());
-    }
-
-    public ProviderManager() {
-        exceptionMappings.putAll(DEFAULT_EXCEPTION_MAPPINGS);
-    }
+    private AuthenticationManager parent;
 
     //~ Methods ========================================================================================================
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.messages, "A message source must be set");
-        exceptionMappings.putAll(additionalExceptionMappings);
-    }
 
     /**
      * Attempts to authenticate the passed {@link Authentication} object.
@@ -157,6 +105,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     public Authentication doAuthentication(Authentication authentication) throws AuthenticationException {
         Class<? extends Authentication> toTest = authentication.getClass();
         AuthenticationException lastException = null;
+        Authentication result = null;
 
         for (AuthenticationProvider provider : getProviders()) {
             if (!provider.supports(toTest)) {
@@ -165,79 +114,57 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
 
             logger.debug("Authentication attempt using " + provider.getClass().getName());
 
-            Authentication result;
-
             try {
                 result = provider.authenticate(authentication);
 
-                if (result == null) {
-                    continue;
+                if (result != null) {
+                    copyDetails(authentication, result);
+                    break;
                 }
             } catch (AccountStatusException e) {
                 // SEC-546: Avoid polling additional providers if auth failure is due to invalid account status
-                lastException = e;
-                break;
+                eventPublisher.publishAuthenticationFailure(e, authentication);
+                throw e;
             } catch (AuthenticationException e) {
                 lastException = e;
-                continue;
             }
-
-            assert result != null;
-
-            copyDetails(authentication, result);
-
-            try {
-                sessionController.checkAuthenticationAllowed(result);
-            } catch (AuthenticationException e) {
-             // SEC-546: Avoid polling additional providers if concurrent login check fails
-                lastException = e;
-                break;
-            }
-
-            sessionController.registerSuccessfulAuthentication(result);
-            publishEvent(new AuthenticationSuccessEvent(result));
-
-            return result;
         }
+
+        if (result == null && parent != null) {
+            // Allow the parent to try.
+            try {
+                result = parent.authenticate(authentication);
+            } catch (ProviderNotFoundException e) {
+                // ignore as we will throw below if no other exception occurred prior to calling parent and the parent
+                // may throw ProviderNotFound even though a provider in the child already handled the request
+            } catch (AuthenticationException e) {
+                lastException = e;
+            }
+        }
+
+        // Finally check if the concurrent session controller will allow authentication
+        try {
+            if (result != null) {
+                sessionController.checkAuthenticationAllowed(result);
+                sessionController.registerSuccessfulAuthentication(result);
+                eventPublisher.publishAuthenticationSuccess(result);
+
+                return result;
+            }
+        } catch (AuthenticationException e) {
+            lastException = e;
+        }
+
+        // Session control failed, parent was null, or didn't authenticate (or throw an exception).
 
         if (lastException == null) {
             lastException = new ProviderNotFoundException(messages.getMessage("ProviderManager.providerNotFound",
                         new Object[] {toTest.getName()}, "No AuthenticationProvider found for {0}"));
         }
 
-        publishAuthenticationFailure(lastException, authentication);
+        eventPublisher.publishAuthenticationFailure(lastException, authentication);
 
         throw lastException;
-    }
-
-    private void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
-        String className = exceptionMappings.getProperty(exception.getClass().getName());
-        AbstractAuthenticationEvent event = null;
-
-        if (className != null) {
-            try {
-                Class<?> clazz = getClass().getClassLoader().loadClass(className);
-                Constructor<?> constructor = clazz.getConstructor(new Class[] {
-                            Authentication.class, AuthenticationException.class
-                        });
-                Object obj = constructor.newInstance(authentication, exception);
-                Assert.isInstanceOf(AbstractAuthenticationEvent.class, obj, "Must be an AbstractAuthenticationEvent");
-                event = (AbstractAuthenticationEvent) obj;
-            } catch (ClassNotFoundException ignored) {}
-            catch (NoSuchMethodException ignored) {}
-            catch (IllegalAccessException ignored) {}
-            catch (InstantiationException ignored) {}
-            catch (InvocationTargetException ignored) {}
-        }
-
-        if (event != null) {
-            publishEvent(event);
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("No event was found for the exception " + exception.getClass().getName());
-            }
-        }
-
     }
 
     /**
@@ -273,12 +200,16 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
         return sessionController;
     }
 
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
-
     public void setMessageSource(MessageSource messageSource) {
         this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    public void setParent(AuthenticationManager parent) {
+        this.parent = parent;
+    }
+
+    public void setAuthenticationEventPublisher(AuthenticationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -302,7 +233,6 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
 
     /**
      * Set the {@link ConcurrentSessionController} to be used for limiting users' sessions.
-     * The {@link NullConcurrentSessionController} is used by default.
      *
      * @param sessionController {@link ConcurrentSessionController}
      */
@@ -310,20 +240,13 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
         this.sessionController = sessionController;
     }
 
-    private void publishEvent(ApplicationEvent event) {
-        if (applicationEventPublisher != null) {
-            applicationEventPublisher.publishEvent(event);
-        }
+    private static final class NullEventPublisher implements AuthenticationEventPublisher {
+        public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {}
+        public void publishAuthenticationSuccess(Authentication authentication) {}
     }
 
-    /**
-     * Sets additional exception to event mappings. These are automatically merged with the default
-     * exception to event mappings that <code>ProviderManager</code> defines.
-     *
-     * @param additionalExceptionMappings where keys are the fully-qualified string name of the exception class and the
-     * values are the fully-qualified string name of the event class to fire.
-     */
-    public void setAdditionalExceptionMappings(Properties additionalExceptionMappings) {
-        this.additionalExceptionMappings = additionalExceptionMappings;
+    private static final class NullConcurrentSessionController implements ConcurrentSessionController {
+        public void checkAuthenticationAllowed(Authentication request) {}
+        public void registerSuccessfulAuthentication(Authentication authentication) {}
     }
 }
