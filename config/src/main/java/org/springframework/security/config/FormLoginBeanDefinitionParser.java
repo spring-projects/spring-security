@@ -81,8 +81,6 @@ public class FormLoginBeanDefinitionParser {
         filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault, loginPage, authenticationFailureUrl,
                 successHandlerRef, failureHandlerRef);
         filterBean.setSource(source);
-        filterBean.getPropertyValues().addPropertyValue("authenticationManager",
-                new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
 
         // Copy session migration values from the session fixation protection filter
         if (sfpf != null) {

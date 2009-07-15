@@ -14,7 +14,6 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
-import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
@@ -115,26 +114,15 @@ public class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             pc.getRegistry().registerAlias(servicesName, element.getAttribute(ATT_SERVICES_ALIAS));
         }
 
-        RootBeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
-        provider.setSource(source);
-        provider.getPropertyValues().addPropertyValue(ATT_KEY, key);
-        pc.getRegistry().registerBeanDefinition(BeanIds.REMEMBER_ME_AUTHENTICATION_PROVIDER, provider);
-        ConfigUtils.addAuthenticationProvider(pc, BeanIds.REMEMBER_ME_AUTHENTICATION_PROVIDER, element);
-
         BeanDefinition filter = createFilter(pc, source);
         pc.popAndRegisterContainingComponent();
 
         return filter;
     }
 
-    String getServicesName() {
-        return servicesName;
-    }
-
     private BeanDefinition createFilter(ParserContext pc, Object source) {
         BeanDefinitionBuilder filter = BeanDefinitionBuilder.rootBeanDefinition(RememberMeProcessingFilter.class);
         filter.getRawBeanDefinition().setSource(source);
-        filter.addPropertyReference("authenticationManager", BeanIds.AUTHENTICATION_MANAGER);
         filter.addPropertyReference("rememberMeServices", servicesName);
 
         return filter.getBeanDefinition();

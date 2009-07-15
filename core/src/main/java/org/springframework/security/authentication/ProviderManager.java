@@ -15,10 +15,12 @@
 
 package org.springframework.security.authentication;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -69,7 +71,7 @@ import org.springframework.util.Assert;
  * @see ConcurrentSessionController
  * @see DefaultAuthenticationEventPublisher
  */
-public class ProviderManager extends AbstractAuthenticationManager implements MessageSourceAware {
+public class ProviderManager extends AbstractAuthenticationManager implements MessageSourceAware, InitializingBean {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(ProviderManager.class);
@@ -78,11 +80,18 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
 
     private AuthenticationEventPublisher eventPublisher = new NullEventPublisher();
     private ConcurrentSessionController sessionController = new NullConcurrentSessionController();
-    private List<AuthenticationProvider> providers;
+    private List<AuthenticationProvider> providers = Collections.emptyList();
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private AuthenticationManager parent;
 
     //~ Methods ========================================================================================================
+
+    public void afterPropertiesSet() throws Exception {
+        if (parent == null && providers.isEmpty()) {
+            throw new IllegalArgumentException("A parent AuthenticationManager or a list " +
+                    "of AuthenticationProviders is required");
+        }
+    }
 
     /**
      * Attempts to authenticate the passed {@link Authentication} object.
@@ -222,8 +231,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
      */
     @SuppressWarnings("unchecked")
     public void setProviders(List providers) {
-        Assert.notEmpty(providers, "A list of AuthenticationProviders is required");
-
+        Assert.notNull(providers);
         for(Object currentObject : providers) {
             Assert.isInstanceOf(AuthenticationProvider.class, currentObject, "Can only provide AuthenticationProvider instances");
         }

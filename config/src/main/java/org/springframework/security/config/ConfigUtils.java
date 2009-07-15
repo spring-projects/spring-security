@@ -2,9 +2,7 @@ package org.springframework.security.config;
 
 import java.util.ArrayList;
 
-import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
@@ -27,7 +25,6 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 abstract class ConfigUtils {
-
     @SuppressWarnings("unchecked")
     static void registerDefaultMethodAccessManagerIfNecessary(ParserContext parserContext) {
         if (!parserContext.getRegistry().containsBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER)) {
@@ -69,7 +66,6 @@ abstract class ConfigUtils {
      * @param element the source element under which this bean should be registered.
      */
     static void registerProviderManagerIfNecessary(ParserContext pc, Element element) {
-
         if(pc.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER)) {
             return;
         }
@@ -118,16 +114,16 @@ abstract class ConfigUtils {
         pc.getReaderContext().warning(url + " is not a valid redirect URL (must start with '/' or http(s))", source);
     }
 
-    static void setSessionControllerOnAuthenticationManager(ParserContext pc, String beanName, Element sourceElt) {
-        BeanDefinition authManager = pc.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
-        PropertyValue pv = authManager.getPropertyValues().getPropertyValue("sessionController");
-
-        if (pv != null && pv.getValue() != null) {
-            pc.getReaderContext().error("A session controller has already been set on the authentication manager. " +
-                    "The <concurrent-session-control> element isn't compatible with a custom session controller",
-                    pc.extractSource(sourceElt));
-        }
-
-        authManager.getPropertyValues().addPropertyValue("sessionController", new RuntimeBeanReference(beanName));
-    }
+//    static void setSessionControllerOnAuthenticationManager(ParserContext pc, String beanName, Element sourceElt) {
+//        BeanDefinition authManager = pc.getRegistry().getBeanDefinition(BeanIds.AUTHENTICATION_MANAGER);
+//        PropertyValue pv = authManager.getPropertyValues().getPropertyValue("sessionController");
+//
+//        if (pv != null && pv.getValue() != null) {
+//            pc.getReaderContext().error("A session controller has already been set on the authentication manager. " +
+//                    "The <concurrent-session-control> element isn't compatible with a custom session controller",
+//                    pc.extractSource(sourceElt));
+//        }
+//
+//        authManager.getPropertyValues().addPropertyValue("sessionController", new RuntimeBeanReference(beanName));
+//    }
 }

@@ -28,6 +28,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
+import org.springframework.security.authentication.concurrent.ConcurrentSessionController;
 import org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.authentication.concurrent.SessionRegistryImpl;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
@@ -565,7 +566,7 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         assertTrue(filters.get(0) instanceof ConcurrentSessionFilter);
         assertNotNull(appContext.getBean("seshRegistry"));
-        assertNotNull(appContext.getBean(BeanIds.CONCURRENT_SESSION_CONTROLLER));
+        assertNotNull(getConcurrentSessionController());
     }
 
     @Test
@@ -581,8 +582,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 getFilter(ConcurrentSessionFilter.class),"sessionRegistry");
         Object sessionRegistryFromFormLoginFilter = FieldUtils.getFieldValue(
                 getFilter(UsernamePasswordAuthenticationProcessingFilter.class),"sessionRegistry");
-        Object sessionRegistryFromController = FieldUtils.getFieldValue(
-                appContext.getBean(BeanIds.CONCURRENT_SESSION_CONTROLLER),"sessionRegistry");
+        Object sessionRegistryFromController = FieldUtils.getFieldValue(getConcurrentSessionController(),"sessionRegistry");
         Object sessionRegistryFromFixationFilter = FieldUtils.getFieldValue(
                 getFilter(SessionFixationProtectionFilter.class),"sessionRegistry");
 
@@ -592,7 +592,9 @@ public class HttpSecurityBeanDefinitionParserTests {
         // SEC-1143
         assertSame(sessionRegistry, sessionRegistryFromFormLoginFilter);
     }
-
+/*
+// These no longer apply with the internal authentication manager in <http> and it won't be possible to check the
+// Validity of the configuration against the central AuthenticationManager when we allow more than one <http> element.
     @Test(expected=BeanDefinitionParsingException.class)
     public void concurrentSessionSupportCantBeUsedWithIndependentControllerBean() throws Exception {
         setContext(
@@ -620,14 +622,14 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</b:bean>" +
                 "<authentication-manager alias='authManager' session-controller-ref='sc'/>" + AUTH_PROVIDER_XML);
     }
-
+*/
     @Test(expected=ConcurrentLoginException.class)
     public void concurrentSessionMaxSessionsIsCorrectlyConfigured() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
                 "    <concurrent-session-control max-sessions='2' exception-if-maximum-exceeded='true' />" +
                 "</http>"  + AUTH_PROVIDER_XML);
-        ConcurrentSessionControllerImpl seshController = (ConcurrentSessionControllerImpl) appContext.getBean(BeanIds.CONCURRENT_SESSION_CONTROLLER);
+        ConcurrentSessionControllerImpl seshController = (ConcurrentSessionControllerImpl) getConcurrentSessionController();
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("bob", "pass");
         // Register 2 sessions and then check a third
         MockHttpServletRequest req = new MockHttpServletRequest();
@@ -917,6 +919,16 @@ public class HttpSecurityBeanDefinitionParserTests {
 
     private RememberMeServices getRememberMeServices() throws Exception {
         return ((RememberMeProcessingFilter)getFilter(RememberMeProcessingFilter.class)).getRememberMeServices();
+    }
+
+    @SuppressWarnings("unchecked")
+    private ConcurrentSessionController getConcurrentSessionController() {
+        Map beans = appContext.getBeansOfType(ConcurrentSessionController.class);
+
+        if (beans.size() == 0) {
+            return null;
+        }
+        return (ConcurrentSessionController) new ArrayList(beans.values()).get(0);
     }
 
 }

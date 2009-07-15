@@ -33,9 +33,9 @@
     Uncomment to enable X509 client authentication support
         <x509 />
 -->
-        <!-- Uncomment to limit the number of sessions a user can have
+        <!-- Uncomment to limit the number of sessions a user can have -->
         <concurrent-session-control max-sessions="1" exception-if-maximum-exceeded="true"/>
-        -->
+
     </http>
 
     <authentication-manager alias="authManager"/>

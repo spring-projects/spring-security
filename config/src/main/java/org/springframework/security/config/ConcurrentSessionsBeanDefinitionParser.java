@@ -26,8 +26,6 @@ import org.w3c.dom.Element;
 public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionParser {
 
     static final String ATT_EXPIRY_URL = "expired-url";
-    static final String ATT_MAX_SESSIONS = "max-sessions";
-    static final String ATT_EXCEPTION_IF_MAX_EXCEEDED = "exception-if-maximum-exceeded";
     static final String ATT_SESSION_REGISTRY_ALIAS = "session-registry-alias";
     static final String ATT_SESSION_REGISTRY_REF = "session-registry-ref";
 
@@ -66,30 +64,6 @@ public class ConcurrentSessionsBeanDefinitionParser implements BeanDefinitionPar
             ConfigUtils.validateHttpRedirect(expiryUrl, pc, source);
             filterBuilder.addPropertyValue("expiredUrl", expiryUrl);
         }
-
-        BeanDefinitionBuilder controllerBuilder
-            = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControllerImpl.class);
-        controllerBuilder.getRawBeanDefinition().setSource(source);
-        controllerBuilder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        controllerBuilder.addPropertyReference("sessionRegistry", sessionRegistryId);
-
-        String maxSessions = element.getAttribute(ATT_MAX_SESSIONS);
-
-        if (StringUtils.hasText(maxSessions)) {
-            controllerBuilder.addPropertyValue("maximumSessions", maxSessions);
-        }
-
-        String exceptionIfMaximumExceeded = element.getAttribute(ATT_EXCEPTION_IF_MAX_EXCEEDED);
-
-        if (StringUtils.hasText(exceptionIfMaximumExceeded)) {
-            controllerBuilder.addPropertyValue("exceptionIfMaximumExceeded", exceptionIfMaximumExceeded);
-        }
-
-        BeanDefinition controller = controllerBuilder.getBeanDefinition();
-
-        beanRegistry.registerBeanDefinition(BeanIds.CONCURRENT_SESSION_CONTROLLER, controller);
-        pc.registerComponent(new BeanComponentDefinition(controller, BeanIds.CONCURRENT_SESSION_CONTROLLER));
-        ConfigUtils.setSessionControllerOnAuthenticationManager(pc, BeanIds.CONCURRENT_SESSION_CONTROLLER, element);
 
         pc.popAndRegisterContainingComponent();
 

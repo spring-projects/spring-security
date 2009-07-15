@@ -67,6 +67,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
                 "           <intercept-url pattern='/**' access='ROLE_USER'/>" +
                 "       </filter-security-metadata-source>" +
                 "   </b:property>" +
+                "   <b:property name='authenticationManager' ref='" + BeanIds.AUTHENTICATION_MANAGER +"'/>"+
                 "</b:bean>" + ConfigTestUtils.AUTH_PROVIDER_XML);
 
 
