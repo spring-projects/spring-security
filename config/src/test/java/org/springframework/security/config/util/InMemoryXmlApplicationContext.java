@@ -17,22 +17,18 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
                     "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n" +
                     "    xsi:schemaLocation='http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd\n" +
                     "http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd\n" +
-                    "http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd'>\n";
+                    "http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-";
     private static final String BEANS_CLOSE = "</b:beans>\n";
 
     Resource inMemoryXml;
 
     public InMemoryXmlApplicationContext(String xml) {
-        this(xml, true, null);
-    }
-
-    public InMemoryXmlApplicationContext(String xml, ApplicationContext parent) {
-        this(xml, true, parent);
+        this(xml, "3.0", null);
     }
 
 
-    public InMemoryXmlApplicationContext(String xml, boolean addBeansTags, ApplicationContext parent) {
-        String fullXml = addBeansTags ? BEANS_OPENING + xml + BEANS_CLOSE : xml;
+    public InMemoryXmlApplicationContext(String xml, String secVersion, ApplicationContext parent) {
+        String fullXml = BEANS_OPENING + secVersion + ".xsd'>\n" + xml + BEANS_CLOSE;
         inMemoryXml = new InMemoryResource(fullXml);
         setParent(parent);
         refresh();

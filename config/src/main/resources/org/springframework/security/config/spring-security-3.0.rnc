@@ -411,6 +411,9 @@ concurrent-sessions.attlist &=
 concurrent-sessions.attlist &=
     ## A reference to an external SessionRegistry implementation which will be used in place of the standard one. 
     attribute session-registry-ref {xsd:token}?
+concurrent-sessions.attlist &=    
+    ## Allows a custom session controller to be set on the internal http AuthenticationManager. If used, the session-registry-ref attribute must also be set.
+    attribute session-controller-ref {xsd:token}?    
 
 remember-me =
     ## Sets up remember-me authentication. If used with the "key" attribute (or no attributes) the cookie-only implementation will be used. Specifying "token-repository-ref" or "remember-me-data-source-ref" will use the more secure, persisten token approach.     
@@ -490,10 +493,6 @@ authentication-manager =
 authman.attlist &=
     ## The alias you wish to use for the AuthenticationManager bean
     attribute alias {xsd:ID}
-authman.attlist &=
-    ## Allows the session controller to be set on the internal AuthenticationManager. This should not be used with the <concurrent-session-control /> element
-    attribute session-controller-ref {xsd:token}?
-
 
 authentication-provider =
     ## Indicates that the contained user-service should be used as an authentication source. 

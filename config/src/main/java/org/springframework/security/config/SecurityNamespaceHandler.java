@@ -1,6 +1,21 @@
 package org.springframework.security.config;
 
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
+import org.springframework.security.config.authentication.AuthenticationManagerBeanDefinitionParser;
+import org.springframework.security.config.authentication.AuthenticationProviderBeanDefinitionParser;
+import org.springframework.security.config.authentication.CustomAuthenticationProviderBeanDefinitionDecorator;
+import org.springframework.security.config.authentication.JdbcUserServiceBeanDefinitionParser;
+import org.springframework.security.config.authentication.UserServiceBeanDefinitionParser;
+import org.springframework.security.config.http.CustomFilterBeanDefinitionDecorator;
+import org.springframework.security.config.http.FilterChainMapBeanDefinitionDecorator;
+import org.springframework.security.config.http.FilterInvocationSecurityMetadataSourceBeanDefinitionParser;
+import org.springframework.security.config.http.HttpSecurityBeanDefinitionParser;
+import org.springframework.security.config.ldap.LdapProviderBeanDefinitionParser;
+import org.springframework.security.config.ldap.LdapServerBeanDefinitionParser;
+import org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser;
+import org.springframework.security.config.method.CustomAfterInvocationProviderBeanDefinitionDecorator;
+import org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParser;
+import org.springframework.security.config.method.InterceptMethodsBeanDefinitionDecorator;
 
 /**
  * Registers the bean definition parsers for the "security" namespace (http://www.springframework.org/schema/security).

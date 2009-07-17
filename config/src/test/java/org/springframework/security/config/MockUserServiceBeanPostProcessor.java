@@ -7,7 +7,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * Test bean post processor which injects a message into a PostProcessedMockUserDetailsService.
  * 
  * @author Luke Taylor
- * @version $Id$
+ * @version $Id: MockUserServiceBeanPostProcessor.java 3541 2009-03-23 04:23:48Z ltaylor $
  */
 public class MockUserServiceBeanPostProcessor implements BeanPostProcessor {
 

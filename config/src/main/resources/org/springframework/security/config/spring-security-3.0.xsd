@@ -1290,6 +1290,13 @@
                be used in place of the standard one. </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="session-controller-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Allows a custom session controller to be set on the internal http
+               AuthenticationManager. If used, the session-registry-ref attribute must also be
+               set.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
    </xs:attributeGroup>
    <xs:attributeGroup name="remember-me.attlist">
       <xs:attribute name="key" type="xs:token">
@@ -1418,13 +1425,6 @@
          <xs:annotation>
             <xs:documentation>The alias you wish to use for the AuthenticationManager
                bean</xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="session-controller-ref" type="xs:token">
-         <xs:annotation>
-            <xs:documentation>Allows the session controller to be set on the internal
-               AuthenticationManager. This should not be used with the
-               &lt;concurrent-session-control /&gt; element</xs:documentation>
          </xs:annotation>
       </xs:attribute>
    </xs:attributeGroup>

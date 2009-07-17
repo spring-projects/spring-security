@@ -6,14 +6,14 @@ package org.springframework.security.config;
  * These are intended for internal use.
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id: BeanIds.java 3770 2009-07-15 23:09:47Z ltaylor $
  */
 public abstract class BeanIds {
 
     /** External alias for FilterChainProxy bean, for use in web.xml files */
     public static final String SPRING_SECURITY_FILTER_CHAIN = "springSecurityFilterChain";
 
-    static final String CONTEXT_SOURCE_SETTING_POST_PROCESSOR = "_contextSettingPostProcessor";
+    public static final String CONTEXT_SOURCE_SETTING_POST_PROCESSOR = "_contextSettingPostProcessor";
 
     public static final String USER_DETAILS_SERVICE = "_userDetailsService";
 
