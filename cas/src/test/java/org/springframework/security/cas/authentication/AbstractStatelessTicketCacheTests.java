@@ -1,4 +1,4 @@
-package org.springframework.security.cas.authentication.cache;
+package org.springframework.security.cas.authentication;
 
 import java.util.ArrayList;
 import java.util.List;

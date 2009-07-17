@@ -12,11 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.cas.authentication.cache;
+package org.springframework.security.cas.authentication;
 
-import org.springframework.security.cas.authentication.CasAuthenticationProvider;
-import org.springframework.security.cas.authentication.CasAuthenticationToken;
-import org.springframework.security.cas.authentication.StatelessTicketCache;
 
 /**
  * Implementation of @link {@link StatelessTicketCache} that has no backing cache.  Useful

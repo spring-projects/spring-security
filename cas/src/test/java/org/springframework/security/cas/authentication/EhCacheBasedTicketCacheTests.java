@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.cas.authentication.cache;
+package org.springframework.security.cas.authentication;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.CacheManager;
@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
-import org.springframework.security.cas.authentication.cache.EhCacheBasedTicketCache;
+import org.springframework.security.cas.authentication.EhCacheBasedTicketCache;
 
 import static org.junit.Assert.*;
 

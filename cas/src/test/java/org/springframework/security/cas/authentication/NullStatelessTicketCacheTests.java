@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.cas.authentication.cache;
+package org.springframework.security.cas.authentication;
 
 
 import org.junit.Test;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
+import org.springframework.security.cas.authentication.NullStatelessTicketCache;
 import org.springframework.security.cas.authentication.StatelessTicketCache;
-import org.springframework.security.cas.authentication.cache.NullStatelessTicketCache;
 
 import static org.junit.Assert.*;
 

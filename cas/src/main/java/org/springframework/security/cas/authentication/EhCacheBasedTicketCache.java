@@ -13,14 +13,12 @@
  * limitations under the License.
  */
 
-package org.springframework.security.cas.authentication.cache;
+package org.springframework.security.cas.authentication;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Ehcache;
 
-import org.springframework.security.cas.authentication.CasAuthenticationToken;
-import org.springframework.security.cas.authentication.StatelessTicketCache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
