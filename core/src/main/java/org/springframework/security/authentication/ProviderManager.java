@@ -205,7 +205,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
      *
      * @return {@link ConcurrentSessionController} instance
      */
-    public ConcurrentSessionController getSessionController() {
+    ConcurrentSessionController getSessionController() {
         return sessionController;
     }
 
