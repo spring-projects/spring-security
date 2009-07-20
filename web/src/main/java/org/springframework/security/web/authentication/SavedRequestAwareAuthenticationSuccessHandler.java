@@ -79,22 +79,7 @@ public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuth
         RedirectUtils.sendRedirect(request, response, targetUrl, isUseRelativeContext());
     }
 
-//    private SavedRequest getSavedRequest(HttpServletRequest request) {
-//        HttpSession session = request.getSession(false);
-//
-//        if (session != null) {
-//            return (SavedRequest) session.getAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
-//        }
-//
-//        return null;
-//    }
-//
-//    private void removeSavedRequest(HttpServletRequest request) {
-//        HttpSession session = request.getSession(false);
-//
-//        if (session != null) {
-//            logger.debug("Removing SavedRequest from session if present");
-//            session.removeAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
-//        }
-//    }
+    public void setRequestCache(RequestCache requestCache) {
+        this.requestCache = requestCache;
+    }
 }

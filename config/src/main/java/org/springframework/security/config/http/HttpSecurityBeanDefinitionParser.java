@@ -41,6 +41,7 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
@@ -204,9 +205,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         // Register the portMapper. A default will always be created, even if no element exists.
         BeanDefinition portMapper = new PortMappingsBeanDefinitionParser().parse(
                 DomUtils.getChildElementByTagName(element, Elements.PORT_MAPPINGS), pc);
+        String portMapperName = pc.getReaderContext().registerWithGeneratedName(portMapper);
         RootBeanDefinition rememberMeFilter = createRememberMeFilter(element, pc, authenticationManager);
         BeanDefinition anonFilter = createAnonymousFilter(element, pc);
-        BeanReference requestCache = createRequestCache(element, pc, allowSessionCreation);
+        BeanReference requestCache = createRequestCache(element, pc, allowSessionCreation, portMapperName);
         BeanDefinition requestCacheAwareFilter = new RootBeanDefinition(RequestCacheAwareFilter.class);
         requestCacheAwareFilter.getPropertyValues().addPropertyValue("requestCache", requestCache);
 
@@ -215,16 +217,15 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 sessionRegistryRef);
         BeanDefinition fsi = createFilterSecurityInterceptor(element, pc, matcher, convertPathsToLowerCase, authenticationManager);
 
-        String portMapperName = pc.getReaderContext().registerWithGeneratedName(portMapper);
         if (channelRequestMap.size() > 0) {
             // At least one channel requirement has been specified
             cpf = createChannelProcessingFilter(pc, matcher, channelRequestMap, portMapperName);
         }
 
-        if (sfpf != null) {
-            // Used by SessionRegistryinjectionPP
-            pc.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, sfpf);
-        }
+//        if (sfpf != null) {
+//            // Used by SessionRegistryinjectionPP
+//            pc.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, sfpf);
+//        }
 
         final FilterAndEntryPoint basic = createBasicFilter(element, pc, autoConfig, authenticationManager);
         final FilterAndEntryPoint form = createFormLoginFilter(element, pc, autoConfig, allowSessionCreation,
@@ -758,9 +759,13 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return new RuntimeBeanReference(id);
     }
 
-    private BeanReference createRequestCache(Element element, ParserContext pc, boolean allowSessionCreation) {
+    private BeanReference createRequestCache(Element element, ParserContext pc, boolean allowSessionCreation,
+            String portMapperName) {
         BeanDefinitionBuilder requestCache = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionRequestCache.class);
+        BeanDefinitionBuilder portResolver = BeanDefinitionBuilder.rootBeanDefinition(PortResolverImpl.class);
+        portResolver.addPropertyReference("portMapper", portMapperName);
         requestCache.addPropertyValue("createSessionAllowed", Boolean.valueOf(allowSessionCreation));
+        requestCache.addPropertyValue("portResolver", portResolver.getBeanDefinition());
 
         BeanDefinition bean = requestCache.getBeanDefinition();
         String id = pc.getReaderContext().registerWithGeneratedName(bean);
@@ -774,7 +779,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         BeanDefinitionBuilder exceptionTranslationFilterBuilder
             = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
         exceptionTranslationFilterBuilder.addPropertyValue("accessDeniedHandler", createAccessDeniedHandler(element, pc));
-
 
         return exceptionTranslationFilterBuilder.getBeanDefinition();
     }
