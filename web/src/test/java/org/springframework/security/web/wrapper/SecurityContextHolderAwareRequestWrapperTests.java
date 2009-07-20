@@ -23,9 +23,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestWrapper;
-
 
 /**
  * Tests {@link SecurityContextHolderAwareRequestWrapper}.
@@ -34,17 +31,6 @@ import org.springframework.security.web.wrapper.SecurityContextHolderAwareReques
  * @version $Id$
  */
 public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public SecurityContextHolderAwareRequestWrapperTests() {
-    }
-
-    public SecurityContextHolderAwareRequestWrapperTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
 
     protected void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
@@ -57,7 +43,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/");
 
-        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl(), "");
+        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, "");
 
         assertEquals("rod", wrapper.getRemoteUser());
         assertTrue(wrapper.isUserInRole("ROLE_FOO"));
@@ -72,7 +58,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/");
 
-        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl(), "ROLE_");
+        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, "ROLE_");
 
         assertTrue(wrapper.isUserInRole("FOO"));
     }
@@ -85,7 +71,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/");
 
-        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl(), "");
+        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, "");
 
         assertEquals("rodAsUserDetails", wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_FOO"));
@@ -101,7 +87,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/");
 
-        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request,new PortResolverImpl(), "");
+        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, "");
         assertNull(wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_ANY"));
         assertNull(wrapper.getUserPrincipal());
@@ -114,7 +100,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/");
 
-        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl(), "");
+        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, "");
 
         assertNull(wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_HELLO")); // principal is null, so reject

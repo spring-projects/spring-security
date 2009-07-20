@@ -3,6 +3,7 @@ package org.springframework.security.config.http;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -36,16 +37,18 @@ public class FormLoginBeanDefinitionParser {
     private static final String ATT_SUCCESS_HANDLER_REF = "authentication-success-handler-ref";
     private static final String ATT_FAILURE_HANDLER_REF = "authentication-failure-handler-ref";
 
-    private String defaultLoginProcessingUrl;
-    private String filterClassName;
+    private final String defaultLoginProcessingUrl;
+    private final String filterClassName;
+    private final BeanReference requestCache;
 
     private RootBeanDefinition filterBean;
     private RootBeanDefinition entryPointBean;
     private String loginPage;
 
-    FormLoginBeanDefinitionParser(String defaultLoginProcessingUrl, String filterClassName) {
+    FormLoginBeanDefinitionParser(String defaultLoginProcessingUrl, String filterClassName, BeanReference requestCache) {
         this.defaultLoginProcessingUrl = defaultLoginProcessingUrl;
         this.filterClassName = filterClassName;
+        this.requestCache = requestCache;
     }
 
     public BeanDefinition parse(Element elt, ParserContext pc, RootBeanDefinition sfpf) {
@@ -114,6 +117,7 @@ public class FormLoginBeanDefinitionParser {
             if ("true".equals(alwaysUseDefault)) {
                 successHandler.addPropertyValue("alwaysUseDefaultTargetUrl", Boolean.TRUE);
             }
+            successHandler.addPropertyValue("requestCache", requestCache);
             successHandler.addPropertyValue("defaultTargetUrl", StringUtils.hasText(defaultTargetUrl) ? defaultTargetUrl : DEF_FORM_LOGIN_TARGET_URL);
             filterBuilder.addPropertyValue("authenticationSuccessHandler", successHandler.getBeanDefinition());
         }

@@ -30,10 +30,9 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.PortResolver;
-import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.security.web.util.ThrowableCauseExtractor;
 import org.springframework.util.Assert;
@@ -60,8 +59,9 @@ import org.springframework.util.Assert;
  * should commence the authentication process if an
  * <code>AuthenticationException</code> is detected. Note that this may also
  * switch the current protocol from http to https for an SSL login.</li>
- * <li><code>portResolver</code> is used to determine the "real" port that a
- * request was received on.</li>
+ * <li><tt>requestCache</tt> determines the strategy used to save a request during the authentication process in order
+ * that it may be retrieved and reused once the user has authenticated. The default implementation is
+ * {@link HttpSessionRequestCache}.</li>
  * </ul>
  *
  * @author Ben Alex
@@ -75,18 +75,16 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
     private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
     private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
-    private PortResolver portResolver = new PortResolverImpl();
+//    private PortResolver portResolver = new PortResolverImpl();
     private ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
-    private boolean createSessionAllowed = true;
-    private boolean justUseSavedRequestOnGet;
+
+    private RequestCache requestCache = new HttpSessionRequestCache();
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint must be specified");
-        Assert.notNull(portResolver, "portResolver must be specified");
-        Assert.notNull(authenticationTrustResolver, "authenticationTrustResolver must be specified");
-        Assert.notNull(throwableAnalyzer, "throwableAnalyzer must be specified");
+//        Assert.notNull(portResolver, "portResolver must be specified");
     }
 
     public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException,
@@ -133,12 +131,8 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
         return authenticationEntryPoint;
     }
 
-    public AuthenticationTrustResolver getAuthenticationTrustResolver() {
+    protected AuthenticationTrustResolver getAuthenticationTrustResolver() {
         return authenticationTrustResolver;
-    }
-
-    public PortResolver getPortResolver() {
-        return portResolver;
     }
 
     private void handleException(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
@@ -171,46 +165,14 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
         }
     }
 
-    /**
-     * If <code>true</code>, indicates that <code>ExceptionTranslationFilter</code> is permitted to store the target
-     * URL and exception information in a new <code>HttpSession</code> (the default).
-     * In situations where you do not wish to unnecessarily create <code>HttpSession</code>s - because the user agent
-     * will know the failed URL, such as with BASIC or Digest authentication - you may wish to set this property to
-     * <code>false</code>.
-     * <p>
-     * Remember to also set
-     * {@link org.springframework.security.web.context.HttpSessionSecurityContextRepository#setAllowSessionCreation(boolean)}
-     * to <code>false</code> if you set this property to <code>false</code>.
-     *
-     * @return <code>true</code> if the <code>HttpSession</code> will be
-     * used to store information about the failed request, <code>false</code>
-     * if the <code>HttpSession</code> will not be used
-     */
-    public boolean isCreateSessionAllowed() {
-        return createSessionAllowed;
-    }
-
     protected void sendStartAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
             AuthenticationException reason) throws ServletException, IOException {
         // SEC-112: Clear the SecurityContextHolder's Authentication, as the
         // existing Authentication is no longer considered valid
         SecurityContextHolder.getContext().setAuthentication(null);
-        saveRequestIfAllowed(request);
+        requestCache.saveRequest(request, response);
         logger.debug("Calling Authentication entry point.");
         authenticationEntryPoint.commence(request, response, reason);
-    }
-
-    private void saveRequestIfAllowed(HttpServletRequest request) {
-        if (!justUseSavedRequestOnGet || "GET".equals(request.getMethod())) {
-            SavedRequest savedRequest = new SavedRequest(request, portResolver);
-
-            if (createSessionAllowed || request.getSession(false) != null) {
-                // Store the HTTP request itself. Used by AbstractAuthenticationProcessingFilter
-                // for redirection after successful authentication (SEC-29)
-                request.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, savedRequest);
-                logger.debug("SavedRequest added to Session: " + savedRequest);
-            }
-        }
     }
 
     public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
@@ -223,27 +185,30 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
     }
 
     public void setAuthenticationTrustResolver(AuthenticationTrustResolver authenticationTrustResolver) {
+        Assert.notNull(authenticationTrustResolver, "authenticationTrustResolver must not be null");
         this.authenticationTrustResolver = authenticationTrustResolver;
     }
 
-    public void setCreateSessionAllowed(boolean createSessionAllowed) {
-        this.createSessionAllowed = createSessionAllowed;
-    }
+//    public void setCreateSessionAllowed(boolean createSessionAllowed) {
+//        this.createSessionAllowed = createSessionAllowed;
+//    }
 
-    public void setPortResolver(PortResolver portResolver) {
-        this.portResolver = portResolver;
-    }
+//    public void setPortResolver(PortResolver portResolver) {
+//        this.portResolver = portResolver;
+//    }
 
     public void setThrowableAnalyzer(ThrowableAnalyzer throwableAnalyzer) {
+        Assert.notNull(throwableAnalyzer, "throwableAnalyzer must not be null");
         this.throwableAnalyzer = throwableAnalyzer;
     }
 
     /**
-     * If <code>true</code>, will only use <code>SavedRequest</code> to determine the target URL on successful
-     * authentication if the request that caused the authentication request was a GET. Defaults to false.
+     * The RequestCache implementation used to store the current request before starting authentication.
+     * Defaults to an {@link HttpSessionRequestCache}.
      */
-    public void setJustUseSavedRequestOnGet(boolean justUseSavedRequestOnGet) {
-        this.justUseSavedRequestOnGet = justUseSavedRequestOnGet;
+    public void setRequestCache(RequestCache requestCache) {
+        Assert.notNull(requestCache, "requestCache cannot be null");
+        this.requestCache = requestCache;
     }
 
     /**

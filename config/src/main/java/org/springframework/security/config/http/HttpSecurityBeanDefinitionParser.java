@@ -63,6 +63,8 @@ import org.springframework.security.web.authentication.www.BasicProcessingFilter
 import org.springframework.security.web.authentication.www.BasicProcessingFilterEntryPoint;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.session.SessionFixationProtectionFilter;
 import org.springframework.security.web.util.AntUrlPathMatcher;
 import org.springframework.security.web.util.RegexUrlPathMatcher;
@@ -204,8 +206,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 DomUtils.getChildElementByTagName(element, Elements.PORT_MAPPINGS), pc);
         RootBeanDefinition rememberMeFilter = createRememberMeFilter(element, pc, authenticationManager);
         BeanDefinition anonFilter = createAnonymousFilter(element, pc);
+        BeanReference requestCache = createRequestCache(element, pc, allowSessionCreation);
+        BeanDefinition requestCacheAwareFilter = new RootBeanDefinition(RequestCacheAwareFilter.class);
+        requestCacheAwareFilter.getPropertyValues().addPropertyValue("requestCache", requestCache);
 
-        BeanDefinition etf = createExceptionTranslationFilter(element, pc, allowSessionCreation);
+        BeanDefinition etf = createExceptionTranslationFilter(element, pc, requestCache);
         RootBeanDefinition sfpf = createSessionFixationProtectionFilter(pc, element.getAttribute(ATT_SESSION_FIXATION_PROTECTION),
                 sessionRegistryRef);
         BeanDefinition fsi = createFilterSecurityInterceptor(element, pc, matcher, convertPathsToLowerCase, authenticationManager);
@@ -223,9 +228,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         final FilterAndEntryPoint basic = createBasicFilter(element, pc, autoConfig, authenticationManager);
         final FilterAndEntryPoint form = createFormLoginFilter(element, pc, autoConfig, allowSessionCreation,
-                sfpf, authenticationManager);
+                sfpf, authenticationManager, requestCache);
         final FilterAndEntryPoint openID = createOpenIDLoginFilter(element, pc, autoConfig, allowSessionCreation,
-                sfpf, authenticationManager);
+                sfpf, authenticationManager, requestCache);
 
         String rememberMeServicesId = null;
         if (rememberMeFilter != null) {
@@ -297,6 +302,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (basic.filter != null) {
             unorderedFilterChain.add(new OrderDecorator(basic.filter, BASIC_PROCESSING_FILTER));
         }
+
+        unorderedFilterChain.add(new OrderDecorator(requestCacheAwareFilter, REQUEST_CACHE_FILTER));
 
         if (servApiFilter != null) {
             unorderedFilterChain.add(new OrderDecorator(servApiFilter, SERVLET_API_SUPPORT_FILTER));
@@ -751,10 +758,21 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return new RuntimeBeanReference(id);
     }
 
-    private BeanDefinition createExceptionTranslationFilter(Element element, ParserContext pc, boolean allowSessionCreation) {
+    private BeanReference createRequestCache(Element element, ParserContext pc, boolean allowSessionCreation) {
+        BeanDefinitionBuilder requestCache = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionRequestCache.class);
+        requestCache.addPropertyValue("createSessionAllowed", Boolean.valueOf(allowSessionCreation));
+
+        BeanDefinition bean = requestCache.getBeanDefinition();
+        String id = pc.getReaderContext().registerWithGeneratedName(bean);
+        pc.registerBeanComponent(new BeanComponentDefinition(bean, id));
+
+        return new RuntimeBeanReference(id);
+
+    }
+
+    private BeanDefinition createExceptionTranslationFilter(Element element, ParserContext pc, BeanReference requestCache) {
         BeanDefinitionBuilder exceptionTranslationFilterBuilder
             = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
-        exceptionTranslationFilterBuilder.addPropertyValue("createSessionAllowed", Boolean.valueOf(allowSessionCreation));
         exceptionTranslationFilterBuilder.addPropertyValue("accessDeniedHandler", createAccessDeniedHandler(element, pc));
 
 
@@ -911,7 +929,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private FilterAndEntryPoint createFormLoginFilter(Element element, ParserContext pc, boolean autoConfig,
-            boolean allowSessionCreation, RootBeanDefinition sfpf, BeanReference authManager) {
+            boolean allowSessionCreation, RootBeanDefinition sfpf, BeanReference authManager, BeanReference requestCache) {
         RootBeanDefinition formLoginFilter = null;
         RootBeanDefinition formLoginEntryPoint = null;
 
@@ -919,7 +937,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         if (formLoginElt != null || autoConfig) {
             FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_security_check",
-                    AUTHENTICATION_PROCESSING_FILTER_CLASS);
+                    AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache);
 
             parser.parse(formLoginElt, pc, sfpf);
             formLoginFilter = parser.getFilterBean();
@@ -935,14 +953,14 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private FilterAndEntryPoint createOpenIDLoginFilter(Element element, ParserContext pc, boolean autoConfig,
-            boolean allowSessionCreation, RootBeanDefinition sfpf, BeanReference authManager) {
+            boolean allowSessionCreation, RootBeanDefinition sfpf, BeanReference authManager, BeanReference requestCache) {
         Element openIDLoginElt = DomUtils.getChildElementByTagName(element, Elements.OPENID_LOGIN);
         RootBeanDefinition openIDFilter = null;
         RootBeanDefinition openIDEntryPoint = null;
 
         if (openIDLoginElt != null) {
             FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_openid_security_check",
-                    OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS);
+                    OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache);
 
             parser.parse(openIDLoginElt, pc, sfpf);
             openIDFilter = parser.getFilterBean();

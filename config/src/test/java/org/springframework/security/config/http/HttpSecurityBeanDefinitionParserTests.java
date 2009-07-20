@@ -69,6 +69,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.security.web.authentication.www.BasicProcessingFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.session.SessionFixationProtectionFilter;
 import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.ReflectionUtils;
@@ -78,7 +79,7 @@ import org.springframework.util.ReflectionUtils;
  * @version $Id$
  */
 public class HttpSecurityBeanDefinitionParserTests {
-    private static final int AUTO_CONFIG_FILTERS = 10;
+    private static final int AUTO_CONFIG_FILTERS = 11;
     private AbstractXmlApplicationContext appContext;
 
     @After
@@ -132,6 +133,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(authProcFilter instanceof UsernamePasswordAuthenticationProcessingFilter);
         assertTrue(filters.next() instanceof DefaultLoginPageGeneratingFilter);
         assertTrue(filters.next() instanceof BasicProcessingFilter);
+        assertTrue(filters.next() instanceof RequestCacheAwareFilter);
         assertTrue(filters.next() instanceof SecurityContextHolderAwareRequestFilter);
         assertTrue(filters.next() instanceof AnonymousProcessingFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
@@ -209,7 +211,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http>" +
                 "   <form-login />" +
                 "</http>" + AUTH_PROVIDER_XML);
-        assertThat(getFilters("/anything").get(4), instanceOf(AnonymousProcessingFilter.class));
+        assertThat(getFilters("/anything").get(5), instanceOf(AnonymousProcessingFilter.class));
     }
 
     @Test
@@ -219,7 +221,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "   <form-login />" +
                 "   <anonymous enabled='false'/>" +
                 "</http>" + AUTH_PROVIDER_XML);
-        assertThat(getFilters("/anything").get(4), not(instanceOf(AnonymousProcessingFilter.class)));
+        assertThat(getFilters("/anything").get(5), not(instanceOf(AnonymousProcessingFilter.class)));
     }
 
 

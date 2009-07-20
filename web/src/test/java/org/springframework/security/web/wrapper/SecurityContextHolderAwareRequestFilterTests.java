@@ -25,8 +25,6 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 
 
 /**
@@ -43,15 +41,13 @@ public class SecurityContextHolderAwareRequestFilterTests {
     @Test
     public void expectedRequestWrapperClassIsUsed() throws Exception {
         SecurityContextHolderAwareRequestFilter filter = new SecurityContextHolderAwareRequestFilter();
-        filter.setPortResolver(new PortResolverImpl());
-        filter.setWrapperClass(SavedRequestAwareWrapper.class);
         filter.setRolePrefix("ROLE_");
         filter.init(jmock.mock(FilterConfig.class));
         final FilterChain filterChain = jmock.mock(FilterChain.class);
 
         jmock.checking(new Expectations() {{
             exactly(2).of(filterChain).doFilter(
-                    with(aNonNull(SavedRequestAwareWrapper.class)), with(aNonNull(HttpServletResponse.class)));
+                    with(aNonNull(SecurityContextHolderAwareRequestWrapper.class)), with(aNonNull(HttpServletResponse.class)));
         }});
 
         filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain);

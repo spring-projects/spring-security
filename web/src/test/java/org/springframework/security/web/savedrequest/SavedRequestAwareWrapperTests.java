@@ -1,4 +1,4 @@
-package org.springframework.security.web.wrapper;
+package org.springframework.security.web.savedrequest;
 
 import static org.junit.Assert.*;
 
@@ -14,15 +14,13 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.savedrequest.FastHttpDateFormat;
 import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.savedrequest.SavedRequestAwareWrapper;
 
 public class SavedRequestAwareWrapperTests {
 
     private SavedRequestAwareWrapper createWrapper(MockHttpServletRequest requestToSave, MockHttpServletRequest requestToWrap) {
-        if (requestToSave != null) {
-            SavedRequest savedRequest = new SavedRequest(requestToSave, new PortResolverImpl());
-            requestToWrap.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, savedRequest);
-        }
-        return new SavedRequestAwareWrapper(requestToWrap, new PortResolverImpl(),"ROLE_");
+        SavedRequest saved = requestToSave == null ? null : new SavedRequest(requestToSave, new PortResolverImpl());
+        return new SavedRequestAwareWrapper(saved, requestToWrap);
     }
 
     @Test
@@ -128,7 +126,7 @@ public class SavedRequestAwareWrapperTests {
     @Test
     public void getParameterValuesReturnsNullIfParameterIsntSet() {
         MockHttpServletRequest wrappedRequest = new MockHttpServletRequest();
-        SavedRequestAwareWrapper wrapper = new SavedRequestAwareWrapper(wrappedRequest, new PortResolverImpl(), "ROLE_");
+        SavedRequestAwareWrapper wrapper = new SavedRequestAwareWrapper(null, wrappedRequest);
         assertNull(wrapper.getParameterValues("action"));
         assertNull(wrapper.getParameterMap().get("action"));
     }

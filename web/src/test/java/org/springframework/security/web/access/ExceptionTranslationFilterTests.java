@@ -15,29 +15,35 @@
 
 package org.springframework.security.web.access;
 
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.MockPortResolver;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.util.ThrowableAnalyzer;
 
 /**
  * Tests {@link ExceptionTranslationFilter}.
@@ -45,11 +51,11 @@ import org.springframework.security.web.savedrequest.SavedRequest;
  * @author Ben Alex
  * @version $Id$
  */
-public class ExceptionTranslationFilterTests extends TestCase {
-    //~ Methods ========================================================================================================
+public class ExceptionTranslationFilterTests {
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @After
+    @Before
+    public void clearContext() throws Exception {
         SecurityContextHolder.clearContext();
     }
 
@@ -65,6 +71,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
         return savedRequest.getFullRequestUrl();
     }
 
+    @Test
     public void testAccessDeniedWhenAnonymous() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -76,7 +83,8 @@ public class ExceptionTranslationFilterTests extends TestCase {
         request.setRequestURI("/mycontext/secure/page.html");
 
         // Setup the FilterChain to thrown an access denied exception
-        MockFilterChain chain = new MockFilterChain(true, false, false, false);
+        FilterChain fc = mock(FilterChain.class);
+        doThrow(new AccessDeniedException("")).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         // Setup SecurityContextHolder, as filter needs to check if user is
         // anonymous
@@ -86,24 +94,27 @@ public class ExceptionTranslationFilterTests extends TestCase {
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(mockEntryPoint());
+        filter.setAuthenticationTrustResolver(new AuthenticationTrustResolverImpl());
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        filter.doFilter(request, response, chain);
+        filter.doFilter(request, response, fc);
         assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
         assertEquals("http://www.example.com/mycontext/secure/page.html", getSavedRequestUrl(request));
     }
 
+    @Test
     public void testAccessDeniedWhenNonAnonymous() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
 
         // Setup the FilterChain to thrown an access denied exception
-        MockFilterChain chain = new MockFilterChain(true, false, false, false);
+        FilterChain fc = mock(FilterChain.class);
+        doThrow(new AccessDeniedException("")).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         // Setup SecurityContextHolder, as filter needs to check if user is
         // anonymous
-        SecurityContextHolder.getContext().setAuthentication(null);
+        SecurityContextHolder.clearContext();
 
         // Setup a new AccessDeniedHandlerImpl that will do a "forward"
         AccessDeniedHandlerImpl adh = new AccessDeniedHandlerImpl();
@@ -115,22 +126,13 @@ public class ExceptionTranslationFilterTests extends TestCase {
         filter.setAccessDeniedHandler(adh);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        filter.doFilter(request, response, chain);
+        filter.doFilter(request, response, fc);
         assertEquals(403, response.getStatus());
         assertEquals(AccessDeniedException.class, request.getAttribute(
                 AccessDeniedHandlerImpl.SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY).getClass());
     }
 
-    public void testGettersSetters() {
-        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-
-        filter.setAuthenticationEntryPoint(mockEntryPoint());
-        assertTrue(filter.getAuthenticationEntryPoint() != null);
-
-        filter.setPortResolver(new MockPortResolver(80, 443));
-        assertTrue(filter.getPortResolver() != null);
-    }
-
+    @Test
     public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWhenAuthenticationException() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -142,25 +144,20 @@ public class ExceptionTranslationFilterTests extends TestCase {
         request.setRequestURI("/mycontext/secure/page.html");
 
         // Setup the FilterChain to thrown an authentication failure exception
-        MockFilterChain chain = new MockFilterChain(false, true, false, false);
+        FilterChain fc = mock(FilterChain.class);
+        doThrow(new BadCredentialsException("")).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(mockEntryPoint());
-        filter.setPortResolver(new MockPortResolver(80, 443));
-        /*
-         * Disabled the call to afterPropertiesSet as it requires
-         * applicationContext to be injected before it is invoked. We do not
-         * have this filter configured in IOC for this test hence no
-         * ApplicationContext
-         */
-        // filter.afterPropertiesSet();
+        filter.afterPropertiesSet();
         MockHttpServletResponse response = new MockHttpServletResponse();
-        filter.doFilter(request, response, chain);
+        filter.doFilter(request, response, fc);
         assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
         assertEquals("http://www.example.com/mycontext/secure/page.html", getSavedRequestUrl(request));
     }
 
+    @Test
     public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWithExoticPortWhenAuthenticationException()
             throws Exception {
         // Setup our HTTP request
@@ -173,61 +170,52 @@ public class ExceptionTranslationFilterTests extends TestCase {
         request.setRequestURI("/mycontext/secure/page.html");
 
         // Setup the FilterChain to thrown an authentication failure exception
-        MockFilterChain chain = new MockFilterChain(false, true, false, false);
+        FilterChain fc = mock(FilterChain.class);
+        doThrow(new BadCredentialsException("")).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(mockEntryPoint());
-        filter.setPortResolver(new MockPortResolver(8080, 8443));
-        /*
-         * Disabled the call to afterPropertiesSet as it requires
-         * applicationContext to be injected before it is invoked. We do not
-         * have this filter configured in IOC for this test hence no
-         * ApplicationContext
-         */
-        // filter.afterPropertiesSet();
+        HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
+        requestCache.setPortResolver(new MockPortResolver(8080, 8443));
+        filter.setRequestCache(requestCache);
+        filter.afterPropertiesSet();
         MockHttpServletResponse response = new MockHttpServletResponse();
-        filter.doFilter(request, response, chain);
+        filter.doFilter(request, response, fc);
         assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
         assertEquals("http://www.example.com:8080/mycontext/secure/page.html", getSavedRequestUrl(request));
     }
 
+    @Test
     public void testSavedRequestIsNotStoredForPostIfJustUseSaveRequestOnGetIsSet() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setJustUseSavedRequestOnGet(true);
+        HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
+        requestCache.setPortResolver(new MockPortResolver(8080, 8443));
+        requestCache.setJustUseSavedRequestOnGet(true);
+        filter.setRequestCache(requestCache);
         filter.setAuthenticationEntryPoint(mockEntryPoint());
-        filter.setPortResolver(new MockPortResolver(8080, 8443));
         MockHttpServletRequest request = new MockHttpServletRequest();
-        MockFilterChain chain = new MockFilterChain(false, true, false, false);
+        FilterChain fc = mock(FilterChain.class);
+        doThrow(new BadCredentialsException("")).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         request.setMethod("POST");
-        filter.doFilter(request, new MockHttpServletResponse(), chain);
+        filter.doFilter(request, new MockHttpServletResponse(), fc);
         assertTrue(request.getSession().getAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY) == null);
     }
 
+    @Test(expected=IllegalArgumentException.class)
     public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
+        filter.setThrowableAnalyzer(mock(ThrowableAnalyzer.class));
 
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        }
-        catch (IllegalArgumentException expected) {
-            assertEquals("authenticationEntryPoint must be specified", expected.getMessage());
-        }
+        filter.afterPropertiesSet();
     }
 
-    public void testStartupDetectsMissingPortResolver() throws Exception {
+    @Test(expected=IllegalArgumentException.class)
+    public void testStartupDetectsMissingRequestCache() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(mockEntryPoint());
-        filter.setPortResolver(null);
 
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        }
-        catch (IllegalArgumentException expected) {
-            assertEquals("portResolver must be specified", expected.getMessage());
-        }
+        filter.setRequestCache(null);
     }
 
     public void testSuccessfulAccessGrant() throws Exception {
@@ -235,39 +223,24 @@ public class ExceptionTranslationFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
 
-        // Setup the FilterChain to thrown no exceptions
-        MockFilterChain chain = new MockFilterChain(false, false, false, false);
-
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(mockEntryPoint());
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        filter.doFilter(request, response, chain);
+        filter.doFilter(request, response, mock(FilterChain.class));
     }
 
-    public void testSuccessfulStartupAndShutdownDown() throws Exception {
-        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-
-        filter.init(null);
-        filter.destroy();
-        assertTrue(true);
-    }
-
+    @Test
     public void testThrowIOException() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
         filter.setAuthenticationEntryPoint(mockEntryPoint());
-        /*
-         * Disabled the call to afterPropertiesSet as it requires
-         * applicationContext to be injected before it is invoked. We do not
-         * have this filter configured in IOC for this test hence no
-         * ApplicationContext
-         */
-        // filter.afterPropertiesSet();
+        filter.afterPropertiesSet();
+        FilterChain fc = mock(FilterChain.class);
+        doThrow(new IOException()).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         try {
-            filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), new MockFilterChain(false,
-                    false, false, true));
+            filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), fc);
             fail("Should have thrown IOException");
         }
         catch (IOException e) {
@@ -275,20 +248,16 @@ public class ExceptionTranslationFilterTests extends TestCase {
         }
     }
 
+    @Test
     public void testThrowServletException() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
         filter.setAuthenticationEntryPoint(mockEntryPoint());
-        /*
-         * Disabled the call to afterPropertiesSet as it requires
-         * applicationContext to be injected before it is invoked. We do not
-         * have this filter configured in IOC for this test hence no
-         * ApplicationContext
-         */
-        // filter.afterPropertiesSet();
+        filter.afterPropertiesSet();
+        FilterChain fc = mock(FilterChain.class);
+        doThrow(new ServletException()).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         try {
-            filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), new MockFilterChain(false,
-                    false, true, false));
+            filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), fc);
             fail("Should have thrown ServletException");
         }
         catch (ServletException e) {
@@ -303,43 +272,5 @@ public class ExceptionTranslationFilterTests extends TestCase {
                 response.sendRedirect(request.getContextPath() + "/login.jsp");
             }
         };
-    }
-
-    // ~ Inner Classes =================================================================================================
-
-    private class MockFilterChain implements FilterChain {
-        private boolean throwAccessDenied;
-
-        private boolean throwAuthenticationFailure;
-
-        private boolean throwIOException;
-
-        private boolean throwServletException;
-
-        public MockFilterChain(boolean throwAccessDenied, boolean throwAuthenticationFailure,
-                boolean throwServletException, boolean throwIOException) {
-            this.throwAccessDenied = throwAccessDenied;
-            this.throwAuthenticationFailure = throwAuthenticationFailure;
-            this.throwServletException = throwServletException;
-            this.throwIOException = throwIOException;
-        }
-
-        public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
-            if (throwAccessDenied) {
-                throw new AccessDeniedException("As requested");
-            }
-
-            if (throwAuthenticationFailure) {
-                throw new BadCredentialsException("As requested");
-            }
-
-            if (throwServletException) {
-                throw new ServletException("As requested");
-            }
-
-            if (throwIOException) {
-                throw new IOException("As requested");
-            }
-        }
     }
 }

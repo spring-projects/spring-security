@@ -16,6 +16,12 @@
 package org.springframework.security.web.wrapper;
 
 
+import java.security.Principal;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
@@ -23,25 +29,18 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import org.springframework.security.web.PortResolver;
-
-import java.security.Principal;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-
 
 /**
  * A Spring Security-aware <code>HttpServletRequestWrapper</code>, which uses the
- * <code>SecurityContext</code>-defined <code>Authentication</code> object for {@link
- * SecurityContextHolderAwareRequestWrapper#isUserInRole(java.lang.String)} and {@link
- * javax.servlet.http.HttpServletRequestWrapper#getRemoteUser()} responses.
+ * <code>SecurityContext</code>-defined <code>Authentication</code> object to implement the servlet API security
+ * methods {@link SecurityContextHolderAwareRequestWrapper#isUserInRole(String)} and {@link
+ * HttpServletRequestWrapper#getRemoteUser()}.
  *
  * @see SecurityContextHolderAwareRequestFilter
  *
  * @author Orlando Garcia Carmona
  * @author Ben Alex
+ * @author Luke Taylor
  * @version $Id$
  */
 public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
@@ -57,10 +56,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 
     //~ Constructors ===================================================================================================
 
-    public SecurityContextHolderAwareRequestWrapper(
-            HttpServletRequest request,
-            PortResolver portResolver,
-            String rolePrefix) {
+    public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request, String rolePrefix) {
         super(request);
 
         this.rolePrefix = rolePrefix;

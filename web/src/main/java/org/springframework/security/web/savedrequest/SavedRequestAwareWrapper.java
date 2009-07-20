@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.wrapper;
+package org.springframework.security.web.savedrequest;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,14 +30,10 @@ import java.util.TimeZone;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequestWrapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.web.PortResolver;
-import org.springframework.security.web.savedrequest.Enumerator;
-import org.springframework.security.web.savedrequest.FastHttpDateFormat;
-import org.springframework.security.web.savedrequest.SavedRequest;
 
 
 /**
@@ -47,16 +43,18 @@ import org.springframework.security.web.savedrequest.SavedRequest;
  * Nevertheless, the important data from the original request is emulated and this should prove
  * adequate for most purposes (in particular standard HTTP GET and POST operations).</p>
  *
- * <p>Added into a request by {@link org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter}.</p>
+ * <p>
+ * Added into a request by {@link org.springframework.security.web.savedrequest.RequestCacheAwareFilter}.
+ * </p>
  *
- *
- * @see SecurityContextHolderAwareRequestFilter
+ * TODO: savedRequest cannot now be null, so convert the tests to reflect this and remove the null checks.
  *
  * @author Andrey Grebnev
  * @author Ben Alex
+ * @author Luke Taylor
  * @version $Id$
  */
-public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestWrapper {
+class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
     //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(SavedRequestAwareWrapper.class);
@@ -77,41 +75,17 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
 
     //~ Constructors ===================================================================================================
 
-    public SavedRequestAwareWrapper(HttpServletRequest request, PortResolver portResolver, String rolePrefix) {
-        super(request, portResolver, rolePrefix);
+    public SavedRequestAwareWrapper(SavedRequest saved, HttpServletRequest request) {
+        super(request);
+        savedRequest = saved;
 
-        HttpSession session = request.getSession(false);
+        formats[0] = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+        formats[1] = new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US);
+        formats[2] = new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US);
 
-        if (session == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Wrapper not replaced; no session available for SavedRequest extraction");
-            }
-
-            return;
-        }
-
-        SavedRequest saved = (SavedRequest) session.getAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
-
-        if ((saved != null) && saved.doesRequestMatch(request, portResolver)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Wrapper replaced; SavedRequest was: " + saved);
-            }
-
-            savedRequest = saved;
-            session.removeAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
-
-            formats[0] = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
-            formats[1] = new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US);
-            formats[2] = new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US);
-
-            formats[0].setTimeZone(GMT_ZONE);
-            formats[1].setTimeZone(GMT_ZONE);
-            formats[2].setTimeZone(GMT_ZONE);
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Wrapper not replaced; SavedRequest was: " + saved);
-            }
-        }
+        formats[0].setTimeZone(GMT_ZONE);
+        formats[1].setTimeZone(GMT_ZONE);
+        formats[2].setTimeZone(GMT_ZONE);
     }
 
     //~ Methods ========================================================================================================
@@ -120,51 +94,49 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     public Cookie[] getCookies() {
         if (savedRequest == null) {
             return super.getCookies();
-        } else {
-            List<Cookie> cookies = savedRequest.getCookies();
-
-            return cookies.toArray(new Cookie[cookies.size()]);
         }
+        List<Cookie> cookies = savedRequest.getCookies();
+
+        return cookies.toArray(new Cookie[cookies.size()]);
     }
 
     @Override
     public long getDateHeader(String name) {
         if (savedRequest == null) {
             return super.getDateHeader(name);
-        } else {
-            String value = getHeader(name);
-
-            if (value == null) {
-                return -1L;
-            }
-
-            // Attempt to convert the date header in a variety of formats
-            long result = FastHttpDateFormat.parseDate(value, formats);
-
-            if (result != -1L) {
-                return result;
-            }
-
-            throw new IllegalArgumentException(value);
         }
+        String value = getHeader(name);
+
+        if (value == null) {
+            return -1L;
+        }
+
+        // Attempt to convert the date header in a variety of formats
+        long result = FastHttpDateFormat.parseDate(value, formats);
+
+        if (result != -1L) {
+            return result;
+        }
+
+        throw new IllegalArgumentException(value);
     }
 
     @Override
     public String getHeader(String name) {
         if (savedRequest == null) {
             return super.getHeader(name);
-        } else {
-            String header = null;
-            Iterator<String> iterator = savedRequest.getHeaderValues(name);
-
-            while (iterator.hasNext()) {
-                header = iterator.next();
-
-                break;
-            }
-
-            return header;
         }
+
+        String header = null;
+        Iterator<String> iterator = savedRequest.getHeaderValues(name);
+
+        while (iterator.hasNext()) {
+            header = iterator.next();
+
+            break;
+        }
+
+        return header;
     }
 
     @Override
@@ -172,9 +144,9 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     public Enumeration getHeaderNames() {
         if (savedRequest == null) {
             return super.getHeaderNames();
-        } else {
-            return new Enumerator<String>(savedRequest.getHeaderNames());
         }
+
+        return new Enumerator<String>(savedRequest.getHeaderNames());
     }
 
     @Override
