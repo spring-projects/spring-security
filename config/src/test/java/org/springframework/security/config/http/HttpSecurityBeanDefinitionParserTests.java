@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
 
@@ -60,6 +61,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509PreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
@@ -551,6 +553,33 @@ public class HttpSecurityBeanDefinitionParserTests {
 
     @Test
     public void x509SupportAddsFilterAtExpectedPosition() throws Exception {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <x509 />" +
+                "</http>"  + AUTH_PROVIDER_XML);
+        List<Filter> filters = getFilters("/someurl");
+
+        assertTrue(filters.get(2) instanceof X509PreAuthenticatedProcessingFilter);
+    }
+
+    @Test
+    public void x509SubjectPrincipalRegexCanBeSetUsingPropertyPlaceholder() throws Exception {
+        System.setProperty("subject-principal-regex", "uid=(.*),");
+        setContext(
+                "<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
+                "<http auto-config='true'>" +
+                "    <x509 subject-principal-regex='${subject-principal-regex}'/>" +
+                "</http>"  + AUTH_PROVIDER_XML);
+        List<Filter> filters = getFilters("/someurl");
+
+        X509PreAuthenticatedProcessingFilter filter = (X509PreAuthenticatedProcessingFilter) filters.get(2);
+        SubjectDnX509PrincipalExtractor pe = (SubjectDnX509PrincipalExtractor) FieldUtils.getFieldValue(filter, "principalExtractor");
+        Pattern p = (Pattern) FieldUtils.getFieldValue(pe, "subjectDnPattern");
+        assertEquals("uid=(.*),", p.pattern());
+    }
+
+    @Test
+    public void x() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
                 "    <x509 />" +

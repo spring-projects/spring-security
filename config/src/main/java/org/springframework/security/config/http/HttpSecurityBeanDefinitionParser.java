@@ -564,10 +564,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             String regex = x509Elt.getAttribute("subject-principal-regex");
 
             if (StringUtils.hasText(regex)) {
-                SubjectDnX509PrincipalExtractor extractor = new SubjectDnX509PrincipalExtractor();
-                extractor.setSubjectDnRegex(regex);
+                BeanDefinitionBuilder extractor = BeanDefinitionBuilder.rootBeanDefinition(SubjectDnX509PrincipalExtractor.class);
+                extractor.addPropertyValue("subjectDnRegex", regex);
 
-                filterBuilder.addPropertyValue("principalExtractor", extractor);
+                filterBuilder.addPropertyValue("principalExtractor", extractor.getBeanDefinition());
             }
             filter = (RootBeanDefinition) filterBuilder.getBeanDefinition();
             entryPoint = new RootBeanDefinition(Http403ForbiddenEntryPoint.class);
