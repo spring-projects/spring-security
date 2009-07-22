@@ -76,7 +76,7 @@ if (principal instanceof UserDetails) {
 }</programlisting>
         <para>The object returned by the call to <methodname>getContext()</methodname> is an
           instance of the <interfacename>SecurityContext</interfacename> interface. This is the
-          object that is kept in thread-local storage.  As we'll see below, Most authentication
+          object that is kept in thread-local storage. As we'll see below, Most authentication
           mechanisms withing Spring Security return an instance of
             <interfacename>UserDetails</interfacename> as the principal. </para>
       </section>
@@ -127,7 +127,7 @@ if (principal instanceof UserDetails) {
           <interfacename>Authentication</interfacename> is <literal>getAuthorities(</literal>). This
         method provides an array of <interfacename>GrantedAuthority</interfacename> objects. A
           <interfacename>GrantedAuthority</interfacename> is, not surprisingly, an authority that is
-        granted to the principal. Such authorities are usually "roles", such as
+        granted to the principal. Such authorities are usually <quote>roles</quote>, such as
           <literal>ROLE_ADMINISTRATOR</literal> or <literal>ROLE_HR_SUPERVISOR</literal>. These
         roles are later on configured for web authorization, method authorization and domain object
         authorization. Other parts of Spring Security are capable of interpreting these authorities,

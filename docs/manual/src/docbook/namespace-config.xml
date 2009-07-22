@@ -637,20 +637,6 @@
           in the list of pointcuts, as the first matching expression will be used. </para>
       </section>
     </section>
-    <section xml:id="ns-intercept-methods">
-      <title>The <literal>intercept-methods</literal> Bean Decorator</title>
-      <para> This alternative syntax allows you to specify security for a specific bean by adding
-        this element within the bean itself. <programlisting language="xml"><![CDATA[
-<bean:bean id="target" class="com.mycompany.myapp.MyBean">
-    <intercept-methods>
-        <protect method="set*" access="ROLE_ADMIN" />
-        <protect method="get*" access="ROLE_ADMIN,ROLE_USER" />
-        <protect method="doSomething" access="ROLE_USER" />
-    </intercept-methods>
-</bean:bean>  
-]]></programlisting> This allows you to configure security attributes for individual methods on the
-        bean or simple wildcarded patterns. </para>
-    </section>
   </section>
   <section xml:id="ns-access-manager">
     <title>The Default AccessDecisionManager</title>
