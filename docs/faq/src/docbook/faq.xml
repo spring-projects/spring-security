@@ -213,6 +213,18 @@
                         It is normal and shouldn't be anything to worry about. </para>
                 </answer>
             </qandaentry>
+            <qandaentry xml:id="faq-cached-secure-page">
+                <question>
+                    <para>Why can I still see a secured page even after I've logged out of my application?</para>
+                </question>
+                <answer>
+                    <para>The most common reason for this is that your browser has cached the page and you are seeing a
+                    copy which is being retrieved from the browsers cache. Verify this by checking whether the browser is actually sending 
+                    the request (check your server access logs, the debug log or use a suitable browser debugging plugin such as <quote>Tamper Data</quote> 
+                        for Firefox). This has nothing to do with Spring Security and you should configure your application or server to set the
+                    appropriate <literal>Cache-Control</literal> response headers. Note that SSL requests are never cached.</para>
+                </answer>
+            </qandaentry>
             <qandaentry xml:id="auth-exception-credentials-not-found">
                 <question>
                     <para>I get an exception with the message "An Authentication object was not
@@ -292,6 +304,21 @@
                         right?).</para>
                 </answer>
             </qandaentry>
+            <qandaentry xml:id="faq-method-security-in-web-context">
+                <question><para>I have added Spring Security's &lt;global-method-security&gt; element to my application context but if I add
+                    security annotations to my Spring MVC controller beans (Struts actions etc.) then they don't seem to have an effect.</para>
+                </question>
+                <answer><para>
+                    The application context which holds the Spring MVC beans for the dispatcher servlet is a child application context
+                    of the main application context which is loaded using the <classname>ContextLoaderListener</classname> you define in your 
+                    <filename>web.xml</filename>. The beans in the child context are not visible in the parent context so you need to either
+                    move the &lt;global-method-security&gt; declaration to the web context or moved the beans you want secured into the main
+                    application context.
+                </para>
+                    <para>Generally we would recommend applying method security at the service layer rather than on individual web
+                    controllers.</para>
+                </answer>
+            </qandaentry>
         </qandadiv>
         <qandadiv>
             <title>Spring Security Architecture Questions</title>
@@ -354,7 +381,7 @@
             </qandaentry>
             <qandaentry xml:id="faq-dynamic-url-metadata">
                 <question>
-                    <para>How do I define the secured URLs withing an application
+                    <para>How do I define the secured URLs within an application
                         dynamically?</para>
                 </question>
                 <answer>
