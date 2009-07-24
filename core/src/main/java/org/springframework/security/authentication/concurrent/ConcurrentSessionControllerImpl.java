@@ -59,7 +59,7 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
      *
      * @param sessionId the session ID of the present request
      * @param sessions either <code>null</code> or all unexpired sessions associated with the principal
-     * @param allowableSessions DOCUMENT ME!
+     * @param allowableSessions the number of concurrent sessions the user is allowed to have
      * @param registry an instance of the <code>SessionRegistry</code> for subclass use
      *
      * @throws ConcurrentLoginException if the
