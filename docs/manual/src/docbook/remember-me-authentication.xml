@@ -58,7 +58,6 @@
   </http>
   ]]>
                 </programlisting>
-            It is automatically enabled for you if you are using the <link xlink:href="ns-auto-config">auto-config</link> setting.
             The <interfacename>UserDetailsService</interfacename> will normally be selected automatically. If you have more than one in
             your application context, you need to specify which one should be used with the <literal>user-service-ref</literal> attribute,
             where the value is the name of your <interfacename>UserDetailsService</interfacename> bean.

@@ -1,4 +1,5 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="x509"><info><title>X.509 Authentication</title></info>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="x509">
+    <info><title>X.509 Authentication</title></info>
     
     <section xml:id="x509-overview"><info><title>Overview</title></info>
         
@@ -9,13 +10,11 @@
             maintains.</para>
         <para>You can also use SSL with <quote>mutual authentication</quote>; the server will then
             request a valid certificate from the client as part of the SSL handshake. The server
-            will authenticate the client by checking that it's certificate is signed by an
+            will authenticate the client by checking that its certificate is signed by an
             acceptable authority. If a valid certificate has been provided, it can be obtained
             through the servlet API in an application. Spring Security X.509 module extracts the
-            certificate using a filter and passes it to the configured X.509 authentication provider
-            to allow any additional application-specific checks to be applied. It also maps the
-            certificate to an application user and loads that user's set of granted authorities for
-            use with the standard Spring Security infrastructure.</para>
+            certificate using a filter. It maps the certificate to an application user and loads that 
+            user's set of granted authorities for use with the standard Spring Security infrastructure.</para>
         <para>You should be familiar with using certificates and setting up client authentication
             for your servlet container before attempting to use it with Spring Security. Most of the
             work is in creating and installing suitable certificates and keys. For example, if
