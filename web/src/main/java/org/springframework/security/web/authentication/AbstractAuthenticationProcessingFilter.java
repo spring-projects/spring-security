@@ -38,7 +38,7 @@ import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.session.AuthenticatedSessionStrategy;
-import org.springframework.security.web.session.DefaultAuthenticatedSessionStrategy;
+import org.springframework.security.web.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 
@@ -129,7 +129,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends SpringSecur
 
     private boolean continueChainBeforeSuccessfulAuthentication = false;
 
-    private AuthenticatedSessionStrategy sessionStrategy = new DefaultAuthenticatedSessionStrategy();
+    private AuthenticatedSessionStrategy sessionStrategy = new NullAuthenticatedSessionStrategy();
 
     private boolean allowSessionCreation = true;
 
@@ -393,7 +393,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends SpringSecur
      * successfully processed. Used, for example, to handle changing of the session identifier to prevent session
      * fixation attacks.
      *
-     * @param sessionStrategy the implementation to use. If not set a {@link DefaultAuthenticatedSessionStrategy} is
+     * @param sessionStrategy the implementation to use. If not set a null implementation is
      * used.
      */
     public void setAuthenticatedSessionStrategy(AuthenticatedSessionStrategy sessionStrategy) {
