@@ -579,17 +579,6 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void x() throws Exception {
-        setContext(
-                "<http auto-config='true'>" +
-                "    <x509 />" +
-                "</http>"  + AUTH_PROVIDER_XML);
-        List<Filter> filters = getFilters("/someurl");
-
-        assertTrue(filters.get(2) instanceof X509PreAuthenticatedProcessingFilter);
-    }
-
-    @Test
     public void concurrentSessionSupportAddsFilterAndExpectedBeans() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
@@ -754,8 +743,8 @@ public class HttpSecurityBeanDefinitionParserTests {
         setContext(
                 "<http auto-config='true' session-fixation-protection='none'/>" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
-
-        assertFalse(filters.get(1) instanceof SessionFixationProtectionFilter);
+        assertTrue(filters.get(8) instanceof ExceptionTranslationFilter);
+        assertFalse(filters.get(9) instanceof SessionFixationProtectionFilter);
     }
 
     /**

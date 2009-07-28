@@ -14,15 +14,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.concurrent.SessionRegistry;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
 /**
  * The default implementation of {@link AuthenticatedSessionStrategy}.
  * <p>
- * Creates a new session for the newly authenticated user if they already have a session, and copies their
+ * Creates a new session for the newly authenticated user if they already have a session (as a defence against
+ * session-fixation protection attacks), and copies their
  * session attributes across to the new session (can be disabled by setting <tt>migrateSessionAttributes</tt> to
  * <tt>false</tt>).
+ * <p>
+ * This approach will only be effective if your servlet container always assigns a new session Id when a session is
+ * invalidated and a new session created by calling {@link HttpServletRequest#getSession()}.
  * <p>
  * If concurrent session control is in use, then a <tt>SessionRegistry</tt> must be injected.
  *
@@ -91,6 +94,11 @@ public class DefaultAuthenticatedSessionStrategy implements AuthenticatedSession
             logger.debug("Started new session: " + session.getId());
         }
 
+        if (originalSessionId.equals(session.getId())) {
+            logger.warn("Your servlet container did not change the session ID when a new session was created. You will" +
+                    " not be adequately protected against session-fixation attacks");
+        }
+
         // Copy attributes to new session
         if (attributesToMigrate != null) {
             for (Map.Entry<String, Object> entry : attributesToMigrate.entrySet()) {
@@ -101,8 +109,7 @@ public class DefaultAuthenticatedSessionStrategy implements AuthenticatedSession
         // Update the session registry
         if (sessionRegistry != null) {
             sessionRegistry.removeSessionInformation(originalSessionId);
-            sessionRegistry.registerNewSession(session.getId(),
-                    SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+            sessionRegistry.registerNewSession(session.getId(), authentication.getPrincipal());
         }
     }
 
@@ -151,5 +158,9 @@ public class DefaultAuthenticatedSessionStrategy implements AuthenticatedSession
 
     public void setRetainedAttributes(List<String> retainedAttributes) {
         this.retainedAttributes = retainedAttributes;
+    }
+
+    public void setAlwaysCreateSession(boolean alwaysCreateSession) {
+        this.alwaysCreateSession = alwaysCreateSession;
     }
 }
