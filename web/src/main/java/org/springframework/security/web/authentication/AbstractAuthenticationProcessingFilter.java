@@ -31,14 +31,14 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.concurrent.SessionRegistry;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.session.SessionUtils;
+import org.springframework.security.web.session.AuthenticatedSessionStrategy;
+import org.springframework.security.web.session.DefaultAuthenticatedSessionStrategy;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 
@@ -61,7 +61,9 @@ import org.springframework.util.Assert;
  *
  * If authentication is successful, the resulting {@link Authentication} object will be placed into the
  * <code>SecurityContext</code> for the current thread, which is guaranteed to have already been created by an earlier
- * filter. The configured {@link #setAuthenticationSuccessHandler(AuthenticationSuccessHandler) AuthenticationSuccessHandler} will
+ * filter.
+ * <p>
+ * The configured {@link #setAuthenticationSuccessHandler(AuthenticationSuccessHandler) AuthenticationSuccessHandler} will
  * then be called to take the redirect to the appropriate destination after a successful login. The default behaviour
  * is implemented in a {@link SavedRequestAwareAuthenticationSuccessHandler} which will make use of any
  * <tt>SavedRequest</tt> set by the <tt>ExceptionTranslationFilter</tt> and redirect the user to the URL contained
@@ -127,25 +129,9 @@ public abstract class AbstractAuthenticationProcessingFilter extends SpringSecur
 
     private boolean continueChainBeforeSuccessfulAuthentication = false;
 
-    /**
-     * Tells if we on successful authentication should invalidate the
-     * current session. This is a common guard against session fixation attacks.
-     * Defaults to <code>false</code>.
-     */
-    private boolean invalidateSessionOnSuccessfulAuthentication = false;
-
-    /**
-     * If {@link #invalidateSessionOnSuccessfulAuthentication} is true, this
-     * flag indicates that the session attributes of the session to be invalidated
-     * are to be migrated to the new session. Defaults to <code>true</code> since
-     * nothing will happen unless {@link #invalidateSessionOnSuccessfulAuthentication}
-     * is true.
-     */
-    private boolean migrateInvalidatedSessionAttributes = true;
+    private AuthenticatedSessionStrategy sessionStrategy = new DefaultAuthenticatedSessionStrategy();
 
     private boolean allowSessionCreation = true;
-
-    private SessionRegistry sessionRegistry;
 
     private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
     private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
@@ -281,7 +267,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends SpringSecur
      * Default behaviour for successful authentication.
      * <ol>
      * <li>Sets the successful <tt>Authentication</tt> object on the {@link SecurityContextHolder}</li>
-     * <li>Performs any configured session migration behaviour</li>
+     * <li>Invokes the configured {@link AuthenticatedSessionStrategy} to handle any session-related behaviour
+     * (such as creating a new session to protect against session-fixation attacks).</li>
      * <li>Informs the configured <tt>RememberMeServices</tt> of the successful login</li>
      * <li>Fires an {@link InteractiveAuthenticationSuccessEvent} via the configured
      * <tt>ApplicationEventPublisher</tt></li>
@@ -299,9 +286,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends SpringSecur
 
         SecurityContextHolder.getContext().setAuthentication(authResult);
 
-        if (invalidateSessionOnSuccessfulAuthentication) {
-            SessionUtils.startNewSessionIfRequired(request, migrateInvalidatedSessionAttributes, sessionRegistry);
-        }
+        sessionStrategy.onAuthenticationSuccess(authResult, request, response);
 
         rememberMeServices.loginSuccess(request, response, authResult);
 
@@ -332,14 +317,10 @@ public abstract class AbstractAuthenticationProcessingFilter extends SpringSecur
             logger.debug("Delegating to authentication failure handler" + failureHandler);
         }
 
-        try {
-            HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession(false);
 
-            if (session != null || allowSessionCreation) {
-                request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
-            }
-        }
-        catch (Exception ignored) {
+        if (session != null || allowSessionCreation) {
+            request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
         }
 
         rememberMeServices.loginFail(request, response);
@@ -394,14 +375,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends SpringSecur
         this.messages = new MessageSourceAccessor(messageSource);
     }
 
-    public void setInvalidateSessionOnSuccessfulAuthentication(boolean invalidateSessionOnSuccessfulAuthentication) {
-        this.invalidateSessionOnSuccessfulAuthentication = invalidateSessionOnSuccessfulAuthentication;
-    }
-
-    public void setMigrateInvalidatedSessionAttributes(boolean migrateInvalidatedSessionAttributes) {
-        this.migrateInvalidatedSessionAttributes = migrateInvalidatedSessionAttributes;
-    }
-
     public AuthenticationDetailsSource getAuthenticationDetailsSource() {
         // Required due to SEC-310
         return authenticationDetailsSource;
@@ -416,11 +389,15 @@ public abstract class AbstractAuthenticationProcessingFilter extends SpringSecur
     }
 
     /**
-     * The session registry needs to be set if session fixation attack protection is in use (and concurrent
-     * session control is enabled).
+     * The session handling strategy which will be invoked when an authentication request is
+     * successfully processed. Used, for example, to handle changing of the session identifier to prevent session
+     * fixation attacks.
+     *
+     * @param sessionStrategy the implementation to use. If not set a {@link DefaultAuthenticatedSessionStrategy} is
+     * used.
      */
-    public void setSessionRegistry(SessionRegistry sessionRegistry) {
-        this.sessionRegistry = sessionRegistry;
+    public void setAuthenticatedSessionStrategy(AuthenticatedSessionStrategy sessionStrategy) {
+        this.sessionStrategy = sessionStrategy;
     }
 
     /**

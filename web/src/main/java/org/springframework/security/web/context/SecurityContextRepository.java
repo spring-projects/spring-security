@@ -50,4 +50,13 @@ public interface SecurityContextRepository {
      * @param response
      */
     void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * Allows the repository to be queried as to whether it contains a security context for the
+     * current request.
+     *
+     * @param request the current request
+     * @return true if a context is found for the request, false otherwise
+     */
+    boolean containsContext(HttpServletRequest request);
 }

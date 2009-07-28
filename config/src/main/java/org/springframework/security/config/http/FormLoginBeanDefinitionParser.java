@@ -40,18 +40,21 @@ public class FormLoginBeanDefinitionParser {
     private final String defaultLoginProcessingUrl;
     private final String filterClassName;
     private final BeanReference requestCache;
+    private final BeanReference sessionStrategy;
 
     private RootBeanDefinition filterBean;
     private RootBeanDefinition entryPointBean;
     private String loginPage;
 
-    FormLoginBeanDefinitionParser(String defaultLoginProcessingUrl, String filterClassName, BeanReference requestCache) {
+    FormLoginBeanDefinitionParser(String defaultLoginProcessingUrl, String filterClassName,
+            BeanReference requestCache, BeanReference sessionStrategy) {
         this.defaultLoginProcessingUrl = defaultLoginProcessingUrl;
         this.filterClassName = filterClassName;
         this.requestCache = requestCache;
+        this.sessionStrategy = sessionStrategy;
     }
 
-    public BeanDefinition parse(Element elt, ParserContext pc, RootBeanDefinition sfpf) {
+    public BeanDefinition parse(Element elt, ParserContext pc) {
         String loginUrl = null;
         String defaultTargetUrl = null;
         String authenticationFailureUrl = null;
@@ -84,12 +87,6 @@ public class FormLoginBeanDefinitionParser {
                 successHandlerRef, failureHandlerRef);
         filterBean.setSource(source);
 
-        // Copy session migration values from the session fixation protection filter
-        if (sfpf != null) {
-            filterBean.getPropertyValues().addPropertyValue("migrateInvalidatedSessionAttributes", sfpf.getPropertyValues().getPropertyValue("migrateSessionAttributes").getValue());
-            filterBean.getPropertyValues().addPropertyValue("invalidateSessionOnSuccessfulAuthentication", Boolean.TRUE);
-        }
-
         BeanDefinitionBuilder entryPointBuilder =
                 BeanDefinitionBuilder.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class);
         entryPointBuilder.getRawBeanDefinition().setSource(source);
@@ -120,6 +117,10 @@ public class FormLoginBeanDefinitionParser {
             successHandler.addPropertyValue("requestCache", requestCache);
             successHandler.addPropertyValue("defaultTargetUrl", StringUtils.hasText(defaultTargetUrl) ? defaultTargetUrl : DEF_FORM_LOGIN_TARGET_URL);
             filterBuilder.addPropertyValue("authenticationSuccessHandler", successHandler.getBeanDefinition());
+        }
+
+        if (sessionStrategy != null) {
+            filterBuilder.addPropertyValue("authenticatedSessionStrategy", sessionStrategy);
         }
 
         if (StringUtils.hasText(failureHandlerRef)) {

@@ -50,6 +50,7 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.session.AuthenticatedSessionStrategy;
 
 
 /**
@@ -239,6 +240,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
 
         filter.setFilterProcessesUrl("/j_mock_post");
+        filter.setAuthenticatedSessionStrategy(mock(AuthenticatedSessionStrategy.class));
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationManager(mock(AuthenticationManager.class));
@@ -388,48 +390,6 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals("https://monkeymachine.co.uk/", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-    }
-
-    public void testNewSessionIsCreatedIfInvalidateSessionOnSuccessfulAuthenticationIsSet() throws Exception {
-        MockHttpServletRequest request = createMockRequest();
-        HttpSession oldSession = request.getSession();
-        oldSession.setAttribute("test","test");
-        MockFilterConfig config = new MockFilterConfig(null, null);
-
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Setup our test object, to grant access
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
-        filter.setInvalidateSessionOnSuccessfulAuthentication(true);
-        successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
-        filter.setAuthenticationSuccessHandler(successHandler);
-
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
-
-        HttpSession newSession = request.getSession();
-        assertFalse(newSession.getId().equals(oldSession.getId()));
-        assertEquals("test", newSession.getAttribute("test"));
-    }
-
-    public void testAttributesAreNotMigratedToNewlyCreatedSessionIfMigrateAttributesIsFalse() throws Exception {
-        MockHttpServletRequest request = createMockRequest();
-        HttpSession oldSession = request.getSession();
-        MockFilterConfig config = new MockFilterConfig(null, null);
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
-        filter.setInvalidateSessionOnSuccessfulAuthentication(true);
-        filter.setMigrateInvalidatedSessionAttributes(false);
-        successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
-        filter.setAuthenticationSuccessHandler(successHandler);
-
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
-
-        HttpSession newSession = request.getSession();
-        assertFalse(newSession.getId().equals(oldSession.getId()));
-        assertNull(newSession.getAttribute("test"));
     }
 
     /**

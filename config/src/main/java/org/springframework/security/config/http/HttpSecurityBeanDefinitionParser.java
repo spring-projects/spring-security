@@ -66,6 +66,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
+import org.springframework.security.web.session.DefaultAuthenticatedSessionStrategy;
 import org.springframework.security.web.session.SessionFixationProtectionFilter;
 import org.springframework.security.web.util.AntUrlPathMatcher;
 import org.springframework.security.web.util.RegexUrlPathMatcher;
@@ -189,6 +190,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         BeanDefinition concurrentSessionFilter = createConcurrentSessionFilterAndRelatedBeansIfRequired(element, pc);
 
         BeanDefinition scpf = createSecurityContextPersistenceFilter(element, pc);
+        BeanReference contextRepoRef = (BeanReference) scpf.getPropertyValues().getPropertyValue("securityContextRepository").getValue();
 
         if (concurrentSessionFilter != null) {
             sessionRegistryRef = (BeanReference)
@@ -214,7 +216,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         BeanDefinition etf = createExceptionTranslationFilter(element, pc, requestCache);
         RootBeanDefinition sfpf = createSessionFixationProtectionFilter(pc, element.getAttribute(ATT_SESSION_FIXATION_PROTECTION),
-                sessionRegistryRef);
+                sessionRegistryRef, contextRepoRef);
+        BeanReference sessionStrategyRef = null;
+
+        if (sfpf != null) {
+            sessionStrategyRef = (BeanReference) sfpf.getPropertyValues().getPropertyValue("authenticatedSessionStrategy").getValue();
+        }
         BeanDefinition fsi = createFilterSecurityInterceptor(element, pc, matcher, convertPathsToLowerCase, authenticationManager);
 
         if (channelRequestMap.size() > 0) {
@@ -222,16 +229,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             cpf = createChannelProcessingFilter(pc, matcher, channelRequestMap, portMapperName);
         }
 
-//        if (sfpf != null) {
-//            // Used by SessionRegistryinjectionPP
-//            pc.getRegistry().registerBeanDefinition(BeanIds.SESSION_FIXATION_PROTECTION_FILTER, sfpf);
-//        }
-
         final FilterAndEntryPoint basic = createBasicFilter(element, pc, autoConfig, authenticationManager);
         final FilterAndEntryPoint form = createFormLoginFilter(element, pc, autoConfig, allowSessionCreation,
-                sfpf, authenticationManager, requestCache);
+                sessionStrategyRef, authenticationManager, requestCache);
         final FilterAndEntryPoint openID = createOpenIDLoginFilter(element, pc, autoConfig, allowSessionCreation,
-                sfpf, authenticationManager, requestCache);
+                sessionStrategyRef, authenticationManager, requestCache);
 
         String rememberMeServicesId = null;
         if (rememberMeFilter != null) {
@@ -247,7 +249,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             pc.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_FILTER, form.filter);
             pc.registerBeanComponent(new BeanComponentDefinition(form.filter, BeanIds.FORM_LOGIN_FILTER));
             injectRememberMeServicesRef(form.filter, rememberMeServicesId);
-            injectSessionRegistryRef(form.filter, sessionRegistryRef);
         }
 
         if (openID.filter != null) {
@@ -255,7 +256,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             pc.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_FILTER, openID.filter);
             pc.registerBeanComponent(new BeanComponentDefinition(openID.filter, BeanIds.OPEN_ID_FILTER));
             injectRememberMeServicesRef(openID.filter, rememberMeServicesId);
-            injectSessionRegistryRef(openID.filter, sessionRegistryRef);
         }
 
         String x509ProviderId = null;
@@ -382,12 +382,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private void injectRememberMeServicesRef(RootBeanDefinition bean, String rememberMeServicesId) {
         if (rememberMeServicesId != null) {
             bean.getPropertyValues().addPropertyValue("rememberMeServices", new RuntimeBeanReference(rememberMeServicesId));
-        }
-    }
-
-    private void injectSessionRegistryRef(RootBeanDefinition bean, BeanReference sessionRegistryRef){
-        if (sessionRegistryRef != null) {
-            bean.getPropertyValues().addPropertyValue("sessionRegistry", sessionRegistryRef);
         }
     }
 
@@ -691,7 +685,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 contextRepo.addPropertyValue("disableUrlRewriting", Boolean.TRUE);
             }
 
-            scpf.addPropertyValue("securityContextRepository", contextRepo.getBeanDefinition());
+            String id = pc.getReaderContext().registerWithGeneratedName(contextRepo.getBeanDefinition());
+
+            scpf.addPropertyReference("securityContextRepository", id);
         }
 
         return scpf.getBeanDefinition();
@@ -914,7 +910,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private RootBeanDefinition createSessionFixationProtectionFilter(ParserContext pc, String sessionFixationAttribute,
-            BeanReference sessionRegistryRef) {
+            BeanReference sessionRegistryRef, BeanReference contextRepoRef) {
         if(!StringUtils.hasText(sessionFixationAttribute)) {
             sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
         }
@@ -922,18 +918,25 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (!sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION)) {
             BeanDefinitionBuilder sessionFixationFilter =
                 BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionFilter.class);
-            sessionFixationFilter.addPropertyValue("migrateSessionAttributes",
+            sessionFixationFilter.addConstructorArgValue(contextRepoRef);
+
+            BeanDefinitionBuilder sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(DefaultAuthenticatedSessionStrategy.class);
+
+            sessionStrategy.addPropertyValue("migrateSessionAttributes",
                     Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
             if (sessionRegistryRef != null) {
-                sessionFixationFilter.addPropertyValue("sessionRegistry", sessionRegistryRef);
+                sessionStrategy.addPropertyValue("sessionRegistry", sessionRegistryRef);
             }
+
+            String id = pc.getReaderContext().registerWithGeneratedName(sessionStrategy.getBeanDefinition());
+            sessionFixationFilter.addPropertyReference("authenticatedSessionStrategy", id);
             return (RootBeanDefinition) sessionFixationFilter.getBeanDefinition();
         }
         return null;
     }
 
     private FilterAndEntryPoint createFormLoginFilter(Element element, ParserContext pc, boolean autoConfig,
-            boolean allowSessionCreation, RootBeanDefinition sfpf, BeanReference authManager, BeanReference requestCache) {
+            boolean allowSessionCreation, BeanReference sessionStrategy, BeanReference authManager, BeanReference requestCache) {
         RootBeanDefinition formLoginFilter = null;
         RootBeanDefinition formLoginEntryPoint = null;
 
@@ -941,9 +944,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         if (formLoginElt != null || autoConfig) {
             FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_security_check",
-                    AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache);
+                    AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache, sessionStrategy);
 
-            parser.parse(formLoginElt, pc, sfpf);
+            parser.parse(formLoginElt, pc);
             formLoginFilter = parser.getFilterBean();
             formLoginEntryPoint = parser.getEntryPointBean();
         }
@@ -957,16 +960,16 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private FilterAndEntryPoint createOpenIDLoginFilter(Element element, ParserContext pc, boolean autoConfig,
-            boolean allowSessionCreation, RootBeanDefinition sfpf, BeanReference authManager, BeanReference requestCache) {
+            boolean allowSessionCreation, BeanReference sessionStrategy, BeanReference authManager, BeanReference requestCache) {
         Element openIDLoginElt = DomUtils.getChildElementByTagName(element, Elements.OPENID_LOGIN);
         RootBeanDefinition openIDFilter = null;
         RootBeanDefinition openIDEntryPoint = null;
 
         if (openIDLoginElt != null) {
             FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_openid_security_check",
-                    OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache);
+                    OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache, sessionStrategy);
 
-            parser.parse(openIDLoginElt, pc, sfpf);
+            parser.parse(openIDLoginElt, pc);
             openIDFilter = parser.getFilterBean();
             openIDEntryPoint = parser.getEntryPointBean();
         }

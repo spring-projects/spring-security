@@ -111,6 +111,16 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         }
     }
 
+    public boolean containsContext(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        if (session == null) {
+            return false;
+        }
+
+        return session.getAttribute(SPRING_SECURITY_CONTEXT_KEY) != null;
+    }
+
     /**
      *
      * @param httpSession the session obtained from the request.

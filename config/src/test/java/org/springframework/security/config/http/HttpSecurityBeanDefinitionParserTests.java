@@ -647,10 +647,10 @@ public class HttpSecurityBeanDefinitionParserTests {
         Object sessionRegistryFromConcurrencyFilter = FieldUtils.getFieldValue(
                 getFilter(ConcurrentSessionFilter.class),"sessionRegistry");
         Object sessionRegistryFromFormLoginFilter = FieldUtils.getFieldValue(
-                getFilter(UsernamePasswordAuthenticationProcessingFilter.class),"sessionRegistry");
+                getFilter(UsernamePasswordAuthenticationProcessingFilter.class),"sessionStrategy.sessionRegistry");
         Object sessionRegistryFromController = FieldUtils.getFieldValue(getConcurrentSessionController(),"sessionRegistry");
         Object sessionRegistryFromFixationFilter = FieldUtils.getFieldValue(
-                getFilter(SessionFixationProtectionFilter.class),"sessionRegistry");
+                getFilter(SessionFixationProtectionFilter.class),"sessionStrategy.sessionRegistry");
 
         assertSame(sessionRegistry, sessionRegistryFromConcurrencyFilter);
         assertSame(sessionRegistry, sessionRegistryFromController);
