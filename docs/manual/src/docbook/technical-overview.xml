@@ -114,7 +114,7 @@ if (principal instanceof UserDetails) {
           xlink:href="#tech-intro-authentication-mgr">below</link>). The good news is that we
         provide a number of <interfacename>UserDetailsService</interfacename> implementations,
         including one that uses an in-memory map (<classname>InMemoryDaoImpl</classname>) and
-        another that uses JDBC (<interfacename>JdbcDaoImpl</interfacename>). Most users tend to
+        another that uses JDBC (<classname>JdbcDaoImpl</classname>). Most users tend to
         write their own, though, with their implementations often simply sitting on top of an
         existing Data Access Object (DAO) that represents their employees, customers, or other users
         of the application. Remember the advantage that whatever your

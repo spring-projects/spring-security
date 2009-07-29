@@ -79,25 +79,25 @@
             <para>The simplest <interfacename>AuthenticationProvider</interfacename> implemented by
                 Spring Security is <literal>DaoAuthenticationProvider</literal>, which is is also
                 one of the earliest supported by the framework. It leverages a
-                    <interfacename>UserDetailsService</interfacename>  (as a DAO) in order to lookup
+                    <interfacename>UserDetailsService</interfacename> (as a DAO) in order to lookup
                 the username, password and <interfacename>GrantedAuthority</interfacename>s. It
                 authenticates the user simply by comparing the password submitted in a
                     <classname>UsernamePasswordAuthenticationToken</classname> against the one
                 loaded by the <interfacename>UserDetailsService</interfacename>. Configuring the
-                provider is quite simple: 
-<programlisting language="xml"><![CDATA[
+                provider is quite simple: <programlisting language="xml"><![CDATA[
 <bean id="daoAuthenticationProvider"
     class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
   <property name="userDetailsService" ref="inMemoryDaoImpl"/>
   <property name="saltSource" ref bean="saltSource"/>
   <property name="passwordEncoder" ref="passwordEncoder"/>
-</bean>]]></programlisting>
-                The <interfacename>PasswordEncoder</interfacename> and <interfacename>SaltSource</interfacename> are 
-                optional. A <interfacename>PasswordEncoder</interfacename> provides encoding and decoding of passwords 
-                presented in the <interfacename>UserDetails</interfacename> object that is returned from the configured 
-                <interfacename>UserDetailsService</interfacename>. A <interfacename>SaltSource</interfacename> enables 
-                the passwords to be populated with a "salt", which enhances the security of the 
-                passwords in the authentication repository. These will be discussed in more detail in ???. 
+</bean>]]></programlisting> The <interfacename>PasswordEncoder</interfacename> and
+                    <interfacename>SaltSource</interfacename> are optional. A
+                    <interfacename>PasswordEncoder</interfacename> provides encoding and decoding of
+                passwords presented in the <interfacename>UserDetails</interfacename> object that is
+                returned from the configured <interfacename>UserDetailsService</interfacename>. A
+                    <interfacename>SaltSource</interfacename> enables the passwords to be populated
+                with a "salt", which enhances the security of the passwords in the authentication
+                repository. These will be discussed in more detail in ???.
                 <!-- TODO: Add sections on password encoding and user caching to advaced topics -->
             </para>
         </section>
@@ -178,7 +178,19 @@
             </para>
             <para>You can use different relational database management systems by modifying the
                     <literal>DriverManagerDataSource</literal> shown above. You can also use a
-                global data source obtained from JNDI, as with any other Spring configuration. </para>
+                global data source obtained from JNDI, as with any other Spring
+                configuration.</para>
+            <section>
+                <title>Authority Groups</title>
+                <para>By default, <classname>JdbcDaoImpl</classname> loads the authorities for a
+                    single user with the assumption that the authorities are mapped directly to
+                    users (see the <link xlink:href="#appendix-schema">database schema
+                        appendix</link>). An alternative approach is to partition the authorities
+                    into groups and assign groups to the user. Some people prefer this approach as a
+                    means of administering user rights. See the <classname>JdbcDaoImpl</classname>
+                    Javadoc for more information on how to enable the use of group authorities. The
+                    group schema is also included in the appendix.</para>
+            </section>
             <!--
                 <para>If the default schema is unsuitable for your needs, <literal>JdbcDaoImpl</literal>
                 provides properties that allow customisation of the SQL statements. Please refer to the
