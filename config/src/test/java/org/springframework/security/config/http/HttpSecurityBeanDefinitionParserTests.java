@@ -72,7 +72,7 @@ import org.springframework.security.web.authentication.www.BasicProcessingFilter
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
-import org.springframework.security.web.session.SessionFixationProtectionFilter;
+import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.ReflectionUtils;
 
@@ -139,7 +139,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof SecurityContextHolderAwareRequestFilter);
         assertTrue(filters.next() instanceof AnonymousProcessingFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
-        assertTrue(filters.next() instanceof SessionFixationProtectionFilter);
+        assertTrue(filters.next() instanceof SessionManagementFilter);
         Object fsiObj = filters.next();
         assertTrue(fsiObj instanceof FilterSecurityInterceptor);
         FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) fsiObj;
@@ -639,7 +639,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 getFilter(UsernamePasswordAuthenticationProcessingFilter.class),"sessionStrategy.sessionRegistry");
         Object sessionRegistryFromController = FieldUtils.getFieldValue(getConcurrentSessionController(),"sessionRegistry");
         Object sessionRegistryFromFixationFilter = FieldUtils.getFieldValue(
-                getFilter(SessionFixationProtectionFilter.class),"sessionStrategy.sessionRegistry");
+                getFilter(SessionManagementFilter.class),"sessionStrategy.sessionRegistry");
 
         assertSame(sessionRegistry, sessionRegistryFromConcurrencyFilter);
         assertSame(sessionRegistry, sessionRegistryFromController);
@@ -744,7 +744,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true' session-fixation-protection='none'/>" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
         assertTrue(filters.get(8) instanceof ExceptionTranslationFilter);
-        assertFalse(filters.get(9) instanceof SessionFixationProtectionFilter);
+        assertFalse(filters.get(9) instanceof SessionManagementFilter);
     }
 
     /**

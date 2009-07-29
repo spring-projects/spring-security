@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
  * @version $Id$
  * @since 2.0
  */
-public class SessionFixationProtectionFilter extends SpringSecurityFilter {
+public class SessionManagementFilter extends SpringSecurityFilter {
     //~ Static fields/initializers =====================================================================================
 
     static final String FILTER_APPLIED = "__spring_security_session_fixation_filter_applied";
@@ -40,7 +40,7 @@ public class SessionFixationProtectionFilter extends SpringSecurityFilter {
 
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
-    public SessionFixationProtectionFilter(SecurityContextRepository securityContextRepository) {
+    public SessionManagementFilter(SecurityContextRepository securityContextRepository) {
         this.securityContextRepository = securityContextRepository;
     }
 

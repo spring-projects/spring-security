@@ -22,7 +22,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
  * @author Luke Taylor
  * @version $Id$
  */
-public class SessionFixationProtectionFilterTests {
+public class SessionManagementFilterTests {
 
     @After
     public void clearContext() {
@@ -32,7 +32,7 @@ public class SessionFixationProtectionFilterTests {
     @Test
     public void newSessionShouldNotBeCreatedIfSessionExistsAndUserIsNotAuthenticated() throws Exception {
         SecurityContextRepository repo = mock(SecurityContextRepository.class);
-        SessionFixationProtectionFilter filter = new SessionFixationProtectionFilter(repo);
+        SessionManagementFilter filter = new SessionManagementFilter(repo);
         HttpServletRequest request = new MockHttpServletRequest();
         String sessionId = request.getSession().getId();
 
@@ -47,7 +47,7 @@ public class SessionFixationProtectionFilterTests {
         AuthenticatedSessionStrategy strategy = mock(AuthenticatedSessionStrategy.class);
         // mock that repo contains a security context
         when(repo.containsContext(any(HttpServletRequest.class))).thenReturn(true);
-        SessionFixationProtectionFilter filter = new SessionFixationProtectionFilter(repo);
+        SessionManagementFilter filter = new SessionManagementFilter(repo);
         filter.setAuthenticatedSessionStrategy(strategy);
         HttpServletRequest request = new MockHttpServletRequest();
         authenticateUser();
@@ -61,7 +61,7 @@ public class SessionFixationProtectionFilterTests {
     public void strategyIsNotInvokedIfAuthenticationIsNull() throws Exception {
         SecurityContextRepository repo = mock(SecurityContextRepository.class);
         AuthenticatedSessionStrategy strategy = mock(AuthenticatedSessionStrategy.class);
-        SessionFixationProtectionFilter filter = new SessionFixationProtectionFilter(repo);
+        SessionManagementFilter filter = new SessionManagementFilter(repo);
         filter.setAuthenticatedSessionStrategy(strategy);
         HttpServletRequest request = new MockHttpServletRequest();
 
@@ -75,7 +75,7 @@ public class SessionFixationProtectionFilterTests {
         SecurityContextRepository repo = mock(SecurityContextRepository.class);
         // repo will return false to containsContext()
         AuthenticatedSessionStrategy strategy = mock(AuthenticatedSessionStrategy.class);
-        SessionFixationProtectionFilter filter = new SessionFixationProtectionFilter(repo);
+        SessionManagementFilter filter = new SessionManagementFilter(repo);
         filter.setAuthenticatedSessionStrategy(strategy);
         HttpServletRequest request = new MockHttpServletRequest();
         authenticateUser();

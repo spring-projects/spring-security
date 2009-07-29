@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicProcessingFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.session.SessionFixationProtectionFilter;
+import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 
 public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator{
@@ -52,7 +52,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
     private void checkFilterStack(List<Filter> filters) {
         checkForDuplicates(SecurityContextPersistenceFilter.class, filters);
         checkForDuplicates(UsernamePasswordAuthenticationProcessingFilter.class, filters);
-        checkForDuplicates(SessionFixationProtectionFilter.class, filters);
+        checkForDuplicates(SessionManagementFilter.class, filters);
         checkForDuplicates(BasicProcessingFilter.class, filters);
         checkForDuplicates(SecurityContextHolderAwareRequestFilter.class, filters);
         checkForDuplicates(ExceptionTranslationFilter.class, filters);

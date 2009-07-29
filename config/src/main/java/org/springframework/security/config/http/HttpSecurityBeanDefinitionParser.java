@@ -67,7 +67,7 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.session.DefaultAuthenticatedSessionStrategy;
-import org.springframework.security.web.session.SessionFixationProtectionFilter;
+import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.AntUrlPathMatcher;
 import org.springframework.security.web.util.RegexUrlPathMatcher;
 import org.springframework.security.web.util.UrlMatcher;
@@ -917,7 +917,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         if (!sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION)) {
             BeanDefinitionBuilder sessionFixationFilter =
-                BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionFilter.class);
+                BeanDefinitionBuilder.rootBeanDefinition(SessionManagementFilter.class);
             sessionFixationFilter.addConstructorArgValue(contextRepoRef);
 
             BeanDefinitionBuilder sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(DefaultAuthenticatedSessionStrategy.class);
