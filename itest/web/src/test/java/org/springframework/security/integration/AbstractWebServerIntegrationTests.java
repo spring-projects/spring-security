@@ -17,6 +17,11 @@ import org.testng.annotations.*;
 import com.meterware.httpunit.WebConversation;
 
 /**
+ * Base class which allows the application to be started with a particular Spring application
+ * context. Subclasses override the <tt>getContextConfigLocations</tt> method to return
+ * a list of context file names which is passed to the <tt>ContextLoaderListener</tt> when
+ * starting up the webapp.
+ *
  * @author Luke Taylor
  * @version $Id$
  */
@@ -51,7 +56,7 @@ public abstract class AbstractWebServerIntegrationTests {
     }
 
     @SuppressWarnings("unchecked")
-    protected WebAppContext createWebContext() {
+    private WebAppContext createWebContext() {
         WebAppContext webCtx = new WebAppContext("src/main/webapp", getContextPath());
 
         if (StringUtils.hasText(getContextConfigLocations())) {
@@ -116,8 +121,6 @@ public abstract class AbstractWebServerIntegrationTests {
     protected final void assertTextPresent(String text) {
         tester.assertTextPresent(text);
     }
-
-
 
     // Security-specific utility methods
 
