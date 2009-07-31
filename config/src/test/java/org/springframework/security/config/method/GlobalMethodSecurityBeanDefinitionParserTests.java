@@ -273,7 +273,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     }
 
     private void setContext(String context, ApplicationContext parent) {
-        appContext = new InMemoryXmlApplicationContext(context, "3.0", parent);
+        appContext = new InMemoryXmlApplicationContext(context, parent);
     }
 }
 

@@ -26,6 +26,9 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
         this(xml, "3.0", null);
     }
 
+    public InMemoryXmlApplicationContext(String xml, ApplicationContext parent) {
+        this(xml, "3.0", parent);
+    }
 
     public InMemoryXmlApplicationContext(String xml, String secVersion, ApplicationContext parent) {
         String fullXml = BEANS_OPENING + secVersion + ".xsd'>\n" + xml + BEANS_CLOSE;
