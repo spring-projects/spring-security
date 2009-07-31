@@ -208,6 +208,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         BeanDefinition portMapper = new PortMappingsBeanDefinitionParser().parse(
                 DomUtils.getChildElementByTagName(element, Elements.PORT_MAPPINGS), pc);
         String portMapperName = pc.getReaderContext().registerWithGeneratedName(portMapper);
+        pc.registerBeanComponent(new BeanComponentDefinition(portMapper, portMapperName));
         RootBeanDefinition rememberMeFilter = createRememberMeFilter(element, pc, authenticationManager);
         BeanDefinition anonFilter = createAnonymousFilter(element, pc);
         BeanReference requestCache = createRequestCache(element, pc, allowSessionCreation, portMapperName);
@@ -374,7 +375,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             authManager.addPropertyValue("sessionController", concurrencyController);
         }
         authManager.getRawBeanDefinition().setSource(pc.extractSource(element));
-        String id = pc.getReaderContext().registerWithGeneratedName(authManager.getBeanDefinition());
+        BeanDefinition authMgrBean = authManager.getBeanDefinition();
+        String id = pc.getReaderContext().registerWithGeneratedName(authMgrBean);
+        pc.registerBeanComponent(new BeanComponentDefinition(authMgrBean, id));
 
         return new RuntimeBeanReference(id);
     }
@@ -536,6 +539,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             entryPoint.getPropertyValues().addPropertyValue("realmName", realm);
 
             String entryPointId = pc.getReaderContext().registerWithGeneratedName(entryPoint);
+            pc.registerBeanComponent(new BeanComponentDefinition(entryPoint, entryPointId));
 
             filterBuilder.addPropertyValue("authenticationManager", authManager);
             filterBuilder.addPropertyValue("authenticationEntryPoint", new RuntimeBeanReference(entryPointId));
@@ -685,7 +689,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 contextRepo.addPropertyValue("disableUrlRewriting", Boolean.TRUE);
             }
 
-            String id = pc.getReaderContext().registerWithGeneratedName(contextRepo.getBeanDefinition());
+            BeanDefinition repoBean = contextRepo.getBeanDefinition();
+            String id = pc.getReaderContext().registerWithGeneratedName(repoBean);
+            pc.registerBeanComponent(new BeanComponentDefinition(repoBean, id));
 
             scpf.addPropertyReference("securityContextRepository", id);
         }
@@ -928,7 +934,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 sessionStrategy.addPropertyValue("sessionRegistry", sessionRegistryRef);
             }
 
-            String id = pc.getReaderContext().registerWithGeneratedName(sessionStrategy.getBeanDefinition());
+            BeanDefinition strategyBean = sessionStrategy.getBeanDefinition();
+            String id = pc.getReaderContext().registerWithGeneratedName(strategyBean);
+            pc.registerBeanComponent(new BeanComponentDefinition(strategyBean, id));
             sessionFixationFilter.addPropertyReference("authenticatedSessionStrategy", id);
             return (RootBeanDefinition) sessionFixationFilter.getBeanDefinition();
         }
