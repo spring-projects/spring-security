@@ -31,7 +31,6 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         RootBeanDefinition authProvider = new RootBeanDefinition(DaoAuthenticationProvider.class);
-        authProvider.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         authProvider.setSource(parserContext.extractSource(element));
 
         Element passwordEncoderElt = DomUtils.getChildElementByTagName(element, Elements.PASSWORD_ENCODER);
