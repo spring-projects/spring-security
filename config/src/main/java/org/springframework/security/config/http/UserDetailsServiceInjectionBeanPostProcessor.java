@@ -7,6 +7,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.HierarchicalBeanFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -108,16 +110,15 @@ public class UserDetailsServiceInjectionBeanPostProcessor implements BeanPostPro
         }
     }
 
-
     /**
      * Obtains a user details service for use in RememberMeServices etc. Will return a caching version
      * if available so should not be used for beans which need to separate the two.
      */
     UserDetailsService getUserDetailsService() {
-        Map<String,?> beans = beanFactory.getBeansOfType(CachingUserDetailsService.class);
+        Map<String,?> beans = getBeansOfType(CachingUserDetailsService.class);
 
         if (beans.size() == 0) {
-            beans = beanFactory.getBeansOfType(UserDetailsService.class);
+            beans = getBeansOfType(UserDetailsService.class);
         }
 
         if (beans.size() == 0) {
@@ -144,6 +145,25 @@ public class UserDetailsServiceInjectionBeanPostProcessor implements BeanPostPro
         }
 
         return null;
+    }
+
+    private Map<String,?> getBeansOfType(Class<?> type) {
+        Map<String,?> beans = beanFactory.getBeansOfType(type);
+
+        // Check ancestor bean factories if they exist and the current one has none of the required type
+        BeanFactory parent = beanFactory.getParentBeanFactory();
+        while (parent != null && beans.size() == 0) {
+            if (parent instanceof ListableBeanFactory) {
+                beans = ((ListableBeanFactory)parent).getBeansOfType(type);
+            }
+            if (parent instanceof HierarchicalBeanFactory) {
+                parent = ((HierarchicalBeanFactory)parent).getParentBeanFactory();
+            } else {
+                break;
+            }
+        }
+
+        return beans;
     }
 
 

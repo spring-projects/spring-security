@@ -938,6 +938,16 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "repo.disableUrlRewriting"));
     }
 
+    @Test
+    public void userDetailsServiceInParentContextIsLocatedSuccessfully() throws Exception {
+        appContext = new InMemoryXmlApplicationContext(AUTH_PROVIDER_XML);
+
+        appContext = new InMemoryXmlApplicationContext(
+                "<http auto-config='true'>" +
+                "    <remember-me />" +
+                "</http>", appContext);
+    }
+
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
     }
