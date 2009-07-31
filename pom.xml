@@ -105,12 +105,7 @@
             <id>com.springsource.repository.maven.milestone</id>
             <name>SpringSource Enterprise Bundle Repository - SpringSource Milestone Releases</name>
             <url>http://repository.springsource.com/maven/bundles/milestone</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>com.springsource.repository.bundles.snapshot</id>
-            <name>SpringSource Enterprise Bundle Repository - Snapshots</name>
-            <url>http://repository.springsource.com/maven/bundles/snapshot</url>
-        </pluginRepository>        
+        </pluginRepository> 
     </pluginRepositories>
 
     <mailingLists>
@@ -287,7 +282,7 @@
                 <plugin>
                     <groupId>com.springsource.bundlor</groupId>
                     <artifactId>com.springsource.bundlor.maven</artifactId>
-                    <version>1.0.0.BUILD-20090617.134232-66</version>
+                    <version>1.0.0.M5</version>
                     <executions>
                         <execution>
                             <id>bundlor</id>
