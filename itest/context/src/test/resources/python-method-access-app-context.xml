@@ -23,10 +23,12 @@
 
     <b:bean id="service" class="org.springframework.security.integration.python.TestServiceImpl"/>
 
-    <authentication-provider>
-        <user-service>
-            <user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B"/>
-        </user-service>
-    </authentication-provider>
+    <authentication-manager>
+        <authentication-provider>
+            <user-service>
+                <user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B"/>
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
 
 </b:beans>

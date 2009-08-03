@@ -27,7 +27,6 @@ public abstract class BeanIds {
     public static final String OPEN_ID_ENTRY_POINT = "_openIDFilterEntryPoint";
 
     public static final String FILTER_CHAIN_PROXY = "_filterChainProxy";
-    public static final String LDAP_AUTHENTICATION_PROVIDER = "_ldapAuthenticationProvider";
 
     public static final String METHOD_SECURITY_METADATA_SOURCE_ADVISOR = "_methodSecurityMetadataSourceAdvisor";
     public static final String EMBEDDED_APACHE_DS = "_apacheDirectoryServerContainer";

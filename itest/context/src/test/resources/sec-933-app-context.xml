@@ -12,8 +12,10 @@
 
     <bean id="userRepository" class="org.springframework.security.integration.StubUserRepository"/>
 
-    <security:authentication-provider
+    <security:authentication-manager>
+        <security:authentication-provider
         user-service-ref="userDetailsService" />
+    </security:authentication-manager>
 
     <bean id="userDetailsService" class="org.springframework.security.integration.UserDetailsServiceImpl">
         <property name="userRepository" ref="userRepository"/>

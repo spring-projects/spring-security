@@ -6,12 +6,14 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
 
-  <authentication-provider>
-    <user-service>
-      <user name="miles" password="milespassword" authorities="ROLE_USER,ROLE_JAZZ,ROLE_TRUMPETER"/>
-      <user name="johnc" password="johncspassword" authorities="ROLE_USER,ROLE_JAZZ,ROLE_SAXOPHONIST"/>
-      <user name="jimi" password="jimispassword" authorities="ROLE_USER,ROLE_ROCK,ROLE_GUITARIST"/>
-    </user-service>
-  </authentication-provider>
+    <authentication-manager alias="authenticationManager">
+        <authentication-provider>
+            <user-service>
+              <user name="miles" password="milespassword" authorities="ROLE_USER,ROLE_JAZZ,ROLE_TRUMPETER"/>
+              <user name="johnc" password="johncspassword" authorities="ROLE_USER,ROLE_JAZZ,ROLE_SAXOPHONIST"/>
+              <user name="jimi" password="jimispassword" authorities="ROLE_USER,ROLE_ROCK,ROLE_GUITARIST"/>
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
 
 </beans:beans>

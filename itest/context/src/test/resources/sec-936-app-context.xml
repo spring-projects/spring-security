@@ -7,13 +7,13 @@
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
     http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
-    <security:authentication-provider>
-        <security:user-service>
-            <security:user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B"/>
-        </security:user-service>
-    </security:authentication-provider>
-
-    <security:authentication-manager alias="authenticationManager"/>
+    <security:authentication-manager alias="authenticationManager">
+        <security:authentication-provider>
+            <security:user-service>
+                <security:user name="bob" password="bobspassword" authorities="ROLE_A,ROLE_B"/>
+            </security:user-service>
+        </security:authentication-provider>
+    </security:authentication-manager>
 
     <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
         <property name="allowIfAllAbstainDecisions" value="false"/>

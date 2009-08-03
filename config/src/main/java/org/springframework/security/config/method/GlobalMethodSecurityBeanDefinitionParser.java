@@ -10,6 +10,9 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.config.AopNamespaceUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
@@ -38,7 +41,12 @@ import org.springframework.security.access.prepost.PrePostAnnotationSecurityMeta
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.BeanIds;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -264,7 +272,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         bldr.getRawBeanDefinition().setSource(source);
 
         bldr.addPropertyReference("accessDecisionManager", accessManagerId);
-        bldr.addPropertyReference("authenticationManager", BeanIds.AUTHENTICATION_MANAGER);
+        bldr.addPropertyValue("authenticationManager", new RootBeanDefinition(AuthenticationManagerDelegator.class));
         bldr.addPropertyReference("securityMetadataSource", DELEGATING_METHOD_DEFINITION_SOURCE_ID);
         if (StringUtils.hasText(runAsManagerId)) {
             bldr.addPropertyReference("runAsManager", runAsManagerId);
@@ -285,5 +293,32 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         advisor.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(DELEGATING_METHOD_DEFINITION_SOURCE_ID));
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_METADATA_SOURCE_ADVISOR, advisor);
+    }
+
+    /**
+     * Delays the lookup of the AuthenticationManager within MethodSecurityInterceptor, to prevent issues like SEC-933.
+     *
+     * @author Luke Taylor
+     * @since 3.0
+     */
+    public static final class AuthenticationManagerDelegator implements AuthenticationManager, BeanFactoryAware {
+        private AuthenticationManager delegate;
+        private final Object delegateMonitor = new Object();
+        private BeanFactory beanFactory;
+
+        public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+            synchronized(delegateMonitor) {
+                if (delegate == null) {
+                    Assert.state(beanFactory != null, "BeanFactory must be set to resolve " + BeanIds.AUTHENTICATION_MANAGER);
+                    delegate = beanFactory.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
+                }
+            }
+
+            return delegate.authenticate(authentication);
+        }
+
+        public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+            this.beanFactory = beanFactory;
+        }
     }
 }
