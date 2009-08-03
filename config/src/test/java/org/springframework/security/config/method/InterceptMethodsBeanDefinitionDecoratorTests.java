@@ -22,7 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class InterceptMethodsBeanDefinitionDecoratorTests {
     private ClassPathXmlApplicationContext appContext;
-
     private TestBusinessBean target;
 
     @Before
@@ -50,13 +49,9 @@ public class InterceptMethodsBeanDefinitionDecoratorTests {
         target.unprotected();
     }
 
-    @Test
+    @Test(expected=AuthenticationCredentialsNotFoundException.class)
     public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
-        try {
-            target.doSomething();
-            fail("Expected AuthenticationCredentialsNotFoundException");
-        } catch (AuthenticationCredentialsNotFoundException expected) {
-        }
+        target.doSomething();
     }
 
     @Test
@@ -65,20 +60,16 @@ public class InterceptMethodsBeanDefinitionDecoratorTests {
                 AuthorityUtils.createAuthorityList("ROLE_USER"));
         SecurityContextHolder.getContext().setAuthentication(token);
 
-
         target.doSomething();
     }
 
-    @Test
+    @Test(expected=AccessDeniedException.class)
     public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
         SecurityContextHolder.getContext().setAuthentication(token);
 
-        try {
-            target.doSomething();
-            fail("Expected AccessDeniedException");
-        } catch (AccessDeniedException expected) {
-        }
+        target.doSomething();
+        fail("Expected AccessDeniedException");
     }
 }

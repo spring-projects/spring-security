@@ -19,12 +19,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class MethodSecurityInterceptorWithAopConfigTests {
     static final String AUTH_PROVIDER_XML =
+        "<authentication-manager>" +
         "    <authentication-provider>" +
         "        <user-service>" +
         "            <user name='bob' password='bobspassword' authorities='ROLE_USER,ROLE_ADMIN' />" +
         "            <user name='bill' password='billspassword' authorities='ROLE_USER' />" +
         "        </user-service>" +
-        "    </authentication-provider>";
+        "    </authentication-provider>" +
+        "</authentication-manager>";
 
     static final String ACCESS_MANAGER_XML =
         "<b:bean id='accessDecisionManager' class='org.springframework.security.access.vote.AffirmativeBased'>" +

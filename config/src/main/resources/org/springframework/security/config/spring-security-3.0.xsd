@@ -1411,17 +1411,21 @@
    </xs:attributeGroup>
    <xs:element name="authentication-manager">
       <xs:annotation>
-         <xs:documentation>If you are using namespace configuration with Spring Security, an
-            AuthenticationManager will automatically be registered. This element allows you to
-            define an alias to allow you to reference the authentication-manager in your own beans.
-         </xs:documentation>
+         <xs:documentation>Registers the AuthenticationManager instance and allows its list of
+            AuthenticationProviders to be defined. should use. Also allows you to define an alias to
+            allow you to reference the AuthenticationManager in your own beans. </xs:documentation>
       </xs:annotation>
       <xs:complexType>
+         <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:authentication-provider"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded"
+               ref="security:ldap-authentication-provider"/>
+         </xs:sequence>
          <xs:attributeGroup ref="security:authman.attlist"/>
       </xs:complexType>
    </xs:element>
    <xs:attributeGroup name="authman.attlist">
-      <xs:attribute name="alias" use="required" type="xs:ID">
+      <xs:attribute name="alias" type="xs:ID">
          <xs:annotation>
             <xs:documentation>The alias you wish to use for the AuthenticationManager
                bean</xs:documentation>
@@ -1480,6 +1484,11 @@
       </xs:complexType>
    </xs:element>
    <xs:attributeGroup name="ap.attlist">
+      <xs:attribute name="ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Defines a reference to a Spring bean Id.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="user-service-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>A reference to a user-service (or UserDetailsService bean)
@@ -1487,13 +1496,6 @@
          </xs:annotation>
       </xs:attribute>
    </xs:attributeGroup>
-   <xs:element name="custom-authentication-provider">
-      <xs:annotation>
-         <xs:documentation>Element used to decorate an AuthenticationProvider bean to add it to the
-            internal AuthenticationManager maintained by the namespace.</xs:documentation>
-      </xs:annotation>
-      <xs:complexType/>
-   </xs:element>
    <xs:element name="user-service" substitutionGroup="security:any-user-service">
       <xs:annotation>
          <xs:documentation>Creates an in-memory UserDetailsService from a properties file or a list

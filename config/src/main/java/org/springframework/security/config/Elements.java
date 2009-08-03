@@ -41,6 +41,7 @@ public abstract class Elements {
     public static final String PORT_MAPPINGS = "port-mappings";
     public static final String PORT_MAPPING = "port-mapping";
     public static final String CUSTOM_FILTER = "custom-filter";
+    @Deprecated
     public static final String CUSTOM_AUTH_PROVIDER = "custom-authentication-provider";
     public static final String CUSTOM_AFTER_INVOCATION_PROVIDER = "custom-after-invocation-provider";
     public static final String X509 = "x509";

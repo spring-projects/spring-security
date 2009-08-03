@@ -17,10 +17,12 @@
         <expression-handler ref="expressionHandler"/>
     </global-method-security>
 
-    <authentication-provider>
-        <password-encoder hash="md5"/>
-        <jdbc-user-service data-source-ref="dataSource"/>
-    </authentication-provider>
+    <authentication-manager>
+        <authentication-provider>
+            <password-encoder hash="md5"/>
+            <jdbc-user-service data-source-ref="dataSource"/>
+        </authentication-provider>
+    </authentication-manager>
 
     <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <b:property name="permissionEvaluator">

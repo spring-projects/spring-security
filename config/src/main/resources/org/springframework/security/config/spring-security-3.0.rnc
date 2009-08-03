@@ -488,23 +488,21 @@ x509.attlist &=
     user-service-ref?
 
 authentication-manager =
-    ## If you are using namespace configuration with Spring Security, an AuthenticationManager will automatically be registered. This element allows you to define an alias to allow you to reference the authentication-manager in your own beans. 
-    element authentication-manager {authman.attlist}
+    ## Registers the AuthenticationManager instance and allows its list of AuthenticationProviders to be defined. should use. Also allows you to define an alias to allow you to reference the AuthenticationManager in your own beans. 
+    element authentication-manager {authman.attlist, authentication-provider*, ldap-authentication-provider*}
 authman.attlist &=
     ## The alias you wish to use for the AuthenticationManager bean
-    attribute alias {xsd:ID}
+    attribute alias {xsd:ID}?
 
 authentication-provider =
     ## Indicates that the contained user-service should be used as an authentication source. 
     element authentication-provider {ap.attlist & any-user-service & password-encoder?}
 ap.attlist &=
+    ## Specifies a reference to a separately configured AuthenticationProvider instance which should be registered within the AuthenticationManager.  
+    ref?    
+ap.attlist &=
     ## Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.  
     user-service-ref?
-
-custom-authentication-provider =
-    ## Element used to decorate an AuthenticationProvider bean to add it to the internal AuthenticationManager maintained by the namespace.
-    element custom-authentication-provider {cap.attlist}
-cap.attlist &= empty
 
 user-service =
     ## Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.

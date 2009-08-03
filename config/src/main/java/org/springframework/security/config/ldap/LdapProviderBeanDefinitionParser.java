@@ -7,9 +7,7 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
-import org.springframework.security.config.authentication.ConfigUtils;
 import org.springframework.security.config.authentication.PasswordEncoderParser;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -102,10 +100,7 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
         ldapProvider.addConstructorArgValue(LdapUserServiceBeanDefinitionParser.parseAuthoritiesPopulator(elt, parserContext));
         ldapProvider.addPropertyValue("userDetailsContextMapper",
                 LdapUserServiceBeanDefinitionParser.parseUserDetailsClassOrUserMapperRef(elt, parserContext));
-        parserContext.getRegistry().registerBeanDefinition(BeanIds.LDAP_AUTHENTICATION_PROVIDER, ldapProvider.getBeanDefinition());
 
-        ConfigUtils.addAuthenticationProvider(parserContext, BeanIds.LDAP_AUTHENTICATION_PROVIDER, elt);
-
-        return null;
+        return ldapProvider.getBeanDefinition();
     }
 }

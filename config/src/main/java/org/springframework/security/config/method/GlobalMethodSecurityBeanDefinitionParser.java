@@ -39,7 +39,6 @@ import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.authentication.ConfigUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -74,7 +73,6 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
     @SuppressWarnings("unchecked")
     public BeanDefinition parse(Element element, ParserContext pc) {
-        ConfigUtils.registerProviderManagerIfNecessary(pc, element);
         CompositeComponentDefinition compositeDef =
             new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element));
         pc.pushContainingComponent(compositeDef);

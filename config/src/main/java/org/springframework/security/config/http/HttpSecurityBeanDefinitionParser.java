@@ -292,9 +292,13 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             unorderedFilterChain.add(new OrderDecorator(form.filter, AUTHENTICATION_PROCESSING_FILTER));
         }
 
+        String openIDProviderId = null;
+
         if (openID.filter != null) {
             unorderedFilterChain.add(new OrderDecorator(openID.filter, OPENID_PROCESSING_FILTER));
-            authenticationProviders.add(createOpenIDProvider(element, pc));
+            BeanReference openIDProvider = createOpenIDProvider(element, pc);
+            openIDProviderId = openIDProvider.getBeanName();
+            authenticationProviders.add(openIDProvider);
         }
 
         if (loginPageGenerationFilter != null) {
@@ -350,7 +354,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         BeanDefinitionBuilder userServiceInjector = BeanDefinitionBuilder.rootBeanDefinition(UserDetailsServiceInjectionBeanPostProcessor.class);
         userServiceInjector.addConstructorArgValue(x509ProviderId);
         userServiceInjector.addConstructorArgValue(rememberMeServicesId);
-        userServiceInjector.addConstructorArgValue(rememberMeServicesId);
+        userServiceInjector.addConstructorArgValue(openIDProviderId);
         userServiceInjector.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         pc.getReaderContext().registerWithGeneratedName(userServiceInjector.getBeanDefinition());
 

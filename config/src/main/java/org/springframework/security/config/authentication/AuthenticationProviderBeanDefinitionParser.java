@@ -1,17 +1,10 @@
 package org.springframework.security.config.authentication;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
-import org.springframework.beans.factory.parsing.BeanComponentDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.core.Ordered;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser;
@@ -48,11 +41,6 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
         Element jdbcUserServiceElt = DomUtils.getChildElementByTagName(element, Elements.JDBC_USER_SERVICE);
         Element ldapUserServiceElt = DomUtils.getChildElementByTagName(element, Elements.LDAP_USER_SERVICE);
 
-        // We need to register the provider to access it in the post processor to check if it has a cache
-        final String id = parserContext.getReaderContext().generateBeanName(authProvider);
-        parserContext.getRegistry().registerBeanDefinition(id, authProvider);
-        parserContext.registerComponent(new BeanComponentDefinition(authProvider, id));
-
         String ref = element.getAttribute(ATT_USER_DETAILS_REF);
 
         if (StringUtils.hasText(ref)) {
@@ -81,54 +69,67 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 
             parser.parse(elt, parserContext);
             ref = parser.getId();
+
+            // Pinch the cache-ref from the UserDetailService element, if set.
+            String cacheRef = elt.getAttribute(AbstractUserDetailsServiceBeanDefinitionParser.CACHE_REF);
+
+            if (StringUtils.hasText(cacheRef)) {
+                authProvider.getPropertyValues().addPropertyValue("userCache", new RuntimeBeanReference(cacheRef));
+            }
         }
 
         authProvider.getPropertyValues().addPropertyValue("userDetailsService", new RuntimeBeanReference(ref));
 
-        BeanDefinitionBuilder cacheResolverBldr = BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProviderCacheResolver.class);
-        cacheResolverBldr.addConstructorArgValue(id);
-        cacheResolverBldr.addConstructorArgValue(ref);
-        cacheResolverBldr.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        BeanDefinition cacheResolver = cacheResolverBldr.getBeanDefinition();
+        // We need to register the provider to access it in the post processor to check if it has a cache
+//        final String id = parserContext.getReaderContext().generateBeanName(authProvider);
+//        parserContext.getRegistry().registerBeanDefinition(id, authProvider);
+//        parserContext.registerComponent(new BeanComponentDefinition(authProvider, id));
 
-        String name = parserContext.getReaderContext().generateBeanName(cacheResolver);
-        parserContext.getRegistry().registerBeanDefinition(name , cacheResolver);
-        parserContext.registerComponent(new BeanComponentDefinition(cacheResolver, name));
 
-        ConfigUtils.addAuthenticationProvider(parserContext, id, element);
+//        BeanDefinitionBuilder cacheResolverBldr = BeanDefinitionBuilder.rootBeanDefinition(AuthenticationProviderCacheResolver.class);
+//        cacheResolverBldr.addConstructorArgValue(id);
+//        cacheResolverBldr.addConstructorArgValue(ref);
+//        cacheResolverBldr.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+//        BeanDefinition cacheResolver = cacheResolverBldr.getBeanDefinition();
+//
+//        String name = parserContext.getReaderContext().generateBeanName(cacheResolver);
+//        parserContext.getRegistry().registerBeanDefinition(name , cacheResolver);
+//        parserContext.registerComponent(new BeanComponentDefinition(cacheResolver, name));
 
-        return null;
+//        ConfigUtils.addAuthenticationProvider(parserContext, id, element);
+
+        return authProvider;
     }
 
     /**
      * Checks whether the registered user service bean has an associated cache and, if so, sets it on the
      * authentication provider.
      */
-    static class AuthenticationProviderCacheResolver implements BeanFactoryPostProcessor, Ordered {
-        private String providerId;
-        private String userServiceId;
-
-        public AuthenticationProviderCacheResolver(String providerId, String userServiceId) {
-            this.providerId = providerId;
-            this.userServiceId = userServiceId;
-        }
-
-        public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-            RootBeanDefinition provider = (RootBeanDefinition) beanFactory.getBeanDefinition(providerId);
-
-            String cachingId = userServiceId + AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX;
-
-            if (beanFactory.containsBeanDefinition(cachingId)) {
-                RootBeanDefinition cachingUserService = (RootBeanDefinition) beanFactory.getBeanDefinition(cachingId);
-
-                PropertyValue userCacheProperty = cachingUserService.getPropertyValues().getPropertyValue("userCache");
-
-                provider.getPropertyValues().addPropertyValue(userCacheProperty);
-            }
-        }
-
-        public int getOrder() {
-            return HIGHEST_PRECEDENCE;
-        }
-    }
+//    static class AuthenticationProviderCacheResolver implements BeanFactoryPostProcessor, Ordered {
+//        private String providerId;
+//        private String userServiceId;
+//
+//        public AuthenticationProviderCacheResolver(String providerId, String userServiceId) {
+//            this.providerId = providerId;
+//            this.userServiceId = userServiceId;
+//        }
+//
+//        public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+//            RootBeanDefinition provider = (RootBeanDefinition) beanFactory.getBeanDefinition(providerId);
+//
+//            String cachingId = userServiceId + AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX;
+//
+//            if (beanFactory.containsBeanDefinition(cachingId)) {
+//                RootBeanDefinition cachingUserService = (RootBeanDefinition) beanFactory.getBeanDefinition(cachingId);
+//
+//                PropertyValue userCacheProperty = cachingUserService.getPropertyValues().getPropertyValue("userCache");
+//
+//                provider.getPropertyValues().addPropertyValue(userCacheProperty);
+//            }
+//        }
+//
+//        public int getOrder() {
+//            return HIGHEST_PRECEDENCE;
+//        }
+//    }
 }

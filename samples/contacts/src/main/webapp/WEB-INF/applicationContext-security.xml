@@ -34,10 +34,12 @@
         <custom-filter ref="switchUserProcessingFilter" position="SWITCH_USER_FILTER"/>
     </http>
 
-    <authentication-provider>
-       <password-encoder hash="md5"/>
-       <jdbc-user-service data-source-ref="dataSource"/>
-    </authentication-provider>
+    <authentication-manager>
+        <authentication-provider>
+           <password-encoder hash="md5"/>
+           <jdbc-user-service data-source-ref="dataSource"/>
+        </authentication-provider>
+    </authentication-manager>
 
     <!-- Automatically receives AuthenticationEvent messages -->
     <b:bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener"/>

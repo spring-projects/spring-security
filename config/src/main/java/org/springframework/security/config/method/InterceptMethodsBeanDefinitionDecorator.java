@@ -18,7 +18,6 @@ import org.springframework.security.access.intercept.aopalliance.MethodSecurityI
 import org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
-import org.springframework.security.config.authentication.ConfigUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -34,7 +33,6 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
     private BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
 
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
-        ConfigUtils.registerProviderManagerIfNecessary(parserContext, (Element) node);
         MethodConfigUtils.registerDefaultMethodAccessManagerIfNecessary(parserContext);
 
         return delegate.decorate(node, definition, parserContext);

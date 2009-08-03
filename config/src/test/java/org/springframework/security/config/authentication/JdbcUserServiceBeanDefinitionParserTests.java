@@ -102,9 +102,11 @@ public class JdbcUserServiceBeanDefinitionParserTests {
     @Test
     public void isSupportedByAuthenticationProviderElement() {
         setContext(
-                "<authentication-provider>" +
+                "<authentication-manager>" +
+                "  <authentication-provider>" +
                 "    <jdbc-user-service data-source-ref='dataSource'/>" +
-                "</authentication-provider>" + DATA_SOURCE);
+                "  </authentication-provider>" +
+                "</authentication-manager>" + DATA_SOURCE);
         AuthenticationManager mgr = (AuthenticationManager) appContext.getBean(BeanIds.AUTHENTICATION_MANAGER);
         mgr.authenticate(new UsernamePasswordAuthenticationToken("rod", "koala"));
     }
@@ -112,9 +114,11 @@ public class JdbcUserServiceBeanDefinitionParserTests {
     @Test
     public void cacheIsInjectedIntoAuthenticationProvider() {
         setContext(
-                "<authentication-provider>" +
+                "<authentication-manager>" +
+                "  <authentication-provider>" +
                 "    <jdbc-user-service cache-ref='userCache' data-source-ref='dataSource'/>" +
-                "</authentication-provider>" + DATA_SOURCE + USER_CACHE_XML);
+                "  </authentication-provider>" +
+                "</authentication-manager>" + DATA_SOURCE + USER_CACHE_XML);
         ProviderManager mgr = (ProviderManager) appContext.getBean(BeanIds.AUTHENTICATION_MANAGER);
         DaoAuthenticationProvider provider = (DaoAuthenticationProvider) mgr.getProviders().get(0);
         assertSame(provider.getUserCache(), appContext.getBean("userCache"));

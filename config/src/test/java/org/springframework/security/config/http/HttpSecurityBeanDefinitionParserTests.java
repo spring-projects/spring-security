@@ -605,7 +605,6 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test(expected=BeanDefinitionParsingException.class)
     public void useOfExternalConcurrentSessionControllerRequiresSessionRegistryToBeSet() throws Exception {
         setContext(
-                "<authentication-manager alias='authManager' />" +
                 "<http auto-config='true'>" +
                 "    <concurrent-session-control session-controller-ref='sc' expired-url='/expired'/>" +
                 "</http>" +
@@ -619,7 +618,6 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void useOfExternalSessionControllerAndRegistryIsWiredCorrectly() throws Exception {
         setContext(
-                "<authentication-manager alias='authManager' />" +
                 "<http auto-config='true'>" +
                 "    <concurrent-session-control session-registry-ref='sr' session-controller-ref='sc' expired-url='/expired'/>" +
                 "</http>" +
@@ -756,7 +754,9 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void httpElementDoesntInterfereWithBeanPostProcessing() {
         setContext(
                 "<http auto-config='true'/>" +
-                "<authentication-provider user-service-ref='myUserService'/>" +
+                "<authentication-manager>" +
+                "   <authentication-provider user-service-ref='myUserService'/>" +
+                "</authentication-manager>" +
                 "<b:bean id='myUserService' class='org.springframework.security.config.PostProcessedMockUserDetailsService'/>" +
                 "<b:bean id='beanPostProcessor' class='org.springframework.security.config.MockUserServiceBeanPostProcessor'/>"
         );

@@ -47,7 +47,10 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 
     @Test
     public void externalUserServiceRefWorks() throws Exception {
-        setContext(" <authentication-provider user-service-ref='myUserService' />" +
+        appContext = new InMemoryXmlApplicationContext(
+                "    <authentication-manager>" +
+                "        <authentication-provider user-service-ref='myUserService' />" +
+                "    </authentication-manager>" +
                 "    <user-service id='myUserService'>" +
                 "       <user name='bob' password='bobspassword' authorities='ROLE_A' />" +
                 "    </user-service>");
@@ -105,11 +108,14 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 
     @Test
     public void externalUserServicePasswordEncoderAndSaltSourceWork() throws Exception {
-        setContext(" <authentication-provider user-service-ref='customUserService'>" +
+        appContext = new InMemoryXmlApplicationContext(
+                "    <authentication-manager>" +
+                "      <authentication-provider user-service-ref='customUserService'>" +
                 "        <password-encoder ref='customPasswordEncoder'>" +
                 "            <salt-source ref='saltSource'/>" +
                 "        </password-encoder>" +
-                "    </authentication-provider>" +
+                "      </authentication-provider>" +
+                "    </authentication-manager>" +
 
                 "    <b:bean id='customPasswordEncoder' " +
                             "class='org.springframework.security.authentication.encoding.Md5PasswordEncoder'/>" +
@@ -132,6 +138,6 @@ public class AuthenticationProviderBeanDefinitionParserTests {
     }
 
     private void setContext(String context) {
-        appContext = new InMemoryXmlApplicationContext(context);
+        appContext = new InMemoryXmlApplicationContext("<authentication-manager>" + context + "</authentication-manager>");
     }
 }

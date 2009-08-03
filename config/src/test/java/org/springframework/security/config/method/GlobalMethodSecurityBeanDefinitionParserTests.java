@@ -95,7 +95,9 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         setContext(
                 "<b:bean id='myUserService' class='org.springframework.security.config.PostProcessedMockUserDetailsService'/>" +
                 "<global-method-security />" +
-                "<authentication-provider user-service-ref='myUserService'/>" +
+                "<authentication-manager>" +
+                "   <authentication-provider user-service-ref='myUserService'/>" +
+                "</authentication-manager>" +
                 "<b:bean id='beanPostProcessor' class='org.springframework.security.config.MockUserServiceBeanPostProcessor'/>"
         );
 
@@ -113,7 +115,9 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
                 "</global-method-security>" +
                 "<b:bean id='myUserService' class='org.springframework.security.config.PostProcessedMockUserDetailsService'/>" +
                 "<aop:aspectj-autoproxy />" +
-                "<authentication-provider user-service-ref='myUserService'/>"
+                "<authentication-manager>" +
+                "   <authentication-provider user-service-ref='myUserService'/>" +
+                "</authentication-manager>"
         );
 
         UserDetailsService service = (UserDetailsService) appContext.getBean("myUserService");

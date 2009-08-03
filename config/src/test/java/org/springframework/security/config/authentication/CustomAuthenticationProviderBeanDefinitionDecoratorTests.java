@@ -1,45 +1,20 @@
 package org.springframework.security.config.authentication;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 
 
 public class CustomAuthenticationProviderBeanDefinitionDecoratorTests {
 
     @Test
-    public void decoratedProviderParsesSuccessfully() {
-        InMemoryXmlApplicationContext ctx = new InMemoryXmlApplicationContext(
+    public void decoratedProviderParsesSuccessfullyWith20Namespace() {
+        new InMemoryXmlApplicationContext(
                 "<b:bean class='org.springframework.security.authentication.dao.DaoAuthenticationProvider'>" +
                 "  <custom-authentication-provider />" +
                 "  <b:property name='userDetailsService' ref='us'/>" +
-                "</b:bean>" + 
+                "</b:bean>" +
                 "<user-service id='us'>" +
                 " <user name='bob' password='bobspassword' authorities='ROLE_A,ROLE_B' />" +
-                "</user-service>"
-        );
-        ProviderManager authMgr = (ProviderManager) ctx.getBean(BeanIds.AUTHENTICATION_MANAGER);
-        assertEquals(1, authMgr.getProviders().size());        
-    }
-    
-    
-    @Test
-    public void decoratedBeanAndRegisteredProviderAreTheSameObject() {
-        InMemoryXmlApplicationContext ctx = new InMemoryXmlApplicationContext(
-                "<b:bean id='myProvider' class='org.springframework.security.authentication.dao.DaoAuthenticationProvider'>" +
-                "  <custom-authentication-provider />" +
-                "  <b:property name='userDetailsService' ref='us'/>" +
-                "</b:bean>" + 
-                "<user-service id='us'>" +
-                " <user name='bob' password='bobspassword' authorities='ROLE_A,ROLE_B' />" +
-                "</user-service>"
-        );
-
-        ProviderManager authMgr = (ProviderManager) ctx.getBean(BeanIds.AUTHENTICATION_MANAGER);
-        assertEquals(1, authMgr.getProviders().size());
-        assertSame(ctx.getBean("myProvider"), authMgr.getProviders().get(0));
+                "</user-service>", "2.0.4", null);
     }
 }

@@ -20,7 +20,7 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 public abstract class AbstractUserDetailsServiceBeanDefinitionParser implements BeanDefinitionParser {
-    private static final String CACHE_REF = "cache-ref";
+    static final String CACHE_REF = "cache-ref";
     public static final String CACHING_SUFFIX = ".caching";
 
     /**  UserDetailsService bean Id. For use in a stateful context (i.e. in AuthenticationProviderBDP) */

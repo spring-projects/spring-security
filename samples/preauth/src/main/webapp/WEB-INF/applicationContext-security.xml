@@ -20,10 +20,11 @@
 
     <bean id="sif" class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 
-    <sec:authentication-manager alias="authenticationManager" />
+    <sec:authentication-manager alias="authenticationManager">
+        <sec:authentication-provider ref='preAuthenticatedAuthenticationProvider'/>
+    </sec:authentication-manager>
 
     <bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
-        <sec:custom-authentication-provider />
         <property name="preAuthenticatedUserDetailsService" ref="preAuthenticatedUserDetailsService"/>
     </bean>
 
