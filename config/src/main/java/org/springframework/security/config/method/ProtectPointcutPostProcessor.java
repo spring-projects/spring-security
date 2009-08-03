@@ -43,7 +43,7 @@ import org.springframework.util.StringUtils;
  * expression evaluation.
  *
  * @author Ben Alex
- * @verion $Id$
+ * @version $Id$
  * @since 2.0
  *
  */
