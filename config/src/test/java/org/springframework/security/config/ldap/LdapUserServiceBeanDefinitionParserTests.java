@@ -117,9 +117,11 @@ public class LdapUserServiceBeanDefinitionParserTests {
     public void isSupportedByAuthenticationProviderElement() {
         setContext(
                 "<ldap-server url='ldap://127.0.0.1:343/dc=springframework,dc=org'/>" +
-                "<authentication-provider>" +
+                "<authentication-manager>" +
+                "  <authentication-provider>" +
                 "    <ldap-user-service user-search-filter='(uid={0})' />" +
-                "</authentication-provider>");
+                "  </authentication-provider>" +
+                "</authentication-manager>");
     }
 
     @Test

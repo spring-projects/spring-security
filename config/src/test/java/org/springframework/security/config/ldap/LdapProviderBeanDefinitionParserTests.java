@@ -57,9 +57,11 @@ public class LdapProviderBeanDefinitionParserTests {
 
     @Test(expected = ApplicationContextException.class)
     public void missingServerEltCausesConfigException() {
-        setContext("<ldap-authentication-provider />");
+        setContext(
+                "<authentication-manager>" +
+                "   <ldap-authentication-provider />" +
+                "</authentication-manager>");
     }
-
 
     @Test
     public void supportsPasswordComparisonAuthentication() {

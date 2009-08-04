@@ -10,6 +10,7 @@ public abstract class Elements {
 
     public static final String ACCESS_DENIED_HANDLER = "access-denied-handler";
     public static final String AUTHENTICATION_MANAGER = "authentication-manager";
+    public static final String AFTER_INVOCATION_PROVIDER = "after-invocation-provider";
     public static final String USER_SERVICE = "user-service";
     public static final String JDBC_USER_SERVICE = "jdbc-user-service";
     public static final String FILTER_CHAIN_MAP = "filter-chain-map";
@@ -43,6 +44,7 @@ public abstract class Elements {
     public static final String CUSTOM_FILTER = "custom-filter";
     @Deprecated
     public static final String CUSTOM_AUTH_PROVIDER = "custom-authentication-provider";
+    @Deprecated
     public static final String CUSTOM_AFTER_INVOCATION_PROVIDER = "custom-after-invocation-provider";
     public static final String X509 = "x509";
     public static final String FILTER_SECURITY_METADATA_SOURCE = "filter-security-metadata-source";

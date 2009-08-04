@@ -1,12 +1,14 @@
 package org.springframework.security.access.prepost;
 
+import org.springframework.aop.framework.AopInfrastructureBean;
+
 /**
  *
  * @author Luke Taylor
  * @version $Id$
  * @since 3.0
  */
-public interface PrePostInvocationAttributeFactory {
+public interface PrePostInvocationAttributeFactory extends AopInfrastructureBean {
 
     PreInvocationAttribute createPreInvocationAttribute(PreFilter preFilter, PreAuthorize preAuthorize);
 

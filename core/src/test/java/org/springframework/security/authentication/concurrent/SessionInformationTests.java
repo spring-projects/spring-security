@@ -41,7 +41,7 @@ public class SessionInformationTests extends TestCase {
         assertEquals(sessionId, info.getSessionId());
         assertEquals(currentDate, info.getLastRequest());
 
-        Thread.sleep(1000);
+        Thread.sleep(10);
 
         info.refreshLastRequest();
 

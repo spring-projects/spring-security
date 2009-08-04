@@ -10,10 +10,12 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.config.AopNamespaceUtils;
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
@@ -31,6 +33,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.ExpressionBasedAnnotationAttributeFactory;
 import org.springframework.security.access.expression.method.ExpressionBasedPostInvocationAdvice;
 import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
+import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
 import org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource;
@@ -44,6 +47,7 @@ import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.BeanIds;
+import org.springframework.security.config.Elements;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.Assert;
@@ -66,9 +70,9 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
     /*
      * Internal Bean IDs which are only used within this class
      */
-    static final String SECURITY_INTERCEPTOR_ID = "_globalMethodSecurityInterceptor";
+//    static final String SECURITY_INTERCEPTOR_ID = "_globalMethodSecurityInterceptor";
     static final String ACCESS_MANAGER_ID = "_globalMethodSecurityAccessManager";
-    private static final String DELEGATING_METHOD_DEFINITION_SOURCE_ID = "_delegatingMethodSecurityMetadataSource";
+//    private static final String DELEGATING_METHOD_DEFINITION_SOURCE_ID = "_delegatingMethodSecurityMetadataSource";
     private static final String EXPRESSION_HANDLER_ID = "_methodExpressionHandler";
 
     private static final String ATT_ACCESS = "access";
@@ -78,6 +82,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
     private static final String ATT_USE_JSR250 = "jsr250-annotations";
     private static final String ATT_USE_SECURED = "secured-annotations";
     private static final String ATT_USE_PREPOST = "pre-post-annotations";
+    private static final String ATT_REF = "ref";
 
     @SuppressWarnings("unchecked")
     public BeanDefinition parse(Element element, ParserContext pc) {
@@ -93,6 +98,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         boolean useSecured = "enabled".equals(element.getAttribute(ATT_USE_SECURED));
         boolean prePostAnnotationsEnabled = "enabled".equals(element.getAttribute(ATT_USE_PREPOST));
         BeanDefinition preInvocationVoter = null;
+        ManagedList<BeanMetadataElement> afterInvocationProviders = new ManagedList<BeanMetadataElement>();
 
         if (prePostAnnotationsEnabled) {
             Element prePostElt = DomUtils.getChildElementByTagName(element, INVOCATION_HANDLING);
@@ -148,7 +154,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
             }
 
             preInvocationVoter = preInvocationVoterBldr.getBeanDefinition();
-            MethodConfigUtils.getRegisteredAfterInvocationProviders(pc).add(afterInvocationBldr.getBeanDefinition());
+            afterInvocationProviders.add(afterInvocationBldr.getBeanDefinition());
             delegates.add(mds.getBeanDefinition());
         }
 
@@ -171,7 +177,14 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
             registerProtectPointcutPostProcessor(pc, pointcutMap, mapBasedMethodSecurityMetadataSource, source);
         }
 
-        registerDelegatingMethodSecurityMetadataSource(pc, delegates, source);
+        BeanReference metadataSource = registerDelegatingMethodSecurityMetadataSource(pc, delegates, source);
+
+        // Check for additional after-invocation-providers..
+        List<Element> afterInvocationElts = DomUtils.getChildElementsByTagName(element, Elements.AFTER_INVOCATION_PROVIDER);
+
+        for (Element elt : afterInvocationElts) {
+            afterInvocationProviders.add(new RuntimeBeanReference(elt.getAttribute(ATT_REF)));
+        }
 
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
@@ -182,9 +195,10 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
         String runAsManagerId = element.getAttribute(ATT_RUN_AS_MGR);
 
-        registerMethodSecurityInterceptor(pc, accessManagerId, runAsManagerId, source);
+        BeanReference interceptor = registerMethodSecurityInterceptor(pc, accessManagerId, runAsManagerId,
+                metadataSource, afterInvocationProviders, source);
 
-        registerAdvisor(pc, source);
+        registerAdvisor(pc, interceptor, metadataSource, source);
 
         AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(pc, element);
         pc.popAndRegisterContainingComponent();
@@ -217,14 +231,15 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
     }
 
     @SuppressWarnings("unchecked")
-    private void registerDelegatingMethodSecurityMetadataSource(ParserContext parserContext, ManagedList delegates, Object source) {
-        if (parserContext.getRegistry().containsBeanDefinition(DELEGATING_METHOD_DEFINITION_SOURCE_ID)) {
-            parserContext.getReaderContext().error("Duplicate <global-method-security> detected.", source);
-        }
+    private BeanReference registerDelegatingMethodSecurityMetadataSource(ParserContext pc, ManagedList delegates, Object source) {
         RootBeanDefinition delegatingMethodSecurityMetadataSource = new RootBeanDefinition(DelegatingMethodSecurityMetadataSource.class);
         delegatingMethodSecurityMetadataSource.setSource(source);
         delegatingMethodSecurityMetadataSource.getPropertyValues().addPropertyValue("methodSecurityMetadataSources", delegates);
-        parserContext.getRegistry().registerBeanDefinition(DELEGATING_METHOD_DEFINITION_SOURCE_ID, delegatingMethodSecurityMetadataSource);
+
+        String id = pc.getReaderContext().registerWithGeneratedName(delegatingMethodSecurityMetadataSource);
+        pc.registerBeanComponent(new BeanComponentDefinition(delegatingMethodSecurityMetadataSource, id));
+
+        return new RuntimeBeanReference(id);
     }
 
     private void registerProtectPointcutPostProcessor(ParserContext parserContext,
@@ -266,31 +281,43 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         return pointcutMap;
     }
 
-    private void registerMethodSecurityInterceptor(ParserContext pc, String accessManagerId, String runAsManagerId, Object source) {
+    private BeanReference registerMethodSecurityInterceptor(ParserContext pc, String accessManagerId,
+            String runAsManagerId, BeanReference metadataSource, List<BeanMetadataElement> afterInvocationProviders, Object source) {
         BeanDefinitionBuilder bldr = BeanDefinitionBuilder.rootBeanDefinition(MethodSecurityInterceptor.class);
-        bldr.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         bldr.getRawBeanDefinition().setSource(source);
 
         bldr.addPropertyReference("accessDecisionManager", accessManagerId);
         bldr.addPropertyValue("authenticationManager", new RootBeanDefinition(AuthenticationManagerDelegator.class));
-        bldr.addPropertyReference("securityMetadataSource", DELEGATING_METHOD_DEFINITION_SOURCE_ID);
+        bldr.addPropertyValue("securityMetadataSource", metadataSource);
         if (StringUtils.hasText(runAsManagerId)) {
             bldr.addPropertyReference("runAsManager", runAsManagerId);
         }
 
-        BeanDefinition interceptor = bldr.getBeanDefinition();
-        pc.getRegistry().registerBeanDefinition(SECURITY_INTERCEPTOR_ID, interceptor);
-        pc.registerComponent(new BeanComponentDefinition(interceptor, SECURITY_INTERCEPTOR_ID));
+        if (!afterInvocationProviders.isEmpty()) {
+            BeanDefinition afterInvocationManager = null;
+            afterInvocationManager = new RootBeanDefinition(AfterInvocationProviderManager.class);
+            afterInvocationManager.getPropertyValues().addPropertyValue("providers", afterInvocationProviders);
+            bldr.addPropertyValue("afterInvocationManager", afterInvocationManager);
+        }
 
-        pc.getReaderContext().registerWithGeneratedName(new RootBeanDefinition(MethodSecurityInterceptorPostProcessor.class));
+        BeanDefinition bean = bldr.getBeanDefinition();
+        String id = pc.getReaderContext().registerWithGeneratedName(bean);
+        pc.registerBeanComponent(new BeanComponentDefinition(bean, id));
+
+        return new RuntimeBeanReference(id);
     }
 
-    private void registerAdvisor(ParserContext parserContext, Object source) {
+    private void registerAdvisor(ParserContext parserContext, BeanReference interceptor, BeanReference metadataSource, Object source) {
+        if (parserContext.getRegistry().containsBeanDefinition(BeanIds.METHOD_SECURITY_METADATA_SOURCE_ADVISOR)) {
+            parserContext.getReaderContext().error("Duplicate <global-method-security> detected.", source);
+        }
         RootBeanDefinition advisor = new RootBeanDefinition(MethodSecurityMetadataSourceAdvisor.class);
+        // advisor must be an infrastructure bean as Spring's InfrastructureAdvisorAutoProxyCreator will ignore it
+        // otherwise
         advisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         advisor.setSource(source);
-        advisor.getConstructorArgumentValues().addGenericArgumentValue(SECURITY_INTERCEPTOR_ID);
-        advisor.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(DELEGATING_METHOD_DEFINITION_SOURCE_ID));
+        advisor.getConstructorArgumentValues().addGenericArgumentValue(interceptor.getBeanName());
+        advisor.getConstructorArgumentValues().addGenericArgumentValue(metadataSource);
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_METADATA_SOURCE_ADVISOR, advisor);
     }

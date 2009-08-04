@@ -187,7 +187,7 @@ protect.attlist &=
 
 global-method-security =
     ## Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for matches with the ordered list of "protect-pointcut" sub-elements, Spring Security annotations and/or. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. If you use and enable all four sources of method security metadata (ie "protect-pointcut" declarations, expression annotations, @Secured and also JSR250 security annotations), the metadata sources will be queried in that order. In practical terms, this enables you to use XML to override method security metadata expressed in annotations. If using annotations, the order of precedence is EL-based (@PreAuthorize etc.), @Secured and finally JSR-250.
-	element global-method-security {global-method-security.attlist, (pre-post-annotation-handling | expression-handler)?, protect-pointcut*}
+	element global-method-security {global-method-security.attlist, (pre-post-annotation-handling | expression-handler)?, protect-pointcut*, after-invocation-provider*}
 global-method-security.attlist &=
     ## Specifies whether the use of Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this application context. Defaults to "disabled".
     attribute pre-post-annotations {"disabled" | "enabled" }?
@@ -203,6 +203,10 @@ global-method-security.attlist &=
 global-method-security.attlist &=
     ## Optional RunAsmanager implementation which will be used by the configured MethodSecurityInterceptor
     attribute run-as-manager-ref {xsd:token}?
+    
+after-invocation-provider =
+    ## Allows addition of extra AfterInvocationProvider beans which should be called by the MethodSecurityInterceptor created by global-method-security.
+    element after-invocation-provider {ref} 
 
 pre-post-annotation-handling =
     ## Allows the default expression-based mechanism for handling Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) to be replace entirely. Only applies if these annotations are enabled. 

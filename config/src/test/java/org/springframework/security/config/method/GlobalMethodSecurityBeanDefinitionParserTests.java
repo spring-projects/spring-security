@@ -17,16 +17,16 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.BusinessService;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.intercept.RunAsManagerImpl;
+import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
+import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
 import org.springframework.security.access.prepost.PostInvocationAdviceProvider;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.ConfigTestUtils;
 import org.springframework.security.config.PostProcessedMockUserDetailsService;
-import org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParser;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -184,6 +184,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         );
     }
 
+    // SEC-936
     @Test(expected=AccessDeniedException.class)
     public void worksWithoutTargetOrClass() {
         setContext(
@@ -210,7 +211,9 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         AffirmativeBased adm = (AffirmativeBased) appContext.getBean(GlobalMethodSecurityBeanDefinitionParser.ACCESS_MANAGER_ID);
         List voters = (List) FieldUtils.getFieldValue(adm, "decisionVoters");
         PreInvocationAuthorizationAdviceVoter mev = (PreInvocationAuthorizationAdviceVoter) voters.get(0);
-        AfterInvocationProviderManager pm = (AfterInvocationProviderManager) appContext.getBean(BeanIds.AFTER_INVOCATION_MANAGER);
+        MethodSecurityMetadataSourceAdvisor msi = (MethodSecurityMetadataSourceAdvisor)
+            appContext.getBeansOfType(MethodSecurityMetadataSourceAdvisor.class).values().toArray()[0];
+        AfterInvocationProviderManager pm = (AfterInvocationProviderManager) ((MethodSecurityInterceptor)msi.getAdvice()).getAfterInvocationManager();
         PostInvocationAdviceProvider aip = (PostInvocationAdviceProvider) pm.getProviders().get(0);
         assertTrue(FieldUtils.getFieldValue(mev, "preAdvice.expressionHandler") == FieldUtils.getFieldValue(aip, "postAdvice.expressionHandler"));
     }
@@ -269,7 +272,9 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
         setContext("<global-method-security run-as-manager-ref='runAsMgr'/>" + AUTH_PROVIDER_XML, parent);
         RunAsManagerImpl ram = (RunAsManagerImpl) appContext.getBean("runAsMgr");
-        assertSame(ram, FieldUtils.getFieldValue(appContext.getBean(GlobalMethodSecurityBeanDefinitionParser.SECURITY_INTERCEPTOR_ID), "runAsManager"));
+        MethodSecurityMetadataSourceAdvisor msi = (MethodSecurityMetadataSourceAdvisor)
+            appContext.getBeansOfType(MethodSecurityMetadataSourceAdvisor.class).values().toArray()[0];
+        assertSame(ram, FieldUtils.getFieldValue(msi.getAdvice(), "runAsManager"));
     }
 
     private void setContext(String context) {

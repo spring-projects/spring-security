@@ -18,6 +18,7 @@ package org.springframework.security.access;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 
 
@@ -28,7 +29,7 @@ import org.springframework.security.access.intercept.AbstractSecurityInterceptor
  * @author Ben Alex
  * @version $Id$
  */
-public interface SecurityMetadataSource {
+public interface SecurityMetadataSource extends AopInfrastructureBean {
     //~ Methods ========================================================================================================
 
     /**

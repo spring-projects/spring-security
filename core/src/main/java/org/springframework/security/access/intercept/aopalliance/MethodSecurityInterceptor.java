@@ -25,11 +25,13 @@ import org.aopalliance.intercept.MethodInvocation;
 
 
 /**
- * Provides security interception of AOP Alliance based method invocations.<p>The
- * <code>SecurityMetadataSource</code> required by this security interceptor is of type {@link
+ * Provides security interception of AOP Alliance based method invocations.
+ * <p>
+ * The <code>SecurityMetadataSource</code> required by this security interceptor is of type {@link
  * MethodSecurityMetadataSource}. This is shared with the AspectJ based security interceptor
- * (<code>AspectJSecurityInterceptor</code>), since both work with Java <code>Method</code>s.</p>
- *  <P>Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
+ * (<code>AspectJSecurityInterceptor</code>), since both work with Java <code>Method</code>s.
+ * <p>
+ * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.
  *
  * @author Ben Alex
  * @version $Id$

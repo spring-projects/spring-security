@@ -11,6 +11,6 @@ import org.springframework.security.access.ConfigAttribute;
  * @version $Id$
  * @since 3.0
  */
-public interface PostInvocationAttribute extends ConfigAttribute{
+public interface PostInvocationAttribute extends ConfigAttribute {
 
 }

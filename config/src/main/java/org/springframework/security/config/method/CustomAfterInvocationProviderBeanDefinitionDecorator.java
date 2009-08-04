@@ -15,9 +15,10 @@ import org.w3c.dom.Node;
  */
 public class CustomAfterInvocationProviderBeanDefinitionDecorator implements BeanDefinitionDecorator {
 
-    @SuppressWarnings("unchecked")
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder, ParserContext parserContext) {
-        MethodConfigUtils.getRegisteredAfterInvocationProviders(parserContext).add(holder.getBeanDefinition());
+        parserContext.getReaderContext().warning("In Spring Security 3.0, this element is not supported and" +
+                " has no effect", parserContext.extractSource(node));
+//        MethodConfigUtils.getRegisteredAfterInvocationProviders(parserContext).add(holder.getBeanDefinition());
 
         return holder;
     }

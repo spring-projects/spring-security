@@ -1,6 +1,7 @@
 package org.springframework.security.access.prepost;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -10,7 +11,7 @@ import org.springframework.security.core.Authentication;
  * @version $Id$
  * @since 3.0
  */
-public interface PreInvocationAuthorizationAdvice {
+public interface PreInvocationAuthorizationAdvice extends AopInfrastructureBean {
 
     /**
      * The "before" advice which should be executed to perform any filtering necessary and to decide whether
@@ -18,7 +19,7 @@ public interface PreInvocationAuthorizationAdvice {
      *
      * @param authentication the information on the principal on whose account the decision should be made
      * @param mi the method invocation being attempted
-     * @param preInvocationAttribute the attribute built from the @PreFilte and @PostFilter annotations.
+     * @param preInvocationAttribute the attribute built from the @PreFilter and @PostFilter annotations.
      * @return true if authorised, false otherwise
      */
     boolean before(Authentication authentication, MethodInvocation mi, PreInvocationAttribute preInvocationAttribute);
