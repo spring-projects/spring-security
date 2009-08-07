@@ -83,6 +83,33 @@ public class SessionManagementFilterTests {
         filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
 
         verify(strategy).onAuthenticationSuccess(any(Authentication.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        // Check that it is only applied once to the request
+        filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+        verifyNoMoreInteractions(strategy);
+    }
+
+    @Test
+    public void responseIsRedirectedToTimeoutUrlIfSetAndSessionIsInvalid() throws Exception {
+        SecurityContextRepository repo = mock(SecurityContextRepository.class);
+        // repo will return false to containsContext()
+        AuthenticatedSessionStrategy strategy = mock(AuthenticatedSessionStrategy.class);
+        SessionManagementFilter filter = new SessionManagementFilter(repo);
+        filter.setAuthenticatedSessionStrategy(strategy);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestedSessionId("xxx");
+        request.setRequestedSessionIdValid(false);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilter(request, response, new MockFilterChain());
+        assertNull(response.getRedirectedUrl());
+
+        // Now set a redirect URL
+        request = new MockHttpServletRequest();
+        request.setRequestedSessionId("xxx");
+        request.setRequestedSessionIdValid(false);
+        filter.setInvalidSessionUrl("/timedOut");
+        filter.doFilter(request, response, new MockFilterChain());
+        assertEquals("/timedOut", response.getRedirectedUrl());
     }
 
     private void authenticateUser() {

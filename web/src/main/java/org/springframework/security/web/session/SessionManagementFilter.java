@@ -40,6 +40,8 @@ public class SessionManagementFilter extends SpringSecurityFilter {
 
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
+    private String invalidSessionUrl;
+
     public SessionManagementFilter(SecurityContextRepository securityContextRepository) {
         this.securityContextRepository = securityContextRepository;
     }
@@ -60,10 +62,21 @@ public class SessionManagementFilter extends SpringSecurityFilter {
             if (authentication != null && !authenticationTrustResolver.isAnonymous(authentication)) {
              // The user has been authenticated during the current request, so call the session strategy
                 sessionStrategy.onAuthenticationSuccess(authentication, request, response);
+            } else {
+             // No security context or authentication present. Check for a session timeout
+                if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {
+                    invalidSessionRequested(request, response);
+                }
             }
         }
 
         chain.doFilter(request, response);
+    }
+
+    protected void invalidSessionRequested(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (invalidSessionUrl != null) {
+            response.sendRedirect(invalidSessionUrl);
+        }
     }
 
     /**
@@ -75,5 +88,9 @@ public class SessionManagementFilter extends SpringSecurityFilter {
     public void setAuthenticatedSessionStrategy(AuthenticatedSessionStrategy sessionStrategy) {
         Assert.notNull(sessionStrategy, "authenticatedSessionStratedy must not be null");
         this.sessionStrategy = sessionStrategy;
+    }
+
+    public void setInvalidSessionUrl(String sessionTimeoutUrl) {
+        this.invalidSessionUrl = sessionTimeoutUrl;
     }
 }
