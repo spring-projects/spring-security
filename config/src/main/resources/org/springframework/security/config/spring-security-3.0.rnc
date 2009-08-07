@@ -286,7 +286,10 @@ http.attlist &=
 http.attlist &=
     ##  
     attribute disable-url-rewriting {boolean}? 
-
+http.attlist &=
+    ## The URL to which a user will be redirected if they submit an invalid session indentifier. Typically used to detect session timeouts.
+    attribute invalid-session-url {xsd:token}? 
+    
 access-denied-handler = 
     ## Defines the access-denied strategy that should be used. An access denied page can be defined or a reference to an AccessDeniedHandler instance. 
     element access-denied-handler {access-denied-handler.attlist, empty}

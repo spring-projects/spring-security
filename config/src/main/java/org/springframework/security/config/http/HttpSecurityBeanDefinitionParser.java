@@ -132,6 +132,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String ATT_USE_EXPRESSIONS = "use-expressions";
 
+    private static final String ATT_INVALID_SESSION_URL = "invalid-session-url";
+
     private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
 
     private static final String ATT_DISABLE_URL_REWRITING = "disable-url-rewriting";
@@ -216,12 +218,13 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         requestCacheAwareFilter.getPropertyValues().addPropertyValue("requestCache", requestCache);
 
         BeanDefinition etf = createExceptionTranslationFilter(element, pc, requestCache);
-        RootBeanDefinition sfpf = createSessionFixationProtectionFilter(pc, element.getAttribute(ATT_SESSION_FIXATION_PROTECTION),
-                sessionRegistryRef, contextRepoRef);
+        RootBeanDefinition sfpf = createSessionManagementFilter(element, pc, sessionRegistryRef, contextRepoRef);
         BeanReference sessionStrategyRef = null;
 
         if (sfpf != null) {
-            sessionStrategyRef = (BeanReference) sfpf.getPropertyValues().getPropertyValue("authenticatedSessionStrategy").getValue();
+            PropertyValue sessionStrategyPV = sfpf.getPropertyValues().getPropertyValue("authenticatedSessionStrategy");
+
+            sessionStrategyRef = (BeanReference) (sessionStrategyPV == null ? null : sessionStrategyPV.getValue());
         }
         BeanDefinition fsi = createFilterSecurityInterceptor(element, pc, matcher, convertPathsToLowerCase, authenticationManager);
 
@@ -919,31 +922,45 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return channelFilter;
     }
 
-    private RootBeanDefinition createSessionFixationProtectionFilter(ParserContext pc, String sessionFixationAttribute,
+    private RootBeanDefinition createSessionManagementFilter(Element elt, ParserContext pc,
             BeanReference sessionRegistryRef, BeanReference contextRepoRef) {
-        if(!StringUtils.hasText(sessionFixationAttribute)) {
+        String sessionFixationAttribute = elt.getAttribute(ATT_SESSION_FIXATION_PROTECTION);
+        String invalidSessionUrl = elt.getAttribute(ATT_INVALID_SESSION_URL);
+
+        if (!StringUtils.hasText(sessionFixationAttribute)) {
             sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
         }
 
-        if (!sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION)) {
+        boolean sessionFixationProtectionRequired = !sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION);
+
+        if (sessionFixationProtectionRequired || StringUtils.hasText(invalidSessionUrl)) {
             BeanDefinitionBuilder sessionFixationFilter =
                 BeanDefinitionBuilder.rootBeanDefinition(SessionManagementFilter.class);
             sessionFixationFilter.addConstructorArgValue(contextRepoRef);
 
-            BeanDefinitionBuilder sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(DefaultAuthenticatedSessionStrategy.class);
+            if (sessionFixationProtectionRequired) {
+                BeanDefinitionBuilder sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(DefaultAuthenticatedSessionStrategy.class);
 
-            sessionStrategy.addPropertyValue("migrateSessionAttributes",
-                    Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
-            if (sessionRegistryRef != null) {
-                sessionStrategy.addPropertyValue("sessionRegistry", sessionRegistryRef);
+                sessionStrategy.addPropertyValue("migrateSessionAttributes",
+                        Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
+                if (sessionRegistryRef != null) {
+                    sessionStrategy.addPropertyValue("sessionRegistry", sessionRegistryRef);
+                }
+
+                BeanDefinition strategyBean = sessionStrategy.getBeanDefinition();
+                String id = pc.getReaderContext().registerWithGeneratedName(strategyBean);
+                pc.registerBeanComponent(new BeanComponentDefinition(strategyBean, id));
+                sessionFixationFilter.addPropertyReference("authenticatedSessionStrategy", id);
+
             }
 
-            BeanDefinition strategyBean = sessionStrategy.getBeanDefinition();
-            String id = pc.getReaderContext().registerWithGeneratedName(strategyBean);
-            pc.registerBeanComponent(new BeanComponentDefinition(strategyBean, id));
-            sessionFixationFilter.addPropertyReference("authenticatedSessionStrategy", id);
+            if (StringUtils.hasText(invalidSessionUrl)) {
+                sessionFixationFilter.addPropertyValue("invalidSessionUrl", invalidSessionUrl);
+            }
+
             return (RootBeanDefinition) sessionFixationFilter.getBeanDefinition();
         }
+
         return null;
     }
 

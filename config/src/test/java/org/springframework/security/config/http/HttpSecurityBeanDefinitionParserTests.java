@@ -737,12 +737,23 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void disablingSessionProtectionRemovesFilter() throws Exception {
+    public void disablingSessionProtectionRemovesSessionManagementFilterIfNoInvalidSessionUrlSet() throws Exception {
         setContext(
                 "<http auto-config='true' session-fixation-protection='none'/>" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
         assertTrue(filters.get(8) instanceof ExceptionTranslationFilter);
         assertFalse(filters.get(9) instanceof SessionManagementFilter);
+    }
+
+    @Test
+    public void disablingSessionProtectionRetainsSessionManagementFilterInvalidSessionUrlSet() throws Exception {
+        setContext(
+                "<http auto-config='true' session-fixation-protection='none'" +
+                " invalid-session-url='/timeoutUrl' />" + AUTH_PROVIDER_XML);
+        List<Filter> filters = getFilters("/someurl");
+        Object filter = filters.get(9);
+        assertTrue(filter instanceof SessionManagementFilter);
+        assertEquals("/timeoutUrl", FieldUtils.getProtectedFieldValue("invalidSessionUrl", filter));
     }
 
     /**
