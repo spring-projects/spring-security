@@ -90,9 +90,9 @@ public class SessionManagementFilter extends SpringSecurityFilter {
      * Sets the URL to which the response should be redirected if the user agent request and invalid session Id.
      * If the property is not set, no action will be taken.
      *
-     * @param sessionTimeoutUrl
+     * @param invalidSessionUrl
      */
-    public void setInvalidSessionUrl(String sessionTimeoutUrl) {
-        this.invalidSessionUrl = sessionTimeoutUrl;
+    public void setInvalidSessionUrl(String invalidSessionUrl) {
+        this.invalidSessionUrl = invalidSessionUrl;
     }
 }
