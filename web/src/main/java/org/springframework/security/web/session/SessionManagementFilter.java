@@ -65,18 +65,14 @@ public class SessionManagementFilter extends SpringSecurityFilter {
             } else {
              // No security context or authentication present. Check for a session timeout
                 if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {
-                    invalidSessionRequested(request, response);
+                    if (invalidSessionUrl != null) {
+                        response.sendRedirect(invalidSessionUrl);
+                    }
                 }
             }
         }
 
         chain.doFilter(request, response);
-    }
-
-    protected void invalidSessionRequested(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (invalidSessionUrl != null) {
-            response.sendRedirect(invalidSessionUrl);
-        }
     }
 
     /**
@@ -90,6 +86,12 @@ public class SessionManagementFilter extends SpringSecurityFilter {
         this.sessionStrategy = sessionStrategy;
     }
 
+    /**
+     * Sets the URL to which the response should be redirected if the user agent request and invalid session Id.
+     * If the property is not set, no action will be taken.
+     *
+     * @param sessionTimeoutUrl
+     */
     public void setInvalidSessionUrl(String sessionTimeoutUrl) {
         this.invalidSessionUrl = sessionTimeoutUrl;
     }
