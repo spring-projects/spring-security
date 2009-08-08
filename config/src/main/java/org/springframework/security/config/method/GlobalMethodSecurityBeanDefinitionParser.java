@@ -67,14 +67,6 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    /*
-     * Internal Bean IDs which are only used within this class
-     */
-//    static final String SECURITY_INTERCEPTOR_ID = "_globalMethodSecurityInterceptor";
-    static final String ACCESS_MANAGER_ID = "_globalMethodSecurityAccessManager";
-//    private static final String DELEGATING_METHOD_DEFINITION_SOURCE_ID = "_delegatingMethodSecurityMetadataSource";
-    private static final String EXPRESSION_HANDLER_ID = "_methodExpressionHandler";
-
     private static final String ATT_ACCESS = "access";
     private static final String ATT_EXPRESSION = "expression";
     private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
@@ -134,10 +126,11 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
                 if (StringUtils.hasText(expressionHandlerRef)) {
                     logger.info("Using bean '" + expressionHandlerRef + "' as method ExpressionHandler implementation");
                 } else {
-                    pc.getRegistry().registerBeanDefinition(EXPRESSION_HANDLER_ID, new RootBeanDefinition(DefaultMethodSecurityExpressionHandler.class));
+                    BeanDefinition expressionHandler = new RootBeanDefinition(DefaultMethodSecurityExpressionHandler.class);
+                    expressionHandlerRef = pc.getReaderContext().registerWithGeneratedName(expressionHandler);
+                    pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
                     logger.warn("Expressions were enabled for method security but no SecurityExpressionHandler was configured. " +
                             "All hasPermision() expressions will evaluate to false.");
-                    expressionHandlerRef = EXPRESSION_HANDLER_ID;
                 }
 
                 BeanDefinitionBuilder expressionPreAdviceBldr = BeanDefinitionBuilder.rootBeanDefinition(ExpressionBasedPreInvocationAdvice.class);
@@ -189,8 +182,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
         if (!StringUtils.hasText(accessManagerId)) {
-            registerAccessManager(pc, jsr250Enabled, preInvocationVoter);
-            accessManagerId = ACCESS_MANAGER_ID;
+            accessManagerId = registerAccessManager(pc, jsr250Enabled, preInvocationVoter);
         }
 
         String runAsManagerId = element.getAttribute(ATT_RUN_AS_MGR);
@@ -208,9 +200,10 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
     /**
      * Register the default AccessDecisionManager. Adds the special JSR 250 voter jsr-250 is enabled and an
      * expression voter if expression-based access control is enabled.
+     * @return
      */
     @SuppressWarnings("unchecked")
-    private void registerAccessManager(ParserContext pc, boolean jsr250Enabled, BeanDefinition expressionVoter) {
+    private String registerAccessManager(ParserContext pc, boolean jsr250Enabled, BeanDefinition expressionVoter) {
 
         BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
         ManagedList voters = new ManagedList(4);
@@ -227,7 +220,11 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
         accessMgrBuilder.addPropertyValue("decisionVoters", voters);
 
-        pc.getRegistry().registerBeanDefinition(ACCESS_MANAGER_ID, accessMgrBuilder.getBeanDefinition());
+        BeanDefinition accessManager = accessMgrBuilder.getBeanDefinition();
+        String id = pc.getReaderContext().registerWithGeneratedName(accessManager);
+        pc.registerBeanComponent(new BeanComponentDefinition(accessManager, id));
+
+        return id;
     }
 
     @SuppressWarnings("unchecked")

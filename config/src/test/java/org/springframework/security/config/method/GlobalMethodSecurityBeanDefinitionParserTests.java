@@ -208,7 +208,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     @Test
     public void expressionVoterAndAfterInvocationProviderUseSameExpressionHandlerInstance() throws Exception {
         setContext("<global-method-security pre-post-annotations='enabled'/>" + AUTH_PROVIDER_XML);
-        AffirmativeBased adm = (AffirmativeBased) appContext.getBean(GlobalMethodSecurityBeanDefinitionParser.ACCESS_MANAGER_ID);
+        AffirmativeBased adm = (AffirmativeBased) appContext.getBeansOfType(AffirmativeBased.class).values().toArray()[0];
         List voters = (List) FieldUtils.getFieldValue(adm, "decisionVoters");
         PreInvocationAuthorizationAdviceVoter mev = (PreInvocationAuthorizationAdviceVoter) voters.get(0);
         MethodSecurityMetadataSourceAdvisor msi = (MethodSecurityMetadataSourceAdvisor)
