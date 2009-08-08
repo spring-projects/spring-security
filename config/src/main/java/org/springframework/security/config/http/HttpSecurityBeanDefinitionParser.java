@@ -246,21 +246,25 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         final BeanDefinition logoutFilter = createLogoutFilter(element, autoConfig, pc, rememberMeServicesId);
 
-        BeanDefinition loginPageGenerationFilter = createLoginPageFilterIfNeeded(form, openID);
+        String formFilterId = null;
+        String openIDFilterId = null;
 
         if (form.filter != null) {
-            // Required by login page filter
-            pc.getRegistry().registerBeanDefinition(BeanIds.FORM_LOGIN_FILTER, form.filter);
-            pc.registerBeanComponent(new BeanComponentDefinition(form.filter, BeanIds.FORM_LOGIN_FILTER));
+            // Id is required by login page filter
+            formFilterId = pc.getReaderContext().registerWithGeneratedName(form.filter);
+            pc.registerBeanComponent(new BeanComponentDefinition(form.filter, formFilterId));
             injectRememberMeServicesRef(form.filter, rememberMeServicesId);
         }
 
         if (openID.filter != null) {
             // Required by login page filter
-            pc.getRegistry().registerBeanDefinition(BeanIds.OPEN_ID_FILTER, openID.filter);
-            pc.registerBeanComponent(new BeanComponentDefinition(openID.filter, BeanIds.OPEN_ID_FILTER));
+            openIDFilterId = pc.getReaderContext().registerWithGeneratedName(openID.filter);
+            pc.getRegistry().registerBeanDefinition(openIDFilterId, openID.filter);
+            pc.registerBeanComponent(new BeanComponentDefinition(openID.filter, openIDFilterId));
             injectRememberMeServicesRef(openID.filter, rememberMeServicesId);
         }
+
+        BeanDefinition loginPageGenerationFilter = createLoginPageFilterIfNeeded(form, formFilterId, openID, openIDFilterId);
 
         String x509ProviderId = null;
         FilterAndEntryPoint x509 = createX509Filter(element, pc, authenticationManager);
@@ -875,9 +879,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
 
         if (!StringUtils.hasText(accessManagerId)) {
-            pc.getRegistry().registerBeanDefinition(BeanIds.WEB_ACCESS_MANAGER, accessDecisionMgr);
-            pc.registerBeanComponent(new BeanComponentDefinition(accessDecisionMgr, BeanIds.WEB_ACCESS_MANAGER));
-            accessManagerId = BeanIds.WEB_ACCESS_MANAGER;
+            accessManagerId = pc.getReaderContext().registerWithGeneratedName(accessDecisionMgr);
+            pc.registerBeanComponent(new BeanComponentDefinition(accessDecisionMgr, accessManagerId));
         }
 
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(FilterSecurityInterceptor.class);
@@ -1099,7 +1102,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
 
-    BeanDefinition createLoginPageFilterIfNeeded(FilterAndEntryPoint form, FilterAndEntryPoint openID) {
+    BeanDefinition createLoginPageFilterIfNeeded(FilterAndEntryPoint form, String formFilterId, FilterAndEntryPoint openID, String openIDFilterId) {
         boolean needLoginPage = form.filter != null || openID.filter != null;
         String formLoginPage = getLoginFormUrl(form.entryPoint);
         // If the login URL is the default one, then it is assumed not to have been set explicitly
@@ -1116,11 +1119,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 BeanDefinitionBuilder.rootBeanDefinition(DefaultLoginPageGeneratingFilter.class);
 
             if (form.filter != null) {
-                loginPageFilter.addConstructorArgValue(new RuntimeBeanReference(BeanIds.FORM_LOGIN_FILTER));
+                loginPageFilter.addConstructorArgReference(formFilterId);
             }
 
             if (openID.filter != null) {
-                loginPageFilter.addConstructorArgValue(new RuntimeBeanReference(BeanIds.OPEN_ID_FILTER));
+                loginPageFilter.addConstructorArgReference(openIDFilterId);
             }
 
             return loginPageFilter.getBeanDefinition();

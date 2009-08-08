@@ -18,13 +18,7 @@ public abstract class BeanIds {
     public static final String USER_DETAILS_SERVICE = "_userDetailsService";
 
     public static final String METHOD_ACCESS_MANAGER = "_defaultMethodAccessManager";
-    public static final String WEB_ACCESS_MANAGER = "_webAccessManager";
     public static final String AUTHENTICATION_MANAGER = "_authenticationManager";
-    public static final String AFTER_INVOCATION_MANAGER = "_afterInvocationManager";
-    public static final String FORM_LOGIN_FILTER = "_formLoginFilter";
-    public static final String FORM_LOGIN_ENTRY_POINT = "_formLoginEntryPoint";
-    public static final String OPEN_ID_FILTER = "_openIDFilter";
-    public static final String OPEN_ID_ENTRY_POINT = "_openIDFilterEntryPoint";
 
     public static final String FILTER_CHAIN_PROXY = "_filterChainProxy";
 
