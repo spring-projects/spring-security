@@ -41,6 +41,22 @@ public class LdapProviderBeanDefinitionParserTests {
         assertEquals(PASSWD_AUTH_CLASS, PasswordComparisonAuthenticator.class.getName());
     }
 
+    // SEC-1182
+    @Test
+    public void multipleProvidersAreSupported() throws Exception {
+        setContext("<ldap-server url='ldap://blah:389/dc=blah'/>" +
+                "<authentication-manager>" +
+                "   <ldap-authentication-provider group-search-filter='member={0}' />" +
+                "   <ldap-authentication-provider group-search-filter='uniqueMember={0}' />" +
+                "</authentication-manager>");
+
+        ProviderManager authManager = (ProviderManager) appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER);
+
+        assertEquals(2, authManager.getProviders().size());
+        assertEquals("member={0}", FieldUtils.getFieldValue(authManager.getProviders().get(0), "authoritiesPopulator.groupSearchFilter"));
+        assertEquals("uniqueMember={0}", FieldUtils.getFieldValue(authManager.getProviders().get(1), "authoritiesPopulator.groupSearchFilter"));
+    }
+
     @Test
     public void simpleProviderAuthenticatesCorrectly() {
         setContext("<ldap-server />" +
