@@ -16,7 +16,6 @@
 package org.springframework.security.web.wrapper;
 
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jmock.Expectations;
