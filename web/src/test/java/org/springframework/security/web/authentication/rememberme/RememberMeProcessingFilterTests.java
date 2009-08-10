@@ -56,11 +56,10 @@ public class RememberMeProcessingFilterTests extends TestCase {
     //~ Methods ========================================================================================================
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig, Filter filter, ServletRequest request,
-        ServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
-        filter.init(filterConfig);
+        ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+//        filter.init(filterConfig);
         filter.doFilter(request, response, filterChain);
-        filter.destroy();
+//        filter.destroy();
     }
 
     protected void setUp() throws Exception {

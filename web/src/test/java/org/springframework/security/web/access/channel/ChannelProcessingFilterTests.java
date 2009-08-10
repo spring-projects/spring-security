@@ -149,9 +149,7 @@ public class ChannelProcessingFilterTests {
         filter.setSecurityMetadataSource(fids);
         assertSame(fids, filter.getSecurityMetadataSource());
 
-        filter.init(null);
         filter.afterPropertiesSet();
-        filter.destroy();
     }
 
     //~ Inner Classes ==================================================================================================

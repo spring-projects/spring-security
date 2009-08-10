@@ -21,15 +21,17 @@ import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * Logs a principal out.
@@ -44,7 +46,7 @@ import org.springframework.util.StringUtils;
  * @author Ben Alex
  * @version $Id$
  */
-public class LogoutFilter extends SpringSecurityFilter {
+public class LogoutFilter extends GenericFilterBean {
 
     //~ Instance fields ================================================================================================
 
@@ -79,8 +81,10 @@ public class LogoutFilter extends SpringSecurityFilter {
 
     //~ Methods ========================================================================================================
 
-    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException,
-            ServletException {
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
 
         if (requiresLogout(request, response)) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();

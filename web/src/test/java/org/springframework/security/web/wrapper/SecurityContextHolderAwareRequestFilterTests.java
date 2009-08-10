@@ -42,7 +42,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
     public void expectedRequestWrapperClassIsUsed() throws Exception {
         SecurityContextHolderAwareRequestFilter filter = new SecurityContextHolderAwareRequestFilter();
         filter.setRolePrefix("ROLE_");
-        filter.init(jmock.mock(FilterConfig.class));
+//        filter.init(jmock.mock(FilterConfig.class));
         final FilterChain filterChain = jmock.mock(FilterChain.class);
 
         jmock.checking(new Expectations() {{

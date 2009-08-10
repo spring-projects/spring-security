@@ -52,7 +52,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         UsernamePasswordAuthenticationProcessingFilter filter = new UsernamePasswordAuthenticationProcessingFilter();
         assertEquals("/j_spring_security_check", filter.getFilterProcessesUrl());
         filter.setAuthenticationManager(createAuthenticationManager());
-        filter.init(null);
+//        filter.init(null);
 
         Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
         assertTrue(result != null);

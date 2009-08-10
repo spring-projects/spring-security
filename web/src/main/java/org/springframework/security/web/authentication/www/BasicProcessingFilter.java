@@ -19,11 +19,12 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,11 +33,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
+import org.springframework.web.filter.GenericFilterBean;
 
 
 /**
@@ -84,7 +85,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilter extends SpringSecurityFilter implements InitializingBean {
+public class BasicProcessingFilter extends GenericFilterBean {
 
     //~ Instance fields ================================================================================================
 
@@ -97,7 +98,8 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    @Override
+    public void afterPropertiesSet() {
         Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
 
         if(!isIgnoreFailure()) {
@@ -105,8 +107,10 @@ public class BasicProcessingFilter extends SpringSecurityFilter implements Initi
         }
     }
 
-    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
 
         String header = request.getHeader("Authorization");
 

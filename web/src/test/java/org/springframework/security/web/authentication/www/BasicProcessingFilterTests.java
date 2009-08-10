@@ -24,7 +24,6 @@ import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -63,13 +62,13 @@ public class BasicProcessingFilterTests {
 
     private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter, final ServletRequest request,
                     final boolean expectChainToProceed) throws ServletException, IOException {
-        filter.init(mock(FilterConfig.class));
+//        filter.init(mock(FilterConfig.class));
 
         final MockHttpServletResponse response = new MockHttpServletResponse();
 
         FilterChain chain = mock(FilterChain.class);
         filter.doFilter(request, response, chain);
-        filter.destroy();
+//        filter.destroy();
 
         verify(chain, expectChainToProceed ? times(1) : never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
         return response;

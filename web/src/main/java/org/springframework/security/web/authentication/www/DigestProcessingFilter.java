@@ -18,9 +18,10 @@ package org.springframework.security.web.authentication.www;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,7 +29,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -44,10 +44,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
-import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.filter.GenericFilterBean;
 
 
 /**
@@ -76,7 +76,7 @@ import org.springframework.util.StringUtils;
  * than Basic authentication. Please see RFC 2617 section 4 for a full discussion on the advantages of Digest
  * authentication over Basic authentication, including commentary on the limitations that it still imposes.
  */
-public class DigestProcessingFilter extends SpringSecurityFilter implements Filter, InitializingBean, MessageSourceAware {
+public class DigestProcessingFilter extends GenericFilterBean implements MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
 
@@ -93,13 +93,17 @@ public class DigestProcessingFilter extends SpringSecurityFilter implements Filt
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    @Override
+    public void afterPropertiesSet() {
         Assert.notNull(userDetailsService, "A UserDetailsService is required");
         Assert.notNull(authenticationEntryPoint, "A DigestProcessingFilterEntryPoint is required");
     }
 
-    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+
         String header = request.getHeader("Authorization");
 
         if (logger.isDebugEnabled()) {

@@ -161,7 +161,7 @@ public class SwitchUserProcessingFilterTests {
 
         // Check it with no url set (should get a text response)
         FilterChain chain = mock(FilterChain.class);
-        filter.doFilterHttp(request, response, chain);
+        filter.doFilter(request, response, chain);
         verify(chain, never()).doFilter(request, response);
 
         assertEquals("Authentication Failed: User is disabled", response.getErrorMessage());
@@ -177,7 +177,7 @@ public class SwitchUserProcessingFilterTests {
         response = new MockHttpServletResponse();
 
         chain = mock(FilterChain.class);
-        filter.doFilterHttp(request, response, chain);
+        filter.doFilter(request, response, chain);
         verify(chain, never()).doFilter(request, response);
 
         assertEquals("/mywebapp/switchfailed", response.getRedirectedUrl());

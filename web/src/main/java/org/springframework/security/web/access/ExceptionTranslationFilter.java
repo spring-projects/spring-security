@@ -19,10 +19,11 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -30,12 +31,12 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.security.web.util.ThrowableCauseExtractor;
 import org.springframework.util.Assert;
+import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * Handles any <code>AccessDeniedException</code> and <code>AuthenticationException</code> thrown within the
@@ -68,7 +69,7 @@ import org.springframework.util.Assert;
  * @author colin sampaleanu
  * @version $Id$
  */
-public class ExceptionTranslationFilter extends SpringSecurityFilter implements InitializingBean {
+public class ExceptionTranslationFilter extends GenericFilterBean {
 
     //~ Instance fields ================================================================================================
 
@@ -82,13 +83,16 @@ public class ExceptionTranslationFilter extends SpringSecurityFilter implements 
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    @Override
+    public void afterPropertiesSet() {
         Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint must be specified");
 //        Assert.notNull(portResolver, "portResolver must be specified");
     }
 
-    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException,
-            ServletException {
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
 
         try {
             chain.doFilter(request, response);

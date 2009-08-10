@@ -33,12 +33,12 @@ import javax.servlet.ServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.util.AntUrlPathMatcher;
 import org.springframework.security.web.util.UrlMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.web.filter.GenericFilterBean;
 
 
 /**
@@ -104,7 +104,7 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  *
  * @version $Id$
  */
-public class FilterChainProxy implements Filter, InitializingBean {
+public class FilterChainProxy extends GenericFilterBean {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(FilterChainProxy.class);
@@ -123,33 +123,10 @@ public class FilterChainProxy implements Filter, InitializingBean {
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    @Override
+    public void afterPropertiesSet() {
         Assert.notNull(uncompiledFilterChainMap, "filterChainMap must be set");
         filterChainValidator.validate(this);
-    }
-
-    public void init(FilterConfig filterConfig) throws ServletException {
-        for (Filter filter : obtainAllDefinedFilters()) {
-            if (filter != null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Initializing Filter defined in ApplicationContext: '" + filter + "'");
-                }
-
-                filter.init(filterConfig);
-            }
-        }
-    }
-
-    public void destroy() {
-        for (Filter filter : obtainAllDefinedFilters()) {
-            if (filter != null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Destroying Filter defined in ApplicationContext: '" + filter + "'");
-                }
-
-                filter.destroy();
-            }
-        }
     }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -324,10 +301,10 @@ public class FilterChainProxy implements Filter, InitializingBean {
      * @param filterChainValidator
      */
     public void setFilterChainValidator(FilterChainValidator filterChainValidator) {
-		this.filterChainValidator = filterChainValidator;
-	}
+        this.filterChainValidator = filterChainValidator;
+    }
 
-	public String toString() {
+    public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("FilterChainProxy[");
         sb.append(" UrlMatcher = ").append(matcher);
@@ -382,12 +359,12 @@ public class FilterChainProxy implements Filter, InitializingBean {
     }
 
     public interface FilterChainValidator {
-    	void validate(FilterChainProxy filterChainProxy);
+        void validate(FilterChainProxy filterChainProxy);
     }
 
     private class NullFilterChainValidator implements FilterChainValidator {
-		public void validate(FilterChainProxy filterChainProxy) {
-		}
+        public void validate(FilterChainProxy filterChainProxy) {
+        }
     }
 
 }

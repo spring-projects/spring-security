@@ -22,6 +22,8 @@ import java.util.Properties;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -40,7 +42,6 @@ import jcifs.util.Base64;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
@@ -51,10 +52,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
+import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * A clean-room implementation for Spring Security of an NTLM HTTP filter
@@ -81,7 +82,7 @@ import org.springframework.util.Assert;
  * @author Edward Smith
  * @version $Id$
  */
-public class NtlmProcessingFilter extends SpringSecurityFilter implements InitializingBean {
+public class NtlmProcessingFilter extends GenericFilterBean {
     //~ Static fields/initializers =====================================================================================
 
     private static Log    logger = LogFactory.getLog(NtlmProcessingFilter.class);
@@ -120,7 +121,8 @@ public class NtlmProcessingFilter extends SpringSecurityFilter implements Initia
      * Ensures an <code>AuthenticationManager</code> and authentication failure
      * URL have been provided in the bean configuration file.
      */
-    public void afterPropertiesSet() throws Exception {
+    @Override
+    public void afterPropertiesSet() {
         Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
 
         // Default to 5 minutes if not already specified
@@ -304,8 +306,10 @@ public class NtlmProcessingFilter extends SpringSecurityFilter implements Initia
         this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
-    protected void doFilterHttp(final HttpServletRequest request,
-            final HttpServletResponse response, final FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
         final HttpSession session = request.getSession();
         Integer ntlmState = (Integer) session.getAttribute(STATE_ATTR);
 

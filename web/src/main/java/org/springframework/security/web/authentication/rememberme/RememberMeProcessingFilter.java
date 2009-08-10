@@ -19,10 +19,11 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,9 +31,9 @@ import org.springframework.security.authentication.event.InteractiveAuthenticati
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.util.Assert;
+import org.springframework.web.filter.GenericFilterBean;
 
 
 /**
@@ -52,8 +53,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class RememberMeProcessingFilter extends SpringSecurityFilter implements InitializingBean,
-        ApplicationEventPublisherAware {
+public class RememberMeProcessingFilter extends GenericFilterBean implements ApplicationEventPublisherAware {
 
     //~ Instance fields ================================================================================================
 
@@ -63,13 +63,16 @@ public class RememberMeProcessingFilter extends SpringSecurityFilter implements 
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    @Override
+    public void afterPropertiesSet() {
         Assert.notNull(authenticationManager, "authenticationManager must be specified");
         Assert.notNull(rememberMeServices, "rememberMeServices must be specified");
     }
 
-    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-        throws IOException, ServletException {
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             Authentication rememberMeAuth = rememberMeServices.autoLogin(request, response);

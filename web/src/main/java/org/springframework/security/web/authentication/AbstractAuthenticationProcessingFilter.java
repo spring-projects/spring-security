@@ -19,11 +19,12 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
@@ -36,11 +37,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.session.AuthenticatedSessionStrategy;
 import org.springframework.security.web.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
+import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * Abstract processor of browser-based HTTP-based authentication requests.
@@ -102,7 +103,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public abstract class AbstractAuthenticationProcessingFilter extends SpringSecurityFilter implements InitializingBean,
+public abstract class AbstractAuthenticationProcessingFilter extends GenericFilterBean implements
         ApplicationEventPublisherAware, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
@@ -147,7 +148,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends SpringSecur
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    @Override
+    public void afterPropertiesSet() {
         Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
         Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");
         Assert.notNull(authenticationManager, "authenticationManager must be specified");
@@ -176,8 +178,11 @@ public abstract class AbstractAuthenticationProcessingFilter extends SpringSecur
      * by this method where the returned <tt>Authentication</tt> object is not null.
      * </ol>
      */
-    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
+
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
 
         if (!requiresAuthentication(request, response)) {
             chain.doFilter(request, response);

@@ -186,7 +186,7 @@ public class HttpSessionContextIntegrationFilter extends SecurityContextPersiste
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         if (forceEagerSessionCreation && !allowSessionCreation) {
             throw new IllegalArgumentException(
                     "If using forceEagerSessionCreation, you must set allowSessionCreation to also be true");

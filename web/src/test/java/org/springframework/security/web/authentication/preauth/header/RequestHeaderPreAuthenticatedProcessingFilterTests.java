@@ -37,7 +37,6 @@ public class RequestHeaderPreAuthenticatedProcessingFilterTests {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
         RequestHeaderPreAuthenticatedProcessingFilter filter = new RequestHeaderPreAuthenticatedProcessingFilter();
-        filter.getOrder();
 
         filter.doFilter(request, response, chain);
     }

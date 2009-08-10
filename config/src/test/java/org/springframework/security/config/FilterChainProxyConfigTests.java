@@ -17,13 +17,13 @@ package org.springframework.security.config;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -136,8 +136,6 @@ public class FilterChainProxyConfigTests {
     }
 
     private void doNormalOperation(FilterChainProxy filterChainProxy) throws Exception {
-        filterChainProxy.init(mock(FilterConfig.class));
-
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/foo/secure/super/somefile.html");
 
@@ -151,7 +149,5 @@ public class FilterChainProxyConfigTests {
         chain = mock(FilterChain.class);
         filterChainProxy.doFilter(request, response, chain);
         verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-
-        filterChainProxy.destroy();
     }
 }

@@ -59,9 +59,9 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
             FilterConfig filterConfig, Filter filter, ServletRequest request,
             ServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        filter.init(filterConfig);
+//        filter.init(filterConfig);
         filter.doFilter(request, response, filterChain);
-        filter.destroy();
+//        filter.destroy();
     }
 
     public void testDetectsIncompatibleSessionProperties() throws Exception {

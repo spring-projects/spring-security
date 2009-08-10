@@ -19,20 +19,21 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.concurrent.SessionInformation;
 import org.springframework.security.authentication.concurrent.SessionRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
+import org.springframework.web.filter.GenericFilterBean;
 
 
 /**
@@ -52,7 +53,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class ConcurrentSessionFilter extends SpringSecurityFilter implements InitializingBean {
+public class ConcurrentSessionFilter extends GenericFilterBean {
     //~ Instance fields ================================================================================================
 
     private SessionRegistry sessionRegistry;
@@ -61,14 +62,17 @@ public class ConcurrentSessionFilter extends SpringSecurityFilter implements Ini
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    @Override
+    public void afterPropertiesSet() {
         Assert.notNull(sessionRegistry, "SessionRegistry required");
         Assert.isTrue(expiredUrl == null || UrlUtils.isValidRedirectUrl(expiredUrl),
                 expiredUrl + " isn't a valid redirect URL");
     }
 
-    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
 
         HttpSession session = request.getSession(false);
 

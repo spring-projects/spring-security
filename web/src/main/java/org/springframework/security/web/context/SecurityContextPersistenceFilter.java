@@ -4,13 +4,15 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.SpringSecurityFilter;
+import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * Populates the {@link SecurityContextHolder} with information obtained from
@@ -37,7 +39,7 @@ import org.springframework.security.web.SpringSecurityFilter;
  * @version $Id$
  * @since 3.0
  */
-public class SecurityContextPersistenceFilter extends SpringSecurityFilter {
+public class SecurityContextPersistenceFilter extends GenericFilterBean {
 
     static final String FILTER_APPLIED = "__spring_security_scpf_applied";
 
@@ -45,9 +47,11 @@ public class SecurityContextPersistenceFilter extends SpringSecurityFilter {
 
     private boolean forceEagerSessionCreation = false;
 
-    @Override
-    protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
 
         if (request.getAttribute(FILTER_APPLIED) != null) {
             // ensure that filter is only applied once per request

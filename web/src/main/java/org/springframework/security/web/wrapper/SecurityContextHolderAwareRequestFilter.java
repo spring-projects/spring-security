@@ -19,11 +19,12 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.util.Assert;
+import org.springframework.web.filter.GenericFilterBean;
 
 
 /**
@@ -37,7 +38,7 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @version $Id$
  */
-public class SecurityContextHolderAwareRequestFilter extends SpringSecurityFilter {
+public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
     //~ Instance fields ================================================================================================
 
     private String rolePrefix;
@@ -49,8 +50,8 @@ public class SecurityContextHolderAwareRequestFilter extends SpringSecurityFilte
         this.rolePrefix = rolePrefix.trim();
     }
 
-    protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
-        chain.doFilter(new SecurityContextHolderAwareRequestWrapper(request, rolePrefix), response);
+        chain.doFilter(new SecurityContextHolderAwareRequestWrapper((HttpServletRequest) req, rolePrefix), res);
     }
 }

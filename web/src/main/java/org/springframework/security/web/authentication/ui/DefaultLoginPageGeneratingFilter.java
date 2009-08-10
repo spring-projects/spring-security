@@ -4,16 +4,18 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
+import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * For internal use with namespace configuration in the case where a user doesn't configure a login page.
@@ -25,7 +27,7 @@ import org.springframework.security.web.authentication.rememberme.AbstractRememb
  * @version $Id$
  * @since 2.0
  */
-public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
+public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
     public static final String DEFAULT_LOGIN_PAGE_URL = "/spring_security_login";
     public static final String ERROR_PARAMETER_NAME = "login_error";
     boolean formLoginEnabled;
@@ -73,7 +75,11 @@ public class DefaultLoginPageGeneratingFilter extends SpringSecurityFilter {
         }
     }
 
-    protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+
         if (isLoginUrlRequest(request)) {
             String loginPageHtml = generateLoginPageHtml(request);
             response.setContentType("text/html;charset=UTF-8");

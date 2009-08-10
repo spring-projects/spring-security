@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.openid4java.consumer.ConsumerException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -81,10 +82,15 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractAuthentication
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    @Override
+    public void afterPropertiesSet() {
         super.afterPropertiesSet();
         if (consumer == null) {
-            consumer = new OpenID4JavaConsumer();
+            try {
+                consumer = new OpenID4JavaConsumer();
+            } catch (ConsumerException e) {
+                throw new IllegalArgumentException("Failed to initialize OpenID", e);
+            }
         }
     }
 

@@ -21,11 +21,12 @@ import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
@@ -48,7 +49,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -57,6 +57,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.filter.GenericFilterBean;
 
 
 /**
@@ -97,8 +98,8 @@ import org.springframework.util.StringUtils;
  *
  * @see org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority
  */
-public class SwitchUserProcessingFilter extends SpringSecurityFilter implements InitializingBean,
-        ApplicationEventPublisherAware, MessageSourceAware {
+public class SwitchUserProcessingFilter extends GenericFilterBean implements ApplicationEventPublisherAware,
+        MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
     public static final String SPRING_SECURITY_SWITCH_USERNAME_KEY = "j_username";
@@ -121,7 +122,8 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    @Override
+    public void afterPropertiesSet() {
         Assert.notNull(userDetailsService, "userDetailsService must be specified");
         Assert.isTrue(successHandler != null || targetUrl != null, "You must set either a successHandler or the targetUrl");
         if (targetUrl != null) {
@@ -137,8 +139,10 @@ public class SwitchUserProcessingFilter extends SpringSecurityFilter implements 
         }
     }
 
-    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
 
         // check for switch or exit request
         if (requiresSwitchUser(request)) {

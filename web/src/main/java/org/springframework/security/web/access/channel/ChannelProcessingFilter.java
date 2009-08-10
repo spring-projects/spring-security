@@ -23,15 +23,16 @@ import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.SpringSecurityFilter;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.util.Assert;
+import org.springframework.web.filter.GenericFilterBean;
 
 
 /**
@@ -45,7 +46,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class ChannelProcessingFilter extends SpringSecurityFilter implements InitializingBean {
+public class ChannelProcessingFilter extends GenericFilterBean {
 
     //~ Instance fields ================================================================================================
 
@@ -54,7 +55,8 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    @Override
+    public void afterPropertiesSet() {
         Assert.notNull(securityMetadataSource, "securityMetadataSource must be specified");
         Assert.notNull(channelDecisionManager, "channelDecisionManager must be specified");
 
@@ -86,8 +88,10 @@ public class ChannelProcessingFilter extends SpringSecurityFilter implements Ini
         }
     }
 
-    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
 
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         List<ConfigAttribute> attr = this.securityMetadataSource.getAttributes(fi);

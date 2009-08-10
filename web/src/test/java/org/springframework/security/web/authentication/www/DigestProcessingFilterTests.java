@@ -87,8 +87,6 @@ public class DigestProcessingFilterTests {
 
     private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter, final ServletRequest request,
                                                                       final boolean expectChainToProceed) throws ServletException, IOException {
-        filter.init(mock(FilterConfig.class));
-
         final MockHttpServletResponse response = new MockHttpServletResponse();
 
         Mockery jmockContext = new JUnit4Mockery();
@@ -99,7 +97,7 @@ public class DigestProcessingFilterTests {
         }});
 
         filter.doFilter(request, response, chain);
-        filter.destroy();
+
         jmockContext.assertIsSatisfied();
         return response;
     }

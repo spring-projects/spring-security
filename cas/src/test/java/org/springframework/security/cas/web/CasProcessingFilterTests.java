@@ -48,7 +48,6 @@ public class CasProcessingFilterTests extends TestCase {
 
         CasProcessingFilter filter = new CasProcessingFilter();
         filter.setAuthenticationManager(authMgr);
-        filter.init(null);
 
         Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
         assertTrue(result != null);
@@ -62,7 +61,6 @@ public class CasProcessingFilterTests extends TestCase {
 
         CasProcessingFilter filter = new CasProcessingFilter();
         filter.setAuthenticationManager(authMgr);
-        filter.init(null);
 
         try {
             filter.attemptAuthentication(request, new MockHttpServletResponse());

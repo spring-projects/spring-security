@@ -4,39 +4,41 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.web.SpringSecurityFilter;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
+import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * Base class for processing filters that handle pre-authenticated authentication requests. Subclasses must implement
  * the getPreAuthenticatedPrincipal() and getPreAuthenticatedCredentials() methods.
  * <p>
- * By default, the filter chain will proceed when an authentication attempt fails in order to allow other 
+ * By default, the filter chain will proceed when an authentication attempt fails in order to allow other
  * authentication mechanisms to process the request. To reject the credentials immediately, set the
  * <tt>continueFilterChainOnUnsuccessfulAuthentication</tt> flag to false. The exception raised by the
  * <tt>AuthenticationManager</tt> will the be re-thrown. Note that this will not affect cases where the principal
  * returned by {@link #getPreAuthenticatedPrincipal} is null, when the chain will still proceed as normal.
- * 
+ *
  *
  * @author Luke Taylor
  * @author Ruud Senden
  * @since 2.0
  */
-public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSecurityFilter implements
+public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFilterBean implements
         InitializingBean, ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher eventPublisher = null;
@@ -44,28 +46,31 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
     private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     private AuthenticationManager authenticationManager = null;
-    
+
     private boolean continueFilterChainOnUnsuccessfulAuthentication = true;
 
     /**
      * Check whether all required properties have been set.
      */
-    public void afterPropertiesSet() throws Exception {
+    @Override
+    public void afterPropertiesSet() {
         Assert.notNull(authenticationManager, "An AuthenticationManager must be set");
     }
 
     /**
      * Try to authenticate a pre-authenticated user with Spring Security if the user has not yet been authenticated.
      */
-    public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+
         if (logger.isDebugEnabled()) {
             logger.debug("Checking secure context token: " + SecurityContextHolder.getContext().getAuthentication());
         }
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            doAuthenticate(request, response);
+            doAuthenticate((HttpServletRequest) request, (HttpServletResponse) response);
         }
-        filterChain.doFilter(request, response);
+        chain.doFilter(request, response);
     }
 
     /**
@@ -82,7 +87,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
                 logger.debug("No pre-authenticated principal found in request");
             }
 
-            return;            
+            return;
         }
 
         if (logger.isDebugEnabled()) {
@@ -96,7 +101,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
             successfulAuthentication(request, response, authResult);
         } catch (AuthenticationException failed) {
             unsuccessfulAuthentication(request, response, failed);
-            
+
             if (!continueFilterChainOnUnsuccessfulAuthentication) {
                 throw failed;
             }
@@ -155,19 +160,19 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends SpringSec
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
-    
+
     public void setContinueFilterChainOnUnsuccessfulAuthentication(boolean shouldContinue) {
         continueFilterChainOnUnsuccessfulAuthentication = shouldContinue;
     }
 
     /**
-     * Override to extract the principal information from the current request 
+     * Override to extract the principal information from the current request
      */
     protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest request);
 
     /**
      * Override to extract the credentials (if applicable) from the current request. Some implementations
      * may return a dummy value.
-     */    
+     */
     protected abstract Object getPreAuthenticatedCredentials(HttpServletRequest request);
 }

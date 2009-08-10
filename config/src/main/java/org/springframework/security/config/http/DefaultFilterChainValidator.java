@@ -22,28 +22,28 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 
-public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator{
+public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator {
     private Log logger = LogFactory.getLog(getClass());
 
-	public void validate(FilterChainProxy fcp) {
-		Map<String, List<Filter>> filterChainMap = fcp.getFilterChainMap();
-		for(String pattern : fcp.getFilterChainMap().keySet()) {
-			List<Filter> filters = filterChainMap.get(pattern);
-			checkFilterStack(filters);
-		}
+    public void validate(FilterChainProxy fcp) {
+        Map<String, List<Filter>> filterChainMap = fcp.getFilterChainMap();
+        for(String pattern : fcp.getFilterChainMap().keySet()) {
+            List<Filter> filters = filterChainMap.get(pattern);
+            checkFilterStack(filters);
+        }
 
-		checkLoginPageIsntProtected(fcp, filterChainMap.get(fcp.getMatcher().getUniversalMatchPattern()));
-	}
+        checkLoginPageIsntProtected(fcp, filterChainMap.get(fcp.getMatcher().getUniversalMatchPattern()));
+    }
 
     private Object getFilter(Class<?> type, List<Filter> filters) {
 
-    	for (Filter f : filters) {
-    		if (type.isAssignableFrom(f.getClass())) {
-    			return f;
-    		}
-    	}
+        for (Filter f : filters) {
+            if (type.isAssignableFrom(f.getClass())) {
+                return f;
+            }
+        }
 
-    	return null;
+        return null;
     }
 
     /**
@@ -78,7 +78,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 
     /* Checks for the common error of having a login page URL protected by the security interceptor */
     private void checkLoginPageIsntProtected(FilterChainProxy fcp, List<Filter> defaultFilters) {
-    	ExceptionTranslationFilter etf = (ExceptionTranslationFilter)getFilter(ExceptionTranslationFilter.class, defaultFilters);
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter)getFilter(ExceptionTranslationFilter.class, defaultFilters);
 
         if (etf.getAuthenticationEntryPoint() instanceof LoginUrlAuthenticationEntryPoint) {
             String loginPage =
@@ -129,7 +129,4 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
             }
         }
     }
-
-
-
 }
