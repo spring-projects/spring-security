@@ -40,7 +40,10 @@ public class InterceptMethodsBeanDefinitionDecoratorTests {
 
     @Test
     public void targetDoesntLoseApplicationListenerInterface() {
+        assertEquals(1, appContext.getBeansOfType(ApplicationListener.class).size());
+        assertEquals(1, appContext.getBeanNamesForType(ApplicationListener.class).length);
         appContext.publishEvent(new AuthenticationSuccessEvent(new TestingAuthenticationToken("user", "")));
+
         assertTrue(target instanceof ApplicationListener);
     }
 

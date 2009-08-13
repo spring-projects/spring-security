@@ -30,29 +30,39 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================
 
     private final OpenIDAuthenticationStatus status;
+    private final Object principal;
     private final String identityUrl;
     private final String message;
+    private final List<OpenIDAttribute> attributes;
 
     //~ Constructors ===================================================================================================
 
-    public OpenIDAuthenticationToken(OpenIDAuthenticationStatus status, String identityUrl, String message) {
+    public OpenIDAuthenticationToken(OpenIDAuthenticationStatus status, String identityUrl,
+            String message, List<OpenIDAttribute> attributes) {
         super(new ArrayList<GrantedAuthority>(0));
+        this.principal = identityUrl;
         this.status = status;
         this.identityUrl = identityUrl;
         this.message = message;
+        this.attributes = attributes;
         setAuthenticated(false);
     }
 
     /**
-     * Created by the OpenIDAuthenticationProvider on successful authentication.
-     * <b>Do not use directly</b>
+     * Created by the <tt>OpenIDAuthenticationProvider</tt> on successful authentication.
+     *
+     * @param principal usually the <tt>UserDetails</tt> returned by the the configured <tt>UserDetailsService</tt>
+     * used by the <tt>OpenIDAuthenticationProvider</tt>.
      *
      */
-    public OpenIDAuthenticationToken(List<GrantedAuthority> authorities, OpenIDAuthenticationStatus status, String identityUrl) {
+    public OpenIDAuthenticationToken(Object principal, List<GrantedAuthority> authorities,
+            String identityUrl, List<OpenIDAttribute> attributes) {
         super(authorities);
-        this.status = status;
+        this.principal = principal;
+        this.status = OpenIDAuthenticationStatus.SUCCESS;
         this.identityUrl = identityUrl;
         this.message = null;
+        this.attributes = attributes;
 
         setAuthenticated(true);
     }
@@ -76,14 +86,24 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     /**
-     * Returns the <tt>identityUrl</tt> value.
+     * Returns the <tt>principal</tt> value.
+     *
      * @see org.springframework.security.core.Authentication#getPrincipal()
      */
     public Object getPrincipal() {
-        return identityUrl;
+        return principal;
     }
 
     public OpenIDAuthenticationStatus getStatus() {
         return status;
+    }
+
+    public List<OpenIDAttribute> getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public String toString() {
+        return "[" + super.toString() + ", attributes : " + attributes +"]";
     }
 }

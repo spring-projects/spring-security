@@ -6,10 +6,10 @@ import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_
 import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.*;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
@@ -36,6 +36,8 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.PostProcessedMockUserDetailsService;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.openid.OpenID4JavaConsumer;
+import org.springframework.security.openid.OpenIDAttribute;
 import org.springframework.security.openid.OpenIDAuthenticationProcessingFilter;
 import org.springframework.security.openid.OpenIDAuthenticationProvider;
 import org.springframework.security.util.FieldUtils;
@@ -51,12 +53,12 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -958,6 +960,32 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "    <remember-me />" +
                 "</http>", appContext);
     }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void openIDWithAttributeExchangeConfigurationIsParsedCorrectly() throws Exception {
+        setContext(
+                "<http>" +
+                "   <openid-login>" +
+                "      <attribute-exchange>" +
+                "          <openid-attribute name='nickname' type='http://schema.openid.net/namePerson/friendly'/>" +
+                "          <openid-attribute name='email' type='http://schema.openid.net/contact/email' required='true' count='2'/>" +
+                "      </attribute-exchange>" +
+                "   </openid-login>" +
+                "</http>" +
+                AUTH_PROVIDER_XML);
+        OpenIDAuthenticationProcessingFilter apf = (OpenIDAuthenticationProcessingFilter) getFilter(OpenIDAuthenticationProcessingFilter.class);
+
+        OpenID4JavaConsumer consumer = (OpenID4JavaConsumer) FieldUtils.getFieldValue(apf, "consumer");
+        List<OpenIDAttribute> attributes = (List<OpenIDAttribute>) FieldUtils.getFieldValue(consumer, "attributesToFetch");
+        assertEquals(2, attributes.size());
+        assertEquals("nickname", attributes.get(0).getName());
+        assertEquals("http://schema.openid.net/namePerson/friendly", attributes.get(0).getType());
+        assertFalse(attributes.get(0).isRequired());
+        assertTrue(attributes.get(1).isRequired());
+        assertEquals(2, attributes.get(1).getCount());
+    }
+
 
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);

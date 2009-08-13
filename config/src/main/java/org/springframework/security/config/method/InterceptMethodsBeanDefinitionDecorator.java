@@ -88,8 +88,9 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
             mappings.put(methodName, SecurityConfig.createList(tokens));
         }
 
-        // TODO: Use a bean for the metadata source
-        interceptor.addPropertyValue("securityMetadataSource", new MapBasedMethodSecurityMetadataSource(mappings));
+        BeanDefinition metadataSource = new RootBeanDefinition(MapBasedMethodSecurityMetadataSource.class);
+        metadataSource.getConstructorArgumentValues().addGenericArgumentValue(mappings);
+        interceptor.addPropertyValue("securityMetadataSource", metadataSource);
 
         return interceptor.getBeanDefinition();
     }

@@ -22,8 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * DOCUMENT ME!
- *
  * @author Robin Bramley, Opsera Ltd
  */
 public class MockOpenIDConsumer implements OpenIDConsumer {
@@ -54,17 +52,6 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
         return redirectUrl;
     }
 
-    /* (non-Javadoc)
-    * @see org.springframework.security.ui.openid.OpenIDConsumer#beginConsumption(javax.servlet.http.HttpServletRequest, java.lang.String)
-    */
-    public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl)
-            throws OpenIDConsumerException {
-        throw new UnsupportedOperationException("This method is deprecated, stop using it");
-    }
-
-    /* (non-Javadoc)
-     * @see org.springframework.security.ui.openid.OpenIDConsumer#endConsumption(javax.servlet.http.HttpServletRequest)
-     */
     public OpenIDAuthenticationToken endConsumption(HttpServletRequest req)
             throws OpenIDConsumerException {
         return token;
@@ -79,9 +66,6 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
         this.redirectUrl = redirectUrl;
     }
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.ui.openid.OpenIDConsumer#setReturnToUrl(java.lang.String)
-     */
     public void setReturnToUrl(String returnToUrl) {
         // TODO Auto-generated method stub
     }

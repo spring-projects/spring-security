@@ -142,6 +142,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     static final String OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProcessingFilter";
     static final String OPEN_ID_AUTHENTICATION_PROVIDER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProvider";
+    static final String OPEN_ID_CONSUMER_CLASS = "org.springframework.security.openid.OpenID4JavaConsumer";
+    static final String OPEN_ID_ATTRIBUTE_CLASS = "org.springframework.security.openid.OpenIDAttribute";
     static final String AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter";
 
     static final String EXPRESSION_FIMDS_CLASS = "org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource";
@@ -1004,6 +1006,33 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             parser.parse(openIDLoginElt, pc);
             openIDFilter = parser.getFilterBean();
             openIDEntryPoint = parser.getEntryPointBean();
+
+            Element attrExElt = DomUtils.getChildElementByTagName(openIDLoginElt, Elements.OPENID_ATTRIBUTE_EXCHANGE);
+
+            if (attrExElt != null) {
+                // Set up the consumer with the required attribute list
+                BeanDefinitionBuilder consumerBldr = BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_CONSUMER_CLASS);
+                ManagedList<BeanDefinition> attributes = new ManagedList<BeanDefinition> ();
+                for (Element attElt : DomUtils.getChildElementsByTagName(attrExElt, Elements.OPENID_ATTRIBUTE)) {
+                    String name = attElt.getAttribute("name");
+                    String type = attElt.getAttribute("type");
+                    String required = attElt.getAttribute("required");
+                    String count = attElt.getAttribute("count");
+                    BeanDefinitionBuilder attrBldr = BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_ATTRIBUTE_CLASS);
+                    attrBldr.addConstructorArgValue(name);
+                    attrBldr.addConstructorArgValue(type);
+                    if (StringUtils.hasLength(required)) {
+                        attrBldr.addPropertyValue("required", Boolean.valueOf(required));
+                    }
+
+                    if (StringUtils.hasLength(count)) {
+                        attrBldr.addPropertyValue("count", Integer.parseInt(count));
+                    }
+                    attributes.add(attrBldr.getBeanDefinition());
+                }
+                consumerBldr.addConstructorArgValue(attributes);
+                openIDFilter.getPropertyValues().addPropertyValue("consumer", consumerBldr.getBeanDefinition());
+            }
         }
 
         if (openIDFilter != null) {

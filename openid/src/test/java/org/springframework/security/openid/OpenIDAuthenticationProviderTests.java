@@ -46,7 +46,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
         provider.setUserDetailsService(new MockUserDetailsService());
 
-        Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.CANCELLED, USERNAME, "");
+        Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.CANCELLED, USERNAME, "" ,null);
 
         assertFalse(preAuth.isAuthenticated());
 
@@ -65,7 +65,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
         provider.setUserDetailsService(new MockUserDetailsService());
 
-        Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.ERROR, USERNAME, "");
+        Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.ERROR, USERNAME, "", null);
 
         assertFalse(preAuth.isAuthenticated());
 
@@ -84,7 +84,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
         provider.setUserDetailsService(new MockUserDetailsService());
 
-        Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.FAILURE, USERNAME, "");
+        Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.FAILURE, USERNAME, "", null);
 
         assertFalse(preAuth.isAuthenticated());
 
@@ -103,7 +103,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
         provider.setUserDetailsService(new MockUserDetailsService());
 
-        Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SETUP_NEEDED, USERNAME, "");
+        Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SETUP_NEEDED, USERNAME, "", null);
 
         assertFalse(preAuth.isAuthenticated());
 
@@ -122,7 +122,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
         provider.setUserDetailsService(new MockUserDetailsService());
 
-        Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS, USERNAME, "");
+        Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS, USERNAME, "", null);
 
         assertFalse(preAuth.isAuthenticated());
 
@@ -132,7 +132,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
         assertTrue(postAuth instanceof OpenIDAuthenticationToken);
         assertTrue(postAuth.isAuthenticated());
         assertNotNull(postAuth.getPrincipal());
-        assertEquals(preAuth.getPrincipal(), postAuth.getPrincipal());
+        assertTrue(postAuth.getPrincipal() instanceof UserDetails);
         assertNotNull(postAuth.getAuthorities());
         assertTrue(postAuth.getAuthorities().size() > 0);
         assertTrue(((OpenIDAuthenticationToken) postAuth).getStatus() == OpenIDAuthenticationStatus.SUCCESS);

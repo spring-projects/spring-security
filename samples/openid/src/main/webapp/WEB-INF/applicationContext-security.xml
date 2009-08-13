@@ -16,7 +16,12 @@
         <intercept-url pattern="/**" access="ROLE_USER"/>
         <intercept-url pattern="/openidlogin.jsp*" filters="none"/>
         <logout/>
-        <openid-login login-page="/openidlogin.jsp" authentication-failure-url="/openidlogin.jsp?login_error=true" />
+        <openid-login login-page="/openidlogin.jsp" authentication-failure-url="/openidlogin.jsp?login_error=true">
+            <attribute-exchange>
+                <openid-attribute name="email" type="http://schema.openid.net/contact/email" required="true" count="2"/>
+                <openid-attribute name="name" type="http://schema.openid.net/namePerson/friendly" />
+            </attribute-exchange>
+        </openid-login>
     </http>
 
     <authentication-manager alias="authenticationManager"/>

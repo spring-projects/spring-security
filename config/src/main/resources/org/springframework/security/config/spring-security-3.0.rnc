@@ -360,8 +360,23 @@ form-login.attlist &=
 
 openid-login = 
     ## Sets up form login for authentication with an Open ID identity
-    element openid-login {form-login.attlist, user-service-ref?, empty}
+    element openid-login {form-login.attlist, user-service-ref?, attribute-exchange?}
 
+attribute-exchange =
+    element attribute-exchange {openid-attribute+}
+
+openid-attribute =
+    element openid-attribute {openid-attribute.attlist}
+
+openid-attribute.attlist &=
+    attribute name {xsd:token}
+openid-attribute.attlist &=
+    attribute type {xsd:token}
+openid-attribute.attlist &=
+    attribute required {boolean}?
+openid-attribute.attlist &=
+    attribute count {xsd:int}?
+    
 
 filter-chain-map =
     ## Used to explicitly configure a FilterChainProxy instance with a FilterChainMap

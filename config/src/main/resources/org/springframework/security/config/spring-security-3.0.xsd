@@ -735,6 +735,9 @@
                      identity</xs:documentation>
                </xs:annotation>
                <xs:complexType>
+                  <xs:sequence>
+                     <xs:element minOccurs="0" ref="security:attribute-exchange"/>
+                  </xs:sequence>
                   <xs:attributeGroup ref="security:form-login.attlist"/>
                   <xs:attribute name="user-service-ref" type="xs:token">
                      <xs:annotation>
@@ -1103,6 +1106,24 @@
                to the subsequent destination</xs:documentation>
          </xs:annotation>
       </xs:attribute>
+   </xs:attributeGroup>
+   <xs:element name="attribute-exchange">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element maxOccurs="unbounded" ref="security:openid-attribute"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="openid-attribute">
+      <xs:complexType>
+         <xs:attributeGroup ref="security:openid-attribute.attlist"/>
+      </xs:complexType>
+   </xs:element>
+   <xs:attributeGroup name="openid-attribute.attlist">
+      <xs:attribute name="name" use="required" type="xs:token"/>
+      <xs:attribute name="type" use="required" type="xs:token"/>
+      <xs:attribute name="required" type="xs:token"/>
+      <xs:attribute name="count" type="xs:int"/>
    </xs:attributeGroup>
    <xs:element name="filter-chain-map">
       <xs:annotation>

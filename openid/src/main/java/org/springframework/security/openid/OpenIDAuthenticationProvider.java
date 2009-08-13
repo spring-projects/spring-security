@@ -63,14 +63,12 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
             OpenIDAuthenticationToken response = (OpenIDAuthenticationToken) authentication;
             OpenIDAuthenticationStatus status = response.getStatus();
 
-            // handle the various possibilites
+            // handle the various possibilities
             if (status == OpenIDAuthenticationStatus.SUCCESS) {
-
                 // Lookup user details
                 UserDetails userDetails = userDetailsService.loadUserByUsername(response.getIdentityUrl());
 
-                return new OpenIDAuthenticationToken(userDetails.getAuthorities(), response.getStatus(),
-                        response.getIdentityUrl());
+                return createSuccessfulAuthentication(userDetails, response);
 
             } else if (status == OpenIDAuthenticationStatus.CANCELLED) {
                 throw new AuthenticationCancelledException("Log in cancelled");
@@ -87,6 +85,21 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
         }
 
         return null;
+    }
+
+    /**
+     * Handles the creation of the final <tt>Authentication</tt> object which will be returned by the provider.
+     * <p>
+     * The default implementation just creates a new OpenIDAuthenticationToken from the original, but with the
+     * UserDetails as the principal and including the authorities loaded by the UserDetailsService.
+     *
+     * @param userDetails the loaded UserDetails object
+     * @param auth the token passed to the authenticate method, containing
+     * @return the token which will represent the authenticated user.
+     */
+    protected Authentication createSuccessfulAuthentication(UserDetails userDetails, OpenIDAuthenticationToken auth) {
+        return new OpenIDAuthenticationToken(userDetails, userDetails.getAuthorities(),
+                auth.getIdentityUrl(), auth.getAttributes());
     }
 
     /**
