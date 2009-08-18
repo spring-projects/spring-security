@@ -21,7 +21,7 @@ import junit.framework.TestCase;
  * Tests for <tt>PasswordPolicyResponse</tt>.
  *
  * @author Luke Taylor
- * @version $Id: PasswordPolicyResponseControlTests.java 2217 2007-10-27 00:45:30Z luke_t $
+ * @version $Id$
  */
 public class PasswordPolicyResponseControlTests extends TestCase {
     //~ Methods ========================================================================================================
