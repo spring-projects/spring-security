@@ -17,16 +17,16 @@ package org.springframework.security.ldap.userdetails;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyResponseControl;
 import org.springframework.util.Assert;
-import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DirContextOperations;
 
 
 /**
@@ -84,6 +84,15 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 
         for (int i=0; i < authorities.size(); i++) {
             essence.addAuthority(authorities.get(i));
+        }
+
+        // Check for PPolicy data
+
+        PasswordPolicyResponseControl ppolicy = (PasswordPolicyResponseControl) ctx.getObjectAttribute(PasswordPolicyControl.OID);
+
+        if (ppolicy != null) {
+            essence.setTimeBeforeExpiration(ppolicy.getTimeBeforeExpiration());
+            essence.setGraceLoginsRemaining(ppolicy.getGraceLoginsRemaining());
         }
 
         return essence.createUserDetails();

@@ -29,6 +29,8 @@ import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyControlExtractor;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -101,11 +103,22 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
         logger.debug("Attempting to bind as " + fullDn);
 
+        DirContext ctx = null;
         try {
-            DirContext ctx = getContextSource().getContext(fullDn.toString(), password);
+            ctx = getContextSource().getContext(fullDn.toString(), password);
+            // Check for password policy control
+            PasswordPolicyControl ppolicy = PasswordPolicyControlExtractor.extractControl(ctx);
+
             Attributes attrs = ctx.getAttributes(userDn, getUserAttributes());
 
-            return new DirContextAdapter(attrs, new DistinguishedName(userDn), ctxSource.getBaseLdapPath());
+            DirContextAdapter result = new DirContextAdapter(attrs, new DistinguishedName(userDn),
+                    ctxSource.getBaseLdapPath());
+
+            if (ppolicy != null) {
+                result.setAttributeValue(ppolicy.getID(), ppolicy);
+            }
+
+            return result;
         } catch (NamingException e) {
             // This will be thrown if an invalid user name is used and the method may
             // be called multiple times to try different names, so we trap the exception
@@ -118,6 +131,8 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
             }
         } catch (javax.naming.NamingException e) {
             throw LdapUtils.convertLdapException(e);
+        } finally {
+            LdapUtils.closeContext(ctx);
         }
 
         return null;
@@ -125,7 +140,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     /**
      * Allows subclasses to inspect the exception thrown by an attempt to bind with a particular DN.
-     * The default implementation just reports the failure to the debug log.
+     * The default implementation just reports the failure to the debug logger.
      */
     protected void handleBindException(String userDn, String username, Throwable cause) {
         if (logger.isDebugEnabled()) {

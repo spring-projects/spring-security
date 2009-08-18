@@ -17,9 +17,17 @@ package org.springframework.security.ldap.authentication;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.ldap.NamingException;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -28,20 +36,13 @@ import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyException;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.ldap.NamingException;
-import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -124,7 +125,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Luke Taylor
  * @version $Id$
  *
- * @see org.springframework.security.ldap.authentication.BindAuthenticator
+ * @see BindAuthenticator
  * @see DefaultLdapAuthoritiesPopulator
  */
 public class LdapAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
@@ -257,6 +258,10 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
             UserDetails user = userDetailsContextMapper.mapUserFromContext(userData, username, extraAuthorities);
 
             return createSuccessfulAuthentication(userToken, user);
+        } catch (PasswordPolicyException ppe) {
+            // The only reason a ppolicy exception can occur during a bind is that the account is locked.
+            throw new LockedException(messages.getMessage(ppe.getStatus().getErrorCode(),
+                    ppe.getStatus().getDefaultMessage()));
         } catch (UsernameNotFoundException notFound) {
             if (hideUserNotFoundExceptions) {
                 throw new BadCredentialsException(messages.getMessage(

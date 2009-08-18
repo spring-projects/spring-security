@@ -23,6 +23,7 @@ import javax.naming.Name;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyData;
 import org.springframework.util.Assert;
 
 
@@ -40,7 +41,7 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @version $Id$
  */
-public class LdapUserDetailsImpl implements LdapUserDetails {
+public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData {
 
     //~ Instance fields ================================================================================================
 
@@ -52,6 +53,9 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
     private boolean accountNonLocked = true;
     private boolean credentialsNonExpired = true;
     private boolean enabled = true;
+    // PPolicy data
+    private int timeBeforeExpiration = Integer.MAX_VALUE;
+    private int graceLoginsRemaining = Integer.MAX_VALUE;
 
     //~ Constructors ===================================================================================================
 
@@ -89,6 +93,14 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public int getTimeBeforeExpiration() {
+        return timeBeforeExpiration;
+    }
+
+    public int getGraceLoginsRemaining() {
+        return graceLoginsRemaining;
     }
 
     public String toString() {
@@ -216,6 +228,14 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
 
         public void setUsername(String username) {
             instance.username = username;
+        }
+
+        public void setTimeBeforeExpiration(int timeBeforeExpiration) {
+            instance.timeBeforeExpiration = timeBeforeExpiration;
+        }
+
+        public void setGraceLoginsRemaining(int graceLoginsRemaining) {
+            instance.graceLoginsRemaining = graceLoginsRemaining;
         }
     }
 }

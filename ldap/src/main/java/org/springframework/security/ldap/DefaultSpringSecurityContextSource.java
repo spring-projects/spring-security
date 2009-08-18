@@ -29,8 +29,8 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 public class DefaultSpringSecurityContextSource extends LdapContextSource {
+    protected final Log logger = LogFactory.getLog(getClass());
 
-    private static final Log logger = LogFactory.getLog(DefaultSpringSecurityContextSource.class);
     private String rootDn;
 
     /**

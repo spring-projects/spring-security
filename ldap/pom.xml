@@ -24,6 +24,12 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
+          <groupId>ldapsdk</groupId>
+          <artifactId>ldapsdk</artifactId>
+          <version>4.1</version>
+          <optional>true</optional>
+        </dependency>        
+        <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core</artifactId>
             <version>1.0.2</version>

@@ -1,0 +1,103 @@
+dn: dc=springsource,dc=com
+objectClass: dcObject
+objectClass: domain
+dc: springsource
+
+dn: ou=users,dc=springsource,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+dn: uid=luke,ou=users,dc=springsource,dc=com
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: top
+cn: Luke
+uid: luke
+givenName: Luke
+o: SpringSource
+sn: Taylor
+userPassword: password
+
+dn: ou=policies,dc=springsource,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: policies
+
+dn: cn=default,ou=policies,dc=springsource,dc=com
+objectClass: device
+objectClass: top
+objectClass: pwdPolicy
+cn: default
+pwdAttribute: userPassword
+pwdCheckQuality: 1
+pwdExpireWarning: 600000
+pwdFailureCountInterval: 0
+pwdGraceAuthNLimit: 100
+pwdInHistory: 50
+pwdLockout: FALSE
+pwdLockoutDuration: 0
+pwdMaxAge: 5184000
+pwdMaxFailure: 3
+pwdMinAge: 0
+pwdMinLength: 8
+pwdMustChange: FALSE
+
+dn: cn=lockoutafter1,ou=policies,dc=springsource,dc=com
+objectClass: device
+objectClass: top
+objectClass: pwdPolicy
+cn: lockoutafter1
+pwdAttribute: userPassword
+pwdCheckQuality: 1
+pwdFailureCountInterval: 0
+pwdGraceAuthNLimit: 2
+pwdInHistory: 3
+pwdLockout: TRUE
+pwdLockoutDuration: 10
+pwdMaxFailure: 1
+pwdMinAge: 0
+pwdMinLength: 6
+pwdMustChange: TRUE
+
+dn: cn=expirein10,ou=policies,dc=springsource,dc=com
+objectClass: device
+objectClass: top
+objectClass: pwdPolicy
+cn: expirein10
+pwdAttribute: userPassword
+pwdExpireWarning: 9999
+pwdGraceAuthNLimit: 5
+pwdMaxAge: 10000
+pwdInHistory: 3
+pwdLockout: FALSE
+pwdMinLength: 6
+pwdMustChange: TRUE
+
+
+dn: uid=expireme,ou=users,dc=springsource,dc=com
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: top
+uid: expireme
+cn: Expired
+givenName: Expired
+o: SpringSource
+sn: User
+userPassword: password
+pwdPolicySubentry: cn=expirein10,ou=policies,dc=springsource,dc=com
+
+dn: uid=lockme,ou=users,dc=springsource,dc=com
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: top
+uid: lockme
+cn: Expired
+givenName: Expired
+o: SpringSource
+sn: User
+userPassword: password
+pwdPolicySubentry: cn=lockoutafter1,ou=policies,dc=springsource,dc=com

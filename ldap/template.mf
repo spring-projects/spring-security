@@ -19,5 +19,5 @@ Import-Template:
  org.springframework.core.io.*;version="[3.0.0, 3.1.0)",
  org.springframework.dao.*;version="[3.0.0, 3.1.0)";resolution:=optional,
  org.springframework.util.*;version="[3.0.0, 3.1.0)",
- javax.naming.*;version="0";resolution:=optional
- 
+ javax.naming.*;version="0";resolution:=optional,
+ netscape.ldap.ber.stream;version="[4.1, 5.0)";resolution:=optional
