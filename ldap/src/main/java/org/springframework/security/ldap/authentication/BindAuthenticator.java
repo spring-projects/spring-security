@@ -80,6 +80,10 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
         // If DN patterns are configured, try authenticating with them directly
         for (String dn : getUserDns(username)) {
             user = bindWithDn(dn, username, password);
+
+            if (user != null) {
+                break;
+            }
         }
 
         // Otherwise use the configured search object to find the user and authenticate with the returned DN.
