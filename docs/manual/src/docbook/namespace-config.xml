@@ -59,9 +59,9 @@
     <section>
       <title>Design of the Namespace</title>
       <para> The namespace is designed to capture the most common uses of the framework and provide
-        a simplified and concise syntax for enabling them within an application. The design is
-        largely based around the large-scale dependencies within the framework, and can be divided
-        up into the following areas: <itemizedlist>
+        a simplified and concise syntax for enabling them within an application. The design is based
+        around the large-scale dependencies within the framework, and can be divided up into the
+        following areas: <itemizedlist>
           <listitem>
             <para>
               <emphasis>Web/HTTP Security</emphasis> - the most complex part. Sets up the filters
@@ -76,8 +76,7 @@
           <listitem>
             <para>
               <emphasis>AuthenticationManager</emphasis> - handles authentication requests from
-              other parts of the framework. A default instance will be registered internally by the
-              namespace.</para>
+              other parts of the framework.</para>
           </listitem>
           <listitem>
             <para>
@@ -149,12 +148,14 @@
           matches at the top.</para>
       </note>
       <para> To add some users, you can define a set of test data directly in the namespace: <programlisting language="xml"><![CDATA[
-  <authentication-provider>
-    <user-service>
-      <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
-      <user name="bob" password="bobspassword" authorities="ROLE_USER" />
-    </user-service>
-  </authentication-provider>
+  <authentication-manager>
+    <authentication-provider>
+      <user-service>
+        <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
+        <user name="bob" password="bobspassword" authorities="ROLE_USER" />
+      </user-service>
+    </authentication-provider>
+  </authentication-manager>
   ]]>
         </programlisting></para>
       <sidebar>
@@ -166,11 +167,11 @@
         <para>The <literal>&lt;authentication-provider&gt;</literal> element creates a
             <classname>DaoAuthenticationProvider</classname> bean and the
             <literal>&lt;user-service&gt;</literal> element creates an
-            <classname>InMemoryDaoImpl</classname>. A <literal>ProviderManager</literal> bean is
-          always created by the namespace processing system and the
-            <classname>DaoAuthenticationProvider</classname> is automatically registered with it.
-          You can find more detailed information on the beans that are created in the <link
-            xlink:href="#appendix-namespace">namespace appendix</link>. </para>
+            <classname>InMemoryDaoImpl</classname>. All <literal>authentication-provider</literal>
+          elements must be within the <literal>authentication-manager</literal> element, which
+          creates a <classname>ProviderManager</classname> and registers the authentication
+          providers with it. You can find more detailed information on the beans that are created in
+          the <link xlink:href="#appendix-namespace">namespace appendix</link>. </para>
       </sidebar>
       <para> The configuration above defines two users, their passwords and their roles within the
         application (which will be used for access control). It is also possible to load user
@@ -265,12 +266,16 @@
         If you have a custom implementation of Spring Security's
           <classname>UserDetailsService</classname>, called "myUserDetailsService" in your
         application context, then you can authenticate against this using <programlisting language="xml"><![CDATA[
-  <authentication-provider user-service-ref='myUserDetailsService'/>
+  <authentication-manager>
+    <authentication-provider user-service-ref='myUserDetailsService'/>
+  </authentication-manager>
   ]]>
         </programlisting> If you want to use a database, then you can use <programlisting language="xml"><![CDATA[
-  <authentication-provider>
-    <jdbc-user-service data-source-ref="securityDataSource"/>
-  </authentication-provider>
+  <authentication-manager>
+    <authentication-provider>
+      <jdbc-user-service data-source-ref="securityDataSource"/>
+    </authentication-provider>
+  </authentication-manager>
   ]]>
         </programlisting> Where "securityDataSource" is the name of a
           <classname>DataSource</classname> bean in the application context, pointing at a database
@@ -278,7 +283,9 @@
           data tables</link>. Alternatively, you could configure a Spring Security
           <classname>JdbcDaoImpl</classname> bean and point at that using the
           <literal>user-service-ref</literal> attribute: <programlisting language="xml"><![CDATA[
-  <authentication-provider user-service-ref='myUserDetailsService'/>
+  <authentication-manager>
+    <authentication-provider user-service-ref='myUserDetailsService'/>
+  </authentication-manager>
   
   <beans:bean id="myUserDetailsService" 
       class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
