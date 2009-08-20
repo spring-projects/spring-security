@@ -293,23 +293,32 @@
   </beans:bean>
   ]]>
         </programlisting> You can also use standard
-          <interfacename>AuthenticationProvider</interfacename> beans by adding the
-          <literal>&lt;custom-authentication-provider&gt;</literal> element within the bean
-        definition. See <xref linkend="ns-auth-manager"/> for more on this. </para>
+          <interfacename>AuthenticationProvider</interfacename> beans as follows <programlisting language="xml"><![CDATA[
+  <authentication-manager>
+    <authentication-provider ref='myAuthenticationProvider'/>
+  </authentication-manager>
+  ]]>
+        </programlisting> where <literal>myAuthenticationProvider</literal> is the name of a
+        bean in your application context which implements
+          <interfacename>AuthenticationProvider</interfacename>. See <xref linkend="ns-auth-manager"
+        /> for more on information on how the Spring Security
+          <interfacename>AuthenticationManager</interfacename> is configured using the namespace. </para>
       <section>
         <title>Adding a Password Encoder</title>
         <para> Often your password data will be encoded using a hashing algorithm. This is supported
           by the <literal>&lt;password-encoder&gt;</literal> element. With SHA encoded passwords,
           the original authentication provider configuration would look like this: <programlisting language="xml"><![CDATA[
-<authentication-provider>
-  <password-encoder hash="sha"/>
-  <user-service>
-    <user name="jimi" password="d7e6351eaa13189a5a3641bab846c8e8c69ba39f" 
+<authentication-manager>
+  <authentication-provider>
+    <password-encoder hash="sha"/>
+    <user-service>
+      <user name="jimi" password="d7e6351eaa13189a5a3641bab846c8e8c69ba39f" 
             authorities="ROLE_USER, ROLE_ADMIN" />
-    <user name="bob" password="4e7421b1b8765d8f9406d87e7cc6aa784c4ab97f" 
+      <user name="bob" password="4e7421b1b8765d8f9406d87e7cc6aa784c4ab97f" 
             authorities="ROLE_USER" />
-  </user-service>
-</authentication-provider>
+    </user-service>
+  </authentication-provider>
+</authentication-manager>
   ]]>
           </programlisting></para>
         <para> When using hashed passwords, it's also a good idea to use a salt value to protect
@@ -680,19 +689,24 @@
     </section>
   </section>
   <section xml:id="ns-auth-manager">
-    <title>The Default Authentication Manager</title>
-    <para> We've touched on the idea that the namespace configuration automatically registers an
-      authentication manager bean for you. This is an instance of Spring Security's
-        <classname>ProviderManager</classname> class, which you may already be familiar with if
-      you've used the framework before. If not, it will be covered later, in <link
-        xlink:href="#tech-intro-authentication"/>. You can't use a custom
+    <title>The Authentication Manager and the Namespace</title>
+    <para> The main interface which provides authentication services in Spring Security is the
+        <interfacename>AuthenticationManager</interfacename>. This is usually an instance of Spring
+      Security's <classname>ProviderManager</classname> class, which you may already be familiar
+      with if you've used the framework before. If not, it will be covered later, in <link
+        xlink:href="#tech-intro-authentication"/>. The bean instance is registered using the
+        <literal>authentication-manager</literal> namespace element. You can't use a custom
         <classname>AuthenticationManager</classname> if you are using either HTTP or method security
       through the namespace, but this should not be a problem as you have full control over the
-        <classname>AuthenticationProvider</classname>s that are used. </para>
+        <classname>AuthenticationProvider</classname>s that are used.</para>
     <para> You may want to register additional <classname>AuthenticationProvider</classname> beans
       with the <classname>ProviderManager</classname> and you can do this using the
-        <literal>&lt;custom-authentication-provider&gt;</literal> element within the bean. For
-      example: <programlisting language="xml"><![CDATA[
+        <literal>&lt;authentication-provider&gt;</literal> element with the <literal>ref</literal>
+      attribute, where the value of the attribute is the name of the provider bean you want to add.
+      For example: <programlisting language="xml"><![CDATA[
+  <authentication-manager>
+    <authentication-provider ref="casAuthenticationProvider"/>
+  </authentication-manager>
   <bean id="casAuthenticationProvider" 
       class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
     <security:custom-authentication-provider />
@@ -703,11 +717,12 @@
       the <interfacename>AuthenticationManager</interfacename>. There is a special element which
       lets you register an alias for the <interfacename>AuthenticationManager</interfacename> and
       you can then use this name elsewhere in your application context. <programlisting language="xml"><![CDATA[        
-  <security:authentication-manager alias="authenticationManager"/>
+  <security:authentication-manager alias="authenticationManager"> 
+     ...
+  </security:authentication-manager>
 
   <bean id="customizedFormLoginFilter" 
         class="com.somecompany.security.web.CustomFormLoginFilter">
-     <security:custom-filter position="AUTHENTICATION_PROCESSING_FILTER "/>
      <property name="authenticationManager" ref="authenticationManager"/>
      ...
   </bean>
