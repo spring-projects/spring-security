@@ -11,7 +11,9 @@
         <sec:logout logout-success-url="/cas-logout.jsp"/>
     </sec:http>
 
-    <sec:authentication-manager alias="authenticationManager"/>
+    <sec:authentication-manager alias="authenticationManager">
+        <sec:authentication-provider ref="casAuthenticationProvider"/>
+    </sec:authentication-manager>
 
     <bean id="casProcessingFilter" class="org.springframework.security.cas.web.CasProcessingFilter">
         <sec:custom-filter after="CAS_PROCESSING_FILTER"/>
@@ -36,7 +38,6 @@
     </bean>
 
     <bean id="casAuthenticationProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
-        <sec:custom-authentication-provider />
         <property name="userDetailsService" ref="userService"/>
         <property name="serviceProperties" ref="serviceProperties" />
         <property name="ticketValidator">
