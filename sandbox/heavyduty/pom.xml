@@ -182,7 +182,7 @@
         </plugins>
     </build>
     <properties>
-        <spring.version>3.0.0.M2</spring.version>
+        <spring.version>3.0.0.CI-SNAPSHOT</spring.version>
         <spring.security.version>3.0.0.CI-SNAPSHOT</spring.security.version>
     </properties>
 
