@@ -110,7 +110,7 @@
         <literal>false</literal> and servlet container lifecycle invocations are not delegated
       through <literal>DelegatingFilterProxy</literal>.</para>
     <para> When we looked at how to set up web security using <link
-        xlink:href="#namespace-auto-config">namespace configuration</link>, we used a
+      xlink:href="#ns-web-xml">namespace configuration</link>, we used a
         <literal>DelegatingFilterProxy</literal> with the name
         <quote>springSecurityFilterChain</quote>. You should now be able to see that this is the
       name of the <classname>FilterChainProxy</classname> which is created by the namespace. </para>

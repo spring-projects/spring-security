@@ -111,7 +111,7 @@
     <section>
       <title>Http403ForbiddenEntryPoint</title>
       <para>
-        The <interfacename>AuthenticationEntryPoint</interfacename> was discussed in the <link xlink:href="#tech-auth-entry-point">technical
+        The <interfacename>AuthenticationEntryPoint</interfacename> was discussed in the <link xlink:href="#tech-intro-auth-entry-point">technical
         overview</link> chapter. Normally it is responsible for kick-starting the authentication process for an unauthenticated user
         (when they try to access a protected resource), but in the pre-authenticated case this doesn't apply. You would only
         configure the <classname>ExceptionTranslationFilter</classname> with an instance of this class if you aren't 

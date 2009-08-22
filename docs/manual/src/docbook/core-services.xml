@@ -8,7 +8,7 @@
             <interfacename>AccessDecisionManager</interfacename>. These crop up regularly throughout
         the remainder of this document so it's important you know how they are configured and how
         they operate. </para>
-    <section xml:id="authentication-manager">
+    <section xml:id="core-services-authentication-manager">
         <title>The <interfacename>AuthenticationManager</interfacename>,
                 <classname>ProviderManager</classname> and
                 <classname>AuthenticationProvider</classname>s</title>
@@ -74,7 +74,7 @@
             concerned about this, because if you forget to register a suitable provider, you'll
             simply receive a <literal>ProviderNotFoundException</literal> when an attempt to
             authenticate is made.</para>
-        <section>
+        <section xml:id="core-services-dao-provider">
             <title><literal>DaoAuthenticationProvider</literal></title>
             <para>The simplest <interfacename>AuthenticationProvider</interfacename> implemented by
                 Spring Security is <literal>DaoAuthenticationProvider</literal>, which is is also
@@ -128,7 +128,7 @@
             should be easy for users to retrieve authentication information using a persistence
             strategy of their choice. Having said that, Spring Security does include a couple of
             useful base implementations, which we'll look at below.</para>
-        <section xml:id="in-memory-service">
+        <section xml:id="core-services-in-memory-service">
             <title>In-Memory Authentication</title>
             <para>Is easy to use create a custom <interfacename>UserDetailsService</interfacename>
                 implementation that extracts information from a persistence engine of choice, but
@@ -137,7 +137,7 @@
                 Security, when you don't really want to spend time configuring databases or writing
                     <interfacename>UserDetailsService</interfacename> implementations. For this sort
                 of situation, a simple option is to use the <literal>user-service</literal> element
-                from the security <link xlink:href="#namespace-minimal">namespace</link>: <programlisting><![CDATA[
+                from the security <link xlink:href="#ns-minimal">namespace</link>: <programlisting><![CDATA[
   <user-service id="userDetailsService">
     <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
     <user name="bob" password="bobspassword" authorities="ROLE_USER" />
@@ -153,7 +153,7 @@
  jimi=jimispassword,ROLE_USER,ROLE_ADMIN,enabled
  bob=bobspassword,ROLE_USER,enabled</programlisting></para>
         </section>
-        <section xml:id="jdbc-service">
+        <section xml:id="core-services-jdbc-user-service">
             <title><literal>JdbcDaoImpl</literal></title>
             <para>Spring Security also includes a <interfacename>UserDetailsService</interfacename>
                 that can obtain authentication information from a JDBC data source. Internally

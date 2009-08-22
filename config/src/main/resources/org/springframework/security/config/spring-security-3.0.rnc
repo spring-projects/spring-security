@@ -228,7 +228,7 @@ expression-handler =
     element expression-handler {ref}
 
 custom-after-invocation-provider =
-    ## Used to decorate an AfterInvocationProvider to specify that it should be used with method security.
+    ## No longer supported. Use after-invocation-provider instead.
     element custom-after-invocation-provider {empty}
 
 protect-pointcut =

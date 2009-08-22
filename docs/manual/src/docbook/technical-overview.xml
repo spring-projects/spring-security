@@ -111,7 +111,7 @@ if (principal instanceof UserDetails) {
       <para> On successful authentication, <interfacename>UserDetails</interfacename> is used to
         build the <interfacename>Authentication</interfacename> object that is stored in the
           <classname>SecurityContextHolder</classname> (more on this <link
-          xlink:href="#tech-intro-authentication-mgr">below</link>). The good news is that we
+          xlink:href="#tech-intro-authentication">below</link>). The good news is that we
         provide a number of <interfacename>UserDetailsService</interfacename> implementations,
         including one that uses an in-memory map (<classname>InMemoryDaoImpl</classname>) and
         another that uses JDBC (<classname>JdbcDaoImpl</classname>). Most users tend to
@@ -322,7 +322,7 @@ Successfully authenticated. Security context contains: \
           work, and still provide authorization capabilities. All you need to do is write a filter
           (or equivalent) that reads the third-party user information from a location, build a
           Spring Security-specific <interfacename>Authentication</interfacename> object, and put it
-          onto the <classname>SecurityContextHolder</classname>.</para>
+          into the <classname>SecurityContextHolder</classname>.</para>
         <para> If you're wondering how the <interfacename>AuthenticationManager</interfacename>
           manager is implemented in a real world example, we'll look at that in </para>
       </section>

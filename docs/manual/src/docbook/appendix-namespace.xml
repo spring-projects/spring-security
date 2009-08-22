@@ -161,9 +161,9 @@
           there is no preference. If this attribute is present on any
             <literal>&lt;intercept-url&gt;</literal> element, then a
             <classname>ChannelProcessingFilter</classname> will be added to the filter stack and its
-          additional dependencies added to the application context. See the chapter on <link
+          additional dependencies added to the application context. <!--See the chapter on <link
             xlink:href="#channel-security-config">channel security</link> for an example
-          configuration using traditional beans. </para>
+          configuration using traditional beans. --></para>
         <para> If a <literal>&lt;port-mappings&gt;</literal> configuration is added, this will be
           used to by the <classname>SecureChannelProcessor</classname> and
             <classname>InsecureChannelProcessor</classname> beans to determine the ports used for
@@ -423,7 +423,7 @@
       <section>
         <title>The &lt;authentication-provider&gt; Element</title>
         <para> This element is basically a shorthand syntax for configuring a <link
-            xlink:href="#dao-provider"><classname>DaoAuthenticationProvider</classname></link>.
+          xlink:href="#core-services-dao-provider"><classname>DaoAuthenticationProvider</classname></link>.
             <classname>DaoAuthenticationProvider</classname> loads user information from a
             <interfacename>UserDetailsService</interfacename> and compares the username/password
           combination with the values supplied at login. The
