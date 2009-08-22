@@ -135,6 +135,15 @@ public class SecurityContextHolder {
     }
 
     /**
+     * Allows retrieval of the context strategy. See SEC-1188.
+     *
+     * @return the configured strategy for storing the security context.
+     */
+    public static SecurityContextHolderStrategy getContextHolderStrategy() {
+        return strategy;
+    }
+
+    /**
      * Delegates the creation of a new, empty context to the configured strategy.
      */
     public static SecurityContext createEmptyContext() {
