@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.util.RedirectUtils;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
@@ -20,7 +19,8 @@ import org.springframework.util.StringUtils;
 /**
  * Base class containing the logic used by strategies which handle redirection to a URL and
  * are passed an <tt>Authentication</tt> object as part of the contract.
- * See {@link AuthenticationSuccessHandler} and {@link LogoutHandler}, for example.
+ * See {@link AuthenticationSuccessHandler} and
+ * {@link org.springframework.security.web.authentication.logout.LogoutSuccessHandler LogoutSuccessHandler}, for example.
  * <p>
  * Uses the following logic sequence to determine how it should handle the forward/redirect
  * <ul>
