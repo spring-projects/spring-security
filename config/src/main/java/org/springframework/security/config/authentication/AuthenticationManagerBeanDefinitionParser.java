@@ -60,7 +60,9 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
                 } else {
                     BeanDefinition provider = resolver.resolve(providerElt.getNamespaceURI()).parse(providerElt, pc);
                     Assert.notNull(provider, "Parser for " + providerElt.getNodeName() + " returned a null bean definition");
-                    providers.add(provider);
+                    String id = pc.getReaderContext().registerWithGeneratedName(provider);
+                    pc.registerBeanComponent(new BeanComponentDefinition(provider, id));
+                    providers.add(new RuntimeBeanReference(id));
                 }
             }
         }
