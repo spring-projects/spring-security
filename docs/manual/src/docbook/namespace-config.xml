@@ -303,7 +303,7 @@
           <interfacename>AuthenticationProvider</interfacename>. See <xref linkend="ns-auth-manager"
         /> for more on information on how the Spring Security
           <interfacename>AuthenticationManager</interfacename> is configured using the namespace. </para>
-      <section>
+      <section xml:id="ns-password-encoder">
         <title>Adding a Password Encoder</title>
         <para> Often your password data will be encoded using a hashing algorithm. This is supported
           by the <literal>&lt;password-encoder&gt;</literal> element. With SHA encoded passwords,

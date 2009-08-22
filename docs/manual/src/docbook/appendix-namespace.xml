@@ -421,7 +421,7 @@
           <interfacename>AuthenticationProvider</interfacename> instances should be children of this
         element.</para>
       <section>
-        <title>The &lt;authentication-provider&gt; Element</title>
+        <title>The <literal>&lt;authentication-provider&gt;</literal> Element</title>
         <para> This element is basically a shorthand syntax for configuring a <link
           xlink:href="#core-services-dao-provider"><classname>DaoAuthenticationProvider</classname></link>.
             <classname>DaoAuthenticationProvider</classname> loads user information from a
@@ -432,6 +432,15 @@
             <literal>user-service-ref</literal> attribute to point to a bean defined elsewhere in
           the application context). You can find examples of these variations in the <link
             xlink:href="#ns-auth-providers">namespace introduction</link>. </para>
+          <section>
+            <title>The <literal>&lt;password-encoder&gt;</literal> Element</title>
+            <para>Authentication providers can optionally be configured to use a password encoder as
+              described in the <link xlink:href="#ns-password-encoder">namespace introduction</link>.
+              This will result in the bean being injected with the appropriate <interfacename>PasswordEncoder</interfacename>
+              instance, potentially with an accompanying <interfacename>SaltSource</interfacename> bean to
+              provide salt values for hashing.
+            </para>
+          </section>
       </section>
       <section>
         <title>Using <literal>&lt;authentication-provider&gt;</literal> to refer to an
