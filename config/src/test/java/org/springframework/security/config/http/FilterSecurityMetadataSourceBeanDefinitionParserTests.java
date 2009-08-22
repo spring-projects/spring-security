@@ -58,6 +58,23 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
         assertTrue(cad.contains(new SecurityConfig("ROLE_A")));
     }
 
+    // SEC-1201
+    @Test
+    public void interceptUrlsSupportPropertyPlaceholders() {
+        System.setProperty("secure.url", "/secure");
+        System.setProperty("secure.role", "ROLE_A");
+        setContext(
+                "<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
+                "<filter-security-metadata-source id='fids'>" +
+                "   <intercept-url pattern='${secure.url}' access='${secure.role}'/>" +
+                "</filter-security-metadata-source>");
+        DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) appContext.getBean("fids");
+        List<ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/secure", "GET"));
+        assertNotNull(cad);
+        assertEquals(1, cad.size());
+        assertEquals("ROLE_A", cad.get(0).getAttribute());
+    }
+
     @Test
     public void parsingWithinFilterSecurityInterceptorIsSuccessful() {
         setContext(
@@ -72,10 +89,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
                 "   </b:property>" +
                 "   <b:property name='authenticationManager' ref='" + BeanIds.AUTHENTICATION_MANAGER +"'/>"+
                 "</b:bean>" + ConfigTestUtils.AUTH_PROVIDER_XML);
-
-
     }
-
 
     private FilterInvocation createFilterInvocation(String path, String method) {
         MockHttpServletRequest request = new MockHttpServletRequest();

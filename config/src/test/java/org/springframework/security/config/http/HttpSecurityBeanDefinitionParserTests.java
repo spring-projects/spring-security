@@ -149,7 +149,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void filterListShouldBeEmptyForUnprotectedUrl() throws Exception {
+    public void filterListShouldBeEmptyForPatternWithNoFilters() throws Exception {
         setContext(
                 "    <http auto-config='true'>" +
                 "        <intercept-url pattern='/unprotected' filters='none' />" +
@@ -159,6 +159,22 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         assertTrue(filters.size() == 0);
     }
+
+    @Test
+    public void filtersEqualsNoneSupportsPlaceholderForPattern() throws Exception {
+        System.setProperty("pattern.nofilters", "/unprotected");
+        setContext(
+                "    <b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
+                "    <http auto-config='true'>" +
+                "        <intercept-url pattern='${pattern.nofilters}' filters='none' />" +
+                "        <intercept-url pattern='/**' access='ROLE_A' />" +
+                "    </http>" + AUTH_PROVIDER_XML);
+
+        List<Filter> filters = getFilters("/unprotected");
+
+        assertTrue(filters.size() == 0);
+    }
+
 
     @Test
     public void regexPathsWorkCorrectly() throws Exception {
@@ -274,13 +290,47 @@ public class HttpSecurityBeanDefinitionParserTests {
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) getFilter(FilterSecurityInterceptor.class);
 
         FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
-        List<? extends ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/Secure", null));
+        List<ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/Secure", null));
         assertEquals(2, attrDef.size());
         assertTrue(attrDef.contains(new SecurityConfig("ROLE_A")));
         assertTrue(attrDef.contains(new SecurityConfig("ROLE_B")));
         attrDef = fids.getAttributes(createFilterinvocation("/secure", null));
         assertEquals(1, attrDef.size());
         assertTrue(attrDef.contains(new SecurityConfig("ROLE_C")));
+    }
+
+    // SEC-1201
+    @Test
+    public void interceptUrlsAndFormLoginSupportPropertyPlaceholders() throws Exception {
+        System.setProperty("secure.url", "/secure");
+        System.setProperty("secure.role", "ROLE_A");
+        System.setProperty("login.page", "/loginPage");
+        System.setProperty("default.target", "/defaultTarget");
+        System.setProperty("auth.failure", "/authFailure");
+        setContext(
+                "<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
+                "<http>" +
+                "    <intercept-url pattern='${secure.url}' access='${secure.role}' />" +
+                "    <form-login login-page='${login.page}' default-target-url='${default.target}' " +
+                "        authentication-failure-url='${auth.failure}' />" +
+                "</http>" + AUTH_PROVIDER_XML);
+
+        // Check the security attribute
+        FilterSecurityInterceptor fis = (FilterSecurityInterceptor) getFilter(FilterSecurityInterceptor.class);
+        FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
+        List<ConfigAttribute> attrs = fids.getAttributes(createFilterinvocation("/secure", null));
+        assertNotNull(attrs);
+        assertEquals(1, attrs.size());
+        assertEquals("ROLE_A",attrs.get(0).getAttribute());
+
+        // Check the form login properties are set
+        UsernamePasswordAuthenticationProcessingFilter apf = (UsernamePasswordAuthenticationProcessingFilter)
+                getFilter(UsernamePasswordAuthenticationProcessingFilter.class);
+        assertEquals("/defaultTarget", FieldUtils.getFieldValue(apf, "successHandler.defaultTargetUrl"));
+        assertEquals("/authFailure", FieldUtils.getFieldValue(apf, "failureHandler.defaultFailureUrl"));
+
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilter(ExceptionTranslationFilter.class);
+        assertEquals("/loginPage", FieldUtils.getFieldValue(etf, "authenticationEntryPoint.loginFormUrl"));
     }
 
     @Test
@@ -338,6 +388,19 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.get(0) instanceof ChannelProcessingFilter);
     }
 
+    @Test
+    public void requiresChannelSupportsPlaceholder() throws Exception {
+        setContext(
+                "    <http auto-config='true'>" +
+                "        <intercept-url pattern='/**' requires-channel='https' />" +
+                "    </http>" + AUTH_PROVIDER_XML);
+        List<Filter> filters = getFilters("/someurl");
+
+        assertEquals("Expected " + (AUTO_CONFIG_FILTERS + 1) +"  filters in chain", AUTO_CONFIG_FILTERS + 1, filters.size());
+
+        assertTrue(filters.get(0) instanceof ChannelProcessingFilter);
+    }    
+    
     @Test
     public void portMappingsAreParsedCorrectly() throws Exception {
         setContext(

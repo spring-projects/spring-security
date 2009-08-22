@@ -102,13 +102,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final String OPT_SESSION_FIXATION_NO_PROTECTION = "none";
     private static final String OPT_SESSION_FIXATION_MIGRATE_SESSION = "migrateSession";
 
-    private static final String ATT_ACCESS_CONFIG = "access";
     static final String ATT_REQUIRES_CHANNEL = "requires-channel";
     private static final String OPT_REQUIRES_HTTP = "http";
     private static final String OPT_REQUIRES_HTTPS = "https";
     private static final String OPT_ANY_CHANNEL = "any";
-
-    private static final String ATT_HTTP_METHOD = "method";
 
     private static final String ATT_CREATE_SESSION = "create-session";
     private static final String DEF_CREATE_SESSION_IF_REQUIRED = "ifRequired";
@@ -169,7 +166,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
      * the map of filter chains defined, with the "universal" match pattern mapped to the list of beans which have been parsed here.
      */
     public BeanDefinition parse(Element element, ParserContext pc) {
-//        WebConfigUtils.registerProviderManagerIfNecessary(pc, element);
         CompositeComponentDefinition compositeDef =
             new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element));
         pc.pushContainingComponent(compositeDef);
@@ -181,12 +177,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         final boolean convertPathsToLowerCase = (matcher instanceof AntUrlPathMatcher) && matcher.requiresLowerCaseUrl();
         final boolean allowSessionCreation = !OPT_CREATE_SESSION_NEVER.equals(element.getAttribute(ATT_CREATE_SESSION));
         final boolean autoConfig = "true".equals(element.getAttribute(ATT_AUTO_CONFIG));
-        final Map<String, List<BeanMetadataElement>> filterChainMap =  new ManagedMap<String, List<BeanMetadataElement>>();
-        final LinkedHashMap<RequestKey, List<ConfigAttribute>> channelRequestMap = new LinkedHashMap<RequestKey, List<ConfigAttribute>>();
-
-        // filterChainMap and channelRequestMap are populated by this call
-        parseInterceptUrlsForChannelSecurityAndEmptyFilterChains(DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL),
-                filterChainMap, channelRequestMap, convertPathsToLowerCase, pc);
+        final List<Element> interceptUrls = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
+        // Use ManagedMap to allow placeholder resolution
+        final ManagedMap<String, List<BeanMetadataElement>> filterChainMap =
+            parseInterceptUrlsForEmptyFilterChains(interceptUrls, convertPathsToLowerCase, pc);
+        final LinkedHashMap<RequestKey, List<ConfigAttribute>> channelRequestMap =
+                parseInterceptUrlsForChannelSecurity(interceptUrls, convertPathsToLowerCase, pc);
 
         BeanDefinition cpf = null;
         BeanReference sessionRegistryRef = null;
@@ -840,10 +836,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         boolean useExpressions = "true".equals(element.getAttribute(ATT_USE_EXPRESSIONS));
 
-        LinkedHashMap<RequestKey, List<ConfigAttribute>> requestToAttributesMap =
+        ManagedMap<BeanDefinition,BeanDefinition> requestToAttributesMap =
             parseInterceptUrlsForFilterInvocationRequestMap(DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL),
                     convertPathsToLowerCase, useExpressions, pc);
-
 
         RootBeanDefinition accessDecisionMgr;
         ManagedList<BeanDefinition> voters =  new ManagedList<BeanDefinition>(2);
@@ -1180,7 +1175,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             lowercaseComparisons = null;
         }
 
-
         // Only change from the defaults if the attribute has been set
         if ("true".equals(lowercaseComparisons)) {
             if (useRegex) {
@@ -1200,9 +1194,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     /**
      * Parses the intercept-url elements and populates the FilterChainProxy's filter chain Map and the
      * map used to create the FilterInvocationDefintionSource for the FilterSecurityInterceptor.
+     * @return
      */
-    void parseInterceptUrlsForChannelSecurityAndEmptyFilterChains(List<Element> urlElts, Map<String, List<BeanMetadataElement>> filterChainMap,  Map<RequestKey, List<ConfigAttribute>> channelRequestMap,
+    LinkedHashMap<RequestKey, List<ConfigAttribute>> parseInterceptUrlsForChannelSecurity(List<Element> urlElts,
             boolean useLowerCasePaths, ParserContext parserContext) {
+
+        LinkedHashMap<RequestKey, List<ConfigAttribute>> channelRequestMap = new ManagedMap<RequestKey, List<ConfigAttribute>>();
 
         for (Element urlElt : urlElts) {
             String path = urlElt.getAttribute(ATT_PATH_PATTERN);
@@ -1233,6 +1230,25 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 channelRequestMap.put(new RequestKey(path),
                         SecurityConfig.createList((StringUtils.commaDelimitedListToStringArray(channelConfigAttribute))));
             }
+        }
+
+        return channelRequestMap;
+    }
+
+    private ManagedMap<String, List<BeanMetadataElement>> parseInterceptUrlsForEmptyFilterChains(List<Element> urlElts,
+            boolean useLowerCasePaths, ParserContext parserContext) {
+        ManagedMap<String, List<BeanMetadataElement>> filterChainMap = new ManagedMap<String, List<BeanMetadataElement>>();
+
+        for (Element urlElt : urlElts) {
+            String path = urlElt.getAttribute(ATT_PATH_PATTERN);
+
+            if(!StringUtils.hasText(path)) {
+                parserContext.getReaderContext().error("path attribute cannot be empty or null", urlElt);
+            }
+
+            if (useLowerCasePaths) {
+                path = path.toLowerCase();
+            }
 
             String filters = urlElt.getAttribute(ATT_FILTERS);
 
@@ -1246,62 +1262,20 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 filterChainMap.put(path, noFilters);
             }
         }
+
+        return filterChainMap;
     }
 
     /**
      * Parses the filter invocation map which will be used to configure the FilterInvocationSecurityMetadataSource
      * used in the security interceptor.
      */
-    static LinkedHashMap<RequestKey, List<ConfigAttribute>>
+    private static ManagedMap<BeanDefinition,BeanDefinition>
     parseInterceptUrlsForFilterInvocationRequestMap(List<Element> urlElts,  boolean useLowerCasePaths,
             boolean useExpressions, ParserContext parserContext) {
 
-        LinkedHashMap<RequestKey, List<ConfigAttribute>> filterInvocationDefinitionMap = new LinkedHashMap<RequestKey, List<ConfigAttribute>>();
+        return FilterInvocationSecurityMetadataSourceBeanDefinitionParser.parseInterceptUrlsForFilterInvocationRequestMap(urlElts, useLowerCasePaths, useExpressions, parserContext);
 
-        for (Element urlElt : urlElts) {
-            String access = urlElt.getAttribute(ATT_ACCESS_CONFIG);
-            if (!StringUtils.hasText(access)) {
-                continue;
-            }
-
-            String path = urlElt.getAttribute(ATT_PATH_PATTERN);
-
-            if(!StringUtils.hasText(path)) {
-                parserContext.getReaderContext().error("path attribute cannot be empty or null", urlElt);
-            }
-
-            if (useLowerCasePaths) {
-                path = path.toLowerCase();
-            }
-
-            String method = urlElt.getAttribute(ATT_HTTP_METHOD);
-            if (!StringUtils.hasText(method)) {
-                method = null;
-            }
-
-            // Convert the comma-separated list of access attributes to a List<ConfigAttribute>
-
-            RequestKey key = new RequestKey(path, method);
-            List<ConfigAttribute> attributes = null;
-
-            if (useExpressions) {
-                logger.info("Creating access control expression attribute '" + access + "' for " + key);
-                attributes = new ArrayList<ConfigAttribute>(1);
-                // The expression will be parsed later by the ExpressionFilterInvocationSecurityMetadataSource
-                attributes.add(new SecurityConfig(access));
-
-            } else {
-                attributes = SecurityConfig.createList(StringUtils.commaDelimitedListToStringArray(access));
-            }
-
-            if (filterInvocationDefinitionMap.containsKey(key)) {
-                logger.warn("Duplicate URL defined: " + key + ". The original attribute values will be overwritten");
-            }
-
-            filterInvocationDefinitionMap.put(key, attributes);
-        }
-
-        return filterInvocationDefinitionMap;
     }
 
 }

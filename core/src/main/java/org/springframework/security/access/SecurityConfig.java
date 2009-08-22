@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Stores a {@link ConfigAttribute} as a <code>String</code>.
@@ -62,7 +63,11 @@ public class SecurityConfig implements ConfigAttribute {
         return this.attrib;
     }
 
-    public static List<ConfigAttribute> createList(String... attributeNames) {
+    public final static List<ConfigAttribute> createListFromCommaDelimitedString(String access) {
+        return createList(StringUtils.commaDelimitedListToStringArray(access));
+    }
+
+    public final static List<ConfigAttribute> createList(String... attributeNames) {
         Assert.notNull(attributeNames, "You must supply a list of argument names");
         List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(attributeNames.length);
 
