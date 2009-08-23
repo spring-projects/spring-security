@@ -27,8 +27,6 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
@@ -102,9 +100,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final String OPT_SESSION_FIXATION_MIGRATE_SESSION = "migrateSession";
 
     static final String ATT_REQUIRES_CHANNEL = "requires-channel";
-    private static final String OPT_REQUIRES_HTTP = "http";
-    private static final String OPT_REQUIRES_HTTPS = "https";
-    private static final String OPT_ANY_CHANNEL = "any";
 
     private static final String ATT_CREATE_SESSION = "create-session";
     private static final String DEF_CREATE_SESSION_IF_REQUIRED = "ifRequired";
@@ -180,7 +175,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         // Use ManagedMap to allow placeholder resolution
         final ManagedMap<String, List<BeanMetadataElement>> filterChainMap =
             parseInterceptUrlsForEmptyFilterChains(interceptUrls, convertPathsToLowerCase, pc);
-        final ManagedMap<BeanDefinition,List<ConfigAttribute>> channelRequestMap =
+        final ManagedMap<BeanDefinition,BeanDefinition> channelRequestMap =
                 parseInterceptUrlsForChannelSecurity(interceptUrls, convertPathsToLowerCase, pc);
 
         BeanDefinition cpf = null;
@@ -893,7 +888,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private BeanDefinition createChannelProcessingFilter(ParserContext pc, UrlMatcher matcher,
-            ManagedMap<BeanDefinition,List<ConfigAttribute>> channelRequestMap, String portMapperBeanName) {
+            ManagedMap<BeanDefinition,BeanDefinition> channelRequestMap, String portMapperBeanName) {
         RootBeanDefinition channelFilter = new RootBeanDefinition(ChannelProcessingFilter.class);
         BeanDefinitionBuilder metadataSourceBldr = BeanDefinitionBuilder.rootBeanDefinition(DefaultFilterInvocationSecurityMetadataSource.class);
         metadataSourceBldr.addConstructorArgValue(matcher);
@@ -1189,10 +1184,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
      * Parses the intercept-url elements to obtain the map used by channel security.
      * This will be empty unless the <tt>requires-channel</tt> attribute has been used on a URL path.
      */
-    private ManagedMap<BeanDefinition,List<ConfigAttribute>> parseInterceptUrlsForChannelSecurity(List<Element> urlElts,
+    private ManagedMap<BeanDefinition,BeanDefinition> parseInterceptUrlsForChannelSecurity(List<Element> urlElts,
             boolean useLowerCasePaths, ParserContext parserContext) {
 
-        ManagedMap<BeanDefinition, List<ConfigAttribute>> channelRequestMap = new ManagedMap<BeanDefinition, List<ConfigAttribute>>();
+        ManagedMap<BeanDefinition, BeanDefinition> channelRequestMap = new ManagedMap<BeanDefinition, BeanDefinition>();
 
         for (Element urlElt : urlElts) {
             String path = urlElt.getAttribute(ATT_PATH_PATTERN);
@@ -1208,22 +1203,14 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             String requiredChannel = urlElt.getAttribute(ATT_REQUIRES_CHANNEL);
 
             if (StringUtils.hasText(requiredChannel)) {
-                String channelConfigAttribute = null;
-
-                if (requiredChannel.equals(OPT_REQUIRES_HTTPS)) {
-                    channelConfigAttribute = "REQUIRES_SECURE_CHANNEL";
-                } else if (requiredChannel.equals(OPT_REQUIRES_HTTP)) {
-                    channelConfigAttribute = "REQUIRES_INSECURE_CHANNEL";
-                } else if (requiredChannel.equals(OPT_ANY_CHANNEL)) {
-                    channelConfigAttribute = ChannelDecisionManagerImpl.ANY_CHANNEL;
-                } else {
-                    parserContext.getReaderContext().error("Unsupported channel " + requiredChannel, urlElt);
-                }
-
                 BeanDefinition requestKey = new RootBeanDefinition(RequestKey.class);
                 requestKey.getConstructorArgumentValues().addGenericArgumentValue(path);
 
-                channelRequestMap.put(requestKey, SecurityConfig.createList(channelConfigAttribute));
+                RootBeanDefinition channelAttributes = new RootBeanDefinition(ChannelAttributeFactory.class);
+                channelAttributes.getConstructorArgumentValues().addGenericArgumentValue(requiredChannel);
+                channelAttributes.setFactoryMethodName("createChannelAttributes");
+
+                channelRequestMap.put(requestKey, channelAttributes);
             }
         }
 

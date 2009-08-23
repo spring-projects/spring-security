@@ -391,18 +391,24 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void requiresChannelSupportsPlaceholder() throws Exception {
         System.setProperty("secure.url", "/secure");
+        System.setProperty("required.channel", "https");
         setContext(
-                "    <b:bean id='configurer' class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +                
+                "    <b:bean id='configurer' class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
                 "    <http auto-config='true'>" +
-                "        <intercept-url pattern='${secure.url}' requires-channel='https' />" +
+                "        <intercept-url pattern='${secure.url}' requires-channel='${required.channel}' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/secure");
 
-        assertEquals("Expected " + (AUTO_CONFIG_FILTERS + 1) +"  filters in chain", AUTO_CONFIG_FILTERS + 1, filters.size());
-
         assertTrue(filters.get(0) instanceof ChannelProcessingFilter);
-    }    
-    
+        ChannelProcessingFilter filter = (ChannelProcessingFilter) filters.get(0);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setServletPath("/secure");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        filter.doFilter(request, response, new MockFilterChain());
+        assertNotNull(response.getRedirectedUrl());
+        assertTrue(response.getRedirectedUrl().startsWith("https"));
+    }
+
     @Test
     public void portMappingsAreParsedCorrectly() throws Exception {
         setContext(

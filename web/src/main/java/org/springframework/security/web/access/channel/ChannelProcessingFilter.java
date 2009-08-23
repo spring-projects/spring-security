@@ -111,11 +111,11 @@ public class ChannelProcessingFilter extends GenericFilterBean {
         chain.doFilter(request, response);
     }
 
-    public ChannelDecisionManager getChannelDecisionManager() {
+    protected ChannelDecisionManager getChannelDecisionManager() {
         return channelDecisionManager;
     }
 
-    public FilterInvocationSecurityMetadataSource getSecurityMetadataSource() {
+    protected FilterInvocationSecurityMetadataSource getSecurityMetadataSource() {
         return securityMetadataSource;
     }
 

@@ -9,7 +9,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Luke Taylor
  * @author Ben Alex
- * @version $Id: WebConfigUtils.java 3770 2009-07-15 23:09:47Z ltaylor $
+ * @version $Id$
  */
 abstract class WebConfigUtils {
 

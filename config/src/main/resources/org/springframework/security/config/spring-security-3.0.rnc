@@ -316,8 +316,8 @@ intercept-url.attlist &=
     ## The filter list for the path. Currently can be set to "none" to remove a path from having any filters applied. The full filter stack (consisting of all filters created by the namespace configuration, and any added using 'custom-filter'), will be applied to any other paths.
     attribute filters {"none"}?
 intercept-url.attlist &=
-    ## Used to specify that a URL must be accessed over http or https, or that there is no preference.
-    attribute requires-channel {"http" | "https" | "any"}?
+    ## Used to specify that a URL must be accessed over http or https, or that there is no preference. The value should be "http", "https" or "any", respectively.
+    attribute requires-channel {xsd:token}?
 
 logout =
 	## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.
