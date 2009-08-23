@@ -1069,7 +1069,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         String customEntryPoint = element.getAttribute(ATT_ENTRY_POINT_REF);
 
         if (StringUtils.hasText(customEntryPoint)) {
-//            pc.getRegistry().registerAlias(customEntryPoint, BeanIds.MAIN_ENTRY_POINT);
             return new RuntimeBeanReference(customEntryPoint);
         }
 
@@ -1078,7 +1077,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         Element openIDLoginElt = DomUtils.getChildElementByTagName(element, Elements.OPENID_LOGIN);
         // Basic takes precedence if explicit element is used and no others are configured
         if (basicAuthElt != null && formLoginElt == null && openIDLoginElt == null) {
-            //pc.getRegistry().registerAlias(BeanIds.BASIC_AUTHENTICATION_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
             return basic.entryPoint;
         }
 
@@ -1087,19 +1085,16 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         String openIDLoginPage = getLoginFormUrl(openID.entryPoint);
 
         if (form.filter != null && openIDLoginPage == null) {
-            //pc.getRegistry().registerAlias(BeanIds.FORM_LOGIN_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
             return form.entryPoint;
         }
 
         // Otherwise use OpenID if enabled
         if (openID.filter != null && form.filter == null) {
-            //pc.getRegistry().registerAlias(BeanIds.OPEN_ID_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
             return openID.entryPoint;
         }
 
         // If X.509 has been enabled, use the preauth entry point.
         if (DomUtils.getChildElementByTagName(element, Elements.X509) != null) {
-            //pc.getRegistry().registerAlias(BeanIds.PRE_AUTH_ENTRY_POINT, BeanIds.MAIN_ENTRY_POINT);
             return x509.entryPoint;
         }
 
@@ -1191,9 +1186,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     /**
-     * Parses the intercept-url elements and populates the FilterChainProxy's filter chain Map and the
-     * map used to create the FilterInvocationDefintionSource for the FilterSecurityInterceptor.
-     * @return
+     * Parses the intercept-url elements to obtain the map used by channel security.
+     * This will be empty unless the <tt>requires-channel</tt> attribute has been used on a URL path.
      */
     private ManagedMap<BeanDefinition,List<ConfigAttribute>> parseInterceptUrlsForChannelSecurity(List<Element> urlElts,
             boolean useLowerCasePaths, ParserContext parserContext) {
