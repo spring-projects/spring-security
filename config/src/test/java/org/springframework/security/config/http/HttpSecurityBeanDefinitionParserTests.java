@@ -390,11 +390,13 @@ public class HttpSecurityBeanDefinitionParserTests {
 
     @Test
     public void requiresChannelSupportsPlaceholder() throws Exception {
+        System.setProperty("secure.url", "/secure");
         setContext(
+                "    <b:bean id='configurer' class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +                
                 "    <http auto-config='true'>" +
-                "        <intercept-url pattern='/**' requires-channel='https' />" +
+                "        <intercept-url pattern='${secure.url}' requires-channel='https' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
-        List<Filter> filters = getFilters("/someurl");
+        List<Filter> filters = getFilters("/secure");
 
         assertEquals("Expected " + (AUTO_CONFIG_FILTERS + 1) +"  filters in chain", AUTO_CONFIG_FILTERS + 1, filters.size());
 

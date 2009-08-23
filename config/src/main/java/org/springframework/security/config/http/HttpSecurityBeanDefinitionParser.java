@@ -6,7 +6,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -181,7 +180,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         // Use ManagedMap to allow placeholder resolution
         final ManagedMap<String, List<BeanMetadataElement>> filterChainMap =
             parseInterceptUrlsForEmptyFilterChains(interceptUrls, convertPathsToLowerCase, pc);
-        final LinkedHashMap<RequestKey, List<ConfigAttribute>> channelRequestMap =
+        final ManagedMap<BeanDefinition,List<ConfigAttribute>> channelRequestMap =
                 parseInterceptUrlsForChannelSecurity(interceptUrls, convertPathsToLowerCase, pc);
 
         BeanDefinition cpf = null;
@@ -894,14 +893,14 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private BeanDefinition createChannelProcessingFilter(ParserContext pc, UrlMatcher matcher,
-            LinkedHashMap<RequestKey, List<ConfigAttribute>> channelRequestMap, String portMapperBeanName) {
+            ManagedMap<BeanDefinition,List<ConfigAttribute>> channelRequestMap, String portMapperBeanName) {
         RootBeanDefinition channelFilter = new RootBeanDefinition(ChannelProcessingFilter.class);
+        BeanDefinitionBuilder metadataSourceBldr = BeanDefinitionBuilder.rootBeanDefinition(DefaultFilterInvocationSecurityMetadataSource.class);
+        metadataSourceBldr.addConstructorArgValue(matcher);
+        metadataSourceBldr.addConstructorArgValue(channelRequestMap);
+        metadataSourceBldr.addPropertyValue("stripQueryStringFromUrls", matcher instanceof AntUrlPathMatcher);
 
-        DefaultFilterInvocationSecurityMetadataSource channelFilterInvDefSource =
-            new DefaultFilterInvocationSecurityMetadataSource(matcher, channelRequestMap);
-        channelFilterInvDefSource.setStripQueryStringFromUrls(matcher instanceof AntUrlPathMatcher);
-
-        channelFilter.getPropertyValues().addPropertyValue("securityMetadataSource", channelFilterInvDefSource);
+        channelFilter.getPropertyValues().addPropertyValue("securityMetadataSource", metadataSourceBldr.getBeanDefinition());
         RootBeanDefinition channelDecisionManager = new RootBeanDefinition(ChannelDecisionManagerImpl.class);
         ManagedList<RootBeanDefinition> channelProcessors = new ManagedList<RootBeanDefinition>(3);
         RootBeanDefinition secureChannelProcessor = new RootBeanDefinition(SecureChannelProcessor.class);
@@ -1196,10 +1195,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
      * map used to create the FilterInvocationDefintionSource for the FilterSecurityInterceptor.
      * @return
      */
-    LinkedHashMap<RequestKey, List<ConfigAttribute>> parseInterceptUrlsForChannelSecurity(List<Element> urlElts,
+    private ManagedMap<BeanDefinition,List<ConfigAttribute>> parseInterceptUrlsForChannelSecurity(List<Element> urlElts,
             boolean useLowerCasePaths, ParserContext parserContext) {
 
-        LinkedHashMap<RequestKey, List<ConfigAttribute>> channelRequestMap = new ManagedMap<RequestKey, List<ConfigAttribute>>();
+        ManagedMap<BeanDefinition, List<ConfigAttribute>> channelRequestMap = new ManagedMap<BeanDefinition, List<ConfigAttribute>>();
 
         for (Element urlElt : urlElts) {
             String path = urlElt.getAttribute(ATT_PATH_PATTERN);
@@ -1227,8 +1226,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                     parserContext.getReaderContext().error("Unsupported channel " + requiredChannel, urlElt);
                 }
 
-                channelRequestMap.put(new RequestKey(path),
-                        SecurityConfig.createList((StringUtils.commaDelimitedListToStringArray(channelConfigAttribute))));
+                BeanDefinition requestKey = new RootBeanDefinition(RequestKey.class);
+                requestKey.getConstructorArgumentValues().addGenericArgumentValue(path);
+
+                channelRequestMap.put(requestKey, SecurityConfig.createList(channelConfigAttribute));
             }
         }
 
