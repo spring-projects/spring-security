@@ -230,6 +230,21 @@
           "/spring_security_login?login_error", which will be automatically handled by the automatic
           login page generator, re-rendering the login page with an error message. </para>
       </section>
+      <section>
+        <title><literal>authentication-success-handler-ref</literal></title>
+        <para>This can be used as an alternative to <literal>default-target-url</literal>
+          and <literal>always-use-default-target</literal>, giving you full control over the navigation flow
+          after a successful authentication. The value should be he name of an <interfacename>AuthenticationSuccessHandler</interfacename>
+          bean in the application context.
+        </para>
+      </section>
+      <section>
+        <title><literal>authentication-failure-handler-ref</literal></title>
+        <para>Can be used as an alternative to <literal>authentication-failure-url</literal>, giving you full control over the navigation flow
+          after an authentication failure. The value should be he name of an <interfacename>AuthenticationFailureHandler</interfacename>
+          bean in the application context.
+        </para>
+      </section>
     </section>
     <section xml:id="nsa-http-basic">
       <title>The <literal>&lt;http-basic&gt;</literal> Element</title>
