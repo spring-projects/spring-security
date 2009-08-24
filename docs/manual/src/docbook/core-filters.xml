@@ -8,8 +8,7 @@
     <section xml:id="filter-security-interceptor">
         <title><classname>FilterSecurityInterceptor</classname></title>
         <para>We've already seen <classname>FilterSecurityInterceptor</classname> briefly when
-            discussing access-control in general (see<link xlink:href="#tech-intro-access-control"
-            />), and we've already used it with the namespace where the
+            discussing <link xlink:href="#tech-intro-access-control">access-control in general</link>, and we've already used it with the namespace where the
                 <literal>&lt;intercept-url></literal> elements are combined to configure it
             internally. Now we'll see how to explicitly configure it for use with a
                 <classname>FilterChainProxy</classname>, along with its companion filter
@@ -31,7 +30,7 @@
                 <interfacename>AuthenticationManager</interfacename> and an
                 <interfacename>AccessDecisionManager</interfacename>. It is also supplied with
             configuration attributes that apply to different HTTP URL requests. Refer back to <link
-                xlink:href="#tech-intro-config-attributes"/> where we saw these originally.</para>
+                xlink:href="#tech-intro-config-attributes">the original discussion on these</link> in the technical introduction.</para>
         <para>The <classname>FilterSecurityInterceptor</classname> can be configured with
             configuration attributes in two ways. The first, which is shown above, is using the
                 <literal>&lt;filter-security-metadata-source&gt;</literal> namespace element. This
@@ -166,8 +165,8 @@
                 can implement the interface yourself and use your own implementation. </para>
             <para>It's also possible to supply a custom
                     <interfacename>AccessDeniedHandler</interfacename> when you're using the
-                namespace to configure your application. See <link
-                    xlink:href="#nsa-access-denied-handler"/>.</para>
+                namespace to configure your application. See 
+                <link xlink:href="#nsa-access-denied-handler">the namespace appendix</link> for more details.</para>
         </section>
         <section xml:id="security-context-persistence-filter">
             <title><classname>SecurityContextPersistenceFilter</classname></title>

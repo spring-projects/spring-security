@@ -124,8 +124,8 @@
         default <interfacename>AccessDeniedHandler</interfacename> used by the
           <classname>ExceptionTranslationFilter</classname>, (using the
           <literal>error-page</literal> attribute, or to supply your own implementation using the
-          <literal>ref</literal> attribute. See <link xlink:href="#access-denied-handler"/> for more
-        information on the implementation details. </para>
+          <literal>ref</literal> attribute. This is discussed in more detail in the section on 
+        <link xlink:href="#access-denied-handler">the <classname>ExceptionTranslationFilter</classname></link>.</para>
     </section>
     <section>
       <title>The <literal>&lt;intercept-url&gt;</literal> Element</title>
