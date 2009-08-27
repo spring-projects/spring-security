@@ -29,6 +29,8 @@ import org.springframework.security.authentication.concurrent.SessionInformation
 import org.springframework.security.authentication.concurrent.SessionRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.util.UrlUtils;
@@ -59,6 +61,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
     private SessionRegistry sessionRegistry;
     private String expiredUrl;
     private LogoutHandler[] handlers = new LogoutHandler[] {new SecurityContextLogoutHandler()};
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     //~ Methods ========================================================================================================
 
@@ -87,8 +90,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
                     String targetUrl = determineExpiredUrl(request, info);
 
                     if (targetUrl != null) {
-                        targetUrl = request.getContextPath() + targetUrl;
-                        response.sendRedirect(response.encodeRedirectURL(targetUrl));
+                        redirectStrategy.sendRedirect(request, response, targetUrl);
                     } else {
                         response.getWriter().print("This session has been expired (possibly due to multiple concurrent " +
                                 "logins being attempted as the same user).");
@@ -129,5 +131,9 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
     public void setLogoutHandlers(LogoutHandler[] handlers) {
         Assert.notNull(handlers);
         this.handlers = handlers;
+    }
+
+    public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+        this.redirectStrategy = redirectStrategy;
     }
 }

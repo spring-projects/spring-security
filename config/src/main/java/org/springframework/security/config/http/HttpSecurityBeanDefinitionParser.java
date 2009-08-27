@@ -63,6 +63,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
+import org.springframework.security.web.session.ConcurrentSessionControlAuthenticatedSessionStrategy;
 import org.springframework.security.web.session.DefaultAuthenticatedSessionStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.AntUrlPathMatcher;
@@ -180,8 +181,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         BeanDefinition cpf = null;
         BeanReference sessionRegistryRef = null;
-        BeanReference concurrentSessionControllerRef = null;
-        BeanDefinition concurrentSessionFilter = createConcurrentSessionFilterAndRelatedBeansIfRequired(element, pc);
+//        BeanReference concurrentSessionControllerRef = null;
+        BeanDefinition concurrentSessionFilter = createConcurrentSessionFilter(element, pc);
 
         BeanDefinition scpf = createSecurityContextPersistenceFilter(element, pc);
         BeanReference contextRepoRef = (BeanReference) scpf.getPropertyValues().getPropertyValue("securityContextRepository").getValue();
@@ -189,13 +190,13 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         if (concurrentSessionFilter != null) {
             sessionRegistryRef = (BeanReference)
                     concurrentSessionFilter.getPropertyValues().getPropertyValue("sessionRegistry").getValue();
-            logger.info("Concurrent session filter in use, setting 'forceEagerSessionCreation' to true");
-            scpf.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
-            concurrentSessionControllerRef = createConcurrentSessionController(element, concurrentSessionFilter, sessionRegistryRef, pc);
+//            logger.info("Concurrent session filter in use, setting 'forceEagerSessionCreation' to true");
+//            scpf.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
+//            concurrentSessionControllerRef = createConcurrentSessionController(element, concurrentSessionFilter, sessionRegistryRef, pc);
         }
 
         ManagedList<BeanReference> authenticationProviders = new ManagedList<BeanReference>();
-        BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders, concurrentSessionControllerRef);
+        BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders, null);
 
         BeanDefinition servApiFilter = createServletApiFilter(element, pc);
         // Register the portMapper. A default will always be created, even if no element exists.
@@ -715,7 +716,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return null;
     }
 
-    private BeanDefinition createConcurrentSessionFilterAndRelatedBeansIfRequired(Element element, ParserContext parserContext) {
+    private BeanDefinition createConcurrentSessionFilter(Element element, ParserContext parserContext) {
         Element sessionControlElt = DomUtils.getChildElementByTagName(element, Elements.CONCURRENT_SESSIONS);
         if (sessionControlElt == null) {
             return null;
@@ -729,16 +730,16 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         Element sessionCtrlElement = DomUtils.getChildElementByTagName(elt, Elements.CONCURRENT_SESSIONS);
 
         // Check for a custom controller
-        String sessionControllerRef = sessionCtrlElement.getAttribute(ATT_SESSION_CONTROLLER_REF);
-
-        if (StringUtils.hasText(sessionControllerRef)) {
-            if (!StringUtils.hasText(sessionCtrlElement.getAttribute(ConcurrentSessionsBeanDefinitionParser.ATT_SESSION_REGISTRY_REF))) {
-                pc.getReaderContext().error("Use of " + ATT_SESSION_CONTROLLER_REF + " requires that " +
-                        ConcurrentSessionsBeanDefinitionParser.ATT_SESSION_REGISTRY_REF + " is also set.",
-                        pc.extractSource(sessionCtrlElement));
-            }
-            return new RuntimeBeanReference(sessionControllerRef);
-        }
+//        String sessionControllerRef = sessionCtrlElement.getAttribute(ATT_SESSION_CONTROLLER_REF);
+//
+//        if (StringUtils.hasText(sessionControllerRef)) {
+//            if (!StringUtils.hasText(sessionCtrlElement.getAttribute(ConcurrentSessionsBeanDefinitionParser.ATT_SESSION_REGISTRY_REF))) {
+//                pc.getReaderContext().error("Use of " + ATT_SESSION_CONTROLLER_REF + " requires that " +
+//                        ConcurrentSessionsBeanDefinitionParser.ATT_SESSION_REGISTRY_REF + " is also set.",
+//                        pc.extractSource(sessionCtrlElement));
+//            }
+//            return new RuntimeBeanReference(sessionControllerRef);
+//        }
 
         BeanDefinitionBuilder controllerBuilder = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControllerImpl.class);
         controllerBuilder.getRawBeanDefinition().setSource(filter.getSource());
@@ -918,6 +919,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private RootBeanDefinition createSessionManagementFilter(Element elt, ParserContext pc,
             BeanReference sessionRegistryRef, BeanReference contextRepoRef) {
+        Element sessionCtrlElement = DomUtils.getChildElementByTagName(elt, Elements.CONCURRENT_SESSIONS);
         String sessionFixationAttribute = elt.getAttribute(ATT_SESSION_FIXATION_PROTECTION);
         String invalidSessionUrl = elt.getAttribute(ATT_INVALID_SESSION_URL);
 
@@ -927,35 +929,48 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         boolean sessionFixationProtectionRequired = !sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION);
 
-        if (sessionFixationProtectionRequired || StringUtils.hasText(invalidSessionUrl)) {
-            BeanDefinitionBuilder sessionFixationFilter =
-                BeanDefinitionBuilder.rootBeanDefinition(SessionManagementFilter.class);
-            sessionFixationFilter.addConstructorArgValue(contextRepoRef);
+        BeanDefinitionBuilder sessionStrategy;
 
-            if (sessionFixationProtectionRequired) {
-                BeanDefinitionBuilder sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(DefaultAuthenticatedSessionStrategy.class);
+        if (sessionCtrlElement != null) {
+            assert sessionRegistryRef != null;
+            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControlAuthenticatedSessionStrategy.class);
+            sessionStrategy.addConstructorArgValue(sessionRegistryRef);
 
-                sessionStrategy.addPropertyValue("migrateSessionAttributes",
-                        Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
-                if (sessionRegistryRef != null) {
-                    sessionStrategy.addPropertyValue("sessionRegistry", sessionRegistryRef);
-                }
+            String maxSessions = sessionCtrlElement.getAttribute("max-sessions");
 
-                BeanDefinition strategyBean = sessionStrategy.getBeanDefinition();
-                String id = pc.getReaderContext().registerWithGeneratedName(strategyBean);
-                pc.registerBeanComponent(new BeanComponentDefinition(strategyBean, id));
-                sessionFixationFilter.addPropertyReference("authenticatedSessionStrategy", id);
-
+            if (StringUtils.hasText(maxSessions)) {
+                sessionStrategy.addPropertyValue("maximumSessions", maxSessions);
             }
 
-            if (StringUtils.hasText(invalidSessionUrl)) {
-                sessionFixationFilter.addPropertyValue("invalidSessionUrl", invalidSessionUrl);
-            }
+            String exceptionIfMaximumExceeded = sessionCtrlElement.getAttribute("exception-if-maximum-exceeded");
 
-            return (RootBeanDefinition) sessionFixationFilter.getBeanDefinition();
+            if (StringUtils.hasText(exceptionIfMaximumExceeded)) {
+                sessionStrategy.addPropertyValue("exceptionIfMaximumExceeded", exceptionIfMaximumExceeded);
+            }
+        } else if (sessionFixationProtectionRequired || StringUtils.hasText(invalidSessionUrl)) {
+            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(DefaultAuthenticatedSessionStrategy.class);
+        } else {
+            return null;
         }
 
-        return null;
+        BeanDefinitionBuilder sessionMgmtFilter = BeanDefinitionBuilder.rootBeanDefinition(SessionManagementFilter.class);
+        sessionMgmtFilter.addConstructorArgValue(contextRepoRef);
+        BeanDefinition strategyBean = sessionStrategy.getBeanDefinition();
+
+        String id = pc.getReaderContext().registerWithGeneratedName(strategyBean);
+        pc.registerBeanComponent(new BeanComponentDefinition(strategyBean, id));
+        sessionMgmtFilter.addPropertyReference("authenticatedSessionStrategy", id);
+        if (sessionFixationProtectionRequired) {
+
+            sessionStrategy.addPropertyValue("migrateSessionAttributes",
+                    Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
+        }
+
+        if (StringUtils.hasText(invalidSessionUrl)) {
+            sessionMgmtFilter.addPropertyValue("invalidSessionUrl", invalidSessionUrl);
+        }
+
+        return (RootBeanDefinition) sessionMgmtFilter.getBeanDefinition();
     }
 
     private FilterAndEntryPoint createFormLoginFilter(Element element, ParserContext pc, boolean autoConfig,

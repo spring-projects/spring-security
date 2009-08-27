@@ -13,6 +13,8 @@ import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -32,17 +34,15 @@ import org.springframework.web.filter.GenericFilterBean;
 public class SessionManagementFilter extends GenericFilterBean {
     //~ Static fields/initializers =====================================================================================
 
-    static final String FILTER_APPLIED = "__spring_security_session_fixation_filter_applied";
+    static final String FILTER_APPLIED = "__spring_security_session_mgmt_filter_applied";
 
     //~ Instance fields ================================================================================================
 
     private final SecurityContextRepository securityContextRepository;
-
     private AuthenticatedSessionStrategy sessionStrategy = new DefaultAuthenticatedSessionStrategy();
-
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
-
     private String invalidSessionUrl;
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     public SessionManagementFilter(SecurityContextRepository securityContextRepository) {
         this.securityContextRepository = securityContextRepository;
@@ -65,12 +65,12 @@ public class SessionManagementFilter extends GenericFilterBean {
 
             if (authentication != null && !authenticationTrustResolver.isAnonymous(authentication)) {
              // The user has been authenticated during the current request, so call the session strategy
-                sessionStrategy.onAuthenticationSuccess(authentication, request, response);
+                sessionStrategy.onAuthentication(authentication, request, response);
             } else {
              // No security context or authentication present. Check for a session timeout
                 if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {
                     if (invalidSessionUrl != null) {
-                        response.sendRedirect(invalidSessionUrl);
+                        redirectStrategy.sendRedirect(request, response, invalidSessionUrl);
                     }
                 }
             }
@@ -98,5 +98,9 @@ public class SessionManagementFilter extends GenericFilterBean {
      */
     public void setInvalidSessionUrl(String invalidSessionUrl) {
         this.invalidSessionUrl = invalidSessionUrl;
+    }
+
+    public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+        this.redirectStrategy  = redirectStrategy;
     }
 }

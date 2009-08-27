@@ -12,7 +12,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.authentication.concurrent.SessionRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
@@ -33,10 +32,8 @@ import org.springframework.security.web.savedrequest.SavedRequest;
  * @version $Id$
  * @since 3.0
  */
-public class DefaultAuthenticatedSessionStrategy implements AuthenticatedSessionStrategy{
+public class DefaultAuthenticatedSessionStrategy implements AuthenticatedSessionStrategy {
     protected final Log logger = LogFactory.getLog(this.getClass());
-
-    private SessionRegistry sessionRegistry;
 
     /**
      * Indicates that the session attributes of an existing session
@@ -65,52 +62,59 @@ public class DefaultAuthenticatedSessionStrategy implements AuthenticatedSession
      * If there is no session, no action is taken unless the <tt>alwaysCreateSession</tt> property is set, in which
      * case a session will be created if one doesn't already exist.
      */
-    public void onAuthenticationSuccess(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
-        if (request.getSession(false) == null) {
+    public void onAuthentication(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+        boolean hadSessionAlready = request.getSession(false) != null;
+
+        if (!hadSessionAlready && !alwaysCreateSession) {
             // Session fixation isn't a problem if there's no session
-            if (alwaysCreateSession) {
-                request.getSession();
-            }
 
             return;
         }
 
-        // Create new session
+        // Create new session if necessary
         HttpSession session = request.getSession();
 
-        String originalSessionId = session.getId();
+        if (hadSessionAlready) {
+            // We need to migrate to a new session
+            String originalSessionId = session.getId();
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Invalidating session with Id '" + originalSessionId +"' " + (migrateSessionAttributes ?
-                    "and" : "without") +  " migrating attributes.");
-        }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Invalidating session with Id '" + originalSessionId +"' " + (migrateSessionAttributes ?
+                        "and" : "without") +  " migrating attributes.");
+            }
 
-        HashMap<String, Object> attributesToMigrate = createMigratedAttributeMap(session);
+            HashMap<String, Object> attributesToMigrate = createMigratedAttributeMap(session);
 
-        session.invalidate();
-        session = request.getSession(true); // we now have a new session
+            session.invalidate();
+            session = request.getSession(true); // we now have a new session
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Started new session: " + session.getId());
-        }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Started new session: " + session.getId());
+            }
 
-        if (originalSessionId.equals(session.getId())) {
-            logger.warn("Your servlet container did not change the session ID when a new session was created. You will" +
-                    " not be adequately protected against session-fixation attacks");
-        }
+            if (originalSessionId.equals(session.getId())) {
+                logger.warn("Your servlet container did not change the session ID when a new session was created. You will" +
+                        " not be adequately protected against session-fixation attacks");
+            }
 
-        // Copy attributes to new session
-        if (attributesToMigrate != null) {
-            for (Map.Entry<String, Object> entry : attributesToMigrate.entrySet()) {
-                session.setAttribute(entry.getKey(), entry.getValue());
+            // Copy attributes to new session
+            if (attributesToMigrate != null) {
+                for (Map.Entry<String, Object> entry : attributesToMigrate.entrySet()) {
+                    session.setAttribute(entry.getKey(), entry.getValue());
+                }
             }
         }
+    }
 
-        // Update the session registry
-        if (sessionRegistry != null) {
-            sessionRegistry.removeSessionInformation(originalSessionId);
-            sessionRegistry.registerNewSession(session.getId(), authentication.getPrincipal());
-        }
+    /**
+     * Called when the session has been changed and the old attributes have been migrated to the new session.
+     * Only called if a session existed to start with. Allows subclasses to plug in additional behaviour.
+     *
+     * @param originalSessionId the original session identifier
+     * @param newSession the newly created session
+     * @param auth the token for the newly authenticated principal
+     */
+    protected void onSessionChange(String originalSessionId, HttpSession newSession, Authentication auth) {
     }
 
     @SuppressWarnings("unchecked")
@@ -144,16 +148,6 @@ public class DefaultAuthenticatedSessionStrategy implements AuthenticatedSession
 
     public void setMigrateSessionAttributes(boolean migrateSessionAttributes) {
         this.migrateSessionAttributes = migrateSessionAttributes;
-    }
-
-    /**
-     * Sets the session registry which should be updated when the authenticated session is changed.
-     * This must be set if you are using concurrent session control.
-     *
-     * @param sessionRegistry
-     */
-    public void setSessionRegistry(SessionRegistry sessionRegistry) {
-        this.sessionRegistry = sessionRegistry;
     }
 
     public void setRetainedAttributes(List<String> retainedAttributes) {

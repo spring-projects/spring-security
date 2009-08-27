@@ -13,7 +13,7 @@ import org.springframework.security.core.Authentication;
  */
 public final class NullAuthenticatedSessionStrategy implements AuthenticatedSessionStrategy {
 
-    public void onAuthenticationSuccess(Authentication authentication, HttpServletRequest request,
+    public void onAuthentication(Authentication authentication, HttpServletRequest request,
             HttpServletResponse response) {
     }
 }

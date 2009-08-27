@@ -41,7 +41,7 @@ public interface SessionRegistry {
      * @param includeExpiredSessions if <code>true</code>, the returned sessions will also include those that have
      *        expired for the principal
      *
-     * @return the matching sessions for this principal, or <code>null</code> if none were found
+     * @return the matching sessions for this principal (should not return null).
      */
     List<SessionInformation> getAllSessions(Object principal, boolean includeExpiredSessions);
 

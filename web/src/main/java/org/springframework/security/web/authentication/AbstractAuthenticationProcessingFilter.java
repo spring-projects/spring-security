@@ -202,6 +202,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
                 // return immediately as subclass has indicated that it hasn't completed authentication
                 return;
             }
+            sessionStrategy.onAuthentication(authResult, request, response);
         }
         catch (AuthenticationException failed) {
             // Authentication failed
@@ -290,8 +291,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
         }
 
         SecurityContextHolder.getContext().setAuthentication(authResult);
-
-        sessionStrategy.onAuthenticationSuccess(authResult, request, response);
 
         rememberMeServices.loginSuccess(request, response, authResult);
 
@@ -394,9 +393,9 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
     }
 
     /**
-     * The session handling strategy which will be invoked when an authentication request is
-     * successfully processed. Used, for example, to handle changing of the session identifier to prevent session
-     * fixation attacks.
+     * The session handling strategy which will be invoked immediately after an authentication request is
+     * successfully processed by the <tt>AuthenticationManager</tt>. Used, for example, to handle changing of the 
+     * session identifier to prevent session fixation attacks.
      *
      * @param sessionStrategy the implementation to use. If not set a null implementation is
      * used.

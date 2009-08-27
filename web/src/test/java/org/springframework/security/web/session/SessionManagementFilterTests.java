@@ -82,7 +82,7 @@ public class SessionManagementFilterTests {
 
         filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
 
-        verify(strategy).onAuthenticationSuccess(any(Authentication.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(strategy).onAuthentication(any(Authentication.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
         // Check that it is only applied once to the request
         filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
         verifyNoMoreInteractions(strategy);

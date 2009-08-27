@@ -54,37 +54,6 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
         Assert.notNull(this.messages, "A message source must be set");
     }
 
-    /**
-     * Allows subclasses to customise behaviour when too many sessions are detected.
-     *
-     * @param sessionId the session ID of the present request
-     * @param sessions either <code>null</code> or all unexpired sessions associated with the principal
-     * @param allowableSessions the number of concurrent sessions the user is allowed to have
-     * @param registry an instance of the <code>SessionRegistry</code> for subclass use
-     *
-     * @throws ConcurrentLoginException if the
-     */
-    protected void allowableSessionsExceeded(String sessionId, List<SessionInformation> sessions, int allowableSessions,
-            SessionRegistry registry) {
-        if (exceptionIfMaximumExceeded || (sessions == null)) {
-            throw new ConcurrentLoginException(messages.getMessage("ConcurrentSessionControllerImpl.exceededAllowed",
-                    new Object[] {new Integer(allowableSessions)},
-                    "Maximum sessions of {0} for this principal exceeded"));
-        }
-
-        // Determine least recently used session, and mark it for invalidation
-        SessionInformation leastRecentlyUsed = null;
-
-        for (int i = 0; i < sessions.size(); i++) {
-            if ((leastRecentlyUsed == null)
-                    || sessions.get(i).getLastRequest().before(leastRecentlyUsed.getLastRequest())) {
-                leastRecentlyUsed = sessions.get(i);
-            }
-        }
-
-        leastRecentlyUsed.expireNow();
-    }
-
     public void checkAuthenticationAllowed(Authentication request) throws AuthenticationException {
         Assert.notNull(request, "Authentication request cannot be null (violation of interface contract)");
 
@@ -121,6 +90,43 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
     }
 
     /**
+     * Allows subclasses to customise behaviour when too many sessions are detected.
+     *
+     * @param sessionId the session ID of the present request
+     * @param sessions either <code>null</code> or all unexpired sessions associated with the principal
+     * @param allowableSessions the number of concurrent sessions the user is allowed to have
+     * @param registry an instance of the <code>SessionRegistry</code> for subclass use
+     *
+     * @throws ConcurrentLoginException if the
+     */
+    protected void allowableSessionsExceeded(String sessionId, List<SessionInformation> sessions, int allowableSessions,
+            SessionRegistry registry) {
+        if (exceptionIfMaximumExceeded || (sessions == null)) {
+            throw new ConcurrentLoginException(messages.getMessage("ConcurrentSessionControllerImpl.exceededAllowed",
+                    new Object[] {new Integer(allowableSessions)},
+                    "Maximum sessions of {0} for this principal exceeded"));
+        }
+
+        // Determine least recently used session, and mark it for invalidation
+        SessionInformation leastRecentlyUsed = null;
+
+        for (int i = 0; i < sessions.size(); i++) {
+            if ((leastRecentlyUsed == null)
+                    || sessions.get(i).getLastRequest().before(leastRecentlyUsed.getLastRequest())) {
+                leastRecentlyUsed = sessions.get(i);
+            }
+        }
+
+        leastRecentlyUsed.expireNow();
+    }
+
+    public void registerSuccessfulAuthentication(Authentication authentication) {
+        Assert.notNull(authentication, "Authentication cannot be null (violation of interface contract)");
+
+        sessionRegistry.registerNewSession(obtainSessionId(authentication), authentication.getPrincipal());
+    }
+
+    /**
      * Method intended for use by subclasses to override the maximum number of sessions that are permitted for
      * a particular authentication. The default implementation simply returns the <code>maximumSessions</code> value
      * for the bean.
@@ -131,12 +137,6 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
      */
     protected int getMaximumSessionsForThisUser(Authentication authentication) {
         return maximumSessions;
-    }
-
-    public void registerSuccessfulAuthentication(Authentication authentication) {
-        Assert.notNull(authentication, "Authentication cannot be null (violation of interface contract)");
-
-        sessionRegistry.registerNewSession(obtainSessionId(authentication), authentication.getPrincipal());
     }
 
     public void setExceptionIfMaximumExceeded(boolean exceptionIfMaximumExceeded) {

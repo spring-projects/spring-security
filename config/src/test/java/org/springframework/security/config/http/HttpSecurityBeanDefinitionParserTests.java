@@ -22,14 +22,12 @@ import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
-import org.springframework.security.authentication.concurrent.ConcurrentSessionController;
 import org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.authentication.concurrent.SessionRegistryImpl;
 import org.springframework.security.config.BeanIds;
@@ -59,7 +57,6 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -74,6 +71,7 @@ import org.springframework.security.web.authentication.www.BasicProcessingFilter
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
+import org.springframework.security.web.session.AuthenticatedSessionStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.ReflectionUtils;
@@ -655,13 +653,15 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void concurrentSessionSupportAddsFilterAndExpectedBeans() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
-                "    <concurrent-session-control session-registry-alias='seshRegistry' expired-url='/expired'/>" +
+                "    <concurrent-session-control session-registry-alias='sr' expired-url='/expired'/>" +
                 "</http>" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
 
         assertTrue(filters.get(0) instanceof ConcurrentSessionFilter);
-        assertNotNull(appContext.getBean("seshRegistry"));
-        assertNotNull(getConcurrentSessionController());
+        assertNotNull(appContext.getBean("sr"));
+        SessionManagementFilter smf = (SessionManagementFilter) getFilter(SessionManagementFilter.class);
+        assertNotNull(smf);
+        checkSessionRegistry();
     }
 
     @Test
@@ -675,18 +675,18 @@ public class HttpSecurityBeanDefinitionParserTests {
         checkSessionRegistry();
     }
 
-    @Test(expected=BeanDefinitionParsingException.class)
-    public void useOfExternalConcurrentSessionControllerRequiresSessionRegistryToBeSet() throws Exception {
-        setContext(
-                "<http auto-config='true'>" +
-                "    <concurrent-session-control session-controller-ref='sc' expired-url='/expired'/>" +
-                "</http>" +
-                "<b:bean id='sc' class='" + ConcurrentSessionControllerImpl.class.getName() +"'>" +
-                "  <b:property name='sessionRegistry'>" +
-                "    <b:bean class='"+ SessionRegistryImpl.class.getName() + "'/>" +
-                "  </b:property>" +
-                "</b:bean>" + AUTH_PROVIDER_XML);
-    }
+//    @Test(expected=BeanDefinitionParsingException.class)
+//    public void useOfExternalConcurrentSessionControllerRequiresSessionRegistryToBeSet() throws Exception {
+//        setContext(
+//                "<http auto-config='true'>" +
+//                "    <concurrent-session-control session-controller-ref='sc' expired-url='/expired'/>" +
+//                "</http>" +
+//                "<b:bean id='sc' class='" + ConcurrentSessionControllerImpl.class.getName() +"'>" +
+//                "  <b:property name='sessionRegistry'>" +
+//                "    <b:bean class='"+ SessionRegistryImpl.class.getName() + "'/>" +
+//                "  </b:property>" +
+//                "</b:bean>" + AUTH_PROVIDER_XML);
+//    }
 
     @Test
     public void useOfExternalSessionControllerAndRegistryIsWiredCorrectly() throws Exception {
@@ -705,16 +705,16 @@ public class HttpSecurityBeanDefinitionParserTests {
     private void checkSessionRegistry() throws Exception {
         Object sessionRegistry = appContext.getBean("sr");
         Object sessionRegistryFromConcurrencyFilter = FieldUtils.getFieldValue(
-                getFilter(ConcurrentSessionFilter.class),"sessionRegistry");
+                getFilter(ConcurrentSessionFilter.class), "sessionRegistry");
         Object sessionRegistryFromFormLoginFilter = FieldUtils.getFieldValue(
                 getFilter(UsernamePasswordAuthenticationProcessingFilter.class),"sessionStrategy.sessionRegistry");
-        Object sessionRegistryFromController = FieldUtils.getFieldValue(getConcurrentSessionController(),"sessionRegistry");
-        Object sessionRegistryFromFixationFilter = FieldUtils.getFieldValue(
+//        Object sessionRegistryFromController = FieldUtils.getFieldValue(getConcurrentSessionController(),"sessionRegistry");
+        Object sessionRegistryFromMgmtFilter = FieldUtils.getFieldValue(
                 getFilter(SessionManagementFilter.class),"sessionStrategy.sessionRegistry");
 
         assertSame(sessionRegistry, sessionRegistryFromConcurrencyFilter);
-        assertSame(sessionRegistry, sessionRegistryFromController);
-        assertSame(sessionRegistry, sessionRegistryFromFixationFilter);
+//        assertSame(sessionRegistry, sessionRegistryFromController);
+        assertSame(sessionRegistry, sessionRegistryFromMgmtFilter);
         // SEC-1143
         assertSame(sessionRegistry, sessionRegistryFromFormLoginFilter);
     }
@@ -755,29 +755,25 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true'>" +
                 "    <concurrent-session-control max-sessions='2' exception-if-maximum-exceeded='true' />" +
                 "</http>"  + AUTH_PROVIDER_XML);
-        ConcurrentSessionControllerImpl seshController = (ConcurrentSessionControllerImpl) getConcurrentSessionController();
+        AuthenticatedSessionStrategy seshStrategy = (AuthenticatedSessionStrategy) FieldUtils.getFieldValue(
+                getFilter(SessionManagementFilter.class), "sessionStrategy");
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("bob", "pass");
         // Register 2 sessions and then check a third
-        MockHttpServletRequest req = new MockHttpServletRequest();
-        req.setSession(new MockHttpSession());
-        auth.setDetails(new WebAuthenticationDetails(req));
+//        req.setSession(new MockHttpSession());
+//        auth.setDetails(new WebAuthenticationDetails(req));
         try {
-            seshController.checkAuthenticationAllowed(auth);
+            seshStrategy.onAuthentication(auth, new MockHttpServletRequest(), new MockHttpServletResponse());
         } catch (ConcurrentLoginException e) {
             fail("First login should be allowed");
         }
-        seshController.registerSuccessfulAuthentication(auth);
-        req.setSession(new MockHttpSession());
+
         try {
-            seshController.checkAuthenticationAllowed(auth);
+            seshStrategy.onAuthentication(auth, new MockHttpServletRequest(), new MockHttpServletResponse());
         } catch (ConcurrentLoginException e) {
             fail("Second login should be allowed");
         }
-        auth.setDetails(new WebAuthenticationDetails(req));
-        seshController.registerSuccessfulAuthentication(auth);
-        req.setSession(new MockHttpSession());
-        auth.setDetails(new WebAuthenticationDetails(req));
-        seshController.checkAuthenticationAllowed(auth);
+
+        seshStrategy.onAuthentication(auth, new MockHttpServletRequest(), new MockHttpServletResponse());
     }
 
     @Test
@@ -1096,14 +1092,14 @@ public class HttpSecurityBeanDefinitionParserTests {
         return ((RememberMeProcessingFilter)getFilter(RememberMeProcessingFilter.class)).getRememberMeServices();
     }
 
-    @SuppressWarnings("unchecked")
-    private ConcurrentSessionController getConcurrentSessionController() {
-        Map beans = appContext.getBeansOfType(ConcurrentSessionController.class);
-
-        if (beans.size() == 0) {
-            return null;
-        }
-        return (ConcurrentSessionController) new ArrayList(beans.values()).get(0);
-    }
+//    @SuppressWarnings("unchecked")
+//    private ConcurrentSessionController getConcurrentSessionController() {
+//        Map beans = appContext.getBeansOfType(ConcurrentSessionController.class);
+//
+//        if (beans.size() == 0) {
+//            return null;
+//        }
+//        return (ConcurrentSessionController) new ArrayList(beans.values()).get(0);
+//    }
 
 }
