@@ -17,30 +17,29 @@ package org.springframework.security.web.authentication;
 
 
 
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.PortMapper;
-import org.springframework.security.web.PortMapperImpl;
-import org.springframework.security.web.PortResolver;
-import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.util.RedirectUrlBuilder;
-import org.springframework.security.web.util.UrlUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
 import java.io.IOException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.PortMapper;
+import org.springframework.security.web.PortMapperImpl;
+import org.springframework.security.web.PortResolver;
+import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.util.RedirectUrlBuilder;
+import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Used by the {@link ExceptionTranslationFilter} to commence a form login
@@ -80,6 +79,8 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
     private boolean useForward = false;
 
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
@@ -117,6 +118,8 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
         if (useForward) {
 
             if (forceHttps && "http".equals(request.getScheme())) {
+                // First redirect the current request to HTTPS.
+                // When that request is received, the forward to the login page will be used.
                 redirectUrl = buildHttpsRedirectUrlForRequest(httpRequest);
             }
 
@@ -140,7 +143,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
         }
 
-        httpResponse.sendRedirect(httpResponse.encodeRedirectURL(redirectUrl));
+        redirectStrategy.sendRedirect(httpRequest, httpResponse, redirectUrl);
     }
 
     protected String buildRedirectUrlToLoginPage(HttpServletRequest request, HttpServletResponse response,
@@ -174,7 +177,8 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
     }
 
     /**
-     * Builds a URL to redirect the supplied request to HTTPS.
+     * Builds a URL to redirect the supplied request to HTTPS. Used to redirect the current request
+     * to HTTPS, before doing a forward to the login page.
      */
     protected String buildHttpsRedirectUrlForRequest(HttpServletRequest request)
             throws IOException, ServletException {

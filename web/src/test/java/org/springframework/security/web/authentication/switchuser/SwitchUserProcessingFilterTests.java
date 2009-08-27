@@ -43,6 +43,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.util.FieldUtils;
+import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.switchuser.SwitchUserAuthorityChanger;
 import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
@@ -306,7 +307,9 @@ public class SwitchUserProcessingFilterTests {
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
         SimpleUrlAuthenticationSuccessHandler switchSuccessHandler =
             new SimpleUrlAuthenticationSuccessHandler("/someOtherUrl");
-        switchSuccessHandler.setUseRelativeContext(true);
+        DefaultRedirectStrategy contextRelativeRedirector = new DefaultRedirectStrategy();
+        contextRelativeRedirector.setUseRelativeContext(true);
+        switchSuccessHandler.setRedirectStrategy(contextRelativeRedirector);
         filter.setSuccessHandler(switchSuccessHandler);
         filter.setUserDetailsService(new MockUserDetailsService());
 

@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.util.RedirectUtils;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 
@@ -35,7 +34,7 @@ public class ExceptionMappingAuthenticationFailureHandler extends SimpleUrlAuthe
         String url = failureUrlMap.get(exception.getClass().getName());
 
         if (url != null) {
-            RedirectUtils.sendRedirect(request, response, url, isUseRelativeContext());
+            getRedirectStrategy().sendRedirect(request, response, url);
         } else {
             super.onAuthenticationFailure(request, response, exception);
         }

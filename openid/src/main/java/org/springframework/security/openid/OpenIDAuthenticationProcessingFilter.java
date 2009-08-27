@@ -167,15 +167,17 @@ public class OpenIDAuthenticationProcessingFilter extends AbstractAuthentication
 
         if (mapping == null) {
             try {
-
                 URL url = new URL(returnToUrl);
-                int port = (url.getPort() == -1) ? 80 : url.getPort();
-                StringBuffer realmBuffer = new StringBuffer(returnToUrl.length())
+                int port = url.getPort();
+
+                StringBuilder realmBuffer = new StringBuilder(returnToUrl.length())
                         .append(url.getProtocol())
                         .append("://")
-                        .append(url.getHost())
-                        .append(":").append(port)
-                        .append("/");
+                        .append(url.getHost());
+                if (port > 0) {
+                    realmBuffer.append(":").append(port);
+                }
+                realmBuffer.append("/");
                 mapping = realmBuffer.toString();
             } catch (MalformedURLException e) {
                 logger.warn("returnToUrl was not a valid URL: [" + returnToUrl + "]", e);

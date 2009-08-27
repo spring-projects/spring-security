@@ -11,7 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.util.RedirectUtils;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -50,8 +51,8 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
     private String targetUrlParameter = DEFAULT_TARGET_PARAMETER;
     private String defaultTargetUrl = "/";
     private boolean alwaysUseDefaultTargetUrl = false;
-    private boolean useRelativeContext = false;
     private boolean useReferer = false;
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     protected AbstractAuthenticationTargetUrlRequestHandler() {
     }
@@ -60,7 +61,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
             throws IOException, ServletException {
         String targetUrl = determineTargetUrl(request, response);
 
-        RedirectUtils.sendRedirect(request, response, targetUrl, useRelativeContext);
+        redirectStrategy.sendRedirect(request, response, targetUrl);
     }
 
     private String determineTargetUrl(HttpServletRequest request, HttpServletResponse response) {
@@ -149,15 +150,14 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
     }
 
     /**
-     * If <tt>true</tt>, causes any redirection URLs to be calculated minus the protocol
-     * and context path (defaults to <tt>false</tt>).
+     * Allows overriding of the behaviour when redirecting to a target URL.
      */
-    public void setUseRelativeContext(boolean useRelativeContext) {
-        this.useRelativeContext = useRelativeContext;
+    public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+        this.redirectStrategy = redirectStrategy;
     }
 
-    protected boolean isUseRelativeContext() {
-        return useRelativeContext;
+    protected RedirectStrategy getRedirectStrategy() {
+        return redirectStrategy;
     }
 
     /**

@@ -7,7 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.util.RedirectUtils;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 
@@ -27,7 +28,7 @@ import org.springframework.util.Assert;
 public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFailureHandler {
     private String defaultFailureUrl;
     private boolean forwardToDestination = false;
-    private boolean useRelativeContext = false;
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     public SimpleUrlAuthenticationFailureHandler() {
     }
@@ -44,7 +45,7 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
             if (forwardToDestination) {
                 request.getRequestDispatcher(defaultFailureUrl).forward(request, response);
             } else {
-                RedirectUtils.sendRedirect(request, response, defaultFailureUrl, useRelativeContext);
+                redirectStrategy.sendRedirect(request, response, defaultFailureUrl);
             }
         }
     }
@@ -71,16 +72,14 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
         this.forwardToDestination = forwardToDestination;
     }
 
-    protected boolean isUseRelativeContext() {
-        return useRelativeContext;
-    }
-
     /**
-     * If true, causes any redirection URLs to be calculated minus the protocol
-     * and context path (defaults to false).
+     * Allows overriding of the behaviour when redirecting to a target URL.
      */
-    public void setUseRelativeContext(boolean useRelativeContext) {
-        this.useRelativeContext = useRelativeContext;
+    public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+        this.redirectStrategy = redirectStrategy;
     }
 
+    protected RedirectStrategy getRedirectStrategy() {
+        return redirectStrategy;
+    }
 }

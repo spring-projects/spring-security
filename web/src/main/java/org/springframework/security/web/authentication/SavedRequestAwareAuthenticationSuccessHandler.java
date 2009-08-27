@@ -13,7 +13,6 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.util.RedirectUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -76,7 +75,7 @@ public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuth
         // Use the SavedRequest URL
         String targetUrl = savedRequest.getFullRequestUrl();
         logger.debug("Redirecting to SavedRequest Url: " + targetUrl);
-        RedirectUtils.sendRedirect(request, response, targetUrl, isUseRelativeContext());
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
     public void setRequestCache(RequestCache requestCache) {
