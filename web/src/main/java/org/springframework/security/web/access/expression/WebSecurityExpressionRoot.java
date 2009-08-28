@@ -15,10 +15,10 @@ import org.springframework.util.StringUtils;
  * @version $Id$
  * @since 3.0
  */
-class WebSecurityExpressionRoot extends SecurityExpressionRoot {
+public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
     private FilterInvocation filterInvocation;
 
-    WebSecurityExpressionRoot(Authentication a, FilterInvocation fi) {
+    public WebSecurityExpressionRoot(Authentication a, FilterInvocation fi) {
         super(a);
         this.filterInvocation = fi;
     }
