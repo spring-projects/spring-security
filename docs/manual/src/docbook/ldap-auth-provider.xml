@@ -332,8 +332,10 @@
                 <interfacename>LdapAuthoritiesPopulator</interfacename> bean. The <classname>DefaultLdapAuthoritiesPopulator</classname>
                 is an implementation which will load the authorities by searching the directory for groups of which the user is a member
                 (typically these will be <literal>groupOfNames</literal> or <literal>groupOfUniqueNames</literal> entries in the directory).
-                Consult the Javadoc for this class for more details on how it works.
+                Consult the Javadoc for this class for more details on how it works. 
             </para>
+            <para>If you want to use LDAP only for authentication, but load the authorities from a difference source (such as a database) 
+                then you can provide your own implementation of this interface and inject that instead.</para>
         </section>
         <section xml:id="ldap-bean-config">
             <info>
