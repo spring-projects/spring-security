@@ -49,6 +49,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 
     private boolean continueFilterChainOnUnsuccessfulAuthentication = true;
 
+    private boolean checkForPrincipalChanges;
+
     /**
      * Check whether all required properties have been set.
      */
@@ -67,9 +69,10 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
             logger.debug("Checking secure context token: " + SecurityContextHolder.getContext().getAuthentication());
         }
 
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (requiresAuthentication((HttpServletRequest) request)) {
             doAuthenticate((HttpServletRequest) request, (HttpServletResponse) response);
         }
+
         chain.doFilter(request, response);
     }
 
@@ -106,6 +109,24 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
                 throw failed;
             }
         }
+    }
+
+    private boolean requiresAuthentication(HttpServletRequest request) {
+        Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+
+        if (currentUser == null) {
+            return true;
+        }
+
+        Object principal = getPreAuthenticatedPrincipal(request);
+        if (checkForPrincipalChanges &&
+                !currentUser.getName().equals(principal)) {
+            logger.debug("Pre-authenticated principal has changed to " + principal + " and will be reauthenticated");
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -163,6 +184,17 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 
     public void setContinueFilterChainOnUnsuccessfulAuthentication(boolean shouldContinue) {
         continueFilterChainOnUnsuccessfulAuthentication = shouldContinue;
+    }
+
+    /**
+     * If set, the pre-authenticated principal will be checked on each request and compared
+     * against the name of the current <tt>Authentication</tt> object. If a change is detected,
+     * the user will be reauthenticated.
+     *
+     * @param checkForPrincipalChanges
+     */
+    public void setCheckForPrincipalChanges(boolean checkForPrincipalChanges) {
+        this.checkForPrincipalChanges = checkForPrincipalChanges;
     }
 
     /**

@@ -87,6 +87,30 @@ public class RequestHeaderPreAuthenticatedProcessingFilterTests {
         assertEquals("catspassword", SecurityContextHolder.getContext().getAuthentication().getCredentials());
     }
 
+    @Test
+    public void userIsReauthenticatedIfPrincipalChangesAndCheckForPrincipalChangesIsSet() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        RequestHeaderPreAuthenticatedProcessingFilter filter = new RequestHeaderPreAuthenticatedProcessingFilter();
+        filter.setAuthenticationManager(createAuthenticationManager());
+        filter.setCheckForPrincipalChanges(true);
+        request.addHeader("SM_USER", "cat");
+        filter.doFilter(request, response, new MockFilterChain());
+        request = new MockHttpServletRequest();
+        request.addHeader("SM_USER", "dog");
+        filter.doFilter(request, response, new MockFilterChain());
+        Authentication dog = SecurityContextHolder.getContext().getAuthentication();
+        assertNotNull(dog);
+        assertEquals("dog", dog.getName());
+        // Make sure authentication doesn't occur every time (i.e. if the header *doesn't change)
+        filter.setAuthenticationManager(mock(AuthenticationManager.class));
+        filter.doFilter(request, response, new MockFilterChain());
+        assertSame(dog, SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    /**
+     * Create an authentication manager which returns the passed in object.
+     */
     private AuthenticationManager createAuthenticationManager() {
         AuthenticationManager am = mock(AuthenticationManager.class);
         when(am.authenticate(any(Authentication.class))).thenAnswer(new Answer<Authentication>() {
