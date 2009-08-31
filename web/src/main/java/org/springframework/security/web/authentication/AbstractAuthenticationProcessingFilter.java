@@ -37,7 +37,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.session.AuthenticatedSessionStrategy;
+import org.springframework.security.web.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
@@ -130,7 +130,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
     private boolean continueChainBeforeSuccessfulAuthentication = false;
 
-    private AuthenticatedSessionStrategy sessionStrategy = new NullAuthenticatedSessionStrategy();
+    private SessionAuthenticationStrategy sessionStrategy = new NullAuthenticatedSessionStrategy();
 
     private boolean allowSessionCreation = true;
 
@@ -273,7 +273,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * Default behaviour for successful authentication.
      * <ol>
      * <li>Sets the successful <tt>Authentication</tt> object on the {@link SecurityContextHolder}</li>
-     * <li>Invokes the configured {@link AuthenticatedSessionStrategy} to handle any session-related behaviour
+     * <li>Invokes the configured {@link SessionAuthenticationStrategy} to handle any session-related behaviour
      * (such as creating a new session to protect against session-fixation attacks).</li>
      * <li>Informs the configured <tt>RememberMeServices</tt> of the successful login</li>
      * <li>Fires an {@link InteractiveAuthenticationSuccessEvent} via the configured
@@ -400,7 +400,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * @param sessionStrategy the implementation to use. If not set a null implementation is
      * used.
      */
-    public void setAuthenticatedSessionStrategy(AuthenticatedSessionStrategy sessionStrategy) {
+    public void setAuthenticatedSessionStrategy(SessionAuthenticationStrategy sessionStrategy) {
         this.sessionStrategy = sessionStrategy;
     }
 

@@ -50,7 +50,7 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.session.AuthenticatedSessionStrategy;
+import org.springframework.security.web.session.SessionAuthenticationStrategy;
 
 
 /**
@@ -240,7 +240,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
 
         filter.setFilterProcessesUrl("/j_mock_post");
-        filter.setAuthenticatedSessionStrategy(mock(AuthenticatedSessionStrategy.class));
+        filter.setAuthenticatedSessionStrategy(mock(SessionAuthenticationStrategy.class));
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationManager(mock(AuthenticationManager.class));

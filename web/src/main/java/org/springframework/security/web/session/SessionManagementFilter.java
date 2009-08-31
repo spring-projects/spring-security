@@ -21,10 +21,8 @@ import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * Detects that a user has been authenticated since the start of the request and, if they have, calls the
- * configured {@link AuthenticatedSessionStrategy} to perform any session-related activity (such as
- * activating session-fixation protection mechanisms).
- * <p>
- * This is essentially a generalization of the functionality that was implemented for SEC-399.
+ * configured {@link SessionAuthenticationStrategy} to perform any session-related activity such as
+ * activating session-fixation protection mechanisms or checking for multiple concurrent logins.
  *
  * @author Martin Algesten
  * @author Luke Taylor
@@ -39,7 +37,7 @@ public class SessionManagementFilter extends GenericFilterBean {
     //~ Instance fields ================================================================================================
 
     private final SecurityContextRepository securityContextRepository;
-    private AuthenticatedSessionStrategy sessionStrategy = new DefaultAuthenticatedSessionStrategy();
+    private SessionAuthenticationStrategy sessionStrategy = new DefaultSessionAuthenticationStrategy();
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
     private String invalidSessionUrl;
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
@@ -65,7 +63,13 @@ public class SessionManagementFilter extends GenericFilterBean {
 
             if (authentication != null && !authenticationTrustResolver.isAnonymous(authentication)) {
              // The user has been authenticated during the current request, so call the session strategy
-                sessionStrategy.onAuthentication(authentication, request, response);
+                try {
+                    sessionStrategy.onAuthentication(authentication, request, response);
+                } catch (SessionAuthenticationException e) {
+                    // The session strategy can reject the authentication
+                    logger.debug("SessionAuthenticationStrategy rejected the authentication object",e);
+                    SecurityContextHolder.clearContext();
+                }
             } else {
              // No security context or authentication present. Check for a session timeout
                 if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {
@@ -83,9 +87,9 @@ public class SessionManagementFilter extends GenericFilterBean {
      * Sets the strategy object which handles the session management behaviour when a
      * user has been authenticated during the current request.
      *
-     * @param sessionStrategy the strategy object. If not set, a {@link DefaultAuthenticatedSessionStrategy} is used.
+     * @param sessionStrategy the strategy object. If not set, a {@link DefaultSessionAuthenticationStrategy} is used.
      */
-    public void setAuthenticatedSessionStrategy(AuthenticatedSessionStrategy sessionStrategy) {
+    public void setAuthenticatedSessionStrategy(SessionAuthenticationStrategy sessionStrategy) {
         Assert.notNull(sessionStrategy, "authenticatedSessionStratedy must not be null");
         this.sessionStrategy = sessionStrategy;
     }

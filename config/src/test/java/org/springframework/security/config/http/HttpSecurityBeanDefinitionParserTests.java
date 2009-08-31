@@ -71,7 +71,7 @@ import org.springframework.security.web.authentication.www.BasicProcessingFilter
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
-import org.springframework.security.web.session.AuthenticatedSessionStrategy;
+import org.springframework.security.web.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.ReflectionUtils;
@@ -115,7 +115,7 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         checkAutoConfigFilters(filterList);
 
-        assertEquals(true, FieldUtils.getFieldValue(appContext.getBean("_filterChainProxy"), "stripQueryStringFromUrls"));
+        assertEquals(true, FieldUtils.getFieldValue(appContext.getBean(BeanIds.FILTER_CHAIN_PROXY), "stripQueryStringFromUrls"));
         assertEquals(true, FieldUtils.getFieldValue(filterList.get(AUTO_CONFIG_FILTERS-1), "securityMetadataSource.stripQueryStringFromUrls"));
     }
 
@@ -138,8 +138,8 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof RequestCacheAwareFilter);
         assertTrue(filters.next() instanceof SecurityContextHolderAwareRequestFilter);
         assertTrue(filters.next() instanceof AnonymousProcessingFilter);
-        assertTrue(filters.next() instanceof ExceptionTranslationFilter);
         assertTrue(filters.next() instanceof SessionManagementFilter);
+        assertTrue(filters.next() instanceof ExceptionTranslationFilter);
         Object fsiObj = filters.next();
         assertTrue(fsiObj instanceof FilterSecurityInterceptor);
         FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) fsiObj;
@@ -363,7 +363,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         setContext("<http access-denied-page='/access-denied'><http-basic /></http>" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
 
-        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) filters.get(filters.size() - 3);
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) filters.get(filters.size() - 2);
 
         assertEquals("/access-denied", FieldUtils.getFieldValue(etf, "accessDeniedHandler.errorPage"));
     }
@@ -755,7 +755,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true'>" +
                 "    <concurrent-session-control max-sessions='2' exception-if-maximum-exceeded='true' />" +
                 "</http>"  + AUTH_PROVIDER_XML);
-        AuthenticatedSessionStrategy seshStrategy = (AuthenticatedSessionStrategy) FieldUtils.getFieldValue(
+        SessionAuthenticationStrategy seshStrategy = (SessionAuthenticationStrategy) FieldUtils.getFieldValue(
                 getFilter(SessionManagementFilter.class), "sessionStrategy");
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("bob", "pass");
         // Register 2 sessions and then check a third
@@ -782,7 +782,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true' entry-point-ref='entryPoint'/>" +
                 "<b:bean id='entryPoint' class='" + MockEntryPoint.class.getName() + "'>" +
                 "</b:bean>" + AUTH_PROVIDER_XML);
-        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilters("/someurl").get(AUTO_CONFIG_FILTERS-3);
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilters("/someurl").get(AUTO_CONFIG_FILTERS-2);
         assertTrue("ExceptionTranslationFilter should be configured with custom entry point",
                 etf.getAuthenticationEntryPoint() instanceof MockEntryPoint);
     }
@@ -810,8 +810,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         setContext(
                 "<http auto-config='true' session-fixation-protection='none'/>" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
-        assertTrue(filters.get(8) instanceof ExceptionTranslationFilter);
-        assertFalse(filters.get(9) instanceof SessionManagementFilter);
+        assertFalse(filters.get(8) instanceof SessionManagementFilter);
     }
 
     @Test
@@ -820,7 +819,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true' session-fixation-protection='none'" +
                 " invalid-session-url='/timeoutUrl' />" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
-        Object filter = filters.get(9);
+        Object filter = filters.get(8);
         assertTrue(filter instanceof SessionManagementFilter);
         assertEquals("/timeoutUrl", FieldUtils.getProtectedFieldValue("invalidSessionUrl", filter));
     }

@@ -44,7 +44,7 @@ public class SessionManagementFilterTests {
     @Test
     public void strategyIsNotInvokedIfSecurityContextAlreadyExistsForRequest() throws Exception {
         SecurityContextRepository repo = mock(SecurityContextRepository.class);
-        AuthenticatedSessionStrategy strategy = mock(AuthenticatedSessionStrategy.class);
+        SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
         // mock that repo contains a security context
         when(repo.containsContext(any(HttpServletRequest.class))).thenReturn(true);
         SessionManagementFilter filter = new SessionManagementFilter(repo);
@@ -60,7 +60,7 @@ public class SessionManagementFilterTests {
     @Test
     public void strategyIsNotInvokedIfAuthenticationIsNull() throws Exception {
         SecurityContextRepository repo = mock(SecurityContextRepository.class);
-        AuthenticatedSessionStrategy strategy = mock(AuthenticatedSessionStrategy.class);
+        SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
         SessionManagementFilter filter = new SessionManagementFilter(repo);
         filter.setAuthenticatedSessionStrategy(strategy);
         HttpServletRequest request = new MockHttpServletRequest();
@@ -74,7 +74,7 @@ public class SessionManagementFilterTests {
     public void strategyIsInvokedIfUserIsNewlyAuthenticated() throws Exception {
         SecurityContextRepository repo = mock(SecurityContextRepository.class);
         // repo will return false to containsContext()
-        AuthenticatedSessionStrategy strategy = mock(AuthenticatedSessionStrategy.class);
+        SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
         SessionManagementFilter filter = new SessionManagementFilter(repo);
         filter.setAuthenticatedSessionStrategy(strategy);
         HttpServletRequest request = new MockHttpServletRequest();
@@ -92,7 +92,7 @@ public class SessionManagementFilterTests {
     public void responseIsRedirectedToTimeoutUrlIfSetAndSessionIsInvalid() throws Exception {
         SecurityContextRepository repo = mock(SecurityContextRepository.class);
         // repo will return false to containsContext()
-        AuthenticatedSessionStrategy strategy = mock(AuthenticatedSessionStrategy.class);
+        SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
         SessionManagementFilter filter = new SessionManagementFilter(repo);
         filter.setAuthenticatedSessionStrategy(strategy);
         MockHttpServletRequest request = new MockHttpServletRequest();

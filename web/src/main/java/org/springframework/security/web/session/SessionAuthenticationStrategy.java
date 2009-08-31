@@ -7,7 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
 /**
- * Allows pluggable support for Http session-related behaviour when an authentication occurs.
+ * Allows pluggable support for HttpSession-related behaviour when an authentication occurs.
  * <p>
  * Typical use would be to make sure a session exists or to change the session Id to guard against session-fixation
  * attacks.
@@ -16,14 +16,15 @@ import org.springframework.security.core.AuthenticationException;
  * @version $Id$
  * @since
  */
-public interface AuthenticatedSessionStrategy {
+public interface SessionAuthenticationStrategy {
 
     /**
      * Performs Http session-related functionality when a new authentication occurs.
      *
-     * @throws AuthenticationException if it is decided that the authentication is not allowed for the session.
+     * @throws SessionAuthenticationException if it is decided that the authentication is not allowed for the session.
+     *          This will typically be because the user has too many sessions open at once.
      */
     void onAuthentication(Authentication authentication, HttpServletRequest request, HttpServletResponse response)
-        throws AuthenticationException;
+        throws SessionAuthenticationException;
 
 }

@@ -11,7 +11,7 @@ import org.springframework.security.core.Authentication;
  * @version $Id$
  * @since 3.0
  */
-public final class NullAuthenticatedSessionStrategy implements AuthenticatedSessionStrategy {
+public final class NullAuthenticatedSessionStrategy implements SessionAuthenticationStrategy {
 
     public void onAuthentication(Authentication authentication, HttpServletRequest request,
             HttpServletResponse response) {

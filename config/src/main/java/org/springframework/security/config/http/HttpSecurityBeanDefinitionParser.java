@@ -33,7 +33,6 @@ import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
-import org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
@@ -64,7 +63,7 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.session.ConcurrentSessionControlAuthenticatedSessionStrategy;
-import org.springframework.security.web.session.DefaultAuthenticatedSessionStrategy;
+import org.springframework.security.web.session.DefaultSessionAuthenticationStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.AntUrlPathMatcher;
 import org.springframework.security.web.util.RegexUrlPathMatcher;
@@ -129,8 +128,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
 
     private static final String ATT_DISABLE_URL_REWRITING = "disable-url-rewriting";
-
-    private static final String ATT_SESSION_CONTROLLER_REF = "session-controller-ref";
 
     static final String OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProcessingFilter";
     static final String OPEN_ID_AUTHENTICATION_PROVIDER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProvider";
@@ -726,45 +723,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return sessionControlFilter;
     }
 
-    private BeanReference createConcurrentSessionController(Element elt, BeanDefinition filter, BeanReference sessionRegistry, ParserContext pc) {
-        Element sessionCtrlElement = DomUtils.getChildElementByTagName(elt, Elements.CONCURRENT_SESSIONS);
-
-        // Check for a custom controller
-//        String sessionControllerRef = sessionCtrlElement.getAttribute(ATT_SESSION_CONTROLLER_REF);
-//
-//        if (StringUtils.hasText(sessionControllerRef)) {
-//            if (!StringUtils.hasText(sessionCtrlElement.getAttribute(ConcurrentSessionsBeanDefinitionParser.ATT_SESSION_REGISTRY_REF))) {
-//                pc.getReaderContext().error("Use of " + ATT_SESSION_CONTROLLER_REF + " requires that " +
-//                        ConcurrentSessionsBeanDefinitionParser.ATT_SESSION_REGISTRY_REF + " is also set.",
-//                        pc.extractSource(sessionCtrlElement));
-//            }
-//            return new RuntimeBeanReference(sessionControllerRef);
-//        }
-
-        BeanDefinitionBuilder controllerBuilder = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControllerImpl.class);
-        controllerBuilder.getRawBeanDefinition().setSource(filter.getSource());
-        controllerBuilder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        controllerBuilder.addPropertyValue("sessionRegistry", sessionRegistry);
-
-        String maxSessions = sessionCtrlElement.getAttribute("max-sessions");
-
-        if (StringUtils.hasText(maxSessions)) {
-            controllerBuilder.addPropertyValue("maximumSessions", maxSessions);
-        }
-
-        String exceptionIfMaximumExceeded = sessionCtrlElement.getAttribute("exception-if-maximum-exceeded");
-
-        if (StringUtils.hasText(exceptionIfMaximumExceeded)) {
-            controllerBuilder.addPropertyValue("exceptionIfMaximumExceeded", exceptionIfMaximumExceeded);
-        }
-
-        BeanDefinition controller = controllerBuilder.getBeanDefinition();
-
-        String id = pc.getReaderContext().registerWithGeneratedName(controller);
-        pc.registerComponent(new BeanComponentDefinition(controller, id));
-        return new RuntimeBeanReference(id);
-    }
-
     private BeanReference createRequestCache(Element element, ParserContext pc, boolean allowSessionCreation,
             String portMapperName) {
         BeanDefinitionBuilder requestCache = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionRequestCache.class);
@@ -948,7 +906,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 sessionStrategy.addPropertyValue("exceptionIfMaximumExceeded", exceptionIfMaximumExceeded);
             }
         } else if (sessionFixationProtectionRequired || StringUtils.hasText(invalidSessionUrl)) {
-            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(DefaultAuthenticatedSessionStrategy.class);
+            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(DefaultSessionAuthenticationStrategy.class);
         } else {
             return null;
         }

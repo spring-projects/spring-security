@@ -16,7 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
 /**
- * The default implementation of {@link AuthenticatedSessionStrategy}.
+ * The default implementation of {@link SessionAuthenticationStrategy}.
  * <p>
  * Creates a new session for the newly authenticated user if they already have a session (as a defence against
  * session-fixation protection attacks), and copies their
@@ -32,7 +32,7 @@ import org.springframework.security.web.savedrequest.SavedRequest;
  * @version $Id$
  * @since 3.0
  */
-public class DefaultAuthenticatedSessionStrategy implements AuthenticatedSessionStrategy {
+public class DefaultSessionAuthenticationStrategy implements SessionAuthenticationStrategy {
     protected final Log logger = LogFactory.getLog(this.getClass());
 
     /**

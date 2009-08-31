@@ -18,11 +18,11 @@ import org.springframework.security.web.savedrequest.SavedRequest;
  * @author Luke Taylor
  * @version $Id$
  */
-public class DefaultAuthenticatedSessionStrategyTests {
+public class DefaultSessionAuthenticationStrategyTests {
 
     @Test
     public void newSessionShouldNotBeCreatedIfNoSessionExistsAndAlwaysCreateIsFalse() throws Exception {
-        DefaultAuthenticatedSessionStrategy strategy = new DefaultAuthenticatedSessionStrategy();
+        DefaultSessionAuthenticationStrategy strategy = new DefaultSessionAuthenticationStrategy();
         HttpServletRequest request = new MockHttpServletRequest();
 
         strategy.onAuthentication(mock(Authentication.class), request, new MockHttpServletResponse());
@@ -32,7 +32,7 @@ public class DefaultAuthenticatedSessionStrategyTests {
 
 //    @Test
 //    public void newSessionIsCreatedIfSessionAlreadyExists() throws Exception {
-//        DefaultAuthenticatedSessionStrategy strategy = new DefaultAuthenticatedSessionStrategy();
+//        DefaultSessionAuthenticationStrategy strategy = new DefaultSessionAuthenticationStrategy();
 //        strategy.setSessionRegistry(mock(SessionRegistry.class));
 //        HttpServletRequest request = new MockHttpServletRequest();
 //        String sessionId = request.getSession().getId();
@@ -45,7 +45,7 @@ public class DefaultAuthenticatedSessionStrategyTests {
     // See SEC-1077
     @Test
     public void onlySavedRequestAttributeIsMigratedIfMigrateAttributesIsFalse() throws Exception {
-        DefaultAuthenticatedSessionStrategy strategy = new DefaultAuthenticatedSessionStrategy();
+        DefaultSessionAuthenticationStrategy strategy = new DefaultSessionAuthenticationStrategy();
         strategy.setMigrateSessionAttributes(false);
         HttpServletRequest request = new MockHttpServletRequest();
         HttpSession session = request.getSession();
@@ -60,7 +60,7 @@ public class DefaultAuthenticatedSessionStrategyTests {
 
     @Test
     public void sessionIsCreatedIfAlwaysCreateTrue() throws Exception {
-        DefaultAuthenticatedSessionStrategy strategy = new DefaultAuthenticatedSessionStrategy();
+        DefaultSessionAuthenticationStrategy strategy = new DefaultSessionAuthenticationStrategy();
         strategy.setAlwaysCreateSession(true);
         HttpServletRequest request = new MockHttpServletRequest();
         strategy.onAuthentication(mock(Authentication.class), request, new MockHttpServletResponse());

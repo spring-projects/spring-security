@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
  * @version $Id$
  * @since 3.0
  */
-public class ConcurrentSessionControlAuthenticatedSessionStrategy extends DefaultAuthenticatedSessionStrategy
+public class ConcurrentSessionControlAuthenticatedSessionStrategy extends DefaultSessionAuthenticationStrategy
         implements MessageSourceAware {
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private final SessionRegistry sessionRegistry;
