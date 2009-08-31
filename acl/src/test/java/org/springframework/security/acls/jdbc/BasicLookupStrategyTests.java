@@ -22,6 +22,7 @@ import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.ConsoleAuditLogger;
+import org.springframework.security.acls.domain.EhCacheBasedAclCache;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Acl;

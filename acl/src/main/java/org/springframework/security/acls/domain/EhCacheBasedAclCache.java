@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.acls.jdbc;
+package org.springframework.security.acls.domain;
 
 import java.io.Serializable;
 
@@ -20,9 +20,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
-import org.springframework.security.acls.domain.AclAuthorizationStrategy;
-import org.springframework.security.acls.domain.AclImpl;
-import org.springframework.security.acls.domain.AuditLogger;
+import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.util.FieldUtils;

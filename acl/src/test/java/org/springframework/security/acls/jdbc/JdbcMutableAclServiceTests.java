@@ -35,6 +35,7 @@ import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
+import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.AlreadyExistsException;
 import org.springframework.security.acls.model.ChildrenExistException;
 import org.springframework.security.acls.model.MutableAcl;

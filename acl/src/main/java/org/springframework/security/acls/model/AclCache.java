@@ -12,10 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.acls.jdbc;
+package org.springframework.security.acls.model;
 
-import org.springframework.security.acls.model.MutableAcl;
-import org.springframework.security.acls.model.ObjectIdentity;
+import org.springframework.security.acls.jdbc.JdbcAclService;
 
 import java.io.Serializable;
 

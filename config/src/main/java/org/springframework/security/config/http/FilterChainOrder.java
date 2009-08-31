@@ -37,9 +37,9 @@ abstract class FilterChainOrder {
     public static final int SERVLET_API_SUPPORT_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int REMEMBER_ME_FILTER          = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int ANONYMOUS_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
+    public static final int SESSION_FIXATION_FILTER     = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int EXCEPTION_TRANSLATION_FILTER = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int NTLM_FILTER                 = FILTER_CHAIN_FIRST + INTERVAL * i++;
-    public static final int SESSION_FIXATION_FILTER     = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int FILTER_SECURITY_INTERCEPTOR = FILTER_CHAIN_FIRST + INTERVAL * i++;
     public static final int SWITCH_USER_FILTER          = FILTER_CHAIN_FIRST + INTERVAL * i++;
 

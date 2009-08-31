@@ -14,7 +14,7 @@
 
   <!-- ========= ACL SERVICE  DEFINITIONS ========= -->
 
-  <bean id="aclCache" class="org.springframework.security.acls.jdbc.EhCacheBasedAclCache">
+  <bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
     <constructor-arg>
       <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
         <property name="cacheManager">
