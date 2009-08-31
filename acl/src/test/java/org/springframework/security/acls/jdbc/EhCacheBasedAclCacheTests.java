@@ -1,9 +1,6 @@
 package org.springframework.security.acls.jdbc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Map;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -38,6 +36,7 @@ import org.springframework.security.util.FieldUtils;
  * Tests {@link EhCacheBasedAclCache}
  *
  * @author Andrei Stefan
+ * @version $Id$
  */
 public class EhCacheBasedAclCacheTests {
     private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
@@ -48,7 +47,7 @@ public class EhCacheBasedAclCacheTests {
     public static void initCacheManaer() {
         cacheManager = new CacheManager();
         // Use disk caching immediately (to test for serialization issue reported in SEC-527)
-        cacheManager.addCache(new Cache("ehcachebasedacltests", 0, true, false, 30, 30));
+        cacheManager.addCache(new Cache("ehcachebasedacltests", 0, true, false, 600, 300));
     }
 
     @AfterClass
@@ -203,6 +202,7 @@ public class EhCacheBasedAclCacheTests {
         assertEquals(cache.getSize(), 0);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void cacheOperationsAclWithParent() throws Exception {
         Ehcache cache = getCache();
@@ -213,8 +213,8 @@ public class EhCacheBasedAclCacheTests {
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
-        ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS, new Long(101));
+        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(1));
+        ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS, new Long(2));
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
                 new GrantedAuthorityImpl("ROLE_GENERAL") });
@@ -228,13 +228,32 @@ public class EhCacheBasedAclCacheTests {
         assertEquals(cache.getSize(), 4);
         assertEquals(4, cache.getDiskStoreSize());
         assertTrue(cache.isElementOnDisk(acl.getObjectIdentity()));
+        assertTrue(cache.isElementOnDisk(Long.valueOf(1)));
         assertFalse(cache.isElementInMemory(acl.getObjectIdentity()));
+        assertFalse(cache.isElementInMemory(Long.valueOf(1)));
+        cache.flush();
+        // Wait for the spool to be written to disk (it's asynchronous)
+        Map spool = (Map) FieldUtils.getFieldValue(cache, "diskStore.spool");
+
+        while(spool.size() > 0) {
+            Thread.sleep(50);
+        }
 
         // Check we can get from cache the same objects we put in
-        assertEquals(myCache.getFromCache(new Long(1)), acl);
-        assertEquals(myCache.getFromCache(identity), acl);
-        assertEquals(myCache.getFromCache(new Long(2)), parentAcl);
-        assertEquals(myCache.getFromCache(identityParent), parentAcl);
+        AclImpl aclFromCache = (AclImpl) myCache.getFromCache(new Long(1));
+        // For the checks on transient fields, we need to be sure that the object is being loaded from the cache,
+        // not from the ehcache spool or elsewhere...
+        assertFalse(acl == aclFromCache);
+        assertEquals(acl, aclFromCache);
+        // SEC-951 check transient fields are set on parent
+        assertNotNull(FieldUtils.getFieldValue(aclFromCache.getParentAcl(), "aclAuthorizationStrategy"));
+        assertNotNull(FieldUtils.getFieldValue(aclFromCache.getParentAcl(), "auditLogger"));
+        assertEquals(acl, myCache.getFromCache(identity));
+        assertNotNull(FieldUtils.getFieldValue(aclFromCache, "aclAuthorizationStrategy"));
+        AclImpl parentAclFromCache = (AclImpl) myCache.getFromCache(new Long(2));
+        assertEquals(parentAcl, parentAclFromCache);
+        assertNotNull(FieldUtils.getFieldValue(parentAclFromCache, "aclAuthorizationStrategy"));
+        assertEquals(parentAcl, myCache.getFromCache(identityParent));
     }
 
     //~ Inner Classes ==================================================================================================

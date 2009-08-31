@@ -135,6 +135,10 @@ public class EhCacheBasedAclCache implements AclCache {
             FieldUtils.setProtectedFieldValue("aclAuthorizationStrategy", value, this.aclAuthorizationStrategy);
             FieldUtils.setProtectedFieldValue("auditLogger", value, this.auditLogger);
         }
+
+        if (value.getParentAcl() != null) {
+            initializeTransientFields((MutableAcl) value.getParentAcl());
+        }
         return value;
     }
 
