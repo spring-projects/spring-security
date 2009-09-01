@@ -28,21 +28,30 @@
           <artifactId>ldapsdk</artifactId>
           <version>4.1</version>
           <optional>true</optional>
-        </dependency>        
+        </dependency>
+<!--
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-all</artifactId>
+            <version>1.5.5</version>
+            <optional>true</optional>
+        </dependency>
+-->
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core</artifactId>
-            <version>1.0.2</version>
+            <version>1.5.5</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-server-jndi</artifactId>
-            <version>1.0.2</version>
+            <version>1.5.5</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
+<!--
         <dependency>
             <groupId>org.apache.mina</groupId>
             <artifactId>mina-core</artifactId>
@@ -50,6 +59,7 @@
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
+         -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>

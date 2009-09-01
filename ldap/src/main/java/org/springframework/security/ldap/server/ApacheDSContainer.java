@@ -1,31 +1,26 @@
 package org.springframework.security.ldap.server;
 
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.DisposableBean;
+import java.io.File;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.Lifecycle;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.ldap.core.ContextSource;
 import org.springframework.util.Assert;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
-import org.apache.directory.server.jndi.ServerContextFactory;
-import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
-import org.apache.directory.server.core.configuration.ShutdownConfiguration;
-import org.apache.directory.server.core.DirectoryService;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import java.util.Properties;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Provides lifecycle services for the embedded apacheDS server defined by the supplied configuration.
@@ -49,18 +44,30 @@ import java.io.IOException;
 public class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
     private Log logger = LogFactory.getLog(getClass());
 
-    private MutableServerStartupConfiguration configuration;
+    DefaultDirectoryService service;
+    LdapServer server;
+
     private ApplicationContext ctxt;
     private File workingDir;
 
-    private ContextSource contextSource;
     private boolean running;
     private String ldifResources;
+    private JdbmPartition partition;
+    private String root;
+    private int port = 53389;
 
-    public ApacheDSContainer(MutableServerStartupConfiguration config, ContextSource contextSource, String ldifs) {
-        this.configuration = config;
-        this.contextSource = contextSource;
+    public ApacheDSContainer(String root, String ldifs) throws Exception {
         this.ldifResources = ldifs;
+        service = new DefaultDirectoryService();
+        partition =  new JdbmPartition();
+        partition.setId("rootPartition");
+        partition.setSuffix(root);
+        this.root = root;
+        service.addPartition(partition);
+        service.setExitVmOnShutdown(false);
+        service.setShutdownHookEnabled(false);
+        service.getChangeLog().setEnabled(false);
+        service.setDenormalizeOpAttrsEnabled(true);
     }
 
     public void afterPropertiesSet() throws Exception {
@@ -73,6 +80,10 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
             setWorkingDirectory(new File(apacheWorkDir));
         }
+
+        server = new LdapServer();
+        server.setDirectoryService(service);
+        server.setTransports(new TcpTransport(port));
         start();
     }
 
@@ -82,20 +93,6 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         ctxt = applicationContext;
-    }
-
-    private boolean deleteDir(File dir) {
-        if (dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i=0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-
-        return dir.delete();
     }
 
     public void setWorkingDirectory(File workingDir) {
@@ -112,35 +109,52 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
         this.workingDir = workingDir;
 
-        configuration.setWorkingDirectory(workingDir);
+        service.setWorkingDirectory(workingDir);
     }
 
-    @SuppressWarnings("unchecked")
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public DefaultDirectoryService getService() {
+        return service;
+    }
+
     public void start() {
         if (isRunning()) {
             return;
         }
 
-        DirectoryService ds = DirectoryService.getInstance(configuration.getInstanceId());
-
-        if (ds.isStarted()) {
-            throw new IllegalStateException("A DirectoryService with Id '" + configuration.getInstanceId() + "' is already running.");
+        if (service.isStarted()) {
+            throw new IllegalStateException("DirectoryService is already running.");
         }
 
-        logger.info("Starting directory server with Id '" + configuration.getInstanceId() + "'");
-        Properties env = new Properties();
-
-        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName());
-        env.setProperty(Context.SECURITY_AUTHENTICATION, "simple");
-        env.setProperty(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
-        env.setProperty(Context.SECURITY_CREDENTIALS, "secret");
-        env.putAll(configuration.toJndiEnvironment());
+        logger.info("Starting directory server...");
+        try {
+            service.startup();
+            server.start();
+        } catch (Exception e) {
+            logger.error("Server startup failed ", e);
+            return;
+        }
 
         try {
-            new InitialDirContext(env);
-        } catch (NamingException e) {
-            logger.error("Failed to start directory service", e);
-            return;
+            service.getAdminSession().lookup(partition.getSuffixDn());
+        }
+        catch (LdapNameNotFoundException e) {
+            try {
+                LdapDN dn = new LdapDN(root);
+                Assert.isTrue(root.startsWith("dc="));
+                String dc = root.substring(3,root.indexOf(','));
+                ServerEntry entry = service.newEntry(dn);
+                entry.add("objectClass", "top", "domain", "extensibleObject");
+                entry.add("dc",dc);
+                service.getAdminSession().add( entry );
+            } catch (Exception e1) {
+                logger.error("Failed to create dc entry", e1);
+            }
+        } catch (Exception e) {
+            logger.error("Lookup failed", e);
         }
 
         running = true;
@@ -152,7 +166,29 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
         }
     }
 
-    private void importLdifs() throws IOException, NamingException {
+    public void stop() {
+        if (!isRunning()) {
+            return;
+        }
+
+        logger.info("Shutting down directory server ...");
+        try {
+            server.stop();
+            service.shutdown();
+        } catch (Exception e) {
+            logger.error("Shutdown failed", e);
+            return;
+        }
+
+        running = false;
+
+        if (workingDir.exists()) {
+            logger.info("Deleting working directory " + workingDir.getAbsolutePath());
+            deleteDir(workingDir);
+        }
+    }
+
+    private void importLdifs() throws Exception {
         // Import any ldif files
         Resource[] ldifs;
 
@@ -166,51 +202,28 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
         // Note that we can't just import using the ServerContext returned
         // from starting Apace DS, apparently because of the long-running issue DIRSERVER-169.
         // We need a standard context.
-        DirContext dirContext = contextSource.getReadWriteContext();
+        //DirContext dirContext = contextSource.getReadWriteContext();
 
         if(ldifs != null && ldifs.length > 0) {
-            try {
-                String ldifFile = ldifs[0].getFile().getAbsolutePath();
-                logger.info("Loading LDIF file: " + ldifFile);
-                LdifFileLoader loader = new LdifFileLoader(dirContext, ldifFile);
-                loader.execute();
-            } finally {
-                dirContext.close();
+            String ldifFile = ldifs[0].getFile().getAbsolutePath();
+            logger.info("Loading LDIF file: " + ldifFile);
+            LdifFileLoader loader = new LdifFileLoader(service.getAdminSession(), ldifFile);
+            loader.execute();
+        }
+    }
+
+    private boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i=0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
             }
         }
 
-    }
-
-    @SuppressWarnings("unchecked")
-    public void stop() {
-        if (!isRunning()) {
-            return;
-        }
-
-        Properties env = new Properties();
-        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName());
-        env.setProperty(Context.SECURITY_AUTHENTICATION, "simple");
-        env.setProperty(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
-        env.setProperty(Context.SECURITY_CREDENTIALS, "secret");
-
-        ShutdownConfiguration shutdown = new ShutdownConfiguration(configuration.getInstanceId());
-        env.putAll(shutdown.toJndiEnvironment());
-
-        logger.info("Shutting down directory server with Id '" + configuration.getInstanceId() + "'");
-
-        try {
-            new InitialContext(env);
-        } catch (NamingException e) {
-            logger.error("Failed to shutdown directory server", e);
-            return;
-        }
-
-        running = false;
-
-        if (workingDir.exists()) {
-            logger.info("Deleting working directory " + workingDir.getAbsolutePath());
-            deleteDir(workingDir);
-        }
+        return dir.delete();
     }
 
     public boolean isRunning() {
