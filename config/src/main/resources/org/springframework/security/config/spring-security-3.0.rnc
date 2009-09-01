@@ -453,7 +453,11 @@ remember-me.attlist &=
 remember-me.attlist &=
     ## Exports the internally defined RememberMeServices as a bean alias, allowing it to be used by other beans in the application context.
     attribute services-alias {xsd:token}?    
-    
+
+remember-me.attlist &=
+    ## Determines whether the "secure" flag will be set on the remember-me cookie. If set to true, the cookie will only be submitted over HTTPS. Defaults to false.
+    attribute use-secure-cookie {boolean}?
+
 remember-me.attlist &=
     ## The period (in seconds) for which the remember-me cookie should be valid.
     attribute token-validity-seconds {xsd:integer}?

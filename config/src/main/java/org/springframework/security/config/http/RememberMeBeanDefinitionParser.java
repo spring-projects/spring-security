@@ -32,6 +32,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_TOKEN_REPOSITORY = "token-repository-ref";
     static final String ATT_USER_SERVICE_REF = "user-service-ref";
     static final String ATT_TOKEN_VALIDITY = "token-validity-seconds";
+    static final String ATT_SECURE_COOKIE = "use-secure-cookie";
 
     protected final Log logger = LogFactory.getLog(getClass());
     private String servicesName;
@@ -92,6 +93,10 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         if (services != null) {
             if (userServiceSet) {
                 services.getPropertyValues().addPropertyValue("userDetailsService", new RuntimeBeanReference(userServiceRef));
+            }
+
+            if ("true".equals(element.getAttribute(ATT_SECURE_COOKIE))) {
+                services.getPropertyValues().addPropertyValue("useSecureCookie", true);
             }
 
             if (tokenValiditySet) {

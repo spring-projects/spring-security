@@ -55,6 +55,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     private boolean alwaysRemember;
     private String key;
     private int tokenValiditySeconds = TWO_WEEKS_S;
+    private boolean useSecureCookie = false;
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key);
@@ -308,6 +309,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         Cookie cookie = new Cookie(cookieName, cookieValue);
         cookie.setMaxAge(maxAge);
         cookie.setPath(StringUtils.hasLength(request.getContextPath()) ? request.getContextPath() : "/");
+        cookie.setSecure(useSecureCookie);
         response.addCookie(cookie);
     }
 
@@ -372,6 +374,10 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
     protected int getTokenValiditySeconds() {
         return tokenValiditySeconds;
+    }
+
+    public void setUseSecureCookie(boolean useSecureCookie) {
+        this.useSecureCookie = useSecureCookie;
     }
 
     protected AuthenticationDetailsSource getAuthenticationDetailsSource() {

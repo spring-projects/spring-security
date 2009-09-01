@@ -226,7 +226,24 @@ public class AbstractRememberMeServicesTests {
         assertEquals("mycookie", cookie.getValue());
         assertEquals("mycookiename", cookie.getName());
         assertEquals("contextpath", cookie.getPath());
+        assertFalse(cookie.getSecure());
+    }
 
+    @Test
+    public void setCookieSetsSecureFlagIfConfigured() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        request.setContextPath("contextpath");
+
+        MockRememberMeServices services = new MockRememberMeServices() {
+            protected String encodeCookie(String[] cookieTokens) {
+                return cookieTokens[0];
+            }
+        };
+        services.setUseSecureCookie(true);
+        services.setCookie(new String[] {"mycookie"}, 1000, request, response);
+        Cookie cookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+        assertTrue(cookie.getSecure());
     }
 
     private Cookie[] createLoginCookie(String cookieToken) {

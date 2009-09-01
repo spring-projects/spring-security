@@ -544,6 +544,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         RememberMeServices rememberMeServices = getRememberMeServices();
 
         assertTrue(rememberMeServices instanceof PersistentTokenBasedRememberMeServices);
+        assertFalse((Boolean)FieldUtils.getFieldValue(getRememberMeServices(), "useSecureCookie"));
     }
 
     @Test
@@ -587,8 +588,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true'>" +
                 "    <remember-me key='ourkey' token-validity-seconds='10000' />" +
                 "</http>" + AUTH_PROVIDER_XML);
-        assertEquals(10000, FieldUtils.getFieldValue(getRememberMeServices(),
-                "tokenValiditySeconds"));
+        assertEquals(10000, FieldUtils.getFieldValue(getRememberMeServices(), "tokenValiditySeconds"));
     }
 
     @Test
@@ -597,8 +597,16 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true'>" +
                 "    <remember-me key='ourkey' token-validity-seconds='-1' />" +
                 "</http>" + AUTH_PROVIDER_XML);
-        assertEquals(-1, FieldUtils.getFieldValue(getRememberMeServices(),
-                "tokenValiditySeconds"));
+        assertEquals(-1, FieldUtils.getFieldValue(getRememberMeServices(), "tokenValiditySeconds"));
+    }
+
+    @Test
+    public void rememberMeSecureCookieAttributeIsSetCorrectly() throws Exception {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <remember-me key='ourkey' use-secure-cookie='true' />" +
+                "</http>" + AUTH_PROVIDER_XML);
+        assertTrue((Boolean)FieldUtils.getFieldValue(getRememberMeServices(), "useSecureCookie"));
     }
 
     @Test(expected=BeanDefinitionParsingException.class)
