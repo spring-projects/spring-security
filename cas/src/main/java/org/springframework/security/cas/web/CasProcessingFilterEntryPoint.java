@@ -45,8 +45,8 @@ import org.springframework.util.Assert;
  */
 public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
     //~ Instance fields ================================================================================================
-
     private ServiceProperties serviceProperties;
+
     private String loginUrl;
 
     /**
@@ -66,12 +66,11 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, 
         Assert.notNull(this.serviceProperties, "serviceProperties must be specified");
     }
 
-    public void commence(final HttpServletRequest servletRequest, final HttpServletResponse servletResponse,
+    public void commence(final HttpServletRequest servletRequest, final HttpServletResponse response,
             final AuthenticationException authenticationException) throws IOException, ServletException {
 
-        final HttpServletResponse response = (HttpServletResponse) servletResponse;
-        final String urlEncodedService = CommonUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null, "ticket", this.encodeServiceUrlWithSessionId);
-        final String redirectUrl = CommonUtils.constructRedirectUrl(this.loginUrl, "service", urlEncodedService, this.serviceProperties.isSendRenew(), false);
+        final String urlEncodedService = CommonUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null, this.serviceProperties.getArtifactParameter(), this.encodeServiceUrlWithSessionId);
+        final String redirectUrl = CommonUtils.constructRedirectUrl(this.loginUrl, this.serviceProperties.getServiceParameter(), urlEncodedService, this.serviceProperties.isSendRenew(), false);
 
         response.sendRedirect(redirectUrl);
     }

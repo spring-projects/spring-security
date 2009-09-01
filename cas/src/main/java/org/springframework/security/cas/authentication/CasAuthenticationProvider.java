@@ -31,9 +31,7 @@ import org.springframework.security.cas.web.CasProcessingFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsChecker;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.util.Assert;
 
 
@@ -47,13 +45,15 @@ import org.springframework.util.Assert;
  * It can also validate a previously created {@link CasAuthenticationToken}.
  *
  * @author Ben Alex
+ * @author Scott Battaglia
  * @version $Id$
  */
 public class CasAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
 
     //~ Instance fields ================================================================================================
 
-    private UserDetailsService userDetailsService;
+    private AuthenticationUserDetailsService authenticationUserDetailsService;
+
     private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private StatelessTicketCache statelessTicketCache = new NullStatelessTicketCache();
@@ -64,7 +64,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.userDetailsService, "A userDetailsService must be set");
+        Assert.notNull(this.authenticationUserDetailsService, "An authenticationUserDetailsService must be set");
         Assert.notNull(this.ticketValidator, "A ticketValidator must be set");
         Assert.notNull(this.statelessTicketCache, "A statelessTicketCache must be set");
         Assert.hasText(this.key, "A Key is required so CasAuthenticationProvider can identify tokens it previously authenticated");
@@ -127,7 +127,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         return result;
     }
 
-    private final CasAuthenticationToken authenticateNow(final Authentication authentication) throws AuthenticationException {
+    private CasAuthenticationToken authenticateNow(final Authentication authentication) throws AuthenticationException {
         try {
             final Assertion assertion = this.ticketValidator.validate(authentication.getCredentials().toString(), serviceProperties.getService());
             final UserDetails userDetails = loadUserByAssertion(assertion);
@@ -143,18 +143,23 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
      * can override this method and retrieve the user based on any criteria they desire.
      *
      * @param assertion The CAS Assertion.
-     * @returns the UserDetails.
+     * @return the UserDetails.
      */
     protected UserDetails loadUserByAssertion(final Assertion assertion) {
-        return this.userDetailsService.loadUserByUsername(assertion.getPrincipal().getName());
+        final CasAssertionAuthenticationToken token = new CasAssertionAuthenticationToken(assertion, "");
+        return this.authenticationUserDetailsService.loadUserDetails(token);
     }
 
-    protected UserDetailsService getUserDetailsService() {
-        return userDetailsService;
-    }
-
+    @Deprecated
+    /**
+     * @deprecated as of 3.0.  Use the {@link org.springframework.security.cas.authentication.CasAuthenticationProvider#setAuthenticationUserDetailsService(org.springframework.security.core.userdetails.AuthenticationUserDetailsService)} instead.
+     */
     public void setUserDetailsService(final UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+        this.authenticationUserDetailsService = new UserDetailsByNameServiceWrapper(userDetailsService);
+    }
+
+    public void setAuthenticationUserDetailsService(final AuthenticationUserDetailsService authenticationUserDetailsService) {
+        this.authenticationUserDetailsService = authenticationUserDetailsService;
     }
 
     public void setServiceProperties(final ServiceProperties serviceProperties) {

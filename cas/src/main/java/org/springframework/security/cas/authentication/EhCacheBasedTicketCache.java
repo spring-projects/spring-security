@@ -51,23 +51,18 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
         Assert.notNull(cache, "cache mandatory");
     }
 
-    public CasAuthenticationToken getByTicketId(String serviceTicket) {
-        Element element = null;
-
+    public CasAuthenticationToken getByTicketId(final String serviceTicket) {
         try {
-            element = cache.get(serviceTicket);
+            final Element element = cache.get(serviceTicket);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Cache hit: " + (element != null) + "; service ticket: " + serviceTicket);
+            }
+
+            return element == null ? null : (CasAuthenticationToken) element.getValue();
+
         } catch (CacheException cacheException) {
             throw new DataRetrievalFailureException("Cache failure: " + cacheException.getMessage());
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Cache hit: " + (element != null) + "; service ticket: " + serviceTicket);
-        }
-
-        if (element == null) {
-            return null;
-        } else {
-            return (CasAuthenticationToken) element.getValue();
         }
     }
 
@@ -75,8 +70,8 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
         return cache;
     }
 
-    public void putTicketInCache(CasAuthenticationToken token) {
-        Element element = new Element(token.getCredentials().toString(), token);
+    public void putTicketInCache(final CasAuthenticationToken token) {
+        final Element element = new Element(token.getCredentials().toString(), token);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Cache put: " + element.getKey());
@@ -85,7 +80,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
         cache.put(element);
     }
 
-    public void removeTicketFromCache(CasAuthenticationToken token) {
+    public void removeTicketFromCache(final CasAuthenticationToken token) {
         if (logger.isDebugEnabled()) {
             logger.debug("Cache remove: " + token.getCredentials().toString());
         }
@@ -93,11 +88,11 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
         this.removeTicketFromCache(token.getCredentials().toString());
     }
 
-    public void removeTicketFromCache(String serviceTicket) {
+    public void removeTicketFromCache(final String serviceTicket) {
         cache.remove(serviceTicket);
     }
 
-    public void setCache(Ehcache cache) {
+    public void setCache(final Ehcache cache) {
         this.cache = cache;
     }
 }

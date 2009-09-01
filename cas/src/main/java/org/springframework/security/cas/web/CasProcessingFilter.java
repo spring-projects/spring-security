@@ -79,6 +79,8 @@ public class CasProcessingFilter extends AbstractAuthenticationProcessingFilter 
      */
     private ProxyGrantingTicketStorage proxyGrantingTicketStorage;
 
+    private String artifactParameter = ServiceProperties.DEFAULT_CAS_ARTIFACT_PARAMETER;
+
     //~ Constructors ===================================================================================================
 
     public CasProcessingFilter() {
@@ -87,16 +89,16 @@ public class CasProcessingFilter extends AbstractAuthenticationProcessingFilter 
 
     //~ Methods ========================================================================================================
 
-    public Authentication attemptAuthentication(final HttpServletRequest request, HttpServletResponse response)
+    public Authentication attemptAuthentication(final HttpServletRequest request, final HttpServletResponse response)
             throws AuthenticationException {
         final String username = CAS_STATEFUL_IDENTIFIER;
-        String password = request.getParameter("ticket");
+        String password = request.getParameter(this.artifactParameter);
 
         if (password == null) {
             password = "";
         }
 
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+        final UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
 
         authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
 
@@ -128,5 +130,9 @@ public class CasProcessingFilter extends AbstractAuthenticationProcessingFilter 
     public final void setProxyGrantingTicketStorage(
             final ProxyGrantingTicketStorage proxyGrantingTicketStorage) {
         this.proxyGrantingTicketStorage = proxyGrantingTicketStorage;
+    }
+
+    public final void setServiceProperties(final ServiceProperties serviceProperties) {
+        this.artifactParameter = serviceProperties.getArtifactParameter();
     }
 }

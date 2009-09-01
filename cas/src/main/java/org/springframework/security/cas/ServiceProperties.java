@@ -30,15 +30,27 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class ServiceProperties implements InitializingBean {
+
+    public static final String DEFAULT_CAS_ARTIFACT_PARAMETER = "ticket";
+
+    public static final String DEFAULT_CAS_SERVICE_PARAMETER = "service";
+
     //~ Instance fields ================================================================================================
 
     private String service;
+
     private boolean sendRenew = false;
+
+    private String artifactParameter = DEFAULT_CAS_ARTIFACT_PARAMETER;
+
+    private String serviceParameter = DEFAULT_CAS_SERVICE_PARAMETER;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(this.service, "service must be specified.");
+        Assert.hasLength(this.artifactParameter, "artifactParameter cannot be empty.");
+        Assert.hasLength(this.serviceParameter, "serviceParameter cannot be empty.");
     }
 
     /**
@@ -52,8 +64,8 @@ public class ServiceProperties implements InitializingBean {
      *
      * @return the URL of the service the user is authenticating to
      */
-    public String getService() {
-        return service;
+    public final String getService() {
+        return this.service;
     }
 
     /**
@@ -67,15 +79,41 @@ public class ServiceProperties implements InitializingBean {
      *
      * @return whether to send the <code>renew</code> parameter to CAS
      */
-    public boolean isSendRenew() {
-        return sendRenew;
+    public final boolean isSendRenew() {
+        return this.sendRenew;
     }
 
-    public void setSendRenew(boolean sendRenew) {
+    public final void setSendRenew(final boolean sendRenew) {
         this.sendRenew = sendRenew;
     }
 
-    public void setService(String service) {
+    public final void setService(final String service) {
         this.service = service;
+    }
+
+    public final String getArtifactParameter() {
+        return this.artifactParameter;
+    }
+
+    /**
+     * Configures the Request Parameter to look for when attempting to see if a CAS ticket was sent from the server.
+     *
+     * @param artifactParameter the id to use.  Default is "ticket".
+     */
+    public final void setArtifactParameter(final String artifactParameter) {
+        this.artifactParameter = artifactParameter;
+    }
+
+    /**
+     * Configures the Request parameter to look for when attempting to send a request to CAS.
+     *
+     * @return the service parameter to use.  Default is "service".
+     */
+    public final String getServiceParameter() {
+        return serviceParameter;
+    }
+
+    public final void setServiceParameter(final String serviceParameter) {
+        this.serviceParameter = serviceParameter;
     }
 }
