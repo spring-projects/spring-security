@@ -4,7 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 
 /**
  * Allows pluggable support for HttpSession-related behaviour when an authentication occurs.
