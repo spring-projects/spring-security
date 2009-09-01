@@ -76,14 +76,7 @@ public final class UrlUtils {
     public static String buildRequestUrl(String servletPath, String requestURI, String contextPath, String pathInfo,
         String queryString) {
 
-        String uri = servletPath;
-
-        if (uri == null) {
-            uri = requestURI;
-            uri = uri.substring(contextPath.length());
-        }
-
-        return uri + ((pathInfo == null) ? "" : pathInfo) + ((queryString == null) ? "" : ("?" + queryString));
+        return servletPath + ((pathInfo == null) ? "" : pathInfo) + ((queryString == null) ? "" : ("?" + queryString));
     }
 
     /**
