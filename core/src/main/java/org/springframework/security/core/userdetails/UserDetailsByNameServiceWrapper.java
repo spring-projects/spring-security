@@ -11,10 +11,29 @@ import org.springframework.util.Assert;
  * based on the user name contained in an <tt>Authentication</tt> object.
  *
  * @author Ruud Senden
+ * @author Scott Battaglia
  * @since 2.0
  */
 public class UserDetailsByNameServiceWrapper implements AuthenticationUserDetailsService, InitializingBean {
     private UserDetailsService userDetailsService = null;
+
+    /**
+     * Constructs an empty wrapper for compatibility with Spring Security 2.0.x's method of using a setter.
+     */
+    public UserDetailsByNameServiceWrapper() {
+        // constructor for backwards compatibility with 2.0
+    }
+
+    /**
+     * Constructs a new wrapper using the supplied {@link org.springframework.security.core.userdetails.UserDetailsService}
+     * as the service to delegate to.
+     *
+     * @param userDetailsService the UserDetailsService to delegate to.
+     */
+    public UserDetailsByNameServiceWrapper(final UserDetailsService userDetailsService) {
+        Assert.notNull(userDetailsService, "userDetailsService cannot be null.");
+        this.userDetailsService = userDetailsService;
+    }
 
     /**
      * Check whether all required properties have been set.
@@ -22,7 +41,7 @@ public class UserDetailsByNameServiceWrapper implements AuthenticationUserDetail
      * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
      */
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(userDetailsService, "UserDetailsService must be set");
+        Assert.notNull(this.userDetailsService, "UserDetailsService must be set");
     }
 
     /**
@@ -31,7 +50,7 @@ public class UserDetailsByNameServiceWrapper implements AuthenticationUserDetail
      */
     public UserDetails loadUserDetails(Authentication authentication) throws UsernameNotFoundException,
             DataAccessException {
-        return userDetailsService.loadUserByUsername(authentication.getName());
+        return this.userDetailsService.loadUserByUsername(authentication.getName());
     }
 
     /**
@@ -41,6 +60,6 @@ public class UserDetailsByNameServiceWrapper implements AuthenticationUserDetail
      *            The wrapped UserDetailsService to set
      */
     public void setUserDetailsService(UserDetailsService aUserDetailsService) {
-        userDetailsService = aUserDetailsService;
+        this.userDetailsService = aUserDetailsService;
     }
 }
