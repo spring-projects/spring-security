@@ -8,6 +8,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
@@ -50,6 +51,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
     private boolean continueFilterChainOnUnsuccessfulAuthentication = true;
 
     private boolean checkForPrincipalChanges;
+
+    private boolean invalidateSessionOnPrincipalChange = true;
 
     /**
      * Check whether all required properties have been set.
@@ -123,6 +126,15 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
                 !currentUser.getName().equals(principal)) {
             logger.debug("Pre-authenticated principal has changed to " + principal + " and will be reauthenticated");
 
+            if (invalidateSessionOnPrincipalChange) {
+                HttpSession session = request.getSession(false);
+
+                if (session != null) {
+                    logger.debug("Invalidating existing session");
+                    session.invalidate();
+                }
+            }
+
             return true;
         }
 
@@ -195,6 +207,16 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
      */
     public void setCheckForPrincipalChanges(boolean checkForPrincipalChanges) {
         this.checkForPrincipalChanges = checkForPrincipalChanges;
+    }
+
+    /**
+     * If <tt>checkForPrincipalChanges</tt> is set, and a change of principal is detected, determines whether
+     * any existing session should be invalidated before proceeding to authenticate the new principal.
+     *
+     * @param invalidateSessionOnPrincipalChange <tt>false</tt> to retain the existing session. Defaults to <tt>true</tt>.
+     */
+    public void setInvalidateSessionOnPrincipalChange(boolean invalidateSessionOnPrincipalChange) {
+        this.invalidateSessionOnPrincipalChange = invalidateSessionOnPrincipalChange;
     }
 
     /**
