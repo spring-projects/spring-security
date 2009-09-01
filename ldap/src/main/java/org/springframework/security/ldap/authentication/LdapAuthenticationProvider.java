@@ -33,7 +33,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyException;
@@ -166,7 +165,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
      */
     public LdapAuthenticationProvider(LdapAuthenticator authenticator) {
         this.setAuthenticator(authenticator);
-        this.setAuthoritiesPopulator(new NullAuthoritiesPopulator());
+        this.setAuthoritiesPopulator(new NullLdapAuthoritiesPopulator());
     }
 
     //~ Methods ========================================================================================================
@@ -297,14 +296,6 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
 
     public boolean supports(Class<? extends Object> authentication) {
         return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    private static class NullAuthoritiesPopulator implements LdapAuthoritiesPopulator {
-        public List<GrantedAuthority> getGrantedAuthorities(DirContextOperations userDetails, String username) {
-            return AuthorityUtils.NO_AUTHORITIES;
-        }
     }
 }
 

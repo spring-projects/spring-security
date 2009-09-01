@@ -4,6 +4,7 @@ import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.ldap.authentication.NullLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.util.Assert;
 
@@ -19,6 +20,10 @@ public class LdapUserDetailsService implements UserDetailsService {
     private LdapUserSearch userSearch;
     private LdapAuthoritiesPopulator authoritiesPopulator;
     private UserDetailsContextMapper userDetailsMapper = new LdapUserDetailsMapper();
+
+    public LdapUserDetailsService(LdapUserSearch userSearch) {
+        this(userSearch, new NullLdapAuthoritiesPopulator());
+    }
 
     public LdapUserDetailsService(LdapUserSearch userSearch, LdapAuthoritiesPopulator authoritiesPopulator) {
         Assert.notNull(userSearch, "userSearch must not be null");
