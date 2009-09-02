@@ -35,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
@@ -294,6 +295,26 @@ public class DigestProcessingFilterTests {
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(USERNAME,
                 ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+        assertFalse(SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
+    }
+    
+    @Test
+    public void testNormalOperationWhenPasswordNotAlreadyEncodedAndWithoutReAuthentication() throws Exception {
+        String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
+                REQUEST_URI, QOP, NONCE, NC, CNONCE);
+
+        request.addHeader("Authorization",
+                createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI, responseDigest, QOP, NC, CNONCE));
+
+        filter.setCreateAuthenticatedToken(true);
+        executeFilterInContainerSimulator(filter, request, true);
+
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+        assertEquals(USERNAME,
+                ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+        assertTrue(SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
+        assertEquals(AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO"), 
+        		SecurityContextHolder.getContext().getAuthentication().getAuthorities());
     }
 
     @Test

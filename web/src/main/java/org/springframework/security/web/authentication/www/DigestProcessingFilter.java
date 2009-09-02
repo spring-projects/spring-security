@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 2009 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,10 +90,13 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
     private UserCache userCache = new NullUserCache();
     private UserDetailsService userDetailsService;
     private boolean passwordAlreadyEncoded = false;
+    private boolean createAuthenticatedToken = false;
 
     //~ Methods ========================================================================================================
 
-    @Override
+
+
+	@Override
     public void afterPropertiesSet() {
         Assert.notNull(userDetailsService, "A UserDetailsService is required");
         Assert.notNull(authenticationEntryPoint, "A DigestProcessingFilterEntryPoint is required");
@@ -300,8 +303,14 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
                         + "'");
             }
 
-            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(user,
-                    user.getPassword());
+            UsernamePasswordAuthenticationToken authRequest;
+            if (createAuthenticatedToken) {
+            	   authRequest = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+            }
+            else
+            {
+            	authRequest = new UsernamePasswordAuthenticationToken(user, user.getPassword());
+            }
 
             authRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
 
@@ -358,4 +367,23 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
+    
+    
+    /** 
+     * If you set this property, the Authentication object, which is
+     * created after the successful digest authentication will be marked
+     * as <b>authenticated</b> and filled with the authorities loaded by 
+     * the UserDetailsService. It therefore will not be re-authenticated
+     * by your AuthenticationProvider. This means, that only the password
+     * of the user is checked, but not the flags like isEnabled() or
+     * isAccountNonExpired(). You will save some time by enabling this flag, 
+     * as otherwise your UserDetailsService will be called twice. A more secure
+     * option would be to introduce a cache around your UserDetailsService, but
+     * if you don't use these flags, you can also safely enable this option.
+     * 
+     * @param createAuthenticatedToken default is false
+     */
+    public void setCreateAuthenticatedToken(boolean createAuthenticatedToken) {
+		this.createAuthenticatedToken = createAuthenticatedToken;
+	}
 }
