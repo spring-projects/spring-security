@@ -26,6 +26,5 @@ Import-Template:
  javax.annotation.security.*;version="0";resolution:=optional,
  javax.crypto.*;version="0";resolution:=optional,
  javax.security.auth.*;version="0";resolution:=optional,
- javax.naming.*;version="0";resolution:=optional,
- javax.naming.directory.*;version="0";resolution:=optional
+ javax.naming.*;version="0";resolution:=optional
  
