@@ -19,21 +19,22 @@ package org.springframework.security.remoting.dns;
 import org.springframework.dao.DataAccessException;
 
 /**
- * This will be thrown for unknown DNS errors
+ * This will be thrown for unknown DNS errors.
+ *
  * @author Mike Wiesner
  * @since 3.0
  * @version $Id$
  */
 public class DnsLookupException extends DataAccessException {
 
-	private static final long serialVersionUID = -7538424279394361310L;
+    private static final long serialVersionUID = -7538424279394361310L;
 
-	public DnsLookupException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+    public DnsLookupException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 
-	public DnsLookupException(String msg) {
-		super(msg);
-	}
+    public DnsLookupException(String msg) {
+        super(msg);
+    }
 
 }

@@ -22,7 +22,7 @@ import javax.naming.directory.InitialDirContext;
 
 /**
  * This is used in JndiDnsResolver to get an InitialDirContext for DNS queries.
- * 
+ *
  * @author Mike Wiesner
  * @since 3.0
  * @version $Id$
@@ -32,11 +32,11 @@ import javax.naming.directory.InitialDirContext;
  */
 public interface InitialContextFactory {
 
-	
-	/** 
-	 * Must return a DirContext which can be used for DNS queries
-	 * @return JNDI DirContext
-	 */
-	public DirContext getCtx();
+
+    /**
+     * Must return a DirContext which can be used for DNS queries
+     * @return JNDI DirContext
+     */
+    public DirContext getCtx();
 
 }
