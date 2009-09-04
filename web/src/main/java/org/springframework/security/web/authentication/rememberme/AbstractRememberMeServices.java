@@ -87,30 +87,25 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
             String[] cookieTokens = decodeCookie(rememberMeCookie);
             user = processAutoLoginCookie(cookieTokens, request, response);
             userDetailsChecker.check(user);
+
+            logger.debug("Remember-me cookie accepted");
+
+            return createSuccessfulAuthentication(request, user);
         } catch (CookieTheftException cte) {
             cancelCookie(request, response);
             throw cte;
         } catch (UsernameNotFoundException noUser) {
-            cancelCookie(request, response);
             logger.debug("Remember-me login was valid but corresponding user not found.", noUser);
-            return null;
         } catch (InvalidCookieException invalidCookie) {
-            cancelCookie(request, response);
             logger.debug("Invalid remember-me cookie: " + invalidCookie.getMessage());
-            return null;
         } catch (AccountStatusException statusInvalid) {
-            cancelCookie(request, response);
             logger.debug("Invalid UserDetails: " + statusInvalid.getMessage());
-            return null;
         } catch (RememberMeAuthenticationException e) {
-            cancelCookie(request, response);
             logger.debug(e.getMessage());
-            return null;
         }
 
-        logger.debug("Remember-me cookie accepted");
-
-        return createSuccessfulAuthentication(request, user);
+        cancelCookie(request, response);
+        return null;
     }
 
     /**
