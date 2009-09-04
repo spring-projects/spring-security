@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.aop.Advisor;
+import org.springframework.aop.framework.Advised;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.ApplicationContext;
@@ -46,7 +48,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     public void loadContext() {
         setContext(
                 "<b:bean id='target' class='org.springframework.security.access.annotation.BusinessServiceImpl'/>" +
-                "<global-method-security>" +
+                "<global-method-security order='1001'>" +
                 "    <protect-pointcut expression='execution(* *.someUser*(..))' access='ROLE_USER'/>" +
                 "    <protect-pointcut expression='execution(* *.someAdmin*(..))' access='ROLE_ADMIN'/>" +
                 "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML
@@ -67,6 +69,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     @Test(expected=AuthenticationCredentialsNotFoundException.class)
     public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
         loadContext();
+
         target.someUserMethod1();
     }
 
@@ -77,6 +80,11 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         SecurityContextHolder.getContext().setAuthentication(token);
 
         target.someUserMethod1();
+
+        // SEC-1213. Check the order
+        Advisor[] advisors = ((Advised)target).getAdvisors();
+        assertEquals(1, advisors.length);
+        assertEquals(1001, ((MethodSecurityMetadataSourceAdvisor)advisors[0]).getOrder());
     }
 
     @Test(expected=AccessDeniedException.class)

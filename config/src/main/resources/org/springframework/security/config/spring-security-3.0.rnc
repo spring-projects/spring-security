@@ -203,6 +203,9 @@ global-method-security.attlist &=
 global-method-security.attlist &=
     ## Optional RunAsmanager implementation which will be used by the configured MethodSecurityInterceptor
     attribute run-as-manager-ref {xsd:token}?
+global-method-security.attlist &=
+    ## Allows the advice "order" to be set for the method security interceptor.
+    attribute order {xsd:token}?
     
 after-invocation-provider =
     ## Allows addition of extra AfterInvocationProvider beans which should be called by the MethodSecurityInterceptor created by global-method-security.

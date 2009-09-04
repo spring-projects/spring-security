@@ -75,8 +75,9 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
     private static final String ATT_USE_SECURED = "secured-annotations";
     private static final String ATT_USE_PREPOST = "pre-post-annotations";
     private static final String ATT_REF = "ref";
+    private static final String ATT_ADVICE_ORDER = "order";
 
-    @SuppressWarnings("unchecked")
+ //   @SuppressWarnings("unchecked")
     public BeanDefinition parse(Element element, ParserContext pc) {
         CompositeComponentDefinition compositeDef =
             new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element));
@@ -84,7 +85,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
         Object source = pc.extractSource(element);
         // The list of method metadata delegates
-        ManagedList delegates = new ManagedList();
+        ManagedList<BeanMetadataElement> delegates = new ManagedList<BeanMetadataElement>();
 
         boolean jsr250Enabled = "enabled".equals(element.getAttribute(ATT_USE_JSR250));
         boolean useSecured = "enabled".equals(element.getAttribute(ATT_USE_SECURED));
@@ -165,9 +166,12 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
         if (pointcutMap.size() > 0) {
             // Only add it if there are actually any pointcuts defined.
-            MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource = new MapBasedMethodSecurityMetadataSource();
-            delegates.add(mapBasedMethodSecurityMetadataSource);
-            registerProtectPointcutPostProcessor(pc, pointcutMap, mapBasedMethodSecurityMetadataSource, source);
+            BeanDefinition mapBasedMetadataSource = new RootBeanDefinition(MapBasedMethodSecurityMetadataSource.class);
+            BeanReference ref = new RuntimeBeanReference(pc.getReaderContext().registerWithGeneratedName(mapBasedMetadataSource));
+
+            delegates.add(ref);
+            pc.registerBeanComponent(new BeanComponentDefinition(mapBasedMetadataSource, ref.getBeanName()));
+            registerProtectPointcutPostProcessor(pc, pointcutMap, ref, source);
         }
 
         BeanReference metadataSource = registerDelegatingMethodSecurityMetadataSource(pc, delegates, source);
@@ -190,10 +194,11 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         BeanReference interceptor = registerMethodSecurityInterceptor(pc, accessManagerId, runAsManagerId,
                 metadataSource, afterInvocationProviders, source);
 
-        registerAdvisor(pc, interceptor, metadataSource, source);
+        registerAdvisor(pc, interceptor, metadataSource, source, element.getAttribute(ATT_ADVICE_ORDER));
 
         AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(pc, element);
         pc.popAndRegisterContainingComponent();
+
         return null;
     }
 
@@ -241,7 +246,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
     private void registerProtectPointcutPostProcessor(ParserContext parserContext,
             Map<String, List<ConfigAttribute>> pointcutMap,
-            MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource, Object source) {
+            BeanReference mapBasedMethodSecurityMetadataSource, Object source) {
         RootBeanDefinition ppbp = new RootBeanDefinition(ProtectPointcutPostProcessor.class);
         ppbp.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         ppbp.setSource(source);
@@ -304,11 +309,16 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         return new RuntimeBeanReference(id);
     }
 
-    private void registerAdvisor(ParserContext parserContext, BeanReference interceptor, BeanReference metadataSource, Object source) {
+    private void registerAdvisor(ParserContext parserContext, BeanReference interceptor, BeanReference metadataSource, Object source, String adviceOrder) {
         if (parserContext.getRegistry().containsBeanDefinition(BeanIds.METHOD_SECURITY_METADATA_SOURCE_ADVISOR)) {
             parserContext.getReaderContext().error("Duplicate <global-method-security> detected.", source);
         }
         RootBeanDefinition advisor = new RootBeanDefinition(MethodSecurityMetadataSourceAdvisor.class);
+
+        if (StringUtils.hasText(adviceOrder)) {
+            advisor.getPropertyValues().addPropertyValue("order", adviceOrder);
+        }
+
         // advisor must be an infrastructure bean as Spring's InfrastructureAdvisorAutoProxyCreator will ignore it
         // otherwise
         advisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);

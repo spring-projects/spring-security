@@ -672,6 +672,12 @@
                configured MethodSecurityInterceptor</xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="order" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Allows the advice "order" to be set for the method security
+               interceptor.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
    </xs:attributeGroup>
    <xs:element name="custom-after-invocation-provider">
       <xs:annotation>
