@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+    <!--
+        AspectJ load-time weaving config file to install common Spring
+        aspects.
+    -->
+<aspectj>
+
+    <!--
+  <weaver options="-showWeaveInfo"/>
+  -->
+
+    <aspects>
+        <aspect
+            name="org.springframework.security.access.intercept.aspectj.aspect.AnnotationSecurityAspect" />
+    </aspects>
+
+</aspectj>

@@ -17,7 +17,8 @@
         <module>openid</module>
         <module>ldap</module>
         <module>portlet</module>
-        <module>cas</module>        
+        <module>cas</module>   
+     	<module>aspectj</module>
     </modules>
     <dependencies>
         <dependency>
