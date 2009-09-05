@@ -89,6 +89,16 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         </sec:filter-chain-map>
     </bean>
 
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+
+    <bean id="sec1235FilterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+        <sec:filter-chain-map path-type="ant">
+        <sec:filter-chain pattern="${sec1235.pattern1}*" filters="sif,apf,mockFilter"/>
+        <sec:filter-chain pattern="${sec1235.pattern2}" filters="mockFilter2"/>
+        <sec:filter-chain pattern="/**" filters="sif"/>
+        </sec:filter-chain-map>
+    </bean>
+
     <bean id="newFilterChainProxyNonNamespace" class="org.springframework.security.web.FilterChainProxy">
         <property name="matcher">
             <bean class="org.springframework.security.web.util.AntUrlPathMatcher"/>

@@ -17,8 +17,7 @@ package org.springframework.security.config;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 
@@ -53,6 +52,8 @@ public class FilterChainProxyConfigTests {
 
     @Before
     public void loadContext() {
+        System.setProperty("sec1235.pattern1", "/login");
+        System.setProperty("sec1235.pattern2", "/logout");
         appCtx = new ClassPathXmlApplicationContext("org/springframework/security/util/filtertest-valid.xml");
     }
 
@@ -111,6 +112,17 @@ public class FilterChainProxyConfigTests {
         assertEquals(2, filterChainProxy.getFilters(url).size());
         filterChainProxy.setStripQueryStringFromUrls(false);
         assertNull(filterChainProxy.getFilters(url));
+    }
+
+    // SEC-1235
+    @Test
+    public void mixingPatternsAndPlaceholdersDoesntCauseOrderingIssues() throws Exception {
+        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("sec1235FilterChainProxy", FilterChainProxy.class);
+
+        String[] paths = filterChainProxy.getFilterChainMap().keySet().toArray(new String[0]);
+        assertEquals("/login*", paths[0]);
+        assertEquals("/logout", paths[1]);
+        assertEquals("/**", paths[2]);
     }
 
     private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) throws Exception {
