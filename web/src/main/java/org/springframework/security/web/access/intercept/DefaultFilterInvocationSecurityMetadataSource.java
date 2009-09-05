@@ -180,28 +180,35 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
         }
 
         // Obtain the map of request patterns to attributes for this method and lookup the url.
-        Map<Object, List<ConfigAttribute>> requestMap = httpMethodMap.get(method);
+        List<ConfigAttribute> attributes = extractMatchingAttributes(url, httpMethodMap.get(method));
 
-        // If no method-specific map, use the general one stored under the null key
-        if (requestMap == null) {
-            requestMap = httpMethodMap.get(null);
+        // If no attributes found in method-specific map, use the general one stored under the null key
+        if (attributes == null) {
+            attributes = extractMatchingAttributes(url, httpMethodMap.get(null));
         }
 
-        if (requestMap != null) {
-            for (Map.Entry<Object, List<ConfigAttribute>> entry : requestMap.entrySet()) {
-                Object p = entry.getKey();
-                boolean matched = urlMatcher.pathMatchesUrl(entry.getKey(), url);
+        return attributes;
+    }
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Candidate is: '" + url + "'; pattern is " + p + "; matched=" + matched);
-                }
+    private List<ConfigAttribute> extractMatchingAttributes(String url, Map<Object, List<ConfigAttribute>> requestMap) {
+        if (requestMap == null) {
+            return null;
+        }
 
-                if (matched) {
-                    return entry.getValue();
-                }
+        final boolean debug = logger.isDebugEnabled();
+
+        for (Map.Entry<Object, List<ConfigAttribute>> entry : requestMap.entrySet()) {
+            Object p = entry.getKey();
+            boolean matched = urlMatcher.pathMatchesUrl(entry.getKey(), url);
+
+            if (debug) {
+                logger.debug("Candidate is: '" + url + "'; pattern is " + p + "; matched=" + matched);
+            }
+
+            if (matched) {
+                return entry.getValue();
             }
         }
-
         return null;
     }
 

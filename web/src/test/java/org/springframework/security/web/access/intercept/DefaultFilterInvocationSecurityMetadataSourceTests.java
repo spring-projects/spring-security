@@ -165,6 +165,21 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
         assertEquals(postOnlyDef, attrs);
     }
 
+    // SEC-1236
+    @Test
+    public void mixingPatternsWithAndWithoutHttpMethodsIsSupported() throws Exception {
+        LinkedHashMap requestMap = new LinkedHashMap();
+        List<ConfigAttribute> userAttrs = SecurityConfig.createList("A");
+        requestMap.put(new RequestKey("/user/**", null), userAttrs);
+        requestMap.put(new RequestKey("/teller/**", "GET"), SecurityConfig.createList("B"));
+        fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
+        fids.setStripQueryStringFromUrls(true);
+
+        FilterInvocation fi = createFilterInvocation("/user", "GET");
+        List<ConfigAttribute> attrs = fids.getAttributes(fi);
+        assertEquals(userAttrs, attrs);
+    }
+
     /**
      * Check fixes for SEC-321
      */
