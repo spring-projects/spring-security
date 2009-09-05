@@ -21,6 +21,7 @@ import org.springframework.util.ClassUtils;
 public class PythonInterpreterPreInvocationAdvice implements PreInvocationAuthorizationAdvice{
     private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
+    @SuppressWarnings("deprecation")
     public boolean before(Authentication authentication, MethodInvocation mi, PreInvocationAttribute preAttr) {
         PythonInterpreterPreInvocationAttribute pythonAttr = (PythonInterpreterPreInvocationAttribute) preAttr;
         String script = pythonAttr.getScript();

@@ -17,13 +17,14 @@ import java.util.ArrayList;
  * value then its not added.
  *
  * @author Scott Battaglia
- * @version $Revision$ $Date$
+ * @version $Id$
  * @since 3.0
  */
 public final class GrantedAuthorityFromAssertionAttributesUserDetailsService extends AbstractCasAssertionUserDetailsService implements InitializingBean {
 
     private String[] attributes;
 
+    @SuppressWarnings("unchecked")
     @Override
     protected UserDetails loadUserDetails(final Assertion assertion) {
         final List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();

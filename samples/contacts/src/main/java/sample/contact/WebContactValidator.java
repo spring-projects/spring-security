@@ -28,6 +28,7 @@ import org.springframework.validation.Validator;
 public class WebContactValidator implements Validator {
     //~ Methods ========================================================================================================
 
+    @SuppressWarnings("unchecked")
     public boolean supports(Class clazz) {
         return clazz.equals(WebContact.class);
     }

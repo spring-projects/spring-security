@@ -30,6 +30,7 @@ import org.springframework.validation.Validator;
 public class AddPermissionValidator implements Validator {
     //~ Methods ========================================================================================================
 
+    @SuppressWarnings("unchecked")
     public boolean supports(Class clazz) {
         return clazz.equals(AddPermission.class);
     }

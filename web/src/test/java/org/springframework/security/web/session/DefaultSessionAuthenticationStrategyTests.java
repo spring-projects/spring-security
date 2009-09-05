@@ -9,7 +9,6 @@ import javax.servlet.http.HttpSession;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.authentication.concurrent.SessionRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
@@ -30,17 +29,16 @@ public class DefaultSessionAuthenticationStrategyTests {
         assertNull(request.getSession(false));
     }
 
-//    @Test
-//    public void newSessionIsCreatedIfSessionAlreadyExists() throws Exception {
-//        DefaultSessionAuthenticationStrategy strategy = new DefaultSessionAuthenticationStrategy();
-//        strategy.setSessionRegistry(mock(SessionRegistry.class));
-//        HttpServletRequest request = new MockHttpServletRequest();
-//        String sessionId = request.getSession().getId();
-//
-//        strategy.onAuthentication(mock(Authentication.class), request, new MockHttpServletResponse());
-//
-//        assertFalse(sessionId.equals(request.getSession().getId()));
-//    }
+    @Test
+    public void newSessionIsCreatedIfSessionAlreadyExists() throws Exception {
+        DefaultSessionAuthenticationStrategy strategy = new DefaultSessionAuthenticationStrategy();
+        HttpServletRequest request = new MockHttpServletRequest();
+        String sessionId = request.getSession().getId();
+
+        strategy.onAuthentication(mock(Authentication.class), request, new MockHttpServletResponse());
+
+        assertFalse(sessionId.equals(request.getSession().getId()));
+    }
 
     // See SEC-1077
     @Test

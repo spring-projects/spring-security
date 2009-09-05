@@ -1,17 +1,16 @@
 package org.springframework.security.cas.authentication;
 
+import java.util.ArrayList;
+
+import org.jasig.cas.client.validation.Assertion;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.jasig.cas.client.validation.Assertion;
-
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Temporary authentication object needed to load the user details service.
  *
  * @author Scott Battaglia
- * @version $Revision$ $Date$
+ * @version $Id$
  * @since 3.0
  */
 public final class CasAssertionAuthenticationToken extends AbstractAuthenticationToken {
