@@ -15,8 +15,12 @@
 
 package org.springframework.security.authentication.jaas;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.security.Security;
 import java.util.List;
@@ -24,17 +28,14 @@ import java.util.List;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import junit.framework.TestCase;
-
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.jaas.JaasAuthenticationProvider;
-import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
-import org.springframework.security.authentication.jaas.JaasGrantedAuthority;
-import org.springframework.security.authentication.jaas.LoginExceptionResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -50,7 +51,7 @@ import org.springframework.security.core.session.SessionDestroyedEvent;
  * @author Ray Krueger
  * @version $Id$
  */
-public class JaasAuthenticationProviderTests extends TestCase {
+public class JaasAuthenticationProviderTests {
     //~ Instance fields ================================================================================================
 
     private ApplicationContext context;
@@ -59,13 +60,15 @@ public class JaasAuthenticationProviderTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
         context = new ClassPathXmlApplicationContext(resName);
         eventCheck = (JaasEventCheck) context.getBean("eventCheck");
         jaasProvider = (JaasAuthenticationProvider) context.getBean("jaasAuthenticationProvider");
     }
 
+    @Test
     public void testBadPassword() {
         try {
             jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "asdf"));
@@ -77,6 +80,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertNull("Success event was fired", eventCheck.successEvent);
     }
 
+    @Test
     public void testBadUser() {
         try {
             jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("asdf", "password"));
@@ -88,6 +92,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertNull("Success event was fired", eventCheck.successEvent);
     }
 
+    @Test
     public void testConfigurationLoop() throws Exception {
         String resName = "/" + getClass().getName().replace('.', '/') + ".conf";
         URL url = getClass().getResource(resName);
@@ -98,7 +103,8 @@ public class JaasAuthenticationProviderTests extends TestCase {
         testFull();
     }
 
-    public void testDetectsMissingLoginConfig() throws Exception {
+    @Test
+    public void detectsMissingLoginConfig() throws Exception {
         JaasAuthenticationProvider myJaasProvider = new JaasAuthenticationProvider();
         myJaasProvider.setApplicationEventPublisher(context);
         myJaasProvider.setAuthorityGranters(jaasProvider.getAuthorityGranters());
@@ -113,7 +119,40 @@ public class JaasAuthenticationProviderTests extends TestCase {
         }
     }
 
-    public void testDetectsMissingLoginContextName() throws Exception {
+    // SEC-1239
+    @Test
+    public void spacesInLoginConfigPathAreAccepted() throws Exception {
+        File configFile;
+        // Create temp directory with a space in the name
+        File configDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "jaas test");
+        configDir.deleteOnExit();
+
+        if (configDir.exists()) {
+            configDir.delete();
+        }
+        configDir.mkdir();
+        configFile = File.createTempFile("login", "conf", configDir);
+        configFile.deleteOnExit();
+        FileOutputStream fos = new FileOutputStream(configFile);
+        PrintWriter pw = new PrintWriter(fos);
+        pw.append("JAASTestBlah {" +
+                    "org.springframework.security.authentication.jaas.TestLoginModule required;" +
+                 "};");
+        pw.flush();
+        pw.close();
+
+        JaasAuthenticationProvider myJaasProvider = new JaasAuthenticationProvider();
+        myJaasProvider.setApplicationEventPublisher(context);
+        myJaasProvider.setLoginConfig(new FileSystemResource(configFile));
+        myJaasProvider.setAuthorityGranters(jaasProvider.getAuthorityGranters());
+        myJaasProvider.setCallbackHandlers(jaasProvider.getCallbackHandlers());
+        myJaasProvider.setLoginContextName(jaasProvider.getLoginContextName());
+
+        myJaasProvider.afterPropertiesSet();
+    }
+
+    @Test
+    public void detectsMissingLoginContextName() throws Exception {
         JaasAuthenticationProvider myJaasProvider = new JaasAuthenticationProvider();
         myJaasProvider.setApplicationEventPublisher(context);
         myJaasProvider.setAuthorityGranters(jaasProvider.getAuthorityGranters());
@@ -138,6 +177,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
         }
     }
 
+    @Test
     public void testFull() throws Exception {
         List<GrantedAuthority> defaultAuths = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password",
@@ -179,10 +219,12 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertNull("Failure event should not be fired", eventCheck.failedEvent);
     }
 
+    @Test
     public void testGetApplicationEventPublisher() throws Exception {
         assertNotNull(jaasProvider.getApplicationEventPublisher());
     }
 
+    @Test
     public void testLoginExceptionResolver() {
         assertNotNull(jaasProvider.getLoginExceptionResolver());
         jaasProvider.setLoginExceptionResolver(new LoginExceptionResolver() {
@@ -199,6 +241,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
         }
     }
 
+    @Test
     public void testLogout() throws Exception {
         MockLoginContext loginContext = new MockLoginContext(jaasProvider.getLoginContextName());
 
@@ -215,6 +258,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertTrue(loginContext.loggedOut);
     }
 
+    @Test
     public void testNullDefaultAuthorities() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
 
@@ -224,6 +268,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertTrue("Only ROLE_TEST1 and ROLE_TEST2 should have been returned", auth.getAuthorities().size() == 2);
     }
 
+    @Test
     public void testUnsupportedAuthenticationObjectReturnsNull() {
         assertNull(jaasProvider.authenticate(new TestingAuthenticationToken("foo", "bar", AuthorityUtils.NO_AUTHORITIES )));
     }

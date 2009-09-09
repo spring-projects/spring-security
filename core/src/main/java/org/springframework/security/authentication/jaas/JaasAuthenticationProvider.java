@@ -15,6 +15,7 @@
 
 package org.springframework.security.authentication.jaas;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
 import java.security.Security;
@@ -243,7 +244,8 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      *
      */
     private void configureJaasUsingLoop() throws IOException {
-        String loginConfigUrl = loginConfig.getURL().toString();
+        File loginConfigFile = loginConfig.getFile();
+        String loginConfigUrl = loginConfigFile.toURL().toString();
         boolean alreadySet = false;
 
         int n = 1;
