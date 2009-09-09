@@ -70,6 +70,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.security.web.authentication.www.BasicProcessingFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
@@ -782,6 +783,19 @@ public class HttpSecurityBeanDefinitionParserTests {
         }
 
         seshStrategy.onAuthentication(auth, new MockHttpServletRequest(), new MockHttpServletResponse());
+    }
+
+    @Test
+    public void externalRequestCacheIsConfiguredCorrectly() throws Exception {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <request-cache ref='cache' />" +
+                "</http>" +
+                "<b:bean id='cache' class='" + HttpSessionRequestCache.class.getName() + "'/>" +
+                AUTH_PROVIDER_XML);
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilter(ExceptionTranslationFilter.class);
+        Object requestCache = appContext.getBean("cache");
+        assertSame(requestCache, FieldUtils.getFieldValue(etf, "requestCache"));
     }
 
     @Test

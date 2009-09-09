@@ -129,6 +129,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String ATT_DISABLE_URL_REWRITING = "disable-url-rewriting";
 
+    private static final String ATT_REF = "ref";
+
     static final String OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProcessingFilter";
     static final String OPEN_ID_AUTHENTICATION_PROVIDER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProvider";
     static final String OPEN_ID_CONSUMER_CLASS = "org.springframework.security.openid.OpenID4JavaConsumer";
@@ -434,17 +436,16 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         final String ATT_AFTER = "after";
         final String ATT_BEFORE = "before";
         final String ATT_POSITION = "position";
-        final String REF = "ref";
 
         for (Element elt: customFilterElts) {
             String after = elt.getAttribute(ATT_AFTER);
             String before = elt.getAttribute(ATT_BEFORE);
             String position = elt.getAttribute(ATT_POSITION);
 
-            String ref = elt.getAttribute(REF);
+            String ref = elt.getAttribute(ATT_REF);
 
             if (!StringUtils.hasText(ref)) {
-                pc.getReaderContext().error("The '" + REF + "' attribute must be supplied", pc.extractSource(elt));
+                pc.getReaderContext().error("The '" + ATT_REF + "' attribute must be supplied", pc.extractSource(elt));
             }
 
             RuntimeBeanReference bean = new RuntimeBeanReference(ref);
@@ -725,6 +726,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
     private BeanReference createRequestCache(Element element, ParserContext pc, boolean allowSessionCreation,
             String portMapperName) {
+        Element requestCacheElt = DomUtils.getChildElementByTagName(element, Elements.REQUEST_CACHE);
+
+        if (requestCacheElt != null) {
+            return new RuntimeBeanReference(requestCacheElt.getAttribute(ATT_REF));
+        }
+
         BeanDefinitionBuilder requestCache = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionRequestCache.class);
         BeanDefinitionBuilder portResolver = BeanDefinitionBuilder.rootBeanDefinition(PortResolverImpl.class);
         portResolver.addPropertyReference("portMapper", portMapperName);
@@ -740,11 +747,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private BeanDefinition createExceptionTranslationFilter(Element element, ParserContext pc, BeanReference requestCache) {
-        BeanDefinitionBuilder exceptionTranslationFilterBuilder
-            = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
-        exceptionTranslationFilterBuilder.addPropertyValue("accessDeniedHandler", createAccessDeniedHandler(element, pc));
+        BeanDefinitionBuilder etfBuilder = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
+        etfBuilder.addPropertyValue("accessDeniedHandler", createAccessDeniedHandler(element, pc));
+        etfBuilder.addPropertyValue("requestCache", requestCache);
 
-        return exceptionTranslationFilterBuilder.getBeanDefinition();
+
+        return etfBuilder.getBeanDefinition();
     }
 
     private BeanMetadataElement createAccessDeniedHandler(Element element, ParserContext pc) {
