@@ -83,7 +83,11 @@ public final class MethodInvocationUtils {
     }
 
     /**
-     * Generates a <code>MethodInvocation</code> for specified <code>methodName</code> on the passed class.
+     * Generates a <code>MethodInvocation</code> for the specified <code>methodName</code> on the passed class.
+     *
+     * If a method with this name, taking no arguments does not exist, it will check through the declared
+     * methods on the class, until one is found matching the supplied name. If more than one method name matches,
+     * an <tt>IllegalArgumentException</tt> will be raised.
      *
      * @param clazz the class of object that will be used to find the relevant <code>Method</code>
      * @param methodName the name of the method to find
@@ -91,7 +95,21 @@ public final class MethodInvocationUtils {
      * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a problem
      */
     public static MethodInvocation createFromClass(Class<?> clazz, String methodName) {
-        return createFromClass(null, clazz, methodName, null, null);
+        MethodInvocation mi = createFromClass(null, clazz, methodName, null, null);
+
+        if (mi == null) {
+            for (Method m : clazz.getDeclaredMethods()) {
+                if (m.getName().equals(methodName)) {
+                    if (mi != null) {
+                        throw new IllegalArgumentException("The class " + clazz + " has more than one method named" +
+                                " '" + methodName + "'");
+                    }
+                    mi = new SimpleMethodInvocation(null, m);
+                }
+            }
+        }
+
+        return mi;
     }
 
     /**
