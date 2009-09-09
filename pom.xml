@@ -17,7 +17,6 @@
         <module>openid</module>
         <module>ntlm</module>
         <module>taglibs</module>
-        <module>portlet</module>
 		<module>aspects</module>
         <module>samples</module>
         <!--module>itest</module-->

@@ -826,6 +826,7 @@
                </xs:complexType>
             </xs:element>
             <xs:element ref="security:custom-filter"/>
+            <xs:element ref="security:request-cache"/>
          </xs:choice>
          <xs:attributeGroup ref="security:http.attlist"/>
       </xs:complexType>
@@ -1053,6 +1054,15 @@
          </xs:annotation>
       </xs:attribute>
    </xs:attributeGroup>
+   <xs:element name="request-cache">
+      <xs:annotation>
+         <xs:documentation>Allow the RequestCache used for saving requests during the login process
+            to be set</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:ref"/>
+      </xs:complexType>
+   </xs:element>
    <xs:attributeGroup name="form-login.attlist">
       <xs:attribute name="login-processing-url" type="xs:token">
          <xs:annotation>

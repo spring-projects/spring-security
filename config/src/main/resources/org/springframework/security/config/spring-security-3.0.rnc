@@ -247,7 +247,7 @@ protect-pointcut.attlist &=
 
 http =
     ## Container element for HTTP security configuration
-   element http {http.attlist, (intercept-url+ & access-denied-handler? & form-login? & openid-login? & x509? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous? & port-mappings & custom-filter*) }
+   element http {http.attlist, (intercept-url+ & access-denied-handler? & form-login? & openid-login? & x509? & http-basic? & logout? & concurrent-session-control? & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache?) }
 http.attlist &=
     ## Automatically registers a login form, BASIC authentication, anonymous authentication, logout services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".
     attribute auto-config {boolean}?
@@ -334,6 +334,10 @@ logout.attlist &=
 logout.attlist &=
 	## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
     attribute invalidate-session {boolean}?
+    
+request-cache =
+    ## Allow the RequestCache used for saving requests during the login process to be set
+    element request-cache {ref}
 
 form-login =
     ## Sets up a form login configuration for authentication with a username and password
