@@ -39,7 +39,7 @@ public interface RequestCache {
     HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response);
 
     /**
-     * Removes and returns the cached request
+     * Removes the cached request
      * @param currentRequest
      */
     void removeRequest(HttpServletRequest request, HttpServletResponse response);

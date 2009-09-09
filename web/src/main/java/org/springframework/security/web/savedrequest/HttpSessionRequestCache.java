@@ -71,6 +71,8 @@ public class HttpSessionRequestCache implements RequestCache {
             return null;
         }
 
+        removeRequest(request, response);
+
         return new SavedRequestAwareWrapper(saved, request);
     }
 
