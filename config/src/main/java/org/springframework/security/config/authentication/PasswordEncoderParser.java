@@ -41,6 +41,7 @@ public class PasswordEncoderParser {
     static final String OPT_HASH_MD4 = "md4";
     static final String OPT_HASH_MD5 = "md5";
     static final String OPT_HASH_LDAP_SHA = "{sha}";
+    static final String OPT_HASH_LDAP_SSHA = "{ssha}";
 
     private static final Map<String, Class<? extends PasswordEncoder>> ENCODER_CLASSES;
 
@@ -52,6 +53,7 @@ public class PasswordEncoderParser {
         ENCODER_CLASSES.put(OPT_HASH_MD4, Md4PasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_MD5, Md5PasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_LDAP_SHA, LdapShaPasswordEncoder.class);
+        ENCODER_CLASSES.put(OPT_HASH_LDAP_SSHA, LdapShaPasswordEncoder.class);
     }
 
     private static Log logger = LogFactory.getLog(PasswordEncoderParser.class);
