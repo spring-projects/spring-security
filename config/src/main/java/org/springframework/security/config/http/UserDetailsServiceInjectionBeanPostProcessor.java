@@ -2,6 +2,8 @@ package org.springframework.security.config.http;
 
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
@@ -32,6 +34,8 @@ import org.springframework.util.Assert;
  * @since 2.0.2
  */
 public class UserDetailsServiceInjectionBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware {
+    private final Log logger = LogFactory.getLog(getClass());
+
     private ConfigurableListableBeanFactory beanFactory;
     private final String x509ProviderId;
     private final String rememberMeServicesId;
@@ -51,7 +55,7 @@ public class UserDetailsServiceInjectionBeanPostProcessor implements BeanPostPro
         if (beanName.equals(x509ProviderId)) {
             injectUserDetailsServiceIntoX509Provider((PreAuthenticatedAuthenticationProvider) bean);
         } else if (beanName.equals(rememberMeServicesId)) {
-            injectUserDetailsServiceIntoRememberMeServices((AbstractRememberMeServices)bean);
+            injectUserDetailsServiceIntoRememberMeServices(bean);
         } else if (beanName.equals(openIDProviderId)) {
             injectUserDetailsServiceIntoOpenIDProvider(bean);
         }
@@ -63,13 +67,23 @@ public class UserDetailsServiceInjectionBeanPostProcessor implements BeanPostPro
         return bean;
     }
 
-    private void injectUserDetailsServiceIntoRememberMeServices(AbstractRememberMeServices services) {
+    private void injectUserDetailsServiceIntoRememberMeServices(Object rms) {
+        if (!(rms instanceof AbstractRememberMeServices)) {
+            logger.info("RememberMeServices is not an instance of AbstractRememberMeServices. UserDetailsService will" +
+                    " not be automatically injected.");
+            return;
+        }
+
+        AbstractRememberMeServices services = (AbstractRememberMeServices) rms;
+
         BeanDefinition beanDefinition = beanFactory.getBeanDefinition(rememberMeServicesId);
         PropertyValue pv = beanDefinition.getPropertyValues().getPropertyValue("userDetailsService");
 
         if (pv == null) {
+            // If it doesn't already have a UserDetailsService set, then set it.
             services.setUserDetailsService(getUserDetailsService());
         } else {
+            // If already set, then attempt to locate a caching version of the injected UserDetailsService
             UserDetailsService cachingUserService = getCachingUserService(pv.getValue());
 
             if (cachingUserService != null) {
