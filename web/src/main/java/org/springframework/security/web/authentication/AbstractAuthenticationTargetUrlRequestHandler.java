@@ -64,7 +64,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
         redirectStrategy.sendRedirect(request, response, targetUrl);
     }
 
-    private String determineTargetUrl(HttpServletRequest request, HttpServletResponse response) {
+    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response) {
         if (isAlwaysUseDefaultTargetUrl()) {
             return defaultTargetUrl;
         }
