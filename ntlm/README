@@ -1,5 +1,0 @@
-Just place this folder into the SVN checkout of ACEGI sources.
-Then modify the root pom.xml to include the folder as a module.
-
-The applicationContext.xml and web.xml files are included in
-the root directory for example purposes only.
