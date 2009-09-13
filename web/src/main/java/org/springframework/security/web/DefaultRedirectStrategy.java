@@ -13,24 +13,24 @@ import javax.servlet.http.HttpServletResponse;
  * @since 3.0
  */
 public class DefaultRedirectStrategy implements RedirectStrategy {
-    private boolean useRelativeContext;
+    private boolean contextRelative;
 
     /**
      * Redirects the response to the supplied URL.
      * <p>
-     * If <tt>useRelativeContext</tt> is set, the redirect value will be the value after the request context path.
+     * If <tt>contextRelative</tt> is set, the redirect value will be the value after the request context path.
      */
     public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url) throws IOException {
         String finalUrl;
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            if (useRelativeContext) {
+            if (contextRelative) {
                 finalUrl = url;
             }
             else {
                 finalUrl = request.getContextPath() + url;
             }
         }
-        else if (useRelativeContext) {
+        else if (contextRelative) {
             // Calculate the relative URL from the fully qualifed URL, minus the protocol and base context.
             int len = request.getContextPath().length();
             int index = url.indexOf(request.getContextPath()) + len;
@@ -51,8 +51,8 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
      * If <tt>true</tt>, causes any redirection URLs to be calculated minus the protocol
      * and context path (defaults to <tt>false</tt>).
      */
-    public void setUseRelativeContext(boolean useRelativeContext) {
-        this.useRelativeContext = useRelativeContext;
+    public void setContextRelative(boolean useRelativeContext) {
+        this.contextRelative = useRelativeContext;
     }
 
 }
