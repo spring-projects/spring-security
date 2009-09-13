@@ -10,7 +10,7 @@ public final class ExpressionUtils {
         try {
             return ((Boolean) expr.getValue(ctx, Boolean.class)).booleanValue();
         } catch (EvaluationException e) {
-            throw new IllegalArgumentException("Failed to evaluate expression", e);
+            throw new IllegalArgumentException("Failed to evaluate expression '" + expr.getExpressionString() + "'", e);
         }
     }
 }
