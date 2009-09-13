@@ -18,7 +18,9 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
     /**
      * Redirects the response to the supplied URL.
      * <p>
-     * If <tt>contextRelative</tt> is set, the redirect value will be the value after the request context path.
+     * If <tt>contextRelative</tt> is set, the redirect value will be the value after the request context path. Note
+     * that this will result in the loss of protocol information (HTTP or HTTPS), so will cause problems if a
+     * redirect is being performed to change to HTTPS, for example.
      */
     public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url) throws IOException {
         String finalUrl;
