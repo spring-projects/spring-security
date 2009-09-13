@@ -15,22 +15,23 @@
 
 package org.springframework.security.web.savedrequest;
 
-import org.springframework.security.web.PortResolver;
-import org.springframework.security.web.util.UrlUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.security.web.PortResolver;
+import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.Assert;
 
 
 /**
@@ -237,22 +238,22 @@ public class DefaultSavedRequest implements SavedRequest {
                 pathInfo, queryString);
     }
 
-    public Iterator<String> getHeaderNames() {
-        return (headers.keySet().iterator());
+    public Collection<String> getHeaderNames() {
+        return headers.keySet();
     }
 
-    public Iterator<String> getHeaderValues(String name) {
+    public List<String> getHeaderValues(String name) {
         List<String> values = headers.get(name);
 
         if (values == null) {
-            values = Collections.emptyList();
+            return Collections.emptyList();
         }
 
-        return (values.iterator());
+        return values;
     }
 
-    public Iterator<Locale> getLocales() {
-        return (locales.iterator());
+    public List<Locale> getLocales() {
+        return locales;
     }
 
     public String getMethod() {
@@ -263,8 +264,8 @@ public class DefaultSavedRequest implements SavedRequest {
         return parameters;
     }
 
-    public Iterator<String> getParameterNames() {
-        return (parameters.keySet().iterator());
+    public Collection<String> getParameterNames() {
+        return parameters.keySet();
     }
 
     public String[] getParameterValues(String name) {

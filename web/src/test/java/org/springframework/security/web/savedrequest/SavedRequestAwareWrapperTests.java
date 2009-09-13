@@ -19,17 +19,8 @@ import org.springframework.security.web.savedrequest.SavedRequestAwareWrapper;
 public class SavedRequestAwareWrapperTests {
 
     private SavedRequestAwareWrapper createWrapper(MockHttpServletRequest requestToSave, MockHttpServletRequest requestToWrap) {
-        DefaultSavedRequest saved = requestToSave == null ? null : new DefaultSavedRequest(requestToSave, new PortResolverImpl());
+        DefaultSavedRequest saved = new DefaultSavedRequest(requestToSave, new PortResolverImpl());
         return new SavedRequestAwareWrapper(saved, requestToWrap);
-    }
-
-    @Test
-    public void wrappedRequestCookiesAreReturnedIfNoSavedRequestIsSet() throws Exception {
-        MockHttpServletRequest wrappedRequest = new MockHttpServletRequest();
-        wrappedRequest.setCookies(new Cookie[] {new Cookie("cookie", "fromwrapped")});
-        SavedRequestAwareWrapper wrapper = createWrapper(null, wrappedRequest);
-        assertEquals(1, wrapper.getCookies().length);
-        assertEquals("fromwrapped", wrapper.getCookies()[0].getValue());
     }
 
     @Test
@@ -60,27 +51,6 @@ public class SavedRequestAwareWrapperTests {
         assertTrue(wrapper.getHeaderNames().hasMoreElements());
         assertEquals("header", wrapper.getHeaderNames().nextElement());
     }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void wrappedRequestHeaderIsReturnedIfSavedRequestIsNotSet() throws Exception {
-        MockHttpServletRequest wrappedRequest = new MockHttpServletRequest();
-        wrappedRequest.addHeader("header", "wrappedheader");
-        SavedRequestAwareWrapper wrapper = createWrapper(null, wrappedRequest);
-
-        assertNull(wrapper.getHeader("nonexistent"));
-        Enumeration headers = wrapper.getHeaders("nonexistent");
-        assertFalse(headers.hasMoreElements());
-
-        assertEquals("wrappedheader", wrapper.getHeader("header"));
-        headers = wrapper.getHeaders("header");
-        assertTrue(headers.hasMoreElements());
-        assertEquals("wrappedheader", headers.nextElement());
-        assertFalse(headers.hasMoreElements());
-        assertTrue(wrapper.getHeaderNames().hasMoreElements());
-        assertEquals("header", wrapper.getHeaderNames().nextElement());
-    }
-
 
     @Test
     /* SEC-830. Assume we have a request to /someUrl?action=foo (the saved request)
@@ -125,8 +95,7 @@ public class SavedRequestAwareWrapperTests {
 
     @Test
     public void getParameterValuesReturnsNullIfParameterIsntSet() {
-        MockHttpServletRequest wrappedRequest = new MockHttpServletRequest();
-        SavedRequestAwareWrapper wrapper = new SavedRequestAwareWrapper(null, wrappedRequest);
+        SavedRequestAwareWrapper wrapper = createWrapper(new MockHttpServletRequest(), new MockHttpServletRequest());
         assertNull(wrapper.getParameterValues("action"));
         assertNull(wrapper.getParameterMap().get("action"));
     }
@@ -148,7 +117,7 @@ public class SavedRequestAwareWrapperTests {
     }
 
     @Test
-    public void expecteDateHeaderIsReturnedFromSavedAndWrappedRequests() throws Exception {
+    public void expecteDateHeaderIsReturnedFromSavedRequest() throws Exception {
         SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
         String nowString = FastHttpDateFormat.getCurrentDate();
         Date now = formatter.parse(nowString);
@@ -158,12 +127,6 @@ public class SavedRequestAwareWrapperTests {
         assertEquals(now.getTime(), wrapper.getDateHeader("header"));
 
         assertEquals(-1L, wrapper.getDateHeader("nonexistent"));
-
-        // Now try with no saved request
-        request = new MockHttpServletRequest();
-        request.addHeader("header", now);
-        wrapper = createWrapper(null, request);
-        assertEquals(now.getTime(), wrapper.getDateHeader("header"));
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -179,8 +142,6 @@ public class SavedRequestAwareWrapperTests {
         MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/notused");
         SavedRequestAwareWrapper wrapper = createWrapper(request, new MockHttpServletRequest("GET", "/notused"));
         assertEquals("PUT", wrapper.getMethod());
-        wrapper = createWrapper(null, request);
-        assertEquals("PUT", wrapper.getMethod());
     }
 
     @Test
@@ -192,9 +153,6 @@ public class SavedRequestAwareWrapperTests {
 
         assertEquals(999, wrapper.getIntHeader("header"));
         assertEquals(-1, wrapper.getIntHeader("nonexistent"));
-
-        wrapper = createWrapper(null, request);
-        assertEquals(999, wrapper.getIntHeader("header"));
     }
 
 }

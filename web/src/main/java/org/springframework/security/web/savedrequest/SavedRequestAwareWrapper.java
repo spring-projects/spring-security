@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,9 +44,6 @@ import org.apache.commons.logging.LogFactory;
  *
  * <p>
  * Added into a request by {@link org.springframework.security.web.savedrequest.RequestCacheAwareFilter}.
- * </p>
- *
- * TODO: savedRequest cannot now be null, so convert the tests to reflect this and remove the null checks.
  *
  * @author Andrey Grebnev
  * @author Ben Alex
@@ -65,7 +61,7 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 
     //~ Instance fields ================================================================================================
 
-    protected DefaultSavedRequest savedRequest = null;
+    protected SavedRequest savedRequest = null;
 
     /**
      * The set of SimpleDateFormat formats to use in getDateHeader(). Notice that because SimpleDateFormat is
@@ -75,7 +71,7 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 
     //~ Constructors ===================================================================================================
 
-    public SavedRequestAwareWrapper(DefaultSavedRequest saved, HttpServletRequest request) {
+    public SavedRequestAwareWrapper(SavedRequest saved, HttpServletRequest request) {
         super(request);
         savedRequest = saved;
 
@@ -92,9 +88,6 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 
     @Override
     public Cookie[] getCookies() {
-        if (savedRequest == null) {
-            return super.getCookies();
-        }
         List<Cookie> cookies = savedRequest.getCookies();
 
         return cookies.toArray(new Cookie[cookies.size()]);
@@ -102,9 +95,6 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 
     @Override
     public long getDateHeader(String name) {
-        if (savedRequest == null) {
-            return super.getDateHeader(name);
-        }
         String value = getHeader(name);
 
         if (value == null) {
@@ -123,128 +113,79 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 
     @Override
     public String getHeader(String name) {
-        if (savedRequest == null) {
-            return super.getHeader(name);
-        }
+        List<String> values = savedRequest.getHeaderValues(name);
 
-        String header = null;
-        Iterator<String> iterator = savedRequest.getHeaderValues(name);
-
-        while (iterator.hasNext()) {
-            header = iterator.next();
-
-            break;
-        }
-
-        return header;
+        return values.isEmpty() ? null : values.get(0);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Enumeration getHeaderNames() {
-        if (savedRequest == null) {
-            return super.getHeaderNames();
-        }
-
         return new Enumerator<String>(savedRequest.getHeaderNames());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Enumeration getHeaders(String name) {
-        if (savedRequest == null) {
-            return super.getHeaders(name);
-        } else {
-            return new Enumerator<String>(savedRequest.getHeaderValues(name));
-        }
+        return new Enumerator<String>(savedRequest.getHeaderValues(name));
     }
 
     @Override
     public int getIntHeader(String name) {
-        if (savedRequest == null) {
-            return super.getIntHeader(name);
-        } else {
-            String value = getHeader(name);
+        String value = getHeader(name);
 
-            if (value == null) {
-                return -1;
-            } else {
-                return Integer.parseInt(value);
-            }
+        if (value == null) {
+            return -1;
+        } else {
+            return Integer.parseInt(value);
         }
     }
 
     @Override
     public Locale getLocale() {
-        if (savedRequest == null) {
-            return super.getLocale();
-        } else {
-            Locale locale = null;
-            Iterator<Locale> iterator = savedRequest.getLocales();
+        List<Locale> locales = savedRequest.getLocales();
 
-            while (iterator.hasNext()) {
-                locale = (Locale) iterator.next();
-
-                break;
-            }
-
-            if (locale == null) {
-                return defaultLocale;
-            } else {
-                return locale;
-            }
-        }
+        return locales.isEmpty() ? Locale.getDefault() : locales.get(0);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Enumeration getLocales() {
-        if (savedRequest == null) {
-            return super.getLocales();
+        List<Locale> locales = savedRequest.getLocales();
+
+        if (locales.isEmpty()) {
+            // Fall back to default locale
+            locales = new ArrayList<Locale>(1);
+            locales.add(Locale.getDefault());
         }
 
-        Iterator<Locale> iterator = savedRequest.getLocales();
-
-        if (iterator.hasNext()) {
-            return new Enumerator<Locale>(iterator);
-        }
-        // Fall back to default locale
-        ArrayList<Locale> results = new ArrayList<Locale>(1);
-        results.add(defaultLocale);
-
-        return new Enumerator<Locale>(results.iterator());
+        return new Enumerator<Locale>(locales);
     }
 
     @Override
     public String getMethod() {
-        if (savedRequest == null) {
-            return super.getMethod();
-        } else {
-            return savedRequest.getMethod();
-        }
+        return savedRequest.getMethod();
     }
 
     /**
-     * If the parameter is available from the wrapped request then either
-     * <ol>
-     * <li>There is no saved request (it a normal request)</li>
-     * <li>There is a saved request, but the request has been forwarded/included to a URL with parameters, either
-     * supplementing or overriding the saved request values.</li>
-     * </ol>
-     * In both cases the value from the wrapped request should be used.
+     * If the parameter is available from the wrapped request then the request has been forwarded/included to a URL
+     * with parameters, either supplementing or overriding the saved request values.
+     * <p>
+     * In this case, the value from the wrapped request should be used.
      * <p>
      * If the value from the wrapped request is null, an attempt will be made to retrieve the parameter
-     * from the DefaultSavedRequest, if available..
+     * from the saved request.
      */
     @Override
     public String getParameter(String name) {
         String value = super.getParameter(name);
 
-        if (value != null || savedRequest == null) {
+        if (value != null) {
             return value;
         }
 
         String[] values = savedRequest.getParameterValues(name);
+
         if (values == null || values.length == 0) {
             return null;
         }
@@ -255,10 +196,6 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
     @Override
     @SuppressWarnings("unchecked")
     public Map getParameterMap() {
-        if (savedRequest == null) {
-            return super.getParameterMap();
-        }
-
         Set<String> names = getCombinedParameterNames();
         Map<String, String[]> parameterMap = new HashMap<String, String[]>(names.size());
 
@@ -273,10 +210,7 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
     private Set<String> getCombinedParameterNames() {
         Set<String> names = new HashSet<String>();
         names.addAll(super.getParameterMap().keySet());
-
-        if (savedRequest != null) {
-            names.addAll(savedRequest.getParameterMap().keySet());
-        }
+        names.addAll(savedRequest.getParameterMap().keySet());
 
         return names;
     }
@@ -289,10 +223,6 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 
     @Override
     public String[] getParameterValues(String name) {
-        if (savedRequest == null) {
-            return super.getParameterValues(name);
-        }
-
         String[] savedRequestParams = savedRequest.getParameterValues(name);
         String[] wrappedRequestParams = super.getParameterValues(name);
 

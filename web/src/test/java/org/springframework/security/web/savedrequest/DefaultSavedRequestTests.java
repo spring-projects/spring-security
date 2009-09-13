@@ -10,14 +10,14 @@ import org.springframework.mock.web.MockHttpServletRequest;
 /**
  *
  */
-public class SavedRequestTests {
+public class DefaultSavedRequestTests {
 
     @Test
     public void headersAreCaseInsensitive() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("USER-aGenT", "Mozilla");
         DefaultSavedRequest saved = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443));
-        assertEquals("Mozilla", saved.getHeaderValues("user-agent").next());
+        assertEquals("Mozilla", saved.getHeaderValues("user-agent").get(0));
     }
 
     // TODO: Why are parameters case insensitive. I think this is a mistake
