@@ -308,7 +308,7 @@ public class SwitchUserProcessingFilterTests {
         SimpleUrlAuthenticationSuccessHandler switchSuccessHandler =
             new SimpleUrlAuthenticationSuccessHandler("/someOtherUrl");
         DefaultRedirectStrategy contextRelativeRedirector = new DefaultRedirectStrategy();
-        contextRelativeRedirector.setUseRelativeContext(true);
+        contextRelativeRedirector.setContextRelative(true);
         switchSuccessHandler.setRedirectStrategy(contextRelativeRedirector);
         filter.setSuccessHandler(switchSuccessHandler);
         filter.setUserDetailsService(new MockUserDetailsService());
