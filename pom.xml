@@ -15,7 +15,6 @@
         <module>acl</module>
         <module>cas</module>
         <module>openid</module>
-        <module>ntlm</module>
         <module>taglibs</module>
 		<module>aspects</module>
         <module>samples</module>
