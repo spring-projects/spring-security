@@ -65,7 +65,7 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 
     //~ Instance fields ================================================================================================
 
-    protected SavedRequest savedRequest = null;
+    protected DefaultSavedRequest savedRequest = null;
 
     /**
      * The set of SimpleDateFormat formats to use in getDateHeader(). Notice that because SimpleDateFormat is
@@ -75,7 +75,7 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 
     //~ Constructors ===================================================================================================
 
-    public SavedRequestAwareWrapper(SavedRequest saved, HttpServletRequest request) {
+    public SavedRequestAwareWrapper(DefaultSavedRequest saved, HttpServletRequest request) {
         super(request);
         savedRequest = saved;
 
@@ -234,7 +234,7 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
      * In both cases the value from the wrapped request should be used.
      * <p>
      * If the value from the wrapped request is null, an attempt will be made to retrieve the parameter
-     * from the SavedRequest, if available..
+     * from the DefaultSavedRequest, if available..
      */
     @Override
     public String getParameter(String name) {

@@ -67,7 +67,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * The configured {@link #setAuthenticationSuccessHandler(AuthenticationSuccessHandler) AuthenticationSuccessHandler} will
  * then be called to take the redirect to the appropriate destination after a successful login. The default behaviour
  * is implemented in a {@link SavedRequestAwareAuthenticationSuccessHandler} which will make use of any
- * <tt>SavedRequest</tt> set by the <tt>ExceptionTranslationFilter</tt> and redirect the user to the URL contained
+ * <tt>DefaultSavedRequest</tt> set by the <tt>ExceptionTranslationFilter</tt> and redirect the user to the URL contained
  * therein. Otherwise it will redirect to the webapp root "/". You can customize this behaviour by injecting a
  * differently configured instance of this class, or by using a different implementation.
  * <p>

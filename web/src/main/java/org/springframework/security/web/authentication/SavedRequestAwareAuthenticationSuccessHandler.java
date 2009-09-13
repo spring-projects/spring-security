@@ -13,10 +13,11 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.util.StringUtils;
 
 /**
- * An authentication success strategy which can make use of the {@link SavedRequest} which may have been stored in
+ * An authentication success strategy which can make use of the {@link DefaultSavedRequest} which may have been stored in
  * the session by the {@link ExceptionTranslationFilter}. When such a request is intercepted and requires authentication,
  * the request data is stored to record the original destination before the authentication process commenced, and to
  * allow the request to be reconstructed when a redirect to the same URL occurs. This class is responsible for
@@ -26,21 +27,21 @@ import org.springframework.util.StringUtils;
  * <ul>
  * <li>
  * If the <tt>alwaysUseDefaultTargetUrl</tt> property is set to true, the <tt>defaultTargetUrl</tt>
- * will be used for the destination. Any <tt>SavedRequest</tt> stored in the session will be
+ * will be used for the destination. Any <tt>DefaultSavedRequest</tt> stored in the session will be
  * removed.
  * </li>
  * <li>
  * If the <tt>targetUrlParameter</tt> has been set on the request, the value will be used as the destination.
- * Any <tt>SavedRequest</tt> will again be removed.
+ * Any <tt>DefaultSavedRequest</tt> will again be removed.
  * </li>
  * <li>
- * If a {@link SavedRequest} is found in the <tt>RequestCache</tt> (as set by the {@link ExceptionTranslationFilter} to
+ * If a {@link DefaultSavedRequest} is found in the <tt>RequestCache</tt> (as set by the {@link ExceptionTranslationFilter} to
  * record the original destination before the authentication process commenced), a redirect will be performed to the
- * Url of that original destination. The <tt>SavedRequest</tt> object will remain cached and be picked up
+ * Url of that original destination. The <tt>DefaultSavedRequest</tt> object will remain cached and be picked up
  * when the redirected request is received (See {@link SavedRequestAwareWrapper}).
  * </li>
  * <li>
- * If no <tt>SavedRequest</tt> is found, it will delegate to the base class.
+ * If no <tt>DefaultSavedRequest</tt> is found, it will delegate to the base class.
  * </li>
  * </ul>
  *
@@ -72,9 +73,9 @@ public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuth
             return;
         }
 
-        // Use the SavedRequest URL
-        String targetUrl = savedRequest.getFullRequestUrl();
-        logger.debug("Redirecting to SavedRequest Url: " + targetUrl);
+        // Use the DefaultSavedRequest URL
+        String targetUrl = savedRequest.getRedirectUrl();
+        logger.debug("Redirecting to DefaultSavedRequest Url: " + targetUrl);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 

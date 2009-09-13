@@ -49,7 +49,7 @@ import org.springframework.security.web.authentication.ExceptionMappingAuthentic
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
-import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.session.SessionAuthenticationStrategy;
 
 
@@ -83,7 +83,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.destroy();
     }
 
-    private SavedRequest makeSavedRequestForUrl() {
+    private DefaultSavedRequest makeSavedRequestForUrl() {
         MockHttpServletRequest request = createMockRequest();
         request.setMethod("GET");
         request.setServletPath("/some_protected_file.html");
@@ -91,10 +91,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         request.setServerName("www.example.com");
         request.setRequestURI("/mycontext/some_protected_file.html");
 
-        return new SavedRequest(request, new PortResolverImpl());
+        return new DefaultSavedRequest(request, new PortResolverImpl());
     }
 
-//    private SavedRequest makePostSavedRequestForUrl() {
+//    private DefaultSavedRequest makePostSavedRequestForUrl() {
 //        MockHttpServletRequest request = createMockRequest();
 //        request.setServletPath("/some_protected_file.html");
 //        request.setScheme("http");
@@ -102,7 +102,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 //        request.setRequestURI("/mycontext/post/some_protected_file.html");
 //        request.setMethod("POST");
 //
-//        return new SavedRequest(request, new PortResolverImpl());
+//        return new DefaultSavedRequest(request, new PortResolverImpl());
 //    }
 
     protected void setUp() throws Exception {
@@ -327,7 +327,7 @@ public class AbstractProcessingFilterTests extends TestCase {
             throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
-        request.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
+        request.getSession().setAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null, null);
@@ -352,7 +352,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     public void testSuccessfulAuthenticationCausesRedirectToSessionSpecifiedUrl() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
-        request.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
+        request.getSession().setAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null, null);
@@ -367,7 +367,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
-        assertEquals(makeSavedRequestForUrl().getFullRequestUrl(), response.getRedirectedUrl());
+        assertEquals(makeSavedRequestForUrl().getRedirectUrl(), response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 

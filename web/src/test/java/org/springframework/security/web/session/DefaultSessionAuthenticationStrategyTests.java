@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 
 /**
  *
@@ -48,12 +48,12 @@ public class DefaultSessionAuthenticationStrategyTests {
         HttpServletRequest request = new MockHttpServletRequest();
         HttpSession session = request.getSession();
         session.setAttribute("blah", "blah");
-        session.setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, "SavedRequest");
+        session.setAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, "DefaultSavedRequest");
 
         strategy.onAuthentication(mock(Authentication.class), request, new MockHttpServletResponse());
 
         assertNull(request.getSession().getAttribute("blah"));
-        assertNotNull(request.getSession().getAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY));
+        assertNotNull(request.getSession().getAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY));
     }
 
     @Test

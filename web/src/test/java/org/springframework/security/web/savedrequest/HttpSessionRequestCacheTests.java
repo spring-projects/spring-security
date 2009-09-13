@@ -3,23 +3,31 @@ package org.springframework.security.web.savedrequest;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-public class RequestCacheAwareFilterTests {
+/**
+ *
+ * @author Luke Taylor
+ * @version $Id$
+ * @since 3.0
+ */
+public class HttpSessionRequestCacheTests {
 
     @Test
-    public void savedRequestIsRemovedAfterMatch() throws Exception {
-        RequestCacheAwareFilter filter = new RequestCacheAwareFilter();
+    public void originalGetRequestDoesntMatchIncomingPost() {
         HttpSessionRequestCache cache = new HttpSessionRequestCache();
 
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/destination");
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
         MockHttpServletResponse response = new MockHttpServletResponse();
         cache.saveRequest(request, response);
         assertNotNull(request.getSession().getAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY));
+        assertNotNull(cache.getRequest(request, response));
 
-        filter.doFilter(request, response, new MockFilterChain());
-        assertNull(request.getSession().getAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY));
+        MockHttpServletRequest newRequest = new MockHttpServletRequest("POST", "/destination");
+        newRequest.setSession(request.getSession());
+        assertNull(cache.getMatchingRequest(newRequest, response));
+
     }
+
 }

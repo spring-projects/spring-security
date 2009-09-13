@@ -13,13 +13,13 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.savedrequest.FastHttpDateFormat;
-import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.SavedRequestAwareWrapper;
 
 public class SavedRequestAwareWrapperTests {
 
     private SavedRequestAwareWrapper createWrapper(MockHttpServletRequest requestToSave, MockHttpServletRequest requestToWrap) {
-        SavedRequest saved = requestToSave == null ? null : new SavedRequest(requestToSave, new PortResolverImpl());
+        DefaultSavedRequest saved = requestToSave == null ? null : new DefaultSavedRequest(requestToSave, new PortResolverImpl());
         return new SavedRequestAwareWrapper(saved, requestToWrap);
     }
 

@@ -10,7 +10,9 @@ import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
 
 /**
- * <tt>RequestCache</tt> which stores the SavedRequest in the HttpSession.
+ * <tt>RequestCache</tt> which stores the <tt>SavedRequest</tt> in the HttpSession.
+ *
+ * The {@link DefaultSavedRequest} class is used as the implementation.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -28,13 +30,13 @@ public class HttpSessionRequestCache implements RequestCache {
      */
     public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
         if (!justUseSavedRequestOnGet || "GET".equals(request.getMethod())) {
-            SavedRequest savedRequest = new SavedRequest(request, portResolver);
+            DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, portResolver);
 
             if (createSessionAllowed || request.getSession(false) != null) {
                 // Store the HTTP request itself. Used by AbstractAuthenticationProcessingFilter
                 // for redirection after successful authentication (SEC-29)
-                request.getSession().setAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, savedRequest);
-                logger.debug("SavedRequest added to Session: " + savedRequest);
+                request.getSession().setAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, savedRequest);
+                logger.debug("DefaultSavedRequest added to Session: " + savedRequest);
             }
         }
 
@@ -44,7 +46,7 @@ public class HttpSessionRequestCache implements RequestCache {
         HttpSession session = currentRequest.getSession(false);
 
         if (session != null) {
-            return (SavedRequest) session.getAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
+            return (DefaultSavedRequest) session.getAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
         }
 
         return null;
@@ -54,13 +56,13 @@ public class HttpSessionRequestCache implements RequestCache {
         HttpSession session = currentRequest.getSession(false);
 
         if (session != null) {
-            logger.debug("Removing SavedRequest from session if present");
-            session.removeAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
+            logger.debug("Removing DefaultSavedRequest from session if present");
+            session.removeAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
         }
     }
 
     public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
-        SavedRequest saved = getRequest(request, response);
+        DefaultSavedRequest saved = (DefaultSavedRequest) getRequest(request, response);
 
         if (saved == null) {
             return null;
@@ -77,7 +79,7 @@ public class HttpSessionRequestCache implements RequestCache {
     }
 
     /**
-     * If <code>true</code>, will only use <code>SavedRequest</code> to determine the target URL on successful
+     * If <code>true</code>, will only use <code>DefaultSavedRequest</code> to determine the target URL on successful
      * authentication if the request that caused the authentication request was a GET. Defaults to false.
      */
     public void setJustUseSavedRequestOnGet(boolean justUseSavedRequestOnGet) {

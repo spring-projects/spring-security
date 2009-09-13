@@ -13,7 +13,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 
 /**
  * The default implementation of {@link SessionAuthenticationStrategy}.
@@ -45,7 +45,7 @@ public class DefaultSessionAuthenticationStrategy implements SessionAuthenticati
      * In the case where the attributes will not be migrated, this field allows a list of named attributes
      * which should <em>not</em> be discarded.
      */
-    private List<String> retainedAttributes = Arrays.asList(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
+    private List<String> retainedAttributes = Arrays.asList(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
 
     /**
      * If set to <tt>true</tt>, a session will always be created, even if one didn't exist at the start of the request.

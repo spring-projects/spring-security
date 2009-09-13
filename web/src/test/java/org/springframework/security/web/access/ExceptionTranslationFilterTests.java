@@ -42,7 +42,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.util.ThrowableAnalyzer;
 
 /**
@@ -66,9 +66,9 @@ public class ExceptionTranslationFilterTests {
             return null;
         }
 
-        SavedRequest savedRequest = (SavedRequest) session.getAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
+        DefaultSavedRequest savedRequest = (DefaultSavedRequest) session.getAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
 
-        return savedRequest.getFullRequestUrl();
+        return savedRequest.getRedirectUrl();
     }
 
     @Test
@@ -199,7 +199,7 @@ public class ExceptionTranslationFilterTests {
         doThrow(new BadCredentialsException("")).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         request.setMethod("POST");
         filter.doFilter(request, new MockHttpServletResponse(), fc);
-        assertTrue(request.getSession().getAttribute(SavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY) == null);
+        assertTrue(request.getSession().getAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY) == null);
     }
 
     @Test(expected=IllegalArgumentException.class)

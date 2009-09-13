@@ -34,7 +34,8 @@ public interface RequestCache {
      *
      * @param request
      * @param response
-     * @return the wrapped save request, if it matches the
+     * @return the wrapped save request, if it matches the original, or null if there is no cached request or it doesn't
+     *    match.
      */
     HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response);
 
