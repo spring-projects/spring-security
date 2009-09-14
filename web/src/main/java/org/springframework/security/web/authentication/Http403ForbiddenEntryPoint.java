@@ -1,8 +1,5 @@
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
-
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -11,7 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.Ordered;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
 /**
  * <p>
@@ -34,10 +32,8 @@ import org.springframework.core.Ordered;
  * @author Ruud Senden
  * @since 2.0
  */
-public class Http403ForbiddenEntryPoint implements AuthenticationEntryPoint, Ordered {
+public class Http403ForbiddenEntryPoint implements AuthenticationEntryPoint {
     private static final Log logger = LogFactory.getLog(Http403ForbiddenEntryPoint.class);
-
-    private int order = Integer.MAX_VALUE;
 
     /**
      * Always returns a 403 error code to the client.
@@ -51,12 +47,5 @@ public class Http403ForbiddenEntryPoint implements AuthenticationEntryPoint, Ord
         httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
     }
 
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int i) {
-        order = i;
-    }
 
 }

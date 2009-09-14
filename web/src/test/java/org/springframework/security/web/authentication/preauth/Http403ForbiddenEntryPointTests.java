@@ -13,18 +13,7 @@ import junit.framework.TestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-/**
- *
- * @author TSARDD
- * @since 18-okt-2007
- */
-public class PreAuthenticatedProcessingFilterEntryPointTests extends TestCase {
-
-    public void testGetSetOrder() {
-        Http403ForbiddenEntryPoint fep = new Http403ForbiddenEntryPoint();
-        fep.setOrder(333);
-        assertEquals(fep.getOrder(), 333);
-    }
+public class Http403ForbiddenEntryPointTests extends TestCase {
 
     public void testCommence() {
         MockHttpServletRequest req = new MockHttpServletRequest();
@@ -38,6 +27,5 @@ public class PreAuthenticatedProcessingFilterEntryPointTests extends TestCase {
         } catch (ServletException e) {
             fail("Unexpected exception thrown: "+e);
         }
-
     }
 }
