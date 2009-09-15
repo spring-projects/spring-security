@@ -16,6 +16,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.ExpressionUtils;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
@@ -37,6 +38,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
     private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private ExpressionParser expressionParser = new SpelExpressionParser();
+    private RoleHierarchy roleHierarchy;
 
     public DefaultMethodSecurityExpressionHandler() {
     }
@@ -50,6 +52,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
         MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(auth);
         root.setTrustResolver(trustResolver);
         root.setPermissionEvaluator(permissionEvaluator);
+        root.setRoleHierarchy(roleHierarchy);
         ctx.setRootObject(root);
 
         return ctx;
@@ -141,4 +144,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
         ((MethodSecurityExpressionRoot)ctx.getRootObject().getValue()).setReturnObject(returnObject);
     }
 
+    public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
+        this.roleHierarchy = roleHierarchy;
+    }
 }

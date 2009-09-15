@@ -1,7 +1,10 @@
 package org.springframework.security.access.expression;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,6 +21,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
 public abstract class SecurityExpressionRoot {
     protected final Authentication authentication;
     private AuthenticationTrustResolver trustResolver;
+    private RoleHierarchy roleHierarchy;
+    private Set<String> roles;
+
     /** Allows "permitAll" expression */
     public final boolean permitAll = true;
 
@@ -32,17 +38,11 @@ public abstract class SecurityExpressionRoot {
     }
 
     public final boolean hasRole(String role) {
-        for (GrantedAuthority authority : authentication.getAuthorities()) {
-            if (role.equals(authority.getAuthority())) {
-                return true;
-            }
-        }
-
-        return false;
+        return getAuthoritySet().contains(role);
     }
 
     public final boolean hasAnyRole(String... roles) {
-        Set<String> roleSet = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+        Set<String> roleSet = getAuthoritySet();
 
         for (String role : roles) {
             if (roleSet.contains(role)) {
@@ -87,5 +87,24 @@ public abstract class SecurityExpressionRoot {
 
     public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
         this.trustResolver = trustResolver;
+    }
+
+    public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
+        this.roleHierarchy = roleHierarchy;
+    }
+
+    private Set<String> getAuthoritySet() {
+        if (roles == null) {
+            roles = new HashSet<String>();
+            List<GrantedAuthority> userAuthorities = authentication.getAuthorities();
+
+            if (roleHierarchy != null) {
+                userAuthorities = roleHierarchy.getReachableGrantedAuthorities(userAuthorities);
+            }
+
+            roles = AuthorityUtils.authorityListToSet(userAuthorities);
+        }
+
+        return roles;
     }
 }
