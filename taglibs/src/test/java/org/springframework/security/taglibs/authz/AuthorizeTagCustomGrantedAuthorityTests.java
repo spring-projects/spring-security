@@ -35,7 +35,7 @@ import javax.servlet.jsp.tagext.Tag;
 public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
     //~ Instance fields ================================================================================================
 
-    private final AuthorizeTag authorizeTag = new AuthorizeTag();
+    private final LegacyAuthorizeTag authorizeTag = new LegacyAuthorizeTag();
     private TestingAuthenticationToken currentUser;
 
     //~ Methods ========================================================================================================

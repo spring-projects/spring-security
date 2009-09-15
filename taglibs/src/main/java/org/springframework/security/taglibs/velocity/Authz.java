@@ -19,7 +19,7 @@ package org.springframework.security.taglibs.velocity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.taglibs.authz.AuthenticationTag;
-import org.springframework.security.taglibs.authz.AuthorizeTag;
+import org.springframework.security.taglibs.authz.LegacyAuthorizeTag;
 
 
 import org.springframework.context.ApplicationContext;
@@ -27,7 +27,7 @@ import org.springframework.context.ApplicationContext;
 
 /**
  * Wrapper the implementation of Spring Security JSP tag includes:
- * {@link AuthenticationTag}, {@link AclTag}, {@link AuthorizeTag}
+ * {@link AuthenticationTag}, {@link AclTag}, {@link LegacyAuthorizeTag}
  *
  * @author Wang Qi
  * @version $Id$

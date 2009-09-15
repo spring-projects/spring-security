@@ -36,7 +36,7 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
     Mockery jmock = new Mockery();
     //~ Instance fields ================================================================================================
 
-    private final AuthorizeTag authorizeTag = new AuthorizeTag();
+    private final LegacyAuthorizeTag authorizeTag = new LegacyAuthorizeTag();
     private MockPageContext pageContext;
     private TestingAuthenticationToken currentUser;
 

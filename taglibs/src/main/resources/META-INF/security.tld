@@ -16,9 +16,19 @@
         <name>authorize</name>
         <tag-class>org.springframework.security.taglibs.authz.AuthorizeTag</tag-class>
         <description>
-            A simple tag to output or not the body of the tag if the principal
-            has or doesn't have certain authorities.
+            A tag which outputs the body of the tag if the configured access expression
+            evaluates to true for the currently authenticated principal.
         </description>
+
+        <attribute>
+            <name>access</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                A Spring-EL expression which is supported by the WebSecurityExpressionHandler
+                in the application context. The latter will be used to evaluate the expression.
+            </description>
+        </attribute>
 
         <attribute>
             <name>ifNotGranted</name>
@@ -26,7 +36,7 @@
             <rtexprvalue>true</rtexprvalue>
             <description>
                 A comma separated list of roles which the user must not have
-                for the body to be output.
+                for the body to be output. Deprecated in favour of the access expression.
             </description>
         </attribute>
 
@@ -36,7 +46,7 @@
             <rtexprvalue>true</rtexprvalue>
             <description>
                 A comma separated list of roles which the user must all
-                possess for the body to be output.
+                possess for the body to be output. Deprecated in favour of the access expression.
             </description>
         </attribute>
 
@@ -46,7 +56,7 @@
             <rtexprvalue>true</rtexprvalue>
             <description>
                 A comma separated list of roles, one of which the user must
-                possess for the body to be output.
+                possess for the body to be output. Deprecated in favour of the access expression.
             </description>
         </attribute>
     </tag>

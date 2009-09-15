@@ -20,7 +20,7 @@ import javax.servlet.jsp.tagext.Tag;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.taglibs.authz.AuthenticationTag;
-import org.springframework.security.taglibs.authz.AuthorizeTag;
+import org.springframework.security.taglibs.authz.LegacyAuthorizeTag;
 
 
 /**
@@ -72,7 +72,7 @@ public class AuthzImpl implements Authz {
     }
 
     /**
-     * implementation of AuthorizeTag
+     * implementation of LegacyAuthorizeTag
      *
      * @param roles DOCUMENT ME!
      * @param grantType DOCUMENT ME!
@@ -82,7 +82,7 @@ public class AuthzImpl implements Authz {
      * @throws IllegalArgumentException DOCUMENT ME!
      */
     private boolean ifGranted(String roles, int grantType) {
-        AuthorizeTag authorizeTag = new AuthorizeTag();
+        LegacyAuthorizeTag authorizeTag = new LegacyAuthorizeTag();
 
         int result = -1;
 

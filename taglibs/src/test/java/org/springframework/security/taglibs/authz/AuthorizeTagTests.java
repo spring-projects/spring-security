@@ -15,97 +15,131 @@
 
 package org.springframework.security.taglibs.authz;
 
-import junit.framework.TestCase;
-
-
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.springframework.security.core.context.SecurityContextHolder;
-
+import static org.junit.Assert.assertEquals;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockPageContext;
+import org.springframework.mock.web.MockServletContext;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.StaticWebApplicationContext;
+
 
 /**
- * DOCUMENT ME!
- *
  * @author Francois Beausoleil
  * @version $Id$
  */
-public class AuthorizeTagTests extends TestCase {
+public class AuthorizeTagTests {
     //~ Instance fields ================================================================================================
 
-    private final AuthorizeTag authorizeTag = new AuthorizeTag();
-    private TestingAuthenticationToken currentUser;
+    private AuthorizeTag authorizeTag;
+    private final TestingAuthenticationToken currentUser = new TestingAuthenticationToken("abc", "123", "ROLE SUPERVISOR", "ROLE_TELLER");
 
     //~ Methods ========================================================================================================
 
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        currentUser = new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {
-                    new GrantedAuthorityImpl("ROLE SUPERVISOR"), new GrantedAuthorityImpl("ROLE_TELLER"),
-                });
-
+    @Before
+    public void setUp() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(currentUser);
+        StaticWebApplicationContext ctx = new StaticWebApplicationContext();
+        ctx.registerSingleton("expressionHandler", DefaultWebSecurityExpressionHandler.class);
+        MockServletContext servletCtx = new MockServletContext();
+        servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
+        authorizeTag = new AuthorizeTag();
+        authorizeTag.setPageContext(new MockPageContext(servletCtx, new MockHttpServletRequest(), new MockHttpServletResponse()));
     }
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
     }
 
-    public void testAlwaysReturnsUnauthorizedIfNoUserFound() throws JspException {
-        SecurityContextHolder.getContext().setAuthentication(null);
+    // access attribute tests
 
-        authorizeTag.setIfAllGranted("ROLE_TELLER");
-        assertEquals("prevents request - no principal in Context", Tag.SKIP_BODY, authorizeTag.doStartTag());
+    @Test
+    public void skipsBodyIfNoAuthenticationPresent() throws Exception {
+        SecurityContextHolder.clearContext();
+        authorizeTag.setAccess("permitAll");
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
+    @Test
+    public void skipsBodyIfAccessExpressionDeniesAccess() throws Exception {
+        authorizeTag.setAccess("denyAll");
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+    }
+
+    @Test
+    public void showsBodyIfAccessExpressionAllowsAccess() throws Exception {
+        authorizeTag.setAccess("permitAll");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+    }
+    // Legacy attribute tests
+
+    @Test
+    public void testAlwaysReturnsUnauthorizedIfNoUserFound() throws JspException {
+        SecurityContextHolder.clearContext();
+        authorizeTag.setIfAllGranted("ROLE_TELLER");
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+    }
+
+    @Test
     public void testDefaultsToNotOutputtingBodyWhenNoRequiredAuthorities() throws JspException {
         assertEquals("", authorizeTag.getIfAllGranted());
         assertEquals("", authorizeTag.getIfAnyGranted());
         assertEquals("", authorizeTag.getIfNotGranted());
 
-        assertEquals("prevents body output - no authorities granted", Tag.SKIP_BODY, authorizeTag.doStartTag());
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
+    @Test
     public void testOutputsBodyIfOneRolePresent() throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_TELLER");
-        assertEquals("authorized - ROLE_TELLER in both sets", Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+        assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
 
+    @Test
     public void testOutputsBodyWhenAllGranted() throws JspException {
         authorizeTag.setIfAllGranted("ROLE SUPERVISOR, \nROLE_TELLER");
-        assertEquals("allows request - all required roles granted on principal", Tag.EVAL_BODY_INCLUDE,
-            authorizeTag.doStartTag());
+        assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
 
+    @Test
     public void testOutputsBodyWhenNotGrantedSatisfied() throws JspException {
         authorizeTag.setIfNotGranted("ROLE_BANKER");
-        assertEquals("allows request - principal doesn't have ROLE_BANKER", Tag.EVAL_BODY_INCLUDE,
+        assertEquals(Tag.EVAL_BODY_INCLUDE,
             authorizeTag.doStartTag());
     }
 
+    @Test
     public void testPreventsBodyOutputIfNoSecurityContext() throws JspException {
         SecurityContextHolder.getContext().setAuthentication(null);
         authorizeTag.setIfAnyGranted("ROLE_BANKER");
 
-        assertEquals("prevents output - no context defined", Tag.SKIP_BODY, authorizeTag.doStartTag());
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
+    @Test
     public void testSkipsBodyIfNoAnyRolePresent() throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_BANKER");
-        assertEquals("unauthorized - ROLE_BANKER not in granted authorities", Tag.SKIP_BODY, authorizeTag.doStartTag());
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
+    @Test
     public void testSkipsBodyWhenMissingAnAllGranted() throws JspException {
         authorizeTag.setIfAllGranted("ROLE SUPERVISOR, ROLE_TELLER,\n\rROLE_BANKER");
-        assertEquals("prevents request - missing ROLE_BANKER on principal", Tag.SKIP_BODY, authorizeTag.doStartTag());
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
+    @Test
     public void testSkipsBodyWhenNotGrantedUnsatisfied() throws JspException {
         authorizeTag.setIfNotGranted("ROLE_TELLER");
         assertEquals("prevents request - principal has ROLE_TELLER", Tag.SKIP_BODY, authorizeTag.doStartTag());
