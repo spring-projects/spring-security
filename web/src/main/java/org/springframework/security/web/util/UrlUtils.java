@@ -70,13 +70,36 @@ public final class UrlUtils {
 
     /**
      * Obtains the web application-specific fragment of the URL.
+     * <p>
+     * Under normal spec conditions,
+     * <pre>
+     * requestURI = contextPath + servletPath + pathInfo
+     * </pre>
+     *
+     * But this method may also be called using dummy request objects which just have the requestURI and contextPath
+     * set, for example.
      *
      * @return the URL, excluding any server name, context path or servlet path
      */
     public static String buildRequestUrl(String servletPath, String requestURI, String contextPath, String pathInfo,
         String queryString) {
 
-        return servletPath + ((pathInfo == null) ? "" : pathInfo) + ((queryString == null) ? "" : ("?" + queryString));
+        StringBuilder url = new StringBuilder();
+
+        if (servletPath != null) {
+            url.append(servletPath);
+            if (pathInfo != null) {
+                url.append(pathInfo);
+            }
+        } else {
+            url.append(requestURI.substring(contextPath.length()));
+        }
+
+        if (queryString != null) {
+            url.append("?").append(queryString);
+        }
+
+        return url.toString();
     }
 
     /**

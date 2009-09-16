@@ -28,7 +28,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockPageContext;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.StaticWebApplicationContext;
@@ -36,6 +38,7 @@ import org.springframework.web.context.support.StaticWebApplicationContext;
 
 /**
  * @author Francois Beausoleil
+ * @author Luke Taylor
  * @version $Id$
  */
 public class AuthorizeTagTests {
@@ -51,6 +54,7 @@ public class AuthorizeTagTests {
         SecurityContextHolder.getContext().setAuthentication(currentUser);
         StaticWebApplicationContext ctx = new StaticWebApplicationContext();
         ctx.registerSingleton("expressionHandler", DefaultWebSecurityExpressionHandler.class);
+        ctx.registerSingleton("wipe", MockWebInvocationPrivilegeEvaluator.class);
         MockServletContext servletCtx = new MockServletContext();
         servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
         authorizeTag = new AuthorizeTag();
@@ -82,6 +86,35 @@ public class AuthorizeTagTests {
         authorizeTag.setAccess("permitAll");
         assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
+
+    // url attribute tests
+    @Test
+    public void skipsBodyWithUrlSetIfNoAuthenticationPresent() throws Exception {
+        SecurityContextHolder.clearContext();
+        authorizeTag.setUrl("/something");
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+    }
+
+    @Test
+    public void skipsBodyIfUrlIsNotAllowed() throws Exception {
+        authorizeTag.setUrl("/notallowed");
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+    }
+
+    @Test
+    public void evaluatesBodyIfUrlIsAllowed() throws Exception {
+        authorizeTag.setUrl("/allowed");
+        authorizeTag.setMethod("GET");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+    }
+
+    @Test
+    public void skipsBodyIfMethodIsNotAllowed() throws Exception {
+        authorizeTag.setUrl("/allowed");
+        authorizeTag.setMethod("POST");
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+    }
+
     // Legacy attribute tests
 
     @Test
@@ -143,5 +176,16 @@ public class AuthorizeTagTests {
     public void testSkipsBodyWhenNotGrantedUnsatisfied() throws JspException {
         authorizeTag.setIfNotGranted("ROLE_TELLER");
         assertEquals("prevents request - principal has ROLE_TELLER", Tag.SKIP_BODY, authorizeTag.doStartTag());
+    }
+
+    public static class MockWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
+
+        public boolean isAllowed(String uri, Authentication authentication) {
+            return "/allowed".equals(uri);
+        }
+
+        public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
+            return "/allowed".equals(uri) && (method == null || "GET".equals(method));
+        }
     }
 }

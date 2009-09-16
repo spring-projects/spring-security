@@ -40,6 +40,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.access.channel.InsecureChannelProcessor;
@@ -218,7 +219,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
             sessionStrategyRef = (BeanReference) (sessionStrategyPV == null ? null : sessionStrategyPV.getValue());
         }
-        BeanDefinition fsi = createFilterSecurityInterceptor(element, pc, matcher, convertPathsToLowerCase, authenticationManager);
+        BeanReference fsi = createFilterSecurityInterceptor(element, pc, matcher, convertPathsToLowerCase, authenticationManager);
 
         if (channelRequestMap.size() > 0) {
             // At least one channel requirement has been specified
@@ -791,7 +792,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return accessDeniedHandler.getBeanDefinition();
     }
 
-    private BeanDefinition createFilterSecurityInterceptor(Element element, ParserContext pc, UrlMatcher matcher,
+    private BeanReference createFilterSecurityInterceptor(Element element, ParserContext pc, UrlMatcher matcher,
             boolean convertPathsToLowerCase, BeanReference authManager) {
         BeanDefinitionBuilder fidsBuilder;
 
@@ -851,7 +852,17 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         builder.addPropertyValue("securityMetadataSource", fidsBuilder.getBeanDefinition());
-        return builder.getBeanDefinition();
+        BeanDefinition fsi = builder.getBeanDefinition();
+        String fsiId = pc.getReaderContext().registerWithGeneratedName(fsi);
+        pc.registerBeanComponent(new BeanComponentDefinition(fsi,fsiId));
+
+        // Create and register a DefaultWebInvocationPrivilegeEvaluator for use with taglibs etc.
+        BeanDefinition wipe = new RootBeanDefinition(DefaultWebInvocationPrivilegeEvaluator.class);
+        wipe.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(fsiId));
+        String wipeId = pc.getReaderContext().registerWithGeneratedName(wipe);
+        pc.registerBeanComponent(new BeanComponentDefinition(wipe, wipeId));
+
+        return new RuntimeBeanReference(fsiId);
     }
 
     private BeanDefinition createChannelProcessingFilter(ParserContext pc, UrlMatcher matcher,

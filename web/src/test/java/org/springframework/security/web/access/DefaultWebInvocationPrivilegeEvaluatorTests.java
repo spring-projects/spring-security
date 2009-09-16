@@ -34,15 +34,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.util.UrlUtils;
 
 
 /**
- * Tests {@link org.springframework.security.web.access.WebInvocationPrivilegeEvaluator}.
+ * Tests {@link org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class WebInvocationPrivilegeEvaluatorTests {
+public class DefaultWebInvocationPrivilegeEvaluatorTests {
     private AccessDecisionManager adm;
     private FilterInvocationSecurityMetadataSource ods;
     private RunAsManager ram;
@@ -66,14 +67,14 @@ public class WebInvocationPrivilegeEvaluatorTests {
 
     @Test
     public void permitsAccessIfNoMatchingAttributesAndPublicInvocationsAllowed() throws Exception {
-        WebInvocationPrivilegeEvaluator wipe = new WebInvocationPrivilegeEvaluator(interceptor);
+        DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
         when(ods.getAttributes(anyObject())).thenReturn(null);
         assertTrue(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class)));
     }
 
     @Test
     public void deniesAccessIfNoMatchingAttributesAndPublicInvocationsNotAllowed() throws Exception {
-        WebInvocationPrivilegeEvaluator wipe = new WebInvocationPrivilegeEvaluator(interceptor);
+        DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
         when(ods.getAttributes(anyObject())).thenReturn(null);
         interceptor.setRejectPublicInvocations(true);
         assertFalse(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class)));
@@ -81,14 +82,14 @@ public class WebInvocationPrivilegeEvaluatorTests {
 
     @Test
     public void deniesAccessIfAuthenticationIsNull() throws Exception {
-        WebInvocationPrivilegeEvaluator wipe = new WebInvocationPrivilegeEvaluator(interceptor);
+        DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
         assertFalse(wipe.isAllowed("/foo/index.jsp", null));
     }
 
     @Test
     public void allowsAccessIfAccessDecisionMangerDoes() throws Exception {
         Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
-        WebInvocationPrivilegeEvaluator wipe = new WebInvocationPrivilegeEvaluator(interceptor);
+        DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
         assertTrue(wipe.isAllowed("/foo/index.jsp", token));
     }
 
@@ -96,7 +97,7 @@ public class WebInvocationPrivilegeEvaluatorTests {
     @Test
     public void deniesAccessIfAccessDecisionMangerDoes() throws Exception {
         Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
-        WebInvocationPrivilegeEvaluator wipe = new WebInvocationPrivilegeEvaluator(interceptor);
+        DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
 
         doThrow(new AccessDeniedException("")).when(adm).decide(any(Authentication.class), anyObject(), anyList());
 
@@ -105,6 +106,14 @@ public class WebInvocationPrivilegeEvaluatorTests {
 
     @Test(expected=UnsupportedOperationException.class)
     public void dummyChainRejectsInvocation() throws Exception {
-        WebInvocationPrivilegeEvaluator.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class));
+        DefaultWebInvocationPrivilegeEvaluator.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class));
+    }
+
+    @Test
+    public void dummyRequestIsSupportedByUrlUtils() throws Exception {
+        DummyRequest request = new DummyRequest();
+        request.setContextPath("");
+        request.setRequestURI("/something");
+        UrlUtils.buildRequestUrl(request);
     }
 }
