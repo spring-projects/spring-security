@@ -16,6 +16,7 @@ package org.springframework.security.acls.domain;
 
 import static org.junit.Assert.*;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.acls.model.Permission;
 
@@ -24,13 +25,20 @@ import org.springframework.security.acls.model.Permission;
  * Tests classes associated with Permission.
  *
  * @author Ben Alex
- * @version $Id${date}
+ * @version $Id$
  */
 public class PermissionTests {
 
+    private DefaultPermissionFactory permissionFactory;
+
+    @Before
+    public void createPermissionfactory() {
+        permissionFactory = new DefaultPermissionFactory();
+    }
+
     @Test
     public void basePermissionTest() {
-        Permission p = BasePermission.buildFromName("WRITE");
+        Permission p = permissionFactory.buildFromName("WRITE");
         assertNotNull(p);
     }
 
@@ -47,14 +55,16 @@ public class PermissionTests {
 
     @Test
     public void fromInteger() {
-        Permission permission = BasePermission.buildFromMask(7);
+        Permission permission = permissionFactory.buildFromMask(7);
         System.out.println("7 =  " + permission.toString());
-        permission = BasePermission.buildFromMask(4);
+        permission = permissionFactory.buildFromMask(4);
         System.out.println("4 =  " + permission.toString());
     }
 
     @Test
     public void stringConversion() {
+        permissionFactory.registerPublicPermissions(SpecialPermission.class);
+
         System.out.println("R =  " + BasePermission.READ.toString());
         assertEquals("BasePermission[...............................R=1]", BasePermission.READ.toString());
 

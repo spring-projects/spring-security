@@ -14,8 +14,25 @@
  */
 package org.springframework.security.taglibs.authz;
 
-import org.springframework.security.acls.domain.BasePermission;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+
+import javax.servlet.ServletContext;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.tagext.Tag;
+import javax.servlet.jsp.tagext.TagSupport;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.acls.domain.DefaultPermissionFactory;
 import org.springframework.security.acls.domain.ObjectIdentityRetrievalStrategyImpl;
+import org.springframework.security.acls.domain.PermissionFactory;
 import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AclService;
@@ -25,30 +42,9 @@ import org.springframework.security.acls.model.ObjectIdentityRetrievalStrategy;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
-
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.context.ApplicationContext;
-
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.util.ExpressionEvaluationUtils;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.HashMap;
-
-import javax.servlet.ServletContext;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.Tag;
-import javax.servlet.jsp.tagext.TagSupport;
 
 
 /**
@@ -81,16 +77,17 @@ public class AccessControlListTag extends TagSupport {
     private Object domainObject;
     private ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy;
     private SidRetrievalStrategy sidRetrievalStrategy;
+    private PermissionFactory permissionFactory;
     private String hasPermission = "";
 
     //~ Methods ========================================================================================================
 
     public int doStartTag() throws JspException {
-        initializeIfRequired();
-
         if ((null == hasPermission) || "".equals(hasPermission)) {
             return Tag.SKIP_BODY;
         }
+
+        initializeIfRequired();
 
         final String evaledPermissionsString = ExpressionEvaluationUtils.evaluateString("hasPermission", hasPermission,
                 pageContext);
@@ -169,7 +166,6 @@ public class AccessControlListTag extends TagSupport {
         return hasPermission;
     }
 
-    @SuppressWarnings("unchecked")
     private void initializeIfRequired() throws JspException {
         if (applicationContext != null) {
             return;
@@ -177,42 +173,43 @@ public class AccessControlListTag extends TagSupport {
 
         this.applicationContext = getContext(pageContext);
 
-        Map map = new HashMap();
-        ApplicationContext context = applicationContext;
+        aclService = getBeanOfType(AclService.class);
 
-        while (context != null) {
-            map.putAll(context.getBeansOfType(AclService.class));
-            context = context.getParent();
-        }
+        sidRetrievalStrategy = getBeanOfType(SidRetrievalStrategy.class);
 
-        if (map.size() != 1) {
-            throw new JspException(
-                "Found incorrect number of AclService instances in application context - you must have only have one!");
-        }
-
-        aclService = (AclService) map.values().iterator().next();
-
-        map = applicationContext.getBeansOfType(SidRetrievalStrategy.class);
-
-        if (map.size() == 0) {
+        if (sidRetrievalStrategy == null) {
             sidRetrievalStrategy = new SidRetrievalStrategyImpl();
-        } else if (map.size() == 1) {
-            sidRetrievalStrategy = (SidRetrievalStrategy) map.values().iterator().next();
-        } else {
-            throw new JspException("Found incorrect number of SidRetrievalStrategy instances in application "
-                    + "context - you must have only have one!");
         }
 
-        map = applicationContext.getBeansOfType(ObjectIdentityRetrievalStrategy.class);
+        objectIdentityRetrievalStrategy = getBeanOfType(ObjectIdentityRetrievalStrategy.class);
+
+        if (objectIdentityRetrievalStrategy == null) {
+            objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
+        }
+
+        permissionFactory = getBeanOfType(PermissionFactory.class);
+
+        if (permissionFactory == null) {
+            permissionFactory = new DefaultPermissionFactory();
+        }
+    }
+
+    private <T> T getBeanOfType(Class<T> type) throws JspException {
+        Map<String, T> map = applicationContext.getBeansOfType(type);
+
+        for (ApplicationContext context = applicationContext.getParent();
+            context != null; context = context.getParent()) {
+            map.putAll(context.getBeansOfType(type));
+        }
 
         if (map.size() == 0) {
-            objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
+            return null;
         } else if (map.size() == 1) {
-            objectIdentityRetrievalStrategy = (ObjectIdentityRetrievalStrategy) map.values().iterator().next();
-        } else {
-            throw new JspException("Found incorrect number of ObjectIdentityRetrievalStrategy instances in "
-                    + "application context - you must have only have one!");
+            return map.values().iterator().next();
         }
+
+        throw new JspException("Found incorrect number of " + type.getSimpleName() +" instances in "
+                    + "application context - you must have only have one!");
     }
 
     private List<Permission> parsePermissionsString(String integersString)
@@ -223,7 +220,7 @@ public class AccessControlListTag extends TagSupport {
 
         while (tokenizer.hasMoreTokens()) {
             String integer = tokenizer.nextToken();
-            permissions.add(BasePermission.buildFromMask(new Integer(integer).intValue()));
+            permissions.add(permissionFactory.buildFromMask(new Integer(integer)));
         }
 
         return new ArrayList<Permission>(permissions);

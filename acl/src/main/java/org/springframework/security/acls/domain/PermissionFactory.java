@@ -1,13 +1,15 @@
 package org.springframework.security.acls.domain;
 
+import java.util.List;
+
 import org.springframework.security.acls.model.Permission;
 
 /**
  * Provides a simple mechanism to retrieve {@link Permission} instances from integer masks.
- * 
+ *
  * @author Ben Alex
  * @since 2.0.3
- * 
+ *
  */
 public interface PermissionFactory {
 
@@ -19,6 +21,11 @@ public interface PermissionFactory {
      *
      * @return a Permission representing the requested object
      */
-    public abstract Permission buildFromMask(int mask);
+    Permission buildFromMask(int mask);
 
+
+    Permission buildFromName(String name);
+
+
+    List<Permission> buildFromNames(List<String> names);
 }

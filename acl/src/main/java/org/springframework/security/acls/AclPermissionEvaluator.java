@@ -7,8 +7,9 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.access.PermissionEvaluator;
-import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.domain.DefaultPermissionFactory;
 import org.springframework.security.acls.domain.ObjectIdentityRetrievalStrategyImpl;
+import org.springframework.security.acls.domain.PermissionFactory;
 import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AclService;
@@ -38,6 +39,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
     private ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
     private ObjectIdentityGenerator objectIdentityGenerator = new ObjectIdentityRetrievalStrategyImpl();
     private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
+    private PermissionFactory permissionFactory = new DefaultPermissionFactory();
 
     public AclPermissionEvaluator(AclService aclService) {
         this.aclService = aclService;
@@ -95,10 +97,9 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 
     }
 
-    // TODO: Add permission resolver/PermissionFactory rewrite
     List<Permission> resolvePermission(Object permission) {
         if (permission instanceof Integer) {
-            return Arrays.asList(BasePermission.buildFromMask(((Integer)permission).intValue()));
+            return Arrays.asList(permissionFactory.buildFromMask(((Integer)permission).intValue()));
         }
 
         if (permission instanceof Permission) {
@@ -114,9 +115,9 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
             Permission p = null;
 
             try {
-                p = BasePermission.buildFromName(permString);
+                p = permissionFactory.buildFromName(permString);
             } catch(IllegalArgumentException notfound) {
-                p = BasePermission.buildFromName(permString.toUpperCase());
+                p = permissionFactory.buildFromName(permString.toUpperCase());
             }
 
             if (p != null) {

@@ -37,14 +37,6 @@ public class BasePermission extends AbstractPermission {
 
     protected static DefaultPermissionFactory defaultPermissionFactory = new DefaultPermissionFactory();
 
-    /**
-     * Registers the public static permissions defined on this class. This is mandatory so
-     * that the static methods will operate correctly.
-     */
-    static {
-        registerPermissionsFor(BasePermission.class);
-    }
-    
     protected BasePermission(int mask) {
        super(mask);
     }
@@ -53,24 +45,20 @@ public class BasePermission extends AbstractPermission {
         super(mask, code);
     }
 
-    protected final static void registerPermissionsFor(Class<? extends Permission> subClass) {
-        defaultPermissionFactory.registerPublicPermissions(subClass);
-    }
-
-    public final static Permission buildFromMask(int mask) {
-        return defaultPermissionFactory.buildFromMask(mask);
-    }
-
-    public final static Permission[] buildFromMask(int[] masks) {
-        return defaultPermissionFactory.buildFromMask(masks);
-    }
-
-    public final static Permission buildFromName(String name) {
-        return defaultPermissionFactory.buildFromName(name);
-    }
-
-    public final static Permission[] buildFromName(String[] names) {
-        return defaultPermissionFactory.buildFromName(names);
-    }
+//    public final static Permission buildFromMask(int mask) {
+//        return defaultPermissionFactory.buildFromMask(mask);
+//    }
+//
+//    public final static Permission[] buildFromMask(int[] masks) {
+//        return defaultPermissionFactory.buildFromMask(masks);
+//    }
+//
+//    public final static Permission buildFromName(String name) {
+//        return defaultPermissionFactory.buildFromName(name);
+//    }
+//
+//    public final static Permission[] buildFromName(String[] names) {
+//        return defaultPermissionFactory.buildFromName(names);
+//    }
 
 }

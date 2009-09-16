@@ -10,7 +10,9 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.domain.DefaultPermissionFactory;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PermissionFactory;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AclService;
@@ -45,6 +47,7 @@ public final class AdminPermissionController implements MessageSourceAware{
     private ContactManager contactManager;
     private MessageSourceAccessor messages;
     private Validator addPermissionValidator = new AddPermissionValidator();
+    private PermissionFactory permissionFactory = new DefaultPermissionFactory();
 
     /**
      * Displays the permission admin page for a particular contact.
@@ -99,7 +102,7 @@ public final class AdminPermissionController implements MessageSourceAware{
         }
 
         PrincipalSid sid = new PrincipalSid(addPermission.getRecipient());
-        Permission permission = BasePermission.buildFromMask(addPermission.getPermission().intValue());
+        Permission permission = permissionFactory.buildFromMask(addPermission.getPermission());
 
         try {
             contactManager.addPermission(addPermission.getContact(), sid, permission);
@@ -127,7 +130,7 @@ public final class AdminPermissionController implements MessageSourceAware{
         Contact contact = contactManager.getById(new Long(contactId));
 
         Sid sidObject = new PrincipalSid(sid);
-        Permission permission = BasePermission.buildFromMask(mask);
+        Permission permission = permissionFactory.buildFromMask(mask);
 
         contactManager.deletePermission(contact, sidObject, permission);
 

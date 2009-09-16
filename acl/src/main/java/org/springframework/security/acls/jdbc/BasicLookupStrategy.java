@@ -37,9 +37,10 @@ import org.springframework.security.acls.domain.AccessControlEntryImpl;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclImpl;
 import org.springframework.security.acls.domain.AuditLogger;
-import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.domain.DefaultPermissionFactory;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PermissionFactory;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
@@ -71,6 +72,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
     //~ Instance fields ================================================================================================
 
     private AclAuthorizationStrategy aclAuthorizationStrategy;
+    private PermissionFactory permissionFactory = new DefaultPermissionFactory();
     private AclCache aclCache;
     private AuditLogger auditLogger;
     private JdbcTemplate jdbcTemplate;
@@ -223,11 +225,6 @@ public final class BasicLookupStrategy implements LookupStrategy {
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Could not set AclImpl entries", e);
         }
-    }
-
-
-    protected Permission convertMaskIntoPermission(int mask) {
-        return BasePermission.buildFromMask(mask);
     }
 
     /**
@@ -519,7 +516,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
                 }
 
                 int mask = rs.getInt("mask");
-                Permission permission = convertMaskIntoPermission(mask);
+                Permission permission = permissionFactory.buildFromMask(mask);
                 boolean granting = rs.getBoolean("granting");
                 boolean auditSuccess = rs.getBoolean("audit_success");
                 boolean auditFailure = rs.getBoolean("audit_failure");

@@ -1,7 +1,10 @@
 package org.springframework.security.acls.domain;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.acls.jdbc.LookupStrategy;
@@ -22,6 +25,10 @@ import org.springframework.util.Assert;
 public class DefaultPermissionFactory implements PermissionFactory {
     private final Map<Integer, Permission> registeredPermissionsByInteger = new HashMap<Integer, Permission>();
     private final Map<String, Permission> registeredPermissionsByName = new HashMap<String, Permission>();
+
+    public DefaultPermissionFactory() {
+        registerPublicPermissions(BasePermission.class);
+    }
 
     /**
      * Permit registration of a {@link DefaultPermissionFactory} class. The class must provide
@@ -106,15 +113,15 @@ public class DefaultPermissionFactory implements PermissionFactory {
         return (Permission) registeredPermissionsByName.get(name);
     }
 
-    public Permission[] buildFromName(String[] names) {
-        if ((names == null) || (names.length == 0)) {
-            return new Permission[0];
+    public List<Permission> buildFromNames(List<String> names) {
+        if ((names == null) || (names.size() == 0)) {
+            return Collections.emptyList();
         }
 
-        Permission[] permissions = new Permission[names.length];
+        List<Permission> permissions = new ArrayList<Permission>(names.size());
 
-        for (int i = 0; i < names.length; i++) {
-            permissions[i] = buildFromName(names[i]);
+        for (String name : names) {
+            permissions.add(buildFromName(name));
         }
 
         return permissions;
