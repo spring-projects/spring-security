@@ -212,8 +212,7 @@ public class AccessControlListTag extends TagSupport {
                     + "application context - you must have only have one!");
     }
 
-    private List<Permission> parsePermissionsString(String integersString)
-        throws NumberFormatException {
+    private List<Permission> parsePermissionsString(String integersString) throws NumberFormatException {
         final Set<Permission> permissions = new HashSet<Permission>();
         final StringTokenizer tokenizer;
         tokenizer = new StringTokenizer(integersString, ",", false);
