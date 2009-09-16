@@ -7,36 +7,59 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.security.acls.jdbc.LookupStrategy;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.util.Assert;
 
 /**
  * Default implementation of {@link PermissionFactory}.
  * <p>
- * Generally this class will be used by a {@link Permission} instance, as opposed to being dependency
- * injected into a {@link LookupStrategy} or similar. Nevertheless, the latter mode of operation is
- * fully supported (in which case your {@link Permission} implementations probably should extend
- * {@link AbstractPermission} instead of {@link AbstractRegisteredPermission}).
+ * Used as a strategy by classes which wish to map integer masks and permission names to <tt>Permission</tt>
+ * instances for use with the ACL implementation.
+ * <p>
+ * Maintains a registry of permission names and masks to <tt>Permission</tt> instances.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  * @since 2.0.3
  */
 public class DefaultPermissionFactory implements PermissionFactory {
     private final Map<Integer, Permission> registeredPermissionsByInteger = new HashMap<Integer, Permission>();
     private final Map<String, Permission> registeredPermissionsByName = new HashMap<String, Permission>();
 
+    /**
+     * Registers the <tt>Permission</tt> fields from the <tt>BasePermission</tt> class.
+     */
     public DefaultPermissionFactory() {
         registerPublicPermissions(BasePermission.class);
     }
 
     /**
-     * Permit registration of a {@link DefaultPermissionFactory} class. The class must provide
-     * public static fields of type {@link Permission} to represent the possible permissions.
+     * Registers the <tt>Permission</tt> fields from the supplied class.
+     */
+    public DefaultPermissionFactory(Class<? extends Permission> permissionClass) {
+        registerPublicPermissions(permissionClass);
+    }
+
+    /**
+     * Registers a map of named <tt>Permission</tt> instances.
+     *
+     * @param namedPermissions the map of <tt>Permission</tt>s, keyed by name.
+     */
+    public DefaultPermissionFactory(Map<String, ? extends Permission> namedPermissions) {
+        for (String name : namedPermissions.keySet()) {
+            registerPermission(namedPermissions.get(name), name);
+        }
+    }
+
+    /**
+     * Registers the public static fields of type {@link Permission} for a give class.
+     * <p>
+     * These permissions will be registered under the name of the field. See {@link BasePermission}
+     * for an example.
      *
      * @param clazz a {@link Permission} class with public static fields to register
      */
-    public void registerPublicPermissions(Class<? extends Permission> clazz) {
+    protected void registerPublicPermissions(Class<? extends Permission> clazz) {
         Assert.notNull(clazz, "Class required");
 
         Field[] fields = clazz.getFields();
@@ -56,7 +79,7 @@ public class DefaultPermissionFactory implements PermissionFactory {
         }
     }
 
-    public void registerPermission(Permission perm, String permissionName) {
+    protected void registerPermission(Permission perm, String permissionName) {
         Assert.notNull(perm, "Permission required");
         Assert.hasText(permissionName, "Permission name required");
 
@@ -72,8 +95,8 @@ public class DefaultPermissionFactory implements PermissionFactory {
     }
 
     public Permission buildFromMask(int mask) {
-        if (registeredPermissionsByInteger.containsKey(new Integer(mask))) {
-            // The requested mask has an exactly match against a statically-defined Permission, so return it
+        if (registeredPermissionsByInteger.containsKey(Integer.valueOf(mask))) {
+            // The requested mask has an exact match against a statically-defined Permission, so return it
             return (Permission) registeredPermissionsByInteger.get(new Integer(mask));
         }
 
@@ -84,7 +107,7 @@ public class DefaultPermissionFactory implements PermissionFactory {
             int permissionToCheck = 1 << i;
 
             if ((mask & permissionToCheck) == permissionToCheck) {
-                Permission p = (Permission) registeredPermissionsByInteger.get(new Integer(permissionToCheck));
+                Permission p = (Permission) registeredPermissionsByInteger.get(Integer.valueOf(permissionToCheck));
                 Assert.state(p != null, "Mask " + permissionToCheck + " does not have a corresponding static Permission");
                 permission.set(p);
             }
@@ -93,19 +116,19 @@ public class DefaultPermissionFactory implements PermissionFactory {
         return permission;
     }
 
-    public Permission[] buildFromMask(int[] masks) {
-        if ((masks == null) || (masks.length == 0)) {
-            return new Permission[0];
-        }
-
-        Permission[] permissions = new Permission[masks.length];
-
-        for (int i = 0; i < masks.length; i++) {
-            permissions[i] = buildFromMask(masks[i]);
-        }
-
-        return permissions;
-    }
+//    public Permission[] buildFromMask(int[] masks) {
+//        if ((masks == null) || (masks.length == 0)) {
+//            return new Permission[0];
+//        }
+//
+//        Permission[] permissions = new Permission[masks.length];
+//
+//        for (int i = 0; i < masks.length; i++) {
+//            permissions[i] = buildFromMask(masks[i]);
+//        }
+//
+//        return permissions;
+//    }
 
     public Permission buildFromName(String name) {
         Assert.isTrue(registeredPermissionsByName.containsKey(name), "Unknown permission '" + name + "'");
