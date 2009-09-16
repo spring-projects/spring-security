@@ -92,13 +92,7 @@ public class AccessControlListTag extends TagSupport {
         final String evaledPermissionsString = ExpressionEvaluationUtils.evaluateString("hasPermission", hasPermission,
                 pageContext);
 
-        List<Permission> requiredPermissions = null;
-
-        try {
-            requiredPermissions = parsePermissionsString(evaledPermissionsString);
-        } catch (NumberFormatException nfe) {
-            throw new JspException(nfe);
-        }
+        List<Permission> requiredPermissions = parsePermissionsString(evaledPermissionsString);
 
         Object resolvedDomainObject = null;
 
@@ -212,14 +206,19 @@ public class AccessControlListTag extends TagSupport {
                     + "application context - you must have only have one!");
     }
 
-    private List<Permission> parsePermissionsString(String integersString) throws NumberFormatException {
+    private List<Permission> parsePermissionsString(String permissionsString) throws NumberFormatException {
         final Set<Permission> permissions = new HashSet<Permission>();
         final StringTokenizer tokenizer;
-        tokenizer = new StringTokenizer(integersString, ",", false);
+        tokenizer = new StringTokenizer(permissionsString, ",", false);
 
         while (tokenizer.hasMoreTokens()) {
-            String integer = tokenizer.nextToken();
-            permissions.add(permissionFactory.buildFromMask(new Integer(integer)));
+            String permission = tokenizer.nextToken();
+            try {
+                permissions.add(permissionFactory.buildFromMask(Integer.valueOf(permission)));
+            } catch (NumberFormatException nfe) {
+                // Not an integer mask. Try using a name
+                permissions.add(permissionFactory.buildFromName(permission));
+            }
         }
 
         return new ArrayList<Permission>(permissions);

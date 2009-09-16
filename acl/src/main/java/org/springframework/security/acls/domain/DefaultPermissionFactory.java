@@ -97,7 +97,7 @@ public class DefaultPermissionFactory implements PermissionFactory {
     public Permission buildFromMask(int mask) {
         if (registeredPermissionsByInteger.containsKey(Integer.valueOf(mask))) {
             // The requested mask has an exact match against a statically-defined Permission, so return it
-            return (Permission) registeredPermissionsByInteger.get(new Integer(mask));
+            return registeredPermissionsByInteger.get(new Integer(mask));
         }
 
         // To get this far, we have to use a CumulativePermission
@@ -107,8 +107,11 @@ public class DefaultPermissionFactory implements PermissionFactory {
             int permissionToCheck = 1 << i;
 
             if ((mask & permissionToCheck) == permissionToCheck) {
-                Permission p = (Permission) registeredPermissionsByInteger.get(Integer.valueOf(permissionToCheck));
-                Assert.state(p != null, "Mask " + permissionToCheck + " does not have a corresponding static Permission");
+                Permission p = registeredPermissionsByInteger.get(Integer.valueOf(permissionToCheck));
+
+                if (p == null) {
+                    throw new IllegalStateException("Mask '" + permissionToCheck + "' does not have a corresponding static Permission");
+                }
                 permission.set(p);
             }
         }
@@ -131,9 +134,13 @@ public class DefaultPermissionFactory implements PermissionFactory {
 //    }
 
     public Permission buildFromName(String name) {
-        Assert.isTrue(registeredPermissionsByName.containsKey(name), "Unknown permission '" + name + "'");
+        Permission p = registeredPermissionsByName.get(name);
 
-        return (Permission) registeredPermissionsByName.get(name);
+        if (p == null) {
+            throw new IllegalArgumentException("Unknown permission '" + name + "'");
+        }
+
+        return p;
     }
 
     public List<Permission> buildFromNames(List<String> names) {
