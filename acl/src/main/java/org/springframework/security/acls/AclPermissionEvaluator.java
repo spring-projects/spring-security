@@ -125,7 +125,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
             }
 
         }
-        throw new IllegalArgumentException("unsupported permission: " + permission);
+        throw new IllegalArgumentException("Unsupported permission: " + permission);
     }
 
     public void setObjectIdentityRetrievalStrategy(ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
@@ -138,5 +138,9 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 
     public void setSidRetrievalStrategy(SidRetrievalStrategy sidRetrievalStrategy) {
         this.sidRetrievalStrategy = sidRetrievalStrategy;
+    }
+
+    public void setPermissionFactory(PermissionFactory permissionFactory) {
+        this.permissionFactory = permissionFactory;
     }
 }
