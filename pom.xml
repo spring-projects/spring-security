@@ -333,6 +333,7 @@
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
+                    <fork>true</fork>
                 </configuration>
             </plugin>
             <plugin>
