@@ -966,9 +966,14 @@
         <xs:documentation>The URL a user will be redirected to if they attempt to use a session which has been "expired" because they have logged in again.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="exception-if-maximum-exceeded" type="security:boolean">
+    <xs:attribute name="error-if-maximum-exceeded" type="security:boolean">
       <xs:annotation>
-        <xs:documentation>Specifies that an exception should be raised when a user attempts to login when they already have the maximum configured sessions open. The default behaviour is to expire the original session.</xs:documentation>
+        <xs:documentation>Specifies that an unauthorized error should be reported when a user attempts to login when they already have the maximum configured sessions open. The default behaviour is to expire the original session.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="error-url" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Defines the URL of the error page which should be shown when the maximum is exceeded and error-if-maximum-exceeded is 'true'. If not set, an unauthorized (402) error code will be returned to the client. </xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="session-registry-alias" type="xs:token">
