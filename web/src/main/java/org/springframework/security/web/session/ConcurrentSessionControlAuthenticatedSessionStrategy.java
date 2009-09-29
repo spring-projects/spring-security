@@ -9,7 +9,6 @@ import javax.servlet.http.HttpSession;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
 import org.springframework.security.authentication.concurrent.SessionInformation;
 import org.springframework.security.authentication.concurrent.SessionRegistry;
 import org.springframework.security.core.Authentication;
@@ -105,12 +104,11 @@ public class ConcurrentSessionControlAuthenticatedSessionStrategy extends Defaul
      * @param allowableSessions the number of concurrent sessions the user is allowed to have
      * @param registry an instance of the <code>SessionRegistry</code> for subclass use
      *
-     * @throws ConcurrentLoginException if the
      */
     protected void allowableSessionsExceeded(List<SessionInformation> sessions, int allowableSessions,
             SessionRegistry registry) {
         if (exceptionIfMaximumExceeded || (sessions == null)) {
-            throw new ConcurrentLoginException(messages.getMessage("ConcurrentSessionControllerImpl.exceededAllowed",
+            throw new SessionAuthenticationException(messages.getMessage("ConcurrentSessionControllerImpl.exceededAllowed",
                     new Object[] {new Integer(allowableSessions)},
                     "Maximum sessions of {0} for this principal exceeded"));
         }

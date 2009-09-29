@@ -15,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -40,6 +42,7 @@ public class SessionManagementFilter extends GenericFilterBean {
     private SessionAuthenticationStrategy sessionStrategy = new DefaultSessionAuthenticationStrategy();
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
     private String invalidSessionUrl;
+    private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     public SessionManagementFilter(SecurityContextRepository securityContextRepository) {
@@ -67,13 +70,19 @@ public class SessionManagementFilter extends GenericFilterBean {
                     sessionStrategy.onAuthentication(authentication, request, response);
                 } catch (SessionAuthenticationException e) {
                     // The session strategy can reject the authentication
-                    logger.debug("SessionAuthenticationStrategy rejected the authentication object",e);
+                    logger.debug("SessionAuthenticationStrategy rejected the authentication object", e);
                     SecurityContextHolder.clearContext();
+                    failureHandler.onAuthenticationFailure(request, response, e);
+
+                    return;
                 }
             } else {
              // No security context or authentication present. Check for a session timeout
                 if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {
+                    logger.debug("Requested session ID" + request.getRequestedSessionId() + " is invalid.");
+
                     if (invalidSessionUrl != null) {
+                        logger.debug("Redirecting to '" + invalidSessionUrl + "'");
                         redirectStrategy.sendRedirect(request, response, invalidSessionUrl);
                     }
                 }
@@ -95,13 +104,24 @@ public class SessionManagementFilter extends GenericFilterBean {
     }
 
     /**
-     * Sets the URL to which the response should be redirected if the user agent request and invalid session Id.
+     * Sets the URL to which the response should be redirected if the user agent requests an invalid session Id.
      * If the property is not set, no action will be taken.
      *
      * @param invalidSessionUrl
      */
     public void setInvalidSessionUrl(String invalidSessionUrl) {
         this.invalidSessionUrl = invalidSessionUrl;
+    }
+
+    /**
+     * The handler which will be invoked if the <tt>AuthenticatedSessionStrategy</tt> raises a
+     * <tt>SessionAuthenticationException</tt>, indicating that the user is not allowed to be authenticated for this
+     * session (typically because they already have too many sessions open).
+     *
+     */
+    public void setAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
+        Assert.notNull(failureHandler, "failureHandler cannot be null");
+        this.failureHandler = failureHandler;
     }
 
     public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
