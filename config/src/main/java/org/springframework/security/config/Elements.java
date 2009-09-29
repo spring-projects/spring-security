@@ -28,7 +28,8 @@ public abstract class Elements {
     public static final String PRE_INVOCATION_ADVICE = "pre-invocation-advice";
     public static final String POST_INVOCATION_ADVICE = "post-invocation-advice";
     public static final String PROTECT = "protect";
-    public static final String CONCURRENT_SESSIONS = "concurrent-session-control";
+    public static final String SESSION_MANAGEMENT = "session-management";
+    public static final String CONCURRENT_SESSIONS = "concurrency-control";
     public static final String LOGOUT = "logout";
     public static final String FORM_LOGIN = "form-login";
     public static final String OPENID_LOGIN = "openid-login";

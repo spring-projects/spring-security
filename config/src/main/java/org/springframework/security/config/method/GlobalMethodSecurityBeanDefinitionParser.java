@@ -130,7 +130,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
                     BeanDefinition expressionHandler = new RootBeanDefinition(DefaultMethodSecurityExpressionHandler.class);
                     expressionHandlerRef = pc.getReaderContext().registerWithGeneratedName(expressionHandler);
                     pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
-                    logger.warn("Expressions were enabled for method security but no SecurityExpressionHandler was configured. " +
+                    logger.info("Expressions were enabled for method security but no SecurityExpressionHandler was configured. " +
                             "All hasPermision() expressions will evaluate to false.");
                 }
 

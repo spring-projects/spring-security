@@ -3,7 +3,7 @@ package org.springframework.security.config.http;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
-import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.*;
+import static org.springframework.security.config.http.AuthenticationConfigBuilder.*;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -101,8 +101,8 @@ public class HttpSecurityBeanDefinitionParserTests {
 
     @Test
     public void beanClassNamesAreCorrect() throws Exception {
-        assertEquals(DefaultWebSecurityExpressionHandler.class.getName(), EXPRESSION_HANDLER_CLASS);
-        assertEquals(ExpressionBasedFilterInvocationSecurityMetadataSource.class.getName(), EXPRESSION_FIMDS_CLASS);
+        assertEquals(DefaultWebSecurityExpressionHandler.class.getName(), HttpSecurityBeanDefinitionParser.EXPRESSION_HANDLER_CLASS);
+        assertEquals(ExpressionBasedFilterInvocationSecurityMetadataSource.class.getName(), HttpSecurityBeanDefinitionParser.EXPRESSION_FIMDS_CLASS);
         assertEquals(UsernamePasswordAuthenticationProcessingFilter.class.getName(), AUTHENTICATION_PROCESSING_FILTER_CLASS);
         assertEquals(OpenIDAuthenticationProcessingFilter.class.getName(), OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS);
         assertEquals(OpenIDAuthenticationProvider.class.getName(), OPEN_ID_AUTHENTICATION_PROVIDER_CLASS);
@@ -662,7 +662,9 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void concurrentSessionSupportAddsFilterAndExpectedBeans() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
-                "    <concurrent-session-control session-registry-alias='sr' expired-url='/expired'/>" +
+                "    <session-management>" +
+                "        <concurrency-control session-registry-alias='sr' expired-url='/expired'/>" +
+                "    </session-management>" +
                 "</http>" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
 
@@ -677,37 +679,12 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void externalSessionRegistryBeanIsConfiguredCorrectly() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
-                "    <concurrent-session-control session-registry-ref='sr' />" +
+                "    <session-management>" +
+                "        <concurrency-control session-registry-ref='sr' />" +
+                "    </session-management>" +
                 "</http>" +
                 "<b:bean id='sr' class='" + SessionRegistryImpl.class.getName() + "'/>" +
                 AUTH_PROVIDER_XML);
-        checkSessionRegistry();
-    }
-
-//    @Test(expected=BeanDefinitionParsingException.class)
-//    public void useOfExternalConcurrentSessionControllerRequiresSessionRegistryToBeSet() throws Exception {
-//        setContext(
-//                "<http auto-config='true'>" +
-//                "    <concurrent-session-control session-controller-ref='sc' expired-url='/expired'/>" +
-//                "</http>" +
-//                "<b:bean id='sc' class='" + ConcurrentSessionControllerImpl.class.getName() +"'>" +
-//                "  <b:property name='sessionRegistry'>" +
-//                "    <b:bean class='"+ SessionRegistryImpl.class.getName() + "'/>" +
-//                "  </b:property>" +
-//                "</b:bean>" + AUTH_PROVIDER_XML);
-//    }
-
-    @Test
-    public void useOfExternalSessionControllerAndRegistryIsWiredCorrectly() throws Exception {
-        setContext(
-                "<http auto-config='true'>" +
-                "    <concurrent-session-control session-registry-ref='sr' session-controller-ref='sc' expired-url='/expired'/>" +
-                "</http>" +
-                "<b:bean id='sc' class='" + ConcurrentSessionControllerImpl.class.getName() +"'>" +
-                "  <b:property name='sessionRegistry' ref='sr'/>" +
-                "</b:bean>" +
-                "<b:bean id='sr' class='"+ SessionRegistryImpl.class.getName() + "'/>" + AUTH_PROVIDER_XML
-                );
         checkSessionRegistry();
     }
 
@@ -727,42 +704,14 @@ public class HttpSecurityBeanDefinitionParserTests {
         // SEC-1143
         assertSame(sessionRegistry, sessionRegistryFromFormLoginFilter);
     }
-/*
-// These no longer apply with the internal authentication manager in <http> and it won't be possible to check the
-// Validity of the configuration against the central AuthenticationManager when we allow more than one <http> element.
-    @Test(expected=BeanDefinitionParsingException.class)
-    public void concurrentSessionSupportCantBeUsedWithIndependentControllerBean() throws Exception {
-        setContext(
-                "<authentication-manager alias='authManager' session-controller-ref='sc'/>" +
-                "<http auto-config='true'>" +
-                "    <concurrent-session-control session-registry-alias='seshRegistry' expired-url='/expired'/>" +
-                "</http>" +
-                "<b:bean id='sc' class='" + ConcurrentSessionControllerImpl.class.getName() +"'>" +
-                "  <b:property name='sessionRegistry'>" +
-                "    <b:bean class='"+ SessionRegistryImpl.class.getName() + "'/>" +
-                "  </b:property>" +
-                "</b:bean>" + AUTH_PROVIDER_XML);
-    }
 
-    @Test(expected=BeanDefinitionParsingException.class)
-    public void concurrentSessionSupportCantBeUsedWithIndependentControllerBean2() throws Exception {
-        setContext(
-                "<http auto-config='true'>" +
-                "    <concurrent-session-control session-registry-alias='seshRegistry' expired-url='/expired'/>" +
-                "</http>" +
-                "<b:bean id='sc' class='org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl'>" +
-                "  <b:property name='sessionRegistry'>" +
-                "    <b:bean class='" + SessionRegistryImpl.class.getName() + "'/>" +
-                "  </b:property>" +
-                "</b:bean>" +
-                "<authentication-manager alias='authManager' session-controller-ref='sc'/>" + AUTH_PROVIDER_XML);
-    }
-*/
     @Test(expected=ConcurrentLoginException.class)
     public void concurrentSessionMaxSessionsIsCorrectlyConfigured() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
-                "    <concurrent-session-control max-sessions='2' exception-if-maximum-exceeded='true' />" +
+                "    <session-management>" +
+                "        <concurrency-control max-sessions='2' exception-if-maximum-exceeded='true' />" +
+                "    </session-management>" +
                 "</http>"  + AUTH_PROVIDER_XML);
         SessionAuthenticationStrategy seshStrategy = (SessionAuthenticationStrategy) FieldUtils.getFieldValue(
                 getFilter(SessionManagementFilter.class), "sessionStrategy");
@@ -830,7 +779,9 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void disablingSessionProtectionRemovesSessionManagementFilterIfNoInvalidSessionUrlSet() throws Exception {
         setContext(
-                "<http auto-config='true' session-fixation-protection='none'/>" + AUTH_PROVIDER_XML);
+                "<http auto-config='true'>" +
+                "    <session-management session-fixation-protection='none'/>" +
+                "</http>" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
         assertFalse(filters.get(8) instanceof SessionManagementFilter);
     }
@@ -838,8 +789,9 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void disablingSessionProtectionRetainsSessionManagementFilterInvalidSessionUrlSet() throws Exception {
         setContext(
-                "<http auto-config='true' session-fixation-protection='none'" +
-                " invalid-session-url='/timeoutUrl' />" + AUTH_PROVIDER_XML);
+                "<http auto-config='true'>" +
+                "    <session-management session-fixation-protection='none' invalid-session-url='/timeoutUrl'/>" +
+                "</http>" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
         Object filter = filters.get(8);
         assertTrue(filter instanceof SessionManagementFilter);

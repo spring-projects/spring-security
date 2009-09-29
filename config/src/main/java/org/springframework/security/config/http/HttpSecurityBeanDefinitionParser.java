@@ -1,9 +1,7 @@
 package org.springframework.security.config.http;
 
-import static org.springframework.security.config.http.FilterChainOrder.*;
+import static org.springframework.security.config.http.FilterChainOrder.REQUEST_CACHE_FILTER;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,8 +10,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanMetadataElement;
-import org.springframework.beans.PropertyValue;
-import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -27,49 +23,14 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
-import org.springframework.security.access.vote.AffirmativeBased;
-import org.springframework.security.access.vote.AuthenticatedVoter;
-import org.springframework.security.access.vote.RoleVoter;
-import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
-import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
-import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
-import org.springframework.security.web.access.channel.InsecureChannelProcessor;
-import org.springframework.security.web.access.channel.RetryWithHttpEntryPoint;
-import org.springframework.security.web.access.channel.RetryWithHttpsEntryPoint;
-import org.springframework.security.web.access.channel.SecureChannelProcessor;
-import org.springframework.security.web.access.expression.WebExpressionVoter;
-import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.access.intercept.RequestKey;
-import org.springframework.security.web.authentication.AnonymousProcessingFilter;
-import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
-import org.springframework.security.web.authentication.preauth.x509.X509PreAuthenticatedProcessingFilter;
-import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-import org.springframework.security.web.authentication.www.BasicProcessingFilter;
-import org.springframework.security.web.authentication.www.BasicProcessingFilterEntryPoint;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
-import org.springframework.security.web.session.ConcurrentSessionControlAuthenticatedSessionStrategy;
-import org.springframework.security.web.session.DefaultSessionAuthenticationStrategy;
-import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.AntUrlPathMatcher;
 import org.springframework.security.web.util.RegexUrlPathMatcher;
 import org.springframework.security.web.util.UrlMatcher;
-import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -93,63 +54,18 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_FILTERS = "filters";
     static final String OPT_FILTERS_NONE = "none";
 
-    private static final String ATT_REALM = "realm";
-    private static final String DEF_REALM = "Spring Security Application";
-
-    private static final String ATT_SESSION_FIXATION_PROTECTION = "session-fixation-protection";
-    private static final String OPT_SESSION_FIXATION_NO_PROTECTION = "none";
-    private static final String OPT_SESSION_FIXATION_MIGRATE_SESSION = "migrateSession";
-
     static final String ATT_REQUIRES_CHANNEL = "requires-channel";
-
-    private static final String ATT_CREATE_SESSION = "create-session";
-    private static final String DEF_CREATE_SESSION_IF_REQUIRED = "ifRequired";
-    private static final String OPT_CREATE_SESSION_ALWAYS = "always";
-    private static final String OPT_CREATE_SESSION_NEVER = "never";
 
     private static final String ATT_LOWERCASE_COMPARISONS = "lowercase-comparisons";
 
-    private static final String ATT_AUTO_CONFIG = "auto-config";
-
-    private static final String ATT_SERVLET_API_PROVISION = "servlet-api-provision";
-    private static final String DEF_SERVLET_API_PROVISION = "true";
-
-    private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
-    private static final String ATT_USER_SERVICE_REF = "user-service-ref";
-
-    private static final String ATT_ENTRY_POINT_REF = "entry-point-ref";
-    private static final String ATT_ONCE_PER_REQUEST = "once-per-request";
-    private static final String ATT_ACCESS_DENIED_PAGE = "access-denied-page";
-    private static final String ATT_ACCESS_DENIED_ERROR_PAGE = "error-page";
-
-    private static final String ATT_USE_EXPRESSIONS = "use-expressions";
-
-    private static final String ATT_INVALID_SESSION_URL = "invalid-session-url";
-
-    private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
-
-    private static final String ATT_DISABLE_URL_REWRITING = "disable-url-rewriting";
-
     private static final String ATT_REF = "ref";
-
-    static final String OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProcessingFilter";
-    static final String OPEN_ID_AUTHENTICATION_PROVIDER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProvider";
-    static final String OPEN_ID_CONSUMER_CLASS = "org.springframework.security.openid.OpenID4JavaConsumer";
-    static final String OPEN_ID_ATTRIBUTE_CLASS = "org.springframework.security.openid.OpenIDAttribute";
-    static final String AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter";
 
     static final String EXPRESSION_FIMDS_CLASS = "org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource";
     static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler";
 
-    final SecureRandom random;
+    static final List<BeanMetadataElement> NO_FILTERS = Collections.emptyList();
 
     public HttpSecurityBeanDefinitionParser() {
-         try {
-            random = SecureRandom.getInstance("SHA1PRNG");
-        } catch (NoSuchAlgorithmException e) {
-            // Shouldn't happen...
-            throw new RuntimeException("Failed find SHA1PRNG algorithm!");
-        }
     }
 
     /**
@@ -164,179 +80,51 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         CompositeComponentDefinition compositeDef =
             new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element));
         pc.pushContainingComponent(compositeDef);
-
-        final UrlMatcher matcher = createUrlMatcher(element);
         final Object source = pc.extractSource(element);
-        // SEC-501 - should paths stored in request maps be converted to lower case
-        // true if Ant path and using lower case
-        final boolean convertPathsToLowerCase = (matcher instanceof AntUrlPathMatcher) && matcher.requiresLowerCaseUrl();
-        final boolean allowSessionCreation = !OPT_CREATE_SESSION_NEVER.equals(element.getAttribute(ATT_CREATE_SESSION));
-        final boolean autoConfig = "true".equals(element.getAttribute(ATT_AUTO_CONFIG));
-        final List<Element> interceptUrls = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
-        // Use ManagedMap to allow placeholder resolution
-        final ManagedMap<String, List<BeanMetadataElement>> filterChainMap =
-            parseInterceptUrlsForEmptyFilterChains(interceptUrls, convertPathsToLowerCase, pc);
-        final ManagedMap<BeanDefinition,BeanDefinition> channelRequestMap =
-                parseInterceptUrlsForChannelSecurity(interceptUrls, convertPathsToLowerCase, pc);
 
-        BeanDefinition cpf = null;
-        BeanReference sessionRegistryRef = null;
-//        BeanReference concurrentSessionControllerRef = null;
-        BeanDefinition concurrentSessionFilter = createConcurrentSessionFilter(element, pc);
+        final String portMapperName = createPortMapper(element, pc);
+        final UrlMatcher matcher = createUrlMatcher(element);
 
-        BeanDefinition scpf = createSecurityContextPersistenceFilter(element, pc);
-        BeanReference contextRepoRef = (BeanReference) scpf.getPropertyValues().getPropertyValue("securityContextRepository").getValue();
+        HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, pc, matcher, portMapperName);
 
-        if (concurrentSessionFilter != null) {
-            sessionRegistryRef = (BeanReference)
-                    concurrentSessionFilter.getPropertyValues().getPropertyValue("sessionRegistry").getValue();
-//            logger.info("Concurrent session filter in use, setting 'forceEagerSessionCreation' to true");
-//            scpf.getPropertyValues().addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
-//            concurrentSessionControllerRef = createConcurrentSessionController(element, concurrentSessionFilter, sessionRegistryRef, pc);
-        }
+        httpBldr.parseInterceptUrlsForEmptyFilterChains();
+        httpBldr.createSecurityContextPersistenceFilter();
+        httpBldr.createSessionManagementFilters();
 
         ManagedList<BeanReference> authenticationProviders = new ManagedList<BeanReference>();
         BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders, null);
 
-        BeanDefinition servApiFilter = createServletApiFilter(element, pc);
-        // Register the portMapper. A default will always be created, even if no element exists.
-        BeanDefinition portMapper = new PortMappingsBeanDefinitionParser().parse(
-                DomUtils.getChildElementByTagName(element, Elements.PORT_MAPPINGS), pc);
-        String portMapperName = pc.getReaderContext().registerWithGeneratedName(portMapper);
-        pc.registerBeanComponent(new BeanComponentDefinition(portMapper, portMapperName));
-        RootBeanDefinition rememberMeFilter = createRememberMeFilter(element, pc, authenticationManager);
-        BeanDefinition anonFilter = createAnonymousFilter(element, pc);
-        BeanReference requestCache = createRequestCache(element, pc, allowSessionCreation, portMapperName);
-        BeanDefinition requestCacheAwareFilter = new RootBeanDefinition(RequestCacheAwareFilter.class);
-        requestCacheAwareFilter.getPropertyValues().addPropertyValue("requestCache", requestCache);
+        httpBldr.createServletApiFilter();
+        httpBldr.createChannelProcessingFilter();
+        httpBldr.createFilterSecurityInterceptor(authenticationManager);
 
-        BeanDefinition etf = createExceptionTranslationFilter(element, pc, requestCache);
-        RootBeanDefinition sfpf = createSessionManagementFilter(element, pc, sessionRegistryRef, contextRepoRef);
-        BeanReference sessionStrategyRef = null;
+        AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, pc,
+                httpBldr.isAllowSessionCreation(), portMapperName);
 
-        if (sfpf != null) {
-            PropertyValue sessionStrategyPV = sfpf.getPropertyValues().getPropertyValue("authenticatedSessionStrategy");
-
-            sessionStrategyRef = (BeanReference) (sessionStrategyPV == null ? null : sessionStrategyPV.getValue());
-        }
-        BeanReference fsi = createFilterSecurityInterceptor(element, pc, matcher, convertPathsToLowerCase, authenticationManager);
-
-        if (channelRequestMap.size() > 0) {
-            // At least one channel requirement has been specified
-            cpf = createChannelProcessingFilter(pc, matcher, channelRequestMap, portMapperName);
-        }
-
-        final FilterAndEntryPoint basic = createBasicFilter(element, pc, autoConfig, authenticationManager);
-        final FilterAndEntryPoint form = createFormLoginFilter(element, pc, autoConfig, allowSessionCreation,
-                sessionStrategyRef, authenticationManager, requestCache);
-        final FilterAndEntryPoint openID = createOpenIDLoginFilter(element, pc, autoConfig, allowSessionCreation,
-                sessionStrategyRef, authenticationManager, requestCache);
-
-        String rememberMeServicesId = null;
-        if (rememberMeFilter != null) {
-            rememberMeServicesId = ((RuntimeBeanReference) rememberMeFilter.getPropertyValues().getPropertyValue("rememberMeServices").getValue()).getBeanName();
-        }
-
-        final BeanDefinition logoutFilter = createLogoutFilter(element, autoConfig, pc, rememberMeServicesId);
-
-        String formFilterId = null;
-        String openIDFilterId = null;
-
-        if (form.filter != null) {
-            // Id is required by login page filter
-            formFilterId = pc.getReaderContext().registerWithGeneratedName(form.filter);
-            pc.registerBeanComponent(new BeanComponentDefinition(form.filter, formFilterId));
-            injectRememberMeServicesRef(form.filter, rememberMeServicesId);
-        }
-
-        if (openID.filter != null) {
-            // Required by login page filter
-            openIDFilterId = pc.getReaderContext().registerWithGeneratedName(openID.filter);
-            pc.getRegistry().registerBeanDefinition(openIDFilterId, openID.filter);
-            pc.registerBeanComponent(new BeanComponentDefinition(openID.filter, openIDFilterId));
-            injectRememberMeServicesRef(openID.filter, rememberMeServicesId);
-        }
-
-        BeanDefinition loginPageGenerationFilter = createLoginPageFilterIfNeeded(form, formFilterId, openID, openIDFilterId);
-
-        String x509ProviderId = null;
-        FilterAndEntryPoint x509 = createX509Filter(element, pc, authenticationManager);
-
-        BeanMetadataElement entryPoint = selectEntryPoint(element, pc, basic, form, openID, x509);
-        etf.getPropertyValues().addPropertyValue("authenticationEntryPoint", entryPoint);
+        authBldr.createAnonymousFilter();
+        authBldr.createRememberMeFilter(authenticationManager);
+        authBldr.createRequestCache();
+        authBldr.createBasicFilter(authenticationManager);
+        authBldr.createFormLoginFilter(httpBldr.getSessionStrategy(), authenticationManager);
+        authBldr.createOpenIDLoginFilter(httpBldr.getSessionStrategy(), authenticationManager);
+        authBldr.createX509Filter(authenticationManager);
+        authBldr.createLogoutFilter();
+        authBldr.createLoginPageFilterIfNeeded();
+        authBldr.createUserServiceInjector();
+        authBldr.createExceptionTranslationFilter();
 
         List<OrderDecorator> unorderedFilterChain = new ArrayList<OrderDecorator>();
 
-        if (cpf != null) {
-            unorderedFilterChain.add(new OrderDecorator(cpf, CHANNEL_FILTER));
-        }
+        unorderedFilterChain.addAll(httpBldr.getFilters());
+        unorderedFilterChain.addAll(authBldr.getFilters());
 
-        if (concurrentSessionFilter != null) {
-            unorderedFilterChain.add(new OrderDecorator(concurrentSessionFilter, CONCURRENT_SESSION_FILTER));
-        }
+        authenticationProviders.addAll(authBldr.getProviders());
 
-        unorderedFilterChain.add(new OrderDecorator(scpf, SECURITY_CONTEXT_FILTER));
-
-        if (logoutFilter != null) {
-            unorderedFilterChain.add(new OrderDecorator(logoutFilter, LOGOUT_FILTER));
-        }
-
-        if (x509.filter != null) {
-            unorderedFilterChain.add(new OrderDecorator(x509.filter, X509_FILTER));
-            BeanReference x509Provider = createX509Provider(element, pc);
-            x509ProviderId = x509Provider.getBeanName();
-            authenticationProviders.add(x509Provider);
-        }
-
-        if (form.filter != null) {
-            unorderedFilterChain.add(new OrderDecorator(form.filter, AUTHENTICATION_PROCESSING_FILTER));
-        }
-
-        String openIDProviderId = null;
-
-        if (openID.filter != null) {
-            unorderedFilterChain.add(new OrderDecorator(openID.filter, OPENID_PROCESSING_FILTER));
-            BeanReference openIDProvider = createOpenIDProvider(element, pc);
-            openIDProviderId = openIDProvider.getBeanName();
-            authenticationProviders.add(openIDProvider);
-        }
-
-        if (loginPageGenerationFilter != null) {
-            unorderedFilterChain.add(new OrderDecorator(loginPageGenerationFilter, LOGIN_PAGE_FILTER));
-        }
-
-        if (basic.filter != null) {
-            unorderedFilterChain.add(new OrderDecorator(basic.filter, BASIC_PROCESSING_FILTER));
-        }
-
+        BeanDefinition requestCacheAwareFilter = new RootBeanDefinition(RequestCacheAwareFilter.class);
+        requestCacheAwareFilter.getPropertyValues().addPropertyValue("requestCache", authBldr.getRequestCache());
         unorderedFilterChain.add(new OrderDecorator(requestCacheAwareFilter, REQUEST_CACHE_FILTER));
 
-        if (servApiFilter != null) {
-            unorderedFilterChain.add(new OrderDecorator(servApiFilter, SERVLET_API_SUPPORT_FILTER));
-        }
-
-        if (rememberMeFilter != null) {
-            unorderedFilterChain.add(new OrderDecorator(rememberMeFilter, REMEMBER_ME_FILTER));
-            authenticationProviders.add(createRememberMeProvider(rememberMeFilter, pc, rememberMeServicesId));
-        }
-
-        if (anonFilter != null) {
-            unorderedFilterChain.add(new OrderDecorator(anonFilter, ANONYMOUS_FILTER));
-            authenticationProviders.add(createAnonymousProvider(anonFilter, pc));
-        }
-
-        unorderedFilterChain.add(new OrderDecorator(etf, EXCEPTION_TRANSLATION_FILTER));
-
-        if (sfpf != null) {
-            unorderedFilterChain.add(new OrderDecorator(sfpf, SESSION_FIXATION_FILTER));
-        }
-
-        unorderedFilterChain.add(new OrderDecorator(fsi, FILTER_SECURITY_INTERCEPTOR));
-
-
-        List<OrderDecorator> customFilters = buildCustomFilterList(element, pc);
-
-        unorderedFilterChain.addAll(customFilters);
+        unorderedFilterChain.addAll(buildCustomFilterList(element, pc));
 
         Collections.sort(unorderedFilterChain, new OrderComparator());
         checkFilterChainOrder(unorderedFilterChain, pc, source);
@@ -347,19 +135,30 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             filterChain.add(od.bean);
         }
 
+        ManagedMap<String, List<BeanMetadataElement>> filterChainMap = new ManagedMap<String, List<BeanMetadataElement>>();
+
+        for (String path : httpBldr.getEmptyFilterChainPaths()) {
+            filterChainMap.put(path, NO_FILTERS);
+        }
+
         filterChainMap.put(matcher.getUniversalMatchPattern(), filterChain);
 
         registerFilterChainProxy(pc, filterChainMap, matcher, source);
 
-        BeanDefinitionBuilder userServiceInjector = BeanDefinitionBuilder.rootBeanDefinition(UserDetailsServiceInjectionBeanPostProcessor.class);
-        userServiceInjector.addConstructorArgValue(x509ProviderId);
-        userServiceInjector.addConstructorArgValue(rememberMeServicesId);
-        userServiceInjector.addConstructorArgValue(openIDProviderId);
-        userServiceInjector.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        pc.getReaderContext().registerWithGeneratedName(userServiceInjector.getBeanDefinition());
+
 
         pc.popAndRegisterContainingComponent();
         return null;
+    }
+
+    private String createPortMapper(Element elt, ParserContext pc) {
+        // Register the portMapper. A default will always be created, even if no element exists.
+        BeanDefinition portMapper = new PortMappingsBeanDefinitionParser().parse(
+                DomUtils.getChildElementByTagName(elt, Elements.PORT_MAPPINGS), pc);
+        String portMapperName = pc.getReaderContext().registerWithGeneratedName(portMapper);
+        pc.registerBeanComponent(new BeanComponentDefinition(portMapper, portMapperName));
+
+        return portMapperName;
     }
 
     /**
@@ -386,12 +185,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return new RuntimeBeanReference(id);
     }
 
-    private void injectRememberMeServicesRef(RootBeanDefinition bean, String rememberMeServicesId) {
-        if (rememberMeServicesId != null) {
-            bean.getPropertyValues().addPropertyValue("rememberMeServices", new RuntimeBeanReference(rememberMeServicesId));
-        }
-    }
-
     private void checkFilterChainOrder(List<OrderDecorator> filters, ParserContext pc, Object source) {
         logger.info("Checking sorted filter chain: " + filters);
 
@@ -408,25 +201,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                                     "child elements from <http> and avoiding the use of <http auto-config='true'>.", source);
                 }
             }
-        }
-    }
-
-    private class OrderDecorator implements Ordered {
-        BeanMetadataElement bean;
-        int order;
-
-        public OrderDecorator(BeanMetadataElement bean, int order) {
-            super();
-            this.bean = bean;
-            this.order = order;
-        }
-
-        public int getOrder() {
-            return order;
-        }
-
-        public String toString() {
-            return bean + ", order = " + order;
         }
     }
 
@@ -470,177 +244,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return customFilters;
     }
 
-    private BeanDefinition createAnonymousFilter(Element element, ParserContext pc) {
-        Element anonymousElt = DomUtils.getChildElementByTagName(element, Elements.ANONYMOUS);
-
-        if (anonymousElt != null && "false".equals(anonymousElt.getAttribute("enabled"))) {
-            return null;
-        }
-
-        String grantedAuthority = null;
-        String username = null;
-        String key = null;
-        Object source = pc.extractSource(element);
-
-        if (anonymousElt != null) {
-            grantedAuthority = element.getAttribute("granted-authority");
-            username = element.getAttribute("username");
-            key = element.getAttribute("key");
-            source = pc.extractSource(anonymousElt);
-        }
-
-        if (!StringUtils.hasText(grantedAuthority)) {
-            grantedAuthority = "ROLE_ANONYMOUS";
-        }
-
-        if (!StringUtils.hasText(username)) {
-            username = "anonymousUser";
-        }
-
-        if (!StringUtils.hasText(key)) {
-            // Generate a random key for the Anonymous provider
-            key = Long.toString(random.nextLong());
-        }
-
-        RootBeanDefinition filter = new RootBeanDefinition(AnonymousProcessingFilter.class);
-
-        PropertyValue keyPV = new PropertyValue("key", key);
-        filter.setSource(source);
-        filter.getPropertyValues().addPropertyValue("userAttribute", username + "," + grantedAuthority);
-        filter.getPropertyValues().addPropertyValue(keyPV);
-
-        return filter;
-    }
-
-    private BeanReference createAnonymousProvider(BeanDefinition anonFilter, ParserContext pc) {
-        RootBeanDefinition provider = new RootBeanDefinition(AnonymousAuthenticationProvider.class);
-        provider.setSource(anonFilter.getSource());
-        provider.getPropertyValues().addPropertyValue(anonFilter.getPropertyValues().getPropertyValue("key"));
-        String id = pc.getReaderContext().registerWithGeneratedName(provider);
-        pc.registerBeanComponent(new BeanComponentDefinition(provider, id));
-
-        return new RuntimeBeanReference(id);
-    }
-
-    private FilterAndEntryPoint createBasicFilter(Element elt, ParserContext pc,
-            boolean autoConfig, BeanReference authManager) {
-        Element basicAuthElt = DomUtils.getChildElementByTagName(elt, Elements.BASIC_AUTH);
-
-        String realm = elt.getAttribute(ATT_REALM);
-        if (!StringUtils.hasText(realm)) {
-            realm = DEF_REALM;
-        }
-
-        RootBeanDefinition filter = null;
-        RootBeanDefinition entryPoint = null;
-
-        if (basicAuthElt != null || autoConfig) {
-            BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(BasicProcessingFilter.class);
-            entryPoint = new RootBeanDefinition(BasicProcessingFilterEntryPoint.class);
-            entryPoint.setSource(pc.extractSource(elt));
-
-            entryPoint.getPropertyValues().addPropertyValue("realmName", realm);
-
-            String entryPointId = pc.getReaderContext().registerWithGeneratedName(entryPoint);
-            pc.registerBeanComponent(new BeanComponentDefinition(entryPoint, entryPointId));
-
-            filterBuilder.addPropertyValue("authenticationManager", authManager);
-            filterBuilder.addPropertyValue("authenticationEntryPoint", new RuntimeBeanReference(entryPointId));
-            filter = (RootBeanDefinition) filterBuilder.getBeanDefinition();
-        }
-
-        return new FilterAndEntryPoint(filter, entryPoint);
-    }
-
-    private FilterAndEntryPoint createX509Filter(Element elt, ParserContext pc, BeanReference authManager) {
-        Element x509Elt = DomUtils.getChildElementByTagName(elt, Elements.X509);
-        RootBeanDefinition filter = null;
-        RootBeanDefinition entryPoint = null;
-
-        if (x509Elt != null) {
-            BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(X509PreAuthenticatedProcessingFilter.class);
-            filterBuilder.getRawBeanDefinition().setSource(pc.extractSource(x509Elt));
-            filterBuilder.addPropertyValue("authenticationManager", authManager);
-
-            String regex = x509Elt.getAttribute("subject-principal-regex");
-
-            if (StringUtils.hasText(regex)) {
-                BeanDefinitionBuilder extractor = BeanDefinitionBuilder.rootBeanDefinition(SubjectDnX509PrincipalExtractor.class);
-                extractor.addPropertyValue("subjectDnRegex", regex);
-
-                filterBuilder.addPropertyValue("principalExtractor", extractor.getBeanDefinition());
-            }
-            filter = (RootBeanDefinition) filterBuilder.getBeanDefinition();
-            entryPoint = new RootBeanDefinition(Http403ForbiddenEntryPoint.class);
-            entryPoint.setSource(pc.extractSource(x509Elt));
-        }
-
-        return new FilterAndEntryPoint(filter, entryPoint);
-    }
-
-    private BeanReference createX509Provider(Element elt, ParserContext pc) {
-        Element x509Elt = DomUtils.getChildElementByTagName(elt, Elements.X509);
-        BeanDefinition provider = new RootBeanDefinition(PreAuthenticatedAuthenticationProvider.class);
-
-        String userServiceRef = x509Elt.getAttribute(ATT_USER_SERVICE_REF);
-
-        if (StringUtils.hasText(userServiceRef)) {
-            RootBeanDefinition preAuthUserService = new RootBeanDefinition(UserDetailsByNameServiceWrapper.class);
-            preAuthUserService.setSource(pc.extractSource(x509Elt));
-            preAuthUserService.getPropertyValues().addPropertyValue("userDetailsService", new RuntimeBeanReference(userServiceRef));
-            provider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService", preAuthUserService);
-        }
-
-        String id = pc.getReaderContext().registerWithGeneratedName(provider);
-        return new RuntimeBeanReference(id);
-    }
-
-    private BeanDefinition createLogoutFilter(Element elt, boolean autoConfig, ParserContext pc, String rememberMeServicesId) {
-        Element logoutElt = DomUtils.getChildElementByTagName(elt, Elements.LOGOUT);
-        if (logoutElt != null || autoConfig) {
-            BeanDefinition logoutFilter = new LogoutBeanDefinitionParser(rememberMeServicesId).parse(logoutElt, pc);
-
-            return logoutFilter;
-        }
-        return null;
-    }
-
-    private RootBeanDefinition createRememberMeFilter(Element elt, ParserContext pc, BeanReference authenticationManager) {
-        // Parse remember me before logout as RememberMeServices is also a LogoutHandler implementation.
-        Element rememberMeElt = DomUtils.getChildElementByTagName(elt, Elements.REMEMBER_ME);
-
-        if (rememberMeElt != null) {
-            RootBeanDefinition filter = (RootBeanDefinition) new RememberMeBeanDefinitionParser().parse(rememberMeElt, pc);
-            filter.getPropertyValues().addPropertyValue("authenticationManager", authenticationManager);
-            return filter;
-        }
-
-        return null;
-    }
-
-    private BeanReference createRememberMeProvider(BeanDefinition filter, ParserContext pc, String servicesId) {
-        RootBeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
-        provider.setSource(filter.getSource());
-        // Locate the RememberMeServices bean and read the "key" property from it
-        PropertyValue key = null;
-        if (pc.getRegistry().containsBeanDefinition(servicesId)) {
-            BeanDefinition services = pc.getRegistry().getBeanDefinition(servicesId);
-
-            key = services.getPropertyValues().getPropertyValue("key");
-        }
-
-        if (key == null) {
-            key = new PropertyValue("key", RememberMeBeanDefinitionParser.DEF_KEY);
-        }
-
-        provider.getPropertyValues().addPropertyValue(key);
-
-        String id = pc.getReaderContext().registerWithGeneratedName(provider);
-        pc.registerBeanComponent(new BeanComponentDefinition(provider, id));
-
-        return new RuntimeBeanReference(id);
-    }
-
     private void registerFilterChainProxy(ParserContext pc, Map<String, List<BeanMetadataElement>> filterChainMap, UrlMatcher matcher, Object source) {
         if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
             pc.getReaderContext().error("Duplicate <http> element detected", source);
@@ -655,485 +258,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_CHAIN_PROXY, fcpBean);
         pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
         pc.registerBeanComponent(new BeanComponentDefinition(fcpBean, BeanIds.FILTER_CHAIN_PROXY));
-    }
-
-    private BeanDefinition createSecurityContextPersistenceFilter(Element element, ParserContext pc) {
-        BeanDefinitionBuilder scpf = BeanDefinitionBuilder.rootBeanDefinition(SecurityContextPersistenceFilter.class);
-
-        String repoRef = element.getAttribute(ATT_SECURITY_CONTEXT_REPOSITORY);
-        String createSession = element.getAttribute(ATT_CREATE_SESSION);
-        String disableUrlRewriting = element.getAttribute(ATT_DISABLE_URL_REWRITING);
-
-        if (StringUtils.hasText(repoRef)) {
-            scpf.addPropertyReference("securityContextRepository", repoRef);
-
-            if (OPT_CREATE_SESSION_ALWAYS.equals(createSession)) {
-                scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
-            } else if (StringUtils.hasText(createSession)) {
-                pc.getReaderContext().error("If using security-context-repository-ref, the only value you can set for " +
-                        "'create-session' is 'always'. Other session creation logic should be handled by the " +
-                        "SecurityContextRepository", element);
-            }
-        } else {
-            BeanDefinitionBuilder contextRepo = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionSecurityContextRepository.class);
-            if (OPT_CREATE_SESSION_ALWAYS.equals(createSession)) {
-                contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
-                scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
-            } else if (OPT_CREATE_SESSION_NEVER.equals(createSession)) {
-                contextRepo.addPropertyValue("allowSessionCreation", Boolean.FALSE);
-                scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
-            } else {
-                createSession = DEF_CREATE_SESSION_IF_REQUIRED;
-                contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
-                scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
-            }
-
-            if ("true".equals(disableUrlRewriting)) {
-                contextRepo.addPropertyValue("disableUrlRewriting", Boolean.TRUE);
-            }
-
-            BeanDefinition repoBean = contextRepo.getBeanDefinition();
-            String id = pc.getReaderContext().registerWithGeneratedName(repoBean);
-            pc.registerBeanComponent(new BeanComponentDefinition(repoBean, id));
-
-            scpf.addPropertyReference("securityContextRepository", id);
-        }
-
-        return scpf.getBeanDefinition();
-    }
-
-    // Adds the servlet-api integration filter if required
-    private RootBeanDefinition createServletApiFilter(Element element, ParserContext pc) {
-        String provideServletApi = element.getAttribute(ATT_SERVLET_API_PROVISION);
-        if (!StringUtils.hasText(provideServletApi)) {
-            provideServletApi = DEF_SERVLET_API_PROVISION;
-        }
-
-        if ("true".equals(provideServletApi)) {
-            return new RootBeanDefinition(SecurityContextHolderAwareRequestFilter.class);
-        }
-        return null;
-    }
-
-    private BeanDefinition createConcurrentSessionFilter(Element element, ParserContext parserContext) {
-        Element sessionControlElt = DomUtils.getChildElementByTagName(element, Elements.CONCURRENT_SESSIONS);
-        if (sessionControlElt == null) {
-            return null;
-        }
-
-        BeanDefinition sessionControlFilter = new ConcurrentSessionsBeanDefinitionParser().parse(sessionControlElt, parserContext);
-        return sessionControlFilter;
-    }
-
-    private BeanReference createRequestCache(Element element, ParserContext pc, boolean allowSessionCreation,
-            String portMapperName) {
-        Element requestCacheElt = DomUtils.getChildElementByTagName(element, Elements.REQUEST_CACHE);
-
-        if (requestCacheElt != null) {
-            return new RuntimeBeanReference(requestCacheElt.getAttribute(ATT_REF));
-        }
-
-        BeanDefinitionBuilder requestCache = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionRequestCache.class);
-        BeanDefinitionBuilder portResolver = BeanDefinitionBuilder.rootBeanDefinition(PortResolverImpl.class);
-        portResolver.addPropertyReference("portMapper", portMapperName);
-        requestCache.addPropertyValue("createSessionAllowed", Boolean.valueOf(allowSessionCreation));
-        requestCache.addPropertyValue("portResolver", portResolver.getBeanDefinition());
-
-        BeanDefinition bean = requestCache.getBeanDefinition();
-        String id = pc.getReaderContext().registerWithGeneratedName(bean);
-        pc.registerBeanComponent(new BeanComponentDefinition(bean, id));
-
-        return new RuntimeBeanReference(id);
-
-    }
-
-    private BeanDefinition createExceptionTranslationFilter(Element element, ParserContext pc, BeanReference requestCache) {
-        BeanDefinitionBuilder etfBuilder = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
-        etfBuilder.addPropertyValue("accessDeniedHandler", createAccessDeniedHandler(element, pc));
-        etfBuilder.addPropertyValue("requestCache", requestCache);
-
-
-        return etfBuilder.getBeanDefinition();
-    }
-
-    private BeanMetadataElement createAccessDeniedHandler(Element element, ParserContext pc) {
-        String accessDeniedPage = element.getAttribute(ATT_ACCESS_DENIED_PAGE);
-        WebConfigUtils.validateHttpRedirect(accessDeniedPage, pc, pc.extractSource(element));
-        Element accessDeniedElt = DomUtils.getChildElementByTagName(element, Elements.ACCESS_DENIED_HANDLER);
-        BeanDefinitionBuilder accessDeniedHandler = BeanDefinitionBuilder.rootBeanDefinition(AccessDeniedHandlerImpl.class);
-
-        if (StringUtils.hasText(accessDeniedPage)) {
-            if (accessDeniedElt != null) {
-                pc.getReaderContext().error("The attribute " + ATT_ACCESS_DENIED_PAGE +
-                        " cannot be used with <" + Elements.ACCESS_DENIED_HANDLER + ">", pc.extractSource(accessDeniedElt));
-            }
-
-            accessDeniedHandler.addPropertyValue("errorPage", accessDeniedPage);
-        }
-
-        if (accessDeniedElt != null) {
-            String errorPage = accessDeniedElt.getAttribute("error-page");
-            String ref = accessDeniedElt.getAttribute("ref");
-
-            if (StringUtils.hasText(errorPage)) {
-                if (StringUtils.hasText(ref)) {
-                    pc.getReaderContext().error("The attribute " + ATT_ACCESS_DENIED_ERROR_PAGE +
-                            " cannot be used together with the 'ref' attribute within <" +
-                            Elements.ACCESS_DENIED_HANDLER + ">", pc.extractSource(accessDeniedElt));
-
-                }
-                accessDeniedHandler.addPropertyValue("errorPage", errorPage);
-            } else if (StringUtils.hasText(ref)) {
-                return new RuntimeBeanReference(ref);
-            }
-
-        }
-
-        return accessDeniedHandler.getBeanDefinition();
-    }
-
-    private BeanReference createFilterSecurityInterceptor(Element element, ParserContext pc, UrlMatcher matcher,
-            boolean convertPathsToLowerCase, BeanReference authManager) {
-        BeanDefinitionBuilder fidsBuilder;
-
-        boolean useExpressions = "true".equals(element.getAttribute(ATT_USE_EXPRESSIONS));
-
-        ManagedMap<BeanDefinition,BeanDefinition> requestToAttributesMap =
-            parseInterceptUrlsForFilterInvocationRequestMap(DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL),
-                    convertPathsToLowerCase, useExpressions, pc);
-
-        RootBeanDefinition accessDecisionMgr;
-        ManagedList<BeanDefinition> voters =  new ManagedList<BeanDefinition>(2);
-
-        if (useExpressions) {
-            Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
-            String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
-
-            if (StringUtils.hasText(expressionHandlerRef)) {
-                logger.info("Using bean '" + expressionHandlerRef + "' as web SecurityExpressionHandler implementation");
-            } else {
-                BeanDefinition expressionHandler = BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_HANDLER_CLASS).getBeanDefinition();
-                expressionHandlerRef = pc.getReaderContext().registerWithGeneratedName(expressionHandler);
-                pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
-            }
-
-            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_FIMDS_CLASS);
-            fidsBuilder.addConstructorArgValue(matcher);
-            fidsBuilder.addConstructorArgValue(requestToAttributesMap);
-            fidsBuilder.addConstructorArgReference(expressionHandlerRef);
-            voters.add(new RootBeanDefinition(WebExpressionVoter.class));
-        } else {
-            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(DefaultFilterInvocationSecurityMetadataSource.class);
-            fidsBuilder.addConstructorArgValue(matcher);
-            fidsBuilder.addConstructorArgValue(requestToAttributesMap);
-            voters.add(new RootBeanDefinition(RoleVoter.class));
-            voters.add(new RootBeanDefinition(AuthenticatedVoter.class));
-        }
-        accessDecisionMgr = new RootBeanDefinition(AffirmativeBased.class);
-        accessDecisionMgr.getPropertyValues().addPropertyValue("decisionVoters", voters);
-        accessDecisionMgr.setSource(pc.extractSource(element));
-        fidsBuilder.addPropertyValue("stripQueryStringFromUrls", matcher instanceof AntUrlPathMatcher);
-
-        // Set up the access manager reference for http
-        String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
-
-        if (!StringUtils.hasText(accessManagerId)) {
-            accessManagerId = pc.getReaderContext().registerWithGeneratedName(accessDecisionMgr);
-            pc.registerBeanComponent(new BeanComponentDefinition(accessDecisionMgr, accessManagerId));
-        }
-
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(FilterSecurityInterceptor.class);
-
-        builder.addPropertyReference("accessDecisionManager", accessManagerId);
-        builder.addPropertyValue("authenticationManager", authManager);
-
-        if ("false".equals(element.getAttribute(ATT_ONCE_PER_REQUEST))) {
-            builder.addPropertyValue("observeOncePerRequest", Boolean.FALSE);
-        }
-
-        builder.addPropertyValue("securityMetadataSource", fidsBuilder.getBeanDefinition());
-        BeanDefinition fsi = builder.getBeanDefinition();
-        String fsiId = pc.getReaderContext().registerWithGeneratedName(fsi);
-        pc.registerBeanComponent(new BeanComponentDefinition(fsi,fsiId));
-
-        // Create and register a DefaultWebInvocationPrivilegeEvaluator for use with taglibs etc.
-        BeanDefinition wipe = new RootBeanDefinition(DefaultWebInvocationPrivilegeEvaluator.class);
-        wipe.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(fsiId));
-        String wipeId = pc.getReaderContext().registerWithGeneratedName(wipe);
-        pc.registerBeanComponent(new BeanComponentDefinition(wipe, wipeId));
-
-        return new RuntimeBeanReference(fsiId);
-    }
-
-    private BeanDefinition createChannelProcessingFilter(ParserContext pc, UrlMatcher matcher,
-            ManagedMap<BeanDefinition,BeanDefinition> channelRequestMap, String portMapperBeanName) {
-        RootBeanDefinition channelFilter = new RootBeanDefinition(ChannelProcessingFilter.class);
-        BeanDefinitionBuilder metadataSourceBldr = BeanDefinitionBuilder.rootBeanDefinition(DefaultFilterInvocationSecurityMetadataSource.class);
-        metadataSourceBldr.addConstructorArgValue(matcher);
-        metadataSourceBldr.addConstructorArgValue(channelRequestMap);
-        metadataSourceBldr.addPropertyValue("stripQueryStringFromUrls", matcher instanceof AntUrlPathMatcher);
-
-        channelFilter.getPropertyValues().addPropertyValue("securityMetadataSource", metadataSourceBldr.getBeanDefinition());
-        RootBeanDefinition channelDecisionManager = new RootBeanDefinition(ChannelDecisionManagerImpl.class);
-        ManagedList<RootBeanDefinition> channelProcessors = new ManagedList<RootBeanDefinition>(3);
-        RootBeanDefinition secureChannelProcessor = new RootBeanDefinition(SecureChannelProcessor.class);
-        RootBeanDefinition retryWithHttp = new RootBeanDefinition(RetryWithHttpEntryPoint.class);
-        RootBeanDefinition retryWithHttps = new RootBeanDefinition(RetryWithHttpsEntryPoint.class);
-        RuntimeBeanReference portMapper = new RuntimeBeanReference(portMapperBeanName);
-        retryWithHttp.getPropertyValues().addPropertyValue("portMapper", portMapper);
-        retryWithHttps.getPropertyValues().addPropertyValue("portMapper", portMapper);
-        secureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttps);
-        RootBeanDefinition inSecureChannelProcessor = new RootBeanDefinition(InsecureChannelProcessor.class);
-        inSecureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttp);
-        channelProcessors.add(secureChannelProcessor);
-        channelProcessors.add(inSecureChannelProcessor);
-        channelDecisionManager.getPropertyValues().addPropertyValue("channelProcessors", channelProcessors);
-
-        String id = pc.getReaderContext().registerWithGeneratedName(channelDecisionManager);
-        channelFilter.getPropertyValues().addPropertyValue("channelDecisionManager", new RuntimeBeanReference(id));
-        return channelFilter;
-    }
-
-    private RootBeanDefinition createSessionManagementFilter(Element elt, ParserContext pc,
-            BeanReference sessionRegistryRef, BeanReference contextRepoRef) {
-        Element sessionCtrlElement = DomUtils.getChildElementByTagName(elt, Elements.CONCURRENT_SESSIONS);
-        String sessionFixationAttribute = elt.getAttribute(ATT_SESSION_FIXATION_PROTECTION);
-        String invalidSessionUrl = elt.getAttribute(ATT_INVALID_SESSION_URL);
-
-        if (!StringUtils.hasText(sessionFixationAttribute)) {
-            sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
-        }
-
-        boolean sessionFixationProtectionRequired = !sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION);
-
-        BeanDefinitionBuilder sessionStrategy;
-
-        if (sessionCtrlElement != null) {
-            assert sessionRegistryRef != null;
-            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControlAuthenticatedSessionStrategy.class);
-            sessionStrategy.addConstructorArgValue(sessionRegistryRef);
-
-            String maxSessions = sessionCtrlElement.getAttribute("max-sessions");
-
-            if (StringUtils.hasText(maxSessions)) {
-                sessionStrategy.addPropertyValue("maximumSessions", maxSessions);
-            }
-
-            String exceptionIfMaximumExceeded = sessionCtrlElement.getAttribute("exception-if-maximum-exceeded");
-
-            if (StringUtils.hasText(exceptionIfMaximumExceeded)) {
-                sessionStrategy.addPropertyValue("exceptionIfMaximumExceeded", exceptionIfMaximumExceeded);
-            }
-        } else if (sessionFixationProtectionRequired || StringUtils.hasText(invalidSessionUrl)) {
-            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(DefaultSessionAuthenticationStrategy.class);
-        } else {
-            return null;
-        }
-
-        BeanDefinitionBuilder sessionMgmtFilter = BeanDefinitionBuilder.rootBeanDefinition(SessionManagementFilter.class);
-        sessionMgmtFilter.addConstructorArgValue(contextRepoRef);
-        BeanDefinition strategyBean = sessionStrategy.getBeanDefinition();
-
-        String id = pc.getReaderContext().registerWithGeneratedName(strategyBean);
-        pc.registerBeanComponent(new BeanComponentDefinition(strategyBean, id));
-        sessionMgmtFilter.addPropertyReference("authenticatedSessionStrategy", id);
-        if (sessionFixationProtectionRequired) {
-
-            sessionStrategy.addPropertyValue("migrateSessionAttributes",
-                    Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
-        }
-
-        if (StringUtils.hasText(invalidSessionUrl)) {
-            sessionMgmtFilter.addPropertyValue("invalidSessionUrl", invalidSessionUrl);
-        }
-
-        return (RootBeanDefinition) sessionMgmtFilter.getBeanDefinition();
-    }
-
-    private FilterAndEntryPoint createFormLoginFilter(Element element, ParserContext pc, boolean autoConfig,
-            boolean allowSessionCreation, BeanReference sessionStrategy, BeanReference authManager, BeanReference requestCache) {
-        RootBeanDefinition formLoginFilter = null;
-        RootBeanDefinition formLoginEntryPoint = null;
-
-        Element formLoginElt = DomUtils.getChildElementByTagName(element, Elements.FORM_LOGIN);
-
-        if (formLoginElt != null || autoConfig) {
-            FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_security_check",
-                    AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache, sessionStrategy);
-
-            parser.parse(formLoginElt, pc);
-            formLoginFilter = parser.getFilterBean();
-            formLoginEntryPoint = parser.getEntryPointBean();
-        }
-
-        if (formLoginFilter != null) {
-            formLoginFilter.getPropertyValues().addPropertyValue("allowSessionCreation", new Boolean(allowSessionCreation));
-            formLoginFilter.getPropertyValues().addPropertyValue("authenticationManager", authManager);
-        }
-
-        return new FilterAndEntryPoint(formLoginFilter, formLoginEntryPoint);
-    }
-
-    private FilterAndEntryPoint createOpenIDLoginFilter(Element element, ParserContext pc, boolean autoConfig,
-            boolean allowSessionCreation, BeanReference sessionStrategy, BeanReference authManager, BeanReference requestCache) {
-        Element openIDLoginElt = DomUtils.getChildElementByTagName(element, Elements.OPENID_LOGIN);
-        RootBeanDefinition openIDFilter = null;
-        RootBeanDefinition openIDEntryPoint = null;
-
-        if (openIDLoginElt != null) {
-            FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_openid_security_check",
-                    OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache, sessionStrategy);
-
-            parser.parse(openIDLoginElt, pc);
-            openIDFilter = parser.getFilterBean();
-            openIDEntryPoint = parser.getEntryPointBean();
-
-            Element attrExElt = DomUtils.getChildElementByTagName(openIDLoginElt, Elements.OPENID_ATTRIBUTE_EXCHANGE);
-
-            if (attrExElt != null) {
-                // Set up the consumer with the required attribute list
-                BeanDefinitionBuilder consumerBldr = BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_CONSUMER_CLASS);
-                ManagedList<BeanDefinition> attributes = new ManagedList<BeanDefinition> ();
-                for (Element attElt : DomUtils.getChildElementsByTagName(attrExElt, Elements.OPENID_ATTRIBUTE)) {
-                    String name = attElt.getAttribute("name");
-                    String type = attElt.getAttribute("type");
-                    String required = attElt.getAttribute("required");
-                    String count = attElt.getAttribute("count");
-                    BeanDefinitionBuilder attrBldr = BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_ATTRIBUTE_CLASS);
-                    attrBldr.addConstructorArgValue(name);
-                    attrBldr.addConstructorArgValue(type);
-                    if (StringUtils.hasLength(required)) {
-                        attrBldr.addPropertyValue("required", Boolean.valueOf(required));
-                    }
-
-                    if (StringUtils.hasLength(count)) {
-                        attrBldr.addPropertyValue("count", Integer.parseInt(count));
-                    }
-                    attributes.add(attrBldr.getBeanDefinition());
-                }
-                consumerBldr.addConstructorArgValue(attributes);
-                openIDFilter.getPropertyValues().addPropertyValue("consumer", consumerBldr.getBeanDefinition());
-            }
-        }
-
-        if (openIDFilter != null) {
-            openIDFilter.getPropertyValues().addPropertyValue("allowSessionCreation", new Boolean(allowSessionCreation));
-            openIDFilter.getPropertyValues().addPropertyValue("authenticationManager", authManager);
-        }
-
-        return new FilterAndEntryPoint(openIDFilter, openIDEntryPoint);
-    }
-
-    private BeanReference createOpenIDProvider(Element elt, ParserContext pc) {
-        Element openIDLoginElt = DomUtils.getChildElementByTagName(elt, Elements.OPENID_LOGIN);
-        BeanDefinitionBuilder openIDProviderBuilder =
-            BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_AUTHENTICATION_PROVIDER_CLASS);
-
-        String userService = openIDLoginElt.getAttribute(ATT_USER_SERVICE_REF);
-
-        if (StringUtils.hasText(userService)) {
-            openIDProviderBuilder.addPropertyReference("userDetailsService", userService);
-        }
-
-        BeanDefinition openIDProvider = openIDProviderBuilder.getBeanDefinition();
-        String id = pc.getReaderContext().registerWithGeneratedName(openIDProvider);
-        return new RuntimeBeanReference(id);
-    }
-
-    class FilterAndEntryPoint {
-        RootBeanDefinition filter;
-        RootBeanDefinition entryPoint;
-
-        public FilterAndEntryPoint(RootBeanDefinition filter, RootBeanDefinition entryPoint) {
-            this.filter = filter;
-            this.entryPoint = entryPoint;
-        }
-    }
-
-    private BeanMetadataElement selectEntryPoint(Element element, ParserContext pc, FilterAndEntryPoint basic, FilterAndEntryPoint form, FilterAndEntryPoint openID, FilterAndEntryPoint x509) {
-        // We need to establish the main entry point.
-        // First check if a custom entry point bean is set
-        String customEntryPoint = element.getAttribute(ATT_ENTRY_POINT_REF);
-
-        if (StringUtils.hasText(customEntryPoint)) {
-            return new RuntimeBeanReference(customEntryPoint);
-        }
-
-        Element basicAuthElt = DomUtils.getChildElementByTagName(element, Elements.BASIC_AUTH);
-        Element formLoginElt = DomUtils.getChildElementByTagName(element, Elements.FORM_LOGIN);
-        Element openIDLoginElt = DomUtils.getChildElementByTagName(element, Elements.OPENID_LOGIN);
-        // Basic takes precedence if explicit element is used and no others are configured
-        if (basicAuthElt != null && formLoginElt == null && openIDLoginElt == null) {
-            return basic.entryPoint;
-        }
-
-        // If formLogin has been enabled either through an element or auto-config, then it is used if no openID login page
-        // has been set
-        String openIDLoginPage = getLoginFormUrl(openID.entryPoint);
-
-        if (form.filter != null && openIDLoginPage == null) {
-            return form.entryPoint;
-        }
-
-        // Otherwise use OpenID if enabled
-        if (openID.filter != null && form.filter == null) {
-            return openID.entryPoint;
-        }
-
-        // If X.509 has been enabled, use the preauth entry point.
-        if (DomUtils.getChildElementByTagName(element, Elements.X509) != null) {
-            return x509.entryPoint;
-        }
-
-        pc.getReaderContext().error("No AuthenticationEntryPoint could be established. Please " +
-                "make sure you have a login mechanism configured through the namespace (such as form-login) or " +
-                "specify a custom AuthenticationEntryPoint with the '" + ATT_ENTRY_POINT_REF+ "' attribute ",
-                pc.extractSource(element));
-        return null;
-    }
-
-    private String getLoginFormUrl(RootBeanDefinition entryPoint) {
-        if (entryPoint == null) {
-            return null;
-        }
-
-        PropertyValues pvs = entryPoint.getPropertyValues();
-        PropertyValue pv = pvs.getPropertyValue("loginFormUrl");
-        if (pv == null) {
-             return null;
-        }
-
-        return (String) pv.getValue();
-    }
-
-
-    BeanDefinition createLoginPageFilterIfNeeded(FilterAndEntryPoint form, String formFilterId, FilterAndEntryPoint openID, String openIDFilterId) {
-        boolean needLoginPage = form.filter != null || openID.filter != null;
-        String formLoginPage = getLoginFormUrl(form.entryPoint);
-        // If the login URL is the default one, then it is assumed not to have been set explicitly
-        if (DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL == formLoginPage) {
-            formLoginPage = null;
-        }
-        String openIDLoginPage = getLoginFormUrl(openID.entryPoint);
-
-        // If no login page has been defined, add in the default page generator.
-        if (needLoginPage && formLoginPage == null && openIDLoginPage == null) {
-            logger.info("No login page configured. The default internal one will be used. Use the '"
-                     + FormLoginBeanDefinitionParser.ATT_LOGIN_PAGE + "' attribute to set the URL of the login page.");
-            BeanDefinitionBuilder loginPageFilter =
-                BeanDefinitionBuilder.rootBeanDefinition(DefaultLoginPageGeneratingFilter.class);
-
-            if (form.filter != null) {
-                loginPageFilter.addConstructorArgReference(formFilterId);
-            }
-
-            if (openID.filter != null) {
-                loginPageFilter.addConstructorArgReference(openIDFilterId);
-            }
-
-            return loginPageFilter.getBeanDefinition();
-        }
-        return null;
     }
 
     static UrlMatcher createUrlMatcher(Element element) {
@@ -1172,84 +296,24 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return matcher;
     }
 
-    /**
-     * Parses the intercept-url elements to obtain the map used by channel security.
-     * This will be empty unless the <tt>requires-channel</tt> attribute has been used on a URL path.
-     */
-    private ManagedMap<BeanDefinition,BeanDefinition> parseInterceptUrlsForChannelSecurity(List<Element> urlElts,
-            boolean useLowerCasePaths, ParserContext parserContext) {
-
-        ManagedMap<BeanDefinition, BeanDefinition> channelRequestMap = new ManagedMap<BeanDefinition, BeanDefinition>();
-
-        for (Element urlElt : urlElts) {
-            String path = urlElt.getAttribute(ATT_PATH_PATTERN);
-
-            if(!StringUtils.hasText(path)) {
-                parserContext.getReaderContext().error("path attribute cannot be empty or null", urlElt);
-            }
-
-            if (useLowerCasePaths) {
-                path = path.toLowerCase();
-            }
-
-            String requiredChannel = urlElt.getAttribute(ATT_REQUIRES_CHANNEL);
-
-            if (StringUtils.hasText(requiredChannel)) {
-                BeanDefinition requestKey = new RootBeanDefinition(RequestKey.class);
-                requestKey.getConstructorArgumentValues().addGenericArgumentValue(path);
-
-                RootBeanDefinition channelAttributes = new RootBeanDefinition(ChannelAttributeFactory.class);
-                channelAttributes.getConstructorArgumentValues().addGenericArgumentValue(requiredChannel);
-                channelAttributes.setFactoryMethodName("createChannelAttributes");
-
-                channelRequestMap.put(requestKey, channelAttributes);
-            }
-        }
-
-        return channelRequestMap;
-    }
-
-    private ManagedMap<String, List<BeanMetadataElement>> parseInterceptUrlsForEmptyFilterChains(List<Element> urlElts,
-            boolean useLowerCasePaths, ParserContext parserContext) {
-        ManagedMap<String, List<BeanMetadataElement>> filterChainMap = new ManagedMap<String, List<BeanMetadataElement>>();
-
-        for (Element urlElt : urlElts) {
-            String path = urlElt.getAttribute(ATT_PATH_PATTERN);
-
-            if(!StringUtils.hasText(path)) {
-                parserContext.getReaderContext().error("path attribute cannot be empty or null", urlElt);
-            }
-
-            if (useLowerCasePaths) {
-                path = path.toLowerCase();
-            }
-
-            String filters = urlElt.getAttribute(ATT_FILTERS);
-
-            if (StringUtils.hasText(filters)) {
-                if (!filters.equals(OPT_FILTERS_NONE)) {
-                    parserContext.getReaderContext().error("Currently only 'none' is supported as the custom " +
-                            "filters attribute", urlElt);
-                }
-
-                List<BeanMetadataElement> noFilters = Collections.emptyList();
-                filterChainMap.put(path, noFilters);
-            }
-        }
-
-        return filterChainMap;
-    }
-
-    /**
-     * Parses the filter invocation map which will be used to configure the FilterInvocationSecurityMetadataSource
-     * used in the security interceptor.
-     */
-    private static ManagedMap<BeanDefinition,BeanDefinition>
-    parseInterceptUrlsForFilterInvocationRequestMap(List<Element> urlElts,  boolean useLowerCasePaths,
-            boolean useExpressions, ParserContext parserContext) {
-
-        return FilterInvocationSecurityMetadataSourceBeanDefinitionParser.parseInterceptUrlsForFilterInvocationRequestMap(urlElts, useLowerCasePaths, useExpressions, parserContext);
-
-    }
-
 }
+
+class OrderDecorator implements Ordered {
+    BeanMetadataElement bean;
+    int order;
+
+    public OrderDecorator(BeanMetadataElement bean, int order) {
+        super();
+        this.bean = bean;
+        this.order = order;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public String toString() {
+        return bean + ", order = " + order;
+    }
+}
+
