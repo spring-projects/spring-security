@@ -28,7 +28,6 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
-import org.springframework.security.authentication.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.authentication.concurrent.SessionRegistryImpl;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.PostProcessedMockUserDetailsService;
