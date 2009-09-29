@@ -5,6 +5,9 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Simple implementation of <tt>RedirectStrategy</tt> which is the default used throughout the framework.
  *
@@ -13,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
  * @since 3.0
  */
 public class DefaultRedirectStrategy implements RedirectStrategy {
+    protected final Log logger = LogFactory.getLog(getClass());
+
     private boolean contextRelative;
 
     /**
@@ -44,6 +49,10 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
         }
         else {
             finalUrl = url;
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Redirecting to '" + finalUrl + "'");
         }
 
         response.sendRedirect(response.encodeRedirectURL(finalUrl));
