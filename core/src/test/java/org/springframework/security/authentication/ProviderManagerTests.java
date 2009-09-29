@@ -16,6 +16,7 @@
 package org.springframework.security.authentication;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
@@ -24,13 +25,6 @@ import java.util.List;
 
 import org.junit.Test;
 import org.springframework.context.MessageSource;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.ProviderNotFoundException;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
-import org.springframework.security.authentication.concurrent.ConcurrentSessionController;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -79,18 +73,6 @@ public class ProviderManagerTests {
         Authentication result = mgr.authenticate(a);
         assertSame(a, result);
         verify(publisher).publishAuthenticationSuccess(result);
-    }
-
-    @Test
-    public void concurrentSessionControllerConfiguration() throws Exception {
-        ProviderManager target = new ProviderManager();
-
-        //The NullConcurrentSessionController should be the default
-        assertNotNull(target.getSessionController());
-
-        ConcurrentSessionController csc = mock(ConcurrentSessionController.class);
-        target.setSessionController(csc);
-        assertSame(csc, target.getSessionController());
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -193,18 +175,6 @@ public class ProviderManagerTests {
         verifyZeroInteractions(otherProvider);
     }
 
-    @Test(expected=ConcurrentLoginException.class)
-    public void concurrentLoginExceptionPreventsCallsToSubsequentProviders() throws Exception {
-        ProviderManager authMgr = makeProviderManager();
-        // Two providers so if the second is polled it will throw an BadCredentialsException
-        authMgr.setProviders(Arrays.asList(new MockProvider(), createProviderWhichThrows(new BadCredentialsException(""))) );
-        TestingAuthenticationToken request = createAuthenticationToken();
-        ConcurrentSessionController ctrlr = mock(ConcurrentSessionController.class);
-        doThrow(new ConcurrentLoginException("mocked")).when(ctrlr).checkAuthenticationAllowed(request);
-        authMgr.setSessionController(ctrlr);
-
-        authMgr.authenticate(request);
-    }
 
     @Test
     public void parentAuthenticationIsUsedIfProvidersDontAuthenticate() throws Exception {

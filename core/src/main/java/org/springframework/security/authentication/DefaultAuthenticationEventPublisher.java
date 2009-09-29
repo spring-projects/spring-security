@@ -8,10 +8,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
-import org.springframework.security.authentication.event.AuthenticationFailureConcurrentLoginEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureCredentialsExpiredEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureDisabledEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureExpiredEvent;
@@ -70,8 +68,6 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
                 AuthenticationFailureBadCredentialsEvent.class.getName());
         exceptionMappings.put(UsernameNotFoundException.class.getName(),
                 AuthenticationFailureBadCredentialsEvent.class.getName());
-        exceptionMappings.put(ConcurrentLoginException.class.getName(),
-                AuthenticationFailureConcurrentLoginEvent.class.getName());
         exceptionMappings.put(ProviderNotFoundException.class.getName(),
                 AuthenticationFailureProviderNotFoundEvent.class.getName());
         exceptionMappings.put("org.springframework.security.authentication.cas.ProxyUntrustedException",

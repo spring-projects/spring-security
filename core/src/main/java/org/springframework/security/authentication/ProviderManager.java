@@ -24,8 +24,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
-import org.springframework.security.authentication.concurrent.ConcurrentSessionController;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
@@ -35,8 +33,6 @@ import org.springframework.util.Assert;
 /**
  * Iterates an {@link Authentication} request through a list of {@link AuthenticationProvider}s.
  *
- * Can optionally be configured with a {@link ConcurrentSessionController} to limit the number of sessions a user can
- * have.
  * <p>
  * <tt>AuthenticationProvider</tt>s are usually tried in order until one provides a non-null response.
  * A non-null response indicates the provider had authority to decide on the authentication request and no further
@@ -47,9 +43,8 @@ import org.springframework.util.Assert;
  * If no provider returns a non-null response, or indicates it can even process an <code>Authentication</code>,
  * the <code>ProviderManager</code> will throw a <code>ProviderNotFoundException</code>.
  * <p>
- * The exception to this process is when a provider throws an {@link AccountStatusException} or if the configured
- * concurrent session controller throws a {@link ConcurrentLoginException}. In both these cases, no further providers
- * in the list will be queried.
+ * The exception to this process is when a provider throws an {@link AccountStatusException}, in which case no
+ * further providers in the list will be queried.
  *
  * <h2>Event Publishing</h2>
  * <p>
@@ -68,7 +63,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @author Luke Taylor
  * @version $Id$
- * @see ConcurrentSessionController
+ *
  * @see DefaultAuthenticationEventPublisher
  */
 public class ProviderManager extends AbstractAuthenticationManager implements MessageSourceAware, InitializingBean {
@@ -79,7 +74,6 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
     //~ Instance fields ================================================================================================
 
     private AuthenticationEventPublisher eventPublisher = new NullEventPublisher();
-    private ConcurrentSessionController sessionController = new NullConcurrentSessionController();
     private List<AuthenticationProvider> providers = Collections.emptyList();
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private AuthenticationManager parent;
@@ -151,20 +145,12 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
             }
         }
 
-        // Finally check if the concurrent session controller will allow authentication
-        try {
-            if (result != null) {
-                sessionController.checkAuthenticationAllowed(result);
-                sessionController.registerSuccessfulAuthentication(result);
-                eventPublisher.publishAuthenticationSuccess(result);
-
-                return result;
-            }
-        } catch (AuthenticationException e) {
-            lastException = e;
+        if (result != null) {
+            eventPublisher.publishAuthenticationSuccess(result);
+            return result;
         }
 
-        // Session control failed, parent was null, or didn't authenticate (or throw an exception).
+        // Parent was null, or didn't authenticate (or throw an exception).
 
         if (lastException == null) {
             lastException = new ProviderNotFoundException(messages.getMessage("ProviderManager.providerNotFound",
@@ -199,16 +185,6 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
         return providers;
     }
 
-    /**
-     * The configured {@link ConcurrentSessionController} is returned or the {@link
-     * NullConcurrentSessionController} if a specific one has not been set.
-     *
-     * @return {@link ConcurrentSessionController} instance
-     */
-    ConcurrentSessionController getSessionController() {
-        return sessionController;
-    }
-
     public void setMessageSource(MessageSource messageSource) {
         this.messages = new MessageSourceAccessor(messageSource);
     }
@@ -239,22 +215,8 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
         this.providers = providers;
     }
 
-    /**
-     * Set the {@link ConcurrentSessionController} to be used for limiting users' sessions.
-     *
-     * @param sessionController {@link ConcurrentSessionController}
-     */
-    public void setSessionController(ConcurrentSessionController sessionController) {
-        this.sessionController = sessionController;
-    }
-
     private static final class NullEventPublisher implements AuthenticationEventPublisher {
         public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {}
         public void publishAuthenticationSuccess(Authentication authentication) {}
-    }
-
-    private static final class NullConcurrentSessionController implements ConcurrentSessionController {
-        public void checkAuthenticationAllowed(Authentication request) {}
-        public void registerSuccessfulAuthentication(Authentication authentication) {}
     }
 }
