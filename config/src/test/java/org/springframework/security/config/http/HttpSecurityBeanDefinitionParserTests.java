@@ -27,7 +27,6 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.concurrent.ConcurrentLoginException;
 import org.springframework.security.authentication.concurrent.SessionRegistryImpl;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.PostProcessedMockUserDetailsService;
@@ -71,7 +70,6 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
-import org.springframework.security.web.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.ReflectionUtils;
@@ -704,33 +702,27 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertSame(sessionRegistry, sessionRegistryFromFormLoginFilter);
     }
 
-    @Test(expected=ConcurrentLoginException.class)
+    @Test
     public void concurrentSessionMaxSessionsIsCorrectlyConfigured() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
                 "    <session-management>" +
-                "        <concurrency-control max-sessions='2' exception-if-maximum-exceeded='true' />" +
+                "        <concurrency-control max-sessions='2' error-if-maximum-exceeded='true' error-url='/max-exceeded' />" +
                 "    </session-management>" +
                 "</http>"  + AUTH_PROVIDER_XML);
-        SessionAuthenticationStrategy seshStrategy = (SessionAuthenticationStrategy) FieldUtils.getFieldValue(
-                getFilter(SessionManagementFilter.class), "sessionStrategy");
+        SessionManagementFilter seshStrategy = (SessionManagementFilter) getFilter(SessionManagementFilter.class);
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("bob", "pass");
+        SecurityContextHolder.getContext().setAuthentication(auth);
         // Register 2 sessions and then check a third
 //        req.setSession(new MockHttpSession());
 //        auth.setDetails(new WebAuthenticationDetails(req));
-        try {
-            seshStrategy.onAuthentication(auth, new MockHttpServletRequest(), new MockHttpServletResponse());
-        } catch (ConcurrentLoginException e) {
-            fail("First login should be allowed");
-        }
-
-        try {
-            seshStrategy.onAuthentication(auth, new MockHttpServletRequest(), new MockHttpServletResponse());
-        } catch (ConcurrentLoginException e) {
-            fail("Second login should be allowed");
-        }
-
-        seshStrategy.onAuthentication(auth, new MockHttpServletRequest(), new MockHttpServletResponse());
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        seshStrategy.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
+        assertNull(response.getRedirectedUrl());
+        seshStrategy.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
+        assertNull(response.getRedirectedUrl());
+        seshStrategy.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
+        assertEquals("/max-exceeded", response.getRedirectedUrl());
     }
 
     @Test

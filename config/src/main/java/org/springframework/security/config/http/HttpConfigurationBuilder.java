@@ -37,6 +37,7 @@ import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.access.intercept.RequestKey;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -192,7 +193,7 @@ class HttpConfigurationBuilder {
 
     void createSessionManagementFilters() {
         Element sessionMgmtElt = DomUtils.getChildElementByTagName(httpElt, Elements.SESSION_MANAGEMENT);
-        Element sessionCtrlEt = null;
+        Element sessionCtrlElt = null;
 
         String sessionFixationAttribute = null;
         String invalidSessionUrl = null;
@@ -200,10 +201,10 @@ class HttpConfigurationBuilder {
         if (sessionMgmtElt != null) {
             sessionFixationAttribute = sessionMgmtElt.getAttribute(ATT_SESSION_FIXATION_PROTECTION);
             invalidSessionUrl = sessionMgmtElt.getAttribute(ATT_INVALID_SESSION_URL);
-            sessionCtrlEt = DomUtils.getChildElementByTagName(sessionMgmtElt, Elements.CONCURRENT_SESSIONS);
+            sessionCtrlElt = DomUtils.getChildElementByTagName(sessionMgmtElt, Elements.CONCURRENT_SESSIONS);
 
-            if (sessionCtrlEt != null) {
-                createConcurrencyControlFilterAndSessionRegistry(sessionCtrlEt);
+            if (sessionCtrlElt != null) {
+                createConcurrencyControlFilterAndSessionRegistry(sessionCtrlElt);
             }
         }
 
@@ -214,22 +215,25 @@ class HttpConfigurationBuilder {
         boolean sessionFixationProtectionRequired = !sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION);
 
         BeanDefinitionBuilder sessionStrategy;
+        String concurrencyErrorUrl = null;
 
-        if (sessionCtrlEt != null) {
+        if (sessionCtrlElt != null) {
             assert sessionRegistryRef != null;
             sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControlAuthenticatedSessionStrategy.class);
             sessionStrategy.addConstructorArgValue(sessionRegistryRef);
 
-            String maxSessions = sessionCtrlEt.getAttribute("max-sessions");
+            String maxSessions = sessionCtrlElt.getAttribute("max-sessions");
 
             if (StringUtils.hasText(maxSessions)) {
                 sessionStrategy.addPropertyValue("maximumSessions", maxSessions);
             }
 
-            String exceptionIfMaximumExceeded = sessionCtrlEt.getAttribute("exception-if-maximum-exceeded");
+            String exceptionIfMaximumExceeded = sessionCtrlElt.getAttribute("error-if-maximum-exceeded");
 
             if (StringUtils.hasText(exceptionIfMaximumExceeded)) {
                 sessionStrategy.addPropertyValue("exceptionIfMaximumExceeded", exceptionIfMaximumExceeded);
+
+                concurrencyErrorUrl = sessionCtrlElt.getAttribute("error-url");
             }
         } else if (sessionFixationProtectionRequired || StringUtils.hasText(invalidSessionUrl)) {
             sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(DefaultSessionAuthenticationStrategy.class);
@@ -239,6 +243,11 @@ class HttpConfigurationBuilder {
         }
 
         BeanDefinitionBuilder sessionMgmtFilter = BeanDefinitionBuilder.rootBeanDefinition(SessionManagementFilter.class);
+        RootBeanDefinition failureHandler = new RootBeanDefinition(SimpleUrlAuthenticationFailureHandler.class);
+        if (StringUtils.hasText(concurrencyErrorUrl)) {
+            failureHandler.getPropertyValues().addPropertyValue("defaultFailureUrl", concurrencyErrorUrl);
+        }
+        sessionMgmtFilter.addPropertyValue("authenticationFailureHandler", failureHandler);
         sessionMgmtFilter.addConstructorArgValue(contextRepoRef);
         BeanDefinition strategyBean = sessionStrategy.getBeanDefinition();
 
