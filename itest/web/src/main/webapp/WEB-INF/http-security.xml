@@ -22,7 +22,9 @@
         <!-- Default logout configuration -->
         <logout logout-url="/logout"/>
 
-        <concurrent-session-control max-sessions="1" />
+        <session-management>
+            <concurrency-control max-sessions="1" />
+        </session-management>        
 
         <remember-me key="doesntmatter" token-repository-ref="tokenRepo"/>
     </http>
