@@ -49,7 +49,7 @@ public class JdbcAclService implements AclService {
     //~ Static fields/initializers =====================================================================================
 
     protected static final Log log = LogFactory.getLog(JdbcAclService.class);
-    private static final String selectAclObjectWithParent = "select obj.object_id_identity as obj_id, class.class as class "
+    private static final String DEFAULT_SELECT_ACL_WITH_PARENT_SQL = "select obj.object_id_identity as obj_id, class.class as class "
         + "from acl_object_identity obj, acl_object_identity parent, acl_class class "
         + "where obj.parent_object = parent.id and obj.object_id_class = class.id "
         + "and parent.object_id_identity = ? and parent.object_id_class = ("
@@ -59,6 +59,7 @@ public class JdbcAclService implements AclService {
 
     protected JdbcTemplate jdbcTemplate;
     private LookupStrategy lookupStrategy;
+    private String findChildrenSql = DEFAULT_SELECT_ACL_WITH_PARENT_SQL;
 
     //~ Constructors ===================================================================================================
 
@@ -73,7 +74,7 @@ public class JdbcAclService implements AclService {
 
     public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
         Object[] args = {parentIdentity.getIdentifier(), parentIdentity.getType()};
-        List<ObjectIdentity> objects = jdbcTemplate.query(selectAclObjectWithParent, args,
+        List<ObjectIdentity> objects = jdbcTemplate.query(findChildrenSql, args,
                 new RowMapper<ObjectIdentity>() {
                     public ObjectIdentity mapRow(ResultSet rs, int rowNum) throws SQLException {
                         String javaType = rs.getString("class");
@@ -117,5 +118,14 @@ public class JdbcAclService implements AclService {
         }
 
         return result;
+    }
+
+    /**
+     * Allows customization of the SQL query used to find child object identities.
+     *
+     * @param findChildrenSql
+     */
+    public void setFindChildrenQuery(String findChildrenSql) {
+        this.findChildrenSql = findChildrenSql;
     }
 }

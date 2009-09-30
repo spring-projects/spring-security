@@ -47,7 +47,9 @@ import org.springframework.util.Assert;
  * <p>
  * The default settings are for HSQLDB. If you are using a different database you
  * will probably need to set the {@link #setSidIdentityQuery(String) sidIdentityQuery} and
- * {@link #setClassIdentityQuery(String) classIdentityQuery} properties appropriately.
+ * {@link #setClassIdentityQuery(String) classIdentityQuery} properties appropriately. The other queries,
+ * SQL inserts and updates can also be customized to accomodate schema variations, but must produce results
+ * consistent with those expected by the defaults.
  * <p>
  * See the appendix of the Spring Security reference manual for more information on the expected schema
  * and how it is used. Information on using PostgreSQL is also included.
@@ -383,6 +385,47 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         Assert.hasText(sidIdentityQuery, "New sidIdentityQuery query is required");
         this.sidIdentityQuery = sidIdentityQuery;
     }
+
+    public void setDeleteEntryByObjectIdentityForeignKeySql(String deleteEntryByObjectIdentityForeignKey) {
+        this.deleteEntryByObjectIdentityForeignKey = deleteEntryByObjectIdentityForeignKey;
+    }
+
+    public void setDeleteObjectIdentityByPrimaryKeySql(String deleteObjectIdentityByPrimaryKey) {
+        this.deleteObjectIdentityByPrimaryKey = deleteObjectIdentityByPrimaryKey;
+    }
+
+    public void setInsertClassSql(String insertClass) {
+        this.insertClass = insertClass;
+    }
+
+    public void setInsertEntrySql(String insertEntry) {
+        this.insertEntry = insertEntry;
+    }
+
+    public void setInsertObjectIdentitySql(String insertObjectIdentity) {
+        this.insertObjectIdentity = insertObjectIdentity;
+    }
+
+    public void setInsertSidSql(String insertSid) {
+        this.insertSid = insertSid;
+    }
+
+    public void setClassPrimaryKeyQuery(String selectClassPrimaryKey) {
+        this.selectClassPrimaryKey = selectClassPrimaryKey;
+    }
+
+    public void setObjectIdentityPrimaryKeyQuery(String selectObjectIdentityPrimaryKey) {
+        this.selectObjectIdentityPrimaryKey = selectObjectIdentityPrimaryKey;
+    }
+
+    public void setSidPrimaryKeyQuery(String selectSidPrimaryKey) {
+        this.selectSidPrimaryKey = selectSidPrimaryKey;
+    }
+
+    public void setUpdateObjectIdentity(String updateObjectIdentity) {
+        this.updateObjectIdentity = updateObjectIdentity;
+    }
+
     /**
      * @param foreignKeysInDatabase if false this class will perform additional FK constrain checking, which may
      * cause deadlocks (the default is true, so deadlocks are avoided but the database is expected to enforce FKs)
