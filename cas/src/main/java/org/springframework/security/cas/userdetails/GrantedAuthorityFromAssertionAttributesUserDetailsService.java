@@ -1,10 +1,23 @@
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.security.cas.userdetails;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.jasig.cas.client.validation.Assertion;
 
@@ -17,12 +30,20 @@ import java.util.ArrayList;
  * value then its not added.
  *
  * @author Scott Battaglia
- * @version $Id$
+ * @version $Revision$ $Date$
  * @since 3.0
  */
-public final class GrantedAuthorityFromAssertionAttributesUserDetailsService extends AbstractCasAssertionUserDetailsService implements InitializingBean {
+public final class GrantedAuthorityFromAssertionAttributesUserDetailsService extends AbstractCasAssertionUserDetailsService {
 
     private String[] attributes;
+
+    private boolean convertToUpperCase = true;
+
+    public GrantedAuthorityFromAssertionAttributesUserDetailsService(final String[] attributes) {
+        Assert.notNull(attributes, "attributes cannot be null.");
+        Assert.isTrue(attributes.length > 0, "At least one attribute is required to retrieve roles from.");
+        this.attributes = attributes;
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -30,21 +51,21 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService ext
         final List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
 
         for (final String attribute : this.attributes) {
-            final Object attributes = assertion.getPrincipal().getAttributes().get(attribute);
+            final Object value = assertion.getPrincipal().getAttributes().get(attribute);
 
-            if (attributes == null) {
+            if (value == null) {
                 continue;
             }
 
-            if (attributes instanceof List) {
-                final List list = (List) attributes;
+            if (value instanceof List) {
+                final List list = (List) value;
 
                 for (final Object o : list) {
-                    grantedAuthorities.add(new GrantedAuthorityImpl(o.toString()));
+                    grantedAuthorities.add(new GrantedAuthorityImpl(this.convertToUpperCase ? o.toString().toUpperCase() : o.toString()));
                 }
 
             } else {
-                grantedAuthorities.add(new GrantedAuthorityImpl(attributes.toString()));
+                grantedAuthorities.add(new GrantedAuthorityImpl(this.convertToUpperCase ? value.toString().toUpperCase() : value.toString()));
             }
 
         }
@@ -52,7 +73,12 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService ext
         return new User(assertion.getPrincipal().getName(), null, true, true, true, true, grantedAuthorities);
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.isTrue(attributes != null && attributes.length > 0, "At least one attribute is required to retrieve roles from.");
+    /**
+     * Converts the returned attribute values to uppercase values.
+     *
+     * @param convertToUpperCase true if it should convert, false otherwise.
+     */
+    public void setConvertToUpperCase(final boolean convertToUpperCase) {
+        this.convertToUpperCase = convertToUpperCase;
     }
 }
