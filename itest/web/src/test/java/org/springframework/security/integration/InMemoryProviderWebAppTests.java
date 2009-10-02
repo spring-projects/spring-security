@@ -1,6 +1,6 @@
 package org.springframework.security.integration;
 
-import org.testng.annotations.*;
+import org.testng.annotations.Test;
 
 /**
  * @author Luke Taylor
@@ -37,6 +37,14 @@ public class InMemoryProviderWebAppTests extends AbstractWebServerIntegrationTes
         // Included JSP has params ?x=1&y=2
         assertTextPresent("Params: x=1, y=2");
         assertTextPresent("xcount=2");
+    }
+
+    // SEC-1255
+    @Test
+    public void redirectToUrlWithSpecialCharsInFilenameWorksOk() throws Exception {
+        beginAt("secure/file%3Fwith%3Fspecial%3Fchars.html?someArg=1");
+        login("jimi", "jimispassword");
+        assertTextPresent("I'm file?with?special?chars.html");
     }
 
 }

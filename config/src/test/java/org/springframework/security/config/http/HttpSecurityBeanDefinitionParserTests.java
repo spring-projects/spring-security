@@ -1056,14 +1056,5 @@ public class HttpSecurityBeanDefinitionParserTests {
         return ((RememberMeProcessingFilter)getFilter(RememberMeProcessingFilter.class)).getRememberMeServices();
     }
 
-//    @SuppressWarnings("unchecked")
-//    private ConcurrentSessionController getConcurrentSessionController() {
-//        Map beans = appContext.getBeansOfType(ConcurrentSessionController.class);
-//
-//        if (beans.size() == 0) {
-//            return null;
-//        }
-//        return (ConcurrentSessionController) new ArrayList(beans.values()).get(0);
-//    }
 
 }

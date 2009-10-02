@@ -234,8 +234,7 @@ public class DefaultSavedRequest implements SavedRequest {
      * @return the full URL of this request
      */
     public String getRedirectUrl() {
-        return UrlUtils.buildFullRequestUrl(scheme, serverName, serverPort, contextPath, servletPath, requestURI,
-                pathInfo, queryString);
+        return UrlUtils.buildFullRequestUrl(scheme, serverName, serverPort, requestURI, queryString);
     }
 
     public Collection<String> getHeaderNames() {
