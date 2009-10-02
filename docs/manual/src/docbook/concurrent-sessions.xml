@@ -1,14 +1,31 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"
-  xml:id="concurrent-sessions" xmlns:xlink="http://www.w3.org/1999/xlink">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="concurrent-sessions"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
   <info>
-    <title>Concurrent Session Handling</title>
+    <title>Session Management</title>
   </info>
   <!-- TODO: Expand and refer to namespace options -->
+  <section>
+    <title>SessionManagementFilter</title>
+    <para>HTTP session related functonality is handled by the
+        <classname>SessionManagementFilter</classname>. This </para>
+  </section>
+  <section>
+    <title>Concurrency Control</title>
     <para>Spring Security is able to prevent a principal from concurrently authenticating to the
       same application more than a specified number of times. Many ISVs take advantage of this to
       enforce licensing, whilst network administrators like this feature because it helps prevent
       people from sharing login names. You can, for example, stop user "Batman" from logging onto
       the web application from two different sessions.</para>
+    <para>This feature is supported by the namespace, so please check the earlier namespace chapter
+      for the simplest configuration. Sometimes you need to customize things though. </para>
+    <para>The implementation has changed substantially in Spring Security 3. Previously the
+      concurrent authentication check was made by the <classname>ProviderManager</classname>, which
+      could be injected with a  <literal>ConcurrentSessionController</literal> which would check if
+      the user was attempting to exceed the number of sessions permitted. However, this approach
+      required that an HTTP session be created in advance, which is undesirable. In Spring Security
+      3, the user is first authenticated by the <interfacename>AuthenticationManager</interfacename>
+      and once they are successfully authenticated, a session is created and the check is made
+      whether they are allowed to have another session open.</para>
     <para>To use concurrent session support, you'll need to add the following to
         <literal>web.xml</literal>: <programlisting><![CDATA[
   <listener>
@@ -51,4 +68,5 @@
 </bean>
 ]]></programlisting>
     </para>
+  </section>
 </chapter>
