@@ -706,22 +706,22 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void concurrentSessionMaxSessionsIsCorrectlyConfigured() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
-                "    <session-management>" +
-                "        <concurrency-control max-sessions='2' error-if-maximum-exceeded='true' error-url='/max-exceeded' />" +
+                "    <session-management session-authentication-error-url='/max-exceeded'>" +
+                "        <concurrency-control max-sessions='2' error-if-maximum-exceeded='true' />" +
                 "    </session-management>" +
                 "</http>"  + AUTH_PROVIDER_XML);
-        SessionManagementFilter seshStrategy = (SessionManagementFilter) getFilter(SessionManagementFilter.class);
+        SessionManagementFilter seshFilter = (SessionManagementFilter) getFilter(SessionManagementFilter.class);
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("bob", "pass");
         SecurityContextHolder.getContext().setAuthentication(auth);
         // Register 2 sessions and then check a third
 //        req.setSession(new MockHttpSession());
 //        auth.setDetails(new WebAuthenticationDetails(req));
         MockHttpServletResponse response = new MockHttpServletResponse();
-        seshStrategy.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
+        seshFilter.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
         assertNull(response.getRedirectedUrl());
-        seshStrategy.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
+        seshFilter.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
         assertNull(response.getRedirectedUrl());
-        seshStrategy.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
+        seshFilter.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
         assertEquals("/max-exceeded", response.getRedirectedUrl());
     }
 

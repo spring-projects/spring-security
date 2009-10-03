@@ -17,16 +17,15 @@
     <para> The <literal>&lt;http&gt;</literal> element encapsulates the security configuration for
       the web layer of your application. It creates a <classname>FilterChainProxy</classname> bean
       named "springSecurityFilterChain" which maintains the stack of security filters which make up
-      the web security configuration <footnote>
-        <para>See the <link xlink:href="#ns-web-xml"> introductory chapter</link> for how to set up
-          the mapping from your <literal>web.xml</literal></para>
-      </footnote>. Some core filters are always created and others will be added to the stack
-      depending on the attributes child elements which are present. The positions of the standard
-      filters are fixed (see <link xlink:href="#filter-stack">the filter order table</link> in the
-      namespace introduction), removing a common source of errors with previous versions of the
-      framework when users had to configure the filter chain explicitly in
-        the<classname>FilterChainProxy</classname> bean. You can, of course, still do this if you
-      need full control of the configuration. </para>
+      the web security configuration <footnote><para>See the <link xlink:href="#ns-web-xml">
+            introductory chapter</link> for how to set up the mapping from your
+            <literal>web.xml</literal></para></footnote>. Some core filters are always created and
+      others will be added to the stack depending on the attributes child elements which are
+      present. The positions of the standard filters are fixed (see <link xlink:href="#filter-stack"
+        >the filter order table</link> in the namespace introduction), removing a common source of
+      errors with previous versions of the framework when users had to configure the filter chain
+      explicitly in the<classname>FilterChainProxy</classname> bean. You can, of course, still do
+      this if you need full control of the configuration. </para>
     <para> All filters which require a reference to the
         <interfacename>AuthenticationManager</interfacename> will be automatically injected with the
       internal instance created by the namespace configuration (see the <link
@@ -58,17 +57,6 @@
         <title><literal>lowercase-comparisons</literal></title>
         <para> Whether test URLs should be converted to lower case prior to comparing with defined
           path patterns. If unspecified, defaults to "true" </para>
-      </section>
-      <section xml:id="session-fixation-protection">
-        <title><literal>session-fixation-protection</literal></title>
-        <para> Indicates whether an existing session should be invalidated when a user authenticates
-          and a new session started. If set to "none" no change will be made. "newSession" will
-          create a new empty session. "migrateSession" will create a new session and copy the
-          session attributes to the new session. Defaults to "migrateSession". </para>
-        <para> If enabled this will add a <classname>SessionFixationProtectionFilter</classname> to
-          the stack. The session fixation protection options on namespace-created instances of
-            <classname>AbstractAuthenticationProcessingFilter</classname> will also be set
-          appropriately. </para>
       </section>
       <section xml:id="nsa-realm">
         <title><literal>realm</literal></title>
@@ -124,8 +112,9 @@
         default <interfacename>AccessDeniedHandler</interfacename> used by the
           <classname>ExceptionTranslationFilter</classname>, (using the
           <literal>error-page</literal> attribute, or to supply your own implementation using the
-          <literal>ref</literal> attribute. This is discussed in more detail in the section on 
-        <link xlink:href="#access-denied-handler">the <classname>ExceptionTranslationFilter</classname></link>.</para>
+          <literal>ref</literal> attribute. This is discussed in more detail in the section on <link
+          xlink:href="#access-denied-handler">the
+          <classname>ExceptionTranslationFilter</classname></link>.</para>
     </section>
     <section>
       <title>The <literal>&lt;intercept-url&gt;</literal> Element</title>
@@ -161,7 +150,8 @@
           there is no preference. If this attribute is present on any
             <literal>&lt;intercept-url&gt;</literal> element, then a
             <classname>ChannelProcessingFilter</classname> will be added to the filter stack and its
-          additional dependencies added to the application context. <!--See the chapter on <link
+          additional dependencies added to the application context.
+          <!--See the chapter on <link
             xlink:href="#channel-security-config">channel security</link> for an example
           configuration using traditional beans. --></para>
         <para> If a <literal>&lt;port-mappings&gt;</literal> configuration is added, this will be
@@ -185,14 +175,13 @@
         the filter stack and an <classname>LoginUrlAuthenticationEntryPoint</classname> to the
         application context to provide authentication on demand. This will always take precedence
         over other namespace-created entry points. If no attributes are supplied, a login page will
-        be generated automatically at the URL "/spring-security-login" <footnote>
-          <para>This feature is really just provided for convenience and is not intended for
-            production (where a view technology will have been chosen and can be used to render a
-            customized login page). The class
-              <classname>DefaultLoginPageGeneratingFilter</classname> is responsible for rendering
-            the login page and will provide login forms for both normal form login and/or OpenID if
-            required.</para>
-        </footnote> The behaviour can be customized using the following attributes. </para>
+        be generated automatically at the URL "/spring-security-login" <footnote><para>This feature
+            is really just provided for convenience and is not intended for production (where a view
+            technology will have been chosen and can be used to render a customized login page). The
+            class <classname>DefaultLoginPageGeneratingFilter</classname> is responsible for
+            rendering the login page and will provide login forms for both normal form login and/or
+            OpenID if required.</para></footnote> The behaviour can be customized using the
+        following attributes. </para>
       <section>
         <title><literal>login-page</literal></title>
         <para> The URL that should be used to render the login page. Maps to the
@@ -232,18 +221,18 @@
       </section>
       <section>
         <title><literal>authentication-success-handler-ref</literal></title>
-        <para>This can be used as an alternative to <literal>default-target-url</literal>
-          and <literal>always-use-default-target</literal>, giving you full control over the navigation flow
-          after a successful authentication. The value should be he name of an <interfacename>AuthenticationSuccessHandler</interfacename>
-          bean in the application context.
-        </para>
+        <para>This can be used as an alternative to <literal>default-target-url</literal> and
+            <literal>always-use-default-target</literal>, giving you full control over the
+          navigation flow after a successful authentication. The value should be he name of an
+            <interfacename>AuthenticationSuccessHandler</interfacename> bean in the application
+          context. </para>
       </section>
       <section>
         <title><literal>authentication-failure-handler-ref</literal></title>
-        <para>Can be used as an alternative to <literal>authentication-failure-url</literal>, giving you full control over the navigation flow
-          after an authentication failure. The value should be he name of an <interfacename>AuthenticationFailureHandler</interfacename>
-          bean in the application context.
-        </para>
+        <para>Can be used as an alternative to <literal>authentication-failure-url</literal>, giving
+          you full control over the navigation flow after an authentication failure. The value
+          should be he name of an <interfacename>AuthenticationFailureHandler</interfacename> bean
+          in the application context. </para>
       </section>
     </section>
     <section xml:id="nsa-http-basic">
@@ -286,11 +275,9 @@
         <title>The <literal>key</literal> Attribute</title>
         <para>Maps to the "key" property of <classname>AbstractRememberMeServices</classname>.
           Should be set to a unique value to ensure that remember-me cookies are only valid within
-          the one application <footnote>
-            <para>This doesn't affect the use of
+          the one application <footnote><para>This doesn't affect the use of
                 <classname>PersistentTokenBasedRememberMeServices</classname>, where the tokens are
-              stored on the server side.</para>
-          </footnote>. </para>
+              stored on the server side.</para></footnote>. </para>
       </section>
       <section>
         <title><literal>token-validity-seconds</literal></title>
@@ -308,21 +295,33 @@
           explicitly using this attribute. </para>
       </section>
     </section>
+    <section xml:id="nsa-session-mgmt">
+      <title>The <literal>&lt;session-management&gt;</literal> Element</title>
+      <para>Session-management related functionality is implemented by the addition of a
+        <classname>SessionManagementFilter</classname> to the filter stack.</para>
+      <section xml:id="session-fixation-protection">
+        <title><literal>session-fixation-protection</literal></title>
+        <para> Indicates whether an existing session should be invalidated when a user authenticates
+          and a new session started. If set to "none" no change will be made. "newSession" will
+          create a new empty session. "migrateSession" will create a new session and copy the
+          session attributes to the new session. Defaults to "migrateSession".</para>
+        <para>
+          If session fixation protection is enabled, the <classname>SessionManagementFilter</classname>
+          is inected with a appropriately configured <classname>DefaultSessionAuthenticationStrategy</classname>.
+          See the Javadoc for this class for more details.
+        </para>
+      </section>
+    </section>
     <section xml:id="nsa-concurrent-session-control">
-      <title>The <literal>&lt;concurrent-session-control&gt;</literal> Element</title>
+      <title>The <literal>&lt;concurrency-control&gt;</literal> Element</title>
       <para> Adds support for concurrent session control, allowing limits to be placed on the number
         of active sessions a user can have. A <classname>ConcurrentSessionFilter</classname> will be
-        created, along with a <classname>ConcurrentSessionControllerImpl</classname> and an instance
-        of <interfacename>SessionRegistry</interfacename> (a
+        created, and a <classname>ConcurrentSessionControlStrategy</classname> will be used with the
+          <classname>SessionManagementFilter</classname>.  If a <literal>form-login</literal>
+        element has been declared, the strategy object will also be injected into the created
+        authentication filter. An instance of <interfacename>SessionRegistry</interfacename> (a
           <classname>SessionRegistryImpl</classname> instance unless the user wishes to use a custom
-        bean). The controller is registered with the namespace's
-          <interfacename>AuthenticationManager</interfacename>
-          (<classname>ProviderManager</classname>). Other namespace-created beans which require a
-        reference to the <interfacename>SessionRegistry</interfacename> will automatically have it
-        injected. </para>
-      <para> Note that the <literal>forceEagerSessionCreation</literal> of
-          <classname>HttpSessionContextIntegrationFilter</classname> will be set to
-          <literal>true</literal> if concurrent session control is in use. </para>
+        bean) will be created for use by the strategy.</para>
       <section>
         <title>The <literal>max-sessions</literal> attribute</title>
         <para>Maps to the <literal>maximumSessions</literal> property of
@@ -337,10 +336,10 @@
           expiry message will just be written directly back to the response. </para>
       </section>
       <section>
-        <title>The <literal>exception-if-maximum-exceeded</literal> attribute</title>
-        <para>If set to "true" a <exceptionname>ConcurrentLoginException</exceptionname> should be
-          raised when a user attempts to exceed the maximum allowed number of sessions. The default
-          behaviour is to expire the original session. </para>
+        <title>The <literal>error-if-maximum-exceeded</literal> attribute</title>
+        <para>If set to "true" a <exceptionname>SessionAuthenticationException</exceptionname> will
+          be raised when a user attempts to exceed the maximum allowed number of sessions. The
+          default behaviour is to expire the original session. </para>
       </section>
       <section>
         <title>The <literal>session-registry-alias</literal> and
@@ -438,7 +437,8 @@
       <section>
         <title>The <literal>&lt;authentication-provider&gt;</literal> Element</title>
         <para> This element is basically a shorthand syntax for configuring a <link
-          xlink:href="#core-services-dao-provider"><classname>DaoAuthenticationProvider</classname></link>.
+            xlink:href="#core-services-dao-provider"
+              ><classname>DaoAuthenticationProvider</classname></link>.
             <classname>DaoAuthenticationProvider</classname> loads user information from a
             <interfacename>UserDetailsService</interfacename> and compares the username/password
           combination with the values supplied at login. The
@@ -447,15 +447,15 @@
             <literal>user-service-ref</literal> attribute to point to a bean defined elsewhere in
           the application context). You can find examples of these variations in the <link
             xlink:href="#ns-auth-providers">namespace introduction</link>. </para>
-          <section>
-            <title>The <literal>&lt;password-encoder&gt;</literal> Element</title>
-            <para>Authentication providers can optionally be configured to use a password encoder as
-              described in the <link xlink:href="#ns-password-encoder">namespace introduction</link>.
-              This will result in the bean being injected with the appropriate <interfacename>PasswordEncoder</interfacename>
-              instance, potentially with an accompanying <interfacename>SaltSource</interfacename> bean to
-              provide salt values for hashing.
-            </para>
-          </section>
+        <section>
+          <title>The <literal>&lt;password-encoder&gt;</literal> Element</title>
+          <para>Authentication providers can optionally be configured to use a password encoder as
+            described in the <link xlink:href="#ns-password-encoder">namespace introduction</link>.
+            This will result in the bean being injected with the appropriate
+              <interfacename>PasswordEncoder</interfacename> instance, potentially with an
+            accompanying <interfacename>SaltSource</interfacename> bean to provide salt values for
+            hashing. </para>
+        </section>
       </section>
       <section>
         <title>Using <literal>&lt;authentication-provider&gt;</literal> to refer to an
@@ -497,15 +497,11 @@
         <para> Rather than defining security attributes on an individual method or class basis using
           the <literal>@Secured</literal> annotation, you can define cross-cutting security
           constraints across whole sets of methods and interfaces in your service layer using the
-            <literal>&lt;protect-pointcut&gt;</literal> element. This has two attributes: <itemizedlist>
-            <listitem>
-              <para><literal>expression</literal> - the pointcut expression</para>
-            </listitem>
-            <listitem>
-              <para><literal>access</literal> - the security attributes which apply</para>
-            </listitem>
-          </itemizedlist> You can find an example in the <link xlink:href="#ns-protect-pointcut"
-            >namespace introduction</link>. </para>
+            <literal>&lt;protect-pointcut&gt;</literal> element. This has two attributes:
+                  <itemizedlist><listitem><para><literal>expression</literal> - the pointcut
+                expression</para></listitem><listitem><para><literal>access</literal> - the security
+                attributes which apply</para></listitem></itemizedlist> You can find an example in
+          the <link xlink:href="#ns-protect-pointcut">namespace introduction</link>. </para>
       </section>
       <section xml:id="nsa-custom-after-invocation">
         <title>The <literal>&lt;after-invocation-provider&gt;</literal> Element</title>

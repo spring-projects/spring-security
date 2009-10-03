@@ -953,6 +953,16 @@
         <xs:documentation>The URL to which a user will be redirected if they submit an invalid session indentifier. Typically used to detect session timeouts.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="session-authentication-strategy-ref" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Allows injection of the SessionAuthenticationStrategy instance used by the SessionManagementFilter</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="session-authentication-error-url" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Defines the URL of the error page which should be shown when the SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (402) error code will be returned to the client. Note that this attribute doesn't apply if the error occurs during a form-based login, where the URL for authentication failure will take precedence. </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   
   <xs:attributeGroup name="concurrency-control.attlist">
@@ -968,12 +978,7 @@
     </xs:attribute>
     <xs:attribute name="error-if-maximum-exceeded" type="security:boolean">
       <xs:annotation>
-        <xs:documentation>Specifies that an unauthorized error should be reported when a user attempts to login when they already have the maximum configured sessions open. The default behaviour is to expire the original session.</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="error-url" type="xs:token">
-      <xs:annotation>
-        <xs:documentation>Defines the URL of the error page which should be shown when the maximum is exceeded and error-if-maximum-exceeded is 'true'. If not set, an unauthorized (402) error code will be returned to the client. </xs:documentation>
+        <xs:documentation>Specifies that an unauthorized error should be reported when a user attempts to login when they already have the maximum configured sessions open. The default behaviour is to expire the original session. If the session-authentication-error-url attribute is set on the session-management URL, the user will be redirected to this URL.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="session-registry-alias" type="xs:token">

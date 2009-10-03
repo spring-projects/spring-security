@@ -240,7 +240,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
 
         filter.setFilterProcessesUrl("/j_mock_post");
-        filter.setAuthenticatedSessionStrategy(mock(SessionAuthenticationStrategy.class));
+        filter.setSessionAuthenticationStrategy(mock(SessionAuthenticationStrategy.class));
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationManager(mock(AuthenticationManager.class));

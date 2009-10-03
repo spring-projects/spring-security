@@ -355,19 +355,31 @@
         in <xref xlink:href="#channel-security"/-->
       </para>
     </section>
-    <section xml:id="ns-concurrent-session">
+    <section xml:id="ns-session-mgmt">
       <title>Session Management</title>
-      <para> If you wish to place constraints on a single user's ability to log in to your
-        application, Spring Security supports this out of the box with the following simple
-        additions. First you need to add the following listener to your <filename>web.xml</filename>
-        file to keep Spring Security updated about session lifecycle events: <programlisting language="xml">        
-          <![CDATA[         
+      <section>
+        <title>Detecting Timeouts</title>
+        <para> You can configure Spring Security to detect the submission of an invalid session ID
+          and redirect the user to an appropriate URL. This is achieved through the
+            <literal>session-management</literal> element:<![CDATA[     
+  <http>
+    ...
+    <session-management invalid-session-url="/sessionTimeout.htm" />
+  </http>]]></para>
+      </section>
+      <section xml:id="ns-concurrent-sessions">
+        <title>Concurrent Session Control</title>
+        <para>If you wish to place constraints on a single user's ability to log in to your
+          application, Spring Security supports this out of the box with the following simple
+          additions. First you need to add the following listener to your
+            <filename>web.xml</filename> file to keep Spring Security updated about session
+          lifecycle events: <![CDATA[         
   <listener>
     <listener-class>
       org.springframework.security.web.session.HttpSessionEventPublisher
     </listener-class>
   </listener>
-]]></programlisting> Then add the following lines to your application context: <programlisting language="xml"><![CDATA[     
+]]> Then add the following lines to your application context: <programlisting language="xml"><![CDATA[     
   <http>
     ...
     <session-management>
@@ -375,8 +387,8 @@
     </session-management>
   </http>]]>
         </programlisting> This will prevent a user from logging in multiple times - a
-        second login will cause the first to be invalidated. Often you would prefer to prevent a
-        second login, in which case you can use <programlisting language="xml"><![CDATA[     
+          second login will cause the first to be invalidated. Often you would prefer to prevent a
+          second login, in which case you can use <programlisting language="xml"><![CDATA[     
   <http>
     ...
     <session-management>
@@ -384,13 +396,17 @@
     </session-management>
   </http>]]>
         </programlisting> The second login will then be rejected. By
-          <quote>rejected</quote>, we mean that the user will be sent to the
-          <literal>authentication-failure-url</literal> if form-based login is being used. If the
-        second authentication takes place through another non-interactive mechanism, such as
-          <quote>remember-me</quote>, an <quote>unauthorized</quote> (402) error will be sent to the
-        client. If instead you want to use an error page, you can add the attribute
-          <literal>error-url</literal> to the <literal>concurrency-control</literal>
-        element.<!-- TODO: Link to main section in docs --></para>
+            <quote>rejected</quote>, we mean that the user will be sent to the
+            <literal>authentication-failure-url</literal> if form-based login is being used. If the
+          second authentication takes place through another non-interactive mechanism, such as
+            <quote>remember-me</quote>, an <quote>unauthorized</quote> (402) error will be sent to
+          the client. If instead you want to use an error page, you can add the attribute
+            <literal>session-authentication-error-url</literal> to the
+            <literal>session-management</literal> element. </para>
+        <para> If you are using a customized authentication filter for form-based login, then you
+          have to configure concurrent session control support explicitly. More details can be found
+          in the <link xlink:href="#session-mgmt">Session Management chapter</link>. </para>
+      </section>
     </section>
     <section xml:id="ns-openid">
       <title>OpenID Login</title>

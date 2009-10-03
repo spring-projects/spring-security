@@ -120,7 +120,7 @@ public class FormLoginBeanDefinitionParser {
         }
 
         if (sessionStrategy != null) {
-            filterBuilder.addPropertyValue("authenticatedSessionStrategy", sessionStrategy);
+            filterBuilder.addPropertyValue("sessionAuthenticationStrategy", sessionStrategy);
         }
 
         if (StringUtils.hasText(failureHandlerRef)) {

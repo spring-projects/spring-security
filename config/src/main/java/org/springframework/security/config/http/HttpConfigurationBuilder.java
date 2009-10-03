@@ -41,7 +41,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.session.ConcurrentSessionControlAuthenticatedSessionStrategy;
+import org.springframework.security.web.session.ConcurrentSessionControlStrategy;
 import org.springframework.security.web.session.DefaultSessionAuthenticationStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.AntUrlPathMatcher;
@@ -71,7 +71,8 @@ class HttpConfigurationBuilder {
     private static final String OPT_SESSION_FIXATION_MIGRATE_SESSION = "migrateSession";
 
     private static final String ATT_INVALID_SESSION_URL = "invalid-session-url";
-
+    private static final String ATT_SESSION_AUTH_STRATEGY_REF = "session-authentication-strategy-ref";
+    private static final String ATT_SESSION_AUTH_ERROR_URL = "session-authentication-error-url";
     private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
 
     private static final String ATT_DISABLE_URL_REWRITING = "disable-url-rewriting";
@@ -197,29 +198,41 @@ class HttpConfigurationBuilder {
 
         String sessionFixationAttribute = null;
         String invalidSessionUrl = null;
+        String sessionAuthStratRef = null;
+        String errorUrl = null;
 
         if (sessionMgmtElt != null) {
             sessionFixationAttribute = sessionMgmtElt.getAttribute(ATT_SESSION_FIXATION_PROTECTION);
             invalidSessionUrl = sessionMgmtElt.getAttribute(ATT_INVALID_SESSION_URL);
+            sessionAuthStratRef = sessionMgmtElt.getAttribute(ATT_SESSION_AUTH_STRATEGY_REF);
+            errorUrl = sessionMgmtElt.getAttribute(ATT_SESSION_AUTH_ERROR_URL);
             sessionCtrlElt = DomUtils.getChildElementByTagName(sessionMgmtElt, Elements.CONCURRENT_SESSIONS);
 
             if (sessionCtrlElt != null) {
+                if (StringUtils.hasText(sessionAuthStratRef)) {
+                    pc.getReaderContext().error(ATT_SESSION_AUTH_STRATEGY_REF + " attribute cannot be used" +
+                            " in combination with <" + Elements.CONCURRENT_SESSIONS + ">", pc.extractSource(sessionCtrlElt));
+                }
                 createConcurrencyControlFilterAndSessionRegistry(sessionCtrlElt);
             }
         }
 
         if (!StringUtils.hasText(sessionFixationAttribute)) {
+            if (StringUtils.hasText(sessionAuthStratRef)) {
+                pc.getReaderContext().error(ATT_SESSION_FIXATION_PROTECTION + " attribute cannot be used" +
+                        " in combination with " + ATT_SESSION_AUTH_STRATEGY_REF, pc.extractSource(sessionCtrlElt));
+            }
+
             sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
         }
 
         boolean sessionFixationProtectionRequired = !sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION);
 
         BeanDefinitionBuilder sessionStrategy;
-        String concurrencyErrorUrl = null;
 
         if (sessionCtrlElt != null) {
             assert sessionRegistryRef != null;
-            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControlAuthenticatedSessionStrategy.class);
+            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControlStrategy.class);
             sessionStrategy.addConstructorArgValue(sessionRegistryRef);
 
             String maxSessions = sessionCtrlElt.getAttribute("max-sessions");
@@ -232,10 +245,9 @@ class HttpConfigurationBuilder {
 
             if (StringUtils.hasText(exceptionIfMaximumExceeded)) {
                 sessionStrategy.addPropertyValue("exceptionIfMaximumExceeded", exceptionIfMaximumExceeded);
-
-                concurrencyErrorUrl = sessionCtrlElt.getAttribute("error-url");
             }
-        } else if (sessionFixationProtectionRequired || StringUtils.hasText(invalidSessionUrl)) {
+        } else if (sessionFixationProtectionRequired || StringUtils.hasText(invalidSessionUrl)
+                || StringUtils.hasText(sessionAuthStratRef)) {
             sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(DefaultSessionAuthenticationStrategy.class);
         } else {
             sfpf = null;
@@ -244,28 +256,31 @@ class HttpConfigurationBuilder {
 
         BeanDefinitionBuilder sessionMgmtFilter = BeanDefinitionBuilder.rootBeanDefinition(SessionManagementFilter.class);
         RootBeanDefinition failureHandler = new RootBeanDefinition(SimpleUrlAuthenticationFailureHandler.class);
-        if (StringUtils.hasText(concurrencyErrorUrl)) {
-            failureHandler.getPropertyValues().addPropertyValue("defaultFailureUrl", concurrencyErrorUrl);
+        if (StringUtils.hasText(errorUrl)) {
+            failureHandler.getPropertyValues().addPropertyValue("defaultFailureUrl", errorUrl);
         }
         sessionMgmtFilter.addPropertyValue("authenticationFailureHandler", failureHandler);
         sessionMgmtFilter.addConstructorArgValue(contextRepoRef);
-        BeanDefinition strategyBean = sessionStrategy.getBeanDefinition();
 
-        String sessionStrategyId = pc.getReaderContext().registerWithGeneratedName(strategyBean);
-        pc.registerBeanComponent(new BeanComponentDefinition(strategyBean, sessionStrategyId));
-        sessionMgmtFilter.addPropertyReference("authenticatedSessionStrategy", sessionStrategyId);
-        if (sessionFixationProtectionRequired) {
+        if (!StringUtils.hasText(sessionAuthStratRef)) {
+            BeanDefinition strategyBean = sessionStrategy.getBeanDefinition();
 
-            sessionStrategy.addPropertyValue("migrateSessionAttributes",
-                    Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
+            if (sessionFixationProtectionRequired) {
+                sessionStrategy.addPropertyValue("migrateSessionAttributes",
+                        Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
+            }
+            sessionAuthStratRef = pc.getReaderContext().registerWithGeneratedName(strategyBean);
+            pc.registerBeanComponent(new BeanComponentDefinition(strategyBean, sessionAuthStratRef));
         }
 
         if (StringUtils.hasText(invalidSessionUrl)) {
             sessionMgmtFilter.addPropertyValue("invalidSessionUrl", invalidSessionUrl);
         }
 
+        sessionMgmtFilter.addPropertyReference("sessionAuthenticationStrategy", sessionAuthStratRef);
+
         sfpf = (RootBeanDefinition) sessionMgmtFilter.getBeanDefinition();
-        sessionStrategyRef = new RuntimeBeanReference(sessionStrategyId);
+        sessionStrategyRef = new RuntimeBeanReference(sessionAuthStratRef);
     }
 
     private void createConcurrencyControlFilterAndSessionRegistry(Element element) {
@@ -398,9 +413,6 @@ class HttpConfigurationBuilder {
 
         return channelRequestMap;
     }
-
-
-
 
     void createFilterSecurityInterceptor(BeanReference authManager) {
         BeanDefinitionBuilder fidsBuilder;

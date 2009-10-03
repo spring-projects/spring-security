@@ -400,7 +400,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * @param sessionStrategy the implementation to use. If not set a null implementation is
      * used.
      */
-    public void setAuthenticatedSessionStrategy(SessionAuthenticationStrategy sessionStrategy) {
+    public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionStrategy) {
         this.sessionStrategy = sessionStrategy;
     }
 

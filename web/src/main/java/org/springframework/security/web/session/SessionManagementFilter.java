@@ -98,7 +98,7 @@ public class SessionManagementFilter extends GenericFilterBean {
      *
      * @param sessionStrategy the strategy object. If not set, a {@link DefaultSessionAuthenticationStrategy} is used.
      */
-    public void setAuthenticatedSessionStrategy(SessionAuthenticationStrategy sessionStrategy) {
+    public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionStrategy) {
         Assert.notNull(sessionStrategy, "authenticatedSessionStratedy must not be null");
         this.sessionStrategy = sessionStrategy;
     }

@@ -48,7 +48,7 @@ public class SessionManagementFilterTests {
         // mock that repo contains a security context
         when(repo.containsContext(any(HttpServletRequest.class))).thenReturn(true);
         SessionManagementFilter filter = new SessionManagementFilter(repo);
-        filter.setAuthenticatedSessionStrategy(strategy);
+        filter.setSessionAuthenticationStrategy(strategy);
         HttpServletRequest request = new MockHttpServletRequest();
         authenticateUser();
 
@@ -62,7 +62,7 @@ public class SessionManagementFilterTests {
         SecurityContextRepository repo = mock(SecurityContextRepository.class);
         SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
         SessionManagementFilter filter = new SessionManagementFilter(repo);
-        filter.setAuthenticatedSessionStrategy(strategy);
+        filter.setSessionAuthenticationStrategy(strategy);
         HttpServletRequest request = new MockHttpServletRequest();
 
         filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
@@ -76,7 +76,7 @@ public class SessionManagementFilterTests {
         // repo will return false to containsContext()
         SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
         SessionManagementFilter filter = new SessionManagementFilter(repo);
-        filter.setAuthenticatedSessionStrategy(strategy);
+        filter.setSessionAuthenticationStrategy(strategy);
         HttpServletRequest request = new MockHttpServletRequest();
         authenticateUser();
 
@@ -94,7 +94,7 @@ public class SessionManagementFilterTests {
         // repo will return false to containsContext()
         SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
         SessionManagementFilter filter = new SessionManagementFilter(repo);
-        filter.setAuthenticatedSessionStrategy(strategy);
+        filter.setSessionAuthenticationStrategy(strategy);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestedSessionId("xxx");
         request.setRequestedSessionIdValid(false);

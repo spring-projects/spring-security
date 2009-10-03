@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
  * @version $Id$
  * @since 3.0
  */
-public class ConcurrentSessionControlAuthenticatedSessionStrategy extends DefaultSessionAuthenticationStrategy
+public class ConcurrentSessionControlStrategy extends DefaultSessionAuthenticationStrategy
         implements MessageSourceAware {
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private final SessionRegistry sessionRegistry;
@@ -32,7 +32,7 @@ public class ConcurrentSessionControlAuthenticatedSessionStrategy extends Defaul
     /**
      * @param sessionRegistry the session registry which should be updated when the authenticated session is changed.
      */
-    public ConcurrentSessionControlAuthenticatedSessionStrategy(SessionRegistry sessionRegistry) {
+    public ConcurrentSessionControlStrategy(SessionRegistry sessionRegistry) {
         Assert.notNull(sessionRegistry, "The sessionRegistry cannot be null");
         super.setAlwaysCreateSession(true);
         this.sessionRegistry = sessionRegistry;

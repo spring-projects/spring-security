@@ -425,6 +425,12 @@ session-management.attlist &=
 session-management.attlist &=
     ## The URL to which a user will be redirected if they submit an invalid session indentifier. Typically used to detect session timeouts.
     attribute invalid-session-url {xsd:token}?
+session-management.attlist &=
+    ## Allows injection of the SessionAuthenticationStrategy instance used by the SessionManagementFilter
+    attribute session-authentication-strategy-ref {xsd:token}?
+session-management.attlist &=
+    ## Defines the URL of the error page which should be shown when the SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (402) error code will be returned to the client. Note that this attribute doesn't apply if the error occurs during a form-based login, where the URL for authentication failure will take precedence. 
+    attribute session-authentication-error-url {xsd:token}?
     
     
 concurrency-control = 
@@ -438,11 +444,8 @@ concurrency-control.attlist &=
     ## The URL a user will be redirected to if they attempt to use a session which has been "expired" because they have logged in again.
     attribute expired-url {xsd:token}?
 concurrency-control.attlist &=
-    ## Specifies that an unauthorized error should be reported when a user attempts to login when they already have the maximum configured sessions open. The default behaviour is to expire the original session.
+    ## Specifies that an unauthorized error should be reported when a user attempts to login when they already have the maximum configured sessions open. The default behaviour is to expire the original session. If the session-authentication-error-url attribute is set on the session-management URL, the user will be redirected to this URL.
     attribute error-if-maximum-exceeded {boolean}?
-concurrency-control.attlist &=
-    ## Defines the URL of the error page which should be shown when the maximum is exceeded and error-if-maximum-exceeded is 'true'. If not set, an unauthorized (402) error code will be returned to the client. Note that this attribute doesn't apply if the error occurs during a form-based login, where the URL for authentication failure will take precedence. 
-    attribute error-url {xsd:token}?
 concurrency-control.attlist &=
     ## Allows you to define an alias for the SessionRegistry bean in order to access it in your own configuration.
     attribute session-registry-alias {xsd:token}?
