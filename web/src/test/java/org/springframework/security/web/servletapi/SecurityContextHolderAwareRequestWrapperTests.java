@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.wrapper;
+package org.springframework.security.web.servletapi;
 
 import junit.framework.TestCase;
 
@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 
 /**
  * Tests {@link SecurityContextHolderAwareRequestWrapper}.

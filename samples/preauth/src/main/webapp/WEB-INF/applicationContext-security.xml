@@ -88,8 +88,8 @@
 
     <bean id="roleVoter" class="org.springframework.security.access.vote.RoleVoter"/>
 
-    <bean id="securityContextHolderAwareRequestFilter" class="org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter">
-        <property name="wrapperClass" value="org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestWrapper"/>
+    <bean id="securityContextHolderAwareRequestFilter" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter">
+        <property name="wrapperClass" value="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper"/>
     </bean>
 
 </beans>

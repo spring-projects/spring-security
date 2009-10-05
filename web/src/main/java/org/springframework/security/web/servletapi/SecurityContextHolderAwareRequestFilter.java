@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.wrapper;
+package org.springframework.security.web.servletapi;
 
 import java.io.IOException;
 

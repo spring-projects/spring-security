@@ -52,7 +52,7 @@
         <property name="authenticationManager" ref="authenticationManager"/>
     </bean>
 
-    <bean id="scharf" class="org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter" />
+    <bean id="scharf" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter" />
 
     <bean id="preAuthenticatedProcessingFilterEntryPoint"
             class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint"/>

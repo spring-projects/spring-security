@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.wrapper;
+package org.springframework.security.web.servletapi;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletResponse;
@@ -24,6 +24,8 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 
 
 /**
