@@ -25,10 +25,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.security.authentication.concurrent.SessionInformation;
-import org.springframework.security.authentication.concurrent.SessionRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -42,9 +42,9 @@ import org.springframework.web.filter.GenericFilterBean;
  * Filter required by concurrent session handling package.
  * <p>
  * This filter performs two functions. First, it calls
- * {@link org.springframework.security.authentication.concurrent.SessionRegistry#refreshLastRequest(String)} for each request
+ * {@link org.springframework.security.core.session.SessionRegistry#refreshLastRequest(String)} for each request
  * so that registered sessions always have a correct "last update" date/time. Second, it retrieves a
- * {@link org.springframework.security.authentication.concurrent.SessionInformation} from the <code>SessionRegistry</code>
+ * {@link org.springframework.security.core.session.SessionInformation} from the <code>SessionRegistry</code>
  * for each request and checks if the session has been marked as expired.
  * If it has been marked as expired, the configured logout handlers will be called (as happens with
  * {@link org.springframework.security.web.authentication.logout.LogoutFilter}), typically to invalidate the session.

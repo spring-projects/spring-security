@@ -298,18 +298,17 @@
     <section xml:id="nsa-session-mgmt">
       <title>The <literal>&lt;session-management&gt;</literal> Element</title>
       <para>Session-management related functionality is implemented by the addition of a
-        <classname>SessionManagementFilter</classname> to the filter stack.</para>
+          <classname>SessionManagementFilter</classname> to the filter stack.</para>
       <section xml:id="session-fixation-protection">
         <title><literal>session-fixation-protection</literal></title>
         <para> Indicates whether an existing session should be invalidated when a user authenticates
           and a new session started. If set to "none" no change will be made. "newSession" will
           create a new empty session. "migrateSession" will create a new session and copy the
           session attributes to the new session. Defaults to "migrateSession".</para>
-        <para>
-          If session fixation protection is enabled, the <classname>SessionManagementFilter</classname>
-          is inected with a appropriately configured <classname>DefaultSessionAuthenticationStrategy</classname>.
-          See the Javadoc for this class for more details.
-        </para>
+        <para> If session fixation protection is enabled, the
+            <classname>SessionManagementFilter</classname> is inected with a appropriately
+          configured <classname>DefaultSessionAuthenticationStrategy</classname>. See the Javadoc
+          for this class for more details. </para>
       </section>
     </section>
     <section xml:id="nsa-concurrent-session-control">
@@ -317,15 +316,15 @@
       <para> Adds support for concurrent session control, allowing limits to be placed on the number
         of active sessions a user can have. A <classname>ConcurrentSessionFilter</classname> will be
         created, and a <classname>ConcurrentSessionControlStrategy</classname> will be used with the
-          <classname>SessionManagementFilter</classname>.  If a <literal>form-login</literal>
-        element has been declared, the strategy object will also be injected into the created
-        authentication filter. An instance of <interfacename>SessionRegistry</interfacename> (a
+          <classname>SessionManagementFilter</classname>. If a <literal>form-login</literal> element
+        has been declared, the strategy object will also be injected into the created authentication
+        filter. An instance of <interfacename>SessionRegistry</interfacename> (a
           <classname>SessionRegistryImpl</classname> instance unless the user wishes to use a custom
         bean) will be created for use by the strategy.</para>
       <section>
         <title>The <literal>max-sessions</literal> attribute</title>
         <para>Maps to the <literal>maximumSessions</literal> property of
-            <classname>ConcurrentSessionControllerImpl</classname>.</para>
+            <classname>ConcurrentSessionControlStrategy</classname>.</para>
       </section>
       <section>
         <title>The <literal>expired-url</literal> attribute</title>

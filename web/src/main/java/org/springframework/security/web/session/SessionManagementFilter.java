@@ -39,7 +39,7 @@ public class SessionManagementFilter extends GenericFilterBean {
     //~ Instance fields ================================================================================================
 
     private final SecurityContextRepository securityContextRepository;
-    private SessionAuthenticationStrategy sessionStrategy = new DefaultSessionAuthenticationStrategy();
+    private SessionAuthenticationStrategy sessionStrategy = new SessionFixationProtectionStrategy();
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
     private String invalidSessionUrl;
     private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
@@ -96,7 +96,7 @@ public class SessionManagementFilter extends GenericFilterBean {
      * Sets the strategy object which handles the session management behaviour when a
      * user has been authenticated during the current request.
      *
-     * @param sessionStrategy the strategy object. If not set, a {@link DefaultSessionAuthenticationStrategy} is used.
+     * @param sessionStrategy the strategy object. If not set, a {@link SessionFixationProtectionStrategy} is used.
      */
     public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionStrategy) {
         Assert.notNull(sessionStrategy, "authenticatedSessionStratedy must not be null");

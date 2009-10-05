@@ -31,12 +31,12 @@
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="accessDecisionManager" ref="accessDecisionManager"/>
         <property name="securityMetadataSource"><value>
-            org.springframework.security.authentication.concurrent.SessionRegistry.get*=ROLE_C
+            org.springframework.security.core.session.SessionRegistry.get*=ROLE_C
         </value></property>
     </bean>
 
     <bean id="httpRemoteService" class="org.springframework.aop.framework.ProxyFactoryBean">
-        <property name="proxyInterfaces" value="org.springframework.security.authentication.concurrent.SessionRegistry"/>
+        <property name="proxyInterfaces" value="org.springframework.security.core.session.SessionRegistry"/>
         <property name="interceptorNames">
             <list>
                 <value>securityInterceptor</value>

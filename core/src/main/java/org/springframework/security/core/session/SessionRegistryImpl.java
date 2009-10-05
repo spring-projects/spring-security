@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.authentication.concurrent;
+package org.springframework.security.core.session;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,11 +28,10 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationListener;
-import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.util.Assert;
 
 /**
- * Base implementation of {@link org.springframework.security.authentication.concurrent.SessionRegistry}
+ * Base implementation of {@link org.springframework.security.core.session.SessionRegistry}
  * which also listens for {@link org.springframework.security.web.session.HttpSessionDestroyedEvent}s
  * published in the Spring application context.
  *

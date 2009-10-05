@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.authentication.concurrent;
+package org.springframework.security.core.session;
 
 import static org.junit.Assert.*;
 
@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.session.SessionDestroyedEvent;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistryImpl;
 
 /**
  * Tests {@link SessionRegistryImpl}.

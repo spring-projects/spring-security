@@ -9,20 +9,36 @@ import javax.servlet.http.HttpSession;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.authentication.concurrent.SessionInformation;
-import org.springframework.security.authentication.concurrent.SessionRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.concurrent.ConcurrentSessionFilter;
 import org.springframework.util.Assert;
 
 /**
+ * Strategy which handles concurrent session-control, in addition to the functionality provided by the base class.
+ *
+ * When invoked following an authentication, it will check whether the user in question should be allowed to proceed,
+ * by comparing the number of sessions they already have active with the configured <tt>maximumSessions</tt> value.
+ * The {@link SessionRegistry} is used as the source of data on authenticated users and session data.
+ * <p>
+ * If a user has reached the maximum number of permitted sessions, the behaviour depends on the
+ * <tt>exceptionIfMaxExceeded</tt> property. The default behaviour is to expired the least recently used session, which
+ * will be invalidated by the {@link ConcurrentSessionFilter} if accessed again. If <tt>exceptionIfMaxExceeded</tt> is
+ * set to <tt>true</tt>, however, the user will be prevented from starting a new authenticated session.
+ * <p>
+ * This strategy can be injected into both the {@link SessionManagementFilter} and instances of
+ * {@link AbstractAuthenticationProcessingFilter} (typically {@link UsernamePasswordAuthenticationProcessingFilter}).
  *
  * @author Luke Taylor
  * @version $Id$
  * @since 3.0
  */
-public class ConcurrentSessionControlStrategy extends DefaultSessionAuthenticationStrategy
+public class ConcurrentSessionControlStrategy extends SessionFixationProtectionStrategy
         implements MessageSourceAware {
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private final SessionRegistry sessionRegistry;
@@ -106,7 +122,7 @@ public class ConcurrentSessionControlStrategy extends DefaultSessionAuthenticati
      *
      */
     protected void allowableSessionsExceeded(List<SessionInformation> sessions, int allowableSessions,
-            SessionRegistry registry) {
+            SessionRegistry registry) throws SessionAuthenticationException {
         if (exceptionIfMaximumExceeded || (sessions == null)) {
             throw new SessionAuthenticationException(messages.getMessage("ConcurrentSessionControllerImpl.exceededAllowed",
                     new Object[] {new Integer(allowableSessions)},
@@ -133,10 +149,22 @@ public class ConcurrentSessionControlStrategy extends DefaultSessionAuthenticati
         sessionRegistry.registerNewSession(newSession.getId(), auth.getPrincipal());
     }
 
+    /**
+     * Sets the <tt>exceptionIfMaximumExceeded</tt> property, which determines whether the user should be prevented
+     * from opening more sessions than allowed. If set to <tt>true</tt>, a <tt>SessionAuthenticationException</tt>
+     * will be raised.
+     *
+     * @param exceptionIfMaximumExceeded defaults to <tt>false</tt>.
+     */
     public void setExceptionIfMaximumExceeded(boolean exceptionIfMaximumExceeded) {
         this.exceptionIfMaximumExceeded = exceptionIfMaximumExceeded;
     }
 
+    /**
+     * Sets the <tt>maxSessions</tt> property. The default value is 1. Use -1 for unlimited sessions.
+     *
+     * @param maximumSessions the maximimum number of permitted sessions a user can have open simultaneously.
+     */
     public void setMaximumSessions(int maximumSessions) {
         Assert.isTrue(maximumSessions != 0,
             "MaximumLogins must be either -1 to allow unlimited logins, or a positive integer to specify a maximum");

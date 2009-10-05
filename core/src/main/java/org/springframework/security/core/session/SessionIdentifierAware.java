@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.authentication.concurrent;
+package org.springframework.security.core.session;
 
 /**
  * Implemented by {@link org.springframework.security.core.Authentication#getDetails()}

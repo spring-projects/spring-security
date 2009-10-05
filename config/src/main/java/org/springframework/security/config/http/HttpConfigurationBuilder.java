@@ -24,8 +24,8 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
-import org.springframework.security.authentication.concurrent.SessionRegistryImpl;
 import org.springframework.security.config.Elements;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
@@ -42,7 +42,7 @@ import org.springframework.security.web.authentication.concurrent.ConcurrentSess
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.session.ConcurrentSessionControlStrategy;
-import org.springframework.security.web.session.DefaultSessionAuthenticationStrategy;
+import org.springframework.security.web.session.SessionFixationProtectionStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.AntUrlPathMatcher;
 import org.springframework.security.web.util.UrlMatcher;
@@ -248,7 +248,7 @@ class HttpConfigurationBuilder {
             }
         } else if (sessionFixationProtectionRequired || StringUtils.hasText(invalidSessionUrl)
                 || StringUtils.hasText(sessionAuthStratRef)) {
-            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(DefaultSessionAuthenticationStrategy.class);
+            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionStrategy.class);
         } else {
             sfpf = null;
             return;

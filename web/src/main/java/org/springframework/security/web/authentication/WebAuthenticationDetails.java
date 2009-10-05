@@ -15,7 +15,7 @@
 
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.authentication.concurrent.SessionIdentifierAware;
+import org.springframework.security.core.session.SessionIdentifierAware;
 
 import java.io.Serializable;
 

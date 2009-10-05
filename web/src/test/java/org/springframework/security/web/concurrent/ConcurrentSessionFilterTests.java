@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.authentication;
+package org.springframework.security.web.concurrent;
 
 import junit.framework.TestCase;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.authentication.concurrent.SessionRegistry;
-import org.springframework.security.authentication.concurrent.SessionRegistryImpl;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.concurrent.ConcurrentSessionFilter;
 
 import javax.servlet.Filter;

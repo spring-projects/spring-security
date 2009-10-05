@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package org.springframework.security.authentication.concurrent;
+package org.springframework.security.core.session;
 
 import junit.framework.TestCase;
 
 import java.util.Date;
 
-import org.springframework.security.authentication.concurrent.SessionInformation;
+import org.springframework.security.core.session.SessionInformation;
 
 
 /**

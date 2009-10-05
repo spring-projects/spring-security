@@ -21,7 +21,7 @@ public class DefaultSessionAuthenticationStrategyTests {
 
     @Test
     public void newSessionShouldNotBeCreatedIfNoSessionExistsAndAlwaysCreateIsFalse() throws Exception {
-        DefaultSessionAuthenticationStrategy strategy = new DefaultSessionAuthenticationStrategy();
+        SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
         HttpServletRequest request = new MockHttpServletRequest();
 
         strategy.onAuthentication(mock(Authentication.class), request, new MockHttpServletResponse());
@@ -31,7 +31,7 @@ public class DefaultSessionAuthenticationStrategyTests {
 
     @Test
     public void newSessionIsCreatedIfSessionAlreadyExists() throws Exception {
-        DefaultSessionAuthenticationStrategy strategy = new DefaultSessionAuthenticationStrategy();
+        SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
         HttpServletRequest request = new MockHttpServletRequest();
         String sessionId = request.getSession().getId();
 
@@ -43,7 +43,7 @@ public class DefaultSessionAuthenticationStrategyTests {
     // See SEC-1077
     @Test
     public void onlySavedRequestAttributeIsMigratedIfMigrateAttributesIsFalse() throws Exception {
-        DefaultSessionAuthenticationStrategy strategy = new DefaultSessionAuthenticationStrategy();
+        SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
         strategy.setMigrateSessionAttributes(false);
         HttpServletRequest request = new MockHttpServletRequest();
         HttpSession session = request.getSession();
@@ -58,7 +58,7 @@ public class DefaultSessionAuthenticationStrategyTests {
 
     @Test
     public void sessionIsCreatedIfAlwaysCreateTrue() throws Exception {
-        DefaultSessionAuthenticationStrategy strategy = new DefaultSessionAuthenticationStrategy();
+        SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
         strategy.setAlwaysCreateSession(true);
         HttpServletRequest request = new MockHttpServletRequest();
         strategy.onAuthentication(mock(Authentication.class), request, new MockHttpServletResponse());

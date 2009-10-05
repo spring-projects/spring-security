@@ -32,7 +32,7 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
  * @version $Id$
  * @since 3.0
  */
-public class DefaultSessionAuthenticationStrategy implements SessionAuthenticationStrategy {
+public class SessionFixationProtectionStrategy implements SessionAuthenticationStrategy {
     protected final Log logger = LogFactory.getLog(this.getClass());
 
     /**
