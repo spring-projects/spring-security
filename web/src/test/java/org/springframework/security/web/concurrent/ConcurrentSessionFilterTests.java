@@ -22,7 +22,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.web.authentication.concurrent.ConcurrentSessionFilter;
+import org.springframework.security.web.session.ConcurrentSessionFilter;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -41,11 +41,6 @@ import java.util.Date;
  * @version $Id$
  */
 public class ConcurrentSessionFilterTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public ConcurrentSessionFilterTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
 

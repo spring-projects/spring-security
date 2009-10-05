@@ -1,4 +1,4 @@
-package org.springframework.security.web.session;
+package org.springframework.security.web.authentication.session;
 
 import java.util.List;
 
@@ -16,7 +16,8 @@ import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.concurrent.ConcurrentSessionFilter;
+import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.util.Assert;
 
 /**

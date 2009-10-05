@@ -38,11 +38,11 @@ import org.springframework.security.web.access.intercept.DefaultFilterInvocation
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.access.intercept.RequestKey;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.concurrent.ConcurrentSessionFilter;
+import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy;
+import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.session.ConcurrentSessionControlStrategy;
-import org.springframework.security.web.session.SessionFixationProtectionStrategy;
+import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.AntUrlPathMatcher;
 import org.springframework.security.web.util.UrlMatcher;

@@ -1,4 +1,4 @@
-package org.springframework.security.web.session;
+package org.springframework.security.web.authentication.session;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

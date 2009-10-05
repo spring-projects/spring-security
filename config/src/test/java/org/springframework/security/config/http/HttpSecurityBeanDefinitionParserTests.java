@@ -55,7 +55,6 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
@@ -70,6 +69,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
+import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.wrapper.SecurityContextHolderAwareRequestFilter;
 import org.springframework.util.ReflectionUtils;

@@ -49,8 +49,8 @@ import org.springframework.security.web.authentication.ExceptionMappingAuthentic
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
-import org.springframework.security.web.session.SessionAuthenticationStrategy;
 
 
 /**

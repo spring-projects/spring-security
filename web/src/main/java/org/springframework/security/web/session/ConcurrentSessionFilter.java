@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.authentication.concurrent;
+package org.springframework.security.web.session;
 
 import java.io.IOException;
 

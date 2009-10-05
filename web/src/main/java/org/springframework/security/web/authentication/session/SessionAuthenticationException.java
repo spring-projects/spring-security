@@ -1,4 +1,4 @@
-package org.springframework.security.web.session;
+package org.springframework.security.web.authentication.session;
 
 import org.springframework.security.core.AuthenticationException;
 
