@@ -92,7 +92,7 @@
     <para>Remember-me authentication is not used with basic
         authentication, given it is often not used with
         <literal>HttpSession</literal>s. Remember-me is used with
-        <literal>UsernamePasswordAuthenticationProcessingFilter</literal>, and is implemented
+        <literal>UsernamePasswordAuthenticationFilter</literal>, and is implemented
         via hooks in the <literal>AbstractAuthenticationProcessingFilter</literal>
         superclass. The hooks will invoke a concrete
         <interfacename>RememberMeServices</interfacename> at the appropriate times. The
@@ -158,13 +158,13 @@
 ]]>        
             </programlisting>Don't forget to add your
                 <interfacename>RememberMeServices</interfacename> implementation to your
-                <literal>UsernamePasswordAuthenticationProcessingFilter.setRememberMeServices()</literal>
+                <literal>UsernamePasswordAuthenticationFilter.setRememberMeServices()</literal>
                 property, include the
                 <literal>RememberMeAuthenticationProvider</literal> in your
                 <literal>AuthenticationManager.setProviders()</literal> list, and add
                 <classname>RememberMeProcessingFilter</classname> into your
                 <classname>FilterChainProxy</classname> (typically immediately after your
-                <literal>UsernamePasswordAuthenticationProcessingFilter</literal>).</para>           
+                <literal>UsernamePasswordAuthenticationFilter</literal>).</para>           
         </section>
         <section>
             <title>PersistentTokenBasedRememberMeServices</title>

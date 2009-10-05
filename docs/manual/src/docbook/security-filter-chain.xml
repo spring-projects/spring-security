@@ -151,7 +151,7 @@
         </listitem>
         <listitem>
           <para>Authentication processing mechanisms -
-              <classname>UsernamePasswordAuthenticationProcessingFilter</classname>,
+              <classname>UsernamePasswordAuthenticationFilter</classname>,
               <classname>CasProcessingFilter</classname>,
               <classname>BasicProcessingFilter</classname> etc - so that the
               <classname>SecurityContextHolder</classname> can be modified to contain a valid

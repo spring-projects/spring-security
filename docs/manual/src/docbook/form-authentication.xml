@@ -5,7 +5,7 @@
         <info><title>Overview</title></info>
         
         <para>HTTP Form Authentication involves using the
-            <literal>UsernamePasswordAuthenticationProcessingFilter</literal> to process a login
+            <literal>UsernamePasswordAuthenticationFilter</literal> to process a login
             form. This is the most common way for an application to authenticate end
             users. Form-based authentication is entirely compatible with the DAO, LDAP
             and JAAS authentication providers.</para>
@@ -21,10 +21,10 @@
             <literal>j_password</literal> input fields, and posts to a URL that is
             monitored by the filter (by default
             <literal>/j_spring_security_check</literal>). You should add an 
-            <literal>UsernamePasswordAuthenticationProcessingFilter</literal> to your application context:
+            <literal>UsernamePasswordAuthenticationFilter</literal> to your application context:
             <programlisting><![CDATA[    
 <bean id="authenticationProcessingFilter" class=
-"org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter">
+"org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="filterProcessesUrl" value="/j_spring_security_check"/>
 </bean> ]]>        

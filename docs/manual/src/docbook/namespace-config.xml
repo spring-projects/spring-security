@@ -431,7 +431,7 @@
         at particular locations or use a Spring Security filter for which there isn't currently a
         namespace configuration option (CAS, for example). Or you might want to use a customized
         version of a standard namespace filter, such as the
-          <literal>UsernamePasswordAuthenticationProcessingFilter</literal> which is created by the
+          <literal>UsernamePasswordAuthenticationFilter</literal> which is created by the
           <literal>&lt;form-login&gt;</literal> element, taking advantage of some of the extra
         configuration options which are available by using the bean explicitly. How can you do this
         with namespace configuration, since the filter chain is not directly exposed? </para>
@@ -464,7 +464,7 @@
                   Subclasses</entry><entry>N/A</entry></row><row><entry> CAS_PROCESSING_FILTER
                     </entry><entry><literal>CasProcessingFilter</literal></entry><entry>N/A</entry></row><row><entry>
                   AUTHENTICATION_PROCESSING_FILTER
-                    </entry><entry><literal>UsernamePasswordAuthenticationProcessingFilter</literal></entry><entry><literal>http/form-login</literal></entry></row><row><entry>
+                    </entry><entry><literal>UsernamePasswordAuthenticationFilter</literal></entry><entry><literal>http/form-login</literal></entry></row><row><entry>
                   BASIC_PROCESSING_FILTER
                   </entry><entry><literal>BasicProcessingFilter</literal></entry><entry><literal>http/http-basic</literal></entry></row><row><entry>
                   SERVLET_API_SUPPORT_FILTER</entry><entry><literal>SecurityContextHolderAwareRequestFilter</literal></entry><entry><literal>http/@servlet-api-provision</literal></entry></row><row><entry>

@@ -231,7 +231,7 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
         </section>
     </section>
     <section xml:id="form-login-filter">
-        <title><classname>UsernamePasswordAuthenticationProcessingFilter</classname></title>
+        <title><classname>UsernamePasswordAuthenticationFilter</classname></title>
         <para>We've now seen the three main filters which are always present in a Spring Security
             web configuration. These are also the three which are automatically created by the
             namespace <literal>&lt;http&gt;</literal> element and cannot be substituted with
@@ -250,7 +250,7 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
                             <classname>ExceptionTranslationFilter</classname>.
                         </para></listitem><listitem><para>Implement the login page (using a JSP or
                         MVC controller).</para></listitem><listitem><para>Configure an instance of
-                            <classname>UsernamePasswordAuthenticationProcessingFilter</classname> in
+                            <classname>UsernamePasswordAuthenticationFilter</classname> in
                         the application context</para></listitem><listitem><para>Add the filter bean
                         to your filter chain proxy (making sure you pay attention to the order).
                         <!-- TODO: link --></para></listitem></orderedlist> The login form simply
@@ -259,7 +259,7 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
                 <literal>/j_spring_security_check</literal>). The basic filter configuration looks
             something like this: <programlisting><![CDATA[    
 <bean id="authenticationProcessingFilter" class=
-"org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter">
+"org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="filterProcessesUrl" value="/j_spring_security_check"/>
 </bean> ]]>        

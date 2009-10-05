@@ -44,7 +44,7 @@
   </http>
   
   <beans:bean id="myAuthFilter" 
-      class="org.springframework.security.web.authentcation.UsernamePasswordAuthenticationProcessingFilter">
+      class="org.springframework.security.web.authentcation.UsernamePasswordAuthenticationFilter">
     <beans:property name="sessionAuthenticationStrategy" ref="sas" />
     ...
   </beans:bean>
@@ -106,7 +106,7 @@
   </beans:bean>
   
   <beans:bean id="myAuthFilter" 
-      class="org.springframework.security.web.authentcation.UsernamePasswordAuthenticationProcessingFilter">
+      class="org.springframework.security.web.authentcation.UsernamePasswordAuthenticationFilter">
     <beans:property name="sessionAuthenticationStrategy" ref="sas" />
     ...
   </beans:bean>
