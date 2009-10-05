@@ -29,7 +29,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 
     @Test
     public void generatingPageWithAuthenticationProcessingFilterOnlyIsSuccessFul() throws Exception {
-        DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new UsernamePasswordAuthenticationProcessingFilter());
+        DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new UsernamePasswordAuthenticationFilter());
         filter.doFilter(new MockHttpServletRequest("GET", "/spring_security_login"), new MockHttpServletResponse(), chain);
         filter.doFilter(new MockHttpServletRequest("GET", "/spring_security_login;pathparam=unused"), new MockHttpServletResponse(), chain);
     }
@@ -60,7 +60,7 @@ public class DefaultLoginPageGeneratingFilterTests {
     /* SEC-1111 */
     @Test
     public void handlesNonIso8859CharsInErrorMessage() throws Exception {
-        DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new UsernamePasswordAuthenticationProcessingFilter());
+        DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new UsernamePasswordAuthenticationFilter());
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/spring_security_login");
         request.addParameter("login_error", "true");
         MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();

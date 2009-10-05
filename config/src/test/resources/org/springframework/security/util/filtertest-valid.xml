@@ -31,7 +31,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     <!-- These are just here so we have filters of a specific type to check the ordering is as expected -->
     <bean id="sif" class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 
-    <bean id="apf" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter">
+    <bean id="apf" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
        <property name="authenticationManager">
            <bean class="org.springframework.security.MockAuthenticationManager"/>
        </property>

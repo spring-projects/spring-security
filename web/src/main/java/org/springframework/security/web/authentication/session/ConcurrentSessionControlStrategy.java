@@ -15,7 +15,7 @@ import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.util.Assert;
@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
  * set to <tt>true</tt>, however, the user will be prevented from starting a new authenticated session.
  * <p>
  * This strategy can be injected into both the {@link SessionManagementFilter} and instances of
- * {@link AbstractAuthenticationProcessingFilter} (typically {@link UsernamePasswordAuthenticationProcessingFilter}).
+ * {@link AbstractAuthenticationProcessingFilter} (typically {@link UsernamePasswordAuthenticationFilter}).
  *
  * @author Luke Taylor
  * @version $Id$

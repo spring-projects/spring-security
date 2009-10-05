@@ -34,7 +34,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.openid.OpenID4JavaConsumer;
 import org.springframework.security.openid.OpenIDAttribute;
-import org.springframework.security.openid.OpenIDAuthenticationProcessingFilter;
+import org.springframework.security.openid.OpenIDAuthenticationFilter;
 import org.springframework.security.openid.OpenIDAuthenticationProvider;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.FilterChainProxy;
@@ -54,7 +54,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
@@ -100,8 +100,8 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void beanClassNamesAreCorrect() throws Exception {
         assertEquals(DefaultWebSecurityExpressionHandler.class.getName(), HttpSecurityBeanDefinitionParser.EXPRESSION_HANDLER_CLASS);
         assertEquals(ExpressionBasedFilterInvocationSecurityMetadataSource.class.getName(), HttpSecurityBeanDefinitionParser.EXPRESSION_FIMDS_CLASS);
-        assertEquals(UsernamePasswordAuthenticationProcessingFilter.class.getName(), AUTHENTICATION_PROCESSING_FILTER_CLASS);
-        assertEquals(OpenIDAuthenticationProcessingFilter.class.getName(), OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS);
+        assertEquals(UsernamePasswordAuthenticationFilter.class.getName(), AUTHENTICATION_PROCESSING_FILTER_CLASS);
+        assertEquals(OpenIDAuthenticationFilter.class.getName(), OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS);
         assertEquals(OpenIDAuthenticationProvider.class.getName(), OPEN_ID_AUTHENTICATION_PROVIDER_CLASS);
     }
 
@@ -130,7 +130,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.next() instanceof SecurityContextPersistenceFilter);
         assertTrue(filters.next() instanceof LogoutFilter);
         Object authProcFilter = filters.next();
-        assertTrue(authProcFilter instanceof UsernamePasswordAuthenticationProcessingFilter);
+        assertTrue(authProcFilter instanceof UsernamePasswordAuthenticationFilter);
         assertTrue(filters.next() instanceof DefaultLoginPageGeneratingFilter);
         assertTrue(filters.next() instanceof BasicProcessingFilter);
         assertTrue(filters.next() instanceof RequestCacheAwareFilter);
@@ -215,7 +215,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "   <form-login default-target-url='/default' always-use-default-target='true' />" +
                 "</http>" + AUTH_PROVIDER_XML);
         // These will be matched by the default pattern "/**"
-        UsernamePasswordAuthenticationProcessingFilter filter = (UsernamePasswordAuthenticationProcessingFilter) getFilters("/anything").get(1);
+        UsernamePasswordAuthenticationFilter filter = (UsernamePasswordAuthenticationFilter) getFilters("/anything").get(1);
         assertEquals("/default", FieldUtils.getFieldValue(filter, "successHandler.defaultTargetUrl"));
         assertEquals(Boolean.TRUE, FieldUtils.getFieldValue(filter, "successHandler.alwaysUseDefaultTargetUrl"));
     }
@@ -320,8 +320,8 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals("ROLE_A",attrs.get(0).getAttribute());
 
         // Check the form login properties are set
-        UsernamePasswordAuthenticationProcessingFilter apf = (UsernamePasswordAuthenticationProcessingFilter)
-                getFilter(UsernamePasswordAuthenticationProcessingFilter.class);
+        UsernamePasswordAuthenticationFilter apf = (UsernamePasswordAuthenticationFilter)
+                getFilter(UsernamePasswordAuthenticationFilter.class);
         assertEquals("/defaultTarget", FieldUtils.getFieldValue(apf, "successHandler.defaultTargetUrl"));
         assertEquals("/authFailure", FieldUtils.getFieldValue(apf, "failureHandler.defaultFailureUrl"));
 
@@ -690,7 +690,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         Object sessionRegistryFromConcurrencyFilter = FieldUtils.getFieldValue(
                 getFilter(ConcurrentSessionFilter.class), "sessionRegistry");
         Object sessionRegistryFromFormLoginFilter = FieldUtils.getFieldValue(
-                getFilter(UsernamePasswordAuthenticationProcessingFilter.class),"sessionStrategy.sessionRegistry");
+                getFilter(UsernamePasswordAuthenticationFilter.class),"sessionStrategy.sessionRegistry");
 //        Object sessionRegistryFromController = FieldUtils.getFieldValue(getConcurrentSessionController(),"sessionRegistry");
         Object sessionRegistryFromMgmtFilter = FieldUtils.getFieldValue(
                 getFilter(SessionManagementFilter.class),"sessionStrategy.sessionRegistry");
@@ -968,7 +968,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean id='sh' class='" + SavedRequestAwareAuthenticationSuccessHandler.class.getName() +"'/>" +
                 "<b:bean id='fh' class='" + SimpleUrlAuthenticationFailureHandler.class.getName() + "'/>" +
                 AUTH_PROVIDER_XML);
-        UsernamePasswordAuthenticationProcessingFilter apf = (UsernamePasswordAuthenticationProcessingFilter) getFilter(UsernamePasswordAuthenticationProcessingFilter.class);
+        UsernamePasswordAuthenticationFilter apf = (UsernamePasswordAuthenticationFilter) getFilter(UsernamePasswordAuthenticationFilter.class);
         AuthenticationSuccessHandler sh = (AuthenticationSuccessHandler) appContext.getBean("sh");
         AuthenticationFailureHandler fh = (AuthenticationFailureHandler) appContext.getBean("fh");
         assertSame(sh, FieldUtils.getFieldValue(apf, "successHandler"));
@@ -1005,7 +1005,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "   </openid-login>" +
                 "</http>" +
                 AUTH_PROVIDER_XML);
-        OpenIDAuthenticationProcessingFilter apf = (OpenIDAuthenticationProcessingFilter) getFilter(OpenIDAuthenticationProcessingFilter.class);
+        OpenIDAuthenticationFilter apf = (OpenIDAuthenticationFilter) getFilter(OpenIDAuthenticationFilter.class);
 
         OpenID4JavaConsumer consumer = (OpenID4JavaConsumer) FieldUtils.getFieldValue(apf, "consumer");
         List<OpenIDAttribute> attributes = (List<OpenIDAttribute>) FieldUtils.getFieldValue(consumer, "attributesToFetch");

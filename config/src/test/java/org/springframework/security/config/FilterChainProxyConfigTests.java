@@ -34,7 +34,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 
@@ -143,7 +143,7 @@ public class FilterChainProxyConfigTests {
         filters = filterChainProxy.getFilters("/another/nonspecificmatch");
         assertEquals(3, filters.size());
         assertTrue(filters.get(0) instanceof SecurityContextPersistenceFilter);
-        assertTrue(filters.get(1) instanceof UsernamePasswordAuthenticationProcessingFilter);
+        assertTrue(filters.get(1) instanceof UsernamePasswordAuthenticationFilter);
         assertTrue(filters.get(2) instanceof SecurityContextHolderAwareRequestFilter);
     }
 

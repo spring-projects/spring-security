@@ -43,7 +43,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Used by the {@link ExceptionTranslationFilter} to commence a form login
- * authentication via the {@link UsernamePasswordAuthenticationProcessingFilter}. This object
+ * authentication via the {@link UsernamePasswordAuthenticationFilter}. This object
  * holds the location of the login form, relative to the web app context path,
  * and is used to commence a redirect to that form.
  * <p>
@@ -220,7 +220,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
     }
 
     /**
-     * The URL where the <code>UsernamePasswordAuthenticationProcessingFilter</code> login
+     * The URL where the <code>UsernamePasswordAuthenticationFilter</code> login
      * page can be found. Should be relative to the web-app context path, and
      * include a leading <code>/</code>
      */

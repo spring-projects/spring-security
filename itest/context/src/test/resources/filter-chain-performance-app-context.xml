@@ -39,7 +39,7 @@
 
     <bean id="scpf" class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 
-    <bean id="apf" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter">
+    <bean id="apf" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
         <property name="authenticationManager" ref="authenticationManager"/>
     </bean>
 

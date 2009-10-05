@@ -13,13 +13,13 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.openid.OpenIDAuthenticationProcessingFilter;
+import org.springframework.security.openid.OpenIDAuthenticationFilter;
 import org.springframework.security.openid.OpenIDConsumerException;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 public class OpenIDAuthenticationProcessingFilterTests {
 
-    OpenIDAuthenticationProcessingFilter filter;
+    OpenIDAuthenticationFilter filter;
     private static final String REDIRECT_URL = "http://www.example.com/redirect";
     private static final String CLAIMED_IDENTITY_URL = "http://www.example.com/identity";
     private static final String REQUEST_PATH = "/j_spring_openid_security_check";
@@ -28,7 +28,7 @@ public class OpenIDAuthenticationProcessingFilterTests {
 
     @Before
     public void setUp() throws Exception {
-        filter = new OpenIDAuthenticationProcessingFilter();
+        filter = new OpenIDAuthenticationFilter();
         filter.setConsumer(new MockOpenIDConsumer(REDIRECT_URL));
         SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
         filter.setAuthenticationSuccessHandler(new SavedRequestAwareAuthenticationSuccessHandler());

@@ -13,7 +13,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -41,18 +41,18 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
     private String openIDrememberMeParameter;
 
     public DefaultLoginPageGeneratingFilter(AbstractAuthenticationProcessingFilter filter) {
-        if (filter instanceof UsernamePasswordAuthenticationProcessingFilter) {
-            init((UsernamePasswordAuthenticationProcessingFilter)filter, null);
+        if (filter instanceof UsernamePasswordAuthenticationFilter) {
+            init((UsernamePasswordAuthenticationFilter)filter, null);
         } else {
             init(null, filter);
         }
     }
 
-    public DefaultLoginPageGeneratingFilter(UsernamePasswordAuthenticationProcessingFilter authFilter, AbstractAuthenticationProcessingFilter openIDFilter) {
+    public DefaultLoginPageGeneratingFilter(UsernamePasswordAuthenticationFilter authFilter, AbstractAuthenticationProcessingFilter openIDFilter) {
         init(authFilter, openIDFilter);
     }
 
-    private void init(UsernamePasswordAuthenticationProcessingFilter authFilter, AbstractAuthenticationProcessingFilter openIDFilter) {
+    private void init(UsernamePasswordAuthenticationFilter authFilter, AbstractAuthenticationProcessingFilter openIDFilter) {
         if (authFilter != null) {
             formLoginEnabled = true;
             authenticationUrl = authFilter.getFilterProcessesUrl();
@@ -101,7 +101,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
             HttpSession session = request.getSession(false);
 
             if(session != null) {
-                lastUser = (String) session.getAttribute(UsernamePasswordAuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY);
+                lastUser = (String) session.getAttribute(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_LAST_USERNAME_KEY);
                 AuthenticationException ex = (AuthenticationException) session.getAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY);
                 errorMsg = ex != null ? ex.getMessage() : "none";
                 if (lastUser == null) {

@@ -46,7 +46,7 @@ import org.springframework.util.Assert;
  * @version $Id$
  * @since 3.0
  */
-public class UsernamePasswordAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
+public class UsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     //~ Static fields/initializers =====================================================================================
 
     public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "j_username";
@@ -59,7 +59,7 @@ public class UsernamePasswordAuthenticationProcessingFilter extends AbstractAuth
 
     //~ Constructors ===================================================================================================
 
-    public UsernamePasswordAuthenticationProcessingFilter() {
+    public UsernamePasswordAuthenticationFilter() {
         super("/j_spring_security_check");
     }
 
