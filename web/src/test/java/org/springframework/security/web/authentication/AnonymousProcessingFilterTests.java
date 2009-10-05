@@ -33,6 +33,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.memory.UserAttribute;
@@ -45,15 +46,6 @@ import org.springframework.security.core.userdetails.memory.UserAttribute;
  * @version $Id$
  */
 public class AnonymousProcessingFilterTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public AnonymousProcessingFilterTests() {
-        super();
-    }
-
-    public AnonymousProcessingFilterTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
 
@@ -164,7 +156,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         assertEquals("anonymousUsername", auth.getPrincipal());
-        assertEquals(new GrantedAuthorityImpl("ROLE_ANONYMOUS"), auth.getAuthorities().get(0));
+        assertTrue(AuthorityUtils.authorityListToSet(auth.getAuthorities()).contains("ROLE_ANONYMOUS"));
         SecurityContextHolder.getContext().setAuthentication(null); // so anonymous fires again
 
         // Now test operation if we have removeAfterRequest = true

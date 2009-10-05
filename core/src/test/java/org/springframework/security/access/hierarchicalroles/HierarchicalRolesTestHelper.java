@@ -15,6 +15,7 @@
 package org.springframework.security.access.hierarchicalroles;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -27,7 +28,7 @@ import org.apache.commons.collections.CollectionUtils;
  */
 public abstract class HierarchicalRolesTestHelper {
 
-    public static boolean containTheSameGrantedAuthorities(List<GrantedAuthority> authorities1, List<GrantedAuthority> authorities2) {
+    public static boolean containTheSameGrantedAuthorities(Collection<GrantedAuthority> authorities1, Collection<GrantedAuthority> authorities2) {
         if (authorities1 == null && authorities2 == null) {
             return true;
         }
@@ -38,7 +39,7 @@ public abstract class HierarchicalRolesTestHelper {
         return CollectionUtils.isEqualCollection(authorities1, authorities2);
     }
 
-    public static boolean containTheSameGrantedAuthoritiesCompareByAuthorityString(List<GrantedAuthority> authorities1, List<GrantedAuthority> authorities2) {
+    public static boolean containTheSameGrantedAuthoritiesCompareByAuthorityString(Collection<GrantedAuthority> authorities1, Collection<GrantedAuthority> authorities2) {
         if (authorities1 == null && authorities2 == null) {
             return true;
         }
@@ -46,10 +47,10 @@ public abstract class HierarchicalRolesTestHelper {
         if (authorities1 == null || authorities2 == null) {
             return false;
         }
-        return CollectionUtils.isEqualCollection(toListOfAuthorityStrings(authorities1), toListOfAuthorityStrings(authorities2));
+        return CollectionUtils.isEqualCollection(toCollectionOfAuthorityStrings(authorities1), toCollectionOfAuthorityStrings(authorities2));
     }
 
-    public static List<String> toListOfAuthorityStrings(List<GrantedAuthority> authorities) {
+    public static List<String> toCollectionOfAuthorityStrings(Collection<GrantedAuthority> authorities) {
         if (authorities == null) {
             return null;
         }

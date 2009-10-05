@@ -1,6 +1,6 @@
 package org.springframework.security.access.hierarchicalroles;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -12,7 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
  */
 public final class NullRoleHierarchy implements RoleHierarchy {
 
-    public List<GrantedAuthority> getReachableGrantedAuthorities(List<GrantedAuthority> authorities) {
+    public Collection<GrantedAuthority> getReachableGrantedAuthorities(Collection<GrantedAuthority> authorities) {
         return authorities;
     }
 

@@ -16,7 +16,7 @@
 package org.springframework.security.authentication;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -69,7 +69,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
      * @param credentials
      * @param authorities
      */
-    public UsernamePasswordAuthenticationToken(Object principal, Object credentials, List<GrantedAuthority> authorities) {
+    public UsernamePasswordAuthenticationToken(Object principal, Object credentials, Collection<GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;

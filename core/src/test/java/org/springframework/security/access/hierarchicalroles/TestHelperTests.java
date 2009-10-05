@@ -17,6 +17,7 @@ package org.springframework.security.access.hierarchicalroles;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -56,11 +57,11 @@ public class TestHelperTests {
     // SEC-863
     @Test
     public void testToListOfAuthorityStrings() {
-        List<GrantedAuthority> authorities1 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B");
-        List<GrantedAuthority> authorities2 = AuthorityUtils.createAuthorityList("ROLE_B", "ROLE_A");
-        List<GrantedAuthority> authorities3 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_C");
-        List<GrantedAuthority> authorities4 = AuthorityUtils.createAuthorityList("ROLE_A");
-        List<GrantedAuthority> authorities5 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_A");
+        Collection<GrantedAuthority> authorities1 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B");
+        Collection<GrantedAuthority> authorities2 = AuthorityUtils.createAuthorityList("ROLE_B", "ROLE_A");
+        Collection<GrantedAuthority> authorities3 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_C");
+        Collection<GrantedAuthority> authorities4 = AuthorityUtils.createAuthorityList("ROLE_A");
+        Collection<GrantedAuthority> authorities5 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_A");
 
         List<String> authoritiesStrings1 = new ArrayList<String>();
         authoritiesStrings1.add("ROLE_A");
@@ -82,19 +83,19 @@ public class TestHelperTests {
         authoritiesStrings5.add("ROLE_A");
 
         assertTrue(CollectionUtils.isEqualCollection(
-                HierarchicalRolesTestHelper.toListOfAuthorityStrings(authorities1),	authoritiesStrings1));
+                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities1),	authoritiesStrings1));
 
         assertTrue(CollectionUtils.isEqualCollection(
-                HierarchicalRolesTestHelper.toListOfAuthorityStrings(authorities2),	authoritiesStrings2));
+                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities2),	authoritiesStrings2));
 
         assertTrue(CollectionUtils.isEqualCollection(
-                HierarchicalRolesTestHelper.toListOfAuthorityStrings(authorities3),	authoritiesStrings3));
+                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities3),	authoritiesStrings3));
 
         assertTrue(CollectionUtils.isEqualCollection(
-                HierarchicalRolesTestHelper.toListOfAuthorityStrings(authorities4),	authoritiesStrings4));
+                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities4),	authoritiesStrings4));
 
         assertTrue(CollectionUtils.isEqualCollection(
-                HierarchicalRolesTestHelper.toListOfAuthorityStrings(authorities5),	authoritiesStrings5));
+                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities5),	authoritiesStrings5));
     }
 
     // SEC-863

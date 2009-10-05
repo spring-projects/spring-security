@@ -19,7 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 
 
 /**
@@ -60,7 +60,7 @@ public interface UserDetails extends Serializable {
      *
      * @return the authorities, sorted by natural key (never <code>null</code>)
      */
-    List<GrantedAuthority> getAuthorities();
+    Collection<GrantedAuthority> getAuthorities();
 
     /**
      * Returns the password used to authenticate the user. Cannot return <code>null</code>.

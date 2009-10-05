@@ -76,8 +76,8 @@ public class AnonymousAuthenticationTokenTests extends TestCase {
         assertEquals("key".hashCode(), token.getKeyHash());
         assertEquals("Test", token.getPrincipal());
         assertEquals("", token.getCredentials());
-        assertEquals("ROLE_ONE", token.getAuthorities().get(0).getAuthority());
-        assertEquals("ROLE_TWO", token.getAuthorities().get(1).getAuthority());
+        assertTrue(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains("ROLE_ONE"));
+        assertTrue(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains("ROLE_TWO"));
         assertTrue(token.isAuthenticated());
     }
 

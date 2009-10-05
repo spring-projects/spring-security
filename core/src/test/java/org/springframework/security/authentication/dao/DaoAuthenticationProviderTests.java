@@ -19,7 +19,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -28,7 +29,6 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,10 +39,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
-
-
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataRetrievalFailureException;
 
 
 /**
@@ -267,8 +263,8 @@ public class DaoAuthenticationProviderTests extends TestCase {
         UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
         assertEquals(User.class, castResult.getPrincipal().getClass());
         assertEquals("koala", castResult.getCredentials());
-        assertEquals("ROLE_ONE", castResult.getAuthorities().get(0).getAuthority());
-        assertEquals("ROLE_TWO", castResult.getAuthorities().get(1).getAuthority());
+        assertTrue(AuthorityUtils.authorityListToSet(castResult.getAuthorities()).contains("ROLE_ONE"));
+        assertTrue(AuthorityUtils.authorityListToSet(castResult.getAuthorities()).contains("ROLE_TWO"));
         assertEquals("192.168.0.1", castResult.getDetails());
     }
 
@@ -312,13 +308,12 @@ public class DaoAuthenticationProviderTests extends TestCase {
             fail("Should have returned instance of UsernamePasswordAuthenticationToken");
         }
 
-        UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
-        assertEquals(User.class, castResult.getPrincipal().getClass());
+        assertEquals(User.class, result.getPrincipal().getClass());
 
         // We expect original credentials user submitted to be returned
-        assertEquals("koala", castResult.getCredentials());
-        assertEquals("ROLE_ONE", castResult.getAuthorities().get(0).getAuthority());
-        assertEquals("ROLE_TWO", castResult.getAuthorities().get(1).getAuthority());
+        assertEquals("koala", result.getCredentials());
+        assertTrue(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains("ROLE_ONE"));
+        assertTrue(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains("ROLE_TWO"));
     }
 
     public void testAuthenticatesWithForcePrincipalAsString() {

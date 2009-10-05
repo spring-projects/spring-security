@@ -1,7 +1,6 @@
 package org.springframework.security.web.authentication.preauth;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,13 +38,6 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
         this.credentials = aCredentials;
     }
 
-    /**
-     *
-     * @deprecated
-     */
-    public PreAuthenticatedAuthenticationToken(Object aPrincipal, Object aCredentials, GrantedAuthority[] anAuthorities) {
-        this(aPrincipal, aCredentials, Arrays.asList(anAuthorities));
-    }
 
     /**
      * Constructor used for an authentication response. The {@link
@@ -57,7 +49,7 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
      * @param anAuthorities
      *            The granted authorities
      */
-    public PreAuthenticatedAuthenticationToken(Object aPrincipal, Object aCredentials, List<GrantedAuthority> anAuthorities) {
+    public PreAuthenticatedAuthenticationToken(Object aPrincipal, Object aCredentials, Collection<GrantedAuthority> anAuthorities) {
         super(anAuthorities);
         this.principal = aPrincipal;
         this.credentials = aCredentials;

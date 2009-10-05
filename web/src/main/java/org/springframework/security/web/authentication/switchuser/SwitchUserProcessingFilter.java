@@ -17,6 +17,7 @@ package org.springframework.security.web.authentication.switchuser;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.FilterChain;
@@ -290,7 +291,7 @@ public class SwitchUserProcessingFilter extends GenericFilterBean implements App
         GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR, currentAuth);
 
         // get the original authorities
-        List<GrantedAuthority> orig = targetUser.getAuthorities();
+        Collection<GrantedAuthority> orig = targetUser.getAuthorities();
 
         // Allow subclasses to change the authorities to be granted
         if (switchUserAuthorityChanger != null) {
@@ -323,7 +324,7 @@ public class SwitchUserProcessingFilter extends GenericFilterBean implements App
         Authentication original = null;
 
         // iterate over granted authorities and find the 'switch user' authority
-        List<GrantedAuthority> authorities = current.getAuthorities();
+        Collection<GrantedAuthority> authorities = current.getAuthorities();
 
         for (GrantedAuthority auth : authorities) {
             // check for switch user type of authority

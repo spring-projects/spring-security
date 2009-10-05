@@ -17,8 +17,7 @@ package org.springframework.security.ldap.authentication;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -128,12 +127,8 @@ public class LdapAuthenticationProviderTests {
         assertEquals("ben", user.getUsername());
         assertEquals("ben", populator.getRequestedUsername());
 
-        ArrayList<String> authorities = new ArrayList<String>();
-        authorities.add(user.getAuthorities().get(0).getAuthority());
-        authorities.add(user.getAuthorities().get(1).getAuthority());
-
-        assertTrue(authorities.contains("ROLE_FROM_ENTRY"));
-        assertTrue(authorities.contains("ROLE_FROM_POPULATOR"));
+        assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ROLE_FROM_ENTRY"));
+        assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ROLE_FROM_POPULATOR"));
     }
 
     @Test
@@ -157,7 +152,7 @@ public class LdapAuthenticationProviderTests {
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben", "benspassword");
         UserDetails user = (UserDetails) ldapProvider.authenticate(authRequest).getPrincipal();
         assertEquals(1, user.getAuthorities().size());
-        assertEquals("ROLE_FROM_ENTRY", user.getAuthorities().get(0).getAuthority());
+        assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ROLE_FROM_ENTRY"));
     }
 
     //~ Inner Classes ==================================================================================================
@@ -189,7 +184,7 @@ public class LdapAuthenticationProviderTests {
     class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {
         String username;
 
-        public List<GrantedAuthority> getGrantedAuthorities(DirContextOperations userCtx, String username) {
+        public Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userCtx, String username) {
             this.username = username;
             return AuthorityUtils.createAuthorityList("ROLE_FROM_POPULATOR");
         }

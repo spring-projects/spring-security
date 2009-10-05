@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.security.Security;
+import java.util.Collection;
 import java.util.List;
 
 import javax.security.auth.login.LoginContext;
@@ -192,7 +193,7 @@ public class JaasAuthenticationProviderTests {
         assertNotNull(jaasProvider.getLoginConfig());
         assertNotNull(jaasProvider.getLoginContextName());
 
-        List<GrantedAuthority> list = auth.getAuthorities();
+        Collection<GrantedAuthority> list = auth.getAuthorities();
 
         assertTrue("GrantedAuthorities should contain ROLE_TEST1", list.contains(new GrantedAuthorityImpl("ROLE_TEST1")));
         assertTrue("GrantedAuthorities should contain ROLE_TEST2", list.contains(new GrantedAuthorityImpl("ROLE_TEST2")));
@@ -201,11 +202,9 @@ public class JaasAuthenticationProviderTests {
 
         boolean foundit = false;
 
-        for (int i = 0; i < list.size(); i++) {
-            Object obj = list.get(i);
-
-            if (obj instanceof JaasGrantedAuthority) {
-                JaasGrantedAuthority grant = (JaasGrantedAuthority) obj;
+        for (GrantedAuthority a : list) {
+            if (a instanceof JaasGrantedAuthority) {
+                JaasGrantedAuthority grant = (JaasGrantedAuthority) a;
                 assertNotNull("Principal was null on JaasGrantedAuthority", grant.getPrincipal());
                 foundit = true;
             }

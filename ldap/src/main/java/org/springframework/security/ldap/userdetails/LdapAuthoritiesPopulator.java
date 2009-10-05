@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -43,5 +43,5 @@ public interface LdapAuthoritiesPopulator {
      * @return the granted authorities for the given user.
      *
      */
-    List<GrantedAuthority> getGrantedAuthorities(DirContextOperations userData, String username);
+    Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userData, String username);
 }

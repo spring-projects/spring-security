@@ -17,6 +17,7 @@ package org.springframework.security.core.userdetails;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
@@ -80,7 +81,7 @@ public class User implements UserDetails {
      *         <code>GrantedAuthority[]</code> array
      */
     public User(String username, String password, boolean enabled, boolean accountNonExpired,
-            boolean credentialsNonExpired, boolean accountNonLocked, List<GrantedAuthority> authorities) {
+            boolean credentialsNonExpired, boolean accountNonLocked, Collection<GrantedAuthority> authorities) {
 
         if (((username == null) || "".equals(username)) || (password == null)) {
             throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
@@ -118,7 +119,7 @@ public class User implements UserDetails {
                 && (this.isEnabled() == user.isEnabled()));
     }
 
-    public List<GrantedAuthority> getAuthorities() {
+    public Collection<GrantedAuthority> getAuthorities() {
         return authorities;
     }
 
@@ -182,7 +183,7 @@ public class User implements UserDetails {
         return enabled;
     }
 
-    private static List<GrantedAuthority> sortAuthorities(List<GrantedAuthority> authorities) {
+    private static List<GrantedAuthority> sortAuthorities(Collection<GrantedAuthority> authorities) {
         Assert.notNull(authorities, "Cannot pass a null GrantedAuthority array");
         // Ensure array iteration order is predictable (as per UserDetails.getAuthorities() contract and SEC-xxx)
         SortedSet<GrantedAuthority> sorter = new TreeSet<GrantedAuthority>();

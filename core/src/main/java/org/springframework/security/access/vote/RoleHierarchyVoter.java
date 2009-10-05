@@ -1,6 +1,6 @@
 package org.springframework.security.access.vote;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.Authentication;
@@ -26,7 +26,7 @@ public class RoleHierarchyVoter extends RoleVoter {
      * Calls the <tt>RoleHierarchy</tt> to obtain the complete set of user authorities.
      */
     @Override
-    List<GrantedAuthority> extractAuthorities(Authentication authentication) {
+    Collection<GrantedAuthority> extractAuthorities(Authentication authentication) {
         return roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities());
     }
 }

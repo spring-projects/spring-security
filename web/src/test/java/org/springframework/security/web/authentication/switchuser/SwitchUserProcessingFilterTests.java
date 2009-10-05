@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.FilterChain;
@@ -368,7 +369,7 @@ public class SwitchUserProcessingFilterTests {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.setSwitchUserAuthorityChanger(new SwitchUserAuthorityChanger() {
-            public List<GrantedAuthority> modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, List<GrantedAuthority> authoritiesToBeGranted) {
+            public Collection<GrantedAuthority> modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, Collection<GrantedAuthority> authoritiesToBeGranted) {
                 List <GrantedAuthority>auths = new ArrayList<GrantedAuthority>();
                 auths.add(new GrantedAuthorityImpl("ROLE_NEW"));
                 return auths;
@@ -378,7 +379,7 @@ public class SwitchUserProcessingFilterTests {
         Authentication result = filter.attemptSwitchUser(request);
         assertTrue(result != null);
         assertEquals(2, result.getAuthorities().size());
-        assertEquals("ROLE_NEW", result.getAuthorities().get(0).getAuthority());
+        assertTrue(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains("ROLE_NEW"));
     }
 
 

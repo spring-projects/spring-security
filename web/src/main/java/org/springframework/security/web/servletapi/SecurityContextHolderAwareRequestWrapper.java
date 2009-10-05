@@ -17,7 +17,7 @@ package org.springframework.security.web.servletapi;
 
 
 import java.security.Principal;
-import java.util.List;
+import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -128,7 +128,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
             return false;
         }
 
-        List<GrantedAuthority> authorities = auth.getAuthorities();
+        Collection<GrantedAuthority> authorities = auth.getAuthorities();
 
         if (authorities == null) {
             return false;

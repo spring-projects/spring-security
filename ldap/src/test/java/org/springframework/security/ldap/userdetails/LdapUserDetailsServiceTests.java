@@ -2,7 +2,7 @@ package org.springframework.security.ldap.userdetails;
 
 import static org.junit.Assert.*;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class LdapUserDetailsServiceTests {
     }
 
     class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {
-        public List<GrantedAuthority> getGrantedAuthorities(DirContextOperations userCtx, String username) {
+        public Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userCtx, String username) {
             return AuthorityUtils.createAuthorityList("ROLE_FROM_POPULATOR");
         }
     }

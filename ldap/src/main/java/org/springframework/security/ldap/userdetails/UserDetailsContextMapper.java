@@ -14,7 +14,7 @@
  */
 package org.springframework.security.ldap.userdetails;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,7 +39,7 @@ public interface UserDetailsContextMapper {
      * @param authority the list of authorities which the user should be given.
      * @return the user object.
      */
-    UserDetails mapUserFromContext(DirContextOperations ctx, String username, List<GrantedAuthority> authority);
+    UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<GrantedAuthority> authority);
 
     /**
      * Reverse of the above operation. Populates a context object from the supplied user object.

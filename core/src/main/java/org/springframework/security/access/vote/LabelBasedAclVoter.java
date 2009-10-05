@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
 
@@ -177,8 +178,8 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
              */
             List<String> userLabels = new ArrayList<String>();
 
-            for (int i = 0; i < authentication.getAuthorities().size(); i++) {
-                String userLabel = authentication.getAuthorities().get(i).getAuthority();
+            for (GrantedAuthority authority : authentication.getAuthorities()) {
+                String userLabel = authority.getAuthority();
                 if (labelMap.containsKey(userLabel)) {
                     userLabels.add(userLabel);
                     logger.debug("Adding " + userLabel + " to <<<" + authentication.getName()

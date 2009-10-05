@@ -15,16 +15,14 @@
 
 package org.springframework.security.authentication.rcp;
 
+import java.util.Collection;
+
 import junit.framework.TestCase;
 
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.rcp.RemoteAuthenticationException;
-import org.springframework.security.authentication.rcp.RemoteAuthenticationManager;
-import org.springframework.security.authentication.rcp.RemoteAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 
 /**
@@ -35,14 +33,6 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  */
 public class RemoteAuthenticationProviderTests extends TestCase {
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(RemoteAuthenticationProviderTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testExceptionsGetPassedBackToCaller() {
         RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
@@ -85,7 +75,7 @@ public class RemoteAuthenticationProviderTests extends TestCase {
         Authentication result = provider.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
         assertEquals("rod", result.getPrincipal());
         assertEquals("password", result.getCredentials());
-        assertEquals("foo", result.getAuthorities().get(0).getAuthority());
+        assertTrue(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains("foo"));
     }
 
     public void testSupports() {
@@ -102,10 +92,10 @@ public class RemoteAuthenticationProviderTests extends TestCase {
             this.grantAccess = grantAccess;
         }
 
-        public GrantedAuthority[] attemptAuthentication(String username, String password)
+        public Collection<GrantedAuthority> attemptAuthentication(String username, String password)
             throws RemoteAuthenticationException {
             if (grantAccess) {
-                return new GrantedAuthority[] {new GrantedAuthorityImpl("foo")};
+                return AuthorityUtils.createAuthorityList("foo");
             } else {
                 throw new RemoteAuthenticationException("as requested");
             }

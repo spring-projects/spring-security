@@ -14,8 +14,9 @@
 
 package org.springframework.security.access.hierarchicalroles;
 
-import java.util.List;
+import java.util.Collection;
 
+import org.springframework.security.access.vote.RoleHierarchyVoter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -48,7 +49,7 @@ public class UserDetailsWrapper implements UserDetails {
         return userDetails.isAccountNonLocked();
     }
 
-    public List<GrantedAuthority> getAuthorities() {
+    public Collection<GrantedAuthority> getAuthorities() {
         return roleHierarchy.getReachableGrantedAuthorities(userDetails.getAuthorities());
     }
 

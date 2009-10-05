@@ -1,5 +1,6 @@
 package org.springframework.security.web.authentication.preauth;
 
+import java.util.Collection;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -47,7 +48,7 @@ public class PreAuthenticatedAuthenticationTokenTests extends TestCase {
         assertEquals(credentials, token.getCredentials());
         assertNull(token.getDetails());
         assertNotNull(token.getAuthorities());
-        List<GrantedAuthority> resultColl = token.getAuthorities();
+        Collection<GrantedAuthority> resultColl = token.getAuthorities();
         assertTrue("GrantedAuthority collections do not match; result: " + resultColl + ", expected: " + gas,
                 gas.containsAll(resultColl) && resultColl.containsAll(gas));
 

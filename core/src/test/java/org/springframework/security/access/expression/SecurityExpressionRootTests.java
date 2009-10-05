@@ -2,7 +2,7 @@ package org.springframework.security.access.expression;
 
 import static org.junit.Assert.*;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.junit.Test;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -24,7 +24,7 @@ public class SecurityExpressionRootTests {
             new SecurityExpressionRoot(new TestingAuthenticationToken("joe", "pass", "A", "B")) {};
 
         root.setRoleHierarchy(new RoleHierarchy() {
-            public List<GrantedAuthority> getReachableGrantedAuthorities(List<GrantedAuthority> authorities) {
+            public Collection<GrantedAuthority> getReachableGrantedAuthorities(Collection<GrantedAuthority> authorities) {
                 return AuthorityUtils.createAuthorityList("C");
             }
         });

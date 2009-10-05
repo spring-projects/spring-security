@@ -16,7 +16,7 @@
 package org.springframework.security.ldap.userdetails;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import javax.naming.Name;
 
@@ -48,7 +48,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
     private String dn;
     private String password;
     private String username;
-    private List<GrantedAuthority> authorities = AuthorityUtils.NO_AUTHORITIES;
+    private Collection<GrantedAuthority> authorities = AuthorityUtils.NO_AUTHORITIES;
     private boolean accountNonExpired = true;
     private boolean accountNonLocked = true;
     private boolean credentialsNonExpired = true;
@@ -63,7 +63,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 
     //~ Methods ========================================================================================================
 
-    public List<GrantedAuthority> getAuthorities() {
+    public Collection<GrantedAuthority> getAuthorities() {
         return authorities;
     }
 
@@ -104,7 +104,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(super.toString()).append(": ");
         sb.append("Username: ").append(this.username).append("; ");
         sb.append("Password: [PROTECTED]; ");
@@ -115,13 +115,16 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 
         if (this.getAuthorities() != null) {
             sb.append("Granted Authorities: ");
+            boolean first = true;
 
-            for (int i = 0; i < this.getAuthorities().size(); i++) {
-                if (i > 0) {
+            for (Object authority : this.getAuthorities()) {
+                if (first) {
+                    first = false;
+                } else {
                     sb.append(", ");
                 }
 
-                sb.append(this.getAuthorities().get(i).toString());
+                sb.append(authority.toString());
             }
         } else {
             sb.append("Not granted any authorities");
@@ -137,7 +140,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
      */
     public static class Essence {
         protected LdapUserDetailsImpl instance = createTarget();
-        private List<GrantedAuthority> mutableAuthorities = new ArrayList<GrantedAuthority>();
+        private Collection<GrantedAuthority> mutableAuthorities = new ArrayList<GrantedAuthority>();
 
         public Essence() { }
 
@@ -190,7 +193,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
             return newInstance;
         }
 
-        public List<GrantedAuthority> getGrantedAuthorities() {
+        public Collection<GrantedAuthority> getGrantedAuthorities() {
             return mutableAuthorities;
         }
 
@@ -202,7 +205,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
             instance.accountNonLocked = accountNonLocked;
         }
 
-        public void setAuthorities(List<GrantedAuthority> authorities) {
+        public void setAuthorities(Collection<GrantedAuthority> authorities) {
             mutableAuthorities = authorities;
         }
 

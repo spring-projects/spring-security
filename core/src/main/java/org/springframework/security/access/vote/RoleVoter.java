@@ -15,6 +15,7 @@
 
 package org.springframework.security.access.vote;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.access.AccessDecisionVoter;
@@ -94,7 +95,7 @@ public class RoleVoter implements AccessDecisionVoter {
 
     public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
         int result = ACCESS_ABSTAIN;
-        List<GrantedAuthority> authorities = extractAuthorities(authentication);
+        Collection<GrantedAuthority> authorities = extractAuthorities(authentication);
 
         for (ConfigAttribute attribute : attributes) {
             if (this.supports(attribute)) {
@@ -112,7 +113,7 @@ public class RoleVoter implements AccessDecisionVoter {
         return result;
     }
 
-    List<GrantedAuthority> extractAuthorities(Authentication authentication) {
+    Collection<GrantedAuthority> extractAuthorities(Authentication authentication) {
         return authentication.getAuthorities();
     }
 }

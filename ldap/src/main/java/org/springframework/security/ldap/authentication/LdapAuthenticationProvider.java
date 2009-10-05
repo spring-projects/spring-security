@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap.authentication;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -252,7 +252,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
         try {
             DirContextOperations userData = getAuthenticator().authenticate(authentication);
 
-            List<GrantedAuthority> extraAuthorities = loadUserAuthorities(userData, username, password);
+            Collection<GrantedAuthority> extraAuthorities = loadUserAuthorities(userData, username, password);
 
             UserDetails user = userDetailsContextMapper.mapUserFromContext(userData, username, extraAuthorities);
 
@@ -273,7 +273,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
         }
     }
 
-    protected List<GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username, String password) {
+    protected Collection<GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username, String password) {
         return getAuthoritiesPopulator().getGrantedAuthorities(userData, username);
     }
 

@@ -98,8 +98,8 @@ public class CasAuthenticationProviderTests {
         CasAuthenticationToken casResult = (CasAuthenticationToken) result;
         assertEquals(makeUserDetailsFromAuthoritiesPopulator(), casResult.getPrincipal());
         assertEquals("ST-123", casResult.getCredentials());
-        assertEquals(new GrantedAuthorityImpl("ROLE_A"), casResult.getAuthorities().get(0));
-        assertEquals(new GrantedAuthorityImpl("ROLE_B"), casResult.getAuthorities().get(1));
+        assertTrue(casResult.getAuthorities().contains(new GrantedAuthorityImpl("ROLE_A")));
+        assertTrue(casResult.getAuthorities().contains(new GrantedAuthorityImpl("ROLE_B")));
         assertEquals(cap.getKey().hashCode(), casResult.getKeyHash());
         assertEquals("details", casResult.getDetails());
 

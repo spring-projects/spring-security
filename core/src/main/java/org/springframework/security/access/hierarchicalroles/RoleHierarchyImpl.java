@@ -15,15 +15,21 @@
 package org.springframework.security.access.hierarchicalroles;
 
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import java.util.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 /**
  * <p>
@@ -98,7 +104,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
         buildRolesReachableInOneOrMoreStepsMap();
     }
 
-    public List<GrantedAuthority> getReachableGrantedAuthorities(List<GrantedAuthority> authorities) {
+    public Collection<GrantedAuthority> getReachableGrantedAuthorities(Collection<GrantedAuthority> authorities) {
         if (authorities == null || authorities.isEmpty()) {
             return null;
         }
@@ -125,40 +131,40 @@ public class RoleHierarchyImpl implements RoleHierarchy {
     }
 
     // SEC-863
-	private void addReachableRoles(Set<GrantedAuthority> reachableRoles,
-			GrantedAuthority authority) {
-		
-		Iterator<GrantedAuthority> iterator = reachableRoles.iterator();		
-		while (iterator.hasNext()) {
-			GrantedAuthority testAuthority = iterator.next(); 
-			String testKey = testAuthority.getAuthority();
-			if ((testKey != null) && (testKey.equals(authority.getAuthority()))) {
-				return;
-			}
-		}
-		reachableRoles.add(authority);
-	}
+    private void addReachableRoles(Set<GrantedAuthority> reachableRoles,
+            GrantedAuthority authority) {
+
+        Iterator<GrantedAuthority> iterator = reachableRoles.iterator();
+        while (iterator.hasNext()) {
+            GrantedAuthority testAuthority = iterator.next();
+            String testKey = testAuthority.getAuthority();
+            if ((testKey != null) && (testKey.equals(authority.getAuthority()))) {
+                return;
+            }
+        }
+        reachableRoles.add(authority);
+    }
 
     // SEC-863
-	private Set<GrantedAuthority> getRolesReachableInOneOrMoreSteps(
-			GrantedAuthority authority) {
-		
-		if (authority.getAuthority() == null) {
-			return null;
-		}
-		
-		Iterator<GrantedAuthority> iterator = rolesReachableInOneOrMoreStepsMap.keySet().iterator();		
-		while (iterator.hasNext()) {
-			GrantedAuthority testAuthority = iterator.next(); 
-			String testKey = testAuthority.getAuthority();
-			if ((testKey != null) && (testKey.equals(authority.getAuthority()))) {
-				return rolesReachableInOneOrMoreStepsMap.get(testAuthority);
-			}
-		}
-		
-		return null;
-	}
-    
+    private Set<GrantedAuthority> getRolesReachableInOneOrMoreSteps(
+            GrantedAuthority authority) {
+
+        if (authority.getAuthority() == null) {
+            return null;
+        }
+
+        Iterator<GrantedAuthority> iterator = rolesReachableInOneOrMoreStepsMap.keySet().iterator();
+        while (iterator.hasNext()) {
+            GrantedAuthority testAuthority = iterator.next();
+            String testKey = testAuthority.getAuthority();
+            if ((testKey != null) && (testKey.equals(authority.getAuthority()))) {
+                return rolesReachableInOneOrMoreStepsMap.get(testAuthority);
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Parse input and build the map for the roles reachable in one step: the higher role will become a key that
      * references a set of the reachable lower roles.

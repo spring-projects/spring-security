@@ -15,14 +15,12 @@
 
 package org.springframework.security.core.userdetails.jdbc;
 
-import java.util.HashSet;
-
 import junit.framework.TestCase;
 
 import org.springframework.security.PopulatedDatabase;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 
 
 /**
@@ -59,18 +57,15 @@ public class JdbcDaoImplTests extends TestCase {
         assertEquals("koala", user.getPassword());
         assertTrue(user.isEnabled());
 
-        HashSet<String> authorities = new HashSet<String>(2);
-        authorities.add(user.getAuthorities().get(0).getAuthority());
-        authorities.add(user.getAuthorities().get(1).getAuthority());
-        assertTrue(authorities.contains("ROLE_TELLER"));
-        assertTrue(authorities.contains("ROLE_SUPERVISOR"));
+        assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ROLE_TELLER"));
+        assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ROLE_SUPERVISOR"));
     }
 
     public void testCheckDaoOnlyReturnsGrantedAuthoritiesGrantedToUser() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
         UserDetails user = dao.loadUserByUsername("scott");
-        assertEquals("ROLE_TELLER", user.getAuthorities().get(0).getAuthority());
         assertEquals(1, user.getAuthorities().size());
+        assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ROLE_TELLER"));
     }
 
     public void testCheckDaoReturnsCorrectDisabledProperty() throws Exception {
@@ -124,11 +119,8 @@ public class JdbcDaoImplTests extends TestCase {
         assertEquals("rod", user.getUsername());
         assertEquals(2, user.getAuthorities().size());
 
-        HashSet<String> authorities = new HashSet<String>(2);
-        authorities.add(user.getAuthorities().get(0).getAuthority());
-        authorities.add(user.getAuthorities().get(1).getAuthority());
-        assertTrue(authorities.contains("ARBITRARY_PREFIX_ROLE_TELLER"));
-        assertTrue(authorities.contains("ARBITRARY_PREFIX_ROLE_SUPERVISOR"));
+        assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ARBITRARY_PREFIX_ROLE_TELLER"));
+        assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ARBITRARY_PREFIX_ROLE_SUPERVISOR"));
     }
 
     public void testGroupAuthoritiesAreLoadedCorrectly() throws Exception {

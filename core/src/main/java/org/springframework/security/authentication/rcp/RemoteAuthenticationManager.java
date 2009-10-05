@@ -15,6 +15,8 @@
 
 package org.springframework.security.authentication.rcp;
 
+import java.util.Collection;
+
 import org.springframework.security.core.GrantedAuthority;
 
 
@@ -43,6 +45,6 @@ public interface RemoteAuthenticationManager {
      *
      * @throws RemoteAuthenticationException if the authentication failed.
      */
-    GrantedAuthority[] attemptAuthentication(String username, String password)
+    Collection<GrantedAuthority> attemptAuthentication(String username, String password)
         throws RemoteAuthenticationException;
 }

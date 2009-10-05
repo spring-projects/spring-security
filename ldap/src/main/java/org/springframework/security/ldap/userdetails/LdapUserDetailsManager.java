@@ -52,6 +52,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -315,7 +316,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         userDetailsMapper.mapUserToContext(user, ctx);
     }
 
-    protected void addAuthorities(DistinguishedName userDn, List<GrantedAuthority> authorities) {
+    protected void addAuthorities(DistinguishedName userDn, Collection<GrantedAuthority> authorities) {
         modifyAuthorities(userDn, authorities, DirContext.ADD_ATTRIBUTE);
     }
 
@@ -323,11 +324,10 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         modifyAuthorities(userDn, authorities, DirContext.REMOVE_ATTRIBUTE);
     }
 
-    private void modifyAuthorities(final DistinguishedName userDn, final List<GrantedAuthority> authorities, final int modType) {
+    private void modifyAuthorities(final DistinguishedName userDn, final Collection<GrantedAuthority> authorities, final int modType) {
         template.executeReadWrite(new ContextExecutor() {
             public Object executeWithContext(DirContext ctx) throws NamingException {
-                for(int i=0; i < authorities.size(); i++) {
-                    GrantedAuthority authority = authorities.get(i);
+                for(GrantedAuthority authority : authorities) {
                     String group = convertAuthorityToGroup(authority);
                     DistinguishedName fullDn = LdapUtils.getFullDn(userDn, ctx);
                     ModificationItem addGroup = new ModificationItem(modType,

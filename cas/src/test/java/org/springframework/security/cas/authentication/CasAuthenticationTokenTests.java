@@ -22,9 +22,9 @@ import junit.framework.TestCase;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -109,8 +109,8 @@ public class CasAuthenticationTokenTests extends TestCase {
         assertEquals("key".hashCode(), token.getKeyHash());
         assertEquals(makeUserDetails(), token.getPrincipal());
         assertEquals("Password", token.getCredentials());
-        assertEquals("ROLE_ONE", token.getAuthorities().get(0).getAuthority());
-        assertEquals("ROLE_TWO", token.getAuthorities().get(1).getAuthority());
+        assertTrue(token.getAuthorities().contains(new GrantedAuthorityImpl("ROLE_ONE")));
+        assertTrue(token.getAuthorities().contains(new GrantedAuthorityImpl("ROLE_TWO")));
         assertEquals(assertion, token.getAssertion());
         assertEquals(makeUserDetails().getUsername(), token.getUserDetails().getUsername());
     }

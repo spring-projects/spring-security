@@ -15,12 +15,11 @@
 
 package org.springframework.security.access.intercept;
 
+import java.util.Set;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.RunAsManager;
-import org.springframework.security.access.intercept.RunAsManagerImpl;
-import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -57,16 +56,18 @@ public class RunAsManagerImplTests extends TestCase {
         runAs.setKey("my_password");
         runAs.setRolePrefix("FOOBAR_");
 
-        Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), SecurityConfig.createList("RUN_AS_SOMETHING"));
+        Authentication result = runAs.buildRunAs(inputToken, new Object(), SecurityConfig.createList("RUN_AS_SOMETHING"));
 
-        assertTrue("Should have returned a RunAsUserToken", resultingToken instanceof RunAsUserToken);
-        assertEquals(inputToken.getPrincipal(), resultingToken.getPrincipal());
-        assertEquals(inputToken.getCredentials(), resultingToken.getCredentials());
-        assertEquals("FOOBAR_RUN_AS_SOMETHING", resultingToken.getAuthorities().get(0).getAuthority());
-        assertEquals("ONE", resultingToken.getAuthorities().get(1).getAuthority());
-        assertEquals("TWO", resultingToken.getAuthorities().get(2).getAuthority());
+        assertTrue("Should have returned a RunAsUserToken", result instanceof RunAsUserToken);
+        assertEquals(inputToken.getPrincipal(), result.getPrincipal());
+        assertEquals(inputToken.getCredentials(), result.getCredentials());
+        Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
 
-        RunAsUserToken resultCast = (RunAsUserToken) resultingToken;
+        assertTrue(authorities.contains("FOOBAR_RUN_AS_SOMETHING"));
+        assertTrue(authorities.contains("ONE"));
+        assertTrue(authorities.contains("TWO"));
+
+        RunAsUserToken resultCast = (RunAsUserToken) result;
         assertEquals("my_password".hashCode(), resultCast.getKeyHash());
     }
 
@@ -77,19 +78,21 @@ public class RunAsManagerImplTests extends TestCase {
         RunAsManagerImpl runAs = new RunAsManagerImpl();
         runAs.setKey("my_password");
 
-        Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), SecurityConfig.createList("RUN_AS_SOMETHING"));
+        Authentication result = runAs.buildRunAs(inputToken, new Object(), SecurityConfig.createList("RUN_AS_SOMETHING"));
 
-        if (!(resultingToken instanceof RunAsUserToken)) {
+        if (!(result instanceof RunAsUserToken)) {
             fail("Should have returned a RunAsUserToken");
         }
 
-        assertEquals(inputToken.getPrincipal(), resultingToken.getPrincipal());
-        assertEquals(inputToken.getCredentials(), resultingToken.getCredentials());
-        assertEquals("ROLE_RUN_AS_SOMETHING", resultingToken.getAuthorities().get(0).getAuthority());
-        assertEquals("ROLE_ONE", resultingToken.getAuthorities().get(1).getAuthority());
-        assertEquals("ROLE_TWO", resultingToken.getAuthorities().get(2).getAuthority());
+        assertEquals(inputToken.getPrincipal(), result.getPrincipal());
+        assertEquals(inputToken.getCredentials(), result.getCredentials());
 
-        RunAsUserToken resultCast = (RunAsUserToken) resultingToken;
+        Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
+        assertTrue(authorities.contains("ROLE_RUN_AS_SOMETHING"));
+        assertTrue(authorities.contains("ROLE_ONE"));
+        assertTrue(authorities.contains("ROLE_TWO"));
+
+        RunAsUserToken resultCast = (RunAsUserToken) result;
         assertEquals("my_password".hashCode(), resultCast.getKeyHash());
     }
 

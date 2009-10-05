@@ -1,7 +1,7 @@
 package org.springframework.security.access.expression;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -96,7 +96,7 @@ public abstract class SecurityExpressionRoot {
     private Set<String> getAuthoritySet() {
         if (roles == null) {
             roles = new HashSet<String>();
-            List<GrantedAuthority> userAuthorities = authentication.getAuthorities();
+            Collection<GrantedAuthority> userAuthorities = authentication.getAuthorities();
 
             if (roleHierarchy != null) {
                 userAuthorities = roleHierarchy.getReachableGrantedAuthorities(userAuthorities);

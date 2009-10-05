@@ -98,12 +98,8 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
         }
 
         // Iterate this principal's authorities to determine right
-        List<GrantedAuthority> auths = authentication.getAuthorities();
-
-        for (int i = 0; i < auths.size(); i++) {
-            if (requiredAuthority.equals(auths.get(i))) {
-                return;
-            }
+        if (authentication.getAuthorities().contains(requiredAuthority)) {
+            return;
         }
 
         // Try to get permission via ACEs within the ACL

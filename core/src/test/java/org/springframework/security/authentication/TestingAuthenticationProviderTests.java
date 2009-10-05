@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.springframework.security.authentication.TestingAuthenticationProvider;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
  * Tests {@link TestingAuthenticationProvider}.
@@ -39,8 +40,8 @@ public class TestingAuthenticationProviderTests extends TestCase {
         TestingAuthenticationToken castResult = (TestingAuthenticationToken) result;
         assertEquals("Test", castResult.getPrincipal());
         assertEquals("Password", castResult.getCredentials());
-        assertEquals("ROLE_ONE", castResult.getAuthorities().get(0).getAuthority());
-        assertEquals("ROLE_TWO", castResult.getAuthorities().get(1).getAuthority());
+        assertTrue(AuthorityUtils.authorityListToSet(castResult.getAuthorities()).contains("ROLE_ONE"));
+        assertTrue(AuthorityUtils.authorityListToSet(castResult.getAuthorities()).contains("ROLE_TWO"));
     }
 
     public void testSupports() {

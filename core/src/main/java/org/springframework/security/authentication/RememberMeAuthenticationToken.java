@@ -16,8 +16,7 @@
 package org.springframework.security.authentication;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -40,13 +39,6 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken i
     //~ Constructors ===================================================================================================
 
     /**
-     * @deprecated
-     */
-    public RememberMeAuthenticationToken(String key, Object principal, GrantedAuthority[] authorities) {
-        this(key, principal, Arrays.asList(authorities));
-    }
-
-    /**
      * Constructor.
      *
      * @param key to identify if this object made by an authorised client
@@ -55,7 +47,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken i
      *
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
-    public RememberMeAuthenticationToken(String key, Object principal, List<GrantedAuthority> authorities) {
+    public RememberMeAuthenticationToken(String key, Object principal, Collection<GrantedAuthority> authorities) {
         super(authorities);
 
         if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal)) {

@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -171,9 +172,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     }
 
     private void insertUserAuthorities(UserDetails user) {
-        for (int i=0; i < user.getAuthorities().size(); i++) {
-            getJdbcTemplate().update(createAuthoritySql,
-                    new Object[] {user.getUsername(), user.getAuthorities().get(i).getAuthority()});
+        for (GrantedAuthority auth : user.getAuthorities()) {
+            getJdbcTemplate().update(createAuthoritySql, user.getUsername(), auth.getAuthority());
         }
     }
 
@@ -437,12 +437,12 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         validateAuthorities(user.getAuthorities());
     }
 
-    private void validateAuthorities(List<GrantedAuthority> authorities) {
+    private void validateAuthorities(Collection<GrantedAuthority> authorities) {
         Assert.notNull(authorities, "Authorities list must not be null");
 
-        for (int i=0; i < authorities.size(); i++) {
-            Assert.notNull(authorities.get(i), "Authorities list contains a null entry");
-            Assert.hasText(authorities.get(i).getAuthority(), "getAuthority() method must return a non-empty string");
+        for (GrantedAuthority authority : authorities) {
+            Assert.notNull(authority, "Authorities list contains a null entry");
+            Assert.hasText(authority.getAuthority(), "getAuthority() method must return a non-empty string");
         }
     }
 }

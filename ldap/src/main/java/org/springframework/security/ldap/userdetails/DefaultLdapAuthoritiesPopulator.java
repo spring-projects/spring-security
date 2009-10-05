@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.naming.directory.SearchControls;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -172,7 +173,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * @param user the user who's authorities are required
      * @return the set of roles granted to the user.
      */
-    public final List<GrantedAuthority> getGrantedAuthorities(DirContextOperations user, String username) {
+    public final Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations user, String username) {
         String userDn = user.getNameInNamespace();
 
         if (logger.isDebugEnabled()) {

@@ -1,6 +1,7 @@
 package org.springframework.security.core.authority;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -35,10 +36,10 @@ public abstract class AuthorityUtils {
      * Converts an array of GrantedAuthority objects to a Set.
      * @return a Set of the Strings obtained from each call to GrantedAuthority.getAuthority()
      */
-    public static Set<String> authorityListToSet(List<GrantedAuthority> authorities) {
-        Set<String> set = new HashSet<String>(authorities.size());
+    public static Set<String> authorityListToSet(Collection<GrantedAuthority> userAuthorities) {
+        Set<String> set = new HashSet<String>(userAuthorities.size());
 
-        for (GrantedAuthority authority: authorities) {
+        for (GrantedAuthority authority: userAuthorities) {
             set.add(authority.getAuthority());
         }
 

@@ -23,9 +23,6 @@ import junit.framework.TestCase;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.ldap.userdetails.LdapUserDetails;
-import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
-import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 
 /**
  * Tests {@link LdapUserDetailsMapper}.
@@ -69,7 +66,7 @@ public class LdapUserDetailsMapperTests extends TestCase {
         LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", AuthorityUtils.NO_AUTHORITIES);
 
         assertEquals(1, user.getAuthorities().size());
-        assertEquals("ROLE_X", user.getAuthorities().get(0).getAuthority());
+        assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ROLE_X"));
     }
 
     public void testPasswordAttributeIsMappedCorrectly() throws Exception {

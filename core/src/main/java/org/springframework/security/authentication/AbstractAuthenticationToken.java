@@ -16,8 +16,9 @@
 package org.springframework.security.authentication;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,7 +38,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
     //~ Instance fields ================================================================================================
 
     private Object details;
-    private final List<GrantedAuthority> authorities;
+    private final Collection<GrantedAuthority> authorities;
     private boolean authenticated = false;
 
     //~ Constructors ===================================================================================================
@@ -52,17 +53,18 @@ public abstract class AbstractAuthenticationToken implements Authentication {
      *                    Authentication#getAuthorities()}<code>null</code> should only be
      *                    presented if the principal has not been authenticated).
      */
-    public AbstractAuthenticationToken(List<GrantedAuthority> authorities) {
+    public AbstractAuthenticationToken(Collection<GrantedAuthority> authorities) {
         if (authorities == null) {
             this.authorities = null;
         } else {
-            for (int i = 0; i < authorities.size(); i++) {
-                if(authorities.get(i) == null) {
-                    throw new IllegalArgumentException("Granted authority element " + i
-                            + " is null - GrantedAuthority[] cannot contain any null elements");
+            for (GrantedAuthority a: authorities) {
+                if(a == null) {
+                    throw new IllegalArgumentException("Authorities collection cannot contain any null elements");
                 }
             }
-            this.authorities = Collections.unmodifiableList(authorities);
+            ArrayList<GrantedAuthority> temp = new ArrayList<GrantedAuthority>(authorities.size());
+            temp.addAll(authorities);
+            this.authorities = Collections.unmodifiableList(temp);
         }
     }
 
@@ -116,7 +118,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
         return this.isAuthenticated() == test.isAuthenticated();
     }
 
-    public List<GrantedAuthority> getAuthorities() {
+    public Collection<GrantedAuthority> getAuthorities() {
         return authorities;
     }
 

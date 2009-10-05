@@ -15,16 +15,13 @@
 
 package org.springframework.security.authentication.rcp;
 
-import java.util.List;
+import java.util.Collection;
 
-
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.util.Assert;
 
 
@@ -48,14 +45,14 @@ public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationMana
         Assert.notNull(this.authenticationManager, "authenticationManager is required");
     }
 
-    public GrantedAuthority[] attemptAuthentication(String username, String password)
+    public Collection<GrantedAuthority> attemptAuthentication(String username, String password)
             throws RemoteAuthenticationException {
         UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(username, password);
 
         try {
-            List<GrantedAuthority> authorities = authenticationManager.authenticate(request).getAuthorities();
+            Collection<GrantedAuthority> authorities = authenticationManager.authenticate(request).getAuthorities();
 
-            return authorities == null ? null : authorities.toArray(new GrantedAuthority[authorities.size()]);
+            return authorities;
         } catch (AuthenticationException authEx) {
             throw new RemoteAuthenticationException(authEx.getMessage());
         }

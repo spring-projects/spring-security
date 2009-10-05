@@ -16,8 +16,7 @@
 package org.springframework.security.access.intercept;
 
 import java.util.Arrays;
-import java.util.List;
-
+import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,7 +44,7 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
         this(key, principal, credentials, Arrays.asList(authorities), originalAuthentication);
     }
 
-    public RunAsUserToken(String key, Object principal, Object credentials, List<GrantedAuthority> authorities,
+    public RunAsUserToken(String key, Object principal, Object credentials, Collection<GrantedAuthority> authorities,
             Class<? extends Authentication> originalAuthentication) {
         super(authorities);
         this.keyHash = key.hashCode();

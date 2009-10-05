@@ -106,8 +106,8 @@ public class UserTests extends TestCase {
         assertEquals("rod", user.getUsername());
         assertEquals("koala", user.getPassword());
         assertTrue(user.isEnabled());
-        assertEquals(new GrantedAuthorityImpl("ROLE_ONE"), user.getAuthorities().get(0));
-        assertEquals(new GrantedAuthorityImpl("ROLE_TWO"), user.getAuthorities().get(1));
+        assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ROLE_ONE"));
+        assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ROLE_TWO"));
         assertTrue(user.toString().indexOf("rod") != -1);
     }
 

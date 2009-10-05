@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
@@ -48,7 +47,7 @@ public class AbstractAuthenticationTokenTests {
     @Test(expected=UnsupportedOperationException.class)
     public void testAuthoritiesAreImmutable() {
         MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password", authorities);
-        List<GrantedAuthority> gotAuthorities = token.getAuthorities();
+        List<GrantedAuthority> gotAuthorities = (List<GrantedAuthority>) token.getAuthorities();
         assertNotSame(authorities, gotAuthorities);
 
         gotAuthorities.set(0, new GrantedAuthorityImpl("ROLE_SUPER_USER"));

@@ -15,6 +15,7 @@
 package org.springframework.security.openid;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -55,7 +56,7 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
      * used by the <tt>OpenIDAuthenticationProvider</tt>.
      *
      */
-    public OpenIDAuthenticationToken(Object principal, List<GrantedAuthority> authorities,
+    public OpenIDAuthenticationToken(Object principal, Collection<GrantedAuthority> authorities,
             String identityUrl, List<OpenIDAttribute> attributes) {
         super(authorities);
         this.principal = principal;

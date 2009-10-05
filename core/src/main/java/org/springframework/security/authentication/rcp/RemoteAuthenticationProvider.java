@@ -15,17 +15,14 @@
 
 package org.springframework.security.authentication.rcp;
 
-import java.util.Arrays;
+import java.util.Collection;
 
-
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.util.Assert;
 
 
@@ -62,9 +59,9 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider, Ini
         throws AuthenticationException {
         String username = authentication.getPrincipal().toString();
         String password = authentication.getCredentials().toString();
-        GrantedAuthority[] authorities = remoteAuthenticationManager.attemptAuthentication(username, password);
+        Collection<GrantedAuthority> authorities = remoteAuthenticationManager.attemptAuthentication(username, password);
 
-        return new UsernamePasswordAuthenticationToken(username, password, Arrays.asList(authorities));
+        return new UsernamePasswordAuthenticationToken(username, password, authorities);
     }
 
     public RemoteAuthenticationManager getRemoteAuthenticationManager() {

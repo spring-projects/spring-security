@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.switchuser;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,5 +28,5 @@ public interface SwitchUserAuthorityChanger {
      *
      * @return the modified list of granted authorities.
      */
-    List<GrantedAuthority> modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, List<GrantedAuthority> authoritiesToBeGranted);
+    Collection<GrantedAuthority> modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, Collection<GrantedAuthority> authoritiesToBeGranted);
 }

@@ -17,6 +17,7 @@ package org.springframework.security.core.userdetails.memory;
 
 import junit.framework.TestCase;
 
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.memory.UserMap;
 import org.springframework.security.core.userdetails.memory.UserMapEditor;
 
@@ -63,8 +64,8 @@ public class UserMapEditorTests extends TestCase {
         UserMap map = (UserMap) editor.getValue();
         assertEquals("rod", map.getUser("rod").getUsername());
         assertEquals("koala", map.getUser("rod").getPassword());
-        assertEquals("ROLE_ONE", map.getUser("rod").getAuthorities().get(0).getAuthority());
-        assertEquals("ROLE_TWO", map.getUser("rod").getAuthorities().get(1).getAuthority());
+        assertTrue(AuthorityUtils.authorityListToSet(map.getUser("rod").getAuthorities()).contains("ROLE_ONE"));
+        assertTrue(AuthorityUtils.authorityListToSet(map.getUser("rod").getAuthorities()).contains("ROLE_TWO"));
         assertTrue(map.getUser("rod").isEnabled());
     }
 
