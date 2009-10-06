@@ -18,7 +18,6 @@ package org.springframework.security.web.access.channel;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.servlet.FilterChain;
@@ -94,7 +93,7 @@ public class ChannelProcessingFilter extends GenericFilterBean {
         HttpServletResponse response = (HttpServletResponse) res;
 
         FilterInvocation fi = new FilterInvocation(request, response, chain);
-        List<ConfigAttribute> attr = this.securityMetadataSource.getAttributes(fi);
+        Collection<ConfigAttribute> attr = this.securityMetadataSource.getAttributes(fi);
 
         if (attr != null) {
             if (logger.isDebugEnabled()) {

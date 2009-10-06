@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
@@ -25,7 +25,7 @@ public class AbstractAclVoterTests {
         public boolean supports(ConfigAttribute attribute) {
             return false;
         }
-        public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
+        public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
             return 0;
         }
     };

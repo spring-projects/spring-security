@@ -64,7 +64,7 @@ public class MockMethodSecurityMetadataSource implements MethodSecurityMetadataS
         }
     }
 
-    public List<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
+    public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 

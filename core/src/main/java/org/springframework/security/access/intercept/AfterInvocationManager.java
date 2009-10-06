@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.intercept;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -57,7 +57,7 @@ public interface AfterInvocationManager {
      *
      * @param authentication the caller that invoked the method
      * @param object the secured object that was called
-     * @param config the configuration attributes associated with the secured object that was invoked
+     * @param attributes the configuration attributes associated with the secured object that was invoked
      * @param returnedObject the <code>Object</code> that was returned from the secure object invocation
      *
      * @return the <code>Object</code> that will ultimately be returned to the caller (if an implementation does not
@@ -66,7 +66,7 @@ public interface AfterInvocationManager {
      *
      * @throws AccessDeniedException if access is denied
      */
-    Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
+    Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> attributes,
         Object returnedObject) throws AccessDeniedException;
 
     /**

@@ -2,7 +2,7 @@ package org.springframework.security.config.http;
 
 import static org.junit.Assert.*;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.junit.After;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
                 "   <intercept-url pattern='/**' access='ROLE_A'/>" +
                 "</filter-security-metadata-source>");
         DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) appContext.getBean("fids");
-        List<? extends ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
+        Collection<ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
         assertNotNull(cad);
         assertTrue(cad.contains(new SecurityConfig("ROLE_A")));
     }
@@ -61,9 +61,9 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 
         ExpressionBasedFilterInvocationSecurityMetadataSource fids =
             (ExpressionBasedFilterInvocationSecurityMetadataSource) appContext.getBean("fids");
-        List<? extends ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
-        assertEquals(1, cad.size());
-        assertEquals("hasRole('ROLE_A')", cad.get(0).toString());
+        ConfigAttribute[] cad = fids.getAttributes(createFilterInvocation("/anything", "GET")).toArray(new ConfigAttribute[0]);
+        assertEquals(1, cad.length);
+        assertEquals("hasRole('ROLE_A')", cad[0].toString());
     }
 
     // SEC-1201
@@ -77,10 +77,10 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
                 "   <intercept-url pattern='${secure.url}' access='${secure.role}'/>" +
                 "</filter-security-metadata-source>");
         DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) appContext.getBean("fids");
-        List<ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/secure", "GET"));
+        Collection<ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/secure", "GET"));
         assertNotNull(cad);
         assertEquals(1, cad.size());
-        assertEquals("ROLE_A", cad.get(0).getAttribute());
+        assertTrue(cad.contains(new SecurityConfig("ROLE_A")));
     }
 
     @Test

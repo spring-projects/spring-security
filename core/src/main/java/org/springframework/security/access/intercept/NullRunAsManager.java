@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.intercept;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -32,7 +32,7 @@ import org.springframework.security.core.Authentication;
 final class NullRunAsManager implements RunAsManager {
     //~ Methods ========================================================================================================
 
-    public Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> config) {
+    public Authentication buildRunAs(Authentication authentication, Object object, Collection<ConfigAttribute> config) {
         return null;
     }
 

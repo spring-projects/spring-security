@@ -15,7 +15,7 @@
 
 package org.springframework.security.access;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.core.Authentication;
@@ -30,7 +30,7 @@ import org.springframework.security.core.Authentication;
 public interface AfterInvocationProvider {
     //~ Methods ========================================================================================================
 
-    Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
+    Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> attributes,
         Object returnedObject) throws AccessDeniedException;
 
     /**

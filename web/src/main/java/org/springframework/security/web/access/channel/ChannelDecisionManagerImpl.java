@@ -25,6 +25,7 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
         Assert.notEmpty(channelProcessors, "A list of ChannelProcessors is required");
     }
 
-    public void decide(FilterInvocation invocation, List<ConfigAttribute> config) throws IOException, ServletException {
+    public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config) throws IOException, ServletException {
 
         Iterator<ConfigAttribute> attrs = config.iterator();
 

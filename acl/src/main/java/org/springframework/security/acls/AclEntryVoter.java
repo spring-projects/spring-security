@@ -17,6 +17,7 @@ package org.springframework.security.acls;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -152,7 +153,7 @@ public class AclEntryVoter extends AbstractAclVoter {
         }
     }
 
-    public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
+    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 
         for(ConfigAttribute attr : attributes) {
 

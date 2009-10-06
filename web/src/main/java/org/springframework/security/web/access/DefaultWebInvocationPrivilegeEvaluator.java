@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -120,7 +120,7 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
         }
 
         FilterInvocation fi = createFilterInvocation(contextPath, uri, method);
-        List<ConfigAttribute> attrs = securityInterceptor.obtainSecurityMetadataSource().getAttributes(fi);
+        Collection<ConfigAttribute> attrs = securityInterceptor.obtainSecurityMetadataSource().getAttributes(fi);
 
         if (attrs == null) {
             if (securityInterceptor.isRejectPublicInvocations()) {

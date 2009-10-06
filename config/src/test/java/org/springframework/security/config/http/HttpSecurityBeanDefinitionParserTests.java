@@ -7,6 +7,7 @@ import static org.springframework.security.config.http.AuthenticationConfigBuild
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -286,7 +287,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) getFilter(FilterSecurityInterceptor.class);
 
         FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
-        List<ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/Secure", null));
+        Collection<ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/Secure", null));
         assertEquals(2, attrDef.size());
         assertTrue(attrDef.contains(new SecurityConfig("ROLE_A")));
         assertTrue(attrDef.contains(new SecurityConfig("ROLE_B")));
@@ -314,10 +315,10 @@ public class HttpSecurityBeanDefinitionParserTests {
         // Check the security attribute
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) getFilter(FilterSecurityInterceptor.class);
         FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
-        List<ConfigAttribute> attrs = fids.getAttributes(createFilterinvocation("/secure", null));
+        Collection<ConfigAttribute> attrs = fids.getAttributes(createFilterinvocation("/secure", null));
         assertNotNull(attrs);
         assertEquals(1, attrs.size());
-        assertEquals("ROLE_A",attrs.get(0).getAttribute());
+        assertTrue(attrs.contains(new SecurityConfig("ROLE_A")));
 
         // Check the form login properties are set
         UsernamePasswordAuthenticationFilter apf = (UsernamePasswordAuthenticationFilter)
@@ -340,7 +341,7 @@ public class HttpSecurityBeanDefinitionParserTests {
 
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) getFilter(FilterSecurityInterceptor.class);
         FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
-        List<? extends ConfigAttribute> attrs = fids.getAttributes(createFilterinvocation("/secure", "POST"));
+        Collection<ConfigAttribute> attrs = fids.getAttributes(createFilterinvocation("/secure", "POST"));
         assertEquals(2, attrs.size());
         assertTrue(attrs.contains(new SecurityConfig("ROLE_A")));
         assertTrue(attrs.contains(new SecurityConfig("ROLE_B")));
@@ -904,7 +905,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) getFilter(FilterSecurityInterceptor.class);
 
         FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
-        List<? extends ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/someurl", null));
+        Collection<ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/someurl", null));
         assertEquals(1, attrDef.size());
         assertTrue(attrDef.contains(new SecurityConfig("ROLE_B")));
     }
@@ -942,7 +943,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) getFilter(FilterSecurityInterceptor.class);
 
         FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
-        List<? extends ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/secure", null));
+        Collection<ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/secure", null));
         assertEquals(1, attrDef.size());
 
         // Try an unprotected invocation

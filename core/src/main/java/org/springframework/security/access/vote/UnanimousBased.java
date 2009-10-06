@@ -16,6 +16,7 @@
 package org.springframework.security.access.vote;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.access.AccessDecisionVoter;
@@ -48,7 +49,7 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
      *
      * @throws AccessDeniedException if access is denied
      */
-    public void decide(Authentication authentication, Object object, List<ConfigAttribute> attributes)
+    public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> attributes)
              throws AccessDeniedException {
 
         int grant = 0;

@@ -15,7 +15,7 @@
 
 package org.springframework.security.access;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
@@ -41,7 +41,7 @@ public interface AccessDecisionManager {
      * @throws InsufficientAuthenticationException if access is denied as the authentication does not provide a
      *         sufficient level of trust
      */
-    void decide(Authentication authentication, Object object, List<ConfigAttribute> configAttributes)
+    void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
         throws AccessDeniedException, InsufficientAuthenticationException;
 
     /**

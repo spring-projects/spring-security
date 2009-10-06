@@ -138,7 +138,7 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
     }
 
 
-    public List<ConfigAttribute> getAttributes(Object object) {
+    public Collection<ConfigAttribute> getAttributes(Object object) {
         if ((object == null) || !this.supports(object.getClass())) {
             throw new IllegalArgumentException("Object must be a FilterInvocation");
         }

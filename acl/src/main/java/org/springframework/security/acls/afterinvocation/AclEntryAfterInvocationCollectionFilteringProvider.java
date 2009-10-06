@@ -73,7 +73,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
     //~ Methods ========================================================================================================
 
     @SuppressWarnings("unchecked")
-    public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
+    public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
             Object returnedObject) throws AccessDeniedException {
 
         if (returnedObject == null) {

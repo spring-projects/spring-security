@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
@@ -59,8 +57,6 @@ import org.w3c.dom.Element;
  * @since 3.0
  */
 class HttpConfigurationBuilder {
-    private final Log logger = LogFactory.getLog(getClass());
-
     private static final String ATT_CREATE_SESSION = "create-session";
     private static final String OPT_CREATE_SESSION_NEVER = "never";
     private static final String DEF_CREATE_SESSION_IF_REQUIRED = "ifRequired";

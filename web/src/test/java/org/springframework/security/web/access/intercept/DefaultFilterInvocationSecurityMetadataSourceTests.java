@@ -18,6 +18,7 @@ package org.springframework.security.web.access.intercept;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -130,7 +131,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
         createFids("/somepage**", "GET");
 
         FilterInvocation fi = createFilterInvocation("/somepage", "GET");
-        List<? extends ConfigAttribute> attrs = fids.getAttributes(fi);
+        Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
         assertEquals(def, attrs);
     }
 
@@ -139,7 +140,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
         createFids("/somepage**", null);
 
         FilterInvocation fi = createFilterInvocation("/somepage", "GET");
-        List<? extends ConfigAttribute> attrs = fids.getAttributes(fi);
+        Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
         assertEquals(def, attrs);
     }
 
@@ -148,7 +149,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
         createFids("/somepage**", "GET");
 
         FilterInvocation fi = createFilterInvocation("/somepage", null);
-        List<? extends ConfigAttribute> attrs = fids.getAttributes(fi);
+        Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
         assertNull(attrs);
     }
 
@@ -161,7 +162,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
         requestMap.put(new RequestKey("/somepage**", "POST"), postOnlyDef);
         fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
 
-        List<ConfigAttribute> attrs = fids.getAttributes(createFilterInvocation("/somepage", "POST"));
+        Collection<ConfigAttribute> attrs = fids.getAttributes(createFilterInvocation("/somepage", "POST"));
         assertEquals(postOnlyDef, attrs);
     }
 
@@ -176,7 +177,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
         fids.setStripQueryStringFromUrls(true);
 
         FilterInvocation fi = createFilterInvocation("/user", "GET");
-        List<ConfigAttribute> attrs = fids.getAttributes(fi);
+        Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
         assertEquals(userAttrs, attrs);
     }
 

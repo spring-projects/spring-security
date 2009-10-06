@@ -1,6 +1,6 @@
 package org.springframework.security.web.access.expression;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -18,7 +18,7 @@ import org.springframework.security.web.FilterInvocation;
 public class WebExpressionVoter implements AccessDecisionVoter {
     private WebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
 
-    public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
+    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
         assert authentication != null;
         assert object != null;
         assert attributes != null;
@@ -36,7 +36,7 @@ public class WebExpressionVoter implements AccessDecisionVoter {
                 ACCESS_GRANTED : ACCESS_DENIED;
     }
 
-    private WebExpressionConfigAttribute findConfigAttribute(List<ConfigAttribute> attributes) {
+    private WebExpressionConfigAttribute findConfigAttribute(Collection<ConfigAttribute> attributes) {
         for (ConfigAttribute attribute : attributes) {
             if (attribute instanceof WebExpressionConfigAttribute) {
                 return (WebExpressionConfigAttribute)attribute;

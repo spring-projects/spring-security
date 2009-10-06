@@ -16,6 +16,7 @@
 package org.springframework.security.access.intercept;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -63,7 +64,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
         }
     }
 
-    public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
+    public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
             Object returnedObject) throws AccessDeniedException {
 
         Object result = returnedObject;

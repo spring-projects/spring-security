@@ -16,7 +16,7 @@
 package org.springframework.security.web.access.channel;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 
 import javax.servlet.ServletException;
 
@@ -52,7 +52,7 @@ public class SecureChannelProcessor implements InitializingBean, ChannelProcesso
         Assert.notNull(entryPoint, "entryPoint required");
     }
 
-    public void decide(FilterInvocation invocation, List<ConfigAttribute> config) throws IOException, ServletException {
+    public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config) throws IOException, ServletException {
         Assert.isTrue((invocation != null) && (config != null), "Nulls cannot be provided");
 
         for (ConfigAttribute attribute : config) {

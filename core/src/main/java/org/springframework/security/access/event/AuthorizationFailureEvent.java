@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.event;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -38,7 +38,7 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
 
     private AccessDeniedException accessDeniedException;
     private Authentication authentication;
-    private List<ConfigAttribute> configAttributeDefinition;
+    private Collection<ConfigAttribute> configAttributes;
 
     //~ Constructors ===================================================================================================
 
@@ -46,22 +46,22 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
      * Construct the event.
      *
      * @param secureObject the secure object
-     * @param configAttribs that apply to the secure object
+     * @param attributes that apply to the secure object
      * @param authentication that was found in the <code>SecurityContextHolder</code>
      * @param accessDeniedException that was returned by the
      *        <code>AccessDecisionManager</code>
      *
      * @throws IllegalArgumentException if any null arguments are presented.
      */
-    public AuthorizationFailureEvent(Object secureObject, List<ConfigAttribute> configAttribs,
+    public AuthorizationFailureEvent(Object secureObject, Collection<ConfigAttribute> attributes,
         Authentication authentication, AccessDeniedException accessDeniedException) {
         super(secureObject);
 
-        if ((configAttribs == null) || (authentication == null) || (accessDeniedException == null)) {
+        if ((attributes == null) || (authentication == null) || (accessDeniedException == null)) {
             throw new IllegalArgumentException("All parameters are required and cannot be null");
         }
 
-        this.configAttributeDefinition = configAttribs;
+        this.configAttributes = attributes;
         this.authentication = authentication;
         this.accessDeniedException = accessDeniedException;
     }
@@ -76,7 +76,7 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
         return authentication;
     }
 
-    public List<ConfigAttribute> getConfigAttributes() {
-        return configAttributeDefinition;
+    public Collection<ConfigAttribute> getConfigAttributes() {
+        return configAttributes;
     }
 }

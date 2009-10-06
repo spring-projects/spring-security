@@ -18,6 +18,7 @@ package org.springframework.security.web.access.channel;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -188,7 +189,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
             this.failIfCalled = failIfCalled;
         }
 
-        public void decide(FilterInvocation invocation, List<ConfigAttribute> config)
+        public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
                 throws IOException, ServletException {
             Iterator iter = config.iterator();
 

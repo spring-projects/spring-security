@@ -17,6 +17,7 @@ package org.springframework.security.access.annotation;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
@@ -59,12 +60,12 @@ public class MethodDefinitionSourceEditorTigerTests {
         MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
 
-        List<? extends ConfigAttribute> returnedMakeLower = map.getAttributes(makeLower);
-        List<? extends ConfigAttribute> expectedMakeLower = SecurityConfig.createList("ROLE_FROM_INTERFACE");
+        Collection<ConfigAttribute> returnedMakeLower = map.getAttributes(makeLower);
+        List<ConfigAttribute> expectedMakeLower = SecurityConfig.createList("ROLE_FROM_INTERFACE");
         assertEquals(expectedMakeLower, returnedMakeLower);
 
-        List<? extends ConfigAttribute> returnedMakeUpper = map.getAttributes(makeUpper);
-        List<? extends ConfigAttribute> expectedMakeUpper = SecurityConfig.createList(new String[]{"ROLE_FROM_IMPLEMENTATION"});
+        Collection<ConfigAttribute> returnedMakeUpper = map.getAttributes(makeUpper);
+        List<ConfigAttribute> expectedMakeUpper = SecurityConfig.createList(new String[]{"ROLE_FROM_IMPLEMENTATION"});
         assertEquals(expectedMakeUpper, returnedMakeUpper);
     }
 
@@ -79,8 +80,8 @@ public class MethodDefinitionSourceEditorTigerTests {
         MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
 
-        List<? extends ConfigAttribute> returnedMakeUpper = map.getAttributes(makeUpper);
-        List<? extends ConfigAttribute> expectedMakeUpper = SecurityConfig.createList("ROLE_FROM_PSI");
+        Collection<ConfigAttribute> returnedMakeUpper = map.getAttributes(makeUpper);
+        List<ConfigAttribute> expectedMakeUpper = SecurityConfig.createList("ROLE_FROM_PSI");
         assertEquals(expectedMakeUpper, returnedMakeUpper);
     }
 

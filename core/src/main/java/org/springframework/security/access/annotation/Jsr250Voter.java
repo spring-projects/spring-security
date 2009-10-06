@@ -1,6 +1,6 @@
 package org.springframework.security.access.annotation;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
@@ -43,7 +43,7 @@ public class Jsr250Voter implements AccessDecisionVoter {
      * @param definition     The configuration definition.
      * @return The vote.
      */
-    public int vote(Authentication authentication, Object object, List<ConfigAttribute> definition) {
+    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> definition) {
         for (ConfigAttribute attribute : definition) {
             if (Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE.equals(attribute)) {
                 return ACCESS_GRANTED;

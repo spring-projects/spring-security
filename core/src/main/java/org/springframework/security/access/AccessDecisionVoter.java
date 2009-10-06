@@ -15,7 +15,7 @@
 
 package org.springframework.security.access;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.core.Authentication;
 
@@ -87,5 +87,5 @@ public interface AccessDecisionVoter {
      *
      * @return either {@link #ACCESS_GRANTED}, {@link #ACCESS_ABSTAIN} or {@link #ACCESS_DENIED}
      */
-    int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes);
+    int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes);
 }

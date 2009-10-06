@@ -43,11 +43,11 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
     @Test
     public void classLevelPreAnnotationIsPickedUpWhenNoMethodLevelExists() throws Exception {
-        List<ConfigAttribute> attrs = mds.getAttributes(voidImpl1);
+        ConfigAttribute[] attrs = mds.getAttributes(voidImpl1).toArray(new ConfigAttribute[0]);
 
-        assertEquals(1, attrs.size());
-        assertTrue(attrs.get(0) instanceof PreInvocationExpressionAttribute);
-        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs.get(0);
+        assertEquals(1, attrs.length);
+        assertTrue(attrs[0] instanceof PreInvocationExpressionAttribute);
+        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
         assertNotNull(pre.getAuthorizeExpression());
         assertEquals("someExpression", pre.getAuthorizeExpression().getExpressionString());
         assertNull(pre.getFilterExpression());
@@ -55,11 +55,11 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
     @Test
     public void mixedClassAndMethodPreAnnotationsAreBothIncluded() {
-        List<ConfigAttribute> attrs = mds.getAttributes(voidImpl2);
+        ConfigAttribute[] attrs = mds.getAttributes(voidImpl2).toArray(new ConfigAttribute[0]);
 
-        assertEquals(1, attrs.size());
-        assertTrue(attrs.get(0) instanceof PreInvocationExpressionAttribute);
-        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute)attrs.get(0);
+        assertEquals(1, attrs.length);
+        assertTrue(attrs[0] instanceof PreInvocationExpressionAttribute);
+        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
         assertEquals("someExpression", pre.getAuthorizeExpression().getExpressionString());
         assertNotNull(pre.getFilterExpression());
         assertEquals("somePreFilterExpression", pre.getFilterExpression().getExpressionString());
@@ -67,11 +67,11 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
     @Test
     public void methodWithPreFilterOnlyIsAllowed() {
-        List<ConfigAttribute> attrs = mds.getAttributes(voidImpl3);
+        ConfigAttribute[] attrs = mds.getAttributes(voidImpl3).toArray(new ConfigAttribute[0]);
 
-        assertEquals(1, attrs.size());
-        assertTrue(attrs.get(0) instanceof PreInvocationExpressionAttribute);
-        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute)attrs.get(0);
+        assertEquals(1, attrs.length);
+        assertTrue(attrs[0] instanceof PreInvocationExpressionAttribute);
+        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
         assertEquals("permitAll", pre.getAuthorizeExpression().getExpressionString());
         assertNotNull(pre.getFilterExpression());
         assertEquals("somePreFilterExpression", pre.getFilterExpression().getExpressionString());
@@ -79,13 +79,13 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
     @Test
     public void methodWithPostFilterOnlyIsAllowed() {
-        List<ConfigAttribute> attrs = mds.getAttributes(listImpl1);
+        ConfigAttribute[] attrs = mds.getAttributes(listImpl1).toArray(new ConfigAttribute[0]);
 
-        assertEquals(2, attrs.size());
-        assertTrue(attrs.get(0) instanceof PreInvocationExpressionAttribute);
-        assertTrue(attrs.get(1) instanceof PostInvocationExpressionAttribute);
-        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute)attrs.get(0);
-        PostInvocationExpressionAttribute post = (PostInvocationExpressionAttribute)attrs.get(1);
+        assertEquals(2, attrs.length);
+        assertTrue(attrs[0] instanceof PreInvocationExpressionAttribute);
+        assertTrue(attrs[1] instanceof PostInvocationExpressionAttribute);
+        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
+        PostInvocationExpressionAttribute post = (PostInvocationExpressionAttribute) attrs[1];
         assertEquals("permitAll", pre.getAuthorizeExpression().getExpressionString());
         assertNotNull(post.getFilterExpression());
         assertEquals("somePostFilterExpression", post.getFilterExpression().getExpressionString());
@@ -93,11 +93,11 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
     @Test
     public void interfaceAttributesAreIncluded() {
-        List<ConfigAttribute> attrs = mds.getAttributes(notherListImpl1);
+        ConfigAttribute[] attrs = mds.getAttributes(notherListImpl1).toArray(new ConfigAttribute[0]);
 
-        assertEquals(1, attrs.size());
-        assertTrue(attrs.get(0) instanceof PreInvocationExpressionAttribute);
-        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute)attrs.get(0);
+        assertEquals(1, attrs.length);
+        assertTrue(attrs[0] instanceof PreInvocationExpressionAttribute);
+        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute)attrs[0];
         assertNotNull(pre.getFilterExpression());
         assertNotNull(pre.getAuthorizeExpression());
         assertEquals("interfaceMethodAuthzExpression", pre.getAuthorizeExpression().getExpressionString());
@@ -106,11 +106,11 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
     @Test
     public void classAttributesTakesPrecedeceOverInterfaceAttributes() {
-        List<ConfigAttribute> attrs = mds.getAttributes(notherListImpl2);
+        ConfigAttribute[] attrs = mds.getAttributes(notherListImpl2).toArray(new ConfigAttribute[0]);
 
-        assertEquals(1, attrs.size());
-        assertTrue(attrs.get(0) instanceof PreInvocationExpressionAttribute);
-        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute)attrs.get(0);
+        assertEquals(1, attrs.length);
+        assertTrue(attrs[0] instanceof PreInvocationExpressionAttribute);
+        PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute)attrs[0];
         assertNotNull(pre.getFilterExpression());
         assertNotNull(pre.getAuthorizeExpression());
         assertEquals("interfaceMethodAuthzExpression", pre.getAuthorizeExpression().getExpressionString());

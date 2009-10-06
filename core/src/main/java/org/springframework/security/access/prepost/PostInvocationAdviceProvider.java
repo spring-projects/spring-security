@@ -1,6 +1,6 @@
 package org.springframework.security.access.prepost;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -27,7 +27,7 @@ public class PostInvocationAdviceProvider implements AfterInvocationProvider {
         this.postAdvice = postAdvice;
     }
 
-    public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config, Object returnedObject)
+    public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config, Object returnedObject)
             throws AccessDeniedException {
 
         PostInvocationAttribute pia = findPostInvocationAttribute(config);
@@ -39,7 +39,7 @@ public class PostInvocationAdviceProvider implements AfterInvocationProvider {
         return postAdvice.after(authentication, (MethodInvocation)object, pia, returnedObject);
     }
 
-    private PostInvocationAttribute findPostInvocationAttribute(List<ConfigAttribute> config) {
+    private PostInvocationAttribute findPostInvocationAttribute(Collection<ConfigAttribute> config) {
         for (ConfigAttribute attribute : config) {
             if (attribute instanceof PostInvocationAttribute) {
                 return (PostInvocationAttribute)attribute;

@@ -17,6 +17,7 @@ package org.springframework.security.access.intercept.method;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -56,9 +57,9 @@ public class MethodSecurityMetadataSourceEditorTests extends TestCase {
         Method method = clazz.getMethod("countLength", new Class[] {String.class});
         MockJoinPoint joinPoint = new MockJoinPoint(new TargetObject(), method);
 
-        List<? extends ConfigAttribute> returnedCountLength = map.getAttributes(joinPoint);
+        Collection<ConfigAttribute> returnedCountLength = map.getAttributes(joinPoint);
 
-        List<? extends ConfigAttribute> expectedCountLength = SecurityConfig.createList("ROLE_ONE", "ROLE_TWO", "RUN_AS_ENTRY");
+        List<ConfigAttribute> expectedCountLength = SecurityConfig.createList("ROLE_ONE", "ROLE_TWO", "RUN_AS_ENTRY");
         assertEquals(expectedCountLength, returnedCountLength);
     }
 
@@ -108,16 +109,16 @@ public class MethodSecurityMetadataSourceEditorTests extends TestCase {
         MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
         assertEquals(6, map.getMethodMapSize());
 
-        List<? extends ConfigAttribute> returnedMakeLower = map.getAttributes(new MockMethodInvocation(ITargetObject.class, "makeLowerCase", new Class[] {String.class}, new OtherTargetObject()));
-        List<? extends ConfigAttribute> expectedMakeLower = SecurityConfig.createList("ROLE_FROM_INTERFACE");
+        Collection<ConfigAttribute> returnedMakeLower = map.getAttributes(new MockMethodInvocation(ITargetObject.class, "makeLowerCase", new Class[] {String.class}, new OtherTargetObject()));
+        List<ConfigAttribute> expectedMakeLower = SecurityConfig.createList("ROLE_FROM_INTERFACE");
         assertEquals(expectedMakeLower, returnedMakeLower);
 
-        List<? extends ConfigAttribute> returnedMakeUpper = map.getAttributes(new MockMethodInvocation(ITargetObject.class, "makeUpperCase", new Class[] {String.class}, new OtherTargetObject()));
-        List<? extends ConfigAttribute> expectedMakeUpper = SecurityConfig.createList("ROLE_FROM_IMPLEMENTATION");
+        Collection<ConfigAttribute> returnedMakeUpper = map.getAttributes(new MockMethodInvocation(ITargetObject.class, "makeUpperCase", new Class[] {String.class}, new OtherTargetObject()));
+        List<ConfigAttribute> expectedMakeUpper = SecurityConfig.createList("ROLE_FROM_IMPLEMENTATION");
         assertEquals(expectedMakeUpper, returnedMakeUpper);
 
-        List<? extends ConfigAttribute> returnedComputeHashCode = map.getAttributes(new MockMethodInvocation(ITargetObject.class, "computeHashCode", new Class[] {String.class}, new OtherTargetObject()));
-        List<? extends ConfigAttribute> expectedComputeHashCode = SecurityConfig.createList("ROLE_FROM_OTO");
+        Collection<ConfigAttribute> returnedComputeHashCode = map.getAttributes(new MockMethodInvocation(ITargetObject.class, "computeHashCode", new Class[] {String.class}, new OtherTargetObject()));
+        List<ConfigAttribute> expectedComputeHashCode = SecurityConfig.createList("ROLE_FROM_OTO");
         assertEquals(expectedComputeHashCode, returnedComputeHashCode);
 
         returnedComputeHashCode = map.getAttributes(new MockMethodInvocation(ITargetObject.class, "computeHashCode", new Class[] {String.class}, new TargetObject()));
@@ -160,19 +161,19 @@ public class MethodSecurityMetadataSourceEditorTests extends TestCase {
         MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
         assertEquals(14, map.getMethodMapSize());
 
-        List<? extends ConfigAttribute> returnedMakeLower = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
+        Collection<ConfigAttribute> returnedMakeLower = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
                     "makeLowerCase", new Class[] {String.class}, new TargetObject()));
-        List<? extends ConfigAttribute> expectedMakeLower = SecurityConfig.createList("ROLE_LOWER");
+        List<ConfigAttribute> expectedMakeLower = SecurityConfig.createList("ROLE_LOWER");
         assertEquals(expectedMakeLower, returnedMakeLower);
 
-        List<? extends ConfigAttribute> returnedMakeUpper = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
+        Collection<ConfigAttribute> returnedMakeUpper = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
                     "makeUpperCase", new Class[] {String.class}, new TargetObject()));
-        List<? extends ConfigAttribute> expectedMakeUpper = SecurityConfig.createList("ROLE_UPPER");
+        List<ConfigAttribute> expectedMakeUpper = SecurityConfig.createList("ROLE_UPPER");
         assertEquals(expectedMakeUpper, returnedMakeUpper);
 
-        List<? extends ConfigAttribute> returnedCountLength = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
+        Collection<ConfigAttribute> returnedCountLength = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
                     "countLength", new Class[] {String.class}, new TargetObject()));
-        List<? extends ConfigAttribute> expectedCountLength = SecurityConfig.createList("ROLE_GENERAL");
+        List<ConfigAttribute> expectedCountLength = SecurityConfig.createList("ROLE_GENERAL");
         assertEquals(expectedCountLength, returnedCountLength);
     }
 
@@ -182,7 +183,7 @@ public class MethodSecurityMetadataSourceEditorTests extends TestCase {
 
         MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
 
-        List<? extends ConfigAttribute> configAttributeDefinition = map.getAttributes(new MockMethodInvocation(
+        Collection<ConfigAttribute> configAttributeDefinition = map.getAttributes(new MockMethodInvocation(
                     ITargetObject.class, "makeLowerCase", new Class[] {String.class}, new TargetObject()));
         assertNull(configAttributeDefinition);
     }
@@ -201,7 +202,7 @@ public class MethodSecurityMetadataSourceEditorTests extends TestCase {
 
         MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
 
-        List<? extends ConfigAttribute> returnedCountLength = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
+        Collection<ConfigAttribute> returnedCountLength = map.getAttributes(new MockMethodInvocation(ITargetObject.class,
                     "countLength", new Class[] {String.class}, new TargetObject()));
         assertEquals(SecurityConfig.createList("ROLE_ONE", "ROLE_TWO", "RUN_AS_ENTRY"), returnedCountLength);
     }

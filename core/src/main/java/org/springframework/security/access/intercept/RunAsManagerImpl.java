@@ -16,6 +16,7 @@
 package org.springframework.security.access.intercept;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -61,7 +62,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
         Assert.notNull(key, "A Key is required and should match that configured for the RunAsImplAuthenticationProvider");
     }
 
-    public Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
+    public Authentication buildRunAs(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
         List<GrantedAuthority> newAuthorities = new ArrayList<GrantedAuthority>();
 
         for (ConfigAttribute attribute : attributes) {

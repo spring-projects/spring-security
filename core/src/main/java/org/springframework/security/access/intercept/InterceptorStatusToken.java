@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.intercept;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -35,23 +35,23 @@ public class InterceptorStatusToken {
     //~ Instance fields ================================================================================================
 
     private Authentication authentication;
-    private List<ConfigAttribute> attr;
+    private Collection<ConfigAttribute> attr;
     private Object secureObject;
     private boolean contextHolderRefreshRequired;
 
     //~ Constructors ===================================================================================================
 
     public InterceptorStatusToken(Authentication authentication, boolean contextHolderRefreshRequired,
-            List<ConfigAttribute> attr, Object secureObject) {
+            Collection<ConfigAttribute> attributes, Object secureObject) {
         this.authentication = authentication;
         this.contextHolderRefreshRequired = contextHolderRefreshRequired;
-        this.attr = attr;
+        this.attr = attributes;
         this.secureObject = secureObject;
     }
 
     //~ Methods ========================================================================================================
 
-    public List<ConfigAttribute> getAttributes() {
+    public Collection<ConfigAttribute> getAttributes() {
         return attr;
     }
 

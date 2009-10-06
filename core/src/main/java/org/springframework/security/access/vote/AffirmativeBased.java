@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.vote;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
@@ -42,7 +42,7 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
      *
      * @throws AccessDeniedException if access is denied
      */
-    public void decide(Authentication authentication, Object object, List<ConfigAttribute> configAttributes)
+    public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
             throws AccessDeniedException {
         int deny = 0;
 

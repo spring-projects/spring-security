@@ -163,7 +163,7 @@ public class ChannelProcessingFilterTests {
             this.supportAttribute = supportAttribute;
         }
 
-        public void decide(FilterInvocation invocation, List<ConfigAttribute> config)
+        public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
             throws IOException, ServletException {
             if (commitAResponse) {
                 invocation.getHttpResponse().sendRedirect("/redirected");

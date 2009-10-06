@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.event;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -32,7 +32,7 @@ public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizatio
     //~ Instance fields ================================================================================================
 
     private AuthenticationCredentialsNotFoundException credentialsNotFoundException;
-    private List<ConfigAttribute> configAttribs;
+    private Collection<ConfigAttribute> configAttribs;
 
     //~ Constructors ===================================================================================================
 
@@ -40,25 +40,25 @@ public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizatio
      * Construct the event.
      *
      * @param secureObject the secure object
-     * @param configAttribs that apply to the secure object
+     * @param attributes that apply to the secure object
      * @param credentialsNotFoundException exception returned to the caller (contains reason)
      *
      */
-    public AuthenticationCredentialsNotFoundEvent(Object secureObject, List<ConfigAttribute> configAttribs,
+    public AuthenticationCredentialsNotFoundEvent(Object secureObject, Collection<ConfigAttribute> attributes,
             AuthenticationCredentialsNotFoundException credentialsNotFoundException) {
         super(secureObject);
 
-        if ((configAttribs == null) || (credentialsNotFoundException == null)) {
+        if ((attributes == null) || (credentialsNotFoundException == null)) {
             throw new IllegalArgumentException("All parameters are required and cannot be null");
         }
 
-        this.configAttribs = configAttribs;
+        this.configAttribs = attributes;
         this.credentialsNotFoundException = credentialsNotFoundException;
     }
 
     //~ Methods ========================================================================================================
 
-    public List<ConfigAttribute> getConfigAttributes() {
+    public Collection<ConfigAttribute> getConfigAttributes() {
         return configAttribs;
     }
 

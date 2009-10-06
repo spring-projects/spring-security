@@ -1,6 +1,6 @@
 package org.springframework.security.access.prepost;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -39,7 +39,7 @@ public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVote
         return clazz.isAssignableFrom(MethodInvocation.class);
     }
 
-    public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
+    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 
         // Find prefilter and preauth (or combined) attributes
         // if both null, abstain
@@ -57,7 +57,7 @@ public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVote
         return allowed ? ACCESS_GRANTED : ACCESS_DENIED;
     }
 
-    private PreInvocationAttribute findPreInvocationAttribute(List<ConfigAttribute> config) {
+    private PreInvocationAttribute findPreInvocationAttribute(Collection<ConfigAttribute> config) {
         for (ConfigAttribute attribute : config) {
             if (attribute instanceof PreInvocationAttribute) {
                 return (PreInvocationAttribute)attribute;

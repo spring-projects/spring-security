@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Collection;
 
 
 /**
@@ -46,7 +46,7 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
 
     //~ Methods ========================================================================================================
 
-    public final List<ConfigAttribute> getAttributes(Object object) {
+    public final Collection<ConfigAttribute> getAttributes(Object object) {
         if (object instanceof MethodInvocation) {
             MethodInvocation mi = (MethodInvocation) object;
             Object target = mi.getThis();

@@ -19,7 +19,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 
 import javax.servlet.ServletException;
 
@@ -44,7 +44,7 @@ public interface ChannelProcessor {
      * security based on the requested list of <tt>ConfigAttribute</tt>s.
      *
      */
-    void decide(FilterInvocation invocation, List<ConfigAttribute> config) throws IOException, ServletException;
+    void decide(FilterInvocation invocation, Collection<ConfigAttribute> config) throws IOException, ServletException;
 
     /**
      * Indicates whether this <code>ChannelProcessor</code> is able to process the passed

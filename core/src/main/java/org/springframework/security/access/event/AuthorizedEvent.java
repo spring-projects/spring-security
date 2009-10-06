@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.event;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -32,7 +32,7 @@ public class AuthorizedEvent extends AbstractAuthorizationEvent {
     //~ Instance fields ================================================================================================
 
     private Authentication authentication;
-    private List<ConfigAttribute> configAttributeDefinition;
+    private Collection<ConfigAttribute> configAttributes;
 
     //~ Constructors ===================================================================================================
 
@@ -40,18 +40,18 @@ public class AuthorizedEvent extends AbstractAuthorizationEvent {
      * Construct the event.
      *
      * @param secureObject the secure object
-     * @param configAttribs that apply to the secure object
+     * @param attributes that apply to the secure object
      * @param authentication that successfully called the secure object
      *
      */
-    public AuthorizedEvent(Object secureObject, List<ConfigAttribute> configAttribs, Authentication authentication) {
+    public AuthorizedEvent(Object secureObject, Collection<ConfigAttribute> attributes, Authentication authentication) {
         super(secureObject);
 
-        if ((configAttribs == null) || (authentication == null)) {
+        if ((attributes == null) || (authentication == null)) {
             throw new IllegalArgumentException("All parameters are required and cannot be null");
         }
 
-        this.configAttributeDefinition = configAttribs;
+        this.configAttributes = attributes;
         this.authentication = authentication;
     }
 
@@ -61,7 +61,7 @@ public class AuthorizedEvent extends AbstractAuthorizationEvent {
         return authentication;
     }
 
-    public List<ConfigAttribute> getConfigAttributes() {
-        return configAttributeDefinition;
+    public Collection<ConfigAttribute> getConfigAttributes() {
+        return configAttributes;
     }
 }

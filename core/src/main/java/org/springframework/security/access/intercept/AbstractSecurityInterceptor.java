@@ -17,7 +17,6 @@ package org.springframework.security.access.intercept;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -170,7 +169,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
                     + getSecureObjectClass());
         }
 
-        List<ConfigAttribute> attributes = this.obtainSecurityMetadataSource().getAttributes(object);
+        Collection<ConfigAttribute> attributes = this.obtainSecurityMetadataSource().getAttributes(object);
 
         if (attributes == null) {
             if (rejectPublicInvocations) {
@@ -319,7 +318,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
      * @param secureObject  that was being called
      * @param configAttribs that were defined for the secureObject
      */
-    private void credentialsNotFound(String reason, Object secureObject, List<ConfigAttribute> configAttribs) {
+    private void credentialsNotFound(String reason, Object secureObject, Collection<ConfigAttribute> configAttribs) {
         AuthenticationCredentialsNotFoundException exception = new AuthenticationCredentialsNotFoundException(reason);
 
         AuthenticationCredentialsNotFoundEvent event = new AuthenticationCredentialsNotFoundEvent(secureObject,

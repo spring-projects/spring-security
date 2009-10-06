@@ -15,6 +15,7 @@
 package org.springframework.security.access.vote;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -163,7 +164,7 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
      *
      * @return ACCESS_ABSTAIN, ACCESS_GRANTED, or ACCESS_DENIED.
      */
-    public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
+    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
         int result = ACCESS_ABSTAIN;
 
         if (logger.isDebugEnabled()) {

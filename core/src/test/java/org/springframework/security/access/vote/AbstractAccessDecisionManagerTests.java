@@ -25,6 +25,7 @@ import org.springframework.security.access.vote.AbstractAccessDecisionManager;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.core.Authentication;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
@@ -148,7 +149,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
     //~ Inner Classes ==================================================================================================
 
     private class MockDecisionManagerImpl extends AbstractAccessDecisionManager {
-        public void decide(Authentication authentication, Object object, List<ConfigAttribute> configAttributes)
+        public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
             throws AccessDeniedException {
             return;
         }
@@ -167,7 +168,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
             throw new UnsupportedOperationException("mock method not implemented");
         }
 
-        public int vote(Authentication authentication, Object object, List<ConfigAttribute> attributes) {
+        public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
             throw new UnsupportedOperationException("mock method not implemented");
         }
     }

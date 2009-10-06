@@ -15,6 +15,7 @@
 
 package org.springframework.security.access.intercept;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
@@ -151,7 +152,7 @@ public class AfterInvocationProviderManagerTests extends TestCase {
             this.configAttribute = configAttribute;
         }
 
-        public Object decide(Authentication authentication, Object object, List<ConfigAttribute> config,
+        public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
             Object returnedObject) throws AccessDeniedException {
             if (config.contains(configAttribute)) {
                 return forceReturnObject;

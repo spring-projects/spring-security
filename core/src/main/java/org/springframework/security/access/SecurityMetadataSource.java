@@ -16,7 +16,6 @@
 package org.springframework.security.access;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
@@ -44,7 +43,7 @@ public interface SecurityMetadataSource extends AopInfrastructureBean {
      * @throws IllegalArgumentException if the passed object is not of a type supported by the
      *         <code>SecurityMetadataSource</code> implementation
      */
-    List<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException;
+    Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException;
 
     /**
      * If available, returns all of the <code>ConfigAttribute</code>s defined by the implementing class.

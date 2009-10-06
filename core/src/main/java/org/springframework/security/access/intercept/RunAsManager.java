@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.intercept;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -71,12 +71,12 @@ public interface RunAsManager {
      *
      * @param authentication the caller invoking the secure object
      * @param object the secured object being called
-     * @param config the configuration attributes associated with the secure object being invoked
+     * @param attributes the configuration attributes associated with the secure object being invoked
      *
      * @return a replacement object to be used for duration of the secure object invocation, or <code>null</code> if
      *         the <code>Authentication</code> should be left as is
      */
-    Authentication buildRunAs(Authentication authentication, Object object, List<ConfigAttribute> config);
+    Authentication buildRunAs(Authentication authentication, Object object, Collection<ConfigAttribute> attributes);
 
     /**
      * Indicates whether this <code>RunAsManager</code> is able to process the passed
