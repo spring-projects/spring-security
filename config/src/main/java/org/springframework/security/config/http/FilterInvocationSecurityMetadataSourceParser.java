@@ -5,11 +5,17 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedMap;
-import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
+import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
+import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.config.Elements;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.RequestKey;
 import org.springframework.security.web.util.AntUrlPathMatcher;
@@ -24,18 +30,14 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  * @version $Id$
  */
-public class FilterInvocationSecurityMetadataSourceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
-
+public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinitionParser {
+    private static final String ATT_USE_EXPRESSIONS = "use-expressions";
     private static final String ATT_HTTP_METHOD = "method";
     private static final String ATT_PATTERN = "pattern";
     private static final String ATT_ACCESS = "access";
-    private static final Log logger = LogFactory.getLog(FilterInvocationSecurityMetadataSourceBeanDefinitionParser.class);
+    private static final Log logger = LogFactory.getLog(FilterInvocationSecurityMetadataSourceParser.class);
 
-    protected String getBeanClassName(Element element) {
-        return "org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource";
-    }
-
-    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    public BeanDefinition parse(Element element, ParserContext parserContext) {
         List<Element> interceptUrls = DomUtils.getChildElementsByTagName(element, "intercept-url");
 
         // Check for attributes that aren't allowed in this context
@@ -49,17 +51,60 @@ public class FilterInvocationSecurityMetadataSourceBeanDefinitionParser extends 
             }
         }
 
-        UrlMatcher matcher = HttpSecurityBeanDefinitionParser.createUrlMatcher(element);
-        boolean convertPathsToLowerCase = (matcher instanceof AntUrlPathMatcher) && matcher.requiresLowerCaseUrl();
+        BeanDefinition mds = createSecurityMetadataSource(interceptUrls, element, parserContext);
 
-        ManagedMap<BeanDefinition, BeanDefinition> requestMap = parseInterceptUrlsForFilterInvocationRequestMap(
-                interceptUrls, convertPathsToLowerCase, false, parserContext);
+        String id = element.getAttribute(AbstractBeanDefinitionParser.ID_ATTRIBUTE);
 
-        builder.addConstructorArgValue(matcher);
-        builder.addConstructorArgValue(requestMap);
+        if (StringUtils.hasText(id)) {
+            parserContext.registerComponent(new BeanComponentDefinition(mds, id));
+            parserContext.getRegistry().registerBeanDefinition(id, mds);
+        }
+
+        return mds;
     }
 
-    static ManagedMap<BeanDefinition, BeanDefinition> parseInterceptUrlsForFilterInvocationRequestMap(List<Element> urlElts,
+    static BeanDefinition createSecurityMetadataSource(List<Element> interceptUrls, Element elt, ParserContext pc) {
+        UrlMatcher matcher = HttpSecurityBeanDefinitionParser.createUrlMatcher(elt);
+        boolean convertPathsToLowerCase = (matcher instanceof AntUrlPathMatcher) && matcher.requiresLowerCaseUrl();
+        boolean useExpressions = isUseExpressions(elt);
+
+        ManagedMap<BeanDefinition, BeanDefinition> requestToAttributesMap = parseInterceptUrlsForFilterInvocationRequestMap(
+                interceptUrls, convertPathsToLowerCase, useExpressions, pc);
+        BeanDefinitionBuilder fidsBuilder;
+
+        if (useExpressions) {
+            Element expressionHandlerElt = DomUtils.getChildElementByTagName(elt, Elements.EXPRESSION_HANDLER);
+            String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
+
+            if (StringUtils.hasText(expressionHandlerRef)) {
+                logger.info("Using bean '" + expressionHandlerRef + "' as web SecurityExpressionHandler implementation");
+            } else {
+                BeanDefinition expressionHandler = BeanDefinitionBuilder.rootBeanDefinition(DefaultWebSecurityExpressionHandler.class).getBeanDefinition();
+                expressionHandlerRef = pc.getReaderContext().registerWithGeneratedName(expressionHandler);
+                pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
+            }
+
+            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
+            fidsBuilder.addConstructorArgValue(matcher);
+            fidsBuilder.addConstructorArgValue(requestToAttributesMap);
+            fidsBuilder.addConstructorArgReference(expressionHandlerRef);
+        } else {
+            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(DefaultFilterInvocationSecurityMetadataSource.class);
+            fidsBuilder.addConstructorArgValue(matcher);
+            fidsBuilder.addConstructorArgValue(requestToAttributesMap);
+        }
+
+        fidsBuilder.addPropertyValue("stripQueryStringFromUrls", matcher instanceof AntUrlPathMatcher);
+        fidsBuilder.getRawBeanDefinition().setSource(pc.extractSource(elt));
+
+        return fidsBuilder.getBeanDefinition();
+    }
+
+    static boolean isUseExpressions(Element elt) {
+        return "true".equals(elt.getAttribute(ATT_USE_EXPRESSIONS));
+    }
+
+    private static ManagedMap<BeanDefinition, BeanDefinition> parseInterceptUrlsForFilterInvocationRequestMap(List<Element> urlElts,
             boolean useLowerCasePaths, boolean useExpressions, ParserContext parserContext) {
 
         ManagedMap<BeanDefinition, BeanDefinition> filterInvocationDefinitionMap = new ManagedMap<BeanDefinition, BeanDefinition>();
@@ -114,4 +159,6 @@ public class FilterInvocationSecurityMetadataSourceBeanDefinitionParser extends 
 
         return filterInvocationDefinitionMap;
     }
+
+
 }

@@ -1,7 +1,6 @@
 package org.springframework.security.config.http;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 import java.util.List;
 
@@ -15,14 +14,13 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.ConfigTestUtils;
-import org.springframework.security.config.http.FilterInvocationSecurityMetadataSourceBeanDefinitionParser;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
-import org.w3c.dom.Element;
 
 /**
- * Tests for {@link FilterInvocationSecurityMetadataSourceBeanDefinitionParser}.
+ * Tests for {@link FilterInvocationSecurityMetadataSourceParser}.
  * @author Luke Taylor
  * @version $Id$
  */
@@ -41,10 +39,6 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
         appContext = new InMemoryXmlApplicationContext(context);
     }
 
-    @Test
-    public void beanClassNameIsCorrect() throws Exception {
-        assertEquals(DefaultFilterInvocationSecurityMetadataSource.class.getName(), new FilterInvocationSecurityMetadataSourceBeanDefinitionParser().getBeanClassName(mock(Element.class)));
-    }
 
     @Test
     public void parsingMinimalConfigurationIsSuccessful() {
@@ -56,6 +50,20 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
         List<? extends ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
         assertNotNull(cad);
         assertTrue(cad.contains(new SecurityConfig("ROLE_A")));
+    }
+
+    @Test
+    public void expressionsAreSupported() {
+        setContext(
+                "<filter-security-metadata-source id='fids' use-expressions='true'>" +
+                "   <intercept-url pattern='/**' access=\"hasRole('ROLE_A')\" />" +
+                "</filter-security-metadata-source>");
+
+        ExpressionBasedFilterInvocationSecurityMetadataSource fids =
+            (ExpressionBasedFilterInvocationSecurityMetadataSource) appContext.getBean("fids");
+        List<? extends ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
+        assertEquals(1, cad.size());
+        assertEquals("hasRole('ROLE_A')", cad.get(0).toString());
     }
 
     // SEC-1201

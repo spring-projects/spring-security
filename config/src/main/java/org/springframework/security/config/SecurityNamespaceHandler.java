@@ -8,7 +8,7 @@ import org.springframework.security.config.authentication.JdbcUserServiceBeanDef
 import org.springframework.security.config.authentication.UserServiceBeanDefinitionParser;
 import org.springframework.security.config.http.CustomFilterBeanDefinitionDecorator;
 import org.springframework.security.config.http.FilterChainMapBeanDefinitionDecorator;
-import org.springframework.security.config.http.FilterInvocationSecurityMetadataSourceBeanDefinitionParser;
+import org.springframework.security.config.http.FilterInvocationSecurityMetadataSourceParser;
 import org.springframework.security.config.http.HttpSecurityBeanDefinitionParser;
 import org.springframework.security.config.ldap.LdapProviderBeanDefinitionParser;
 import org.springframework.security.config.ldap.LdapServerBeanDefinitionParser;
@@ -39,8 +39,8 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser(Elements.AUTHENTICATION_PROVIDER, new AuthenticationProviderBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.GLOBAL_METHOD_SECURITY, new GlobalMethodSecurityBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.AUTHENTICATION_MANAGER, new AuthenticationManagerBeanDefinitionParser());
-        registerBeanDefinitionParser(Elements.FILTER_INVOCATION_DEFINITION_SOURCE, new FilterInvocationSecurityMetadataSourceBeanDefinitionParser());
-        registerBeanDefinitionParser(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceBeanDefinitionParser());
+        registerBeanDefinitionParser(Elements.FILTER_INVOCATION_DEFINITION_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
+        registerBeanDefinitionParser(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
 
         // Decorators
         registerBeanDefinitionDecorator(Elements.INTERCEPT_METHODS, new InterceptMethodsBeanDefinitionDecorator());

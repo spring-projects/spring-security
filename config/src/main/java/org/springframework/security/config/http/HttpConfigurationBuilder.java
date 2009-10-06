@@ -78,7 +78,6 @@ class HttpConfigurationBuilder {
     private static final String ATT_DISABLE_URL_REWRITING = "disable-url-rewriting";
 
     private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
-    private static final String ATT_USE_EXPRESSIONS = "use-expressions";
     private static final String ATT_ONCE_PER_REQUEST = "once-per-request";
 
     private final Element httpElt;
@@ -415,45 +414,21 @@ class HttpConfigurationBuilder {
     }
 
     void createFilterSecurityInterceptor(BeanReference authManager) {
-        BeanDefinitionBuilder fidsBuilder;
-
-        boolean useExpressions = "true".equals(httpElt.getAttribute(ATT_USE_EXPRESSIONS));
-
-        ManagedMap<BeanDefinition,BeanDefinition> requestToAttributesMap =
-            parseInterceptUrlsForFilterInvocationRequestMap(DomUtils.getChildElementsByTagName(httpElt, Elements.INTERCEPT_URL),
-                    convertPathsToLowerCase, useExpressions, pc);
+        boolean useExpressions = FilterInvocationSecurityMetadataSourceParser.isUseExpressions(httpElt);
+        BeanDefinition securityMds = FilterInvocationSecurityMetadataSourceParser.createSecurityMetadataSource(interceptUrls, httpElt, pc);
 
         RootBeanDefinition accessDecisionMgr;
         ManagedList<BeanDefinition> voters =  new ManagedList<BeanDefinition>(2);
 
         if (useExpressions) {
-            Element expressionHandlerElt = DomUtils.getChildElementByTagName(httpElt, Elements.EXPRESSION_HANDLER);
-            String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
-
-            if (StringUtils.hasText(expressionHandlerRef)) {
-                logger.info("Using bean '" + expressionHandlerRef + "' as web SecurityExpressionHandler implementation");
-            } else {
-                BeanDefinition expressionHandler = BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_HANDLER_CLASS).getBeanDefinition();
-                expressionHandlerRef = pc.getReaderContext().registerWithGeneratedName(expressionHandler);
-                pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
-            }
-
-            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(EXPRESSION_FIMDS_CLASS);
-            fidsBuilder.addConstructorArgValue(matcher);
-            fidsBuilder.addConstructorArgValue(requestToAttributesMap);
-            fidsBuilder.addConstructorArgReference(expressionHandlerRef);
             voters.add(new RootBeanDefinition(WebExpressionVoter.class));
         } else {
-            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(DefaultFilterInvocationSecurityMetadataSource.class);
-            fidsBuilder.addConstructorArgValue(matcher);
-            fidsBuilder.addConstructorArgValue(requestToAttributesMap);
             voters.add(new RootBeanDefinition(RoleVoter.class));
             voters.add(new RootBeanDefinition(AuthenticatedVoter.class));
         }
         accessDecisionMgr = new RootBeanDefinition(AffirmativeBased.class);
         accessDecisionMgr.getPropertyValues().addPropertyValue("decisionVoters", voters);
         accessDecisionMgr.setSource(pc.extractSource(httpElt));
-        fidsBuilder.addPropertyValue("stripQueryStringFromUrls", matcher instanceof AntUrlPathMatcher);
 
         // Set up the access manager reference for http
         String accessManagerId = httpElt.getAttribute(ATT_ACCESS_MGR);
@@ -472,7 +447,7 @@ class HttpConfigurationBuilder {
             builder.addPropertyValue("observeOncePerRequest", Boolean.FALSE);
         }
 
-        builder.addPropertyValue("securityMetadataSource", fidsBuilder.getBeanDefinition());
+        builder.addPropertyValue("securityMetadataSource", securityMds);
         BeanDefinition fsiBean = builder.getBeanDefinition();
         String fsiId = pc.getReaderContext().registerWithGeneratedName(fsiBean);
         pc.registerBeanComponent(new BeanComponentDefinition(fsiBean,fsiId));
@@ -484,18 +459,6 @@ class HttpConfigurationBuilder {
         pc.registerBeanComponent(new BeanComponentDefinition(wipe, wipeId));
 
         this.fsi = new RuntimeBeanReference(fsiId);
-    }
-
-    /**
-     * Parses the filter invocation map which will be used to configure the FilterInvocationSecurityMetadataSource
-     * used in the security interceptor.
-     */
-    private static ManagedMap<BeanDefinition,BeanDefinition>
-    parseInterceptUrlsForFilterInvocationRequestMap(List<Element> urlElts,  boolean useLowerCasePaths,
-            boolean useExpressions, ParserContext parserContext) {
-
-        return FilterInvocationSecurityMetadataSourceBeanDefinitionParser.parseInterceptUrlsForFilterInvocationRequestMap(urlElts, useLowerCasePaths, useExpressions, parserContext);
-
     }
 
     BeanReference getSessionStrategy() {
