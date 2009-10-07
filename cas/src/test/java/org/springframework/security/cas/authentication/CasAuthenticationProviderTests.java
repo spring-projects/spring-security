@@ -30,7 +30,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.cas.ServiceProperties;
-import org.springframework.security.cas.web.CasProcessingFilter;
+import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -83,7 +83,7 @@ public class CasAuthenticationProviderTests {
         cap.afterPropertiesSet();
 
         UsernamePasswordAuthenticationToken token =
-            new UsernamePasswordAuthenticationToken(CasProcessingFilter.CAS_STATEFUL_IDENTIFIER, "ST-123");
+            new UsernamePasswordAuthenticationToken(CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER, "ST-123");
         token.setDetails("details");
 
         Authentication result = cap.authenticate(token);
@@ -124,7 +124,7 @@ public class CasAuthenticationProviderTests {
         cap.afterPropertiesSet();
 
         UsernamePasswordAuthenticationToken token =
-            new UsernamePasswordAuthenticationToken(CasProcessingFilter.CAS_STATELESS_IDENTIFIER, "ST-456");
+            new UsernamePasswordAuthenticationToken(CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, "ST-456");
         token.setDetails("details");
 
         Authentication result = cap.authenticate(token);
@@ -163,7 +163,7 @@ public class CasAuthenticationProviderTests {
         cap.afterPropertiesSet();
 
         UsernamePasswordAuthenticationToken token =
-                new UsernamePasswordAuthenticationToken(CasProcessingFilter.CAS_STATEFUL_IDENTIFIER, "");
+                new UsernamePasswordAuthenticationToken(CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER, "");
 
         cap.authenticate(token);
     }

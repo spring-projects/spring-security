@@ -27,7 +27,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.cas.ServiceProperties;
-import org.springframework.security.cas.web.CasProcessingFilter;
+import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
@@ -41,7 +41,7 @@ import org.springframework.util.Assert;
  * <p>
  * This <code>AuthenticationProvider</code> is capable of validating  {@link UsernamePasswordAuthenticationToken}
  * requests which contain a <code>principal</code> name equal to either
- * {@link CasProcessingFilter#CAS_STATEFUL_IDENTIFIER} or {@link CasProcessingFilter#CAS_STATELESS_IDENTIFIER}.
+ * {@link CasAuthenticationFilter#CAS_STATEFUL_IDENTIFIER} or {@link CasAuthenticationFilter#CAS_STATELESS_IDENTIFIER}.
  * It can also validate a previously created {@link CasAuthenticationToken}.
  *
  * @author Ben Alex
@@ -78,8 +78,8 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         }
 
         if (authentication instanceof UsernamePasswordAuthenticationToken
-            && (!CasProcessingFilter.CAS_STATEFUL_IDENTIFIER.equals(authentication.getPrincipal().toString())
-            && !CasProcessingFilter.CAS_STATELESS_IDENTIFIER.equals(authentication.getPrincipal().toString()))) {
+            && (!CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER.equals(authentication.getPrincipal().toString())
+            && !CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER.equals(authentication.getPrincipal().toString()))) {
             // UsernamePasswordAuthenticationToken not CAS related
             return null;
         }
@@ -103,7 +103,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         boolean stateless = false;
 
         if (authentication instanceof UsernamePasswordAuthenticationToken
-            && CasProcessingFilter.CAS_STATELESS_IDENTIFIER.equals(authentication.getPrincipal())) {
+            && CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER.equals(authentication.getPrincipal())) {
             stateless = true;
         }
 

@@ -63,29 +63,29 @@ import org.springframework.web.filter.GenericFilterBean;
  * <p>
  * This Digest implementation has been designed to avoid needing to store session state between invocations.
  * All session management information is stored in the "nonce" that is sent to the client by the {@link
- * DigestProcessingFilterEntryPoint}.
+ * DigestAuthenticationEntryPoint}.
  * <p>
  * If authentication is successful, the resulting {@link org.springframework.security.core.Authentication Authentication}
  * object will be placed into the <code>SecurityContextHolder</code>.
  * <p>
  * If authentication fails, an {@link org.springframework.security.web.AuthenticationEntryPoint AuthenticationEntryPoint}
- * implementation is called. This must always be {@link DigestProcessingFilterEntryPoint}, which will prompt the user
+ * implementation is called. This must always be {@link DigestAuthenticationEntryPoint}, which will prompt the user
  * to authenticate again via Digest authentication.
  * <p>
  * Note there are limitations to Digest authentication, although it is a more comprehensive and secure solution
  * than Basic authentication. Please see RFC 2617 section 4 for a full discussion on the advantages of Digest
  * authentication over Basic authentication, including commentary on the limitations that it still imposes.
  */
-public class DigestProcessingFilter extends GenericFilterBean implements MessageSourceAware {
+public class DigestAuthenticationFilter extends GenericFilterBean implements MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
 
-    private static final Log logger = LogFactory.getLog(DigestProcessingFilter.class);
+    private static final Log logger = LogFactory.getLog(DigestAuthenticationFilter.class);
 
     //~ Instance fields ================================================================================================
 
     private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
-    private DigestProcessingFilterEntryPoint authenticationEntryPoint;
+    private DigestAuthenticationEntryPoint authenticationEntryPoint;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private UserCache userCache = new NullUserCache();
     private UserDetailsService userDetailsService;
@@ -99,7 +99,7 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
 	@Override
     public void afterPropertiesSet() {
         Assert.notNull(userDetailsService, "A UserDetailsService is required");
-        Assert.notNull(authenticationEntryPoint, "A DigestProcessingFilterEntryPoint is required");
+        Assert.notNull(authenticationEntryPoint, "A DigestAuthenticationEntryPoint is required");
     }
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -136,7 +136,7 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
                 }
 
                 fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestProcessingFilter.missingMandatory",
+                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.missingMandatory",
                                 new Object[]{section212response}, "Missing mandatory digest value; received header {0}")));
 
                 return;
@@ -150,7 +150,7 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
                     }
 
                     fail(request, response,
-                            new BadCredentialsException(messages.getMessage("DigestProcessingFilter.missingAuth",
+                            new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.missingAuth",
                                     new Object[]{section212response}, "Missing mandatory digest value; received header {0}")));
 
                     return;
@@ -160,17 +160,17 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
             // Check realm name equals what we expected
             if (!this.getAuthenticationEntryPoint().getRealmName().equals(realm)) {
                 fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestProcessingFilter.incorrectRealm",
+                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.incorrectRealm",
                                 new Object[]{realm, this.getAuthenticationEntryPoint().getRealmName()},
                                 "Response realm name '{0}' does not match system realm name of '{1}'")));
 
                 return;
             }
 
-            // Check nonce was a Base64 encoded (as sent by DigestProcessingFilterEntryPoint)
+            // Check nonce was a Base64 encoded (as sent by DigestAuthenticationEntryPoint)
             if (!Base64.isArrayByteBase64(nonce.getBytes())) {
                 fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestProcessingFilter.nonceEncoding",
+                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceEncoding",
                                 new Object[]{nonce}, "Nonce is not encoded in Base64; received nonce {0}")));
 
                 return;
@@ -184,7 +184,7 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
 
             if (nonceTokens.length != 2) {
                 fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestProcessingFilter.nonceNotTwoTokens",
+                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceNotTwoTokens",
                                 new Object[]{nonceAsPlainText}, "Nonce should have yielded two tokens but was {0}")));
 
                 return;
@@ -197,7 +197,7 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
                 nonceExpiryTime = new Long(nonceTokens[0]).longValue();
             } catch (NumberFormatException nfe) {
                 fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestProcessingFilter.nonceNotNumeric",
+                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceNotNumeric",
                                 new Object[]{nonceAsPlainText},
                                 "Nonce token should have yielded a numeric first token, but was {0}")));
 
@@ -210,7 +210,7 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
 
             if (!expectedNonceSignature.equals(nonceTokens[1])) {
                 fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestProcessingFilter.nonceCompromised",
+                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceCompromised",
                                 new Object[]{nonceAsPlainText}, "Nonce token compromised {0}")));
 
                 return;
@@ -229,7 +229,7 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
                     user = userDetailsService.loadUserByUsername(username);
                 } catch (UsernameNotFoundException notFound) {
                     fail(request, response,
-                            new BadCredentialsException(messages.getMessage("DigestProcessingFilter.usernameNotFound",
+                            new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.usernameNotFound",
                                     new Object[]{username}, "Username {0} not found")));
 
                     return;
@@ -262,7 +262,7 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
                 } catch (UsernameNotFoundException notFound) {
                     // Would very rarely happen, as user existed earlier
                     fail(request, response,
-                            new BadCredentialsException(messages.getMessage("DigestProcessingFilter.usernameNotFound",
+                            new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.usernameNotFound",
                                     new Object[]{username}, "Username {0} not found")));
                 }
 
@@ -281,7 +281,7 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
                 }
 
                 fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestProcessingFilter.incorrectResponse",
+                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.incorrectResponse",
                                 "Incorrect response")));
                 return;
             }
@@ -292,7 +292,7 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
             // but the request was otherwise appearing to be valid
             if (nonceExpiryTime < System.currentTimeMillis()) {
                 fail(request, response,
-                        new NonceExpiredException(messages.getMessage("DigestProcessingFilter.nonceExpired",
+                        new NonceExpiredException(messages.getMessage("DigestAuthenticationFilter.nonceExpired",
                                 "Nonce has expired/timed out")));
 
                 return;
@@ -331,7 +331,7 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
         authenticationEntryPoint.commence(request, response, failed);
     }
 
-    public DigestProcessingFilterEntryPoint getAuthenticationEntryPoint() {
+    public DigestAuthenticationEntryPoint getAuthenticationEntryPoint() {
         return authenticationEntryPoint;
     }
 
@@ -348,7 +348,7 @@ public class DigestProcessingFilter extends GenericFilterBean implements Message
         this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
-    public void setAuthenticationEntryPoint(DigestProcessingFilterEntryPoint authenticationEntryPoint) {
+    public void setAuthenticationEntryPoint(DigestAuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
 

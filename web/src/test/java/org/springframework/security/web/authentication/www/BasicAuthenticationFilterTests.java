@@ -46,15 +46,15 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 
 /**
- * Tests {@link BasicProcessingFilter}.
+ * Tests {@link BasicAuthenticationFilter}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilterTests {
+public class BasicAuthenticationFilterTests {
     //~ Instance fields ================================================================================================
 
-    private BasicProcessingFilter filter;
+    private BasicAuthenticationFilter filter;
     private AuthenticationManager manager;
 //    private Mockery jmock = new JUnit4Mockery();
 
@@ -86,9 +86,9 @@ public class BasicProcessingFilterTests {
         when(manager.authenticate(rodRequest)).thenReturn(rod);
         when(manager.authenticate(not(eq(rodRequest)))).thenThrow(new BadCredentialsException(""));
 
-        filter = new BasicProcessingFilter();
+        filter = new BasicAuthenticationFilter();
         filter.setAuthenticationManager(manager);
-        filter.setAuthenticationEntryPoint(new BasicProcessingFilterEntryPoint());
+        filter.setAuthenticationEntryPoint(new BasicAuthenticationEntryPoint());
     }
 
     @After
@@ -110,7 +110,7 @@ public class BasicProcessingFilterTests {
 
     @Test
     public void testGettersSetters() {
-        BasicProcessingFilter filter = new BasicProcessingFilter();
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
         filter.setAuthenticationManager(manager);
         assertTrue(filter.getAuthenticationManager() != null);
 
@@ -166,14 +166,14 @@ public class BasicProcessingFilterTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
-        BasicProcessingFilter filter = new BasicProcessingFilter();
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
         filter.setAuthenticationManager(manager);
         filter.afterPropertiesSet();
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testStartupDetectsMissingAuthenticationManager() throws Exception {
-        BasicProcessingFilter filter = new BasicProcessingFilter();
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
         filter.setAuthenticationEntryPoint(mock(AuthenticationEntryPoint.class));
         filter.afterPropertiesSet();
     }

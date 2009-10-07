@@ -36,7 +36,7 @@ import java.util.Map;
  * @author colin sampaleanu
  * @version $Id$
  */
-public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
+public class LoginUrlAuthenticationEntryPointTests extends TestCase {
     //~ Methods ========================================================================================================
 
     public void testDetectsMissingLoginFormUrl() throws Exception {

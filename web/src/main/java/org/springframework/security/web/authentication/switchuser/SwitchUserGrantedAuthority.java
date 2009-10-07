@@ -20,13 +20,13 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 
 /**
- * Custom <code>GrantedAuthority</code> used by {@link org.springframework.security.web.authentication.switchuser.SwitchUserProcessingFilter}<p>Stores
+ * Custom <code>GrantedAuthority</code> used by {@link org.springframework.security.web.authentication.switchuser.SwitchUserFilter}<p>Stores
  * the <code>Authentication</code> object of the original user to be used later when 'exiting' from a user switch.</p>
  *
  * @author Mark St.Godard
  * @version $Id$
  *
- * @see org.springframework.security.web.authentication.switchuser.SwitchUserProcessingFilter
+ * @see org.springframework.security.web.authentication.switchuser.SwitchUserFilter
  */
 public class SwitchUserGrantedAuthority extends GrantedAuthorityImpl {
     //~ Instance fields ================================================================================================

@@ -40,12 +40,12 @@ import org.springframework.security.core.userdetails.memory.UserAttribute;
 
 
 /**
- * Tests {@link AnonymousProcessingFilter}.
+ * Tests {@link AnonymousAuthenticationFilter}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AnonymousProcessingFilterTests extends TestCase {
+public class AnonymousAuthenticationFilterTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
@@ -71,7 +71,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
         user.setPassword("anonymousUsername");
         user.addAuthority(new GrantedAuthorityImpl("ROLE_ANONYMOUS"));
 
-        AnonymousProcessingFilter filter = new AnonymousProcessingFilter();
+        AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setUserAttribute(user);
 
         try {
@@ -83,7 +83,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
     }
 
     public void testDetectsUserAttribute() throws Exception {
-        AnonymousProcessingFilter filter = new AnonymousProcessingFilter();
+        AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setKey("qwerty");
 
         try {
@@ -99,7 +99,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
         user.setPassword("anonymousUsername");
         user.addAuthority(new GrantedAuthorityImpl("ROLE_ANONYMOUS"));
 
-        AnonymousProcessingFilter filter = new AnonymousProcessingFilter();
+        AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setKey("qwerty");
         filter.setUserAttribute(user);
         assertTrue(filter.isRemoveAfterRequest());
@@ -123,7 +123,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
         user.setPassword("anonymousUsername");
         user.addAuthority(new GrantedAuthorityImpl("ROLE_ANONYMOUS"));
 
-        AnonymousProcessingFilter filter = new AnonymousProcessingFilter();
+        AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setKey("qwerty");
         filter.setUserAttribute(user);
         filter.afterPropertiesSet();
@@ -143,7 +143,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
         user.setPassword("anonymousUsername");
         user.addAuthority(new GrantedAuthorityImpl("ROLE_ANONYMOUS"));
 
-        AnonymousProcessingFilter filter = new AnonymousProcessingFilter();
+        AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setKey("qwerty");
         filter.setUserAttribute(user);
         filter.setRemoveAfterRequest(false); // set to non-default value

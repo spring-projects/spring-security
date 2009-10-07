@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
  * @version $Id$
  * @since 2.0
  */
-public class RequestHeaderPreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
+public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
     private String principalRequestHeader = "SM_USER";
     private String credentialsRequestHeader;
 

@@ -46,13 +46,13 @@ import org.springframework.util.StringUtils;
 
 
 /**
- * Tests {@link DigestProcessingFilter}.
+ * Tests {@link DigestAuthenticationFilter}.
  *
  * @author Ben Alex
  * @author Luke Taylor
  * @version $Id$
  */
-public class DigestProcessingFilterTests {
+public class DigestAuthenticationFilterTests {
     //~ Static fields/initializers =====================================================================================
 
     private static final String NC = "00000002";
@@ -72,7 +72,7 @@ public class DigestProcessingFilterTests {
     //~ Instance fields ================================================================================================
 
     //    private ApplicationContext ctx;
-    private DigestProcessingFilter filter;
+    private DigestAuthenticationFilter filter;
     private MockHttpServletRequest request;
 
 
@@ -124,11 +124,11 @@ public class DigestProcessingFilterTests {
         editor.setAsText("rod,ok=koala,ROLE_ONE,ROLE_TWO,enabled\r\n");
         dao.setUserMap((UserMap) editor.getValue());
 
-        DigestProcessingFilterEntryPoint ep = new DigestProcessingFilterEntryPoint();
+        DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
         ep.setRealmName(REALM);
         ep.setKey(KEY);
 
-        filter = new DigestProcessingFilter();
+        filter = new DigestAuthenticationFilter();
         filter.setUserDetailsService(dao);
         filter.setAuthenticationEntryPoint(ep);
 
@@ -169,11 +169,11 @@ public class DigestProcessingFilterTests {
 
     @Test
     public void testGettersSetters() {
-        DigestProcessingFilter filter = new DigestProcessingFilter();
+        DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
         filter.setUserDetailsService(new InMemoryDaoImpl());
         assertTrue(filter.getUserDetailsService() != null);
 
-        filter.setAuthenticationEntryPoint(new DigestProcessingFilterEntryPoint());
+        filter.setAuthenticationEntryPoint(new DigestAuthenticationEntryPoint());
         assertTrue(filter.getAuthenticationEntryPoint() != null);
 
         filter.setUserCache(null);
@@ -329,15 +329,15 @@ public class DigestProcessingFilterTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void startupDetectsMissingAuthenticationEntryPoint() throws Exception {
-        DigestProcessingFilter filter = new DigestProcessingFilter();
+        DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
         filter.setUserDetailsService(new InMemoryDaoImpl());
         filter.afterPropertiesSet();
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void startupDetectsMissingUserDetailsService() throws Exception {
-        DigestProcessingFilter filter = new DigestProcessingFilter();
-        filter.setAuthenticationEntryPoint(new DigestProcessingFilterEntryPoint());
+        DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
+        filter.setAuthenticationEntryPoint(new DigestAuthenticationEntryPoint());
         filter.afterPropertiesSet();
     }
 

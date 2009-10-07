@@ -36,14 +36,14 @@ import org.springframework.util.Assert;
  * The user's browser will be redirected to the JA-SIG CAS enterprise-wide login page. 
  * This page is specified by the <code>loginUrl</code> property. Once login is complete, the CAS login page will
  * redirect to the page indicated by the <code>service</code> property. The <code>service</code> is a HTTP URL
- * belonging to the current application. The <code>service</code> URL is monitored by the {@link CasProcessingFilter},
+ * belonging to the current application. The <code>service</code> URL is monitored by the {@link CasAuthenticationFilter},
  * which will validate the CAS login was successful.
  *
  * @author Ben Alex
  * @author Scott Battaglia
  * @version $Id$
  */
-public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
     //~ Instance fields ================================================================================================
     private ServiceProperties serviceProperties;
 

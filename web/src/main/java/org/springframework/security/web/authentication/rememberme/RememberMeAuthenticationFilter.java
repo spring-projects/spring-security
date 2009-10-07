@@ -53,7 +53,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Ben Alex
  * @version $Id$
  */
-public class RememberMeProcessingFilter extends GenericFilterBean implements ApplicationEventPublisherAware {
+public class RememberMeAuthenticationFilter extends GenericFilterBean implements ApplicationEventPublisherAware {
 
     //~ Instance fields ================================================================================================
 

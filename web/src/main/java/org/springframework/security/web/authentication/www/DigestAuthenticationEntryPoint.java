@@ -33,7 +33,7 @@ import org.springframework.core.Ordered;
 
 /**
  * Used by the <code>SecurityEnforcementFilter</code> to commence authentication via the {@link
- * DigestProcessingFilter}.<p>The nonce sent back to the user agent will be valid for the period indicated by
+ * DigestAuthenticationFilter}.<p>The nonce sent back to the user agent will be valid for the period indicated by
  * {@link #setNonceValiditySeconds(int)}. By default this is 300 seconds. Shorter times should be used if replay
  * attacks are a major concern. Larger values can be used if performance is a greater concern. This class correctly
  * presents the <code>stale=true</code> header when the nonce has expierd, so properly implemented user agents will
@@ -42,10 +42,10 @@ import org.springframework.core.Ordered;
  * @author Ben Alex
  * @version $Id$
  */
-public class DigestProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered {
+public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered {
     //~ Static fields/initializers =====================================================================================
 
-    private static final Log logger = LogFactory.getLog(DigestProcessingFilterEntryPoint.class);
+    private static final Log logger = LogFactory.getLog(DigestAuthenticationEntryPoint.class);
 
     //~ Instance fields ================================================================================================
 

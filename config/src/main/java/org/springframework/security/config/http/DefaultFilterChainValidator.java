@@ -13,11 +13,11 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.authentication.AnonymousProcessingFilter;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-import org.springframework.security.web.authentication.www.BasicProcessingFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
@@ -53,7 +53,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
         checkForDuplicates(SecurityContextPersistenceFilter.class, filters);
         checkForDuplicates(UsernamePasswordAuthenticationFilter.class, filters);
         checkForDuplicates(SessionManagementFilter.class, filters);
-        checkForDuplicates(BasicProcessingFilter.class, filters);
+        checkForDuplicates(BasicAuthenticationFilter.class, filters);
         checkForDuplicates(SecurityContextHolderAwareRequestFilter.class, filters);
         checkForDuplicates(ExceptionTranslationFilter.class, filters);
         checkForDuplicates(FilterSecurityInterceptor.class, filters);
@@ -110,7 +110,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
                 return;
             }
 
-            AnonymousProcessingFilter anonPF = (AnonymousProcessingFilter) getFilter(AnonymousProcessingFilter.class, filters);
+            AnonymousAuthenticationFilter anonPF = (AnonymousAuthenticationFilter) getFilter(AnonymousAuthenticationFilter.class, filters);
             if (anonPF == null) {
                 logger.warn("The login page is being protected by the filter chain, but you don't appear to have" +
                         " anonymous authentication enabled. This is almost certainly an error.");

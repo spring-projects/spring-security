@@ -16,7 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
-import org.springframework.security.web.authentication.preauth.RequestHeaderPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 
 /**
  *
@@ -36,7 +36,7 @@ public class RequestHeaderPreAuthenticatedProcessingFilterTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
-        RequestHeaderPreAuthenticatedProcessingFilter filter = new RequestHeaderPreAuthenticatedProcessingFilter();
+        RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
 
         filter.doFilter(request, response, chain);
     }
@@ -47,7 +47,7 @@ public class RequestHeaderPreAuthenticatedProcessingFilterTests {
         request.addHeader("SM_USER", "cat");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
-        RequestHeaderPreAuthenticatedProcessingFilter filter = new RequestHeaderPreAuthenticatedProcessingFilter();
+        RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
         filter.setAuthenticationManager(createAuthenticationManager());
 
         filter.doFilter(request, response, chain);
@@ -62,7 +62,7 @@ public class RequestHeaderPreAuthenticatedProcessingFilterTests {
         request.addHeader("myUsernameHeader", "wolfman");
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
-        RequestHeaderPreAuthenticatedProcessingFilter filter = new RequestHeaderPreAuthenticatedProcessingFilter();
+        RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
         filter.setAuthenticationManager(createAuthenticationManager());
         filter.setPrincipalRequestHeader("myUsernameHeader");
 
@@ -76,7 +76,7 @@ public class RequestHeaderPreAuthenticatedProcessingFilterTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
-        RequestHeaderPreAuthenticatedProcessingFilter filter = new RequestHeaderPreAuthenticatedProcessingFilter();
+        RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
         filter.setAuthenticationManager(createAuthenticationManager());
         filter.setCredentialsRequestHeader("myCredentialsHeader");
         request.addHeader("SM_USER", "cat");
@@ -91,7 +91,7 @@ public class RequestHeaderPreAuthenticatedProcessingFilterTests {
     public void userIsReauthenticatedIfPrincipalChangesAndCheckForPrincipalChangesIsSet() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
-        RequestHeaderPreAuthenticatedProcessingFilter filter = new RequestHeaderPreAuthenticatedProcessingFilter();
+        RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
         filter.setAuthenticationManager(createAuthenticationManager());
         filter.setCheckForPrincipalChanges(true);
         request.addHeader("SM_USER", "cat");

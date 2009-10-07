@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
 
 
 /**
- * Used by the <code>ExceptionTraslationFilter</code> to commence authentication via the {@link BasicProcessingFilter}.
+ * Used by the <code>ExceptionTraslationFilter</code> to commence authentication via the {@link BasicAuthenticationFilter}.
  * <p>
  * Once a user agent is authenticated using BASIC authentication, logout requires that
  * the browser be closed or an unauthorized (401) header be sent. The simplest way of achieving the latter is to call
@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
     //~ Instance fields ================================================================================================
 
     private String realmName;

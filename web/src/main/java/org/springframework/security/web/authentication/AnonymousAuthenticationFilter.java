@@ -42,7 +42,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Ben Alex
  * @version $Id$
  */
-public class AnonymousProcessingFilter extends GenericFilterBean  implements InitializingBean {
+public class AnonymousAuthenticationFilter extends GenericFilterBean  implements InitializingBean {
 
     //~ Instance fields ================================================================================================
 
@@ -144,7 +144,7 @@ public class AnonymousProcessingFilter extends GenericFilterBean  implements Ini
      * simply to store the Anonymous authentication token.
      * <p>
      * Defaults to <code>true</code>, being the most optimal and appropriate
-     * option &ndash; <code>AnonymousProcessingFilter</code> will clear the token at the end of each request,
+     * option &ndash; <code>AnonymousAuthenticationFilter</code> will clear the token at the end of each request,
      * thus avoiding session creation overhead in a typical configuration.
      *
      */

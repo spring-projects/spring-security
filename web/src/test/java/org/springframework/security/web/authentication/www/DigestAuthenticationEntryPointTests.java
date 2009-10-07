@@ -28,12 +28,12 @@ import org.springframework.util.StringUtils;
 
 
 /**
- * Tests {@link DigestProcessingFilterEntryPoint}.
+ * Tests {@link DigestAuthenticationEntryPoint}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class DigestProcessingFilterEntryPointTests extends TestCase {
+public class DigestAuthenticationEntryPointTests extends TestCase {
     //~ Methods ========================================================================================================
 
     private void checkNonceValid(String nonce) {
@@ -51,7 +51,7 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testDetectsMissingKey() throws Exception {
-        DigestProcessingFilterEntryPoint ep = new DigestProcessingFilterEntryPoint();
+        DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
         ep.setRealmName("realm");
 
         try {
@@ -63,7 +63,7 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testDetectsMissingRealmName() throws Exception {
-        DigestProcessingFilterEntryPoint ep = new DigestProcessingFilterEntryPoint();
+        DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
         ep.setKey("dcdc");
         ep.setNonceValiditySeconds(12);
 
@@ -76,7 +76,7 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testGettersSetters() {
-        DigestProcessingFilterEntryPoint ep = new DigestProcessingFilterEntryPoint();
+        DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
         assertEquals(300, ep.getNonceValiditySeconds()); // 5 mins default
         ep.setRealmName("realm");
         assertEquals("realm", ep.getRealmName());
@@ -87,7 +87,7 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testNormalOperation() throws Exception {
-        DigestProcessingFilterEntryPoint ep = new DigestProcessingFilterEntryPoint();
+        DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
         ep.setRealmName("hello");
         ep.setKey("key");
 
@@ -117,7 +117,7 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testOperationIfDueToStaleNonce() throws Exception {
-        DigestProcessingFilterEntryPoint ep = new DigestProcessingFilterEntryPoint();
+        DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
         ep.setRealmName("hello");
         ep.setKey("key");
 

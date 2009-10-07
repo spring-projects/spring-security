@@ -48,17 +48,17 @@ import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.switchuser.SwitchUserAuthorityChanger;
 import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
-import org.springframework.security.web.authentication.switchuser.SwitchUserProcessingFilter;
+import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 
 
 /**
- * Tests {@link org.springframework.security.web.authentication.switchuser.SwitchUserProcessingFilter}.
+ * Tests {@link org.springframework.security.web.authentication.switchuser.SwitchUserFilter}.
  *
  * @author Mark St.Godard
  * @author Luke Taylor
  * @version $Id$
  */
-public class SwitchUserProcessingFilterTests {
+public class SwitchUserFilterTests {
     private final static List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 
     @Before
@@ -83,9 +83,9 @@ public class SwitchUserProcessingFilterTests {
 
     private Authentication switchToUser(String name) {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, name);
+        request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, name);
 
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
 
         return filter.attemptSwitchUser(request);
@@ -94,7 +94,7 @@ public class SwitchUserProcessingFilterTests {
 
     @Test
     public void requiresExitUserMatchesCorrectly() {
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setExitUserUrl("/j_spring_security_my_exit_user");
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -105,7 +105,7 @@ public class SwitchUserProcessingFilterTests {
 
     @Test
     public void requiresSwitchMatchesCorrectly() {
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setSwitchUserUrl("/j_spring_security_my_switch_user");
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -118,9 +118,9 @@ public class SwitchUserProcessingFilterTests {
     public void attemptSwitchToUnknownUserFails() throws Exception {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "user-that-doesnt-exist");
+        request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "user-that-doesnt-exist");
 
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.attemptSwitchUser(request);
     }
@@ -154,9 +154,9 @@ public class SwitchUserProcessingFilterTests {
     public void switchToLockedAccountCausesRedirectToSwitchFailureUrl() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/j_spring_security_switch_user");
-        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "mcgarrett");
+        request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "mcgarrett");
         MockHttpServletResponse response = new MockHttpServletResponse();
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setTargetUrl("/target");
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.afterPropertiesSet();
@@ -171,7 +171,7 @@ public class SwitchUserProcessingFilterTests {
         // Now check for the redirect
         request.setContextPath("/mywebapp");
         request.setRequestURI("/mywebapp/j_spring_security_switch_user");
-        filter = new SwitchUserProcessingFilter();
+        filter = new SwitchUserFilter();
         filter.setTargetUrl("/target");
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.setSwitchFailureUrl("/switchfailed");
@@ -188,7 +188,7 @@ public class SwitchUserProcessingFilterTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void configMissingUserDetailsServiceFails() throws Exception {
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
         filter.setExitUserUrl("/j_spring_security_exit_user");
         filter.setTargetUrl("/main.jsp");
@@ -197,7 +197,7 @@ public class SwitchUserProcessingFilterTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void testBadConfigMissingTargetUrl() throws Exception {
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
         filter.setExitUserUrl("/j_spring_security_exit_user");
@@ -207,7 +207,7 @@ public class SwitchUserProcessingFilterTests {
     @Test
     public void defaultProcessesFilterUrlMatchesUrlWithPathParameter() {
         MockHttpServletRequest request = createMockSwitchRequest();
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
 
         request.setRequestURI("/webapp/j_spring_security_switch_user;jsessionid=8JHDUD723J8");
@@ -232,7 +232,7 @@ public class SwitchUserProcessingFilterTests {
         request.setRequestURI("/j_spring_security_exit_user");
 
         // setup filter
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.setExitUserUrl("/j_spring_security_exit_user");
         filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/webapp/someOtherUrl"));
@@ -259,7 +259,7 @@ public class SwitchUserProcessingFilterTests {
         request.setRequestURI("/j_spring_security_exit_user");
 
         // setup filter
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.setExitUserUrl("/j_spring_security_exit_user");
 
@@ -275,10 +275,10 @@ public class SwitchUserProcessingFilterTests {
     public void redirectToTargetUrlIsCorrect() throws Exception {
         MockHttpServletRequest request = createMockSwitchRequest();
         request.setContextPath("/webapp");
-        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+        request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
         request.setRequestURI("/webapp/j_spring_security_switch_user");
 
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
         filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/someOtherUrl"));
         filter.setUserDetailsService(new MockUserDetailsService());
@@ -301,10 +301,10 @@ public class SwitchUserProcessingFilterTests {
 
         MockHttpServletRequest request = createMockSwitchRequest();
         request.setContextPath("/webapp");
-        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+        request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
         request.setRequestURI("/webapp/j_spring_security_switch_user");
 
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
         SimpleUrlAuthenticationSuccessHandler switchSuccessHandler =
             new SimpleUrlAuthenticationSuccessHandler("/someOtherUrl");
@@ -334,13 +334,13 @@ public class SwitchUserProcessingFilterTests {
         // http request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/webapp/j_spring_security_switch_user");
-        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+        request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 
         // http response
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // setup filter
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.setSwitchUserUrl("/j_spring_security_switch_user");
         filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/webapp/someOtherUrl"));
@@ -364,9 +364,9 @@ public class SwitchUserProcessingFilterTests {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+        request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        SwitchUserFilter filter = new SwitchUserFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.setSwitchUserAuthorityChanger(new SwitchUserAuthorityChanger() {
             public Collection<GrantedAuthority> modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, Collection<GrantedAuthority> authoritiesToBeGranted) {

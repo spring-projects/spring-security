@@ -45,12 +45,12 @@ import org.springframework.security.web.authentication.RememberMeServices;
 
 
 /**
- * Tests {@link RememberMeProcessingFilter}.
+ * Tests {@link RememberMeAuthenticationFilter}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class RememberMeProcessingFilterTests extends TestCase {
+public class RememberMeAuthenticationFilterTests extends TestCase {
     Authentication remembered = new TestingAuthenticationToken("remembered", "password","ROLE_REMEMBERED");
 
     //~ Methods ========================================================================================================
@@ -63,17 +63,15 @@ public class RememberMeProcessingFilterTests extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        super.setUp();
         SecurityContextHolder.clearContext();
     }
 
     protected void tearDown() throws Exception {
-        super.tearDown();
         SecurityContextHolder.clearContext();
     }
 
     public void testDetectsAuthenticationManagerProperty() throws Exception {
-        RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
+        RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter();
         filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.setRememberMeServices(new NullRememberMeServices());
 
@@ -90,7 +88,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
     }
 
     public void testDetectsRememberMeServicesProperty() throws Exception {
-        RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
+        RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter();
         filter.setAuthenticationManager(mock(AuthenticationManager.class));
 
         // check default is NullRememberMeServices
@@ -117,7 +115,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
         SecurityContextHolder.getContext().setAuthentication(originalAuth);
 
         // Setup our filter correctly
-        RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
+        RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter();
         filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.setRememberMeServices(new MockRememberMeServices(remembered));
         filter.afterPropertiesSet();
@@ -134,7 +132,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
 
     public void testOperationWhenNoAuthenticationInContextHolder() throws Exception {
 
-        RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
+        RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter();
         AuthenticationManager am = mock(AuthenticationManager.class);
         when(am.authenticate(remembered)).thenReturn(remembered);
         filter.setAuthenticationManager(am);
@@ -153,7 +151,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
     public void testOnUnsuccessfulLoginIsCalledWhenProviderRejectsAuth() throws Exception {
         final Authentication failedAuth = new TestingAuthenticationToken("failed", "");
 
-        RememberMeProcessingFilter filter = new RememberMeProcessingFilter() {
+        RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter() {
             protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
                 super.onUnsuccessfulAuthentication(request, response, failed);
                 SecurityContextHolder.getContext().setAuthentication(failedAuth);

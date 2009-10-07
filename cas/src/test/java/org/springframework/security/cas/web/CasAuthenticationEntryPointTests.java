@@ -20,22 +20,22 @@ import junit.framework.TestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.cas.ServiceProperties;
-import org.springframework.security.cas.web.CasProcessingFilterEntryPoint;
+import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
 
 import java.net.URLEncoder;
 
 
 /**
- * Tests {@link CasProcessingFilterEntryPoint}.
+ * Tests {@link CasAuthenticationEntryPoint}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class CasProcessingFilterEntryPointTests extends TestCase {
+public class CasAuthenticationEntryPointTests extends TestCase {
     //~ Methods ========================================================================================================
 
     public void testDetectsMissingLoginFormUrl() throws Exception {
-        CasProcessingFilterEntryPoint ep = new CasProcessingFilterEntryPoint();
+        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
         ep.setServiceProperties(new ServiceProperties());
 
         try {
@@ -47,7 +47,7 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testDetectsMissingServiceProperties() throws Exception {
-        CasProcessingFilterEntryPoint ep = new CasProcessingFilterEntryPoint();
+        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
         ep.setLoginUrl("https://cas/login");
 
         try {
@@ -59,7 +59,7 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testGettersSetters() {
-        CasProcessingFilterEntryPoint ep = new CasProcessingFilterEntryPoint();
+        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
         ep.setLoginUrl("https://cas/login");
         assertEquals("https://cas/login", ep.getLoginUrl());
 
@@ -72,7 +72,7 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
         sp.setSendRenew(false);
         sp.setService("https://mycompany.com/bigWebApp/j_spring_cas_security_check");
 
-        CasProcessingFilterEntryPoint ep = new CasProcessingFilterEntryPoint();
+        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
         ep.setLoginUrl("https://cas/login");
         ep.setServiceProperties(sp);
 
@@ -94,7 +94,7 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
         sp.setSendRenew(true);
         sp.setService("https://mycompany.com/bigWebApp/j_spring_cas_security_check");
 
-        CasProcessingFilterEntryPoint ep = new CasProcessingFilterEntryPoint();
+        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
         ep.setLoginUrl("https://cas/login");
         ep.setServiceProperties(sp);
 

@@ -87,7 +87,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * <tt>FilterSecurityInteceptor</tt> in the chain, in order to apply the correct constraints to the <tt>switchUserUrl</tt>.
  * Example:
  * <pre>
- * &lt;bean id="switchUserProcessingFilter" class="org.springframework.security.ui.switchuser.SwitchUserProcessingFilter">
+ * &lt;bean id="switchUserProcessingFilter" class="org.springframework.security.web.authentication.SwitchUserFilter">
  *    &lt;property name="userDetailsService" ref="userDetailsService" />
  *    &lt;property name="switchUserUrl">&lt;value>/j_spring_security_switch_user&lt;/value>&lt;/property>
  *    &lt;property name="exitUserUrl">&lt;value>/j_spring_security_exit_user&lt;/value>&lt;/property>
@@ -99,7 +99,7 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * @see org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority
  */
-public class SwitchUserProcessingFilter extends GenericFilterBean implements ApplicationEventPublisherAware,
+public class SwitchUserFilter extends GenericFilterBean implements ApplicationEventPublisherAware,
         MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
@@ -239,7 +239,7 @@ public class SwitchUserProcessingFilter extends GenericFilterBean implements App
 
         if (null == current) {
             throw new AuthenticationCredentialsNotFoundException(messages.getMessage(
-                    "SwitchUserProcessingFilter.noCurrentUser", "No current user associated with this request"));
+                    "SwitchUserFilter.noCurrentUser", "No current user associated with this request"));
         }
 
         // check to see if the current user did actual switch to another user
@@ -249,7 +249,7 @@ public class SwitchUserProcessingFilter extends GenericFilterBean implements App
         if (original == null) {
             logger.error("Could not find original user Authentication object!");
             throw new AuthenticationCredentialsNotFoundException(messages.getMessage(
-                    "SwitchUserProcessingFilter.noOriginalAuthentication",
+                    "SwitchUserFilter.noOriginalAuthentication",
                     "Could not find original Authentication object"));
         }
 
@@ -344,7 +344,7 @@ public class SwitchUserProcessingFilter extends GenericFilterBean implements App
      *
      * @return <code>true</code> if the request requires a exit user, <code>false</code> otherwise.
      *
-     * @see SwitchUserProcessingFilter#exitUserUrl
+     * @see SwitchUserFilter#exitUserUrl
      */
     protected boolean requiresExitUser(HttpServletRequest request) {
         String uri = stripUri(request);
@@ -359,7 +359,7 @@ public class SwitchUserProcessingFilter extends GenericFilterBean implements App
      *
      * @return <code>true</code> if the request requires a switch, <code>false</code> otherwise.
      *
-     * @see SwitchUserProcessingFilter#switchUserUrl
+     * @see SwitchUserFilter#switchUserUrl
      */
     protected boolean requiresSwitchUser(HttpServletRequest request) {
         String uri = stripUri(request);
@@ -464,7 +464,7 @@ public class SwitchUserProcessingFilter extends GenericFilterBean implements App
 
     /**
      * @param switchUserAuthorityChanger to use to fine-tune the authorities granted to subclasses (may be null if
-     * SwitchUserProcessingFilter should not fine-tune the authorities)
+     * SwitchUserFilter should not fine-tune the authorities)
      */
     public void setSwitchUserAuthorityChanger(SwitchUserAuthorityChanger switchUserAuthorityChanger) {
         this.switchUserAuthorityChanger = switchUserAuthorityChanger;

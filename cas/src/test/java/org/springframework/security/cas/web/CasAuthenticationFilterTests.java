@@ -18,7 +18,7 @@ package org.springframework.security.cas.web;
 import junit.framework.TestCase;
 
 import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.cas.web.CasProcessingFilter;
+import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
@@ -27,16 +27,16 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
- * Tests {@link CasProcessingFilter}.
+ * Tests {@link CasAuthenticationFilter}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class CasProcessingFilterTests extends TestCase {
+public class CasAuthenticationFilterTests extends TestCase {
     //~ Methods ========================================================================================================
 
     public void testGetters() {
-        CasProcessingFilter filter = new CasProcessingFilter();
+        CasAuthenticationFilter filter = new CasAuthenticationFilter();
         assertEquals("/j_spring_cas_security_check", filter.getFilterProcessesUrl());
     }
 
@@ -46,7 +46,7 @@ public class CasProcessingFilterTests extends TestCase {
 
         MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
 
-        CasProcessingFilter filter = new CasProcessingFilter();
+        CasAuthenticationFilter filter = new CasAuthenticationFilter();
         filter.setAuthenticationManager(authMgr);
 
         Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
@@ -59,7 +59,7 @@ public class CasProcessingFilterTests extends TestCase {
 
         MockAuthenticationManager authMgr = new MockAuthenticationManager(false);
 
-        CasProcessingFilter filter = new CasProcessingFilter();
+        CasAuthenticationFilter filter = new CasAuthenticationFilter();
         filter.setAuthenticationManager(authMgr);
 
         try {

@@ -12,7 +12,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
-import org.springframework.security.web.authentication.rememberme.RememberMeProcessingFilter;
+import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
@@ -126,7 +126,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private BeanDefinition createFilter(ParserContext pc, Object source) {
-        BeanDefinitionBuilder filter = BeanDefinitionBuilder.rootBeanDefinition(RememberMeProcessingFilter.class);
+        BeanDefinitionBuilder filter = BeanDefinitionBuilder.rootBeanDefinition(RememberMeAuthenticationFilter.class);
         filter.getRawBeanDefinition().setSource(source);
         filter.addPropertyReference("rememberMeServices", servicesName);
 

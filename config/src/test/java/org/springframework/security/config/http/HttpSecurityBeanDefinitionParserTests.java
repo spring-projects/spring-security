@@ -48,7 +48,7 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.authentication.AnonymousProcessingFilter;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -59,13 +59,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
-import org.springframework.security.web.authentication.preauth.x509.X509PreAuthenticatedProcessingFilter;
+import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
-import org.springframework.security.web.authentication.rememberme.RememberMeProcessingFilter;
+import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-import org.springframework.security.web.authentication.www.BasicProcessingFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -133,10 +133,10 @@ public class HttpSecurityBeanDefinitionParserTests {
         Object authProcFilter = filters.next();
         assertTrue(authProcFilter instanceof UsernamePasswordAuthenticationFilter);
         assertTrue(filters.next() instanceof DefaultLoginPageGeneratingFilter);
-        assertTrue(filters.next() instanceof BasicProcessingFilter);
+        assertTrue(filters.next() instanceof BasicAuthenticationFilter);
         assertTrue(filters.next() instanceof RequestCacheAwareFilter);
         assertTrue(filters.next() instanceof SecurityContextHolderAwareRequestFilter);
-        assertTrue(filters.next() instanceof AnonymousProcessingFilter);
+        assertTrue(filters.next() instanceof AnonymousAuthenticationFilter);
         assertTrue(filters.next() instanceof SessionManagementFilter);
         assertTrue(filters.next() instanceof ExceptionTranslationFilter);
         Object fsiObj = filters.next();
@@ -228,7 +228,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http>" +
                 "   <form-login />" +
                 "</http>" + AUTH_PROVIDER_XML);
-        assertThat(getFilters("/anything").get(5), instanceOf(AnonymousProcessingFilter.class));
+        assertThat(getFilters("/anything").get(5), instanceOf(AnonymousAuthenticationFilter.class));
     }
 
     @Test
@@ -238,7 +238,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "   <form-login />" +
                 "   <anonymous enabled='false'/>" +
                 "</http>" + AUTH_PROVIDER_XML);
-        assertThat(getFilters("/anything").get(5), not(instanceOf(AnonymousProcessingFilter.class)));
+        assertThat(getFilters("/anything").get(5), not(instanceOf(AnonymousAuthenticationFilter.class)));
     }
 
 
@@ -637,7 +637,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>"  + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
 
-        assertTrue(filters.get(2) instanceof X509PreAuthenticatedProcessingFilter);
+        assertTrue(filters.get(2) instanceof X509AuthenticationFilter);
     }
 
     @Test
@@ -650,7 +650,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>"  + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
 
-        X509PreAuthenticatedProcessingFilter filter = (X509PreAuthenticatedProcessingFilter) filters.get(2);
+        X509AuthenticationFilter filter = (X509AuthenticationFilter) filters.get(2);
         SubjectDnX509PrincipalExtractor pe = (SubjectDnX509PrincipalExtractor) FieldUtils.getFieldValue(filter, "principalExtractor");
         Pattern p = (Pattern) FieldUtils.getFieldValue(pe, "subjectDnPattern");
         assertEquals("uid=(.*),", p.pattern());
@@ -1054,7 +1054,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     private RememberMeServices getRememberMeServices() throws Exception {
-        return ((RememberMeProcessingFilter)getFilter(RememberMeProcessingFilter.class)).getRememberMeServices();
+        return ((RememberMeAuthenticationFilter)getFilter(RememberMeAuthenticationFilter.class)).getRememberMeServices();
     }
 
 

@@ -69,14 +69,14 @@ import org.springframework.web.filter.GenericFilterBean;
  * <p>
  * If authentication fails and <code>ignoreFailure</code> is <code>false</code> (the default), an {@link
  * AuthenticationEntryPoint} implementation is called (unless the <tt>ignoreFailure</tt> property is set to
- * <tt>true</tt>). Usually this should be {@link BasicProcessingFilterEntryPoint}, which will prompt the user to
+ * <tt>true</tt>). Usually this should be {@link BasicAuthenticationEntryPoint}, which will prompt the user to
  * authenticate again via BASIC authentication.
  *
  * <p>
  * Basic authentication is an attractive protocol because it is simple and widely deployed. However, it still
  * transmits a password in clear text and as such is undesirable in many situations. Digest authentication is also
  * provided by Spring Security and should be used instead of Basic authentication wherever possible. See {@link
- * org.springframework.security.web.authentication.www.DigestProcessingFilter}.
+ * org.springframework.security.web.authentication.www.DigestAuthenticationFilter}.
  * <p>
  * Note that if a {@link RememberMeServices} is set, this filter will automatically send back remember-me
  * details to the client. Therefore, subsequent requests will not need to present a BASIC authentication header as
@@ -85,7 +85,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilter extends GenericFilterBean {
+public class BasicAuthenticationFilter extends GenericFilterBean {
 
     //~ Instance fields ================================================================================================
 
@@ -195,7 +195,7 @@ public class BasicProcessingFilter extends GenericFilterBean {
 
         // Handle unusual condition where an AnonymousAuthenticationToken is already present
         // This shouldn't happen very often, as BasicProcessingFitler is meant to be earlier in the filter
-        // chain than AnonymousProcessingFilter. Nevertheless, presence of both an AnonymousAuthenticationToken
+        // chain than AnonymousAuthenticationFilter. Nevertheless, presence of both an AnonymousAuthenticationToken
         // together with a BASIC authentication request header should indicate reauthentication using the
         // BASIC protocol is desirable. This behaviour is also consistent with that provided by form and digest,
         // both of which force re-authentication if the respective header is detected (and in doing so replace

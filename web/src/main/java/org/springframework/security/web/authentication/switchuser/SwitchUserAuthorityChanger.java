@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * Allows subclasses to modify the {@link GrantedAuthority} list that will be assigned to the principal
  * when they assume the identity of a different principal.
  *
- * <p>Configured against the {@link SwitchUserProcessingFilter}.
+ * <p>Configured against the {@link SwitchUserFilter}.
  *
  * @author Ben Alex
  * @version $Id$

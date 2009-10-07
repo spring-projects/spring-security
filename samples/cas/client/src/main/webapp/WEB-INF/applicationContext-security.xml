@@ -16,7 +16,7 @@
         <sec:authentication-provider ref="casAuthenticationProvider"/>
     </sec:authentication-manager>
 
-    <bean id="casProcessingFilter" class="org.springframework.security.cas.web.CasProcessingFilter">
+    <bean id="casProcessingFilter" class="org.springframework.security.cas.web.CasAuthenticationFilter">
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="authenticationFailureHandler">
             <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
@@ -32,7 +32,7 @@
         <property name="proxyReceptorUrl" value="/secure/receptor" />
     </bean>
 
-    <bean id="casProcessingFilterEntryPoint" class="org.springframework.security.cas.web.CasProcessingFilterEntryPoint">
+    <bean id="casProcessingFilterEntryPoint" class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
         <property name="loginUrl" value="https://localhost:9443/cas/login"/>
         <property name="serviceProperties" ref="serviceProperties"/>
     </bean>

@@ -59,7 +59,7 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
  * @author Ben Alex
  * @version $Id$
  */
-public class AbstractProcessingFilterTests extends TestCase {
+public class AbstractAuthenticationProcessingFilterTests extends TestCase {
     SavedRequestAwareAuthenticationSuccessHandler successHandler;
     SimpleUrlAuthenticationFailureHandler failureHandler;
     //~ Methods ========================================================================================================
@@ -122,7 +122,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     public void testDefaultProcessesFilterUrlMatchesWithPathParameter() {
         MockHttpServletRequest request = createMockRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter();
+        MockAuthenticationFilter filter = new MockAuthenticationFilter();
         filter.setFilterProcessesUrl("/j_spring_security_check");
 
         request.setRequestURI("/mycontext/j_spring_security_check;jsessionid=I8MIONOSTHOR");
@@ -141,7 +141,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Setup our test object, to deny access
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
         filter.setAuthenticationFailureHandler(failureHandler);
 
         // Test
@@ -151,7 +151,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
 
         //Prepare again, this time using the exception mapping
-        filter = new MockAbstractProcessingFilter(new AccountExpiredException("You're account is expired"));
+        filter = new MockAuthenticationFilter(new AccountExpiredException("You're account is expired"));
         ExceptionMappingAuthenticationFailureHandler failureHandler = new ExceptionMappingAuthenticationFailureHandler();
         filter.setAuthenticationFailureHandler(failureHandler);
         Properties exceptionMappings = new Properties();
@@ -180,7 +180,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Setup our test object, to grant access
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
         filter.setFilterProcessesUrl("/j_OTHER_LOCATION");
         filter.setAuthenticationSuccessHandler(successHandler);
 
@@ -192,7 +192,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     }
 
     public void testGettersSetters() throws Exception {
-        AbstractAuthenticationProcessingFilter filter = new MockAbstractProcessingFilter();
+        AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
         filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.setFilterProcessesUrl("/p");
         filter.afterPropertiesSet();
@@ -218,7 +218,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Setup our test object, to deny access
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
@@ -237,7 +237,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Setup our test object, to grant access
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
 
         filter.setFilterProcessesUrl("/j_mock_post");
         filter.setSessionAuthenticationStrategy(mock(SessionAuthenticationStrategy.class));
@@ -256,7 +256,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     }
 
     public void testStartupDetectsInvalidAuthenticationManager() throws Exception {
-        AbstractAuthenticationProcessingFilter filter = new MockAbstractProcessingFilter();
+        AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
         filter.setAuthenticationFailureHandler(failureHandler);
         successHandler.setDefaultTargetUrl("/");
         filter.setAuthenticationSuccessHandler(successHandler);
@@ -271,7 +271,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     }
 
     public void testStartupDetectsInvalidFilterProcessesUrl() throws Exception {
-        AbstractAuthenticationProcessingFilter filter = new MockAbstractProcessingFilter();
+        AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
         filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.setAuthenticationSuccessHandler(successHandler);
@@ -297,7 +297,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Setup our test object, to grant access
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
         filter.setFilterProcessesUrl("/j_mock_post");
         filter.setAuthenticationSuccessHandler(successHandler);
 
@@ -314,7 +314,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         response = new MockHttpServletResponse();
 
         // Setup our test object, to deny access
-        filter = new MockAbstractProcessingFilter(false);
+        filter = new MockAuthenticationFilter(false);
         filter.setFilterProcessesUrl("/j_mock_post");
         filter.setAuthenticationFailureHandler(failureHandler);
 
@@ -337,7 +337,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Setup our test object, to grant access
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
         filter.setFilterProcessesUrl("/j_mock_post");
         successHandler.setDefaultTargetUrl("/foobar");
         successHandler.setAlwaysUseDefaultTargetUrl(true);
@@ -362,7 +362,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Setup our test object, to grant access
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
         filter.setFilterProcessesUrl("/j_mock_post");
 
         // Test
@@ -382,7 +382,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Setup our test object, to grant access
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
         successHandler.setDefaultTargetUrl("https://monkeymachine.co.uk/");
         successHandler.setAlwaysUseDefaultTargetUrl(true);
         filter.setAuthenticationSuccessHandler(successHandler);
@@ -403,7 +403,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Reject authentication, so exception would normally be stored in session
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
         filter.setAllowSessionCreation(false);
         filter.setAuthenticationFailureHandler(failureHandler);
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
@@ -424,7 +424,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockFilterChain chain = new MockFilterChain(true);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
         filter.setAuthenticationSuccessHandler(successHandler);
 
@@ -443,7 +443,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockFilterChain chain = new MockFilterChain(true);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
         filter.setAuthenticationSuccessHandler(successHandler);
         filter.setAuthenticationFailureHandler(failureHandler);
@@ -466,7 +466,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockFilterChain chain = new MockFilterChain(true);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
         filter.setAuthenticationSuccessHandler(successHandler);
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
         successHandler.setTargetUrlParameter("targetUrl");
@@ -480,25 +480,25 @@ public class AbstractProcessingFilterTests extends TestCase {
 
     //~ Inner Classes ==================================================================================================
 
-    private class MockAbstractProcessingFilter extends AbstractAuthenticationProcessingFilter {
+    private class MockAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
         private AuthenticationException exceptionToThrow;
         private boolean grantAccess;
 
-        public MockAbstractProcessingFilter(boolean grantAccess) {
+        public MockAuthenticationFilter(boolean grantAccess) {
             this();
             setRememberMeServices(new NullRememberMeServices());
             this.grantAccess = grantAccess;
             this.exceptionToThrow = new BadCredentialsException("Mock requested to do so");
         }
 
-        public MockAbstractProcessingFilter(AuthenticationException exceptionToThrow) {
+        public MockAuthenticationFilter(AuthenticationException exceptionToThrow) {
             this();
             setRememberMeServices(new NullRememberMeServices());
             this.grantAccess = false;
             this.exceptionToThrow = exceptionToThrow;
         }
 
-        private MockAbstractProcessingFilter() {
+        private MockAuthenticationFilter() {
             super("/j_mock_post");
         }
 

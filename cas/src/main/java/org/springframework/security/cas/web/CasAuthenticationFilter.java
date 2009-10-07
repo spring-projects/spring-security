@@ -48,7 +48,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
  * them accordingly by validation with the CAS server.
  * <p>
  * By configuring a shared {@link ProxyGrantingTicketStorage} between the {@link TicketValidator} and the
- * CasProcessingFilter one can have the CasProcessingFilter handle the proxying requirements for CAS. In addition, the
+ * CasAuthenticationFilter one can have the CasAuthenticationFilter handle the proxying requirements for CAS. In addition, the
  * URI endpoint for the proxying would also need to be configured (i.e. the part after protocol, hostname, and port).
  * <p>
  * By default this filter processes the URL <tt>/j_spring_cas_security_check</tt>.
@@ -56,7 +56,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
  * @author Ben Alex
  * @version $Id$
  */
-public class CasProcessingFilter extends AbstractAuthenticationProcessingFilter {
+public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     //~ Static fields/initializers =====================================================================================
 
     /** Used to identify a CAS request for a stateful user agent, such as a web browser. */
@@ -83,7 +83,7 @@ public class CasProcessingFilter extends AbstractAuthenticationProcessingFilter 
 
     //~ Constructors ===================================================================================================
 
-    public CasProcessingFilter() {
+    public CasAuthenticationFilter() {
         super("/j_spring_cas_security_check");
     }
 

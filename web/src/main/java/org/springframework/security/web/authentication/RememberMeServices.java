@@ -26,7 +26,7 @@ import org.springframework.security.core.Authentication;
  *
  * <p>
  * Spring Security filters (namely {@link org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter} and
- * {@link RememberMeProcessingFilter} will call the methods provided by an implementation of this interface.
+ * {@link RememberMeAuthenticationFilter} will call the methods provided by an implementation of this interface.
  * <p>
  * Implementations may implement any type of remember-me capability they wish.
  * Rolling cookies (as per <a href="http://fishbowl.pastiche.org/2004/01/19/persistent_login_cookie_best_practice">

@@ -47,7 +47,7 @@
     <!-- Filter used to switch the user context. Note: the switch and exit url must be secured
         based on the role granted the ability to 'switch' to another user -->
     <!-- In this example 'rod' has ROLE_SUPERVISOR that can switch to regular ROLE_USER(s) -->
-    <b:bean id="switchUserProcessingFilter" class="org.springframework.security.web.authentication.switchuser.SwitchUserProcessingFilter" autowire="byType">
+    <b:bean id="switchUserProcessingFilter" class="org.springframework.security.web.authentication.switchuser.SwitchUserFilter" autowire="byType">
        <b:property name="targetUrl" value="/secure/index.htm"/>
     </b:bean>
 

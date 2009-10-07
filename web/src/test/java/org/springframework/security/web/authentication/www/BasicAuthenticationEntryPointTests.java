@@ -18,32 +18,32 @@ package org.springframework.security.web.authentication.www;
 import junit.framework.TestCase;
 
 import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.web.authentication.www.BasicProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
- * Tests {@link BasicProcessingFilterEntryPoint}.
+ * Tests {@link BasicAuthenticationEntryPoint}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilterEntryPointTests extends TestCase {
+public class BasicAuthenticationEntryPointTests extends TestCase {
     //~ Constructors ===================================================================================================
 
-    public BasicProcessingFilterEntryPointTests() {
+    public BasicAuthenticationEntryPointTests() {
         super();
     }
 
-    public BasicProcessingFilterEntryPointTests(String arg0) {
+    public BasicAuthenticationEntryPointTests(String arg0) {
         super(arg0);
     }
 
     //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(BasicProcessingFilterEntryPointTests.class);
+        junit.textui.TestRunner.run(BasicAuthenticationEntryPointTests.class);
     }
 
     public final void setUp() throws Exception {
@@ -51,7 +51,7 @@ public class BasicProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testDetectsMissingRealmName() throws Exception {
-        BasicProcessingFilterEntryPoint ep = new BasicProcessingFilterEntryPoint();
+        BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 
         try {
             ep.afterPropertiesSet();
@@ -62,13 +62,13 @@ public class BasicProcessingFilterEntryPointTests extends TestCase {
     }
 
     public void testGettersSetters() {
-        BasicProcessingFilterEntryPoint ep = new BasicProcessingFilterEntryPoint();
+        BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
         ep.setRealmName("realm");
         assertEquals("realm", ep.getRealmName());
     }
 
     public void testNormalOperation() throws Exception {
-        BasicProcessingFilterEntryPoint ep = new BasicProcessingFilterEntryPoint();
+        BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 
         ep.setRealmName("hello");
 

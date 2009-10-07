@@ -43,12 +43,12 @@
         <property name="authenticationManager" ref="authenticationManager"/>
     </bean>
 
-    <bean id="basicPf" class="org.springframework.security.web.authentication.www.BasicProcessingFilter">
+    <bean id="basicPf" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="ignoreFailure" value="true"/>
     </bean>
 
-    <bean id="preAuthFilter" class="org.springframework.security.web.authentication.preauth.RequestHeaderPreAuthenticatedProcessingFilter">
+    <bean id="preAuthFilter" class="org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
         <property name="authenticationManager" ref="authenticationManager"/>
     </bean>
 

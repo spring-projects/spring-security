@@ -17,7 +17,7 @@ import org.springframework.security.openid.OpenIDAuthenticationFilter;
 import org.springframework.security.openid.OpenIDConsumerException;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
-public class OpenIDAuthenticationProcessingFilterTests {
+public class OpenIDAuthenticationFilterTests {
 
     OpenIDAuthenticationFilter filter;
     private static final String REDIRECT_URL = "http://www.example.com/redirect";

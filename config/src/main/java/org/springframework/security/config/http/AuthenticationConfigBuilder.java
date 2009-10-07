@@ -27,14 +27,14 @@ import org.springframework.security.core.userdetails.UserDetailsByNameServiceWra
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.authentication.AnonymousProcessingFilter;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
-import org.springframework.security.web.authentication.preauth.x509.X509PreAuthenticatedProcessingFilter;
+import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-import org.springframework.security.web.authentication.www.BasicProcessingFilter;
-import org.springframework.security.web.authentication.www.BasicProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -263,8 +263,8 @@ final class AuthenticationConfigBuilder {
         RootBeanDefinition entryPoint = null;
 
         if (basicAuthElt != null || autoConfig) {
-            BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(BasicProcessingFilter.class);
-            entryPoint = new RootBeanDefinition(BasicProcessingFilterEntryPoint.class);
+            BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(BasicAuthenticationFilter.class);
+            entryPoint = new RootBeanDefinition(BasicAuthenticationEntryPoint.class);
             entryPoint.setSource(pc.extractSource(httpElt));
 
             entryPoint.getPropertyValues().addPropertyValue("realmName", realm);
@@ -287,7 +287,7 @@ final class AuthenticationConfigBuilder {
         RootBeanDefinition entryPoint = null;
 
         if (x509Elt != null) {
-            BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(X509PreAuthenticatedProcessingFilter.class);
+            BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(X509AuthenticationFilter.class);
             filterBuilder.getRawBeanDefinition().setSource(pc.extractSource(x509Elt));
             filterBuilder.addPropertyValue("authenticationManager", authManager);
 
@@ -395,7 +395,7 @@ final class AuthenticationConfigBuilder {
             key = Long.toString(random.nextLong());
         }
 
-        anonymousFilter = new RootBeanDefinition(AnonymousProcessingFilter.class);
+        anonymousFilter = new RootBeanDefinition(AnonymousAuthenticationFilter.class);
 
         PropertyValue keyPV = new PropertyValue("key", key);
         anonymousFilter.setSource(source);
