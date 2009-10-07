@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,8 +59,8 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 
     //private Map<Object, List<ConfigAttribute>> requestMap = new LinkedHashMap<Object, List<ConfigAttribute>>();
     /** Stores request maps keyed by specific HTTP methods. A null key matches any method */
-    private Map<String, Map<Object, List<ConfigAttribute>>> httpMethodMap =
-        new HashMap<String, Map<Object, List<ConfigAttribute>>>();
+    private Map<String, Map<Object, Collection<ConfigAttribute>>> httpMethodMap =
+        new HashMap<String, Map<Object, Collection<ConfigAttribute>>>();
 
     private UrlMatcher urlMatcher;
 
@@ -78,10 +77,10 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
      * @param requestMap order-preserving map of request definitions to attribute lists
      */
     public DefaultFilterInvocationSecurityMetadataSource(UrlMatcher urlMatcher,
-            LinkedHashMap<RequestKey, List<ConfigAttribute>> requestMap) {
+            LinkedHashMap<RequestKey, Collection<ConfigAttribute>> requestMap) {
         this.urlMatcher = urlMatcher;
 
-        for (Map.Entry<RequestKey, List<ConfigAttribute>> entry : requestMap.entrySet()) {
+        for (Map.Entry<RequestKey, Collection<ConfigAttribute>> entry : requestMap.entrySet()) {
             addSecureUrl(entry.getKey().getUrl(), entry.getKey().getMethod(), entry.getValue());
         }
     }
@@ -94,13 +93,13 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
      * to the request map and will be passed back to the <tt>UrlMatcher</tt> when iterating through the map to find
      * a match for a particular URL.
      */
-    private void addSecureUrl(String pattern, String method, List<ConfigAttribute> attr) {
-        Map<Object, List<ConfigAttribute>> mapToUse = getRequestMapForHttpMethod(method);
+    private void addSecureUrl(String pattern, String method, Collection<ConfigAttribute> attrs) {
+        Map<Object, Collection<ConfigAttribute>> mapToUse = getRequestMapForHttpMethod(method);
 
-        mapToUse.put(urlMatcher.compile(pattern), attr);
+        mapToUse.put(urlMatcher.compile(pattern), attrs);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Added URL pattern: " + pattern + "; attributes: " + attr +
+            logger.debug("Added URL pattern: " + pattern + "; attributes: " + attrs +
                     (method == null ? "" : " for HTTP method '" + method + "'"));
         }
     }
@@ -110,15 +109,15 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
      * @param method GET, POST etc
      * @return map of URL patterns to <tt>ConfigAttribute</tt>s for this method.
      */
-    private Map<Object, List<ConfigAttribute>> getRequestMapForHttpMethod(String method) {
+    private Map<Object, Collection<ConfigAttribute>> getRequestMapForHttpMethod(String method) {
         if (method != null && !HTTP_METHODS.contains(method)) {
             throw new IllegalArgumentException("Unrecognised HTTP method: '" + method + "'");
         }
 
-        Map<Object, List<ConfigAttribute>> methodRequestMap = httpMethodMap.get(method);
+        Map<Object, Collection<ConfigAttribute>> methodRequestMap = httpMethodMap.get(method);
 
         if (methodRequestMap == null) {
-            methodRequestMap = new LinkedHashMap<Object, List<ConfigAttribute>>();
+            methodRequestMap = new LinkedHashMap<Object, Collection<ConfigAttribute>>();
             httpMethodMap.put(method, methodRequestMap);
         }
 
@@ -128,8 +127,8 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
     public Collection<ConfigAttribute> getAllConfigAttributes() {
         Set<ConfigAttribute> allAttributes = new HashSet<ConfigAttribute>();
 
-        for (Map.Entry<String, Map<Object, List<ConfigAttribute>>> entry : httpMethodMap.entrySet()) {
-            for (List<ConfigAttribute> attrs : entry.getValue().values()) {
+        for (Map.Entry<String, Map<Object, Collection<ConfigAttribute>>> entry : httpMethodMap.entrySet()) {
+            for (Collection<ConfigAttribute> attrs : entry.getValue().values()) {
                 allAttributes.addAll(attrs);
             }
         }
@@ -161,7 +160,7 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
      * @return the <code>ConfigAttribute</code>s that apply to the specified <code>FilterInvocation</code>
      * or null if no match is found
      */
-    public final List<ConfigAttribute> lookupAttributes(String url, String method) {
+    public final Collection<ConfigAttribute> lookupAttributes(String url, String method) {
         if (stripQueryStringFromUrls) {
             // Strip anything after a question mark symbol, as per SEC-161. See also SEC-321
             int firstQuestionMarkIndex = url.indexOf("?");
@@ -180,7 +179,7 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
         }
 
         // Obtain the map of request patterns to attributes for this method and lookup the url.
-        List<ConfigAttribute> attributes = extractMatchingAttributes(url, httpMethodMap.get(method));
+        Collection<ConfigAttribute> attributes = extractMatchingAttributes(url, httpMethodMap.get(method));
 
         // If no attributes found in method-specific map, use the general one stored under the null key
         if (attributes == null) {
@@ -190,14 +189,14 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
         return attributes;
     }
 
-    private List<ConfigAttribute> extractMatchingAttributes(String url, Map<Object, List<ConfigAttribute>> requestMap) {
-        if (requestMap == null) {
+    private Collection<ConfigAttribute> extractMatchingAttributes(String url, Map<Object, Collection<ConfigAttribute>> map) {
+        if (map == null) {
             return null;
         }
 
         final boolean debug = logger.isDebugEnabled();
 
-        for (Map.Entry<Object, List<ConfigAttribute>> entry : requestMap.entrySet()) {
+        for (Map.Entry<Object, Collection<ConfigAttribute>> entry : map.entrySet()) {
             Object p = entry.getKey();
             boolean matched = urlMatcher.pathMatchesUrl(entry.getKey(), url);
 

@@ -20,7 +20,6 @@ import static org.mockito.Mockito.mock;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import javax.servlet.FilterChain;
 
@@ -44,7 +43,7 @@ import org.springframework.security.web.util.AntUrlPathMatcher;
 @SuppressWarnings("unchecked")
 public class DefaultFilterInvocationSecurityMetadataSourceTests {
     private DefaultFilterInvocationSecurityMetadataSource fids;
-    private List<ConfigAttribute> def = SecurityConfig.createList("ROLE_ONE");
+    private Collection<ConfigAttribute> def = SecurityConfig.createList("ROLE_ONE");
 
     //~ Methods ========================================================================================================
     private void createFids(String url, String method) {
@@ -87,7 +86,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
         FilterInvocation fi = createFilterInvocation("/secure/super/somefile.html", null);
 
-        List<? extends ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
+        Collection<ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
         assertEquals(def, response);
     }
 
@@ -97,7 +96,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
         FilterInvocation fi = createFilterInvocation("/SeCuRE/super/somefile.html", null);
 
-        List<? extends ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
+        Collection<ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
         assertEquals(null, response);
     }
 
@@ -107,7 +106,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
         FilterInvocation fi = createFilterInvocation("/SeCurE/super/somefile.html", null);
 
-        List<? extends ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
+        Collection<ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
         assertEquals(def, response);
     }
 
@@ -117,7 +116,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
         FilterInvocation fi = createFilterInvocation("/someAdminPage.html?a=/test", null);
 
-        List<? extends ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
+        Collection<ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
         assertEquals(def, response); // see SEC-161 (it should truncate after ? sign)
     }
 
@@ -155,10 +154,10 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
     @Test
     public void httpMethodSpecificUrlTakesPrecedence() {
-        LinkedHashMap<RequestKey, List<ConfigAttribute>> requestMap = new LinkedHashMap<RequestKey, List<ConfigAttribute>>();
+        LinkedHashMap<RequestKey, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestKey, Collection<ConfigAttribute>>();
         // Even though this is added before the Http method-specific def, the latter should match
         requestMap.put(new RequestKey("/**"), def);
-        List<ConfigAttribute> postOnlyDef = SecurityConfig.createList("ROLE_TWO");
+        Collection<ConfigAttribute> postOnlyDef = SecurityConfig.createList("ROLE_TWO");
         requestMap.put(new RequestKey("/somepage**", "POST"), postOnlyDef);
         fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
 
@@ -170,7 +169,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
     @Test
     public void mixingPatternsWithAndWithoutHttpMethodsIsSupported() throws Exception {
         LinkedHashMap requestMap = new LinkedHashMap();
-        List<ConfigAttribute> userAttrs = SecurityConfig.createList("A");
+        Collection<ConfigAttribute> userAttrs = SecurityConfig.createList("A");
         requestMap.put(new RequestKey("/user/**", null), userAttrs);
         requestMap.put(new RequestKey("/teller/**", "GET"), SecurityConfig.createList("B"));
         fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
@@ -190,7 +189,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
         FilterInvocation fi = createFilterInvocation("/someAdminPage.html?x=2/aa?y=3", null);
 
-        List<? extends ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
+        Collection<ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
         assertEquals(def, response);
 
         fi = createFilterInvocation("/someAdminPage.html??", null);

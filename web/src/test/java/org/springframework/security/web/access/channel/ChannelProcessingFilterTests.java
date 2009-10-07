@@ -20,7 +20,6 @@ import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -120,8 +119,7 @@ public class ChannelProcessingFilterTests {
     }
 
     @Test
-    public void testDoFilterWhenNullConfigAttributeReturned()
-        throws Exception {
+    public void testDoFilterWhenNullConfigAttributeReturned() throws Exception {
         ChannelProcessingFilter filter = new ChannelProcessingFilter();
         filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "NOT_USED"));
 
@@ -180,7 +178,7 @@ public class ChannelProcessingFilterTests {
     }
 
     private class MockFilterInvocationDefinitionMap implements FilterInvocationSecurityMetadataSource {
-        private List<ConfigAttribute> toReturn;
+        private Collection<ConfigAttribute> toReturn;
         private String servletPath;
         private boolean provideIterator;
 
@@ -190,7 +188,7 @@ public class ChannelProcessingFilterTests {
             this.provideIterator = provideIterator;
         }
 
-        public List<ConfigAttribute> getAttributes(Object object)
+        public Collection<ConfigAttribute> getAttributes(Object object)
             throws IllegalArgumentException {
             FilterInvocation fi = (FilterInvocation) object;
 

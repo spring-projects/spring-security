@@ -1,8 +1,8 @@
 package org.springframework.security.web.access.expression;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -26,23 +26,23 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource extends
     private final static Log logger = LogFactory.getLog(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
 
     public ExpressionBasedFilterInvocationSecurityMetadataSource(UrlMatcher urlMatcher,
-            LinkedHashMap<RequestKey, List<ConfigAttribute>> requestMap, WebSecurityExpressionHandler expressionHandler) {
+            LinkedHashMap<RequestKey, Collection<ConfigAttribute>> requestMap, WebSecurityExpressionHandler expressionHandler) {
         super(urlMatcher, processMap(requestMap, expressionHandler.getExpressionParser()));
         Assert.notNull(expressionHandler, "A non-null SecurityExpressionHandler is required");
     }
 
-    private static LinkedHashMap<RequestKey, List<ConfigAttribute>> processMap(
-            LinkedHashMap<RequestKey, List<ConfigAttribute>> requestMap, ExpressionParser parser) {
+    private static LinkedHashMap<RequestKey, Collection<ConfigAttribute>> processMap(
+            LinkedHashMap<RequestKey,Collection<ConfigAttribute>> requestMap, ExpressionParser parser) {
         Assert.notNull(parser, "SecurityExpressionHandler returned a null parser object");
 
-        LinkedHashMap<RequestKey, List<ConfigAttribute>> requestToExpressionAttributesMap =
-            new LinkedHashMap<RequestKey, List<ConfigAttribute>>(requestMap);
+        LinkedHashMap<RequestKey, Collection<ConfigAttribute>> requestToExpressionAttributesMap =
+            new LinkedHashMap<RequestKey, Collection<ConfigAttribute>>(requestMap);
 
-        for (Map.Entry<RequestKey, List<ConfigAttribute>> entry : requestMap.entrySet()) {
+        for (Map.Entry<RequestKey, Collection<ConfigAttribute>> entry : requestMap.entrySet()) {
             RequestKey request = entry.getKey();
             Assert.isTrue(entry.getValue().size() == 1, "Expected a single expression attribute for " + request);
             ArrayList<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(1);
-            String expression = entry.getValue().get(0).getAttribute();
+            String expression = entry.getValue().toArray(new ConfigAttribute[1])[0].getAttribute();
             logger.debug("Adding web access control expression '" + expression + "', for " + request);
             try {
                 attributes.add(new WebExpressionConfigAttribute(parser.parseExpression(expression)));
