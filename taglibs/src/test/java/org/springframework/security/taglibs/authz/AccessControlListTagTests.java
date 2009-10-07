@@ -16,12 +16,10 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockPageContext;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.security.acls.AclPermissionEvaluator;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AclService;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.ObjectIdentityRetrievalStrategy;
-import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.WebApplicationContext;
@@ -44,12 +42,12 @@ public class AccessControlListTagTests {
         WebApplicationContext ctx = mock(WebApplicationContext.class);
 
         AclService service = mock(AclService.class);
-        AclPermissionEvaluator pe = new AclPermissionEvaluator(service);
         ObjectIdentity oid = mock(ObjectIdentity.class);
         ObjectIdentityRetrievalStrategy oidStrategy = mock(ObjectIdentityRetrievalStrategy.class);
         when(oidStrategy.getObjectIdentity(anyObject())).thenReturn(oid);
-        pe.setObjectIdentityRetrievalStrategy(oidStrategy);
-        pe.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
+//        AclPermissionEvaluator pe = new AclPermissionEvaluator(service);
+//        pe.setObjectIdentityRetrievalStrategy(oidStrategy);
+//        pe.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
         acl = mock(Acl.class);
 
         when(service.readAclById(any(ObjectIdentity.class), anyList())).thenReturn(acl);

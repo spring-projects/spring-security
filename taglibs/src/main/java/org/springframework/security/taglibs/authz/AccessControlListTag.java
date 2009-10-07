@@ -52,15 +52,18 @@ import org.springframework.web.util.ExpressionEvaluationUtils;
  * principal.
  * <p>
  * One or more comma separate numeric are specified via the <tt>hasPermission</tt> attribute.
- * These permissions are then converted into {@link Permission} instances. These instances are then presented as an
- * array to the {@link Acl#isGranted(Permission[], org.springframework.security.acls.model.Sid[], boolean)} method.
+ * These permissions are then converted into {@link Permission} instances using the {@link PermissionFactory}
+ * instance obtained from the application context, or a {@link DefaultPermissionFactory} if one isn't found.
+ * The <tt>Permission</tt> instances are then presented as a list
+ * array to the {@link Acl#isGranted(List, List, boolean)} method.
  * The {@link Sid} presented is determined by the {@link SidRetrievalStrategy}.
  * <p>
  * For this class to operate it must be able to access the application context via the
- * <code>WebApplicationContextUtils</code> and attempt to locate an {@link AclService} and {@link SidRetrievalStrategy}.
+ * <code>WebApplicationContextUtils</code> and attempt to locate an {@link AclService},
+ * {@link ObjectIdentityRetrievalStrategy} and {@link SidRetrievalStrategy}.
  * There cannot be more than one of these present. The <tt>AclService</tt> must be provided, but a
- * {@link SidRetrievalStrategyImpl} instance will be created as the default retrieval strategy if no implementation
- * is supplied by the application context.
+ * {@link SidRetrievalStrategyImpl} and/or an {@link ObjectIdentityRetrievalStrategyImpl} will be created if no
+ * implementations are found in the application context.
  *
  * @author Ben Alex
  * @version $Id$
