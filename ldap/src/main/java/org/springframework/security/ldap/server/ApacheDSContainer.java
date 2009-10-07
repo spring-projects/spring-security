@@ -1,12 +1,29 @@
 package org.springframework.security.ldap.server;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
+import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.changelog.ChangeLogInterceptor;
+import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.entry.ServerEntry;
+import org.apache.directory.server.core.event.EventInterceptor;
+import org.apache.directory.server.core.exception.ExceptionInterceptor;
+import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.journal.JournalInterceptor;
+import org.apache.directory.server.core.normalization.NormalizationInterceptor;
+import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.referral.ReferralInterceptor;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
+import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -59,6 +76,24 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
     public ApacheDSContainer(String root, String ldifs) throws Exception {
         this.ldifResources = ldifs;
         service = new DefaultDirectoryService();
+        List<Interceptor> list = new ArrayList<Interceptor>();
+
+        list.add( new NormalizationInterceptor() );
+        list.add( new AuthenticationInterceptor() );
+        list.add( new ReferralInterceptor() );
+//        list.add( new AciAuthorizationInterceptor() );
+//        list.add( new DefaultAuthorizationInterceptor() );
+        list.add( new ExceptionInterceptor() );
+//       list.add( new ChangeLogInterceptor() );
+       list.add( new OperationalAttributeInterceptor() );
+//        list.add( new SchemaInterceptor() );
+        list.add( new SubentryInterceptor() );
+//        list.add( new CollectiveAttributeInterceptor() );
+//        list.add( new EventInterceptor() );
+//        list.add( new TriggerInterceptor() );
+//        list.add( new JournalInterceptor() );
+
+        service.setInterceptors( list );
         partition =  new JdbmPartition();
         partition.setId("rootPartition");
         partition.setSuffix(root);
