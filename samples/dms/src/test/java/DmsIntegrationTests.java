@@ -29,10 +29,6 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired
     protected DocumentDao documentDao;
 
-    protected String[] getConfigLocations() {
-        return new String[] {"classpath:applicationContext-dms-shared.xml", "classpath:applicationContext-dms-insecure.xml"};
-    }
-
     @After
     public void clearContext() {
         SecurityContextHolder.clearContext();

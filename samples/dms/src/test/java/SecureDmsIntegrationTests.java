@@ -18,10 +18,6 @@ public class SecureDmsIntegrationTests extends DmsIntegrationTests {
 //    @Autowired
 //    private AclService aclService;
 
-    protected String[] getConfigLocations() {
-        return new String[] {"classpath:applicationContext-dms-shared.xml", "classpath:applicationContext-dms-secure.xml"};
-    }
-
     @Test
     public void testBasePopulation() {
         assertEquals(9, jdbcTemplate.queryForInt("select count(id) from DIRECTORY"));
