@@ -119,20 +119,6 @@ public class DefaultPermissionFactory implements PermissionFactory {
         return permission;
     }
 
-//    public Permission[] buildFromMask(int[] masks) {
-//        if ((masks == null) || (masks.length == 0)) {
-//            return new Permission[0];
-//        }
-//
-//        Permission[] permissions = new Permission[masks.length];
-//
-//        for (int i = 0; i < masks.length; i++) {
-//            permissions[i] = buildFromMask(masks[i]);
-//        }
-//
-//        return permissions;
-//    }
-
     public Permission buildFromName(String name) {
         Permission p = registeredPermissionsByName.get(name);
 
