@@ -21,9 +21,9 @@
 ]]></programlisting> This is much simpler than wiring up the equivalent Apache Directory Server
       beans. The most common alternative configuration requirements are supported by attributes on
       the <literal>ldap-server</literal> element and the user is isolated from worrying about which
-      beans they need to be set on and what the bean property names are. <footnote><para>You can
-          find out more about the use of the <literal>ldap-server</literal> element in the chapter
-          on <link xlink:href="#ldap">LDAP</link>.</para></footnote>. Use of a good XML editor while
+      beans they need create and what the bean property names are. <footnote><para>You can find out
+          more about the use of the <literal>ldap-server</literal> element in the chapter on <link
+            xlink:href="#ldap">LDAP</link>.</para></footnote>. Use of a good XML editor while
       editing the application context file should provide information on the attributes and elements
       that are available. We would recommend that you try out the <link
         xlink:href="http://www.springsource.com/products/sts">SpringSource Tool Suite</link> as it
@@ -42,7 +42,7 @@
 </beans>
   ]]></programlisting> In many of the examples you will see (and in the sample) applications, we
       will often use "security" as the default namespace rather than "beans", which means we can
-      omit the prefix on all the security namespace elements, making the context easier to read. You
+      omit the prefix on all the security namespace elements, making the content easier to read. You
       may also want to do this if you have your application context divided up into separate files
       and have most of your security configuration in one of them. Your security application context
       file would then start like this <programlisting language="xml"><![CDATA[
@@ -155,20 +155,25 @@
           elements must be within the <literal>authentication-manager</literal> element, which
           creates a <classname>ProviderManager</classname> and registers the authentication
           providers with it. You can find more detailed information on the beans that are created in
-          the <link xlink:href="#appendix-namespace">namespace appendix</link>. </para>
+          the <link xlink:href="#appendix-namespace">namespace appendix</link>. It's worth
+          cross-checking this if you want to start understanding what the important classes in the
+          framework are and how they are used, particularly if you want to customise things
+          later.</para>
       </sidebar>
       <para> The configuration above defines two users, their passwords and their roles within the
         application (which will be used for access control). It is also possible to load user
         information from a standard properties file using the <literal>properties</literal>
         attribute on <literal>user-service</literal>. See the section on <link
           xlink:href="#core-services-in-memory-service">in-memory authentication</link> for more
-        details. Using the <literal>&lt;authentication-provider&gt;</literal> element means that the
-        user information will be used by the authentication manager to process authentication
-        requests. </para>
+        details on the file format. Using the <literal>&lt;authentication-provider&gt;</literal>
+        element means that the user information will be used by the authentication manager to
+        process authentication requests. You can have multiple
+          <literal>&lt;authentication-provider&gt;</literal> elements to define different
+        authentication sources and each will be consulted in turn.</para>
       <para> At this point you should be able to start up your application and you will be required
-        to log in to proceed. Try it out, or try experimenting with the "tutorial" sample
-        application that comes with the project. The above configuration actually adds quite a few
-        services to the application because we have used the <literal>auto-config</literal>
+        to log in to proceed. Try it out, or try experimenting with the <quote>tutorial</quote>
+        sample application that comes with the project. The above configuration actually adds quite
+        a few services to the application because we have used the <literal>auto-config</literal>
         attribute. For example, form-based login processing is automatically enabled. </para>
       <section xml:id="ns-auto-config">
         <title>What does <literal>auto-config</literal> Include?</title>
@@ -179,16 +184,15 @@
     <http-basic />
     <logout />
   </http>
-  ]]>
-          </programlisting> These other elements are responsible for setting up form-login,
-          basic authentication and logout handling services respectively <footnote><para>In versions
-              prior to 3.0, this list also inluded remember-me functionality. This could cause some
+  ]]></programlisting> These other elements are responsible for setting up form-login, basic
+          authentication and logout handling services respectively <footnote><para>In versions prior
+              to 3.0, this list also included remember-me functionality. This could cause some
               confusing errors with some configurations and was removed in 3.0. In 3.0, the addition
-              of an <classname>AnonymousProcessingFilter</classname> was made part of the default
+              of an <classname>AnonymousProcessingFilter</classname> is part of the default
                 <literal>&lt;http></literal> configuration, so the <literal>&lt;anonymous
-                /></literal> element is effectively added regardless of whether
-                <literal>auto-config</literal> is enabled.</para></footnote> . They each have
-          attributes which can be used to alter their behaviour. </para>
+                /></literal> element is added regardless of whether <literal>auto-config</literal>
+              is enabled.</para></footnote> . They each have attributes which can be used to alter
+          their behaviour. </para>
       </section>
       <section xml:id="ns-form-and-basic">
         <title>Form and Basic Login Options</title>
@@ -196,22 +200,39 @@
           in, since we made no mention of any HTML files or JSPs. In fact, since we didn't
           explicitly set a URL for the login page, Spring Security generates one automatically,
           based on the features that are enabled and using standard values for the URL which
-          processes the submitted login, the default target URL the user will be sent to and so on.
-          However, the namespace offers plenty of suppport to allow you to customize these options.
-          For example, if you want to supply your own login page, you could use: <programlisting language="xml"><![CDATA[
+          processes the submitted login, the default target URL the user will be sent to after
+          loggin in and so on. However, the namespace offers plenty of support to allow you to
+          customize these options. For example, if you want to supply your own login page, you could
+          use: <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
-    <intercept-url pattern="/login.jsp*" filters="none"/>  
+    <intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>  
     <intercept-url pattern="/**" access="ROLE_USER" />
     <form-login login-page='/login.jsp'/>
   </http>
   ]]>
-        </programlisting> Note that you could still use <literal>auto-config</literal>. The
+        </programlisting> Note that you can still use <literal>auto-config</literal>. The
             <literal>form-login</literal> element just overrides the default settings. Also note
           that we've added an extra <literal>intercept-url</literal> element to say that any
-          requests for the login page should be excluded from processing by the security filters.
-          Otherwise the request would be matched by the pattern <literal>/**</literal> and it
-          wouldn't be possible to access the login page itself! If you want to use basic
-          authentication instead of form login, then change the configuration to <programlisting language="xml"><![CDATA[
+          requests for the login page should be available to anonymous users <footnote><para>See the
+              chapter on <link xlink:href="#anonymous">anonymous authentication</link> for more
+              details.</para></footnote>. Otherwise the request would be matched by the pattern
+            <literal>/**</literal> and it wouldn't be possible to access the login page itself! This
+          is a common configuration error and will result in an infinite loop in the application.
+          Spring Security will emit a warning in the log if your login page appears to be secured.
+          It is also possible to have all requests matching a particular pattern bypass the security
+          filter chain completely: <programlisting language="xml"><![CDATA[
+  <http auto-config='true'>
+    <intercept-url pattern="/css/**" filters="none"/>  
+    <intercept-url pattern="/login.jsp*" filters="none"/>    
+    <intercept-url pattern="/**" access="ROLE_USER" />
+    <form-login login-page='/login.jsp'/>
+  </http>
+  ]]>
+          </programlisting> Note that these requests will be completely oblivious to Spring
+          Security, so you will not be able to access information on the current user or call
+          secured methods during the request. </para>
+        <para>If you want to use basic authentication instead of form login, then change the
+          configuration to <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <http-basic />
@@ -501,7 +522,7 @@
           and remove any elements which create filters whose functionality you want to replace. </para>
         <para> Note that you can't replace filters which are created by the use of the
             <literal>&lt;http&gt;</literal> element itself -
-            <classname>HttpSessionContextIntegrationFilter</classname>,
+            <classname>SecurityContextPersistenceFilter</classname>,
             <classname>ExceptionTranslationFilter</classname> or
             <classname>FilterSecurityInterceptor</classname>. </para>
       </tip>

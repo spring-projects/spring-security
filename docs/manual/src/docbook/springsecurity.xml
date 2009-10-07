@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <book version="5.0" xml:id="spring-security-reference-guide" xmlns="http://docbook.org/ns/docbook"
   xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <info><title>Spring Security</title><subtitle>Reference Documentation</subtitle><authorgroup>
-      <author>
+  <info><title>Spring Security</title><subtitle>Reference
+        Documentation</subtitle><authorgroup><author>
         <personname>Ben Alex</personname>
-      </author>
-      <author>
+      </author><author>
         <personname>Luke Taylor</personname>
-      </author>
-    </authorgroup>
+      </author></authorgroup>
     <productname>Spring Security</productname>
     <releaseinfo>3.0.0.M2</releaseinfo>
   </info>
@@ -49,15 +47,15 @@
       custom requirements make application security interesting, challenging and rewarding. </para>
     <para>Please read <xref linkend="getting-started"/>, in its entirety to begin with. This will
       introduce you to the framework and the namespace-based configuration system with which you can
-      get up and running quite quickly. To get more of an understanding of an in-depth understaning
-      of how Spring Security works, and some of the classes you might need to use, you should then
-      read <xref linkend="overall-architecture"/>. The remaining parts of this guide are structured
-      in a more traditional reference style, designed to be read on an as-required basis. We'd also
-      recommend that you read up as much as possible on application security issues in general.
-      Spring Security is not a panacea which will solve all security issues. It is important that
-      the application is designed with security in mind from the start. Attempting to retrofit it is
-      not a good idea. In particular, if you are building a web application, you should be aware of
-      the many potential vulnerabilities such as cross-site scripting, request-forgery and
+      get up and running quite quickly. To get more of an understanding of how Spring Security
+      works, and some of the classes you might need to use, you should then read <xref
+        linkend="overall-architecture"/>. The remaining parts of this guide are structured in a more
+      traditional reference style, designed to be read on an as-required basis. We'd also recommend
+      that you read up as much as possible on application security issues in general. Spring
+      Security is not a panacea which will solve all security issues. It is important that the
+      application is designed with security in mind from the start. Attempting to retrofit it is not
+      a good idea. In particular, if you are building a web application, you should be aware of the
+      many potential vulnerabilities such as cross-site scripting, request-forgery and
       session-hijacking which you should be taking into account from the start. The OWASP web site
       (http://www.owasp.org/) maintains a top ten list of web application vulnerabilities as well as
       a lot of useful reference information. </para>
@@ -70,12 +68,12 @@
     <title>Getting Started</title>
     <partintro>
       <para>The later parts of this guide provide an in-depth discussion of the framework
-        architecture and implementation classes, an understanding of which is important if you need
-        to do any serious customization. In this part, we'll introduce Spring Security 3.0, give a
-        brief overview of the project's history and take a slightly gentler look at how to get
-        started using the framework. In particular, we'll look at namespace configuration which
-        provides a much simpler way of securing your application compared to the traditional Spring
-        bean approach where you had to wire up all the implementation classes individually. </para>
+        architecture and implementation classes, which you need to understand if you want to do any
+        serious customization. In this part, we'll introduce Spring Security 3.0, give a brief
+        overview of the project's history and take a slightly gentler look at how to get started
+        using the framework. In particular, we'll look at namespace configuration which provides a
+        much simpler way of securing your application compared to the traditional Spring bean
+        approach where you have to wire up all the implementation classes individually. </para>
       <para> We'll also take a look at the sample applications that are available. It's worth trying
         to run these and experimenting with them a bit even before you read the later sections - you
         can dip back into them as your understanding of the framework increases. </para>
@@ -115,9 +113,9 @@
     <xi:include href="basic-and-digest-auth.xml"/>
     <xi:include href="remember-me-authentication.xml"/>
     <xi:include href="concurrent-sessions.xml"/>
-    <xi:include href="anon-auth-provider.xml"/>    
+    <xi:include href="anon-auth-provider.xml"/>
   </part>
-<!--  
+  <!--  
   <part xml:id="authentication">
     <title>Authentication</title>
     <partintro>
@@ -141,7 +139,7 @@
     </partintro>
     <xi:include href="dao-auth-provider.xml"/>
   </part>
--->  
+-->
   <part xml:id="authorization">
     <title>Authorization</title>
     <partintro>
@@ -165,15 +163,16 @@
       Essentially standalone features which do not have to follow on directly from earlier chapters 
     -->
     <partintro>
-      <para> In this part we cover some of the more advanced and less-commonly used features of the framework.</para>
+      <para> In this part we cover some of the more advanced and less-commonly used features of the
+        framework.</para>
     </partintro>
-    <xi:include href="domain-acls.xml"/>    
+    <xi:include href="domain-acls.xml"/>
     <xi:include href="preauth.xml"/>
     <xi:include href="ldap-auth-provider.xml"/>
     <xi:include href="jaas-auth-provider.xml"/>
     <xi:include href="cas-auth-provider.xml"/>
     <xi:include href="x509-auth-provider.xml"/>
-    <xi:include href="runas-auth-provider.xml"/>    
+    <xi:include href="runas-auth-provider.xml"/>
   </part>
   <xi:include href="appendix-db-schema.xml"/>
   <xi:include href="appendix-namespace.xml"/>

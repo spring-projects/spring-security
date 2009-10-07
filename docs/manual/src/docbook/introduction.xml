@@ -17,16 +17,19 @@
             standards, it's important to recognise that they are not portable at a WAR or EAR level.
             Therefore, if you switch server environments, it is typically a lot of work to
             reconfigure your application's security in the new target environment. Using Spring
-            Security overcomes these problems, and also brings you dozens of other useful, entirely
+            Security overcomes these problems, and also brings you dozens of other useful,
             customisable security features.</para>
-        <para>As you probably know, security comprises two major operations. The first is known as
-            "authentication", which is the process of establishing a principal is who they claim to
-            be. A "principal" generally means a user, device or some other system which can perform
-            an action in your application. "Authorization" refers to the process of deciding whether
-            a principal is allowed to perform an action in your application. To arrive at the point
-            where an authorization decision is needed, the identity of the principal has already
-            been established by the authentication process. These concepts are common, and not at
-            all specific to Spring Security.</para>
+        <para>As you probably know two major areas of application security are
+                <quote>authentication</quote> and <quote>authorization</quote> (or
+                <quote>access-control</quote>). These are the the two main areas that Spring
+            Security targets. <quote>Authentication</quote> is the process of establishing a
+            principal is who they claim to be (a <quote>principal</quote> generally means a user,
+            device or some other system which can perform an action in your application).
+                <quote>Authorization</quote> refers to the process of deciding whether a principal
+            is allowed to perform an action within your application. To arrive at the point where an
+            authorization decision is needed, the identity of the principal has already been
+            established by the authentication process. These concepts are common, and not at all
+            specific to Spring Security. </para>
         <para>At an authentication level, Spring Security supports a wide range of authentication
             models. Most of these authentication models are either provided by third parties, or are
             developed by relevant standards bodies such as the Internet Engineering Task Force. In
@@ -54,7 +57,8 @@
                 <para>OpenID authentication</para>
             </listitem>
             <listitem>
-                <para>Computer Associates Siteminder</para>
+                <para>Authentication based on pre-established request headers (such as Computer
+                    Associates Siteminder)</para>
             </listitem>
             <listitem>
                 <para>JA-SIG Central Authentication Service (otherwise known as CAS, which is a
@@ -80,8 +84,11 @@
                 <para>Java Authentication and Authorization Service (JAAS)</para>
             </listitem>
             <listitem>
-                <para>Container integration with JBoss, Jetty, Resin and Tomcat (so you can still
-                    use Container Manager Authentication if desired)</para>
+                <para>JEE container autentication (so you can still use Container Managed
+                    Authentication if desired)</para>
+            </listitem>
+            <listitem>
+                <para>Kerberos</para>
             </listitem>
             <listitem>
                 <para>Java Open Source Single Sign On (JOSSO) *</para>
@@ -142,20 +149,18 @@
             differentiate security based on the way a principal is interacting with your
             application. For example, you might want to ensure requests only arrive over HTTPS, in
             order to protect passwords from eavesdropping or end users from man-in-the-middle
-            attacks. Or, you might want to ensure that an actual human being is making the requests
-            and not some robot or other automated process. This is especially helpful to protect
-            password recovery processes from brute force attacks, or simply to make it harder for
-            people to duplicate your application's key content. To help you achieve these goals,
-            Spring Security fully supports automatic "channel security", together with JCaptcha
-            integration for human user detection.</para>
+            attacks. This is especially helpful to protect password recovery processes from brute
+            force attacks, or simply to make it harder for people to duplicate your application's
+            key content. To help you achieve these goals, Spring Security fully supports automatic
+            "channel security", together with JCaptcha integration for human user detection.</para>
         <para>Irrespective of how authentication was undertaken, Spring Security provides a deep set
             of authorization capabilities. There are three main areas of interest in respect of
-            authorization, these being authorizing web requests, authorizing methods can be invoked,
-            and authorizing access to individual domain object instances. To help you understand the
-            differences, consider the authorization capabilities found in the Servlet Specification
-            web pattern security, EJB Container Managed Security and file system security
-            respectively. Spring Security provides deep capabilities in all of these important
-            areas, which we'll explore later in this reference guide.</para>
+            authorization, these being authorizing web requests, authorizing whether methods can be
+            invoked, and authorizing access to individual domain object instances. To help you
+            understand the differences, consider the authorization capabilities found in the Servlet
+            Specification web pattern security, EJB Container Managed Security and file system
+            security respectively. Spring Security provides deep capabilities in all of these
+            important areas, which we'll explore later in this reference guide.</para>
     </sect1>
     <sect1 xml:id="history">
         <title>History</title>
