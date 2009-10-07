@@ -15,7 +15,7 @@
 package org.springframework.security.access.annotation;
 
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 
@@ -23,7 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource;
 import org.springframework.util.StringUtils;
 
 
@@ -52,7 +51,7 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends Test
             fail("Should be a superMethod called 'someUserMethod3' on class!");
         }
 
-        List<ConfigAttribute> attrs = mds.findAttributes(method, DepartmentServiceImpl.class);
+        Collection<ConfigAttribute> attrs = mds.findAttributes(method, DepartmentServiceImpl.class);
 
         assertNotNull(attrs);
 
@@ -76,7 +75,7 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends Test
             fail("Should be a superMethod called 'someUserMethod3' on class!");
         }
 
-        List<ConfigAttribute> superAttrs = this.mds.findAttributes(superMethod, DepartmentServiceImpl.class);
+        Collection<ConfigAttribute> superAttrs = this.mds.findAttributes(superMethod, DepartmentServiceImpl.class);
 
         assertNotNull(superAttrs);
 
@@ -94,7 +93,7 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends Test
     }
 
     public void testGetAttributesClass() {
-        List<ConfigAttribute> attrs = this.mds.findAttributes(BusinessService.class);
+        Collection<ConfigAttribute> attrs = this.mds.findAttributes(BusinessService.class);
 
         assertNotNull(attrs);
 
@@ -102,7 +101,7 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends Test
         assertEquals(1, attrs.size());
 
         // should have 1 SecurityConfig
-        SecurityConfig sc = ((SecurityConfig) attrs.get(0));
+        SecurityConfig sc = (SecurityConfig) attrs.toArray()[0];
 
         assertEquals("ROLE_USER", sc.getAttribute());
     }
@@ -116,7 +115,7 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends Test
             fail("Should be a method called 'someUserAndAdminMethod' on class!");
         }
 
-        List<ConfigAttribute> attrs = this.mds.findAttributes(method, BusinessService.class);
+        Collection<ConfigAttribute> attrs = this.mds.findAttributes(method, BusinessService.class);
 
         assertNotNull(attrs);
 

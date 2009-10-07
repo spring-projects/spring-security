@@ -39,11 +39,11 @@ import org.springframework.security.access.method.AbstractFallbackMethodSecurity
  */
 public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
 
-    protected List<ConfigAttribute> findAttributes(Class<?> clazz) {
+    protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
         return processAnnotations(clazz.getAnnotations());
     }
 
-    protected List<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
+    protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
         return processAnnotations(AnnotationUtils.getAnnotations(method));
     }
 

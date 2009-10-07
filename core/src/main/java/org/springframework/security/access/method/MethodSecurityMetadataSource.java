@@ -16,7 +16,7 @@
 package org.springframework.security.access.method;
 
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityMetadataSource;
@@ -30,5 +30,5 @@ import org.springframework.security.access.SecurityMetadataSource;
  * @version $Id$
  */
 public interface MethodSecurityMetadataSource extends SecurityMetadataSource {
-    public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass);
+    public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass);
 }

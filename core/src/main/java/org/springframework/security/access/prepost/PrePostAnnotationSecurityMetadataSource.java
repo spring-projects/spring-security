@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.ConfigAttribute;
@@ -38,7 +37,7 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
         this.attributeFactory = attributeFactory;
     }
 
-    public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
+    public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
         if (method.getDeclaringClass() == Object.class) {
             return null;
         }

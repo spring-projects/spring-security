@@ -26,8 +26,8 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
     private final static List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = Collections.emptyList();
 
     private List<MethodSecurityMetadataSource> methodSecurityMetadataSources;
-    private final Map<DefaultCacheKey, List<ConfigAttribute>> attributeCache =
-        new HashMap<DefaultCacheKey, List<ConfigAttribute>>();
+    private final Map<DefaultCacheKey, Collection<ConfigAttribute>> attributeCache =
+        new HashMap<DefaultCacheKey, Collection<ConfigAttribute>>();
 
     //~ Methods ========================================================================================================
 
@@ -35,10 +35,10 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
         Assert.notNull(methodSecurityMetadataSources, "A list of MethodSecurityMetadataSources is required");
     }
 
-    public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
+    public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
         DefaultCacheKey cacheKey = new DefaultCacheKey(method, targetClass);
         synchronized (attributeCache) {
-            List<ConfigAttribute> cached = attributeCache.get(cacheKey);
+            Collection<ConfigAttribute> cached = attributeCache.get(cacheKey);
             // Check for canonical value indicating there is no config attribute,
             if (cached == NULL_CONFIG_ATTRIBUTE) {
                 return null;
@@ -49,7 +49,7 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
             }
 
             // No cached value, so query the sources to find a result
-            List<ConfigAttribute> attributes = null;
+            Collection<ConfigAttribute> attributes = null;
             for (MethodSecurityMetadataSource s : methodSecurityMetadataSources) {
                 attributes = s.getAttributes(method, targetClass);
                 if (attributes != null) {

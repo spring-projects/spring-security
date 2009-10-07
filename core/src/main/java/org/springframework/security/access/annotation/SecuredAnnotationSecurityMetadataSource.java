@@ -35,11 +35,11 @@ import org.springframework.security.access.method.AbstractFallbackMethodSecurity
  */
 public class SecuredAnnotationSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
 
-    protected List<ConfigAttribute> findAttributes(Class<?> clazz) {
+    protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
         return processAnnotation(clazz.getAnnotation(Secured.class));
     }
 
-    protected List<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
+    protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
         return processAnnotation(AnnotationUtils.findAnnotation(method, Secured.class));
     }
 

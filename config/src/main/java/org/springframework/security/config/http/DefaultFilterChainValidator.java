@@ -1,5 +1,6 @@
 package org.springframework.security.config.http;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +100,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
             FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) getFilter(FilterSecurityInterceptor.class, filters);
             DefaultFilterInvocationSecurityMetadataSource fids =
                     (DefaultFilterInvocationSecurityMetadataSource) fsi.getSecurityMetadataSource();
-            List<ConfigAttribute> attributes = fids.lookupAttributes(loginPage, "POST");
+            Collection<ConfigAttribute> attributes = fids.lookupAttributes(loginPage, "POST");
 
             if (attributes == null) {
                 logger.debug("No access attributes defined for login page URL");

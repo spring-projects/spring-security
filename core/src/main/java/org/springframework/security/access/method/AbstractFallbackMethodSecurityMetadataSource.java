@@ -1,7 +1,7 @@
 package org.springframework.security.access.method;
 
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.util.ClassUtils;
@@ -27,12 +27,12 @@ import org.springframework.util.ClassUtils;
  */
 public abstract class AbstractFallbackMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
 
-    public List<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
+    public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
         // The method may be on an interface, but we need attributes from the target class.
         // If the target class is null, the method will be unchanged.
         Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
         // First try is the method in the target class.
-        List<ConfigAttribute> attr = findAttributes(specificMethod, targetClass);
+        Collection<ConfigAttribute> attr = findAttributes(specificMethod, targetClass);
         if (attr != null) {
             return attr;
         }
@@ -68,7 +68,7 @@ public abstract class AbstractFallbackMethodSecurityMetadataSource extends Abstr
      * @param targetClass the target class for the invocation (may be <code>null</code>)
      * @return the security metadata (or null if no metadata applies)
      */
-    protected abstract List<ConfigAttribute> findAttributes(Method method, Class<?> targetClass);
+    protected abstract Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass);
 
     /**
      * Obtains the security metadata registered against the specified class.
@@ -82,7 +82,7 @@ public abstract class AbstractFallbackMethodSecurityMetadataSource extends Abstr
      * @param clazz the target class for the invocation (never <code>null</code>)
      * @return the security metadata (or null if no metadata applies)
      */
-    protected abstract List<ConfigAttribute> findAttributes(Class<?> clazz);
+    protected abstract Collection<ConfigAttribute> findAttributes(Class<?> clazz);
 
 
 }

@@ -2,7 +2,7 @@ package org.springframework.security.access.annotation;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
@@ -12,7 +12,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
 
 /**
  * @author Luke Taylor
@@ -25,51 +24,55 @@ public class Jsr250MethodDefinitionSourceTests {
     UserAllowedClass userAllowed = new UserAllowedClass();
     DenyAllClass denyAll = new DenyAllClass();
 
+    private ConfigAttribute[] findAttributes(String methodName) throws Exception {
+        return mds.findAttributes(a.getClass().getMethod(methodName), null).toArray(new ConfigAttribute[0]);
+    }
+
     @Test
     public void methodWithRolesAllowedHasCorrectAttribute() throws Exception {
-        List<ConfigAttribute> accessAttributes = mds.findAttributes(a.getClass().getMethod("adminMethod"), null);
-        assertEquals(1, accessAttributes.size());
-        assertEquals("ADMIN", accessAttributes.get(0).toString());
+        ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
+        assertEquals(1, accessAttributes.length);
+        assertEquals("ADMIN", accessAttributes[0].toString());
     }
 
     @Test
     public void permitAllMethodHasPermitAllAttribute() throws Exception {
-        List<ConfigAttribute> accessAttributes = mds.findAttributes(a.getClass().getMethod("permitAllMethod"), null);
-        assertEquals(1, accessAttributes.size());
-        assertEquals("javax.annotation.security.PermitAll", accessAttributes.get(0).toString());
+        ConfigAttribute[] accessAttributes = findAttributes("permitAllMethod");
+        assertEquals(1, accessAttributes.length);
+        assertEquals("javax.annotation.security.PermitAll", accessAttributes[0].toString());
     }
 
     @Test
     public void noRoleMethodHasDenyAllAttributeWithDenyAllClass() throws Exception {
-        List<ConfigAttribute> accessAttributes = mds.findAttributes(denyAll.getClass());
-        assertEquals(1, accessAttributes.size());
-        assertEquals("javax.annotation.security.DenyAll", accessAttributes.get(0).toString());
+        ConfigAttribute[] accessAttributes = mds.findAttributes(denyAll.getClass()).toArray(new ConfigAttribute[0]);
+        assertEquals(1, accessAttributes.length);
+        assertEquals("javax.annotation.security.DenyAll", accessAttributes[0].toString());
     }
 
     @Test
     public void adminMethodHasAdminAttributeWithDenyAllClass() throws Exception {
-        List<ConfigAttribute> accessAttributes = mds.findAttributes(denyAll.getClass().getMethod("adminMethod"), null);
+        Collection<ConfigAttribute> accessAttributes = mds.findAttributes(denyAll.getClass().getMethod("adminMethod"), null);
         assertEquals(1, accessAttributes.size());
-        assertEquals("ADMIN", accessAttributes.get(0).toString());
+        assertEquals("ADMIN", accessAttributes.toArray()[0].toString());
     }
 
     @Test
     public void noRoleMethodHasNoAttributes() throws Exception {
-        List<ConfigAttribute> accessAttributes = mds.findAttributes(a.getClass().getMethod("noRoleMethod"), null);
+        Collection<ConfigAttribute> accessAttributes = mds.findAttributes(a.getClass().getMethod("noRoleMethod"), null);
         Assert.assertNull(accessAttributes);
     }
 
     @Test
     public void classRoleIsAppliedToNoRoleMethod() throws Exception {
-        List<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed.getClass().getMethod("noRoleMethod"), null);
+        Collection<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed.getClass().getMethod("noRoleMethod"), null);
         Assert.assertNull(accessAttributes);
     }
 
     @Test
     public void methodRoleOverridesClassRole() throws Exception {
-        List<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed.getClass().getMethod("adminMethod"), null);
+        Collection<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed.getClass().getMethod("adminMethod"), null);
         assertEquals(1, accessAttributes.size());
-        assertEquals("ADMIN", accessAttributes.get(0).toString());
+        assertEquals("ADMIN", accessAttributes.toArray()[0].toString());
     }
 
 //~ Inner Classes ======================================================================================================

@@ -72,14 +72,14 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
     /**
      * Implementation does not support class-level attributes.
      */
-    protected List<ConfigAttribute> findAttributes(Class<?> clazz) {
+    protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
         return null;
     }
 
     /**
      * Will walk the method inheritance tree to find the most specific declaration applicable.
      */
-    protected List<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
+    protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
         if (targetClass == null) {
             return null;
         }
