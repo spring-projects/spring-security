@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.preauth.RequestHeaderAuth
  * @author Luke Taylor
  * @version $Id$
  */
-public class RequestHeaderPreAuthenticatedProcessingFilterTests {
+public class RequestHeaderAuthenticationFilterTests {
 
     @After
     @Before
@@ -106,6 +106,28 @@ public class RequestHeaderPreAuthenticatedProcessingFilterTests {
         filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.doFilter(request, response, new MockFilterChain());
         assertSame(dog, SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    @Test(expected=PreAuthenticatedCredentialsNotFoundException.class)
+    public void missingHeaderCausesException() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
+        filter.setAuthenticationManager(createAuthenticationManager());
+
+        filter.doFilter(request, response, chain);
+    }
+
+    @Test
+    public void missingHeaderIsIgnoredIfExceptionIfHeaderMissingIsFalse() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
+        filter.setExceptionIfHeaderMissing(false);
+        filter.setAuthenticationManager(createAuthenticationManager());
+        filter.doFilter(request, response, chain);
     }
 
     /**
