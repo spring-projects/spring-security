@@ -1,6 +1,6 @@
 package org.springframework.security.config.http;
 
-import static org.springframework.security.config.http.FilterChainOrder.*;
+import static org.springframework.security.config.http.SecurityFilters.*;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -565,11 +565,11 @@ final class AuthenticationConfigBuilder {
         }
 
         if (formFilter != null) {
-            filters.add(new OrderDecorator(formFilter, AUTHENTICATION_PROCESSING_FILTER));
+            filters.add(new OrderDecorator(formFilter, FORM_LOGIN_FILTER));
         }
 
         if (openIDFilter != null) {
-            filters.add(new OrderDecorator(openIDFilter, OPENID_PROCESSING_FILTER));
+            filters.add(new OrderDecorator(openIDFilter, OPENID_FILTER));
         }
 
         if (loginPageGenerationFilter != null) {
@@ -577,7 +577,7 @@ final class AuthenticationConfigBuilder {
         }
 
         if (basicFilter != null) {
-            filters.add(new OrderDecorator(basicFilter, BASIC_PROCESSING_FILTER));
+            filters.add(new OrderDecorator(basicFilter, BASIC_AUTH_FILTER));
         }
 
         filters.add(new OrderDecorator(etf, EXCEPTION_TRANSLATION_FILTER));

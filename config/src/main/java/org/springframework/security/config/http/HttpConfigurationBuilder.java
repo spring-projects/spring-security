@@ -1,6 +1,6 @@
 package org.springframework.security.config.http;
 
-import static org.springframework.security.config.http.FilterChainOrder.*;
+import static org.springframework.security.config.http.SecurityFilters.*;
 import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.*;
 
 import java.util.ArrayList;
@@ -488,13 +488,11 @@ class HttpConfigurationBuilder {
         }
 
         if (sfpf != null) {
-            filters.add(new OrderDecorator(sfpf, SESSION_FIXATION_FILTER));
+            filters.add(new OrderDecorator(sfpf, SESSION_MANAGEMENT_FILTER));
         }
 
         filters.add(new OrderDecorator(fsi, FILTER_SECURITY_INTERCEPTOR));
 
         return filters;
     }
-
-
 }

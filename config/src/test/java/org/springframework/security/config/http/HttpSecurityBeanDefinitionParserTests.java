@@ -507,7 +507,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<http auto-config='true'>" +
                 "    <custom-filter position='FIRST' ref='userFilter1' />" +
                 "    <custom-filter after='LOGOUT_FILTER' ref='userFilter' />" +
-                "    <custom-filter before='SESSION_CONTEXT_INTEGRATION_FILTER' ref='userFilter3'/>" +
+                "    <custom-filter before='SECURITY_CONTEXT_FILTER' ref='userFilter3'/>" +
                 "</http>" + AUTH_PROVIDER_XML +
                 "<b:bean id='userFilter' class='"+ contextHolderFilterClass +"'/>" +
                 "<b:bean id='userFilter1' class='" + contextPersistenceFilterClass + "'/>" +

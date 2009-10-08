@@ -1,6 +1,6 @@
 package org.springframework.security.config.http;
 
-import static org.springframework.security.config.http.FilterChainOrder.REQUEST_CACHE_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.REQUEST_CACHE_FILTER;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -231,13 +231,21 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             }
 
             if (StringUtils.hasText(position)) {
-                customFilters.add(new OrderDecorator(bean, FilterChainOrder.getOrder(position)));
+                customFilters.add(new OrderDecorator(bean, SecurityFilters.valueOf(position)));
             } else if (StringUtils.hasText(after)) {
-                int order = FilterChainOrder.getOrder(after);
-                customFilters.add(new OrderDecorator(bean, order == Integer.MAX_VALUE ? order : order + 1));
+                SecurityFilters order = SecurityFilters.valueOf(after);
+                if (order == SecurityFilters.LAST) {
+                    customFilters.add(new OrderDecorator(bean, SecurityFilters.LAST));
+                } else {
+                    customFilters.add(new OrderDecorator(bean, order.getOrder() + 1));
+                }
             } else if (StringUtils.hasText(before)) {
-                int order = FilterChainOrder.getOrder(before);
-                customFilters.add(new OrderDecorator(bean, order == Integer.MIN_VALUE ? order : order - 1));
+                SecurityFilters order = SecurityFilters.valueOf(before);
+                if (order == SecurityFilters.FIRST) {
+                    customFilters.add(new OrderDecorator(bean, SecurityFilters.FIRST));
+                } else {
+                    customFilters.add(new OrderDecorator(bean, order.getOrder() - 1));
+                }
             }
         }
 
@@ -302,8 +310,12 @@ class OrderDecorator implements Ordered {
     BeanMetadataElement bean;
     int order;
 
+    public OrderDecorator(BeanMetadataElement bean, SecurityFilters filterOrder) {
+        this.bean = bean;
+        this.order = filterOrder.getOrder();
+    }
+
     public OrderDecorator(BeanMetadataElement bean, int order) {
-        super();
         this.bean = bean;
         this.order = order;
     }
