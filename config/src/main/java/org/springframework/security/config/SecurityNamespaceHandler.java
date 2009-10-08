@@ -3,7 +3,6 @@ package org.springframework.security.config;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 import org.springframework.security.config.authentication.AuthenticationManagerBeanDefinitionParser;
 import org.springframework.security.config.authentication.AuthenticationProviderBeanDefinitionParser;
-import org.springframework.security.config.authentication.CustomAuthenticationProviderBeanDefinitionDecorator;
 import org.springframework.security.config.authentication.JdbcUserServiceBeanDefinitionParser;
 import org.springframework.security.config.authentication.UserServiceBeanDefinitionParser;
 import org.springframework.security.config.http.CustomFilterBeanDefinitionDecorator;
@@ -13,7 +12,6 @@ import org.springframework.security.config.http.HttpSecurityBeanDefinitionParser
 import org.springframework.security.config.ldap.LdapProviderBeanDefinitionParser;
 import org.springframework.security.config.ldap.LdapServerBeanDefinitionParser;
 import org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser;
-import org.springframework.security.config.method.CustomAfterInvocationProviderBeanDefinitionDecorator;
 import org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParser;
 import org.springframework.security.config.method.InterceptMethodsBeanDefinitionDecorator;
 
@@ -46,7 +44,5 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionDecorator(Elements.INTERCEPT_METHODS, new InterceptMethodsBeanDefinitionDecorator());
         registerBeanDefinitionDecorator(Elements.FILTER_CHAIN_MAP, new FilterChainMapBeanDefinitionDecorator());
         registerBeanDefinitionDecorator(Elements.CUSTOM_FILTER, new CustomFilterBeanDefinitionDecorator());
-        registerBeanDefinitionDecorator(Elements.CUSTOM_AUTH_PROVIDER, new CustomAuthenticationProviderBeanDefinitionDecorator());
-        registerBeanDefinitionDecorator(Elements.CUSTOM_AFTER_INVOCATION_PROVIDER, new CustomAfterInvocationProviderBeanDefinitionDecorator());
     }
 }

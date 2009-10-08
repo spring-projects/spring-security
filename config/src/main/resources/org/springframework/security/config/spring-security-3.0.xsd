@@ -545,9 +545,6 @@
   
   
   
-  <xs:element name="custom-after-invocation-provider"><xs:annotation>
-      <xs:documentation>No longer supported. Use after-invocation-provider instead.</xs:documentation>
-    </xs:annotation><xs:complexType/></xs:element>
   
   <xs:attributeGroup name="protect-pointcut.attlist">
     <xs:attribute name="expression" use="required" type="xs:string">

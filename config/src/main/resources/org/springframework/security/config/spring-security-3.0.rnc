@@ -230,10 +230,6 @@ expression-handler =
     ## Defines the SecurityExpressionHandler instance which will be used if expression-based access-control is enabled. A default implementation (with no ACL support) will be used if not supplied.
     element expression-handler {ref}
 
-custom-after-invocation-provider =
-    ## No longer supported. Use after-invocation-provider instead.
-    element custom-after-invocation-provider {empty}
-
 protect-pointcut =
     ## Defines a protected pointcut and the access control configuration attributes that apply to it. Every bean registered in the Spring application context that provides a method that matches the pointcut will receive security authorization.
     element protect-pointcut {protect-pointcut.attlist, empty}
