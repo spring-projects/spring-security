@@ -233,7 +233,7 @@
                 <answer>
                     <para> This is a another debug level message which occurs the first time an
                         anonymous user attempts to access a protected resource, but when you do not
-                        have an AnonymousProcessingFilter in your filter chain configuration.
+                        have an <classname>AnonymousAuthenticationFilter</classname> in your filter chain configuration.
                         <programlisting>
     DEBUG [ExceptionTranslationFilter] - Authentication exception occurred; redirecting to authentication entry point
     org.springframework.security.AuthenticationCredentialsNotFoundException: An Authentication object was not found in the SecurityContext
@@ -363,7 +363,7 @@
                         find more information there by searching the archives (or through
                         google).</para>
                     <para> The submitted login information is processed by an instance of
-                            <classname>AuthenticationProcessingFilter</classname>. You will need to
+                            <classname>UsernamePasswordAuthenticationFilter</classname>. You will need to
                         customize this class to handle the extra data field(s). One option is to use
                         your own customized authentication token class (rather than the standard
                             <classname>UsernamePasswordAuthenticationToken</classname>), another is
