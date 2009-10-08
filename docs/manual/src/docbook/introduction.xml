@@ -2,7 +2,7 @@
 <chapter version="5.0" xml:id="introduction" xmlns="http://docbook.org/ns/docbook"
     xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>Introduction</title>
-    <sect1 xml:id="what-is-acegi-security">
+    <section xml:id="what-is-acegi-security">
         <title>What is Spring Security?</title>
         <para>Spring Security provides comprehensive security services for J2EE-based enterprise
             software applications. There is a particular emphasis on supporting projects built using
@@ -161,8 +161,8 @@
             Specification web pattern security, EJB Container Managed Security and file system
             security respectively. Spring Security provides deep capabilities in all of these
             important areas, which we'll explore later in this reference guide.</para>
-    </sect1>
-    <sect1 xml:id="history">
+    </section>
+    <section xml:id="history">
         <title>History</title>
         <para>Spring Security began in late 2003 as "The Acegi Security System for Spring". A
             question was posed on the Spring Developers' mailing list asking whether there had been
@@ -181,7 +181,7 @@
             Container Managed Security was relied upon for the authentication process, with Acegi
             Security instead focusing on authorization. This was suitable at first, but as more and
             more users requested additional container support, the fundamental limitation of
-            container-specific authentication realm interfaces was experienced. There was also a
+            container-specific authentication realm interfaces became clear. There was also a
             related issue of adding new JARs to the container's classpath, which was a common source
             of end user confusion and misconfiguration.</para>
         <para>Acegi Security-specific authentication services were subsequently introduced. Around a
@@ -190,13 +190,13 @@
             use in numerous production software projects and many hundreds of improvements and
             community contributions.</para>
         <para>Acegi Security became an official Spring Portfolio project towards the end of 2007 and
-            was rebranded as "Spring Security".</para>
+            was rebranded as <quote>Spring Security</quote>.</para>
         <para>Today Spring Security enjoys a strong and active open source community. There are
             thousands of messages about Spring Security on the support forums. There is an active
-            core of developers work who work on the code itself and an active community which also
+            core of developers who work on the code itself and an active community which also
             regularly share patches and support their peers.</para>
-    </sect1>
-    <sect1 xml:id="release-numbering">
+    </section>
+    <section xml:id="release-numbering">
         <title>Release Numbering</title>
         <para>It is useful to understand how Spring Security release numbers work, as it will help
             you identify the effort (or lack thereof) involved in migrating to future releases of
@@ -209,22 +209,88 @@
                 the API. MINOR versions retain source and binary compatibility with older minor
                 versions, and changes in the PATCH level are perfectly compatible, forwards and
                 backwards.</quote></para>
-    </sect1>
-    <sect1 xml:id="get-source">
-        <title>Getting the Source</title>
-        <para> Since Spring Security is an Open Source project, we'd strongly encourage you to check
-            out the source code using subversion. This will give you full access to all the sample
-            applications and you can build the most up to date version of the project easily. Having
-            the source for a project is also a huge help in debugging. Exception stack traces are no
-            longer obscure black-box issues but you can get straight to the line that's causing the
-            problem and work out what's happening. The source is the ultimate documentation for a
-            project and often the simplest place to find out how something actually works. </para>
-        <para> To obtain the source for the project trunk, use the following subversion command:
-            <programlisting>
-    svn checkout https://src.springframework.org/svn/spring-security/trunk/
-</programlisting>
-            You can checkout specific versions from
-                <literal>https://src.springframework.org/svn/spring-security/tags/</literal>.
-        </para>
-    </sect1>
+    </section>
+    <section xml:id="get-spring-security">
+        <title>Getting Spring Security</title>
+        <para>You can get hold of Spring Security in several ways. You can download a packaged
+            distribution from the main Spring <link
+                xlink:href="http://www.springsource.com/download/community?project=Spring%20Security"
+                >download page</link>, download individual jars (and sample WAR files) from the
+            Maven Central repository (or a SpringSource Maven repository for snapshot and milestone
+            releases). Alternatively, you can build the project from source yourself. See the
+            project web site for more details. </para>
+        <section xml:id="modules">
+            <title>Project Modules</title>
+            <para>In Spring Security 3.0, the codebase has been sub-divided into separate jars which
+                more clearly separate different functionaltiy areas and third-party dependencies. If
+                you are using Maven to build your project, then these are the modules you will add
+                to your <filename>pom.xml</filename>. Even if you're not using Maven, we'd recommend
+                that you consult the <filename>pom.xml</filename> files to get an idea of
+                third-party dependencies and versions. Alternatively, a good idea is to examine the
+                libraries that are included in the sample applications.</para>
+            <section xml:id="spring-security-core">
+                <title>Core - <literal>spring-security-core.jar</literal></title>
+                <para>Contains core authentication and access-contol classes and interfaces,
+                    remoting support and basic provisioning APIs. Required by any application which
+                    uses Spring Security. Supports standalone applications, remote clients, method
+                    (service layer) security and JDBC user provisioning. Contains the top-level packages:<itemizedlist><listitem><para><literal>org.springframework.security.core</literal></para></listitem><listitem><para><literal>org.springframework.security.access</literal></para></listitem><listitem><para><literal>org.springframework.security.authentication</literal></para></listitem><listitem><para><literal>org.springframework.security.provisioning</literal></para></listitem><listitem><para><literal>org.springframework.security.remoting</literal></para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="spring-security-web">
+                <title>Web - <literal>spring-security-web.jar</literal></title>
+                <para>Contains filters and related web-security infrastructure code. Anything with a
+                    servlet API dependency. You'll need it if you require Spring Security web
+                    authentication services and URL-based access-control. The main package is
+                        <literal>org.springframework.security.web</literal>.</para>
+            </section>
+            <section xml:id="spring-security-config">
+                <title>Config - <literal>spring-security-config.jar</literal></title>
+                <para>Contains the security namespace parsing code (and hence nothing that you are
+                    likely yo use directly in your application). You need it if you are using the
+                    Spring Security XML namespace for configuration. The main package is
+                        <literal>org.springframework.security.config</literal>.</para>
+            </section>
+            <section xml:id="spring-security-ldap">
+                <title>LDAP - <literal>spring-security-ldap.jar</literal></title>
+                <para>LDAP authentication and provisioning code. Required if you need to use LDAP
+                    authentication or manage LDAP user entries. The top-level package is
+                        <literal>org.springframework.security.ldap</literal>.</para>
+            </section>
+            <section xml:id="spring-security-acl">
+                <title>ACL - <literal>spring-security-acl.jar</literal></title>
+                <para>Specialized domain object ACL implementation. Used to apply security to
+                    specific domain object instances within your application. The top-level package
+                    is <literal>org.springframework.security.acls</literal>.</para>
+            </section>
+            <section xml:id="spring-security-cas">
+                <title>CAS - <literal>spring-security-cas-client.jar</literal></title>
+                <para>Spring Security's CAS client integration. If you want to use Spring Security
+                    web authentication with a CAS single sign-on server. The top-level package is
+                        <literal>org.springframework.security.cas</literal>.</para>
+            </section>
+            <section xml:id="spring-security-openid">
+                <title>OpenID - <literal>spring-security-openid.jar</literal></title>
+                <para>OpenID web authentication support. Used to authenticate users against an
+                    external OpenID server. <literal>org.springframework.security.openid</literal>.
+                    Requires OpenID4Java.</para>
+            </section>
+        </section>
+        <section xml:id="get-source">
+            <title>Checking out the Source</title>
+            <para> Since Spring Security is an Open Source project, we'd strongly encourage you to
+                check out the source code using subversion. This will give you full access to all
+                the sample applications and you can build the most up to date version of the project
+                easily. Having the source for a project is also a huge help in debugging. Exception
+                stack traces are no longer obscure black-box issues but you can get straight to the
+                line that's causing the problem and work out what's happening. The source is the
+                ultimate documentation for a project and often the simplest place to find out how
+                something actually works. </para>
+            <para> To obtain the source for the project trunk, use the following subversion command:
+                <programlisting>
+        svn checkout https://src.springframework.org/svn/spring-security/trunk/
+    </programlisting>
+                You can checkout specific versions from
+                    <literal>https://src.springframework.org/svn/spring-security/tags/</literal>.
+            </para>
+        </section>
+    </section>
 </chapter>

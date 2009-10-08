@@ -76,7 +76,10 @@
         approach where you have to wire up all the implementation classes individually. </para>
       <para> We'll also take a look at the sample applications that are available. It's worth trying
         to run these and experimenting with them a bit even before you read the later sections - you
-        can dip back into them as your understanding of the framework increases. </para>
+        can dip back into them as your understanding of the framework increases. Please also check
+        out the <link xlink:href="http://static.springsource.org/spring-security/site/index.html">project website</link> as
+        it has useful information on building the project, plus links to articles, videos and tutorials.
+      </para>
     </partintro>
     <xi:include href="introduction.xml"/>
     <xi:include href="namespace-config.xml"/>
@@ -112,7 +115,7 @@
     <xi:include href="core-filters.xml"/>
     <xi:include href="basic-and-digest-auth.xml"/>
     <xi:include href="remember-me-authentication.xml"/>
-    <xi:include href="concurrent-sessions.xml"/>
+    <xi:include href="session-mgmt.xml"/>
     <xi:include href="anon-auth-provider.xml"/>
   </part>
   <!--  
