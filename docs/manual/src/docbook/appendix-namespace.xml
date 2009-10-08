@@ -62,7 +62,7 @@
         <title><literal>realm</literal></title>
         <para> Sets the realm name used for basic authentication (if enabled). Corresponds to the
             <literal>realmName</literal> proerty on
-            <classname>BasicProcessingFilterEntryPoint</classname>. </para>
+            <classname>BasicAuthenticationEntryPoint</classname>. </para>
       </section>
       <section xml:id="nsa-entry-point-ref">
         <title><literal>entry-point-ref</literal></title>
@@ -123,7 +123,7 @@
           <interfacename>FilterInvocationDefinitionSource</interfacename> used by the
           <classname>FilterSecurityInterceptor</classname> and to exclude particular patterns from
         the filter chain entirely (by setting the attribute <literal>filters="none"</literal>). It
-        is also responsible for configuring a <classname>ChannelProcessingFilter</classname> if
+        is also responsible for configuring a <classname>ChannelAuthenticationFilter</classname> if
         particular URLs need to be accessed by HTTPS, for example. </para>
       <section xml:id="nsa-pattern">
         <title><literal>pattern</literal></title>
@@ -149,8 +149,8 @@
           accessed over HTTP or HTTPS respectively. Alternatively the value "any" can be used when
           there is no preference. If this attribute is present on any
             <literal>&lt;intercept-url&gt;</literal> element, then a
-            <classname>ChannelProcessingFilter</classname> will be added to the filter stack and its
-          additional dependencies added to the application context.
+            <classname>ChannelAuthenticationFilter</classname> will be added to the filter stack and
+          its additional dependencies added to the application context.
           <!--See the chapter on <link
             xlink:href="#channel-security-config">channel security</link> for an example
           configuration using traditional beans. --></para>
@@ -237,15 +237,14 @@
     </section>
     <section xml:id="nsa-http-basic">
       <title>The <literal>&lt;http-basic&gt;</literal> Element</title>
-      <para> Adds a <classname>BasicProcessingFilter</classname> and
-          <classname>BasicProcessingFilterEntryPoint</classname> to the configuration. The latter
-        will only be used as the configuration entry point if form-based login is not enabled.
-      </para>
+      <para> Adds a <classname>BasicAuthenticationFilter</classname> and
+          <classname>BasicAuthenticationEntryPoint</classname> to the configuration. The latter will
+        only be used as the configuration entry point if form-based login is not enabled. </para>
     </section>
     <section xml:id="nsa-remember-me">
       <title>The <literal>&lt;remember-me&gt;</literal> Element</title>
-      <para> Adds the <classname>RememberMeProcessingFilter</classname> to the stack. This in turn
-        will be configured with either a <classname>TokenBasedRememberMeServices</classname>, a
+      <para> Adds the <classname>RememberMeAuthenticationFilter</classname> to the stack. This in
+        turn will be configured with either a <classname>TokenBasedRememberMeServices</classname>, a
           <classname>PersistentTokenBasedRememberMeServices</classname> or a user-specified bean
         implementing <interfacename>RememberMeServices</interfacename> depending on the attribute
         settings. </para>
@@ -354,17 +353,17 @@
     </section>
     <section xml:id="nsa-anonymous">
       <title>The <literal>&lt;anonymous&gt;</literal> Element</title>
-      <para> Adds an <classname>AnonymousProcessingFilter</classname> to the stack and an
+      <para> Adds an <classname>AnonymousAuthenticationFilter</classname> to the stack and an
           <classname>AnonymousAuthenticationProvider</classname>. Required if you are using the
           <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> attribute. </para>
     </section>
     <section xml:id="nsa-x509">
       <title>The <literal>&lt;x509&gt;</literal> Element</title>
       <para> Adds support for X.509 authentication. An
-          <classname>X509PreAuthenticatedProcessingFilter</classname> will be added to the stack and
-        a <classname>PreAuthenticatedProcessingFilterEntryPoint</classname> bean will be created.
-        The latter will only be used if no other authentication mechanisms are in use (it's only
-        functionality is to return an HTTP 403 error code). A
+          <classname>X509AuthenticationFilter</classname> will be added to the stack and an
+          <classname>Http403ForbiddenEntryPoint</classname> bean will be created. The latter will
+        only be used if no other authentication mechanisms are in use (it's only functionality is to
+        return an HTTP 403 error code). A
           <classname>PreAuthenticatedAuthenticationProvider</classname> will also be created which
         delegates the loading of user authorities to a
           <interfacename>UserDetailsService</interfacename>. </para>

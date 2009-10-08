@@ -250,15 +250,15 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
                             <classname>ExceptionTranslationFilter</classname>.
                         </para></listitem><listitem><para>Implement the login page (using a JSP or
                         MVC controller).</para></listitem><listitem><para>Configure an instance of
-                            <classname>UsernamePasswordAuthenticationFilter</classname> in
-                        the application context</para></listitem><listitem><para>Add the filter bean
-                        to your filter chain proxy (making sure you pay attention to the order).
+                            <classname>UsernamePasswordAuthenticationFilter</classname> in the
+                        application context</para></listitem><listitem><para>Add the filter bean to
+                        your filter chain proxy (making sure you pay attention to the order).
                         <!-- TODO: link --></para></listitem></orderedlist> The login form simply
             contains <literal>j_username</literal> and <literal>j_password</literal> input fields,
             and posts to the URL that is monitored by the filter (by default this is
                 <literal>/j_spring_security_check</literal>). The basic filter configuration looks
             something like this: <programlisting><![CDATA[    
-<bean id="authenticationProcessingFilter" class=
+<bean id="authenticationFilter" class=
 "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="filterProcessesUrl" value="/j_spring_security_check"/>

@@ -35,11 +35,11 @@
     <para>
       <interfacename>SessionAuthenticationStrategy</interfacename> is used by both
         <classname>SessionManagementFilter</classname> and
-        <classname>AbstractAutheticationProcessingFilter</classname>, so if you are using a
+        <classname>AbstractAuthenticationProcessingFilter</classname>, so if you are using a
       customized form-login class, for example, you will need to inject it into both of these. In
       this case, a typical configuration, combining the namespace and custom beans might look like this:<programlisting><![CDATA[
   <http>  
-    <custom-filter position="AUTHENTICATION_PROCESSING_FILTER" ref="myAuthFilter" />     
+    <custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />     
     <session-management session-authentication-strategy-ref="sas"/>      
   </http>
   

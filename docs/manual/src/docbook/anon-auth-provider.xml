@@ -47,16 +47,17 @@
             principal. There is a corresponding <literal>AnonymousAuthenticationProvider</literal>,
             which is chained into the <literal>ProviderManager</literal> so that
                 <literal>AnonymousAuthenticationToken</literal>s are accepted. Finally, there is an
-            AnonymousProcessingFilter, which is chained after the normal authentication mechanisms
-            and automatically adds an <literal>AnonymousAuthenticationToken</literal> to the
+                <classname>AnonymousAuthenticationFilter</classname>, which is chained after the
+            normal authentication mechanisms and automatically adds an
+                <literal>AnonymousAuthenticationToken</literal> to the
                 <classname>SecurityContextHolder</classname> if there is no existing
                 <interfacename>Authentication</interfacename> held there. The definition of the
             filter and authentication provider appears as follows:</para>
         <para>
             <programlisting>
 <![CDATA[
-<bean id="anonymousProcessingFilter"
-    class="org.springframework.security.web.authentication.AnonymousProcessingFilter">
+<bean id="anonymousAuthFilter"
+    class="org.springframework.security.web.authentication.AnonymousAuthenticationFilter">
   <property name="key" value="foobar"/>
   <property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS"/>
 </bean>
@@ -68,10 +69,10 @@
     </programlisting>
         </para>
         <para>The <literal>key</literal> is shared between the filter and authentication provider,
-            so that tokens created by the former are accepted by the latter<footnote>
-                <para>The use of the <literal>key</literal> property should not be regarded as
-                    providing any real security here. It is merely a book-keeping exercise. If you
-                    are sharing a <classname>ProviderManager</classname> which contains an
+            so that tokens created by the former are accepted by the latter<footnote><para>The use
+                    of the <literal>key</literal> property should not be regarded as providing any
+                    real security here. It is merely a book-keeping exercise. If you are sharing a
+                        <classname>ProviderManager</classname> which contains an
                         <classname>AnonymousAuthenticationProvider</classname> in a scenario where
                     it is possible for an authenticating client to construct the
                         <interfacename>Authentication</interfacename> object (such as with RMI
@@ -82,14 +83,15 @@
                     anonymous provider. This isn't a problem with normal usage but if you are using
                     RMI you would be best to use a customized <classname>ProviderManager</classname>
                     which omits the anonymous provider rather than sharing the one you use for your
-                    HTTP authentication mechanisms.</para>
-            </footnote>. The <literal>userAttribute</literal> is expressed in the form of
+                    HTTP authentication mechanisms.</para></footnote>. The
+                <literal>userAttribute</literal> is expressed in the form of
                 <literal>usernameInTheAuthenticationToken,grantedAuthority[,grantedAuthority]</literal>.
             This is the same syntax as used after the equals sign for
                 <literal>InMemoryDaoImpl</literal>'s <literal>userMap</literal> property.</para>
         <para>As explained earlier, the benefit of anonymous authentication is that all URI patterns
             can have security applied to them. For example:</para>
-        <para><programlisting>
+        <para>
+            <programlisting>
 <![CDATA[
 <bean id="filterSecurityInterceptor"
     class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
@@ -105,31 +107,29 @@
     </security:filter-security-metadata-source>" +
   </property>
 </bean>]]>
-    </programlisting></para>
+    </programlisting>
+        </para>
     </section>
     <section xml:id="anonymous-auth-trust-resolver">
         <title><interfacename>AuthenticationTrustResolver</interfacename></title>
-        <para>
-            Rounding out the anonymous authentication discussion is the
-            <interfacename>AuthenticationTrustResolver</interfacename> interface, with its corresponding
-            <literal>AuthenticationTrustResolverImpl</literal> implementation. This interface
-            provides an <literal>isAnonymous(Authentication)</literal> method, which allows
-            interested classes to take into account this special type of authentication status. The
-            <classname>ExceptionTranslationFilter</classname> uses this interface in processing
-            <literal>AccessDeniedException</literal>s. If an
-            <literal>AccessDeniedException</literal> is thrown, and the authentication is of an
+        <para> Rounding out the anonymous authentication discussion is the
+                <interfacename>AuthenticationTrustResolver</interfacename> interface, with its
+            corresponding <literal>AuthenticationTrustResolverImpl</literal> implementation. This
+            interface provides an <literal>isAnonymous(Authentication)</literal> method, which
+            allows interested classes to take into account this special type of authentication
+            status. The <classname>ExceptionTranslationFilter</classname> uses this interface in
+            processing <literal>AccessDeniedException</literal>s. If an
+                <literal>AccessDeniedException</literal> is thrown, and the authentication is of an
             anonymous type, instead of throwing a 403 (forbidden) response, the filter will instead
             commence the <interfacename>AuthenticationEntryPoint</interfacename> so the principal
             can authenticate properly. This is a necessary distinction, otherwise principals would
             always be deemed <quote>authenticated</quote> and never be given an opportunity to login
-            via form, basic, digest or some other normal authentication mechanism.            
-        </para>
-        <para>
-            You will often see the <literal>ROLE_ANONYMOUS</literal> attribute in the above interceptor configuration
-            replaced with <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal>. This is an example of the use of the
-            <classname>AuthenticatedVoter</classname> which will see in ???. It uses an 
-            <interfacename>AuthenticationTrustResolver</interfacename> to process this particular configuration
-            attribute and grant access to aonymous users.
+            via form, basic, digest or some other normal authentication mechanism. </para>
+        <para> You will often see the <literal>ROLE_ANONYMOUS</literal> attribute in the above
+            interceptor configuration replaced with <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal>.
+            This is an example of the use of the <classname>AuthenticatedVoter</classname> which
+            will see in ???. It uses an <interfacename>AuthenticationTrustResolver</interfacename>
+            to process this particular configuration attribute and grant access to aonymous users.
         </para>
     </section>
 </chapter>

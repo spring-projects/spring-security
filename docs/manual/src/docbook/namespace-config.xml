@@ -188,7 +188,7 @@
           authentication and logout handling services respectively <footnote><para>In versions prior
               to 3.0, this list also included remember-me functionality. This could cause some
               confusing errors with some configurations and was removed in 3.0. In 3.0, the addition
-              of an <classname>AnonymousProcessingFilter</classname> is part of the default
+              of an <classname>AnonymousAuthenticationFilter</classname> is part of the default
                 <literal>&lt;http></literal> configuration, so the <literal>&lt;anonymous
                 /></literal> element is added regardless of whether <literal>auto-config</literal>
               is enabled.</para></footnote> . They each have attributes which can be used to alter
@@ -472,39 +472,37 @@
                   align="center">Alias</entry><entry align="center">Filter Class</entry><entry
                   align="center">Namespace Element or
                   Attribute</entry></row></thead><tbody><row><entry>
-                    CHANNEL_FILTER</entry><entry><literal>ChannelProcessingFilter</literal></entry><entry><literal>http/intercept-url</literal></entry></row><row><entry>
+                    CHANNEL_FILTER</entry><entry><literal>ChannelProcessingFilter</literal></entry><entry><literal>http/intercept-url@requires-channel</literal></entry></row><row><entry>
                   CONCURRENT_SESSION_FILTER</entry><entry><literal>ConcurrentSessionFilter</literal>
-                </entry><entry><literal>http/concurrent-session-control</literal></entry></row><row><entry>
-                  SESSION_CONTEXT_INTEGRATION_FILTER</entry><entry><classname>HttpSessionContextIntegrationFilter</classname></entry><entry><literal>http</literal></entry></row><row><entry>
+                </entry><entry><literal>session-management/concurrency-control</literal></entry></row><row><entry>
+                  SECURITY_CONTEXT_FILTER</entry><entry><classname>SecurityContextPersistenceFilter</classname></entry><entry><literal>http</literal></entry></row><row><entry>
                   LOGOUT_FILTER
                     </entry><entry><literal>LogoutFilter</literal></entry><entry><literal>http/logout</literal></entry></row><row><entry>
                   X509_FILTER
-                  </entry><entry><literal>X509PreAuthenticatedProcessigFilter</literal></entry><entry><literal>http/x509</literal></entry></row><row><entry>
+                    </entry><entry><literal>X509AuthenticationFilter</literal></entry><entry><literal>http/x509</literal></entry></row><row><entry>
                   PRE_AUTH_FILTER
                     </entry><entry><literal>AstractPreAuthenticatedProcessingFilter</literal>
-                  Subclasses</entry><entry>N/A</entry></row><row><entry> CAS_PROCESSING_FILTER
-                    </entry><entry><literal>CasProcessingFilter</literal></entry><entry>N/A</entry></row><row><entry>
-                  AUTHENTICATION_PROCESSING_FILTER
+                  Subclasses</entry><entry>N/A</entry></row><row><entry> CAS_FILTER
+                    </entry><entry><literal>CasAuthenticationFilter</literal></entry><entry>N/A</entry></row><row><entry>
+                  FORM_LOGIN_FILTER
                     </entry><entry><literal>UsernamePasswordAuthenticationFilter</literal></entry><entry><literal>http/form-login</literal></entry></row><row><entry>
-                  BASIC_PROCESSING_FILTER
-                  </entry><entry><literal>BasicProcessingFilter</literal></entry><entry><literal>http/http-basic</literal></entry></row><row><entry>
-                  SERVLET_API_SUPPORT_FILTER</entry><entry><literal>SecurityContextHolderAwareRequestFilter</literal></entry><entry><literal>http/@servlet-api-provision</literal></entry></row><row><entry>
+                  BASIC_AUTH_FILTER
+                  </entry><entry><literal>BasicAuthenticationFilter</literal></entry><entry><literal>http/http-basic</literal></entry></row><row><entry>
+                  SERVLET_API_SUPPORT_FILTER</entry><entry><literal>SecurityContextHolderAwareFilter</literal></entry><entry><literal>http/@servlet-api-provision</literal></entry></row><row><entry>
                   REMEMBER_ME_FILTER
-                    </entry><entry><classname>RememberMeProcessingFilter</classname></entry><entry><literal>http/remember-me</literal></entry></row><row><entry>
+                    </entry><entry><classname>RememberMeAuthenticationFilter</classname></entry><entry><literal>http/remember-me</literal></entry></row><row><entry>
                   ANONYMOUS_FILTER
-                  </entry><entry><literal>AnonymousProcessingFilter</literal></entry><entry><literal>http/anonymous</literal></entry></row><row><entry>
-                  EXCEPTION_TRANSLATION_FILTER
+                  </entry><entry><literal>AnonymousAuthenticationFilter</literal></entry><entry><literal>http/anonymous</literal></entry></row><row><entry>
+                  SESSION_MANAGEMENT_FILTER</entry><entry><literal>SessionManagementFilter</literal></entry><entry><literal>session-management</literal></entry></row><row><entry>EXCEPTION_TRANSLATION_FILTER
                     </entry><entry><classname>ExceptionTranslationFilter</classname></entry><entry><literal>http</literal></entry></row><row><entry>
-                  NTLM_FILTER
-                  </entry><entry><literal>NtlmProcessingFilter</literal></entry><entry>N/A</entry></row><row><entry>
                   FILTER_SECURITY_INTERCEPTOR
                     </entry><entry><classname>FilterSecurityInterceptor</classname></entry><entry><literal>http</literal></entry></row><row><entry>
                   SWITCH_USER_FILTER
-                  </entry><entry><literal>SwitchUserProcessingFilter</literal></entry><entry>N/A</entry></row></tbody></tgroup></table>
+                  </entry><entry><literal>SwitchUserFilter</literal></entry><entry>N/A</entry></row></tbody></tgroup></table>
         You can add your own filter to the stack, using the <literal>custom-filter</literal> element
         and one of these names to specify the position your filter should appear at: <programlisting language="xml"><![CDATA[
   <http>
-     <custom-filter position="AUTHENTICATION_PROCESSING_FILTER" ref="myFilter" />
+     <custom-filter position="FORM_LOGIN_FILTER" ref="myFilter" />
   </http>
           
   <beans:bean id="myFilter" class="com.mycompany.MySpecialAuthenticationFilter"/> 
