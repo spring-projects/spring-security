@@ -9,7 +9,7 @@ package org.springframework.security.config;
  * @version $Id: BeanIds.java 3770 2009-07-15 23:09:47Z ltaylor $
  */
 public abstract class BeanIds {
-    private static final String PREFIX = "org.springframework.security";
+    private static final String PREFIX = "org.springframework.security.";
 
     /** The "global" AuthenticationManager instance, registered by the <authentication-manager> element */
     public static final String AUTHENTICATION_MANAGER = PREFIX + "authenticationManager";

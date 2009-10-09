@@ -1,7 +1,5 @@
 package org.springframework.security.config.authentication;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -21,17 +19,18 @@ import org.springframework.security.config.BeanIds;
  * @since 3.0
  */
 public class AuthenticationManagerFactoryBean implements FactoryBean<AuthenticationManager>, BeanFactoryAware {
-    private final Log logger = LogFactory.getLog(getClass());
     private BeanFactory bf;
+    public static final String MISSING_BEAN_ERROR_MESSAGE = "Did you forget to add an <authentication-manager> element " +
+            "to your configuration (with child <authentication-provider> elements) ?";
 
     public AuthenticationManager getObject() throws Exception {
         try {
              return (AuthenticationManager) bf.getBean(BeanIds.AUTHENTICATION_MANAGER);
         } catch (NoSuchBeanDefinitionException e) {
-            logger.error(BeanIds.AUTHENTICATION_MANAGER + " bean was not found in the application context.");
-            throw new NoSuchBeanDefinitionException("The namespace AuthenticationManager was not found. " +
-                    "Did you forget to add an <authentication-manager> element to your configuration with " +
-                    "child <authentication-provider> elements ?");
+            if (BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
+                throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER, MISSING_BEAN_ERROR_MESSAGE);
+            }
+            throw e;
         }
     }
 

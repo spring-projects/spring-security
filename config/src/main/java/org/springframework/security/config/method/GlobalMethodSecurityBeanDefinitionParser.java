@@ -14,6 +14,7 @@ import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -48,6 +49,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
+import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.Assert;
@@ -77,7 +79,6 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
     private static final String ATT_REF = "ref";
     private static final String ATT_ADVICE_ORDER = "order";
 
- //   @SuppressWarnings("unchecked")
     public BeanDefinition parse(Element element, ParserContext pc) {
         CompositeComponentDefinition compositeDef =
             new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element));
@@ -287,7 +288,6 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
             String runAsManagerId, BeanReference metadataSource, List<BeanMetadataElement> afterInvocationProviders, Object source) {
         BeanDefinitionBuilder bldr = BeanDefinitionBuilder.rootBeanDefinition(MethodSecurityInterceptor.class);
         bldr.getRawBeanDefinition().setSource(source);
-
         bldr.addPropertyReference("accessDecisionManager", accessManagerId);
         bldr.addPropertyValue("authenticationManager", new RootBeanDefinition(AuthenticationManagerDelegator.class));
         bldr.addPropertyValue("securityMetadataSource", metadataSource);
@@ -335,7 +335,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
      * @author Luke Taylor
      * @since 3.0
      */
-    public static final class AuthenticationManagerDelegator implements AuthenticationManager, BeanFactoryAware {
+    static final class AuthenticationManagerDelegator implements AuthenticationManager, BeanFactoryAware {
         private AuthenticationManager delegate;
         private final Object delegateMonitor = new Object();
         private BeanFactory beanFactory;
@@ -344,7 +344,15 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
             synchronized(delegateMonitor) {
                 if (delegate == null) {
                     Assert.state(beanFactory != null, "BeanFactory must be set to resolve " + BeanIds.AUTHENTICATION_MANAGER);
-                    delegate = beanFactory.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
+                    try {
+                        delegate = beanFactory.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
+                    } catch (NoSuchBeanDefinitionException e) {
+                        if (BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
+                            throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER,
+                                AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE);
+                        }
+                        throw e;
+                    }
                 }
             }
 
