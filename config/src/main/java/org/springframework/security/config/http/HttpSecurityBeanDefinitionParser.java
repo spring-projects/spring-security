@@ -26,6 +26,7 @@ import org.springframework.core.Ordered;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
+import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.util.AntUrlPathMatcher;
@@ -171,7 +172,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private BeanReference createAuthenticationManager(Element element, ParserContext pc,
             ManagedList<BeanReference> authenticationProviders, BeanReference concurrencyController) {
         BeanDefinitionBuilder authManager = BeanDefinitionBuilder.rootBeanDefinition(ProviderManager.class);
-        authManager.addPropertyReference("parent", BeanIds.AUTHENTICATION_MANAGER);
+        authManager.addPropertyValue("parent", new RootBeanDefinition(AuthenticationManagerFactoryBean.class));
         authManager.addPropertyValue("providers", authenticationProviders);
 
         if (concurrencyController != null) {
