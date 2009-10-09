@@ -217,7 +217,7 @@
                 xlink:href="http://www.springsource.com/download/community?project=Spring%20Security"
                 >download page</link>, download individual jars (and sample WAR files) from the
             Maven Central repository (or a SpringSource Maven repository for snapshot and milestone
-            releases). Alternatively, you can build the project from source yourself. See the
+            releases) or, alternatively, you can build the project from source yourself. See the
             project web site for more details. </para>
         <section xml:id="modules">
             <title>Project Modules</title>
@@ -233,7 +233,8 @@
                 <para>Contains core authentication and access-contol classes and interfaces,
                     remoting support and basic provisioning APIs. Required by any application which
                     uses Spring Security. Supports standalone applications, remote clients, method
-                    (service layer) security and JDBC user provisioning. Contains the top-level packages:<itemizedlist><listitem><para><literal>org.springframework.security.core</literal></para></listitem><listitem><para><literal>org.springframework.security.access</literal></para></listitem><listitem><para><literal>org.springframework.security.authentication</literal></para></listitem><listitem><para><literal>org.springframework.security.provisioning</literal></para></listitem><listitem><para><literal>org.springframework.security.remoting</literal></para></listitem></itemizedlist></para>
+                    (service layer) security and JDBC user provisioning. Contains the top-level
+                                    packages:<itemizedlist><listitem><para><literal>org.springframework.security.core</literal></para></listitem><listitem><para><literal>org.springframework.security.access</literal></para></listitem><listitem><para><literal>org.springframework.security.authentication</literal></para></listitem><listitem><para><literal>org.springframework.security.provisioning</literal></para></listitem><listitem><para><literal>org.springframework.security.remoting</literal></para></listitem></itemizedlist></para>
             </section>
             <section xml:id="spring-security-web">
                 <title>Web - <literal>spring-security-web.jar</literal></title>

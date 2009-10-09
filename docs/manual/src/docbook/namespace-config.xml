@@ -109,12 +109,12 @@
       </programlisting> This provides a hook into the Spring Security web
         infrastructure. <classname>DelegatingFilterProxy</classname> is a Spring Framework class
         which delegates to a filter implementation which is defined as a Spring bean in your
-        application context. In this case, the bean is named "springSecurityFilterChain", which is
-        an internal infrastructure bean created by the namespace to handle web security. Note that
-        you should not use this bean name yourself. Once you've added this to your
-          <filename>web.xml</filename>, you're ready to start editing your application context file.
-        Web security services are configured using the <literal>&lt;http&gt;</literal> element.
-      </para>
+        application context. In this case, the bean is named
+          <quote>springSecurityFilterChain</quote>, which is an internal infrastructure bean created
+        by the namespace to handle web security. Note that you should not use this bean name
+        yourself. Once you've added this to your <filename>web.xml</filename>, you're ready to start
+        editing your application context file. Web security services are configured using the
+          <literal>&lt;http&gt;</literal> element. </para>
     </section>
     <section xml:id="ns-minimal">
       <title>A Minimal <literal>&lt;http&gt;</literal> Configuration</title>
@@ -359,11 +359,11 @@
     <intercept-url pattern="/**" access="ROLE_USER" requires-channel="any"/>  
     ...
   </http>]]>
-        </programlisting> With this configuration in place, if a user attempts to
-        access anything matching the "/secure/**" pattern using HTTP, they will first be redirected
-        to an HTTPS URL. The available options are "http", "https" or "any". Using the value "any"
-        means that either HTTP or HTTPS can be used. </para>
-      <para> If your application uses non-standard ports for HTTP and/or HTTPS, you can specify a
+        </programlisting>With this configuration in place, if a user attempts to access
+        anything matching the "/secure/**" pattern using HTTP, they will first be redirected to an
+        HTTPS URL. The available options are "http", "https" or "any". Using the value "any" means
+        that either HTTP or HTTPS can be used. </para>
+      <para>If your application uses non-standard ports for HTTP and/or HTTPS, you can specify a
         list of port mappings as follows: <programlisting><![CDATA[     
   <http>
     ...
@@ -371,10 +371,8 @@
       <port-mapping http="9080" https="9443"/>
     </port-mappings>
   </http>]]>
-        </programlisting>
-        <!--You can find a more in-depth discussion of channel security
-        in <xref xlink:href="#channel-security"/-->
-      </para>
+        </programlisting><!--You can find a more in-depth discussion of channel security
+        in <xref xlink:href="#channel-security"/--></para>
     </section>
     <section xml:id="ns-session-mgmt">
       <title>Session Management</title>
@@ -416,7 +414,7 @@
         <concurrency-control max-sessions="1" error-if-maximum-exceeded="true" />
     </session-management>
   </http>]]>
-        </programlisting> The second login will then be rejected. By
+        </programlisting>The second login will then be rejected. By
             <quote>rejected</quote>, we mean that the user will be sent to the
             <literal>authentication-failure-url</literal> if form-based login is being used. If the
           second authentication takes place through another non-interactive mechanism, such as
@@ -424,9 +422,29 @@
           the client. If instead you want to use an error page, you can add the attribute
             <literal>session-authentication-error-url</literal> to the
             <literal>session-management</literal> element. </para>
-        <para> If you are using a customized authentication filter for form-based login, then you
+        <para>If you are using a customized authentication filter for form-based login, then you
           have to configure concurrent session control support explicitly. More details can be found
           in the <link xlink:href="#session-mgmt">Session Management chapter</link>. </para>
+      </section>
+      <section xml:id="ns-session-fixation">
+        <title>Session Fixation Attack Protection</title>
+        <para>
+          <link xlink:href="http://en.wikipedia.org/wiki/Session_fixation">Session fixation</link>
+          attacks are a potential risk where it is possible for a malicious attacker to create a
+          session by accessing a site, then persuade another user to log in with the same session
+          (by sending them a link containing the session identifier as a parameter, for example).
+          Spring Security protects against this automatically by creating a new session when a user
+          logs in. If you don't require this protection, or it conflicts with some other
+          requirement, you can control the behaviour using the
+            <literal>session-fixation-protection</literal> attribute on
+            <literal>&lt;session-management&gt;</literal>, which has three options
+                  <itemizedlist><listitem><para><literal>migrateSession</literal> - creates a new
+                session and copies the existing session attributes to the new session. This is the
+                default.</para></listitem><listitem><para><literal>none</literal> - Don't do
+                anything. The original session will be
+                  retained.</para></listitem><listitem><para><literal>newSession</literal> - Create
+                a new "clean" session, without copying the existing session
+            data.</para></listitem></itemizedlist></para>
       </section>
     </section>
     <section xml:id="ns-openid">
@@ -541,25 +559,6 @@
             overview</link> chapter. </para>
       </section>
     </section>
-    <section xml:id="ns-session-fixation">
-      <title>Session Fixation Attack Protection</title>
-      <para>
-        <link xlink:href="http://en.wikipedia.org/wiki/Session_fixation">Session fixation</link>
-        attacks are a potential risk where it is possible for a malicious attacker to create a
-        session by accessing a site, then persuade another user to log in with the same session (by
-        sending them a link containing the session identifier as a parameter, for example). Spring
-        Security protects against this automatically by creating a new session when a user logs in.
-        If you don't require this protection, or it conflicts with some other requirement, you can
-        control the behaviour using the <literal>session-fixation-protection</literal> attribute on
-          <literal>&lt;http&gt;</literal>, which has three options
-                <itemizedlist><listitem><para><literal>migrateSession</literal> - creates a new
-              session and copies the existing session attributes to the new session. This is the
-              default.</para></listitem><listitem><para><literal>none</literal> - Don't do anything.
-              The original session will be
-                retained.</para></listitem><listitem><para><literal>newSession</literal> - Create a
-              new "clean" session, without copying the existing session
-          data.</para></listitem></itemizedlist></para>
-    </section>
   </section>
   <section xml:id="ns-method-security">
     <title>Method Security</title>
@@ -637,13 +636,13 @@
         alternative for both method and web security. </para>
       <para> For method security, you do this by setting the
           <literal>access-decision-manager-ref</literal> attribute on
-          <literal>global-method-security</literal>to the Id of the appropriate
+          <literal>global-method-security</literal> to the Id of the appropriate
           <interfacename>AccessDecisionManager</interfacename> bean in the application context: <programlisting language="xml"><![CDATA[
   <global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
     ... 
   </global-method-security>
   ]]></programlisting></para>
-      <para> The syntax for web security is the same, but on the <literal>http</literal> element: <programlisting><![CDATA[
+      <para> The syntax for web security is the same, but on the <literal>http</literal> element: <programlisting  language="xml"><![CDATA[
   <http access-decision-manager-ref="myAccessDecisionManagerBean">
     ... 
   </http>
