@@ -9,14 +9,14 @@
         <sec:intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR" requires-channel="https"/>
         <sec:intercept-url pattern="/secure/**" access="ROLE_USER" />
         <sec:logout logout-success-url="/cas-logout.jsp"/>
-        <sec:custom-filter ref="casProcessingFilter" after="CAS_PROCESSING_FILTER"/>        
+        <sec:custom-filter ref="casAuthenticationFilter" after="CAS_FILTER"/>
     </sec:http>
 
     <sec:authentication-manager alias="authenticationManager">
         <sec:authentication-provider ref="casAuthenticationProvider"/>
     </sec:authentication-manager>
 
-    <bean id="casProcessingFilter" class="org.springframework.security.cas.web.CasAuthenticationFilter">
+    <bean id="casAuthenticationFilter" class="org.springframework.security.cas.web.CasAuthenticationFilter">
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="authenticationFailureHandler">
             <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">

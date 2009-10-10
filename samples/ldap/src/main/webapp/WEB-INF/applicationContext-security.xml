@@ -1,8 +1,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:s="http://www.springframework.org/schema/security"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-    http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.1.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
 
     <s:http>
         <s:intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
@@ -19,12 +19,16 @@
 
     <s:ldap-server ldif="classpath:users.ldif" port="33389"/>
 
-    <s:ldap-authentication-provider
-        group-search-filter="member={0}"
-        group-search-base="ou=groups"
-        user-search-base="ou=people"
-        user-search-filter="uid={0}"
-    />
+    <s:authentication-manager>
+        <s:ldap-authentication-provider
+            group-search-filter="member={0}"
+            group-search-base="ou=groups"
+            user-search-base="ou=people"
+            user-search-filter="uid={0}"
+        />
+        <s:authentication-provider ref='secondLdapProvider' />
+    </s:authentication-manager>
+
 
     <!-- Traditional Bean version of the same configuration -->
 
@@ -34,7 +38,6 @@
     </bean>
 
     <bean id="secondLdapProvider" class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
-        <s:custom-authentication-provider />
         <constructor-arg>
             <bean class="org.springframework.security.ldap.authentication.BindAuthenticator">
                 <constructor-arg ref="contextSource" />
