@@ -8,7 +8,7 @@
         <personname>Luke Taylor</personname>
       </author></authorgroup>
     <productname>Spring Security</productname>
-    <releaseinfo>3.0.0.M2</releaseinfo>
+    <releaseinfo>3.0.0.RC1</releaseinfo>
   </info>
   <toc/>
   <preface xml:id="preface">
