@@ -30,7 +30,6 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
     private String principalRequestHeader = "SM_USER";
     private String credentialsRequestHeader;
     private boolean exceptionIfHeaderMissing = true;
-    private boolean exceptionIfMissingHeader;
 
     /**
      * Read and returns the header named by <tt>principalRequestHeader</tt> from the request.
@@ -80,6 +79,6 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
      *          the request to proceed if no header is found.
      */
     public void setExceptionIfHeaderMissing(boolean exceptionIfHeaderMissing) {
-        this.exceptionIfHeaderMissing = exceptionIfMissingHeader;
+        this.exceptionIfHeaderMissing = exceptionIfHeaderMissing;
     }
 }
