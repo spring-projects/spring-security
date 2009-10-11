@@ -16,7 +16,7 @@
         <module>cas</module>
         <module>openid</module>
         <module>taglibs</module>
-        <module>aspects</module>
+        <!--module>aspects</module-->
         <module>samples</module>
         <!--module>itest</module-->
   </modules>
@@ -666,25 +666,7 @@
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
                 <version>1.6.5</version>
-            </dependency>
-
-<!-- Used by SPEL
-            <dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr</artifactId>
-                <version>3.0.1</version>
-                <optional>true</optional>
-                <scope>runtime</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>asm</groupId>
-                <artifactId>asm-all</artifactId>
-                <version>2.2.3</version>
-                <optional>true</optional>
-                <scope>runtime</scope>
-            </dependency>
--->            
+            </dependency>       
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib-nodep</artifactId>
