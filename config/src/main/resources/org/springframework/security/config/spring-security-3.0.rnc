@@ -528,7 +528,7 @@ x509.attlist &=
 
 authentication-manager =
     ## Registers the AuthenticationManager instance and allows its list of AuthenticationProviders to be defined. should use. Also allows you to define an alias to allow you to reference the AuthenticationManager in your own beans. 
-    element authentication-manager {authman.attlist, authentication-provider*, ldap-authentication-provider*}
+    element authentication-manager {authman.attlist & authentication-provider* & ldap-authentication-provider*}
 authman.attlist &=
     ## The alias you wish to use for the AuthenticationManager bean
     attribute alias {xsd:ID}?

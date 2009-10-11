@@ -1092,8 +1092,8 @@
   <xs:element name="authentication-manager"><xs:annotation>
       <xs:documentation>Registers the AuthenticationManager instance and allows its list of AuthenticationProviders to be defined. should use. Also allows you to define an alias to allow you to reference the AuthenticationManager in your own beans. </xs:documentation>
     </xs:annotation><xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="authentication-provider"><xs:annotation>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="authentication-provider"><xs:annotation>
       <xs:documentation>Indicates that the contained user-service should be used as an authentication source. </xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -1127,7 +1127,7 @@
       </xs:choice>
       <xs:attributeGroup ref="security:ap.attlist"/>
     </xs:complexType></xs:element>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="ldap-authentication-provider"><xs:annotation>
+        <xs:element name="ldap-authentication-provider"><xs:annotation>
       <xs:documentation>Sets up an ldap authentication provider</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:sequence>
@@ -1167,7 +1167,7 @@
       </xs:sequence>
       <xs:attributeGroup ref="security:ldap-ap.attlist"/>
     </xs:complexType></xs:element>
-      </xs:sequence>
+      </xs:choice>
       <xs:attributeGroup ref="security:authman.attlist"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="authman.attlist">
