@@ -690,12 +690,13 @@
                 <artifactId>cglib-nodep</artifactId>
                 <scope>test</scope>
                 <optional>true</optional>
-                <version>2.1_3</version>
+                <version>2.2</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
-                <version>1.4.1</version>
+                <version>1.6.2</version>
+                <optional>true</optional>                
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
@@ -727,7 +728,7 @@
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
-                <version>2.4</version>
+                <version>2.5</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
