@@ -3,12 +3,12 @@
     <parent>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-parent</artifactId>
-        <version>3.0.0.CI-SNAPSHOT</version>
+        <version>3.0.0.RC1</version>
     </parent>
     <artifactId>spring-security-openid</artifactId>
     <name>Spring Security - OpenID support</name>
     <description>Spring Security - Support for OpenID</description>
-    <version>3.0.0.CI-SNAPSHOT</version>
+    <version>3.0.0.RC1</version>
     <packaging>jar</packaging>
 
     <dependencies>
