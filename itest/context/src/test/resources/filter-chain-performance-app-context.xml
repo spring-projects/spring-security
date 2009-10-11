@@ -8,7 +8,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:sec="http://www.springframework.org/schema/security"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
     <bean id="fcpMinimalStack" class="org.springframework.security.web.FilterChainProxy">
@@ -50,6 +50,7 @@
 
     <bean id="preAuthFilter" class="org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
         <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="exceptionIfHeaderMissing" value="false" />
     </bean>
 
     <bean id="scharf" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter" />
@@ -69,7 +70,6 @@
     <bean id="etf" class="org.springframework.security.web.access.ExceptionTranslationFilter">
         <property name="authenticationEntryPoint" ref="preAuthenticatedProcessingFilterEntryPoint"/>
     </bean>
-
 
     <bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
         <property name="preAuthenticatedUserDetailsService" ref="preAuthenticatedUserDetailsService"/>
