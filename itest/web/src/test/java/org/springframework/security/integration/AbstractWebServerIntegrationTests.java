@@ -3,11 +3,13 @@ package org.springframework.security.integration;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.util.StringUtils;
 
 import net.sourceforge.jwebunit.WebTester;
 
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.webapp.WebAppContext;
 
 import javax.servlet.ServletContext;
@@ -63,6 +65,11 @@ public abstract class AbstractWebServerIntegrationTests {
             webCtx.addEventListener(new ContextLoaderListener());
             webCtx.getInitParams().put("contextConfigLocation", getContextConfigLocations());
         }
+
+        ServletHolder servlet = new ServletHolder();
+        servlet.setName("testapp");
+        servlet.setClassName(DispatcherServlet.class.getName());
+        webCtx.addServlet(servlet, "*.htm");
 
         return webCtx;
     }

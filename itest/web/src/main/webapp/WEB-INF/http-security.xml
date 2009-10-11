@@ -24,13 +24,11 @@
 
         <session-management>
             <concurrency-control max-sessions="1" />
-        </session-management>        
+        </session-management>
 
         <remember-me key="doesntmatter" token-repository-ref="tokenRepo"/>
     </http>
 
     <beans:bean name="tokenRepo" class="org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl"/>
-
-    <!-- bean name="rememberMeServices" class="org.springframework.security.ui.rememberme.NullRememberMeServices"/ -->
 
 </beans:beans>

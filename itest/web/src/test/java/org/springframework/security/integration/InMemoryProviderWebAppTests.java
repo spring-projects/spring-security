@@ -42,9 +42,9 @@ public class InMemoryProviderWebAppTests extends AbstractWebServerIntegrationTes
     // SEC-1255
     @Test
     public void redirectToUrlWithSpecialCharsInFilenameWorksOk() throws Exception {
-        beginAt("secure/file%3Fwith%3Fspecial%3Fchars.html?someArg=1");
+        beginAt("secure/file%3Fwith%3Fspecial%3Fchars.htm?someArg=1");
         login("jimi", "jimispassword");
-        assertTextPresent("I'm file?with?special?chars.html");
+        assertTextPresent("I'm file?with?special?chars.htm");
     }
 
 }
