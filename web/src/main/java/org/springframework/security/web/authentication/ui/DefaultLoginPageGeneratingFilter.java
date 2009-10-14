@@ -67,7 +67,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
         if (openIDFilter != null) {
             openIdEnabled = true;
             openIDauthenticationUrl = openIDFilter.getFilterProcessesUrl();
-            openIDusernameParameter = (String) (new BeanWrapperImpl(openIDFilter)).getPropertyValue("claimedIdentityFieldName");
+            openIDusernameParameter = "j_username";
 
             if (openIDFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
                 openIDrememberMeParameter = ((AbstractRememberMeServices)openIDFilter.getRememberMeServices()).getParameter();

@@ -331,10 +331,6 @@ final class AuthenticationConfigBuilder {
     void createLoginPageFilterIfNeeded() {
         boolean needLoginPage = formFilter != null || openIDFilter != null;
         String formLoginPage = getLoginFormUrl(formEntryPoint);
-        // If the login URL is the default one, then it is assumed not to have been set explicitly
-        if (DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL == formLoginPage) {
-            formLoginPage = null;
-        }
         String openIDLoginPage = getLoginFormUrl(openIDEntryPoint);
 
         // If no login page has been defined, add in the default page generator.
@@ -498,15 +494,21 @@ final class AuthenticationConfigBuilder {
         }
 
         // If formLogin has been enabled either through an element or auto-config, then it is used if no openID login page
-        // has been set
+        // has been set.
+        String formLoginPage = getLoginFormUrl(formEntryPoint);
         String openIDLoginPage = getLoginFormUrl(openIDEntryPoint);
+
+        if (formLoginPage != null && openIDLoginPage != null) {
+            pc.getReaderContext().error("Only one login-page can be defined, either for OpenID or form-login, " +
+                    "but not both.", pc.extractSource(openIDLoginElt));
+        }
 
         if (formFilter != null && openIDLoginPage == null) {
             return formEntryPoint;
         }
 
         // Otherwise use OpenID if enabled
-        if (openIDFilter != null && formFilter == null) {
+        if (openIDFilter != null) {
             return openIDEntryPoint;
         }
 
@@ -531,6 +533,11 @@ final class AuthenticationConfigBuilder {
         PropertyValue pv = pvs.getPropertyValue("loginFormUrl");
         if (pv == null) {
              return null;
+        }
+
+        // If the login URL is the default one, then it is assumed not to have been set explicitly
+        if (DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL.equals(pv.getValue())) {
+            return null;
         }
 
         return (String) pv.getValue();

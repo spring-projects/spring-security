@@ -993,6 +993,52 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>", appContext);
     }
 
+    @Test
+    public void openIDAndFormLoginWorkTogether() throws Exception {
+        setContext(
+                "<http>" +
+                "   <openid-login />" +
+                "   <form-login />" +
+                "</http>" +
+                AUTH_PROVIDER_XML);
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilter(ExceptionTranslationFilter.class);
+        LoginUrlAuthenticationEntryPoint ap = (LoginUrlAuthenticationEntryPoint) etf.getAuthenticationEntryPoint();
+        assertEquals("/spring_security_login", ap.getLoginFormUrl());
+        // Default login filter should be present since we haven't specified any login URLs
+        getFilter(DefaultLoginPageGeneratingFilter.class);
+    }
+
+    @Test
+    public void formLoginEntryPointTakesPrecedenceIfLoginUrlIsSet() throws Exception {
+        setContext(
+                "<http>" +
+                "   <openid-login />" +
+                "   <form-login login-page='/form_login_page' />" +
+                "</http>" +
+                AUTH_PROVIDER_XML);
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilter(ExceptionTranslationFilter.class);
+        LoginUrlAuthenticationEntryPoint ap = (LoginUrlAuthenticationEntryPoint) etf.getAuthenticationEntryPoint();
+        assertEquals("/form_login_page", ap.getLoginFormUrl());
+        try {
+            getFilter(DefaultLoginPageGeneratingFilter.class);
+            fail("Login page generating filter shouldn't be present");
+        } catch (Exception expected) {
+        }
+    }
+
+    @Test
+    public void openIDEntryPointTakesPrecedenceIfLoginUrlIsSet() throws Exception {
+        setContext(
+                "<http>" +
+                "   <openid-login login-page='/openid_login' />" +
+                "   <form-login />" +
+                "</http>" +
+                AUTH_PROVIDER_XML);
+        ExceptionTranslationFilter etf = (ExceptionTranslationFilter) getFilter(ExceptionTranslationFilter.class);
+        LoginUrlAuthenticationEntryPoint ap = (LoginUrlAuthenticationEntryPoint) etf.getAuthenticationEntryPoint();
+        assertEquals("/openid_login", ap.getLoginFormUrl());
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void openIDWithAttributeExchangeConfigurationIsParsedCorrectly() throws Exception {
@@ -1018,6 +1064,15 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals(2, attributes.get(1).getCount());
     }
 
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void multipleLoginPagesCausesError() throws Exception {
+        setContext(
+                "<http>" +
+                "   <openid-login login-page='/openid_login_page' />" +
+                "   <form-login login-page='/form_login_page' />" +
+                "</http>" +
+                AUTH_PROVIDER_XML);
+    }
 
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
