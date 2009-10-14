@@ -43,8 +43,8 @@ public class SavedRequestAwareWrapperTests {
         Enumeration headers = wrapper.getHeaders("nonexistent");
         assertFalse(headers.hasMoreElements());
 
-        assertEquals("savedheader", wrapper.getHeader("header"));
-        headers = wrapper.getHeaders("header");
+        assertEquals("savedheader", wrapper.getHeader("Header"));
+        headers = wrapper.getHeaders("heaDer");
         assertTrue(headers.hasMoreElements());
         assertEquals("savedheader", headers.nextElement());
         assertFalse(headers.hasMoreElements());
