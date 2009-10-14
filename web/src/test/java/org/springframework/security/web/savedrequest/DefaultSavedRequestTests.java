@@ -12,6 +12,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  */
 public class DefaultSavedRequestTests {
 
+    // SEC-308, SEC-315
     @Test
     public void headersAreCaseInsensitive() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
