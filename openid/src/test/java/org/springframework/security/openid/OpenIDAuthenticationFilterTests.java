@@ -12,9 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.openid.OpenIDAuthenticationFilter;
-import org.springframework.security.openid.OpenIDConsumerException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 public class OpenIDAuthenticationFilterTests {
@@ -33,7 +32,11 @@ public class OpenIDAuthenticationFilterTests {
         SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
         filter.setAuthenticationSuccessHandler(new SavedRequestAwareAuthenticationSuccessHandler());
         successHandler.setDefaultTargetUrl(DEFAULT_TARGET_URL);
-        filter.setAuthenticationManager(new MockAuthenticationManager());
+        filter.setAuthenticationManager(new AuthenticationManager() {
+            public Authentication authenticate(Authentication a) {
+                return a;
+            }
+        });
         filter.afterPropertiesSet();
     }
 
