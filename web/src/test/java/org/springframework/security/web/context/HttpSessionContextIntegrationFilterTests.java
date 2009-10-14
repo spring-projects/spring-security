@@ -15,19 +15,7 @@
 
 package org.springframework.security.web.context;
 
-import junit.framework.TestCase;
-
-import org.springframework.security.MockFilterConfig;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextImpl;
-import org.springframework.security.web.context.HttpSessionContextIntegrationFilter;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 
@@ -38,6 +26,17 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.MockFilterConfig;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
+
 /**
  * Tests {@link HttpSessionContextIntegrationFilter}.
  *
@@ -45,7 +44,7 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 @SuppressWarnings("deprecation")
-public class HttpSessionContextIntegrationFilterTests extends TestCase {
+public class HttpSessionContextIntegrationFilterTests {
     // Build an Authentication object we simulate came from HttpSession
     private UsernamePasswordAuthenticationToken sessionPrincipal = new UsernamePasswordAuthenticationToken(
             "someone",
@@ -64,6 +63,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 //        filter.destroy();
     }
 
+    @Test
     public void testDetectsIncompatibleSessionProperties() throws Exception {
         HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
 
@@ -81,6 +81,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         assertTrue(true);
     }
 
+    @Test
     public void testDetectsMissingOrInvalidContext() throws Exception {
         HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
 
@@ -102,6 +103,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         }
     }
 
+    @Test
     public void testExceptionWithinFilterChainStillClearsSecurityContextHolder() throws Exception {
 
         // Build a Context to store in HttpSession (simulating prior request)
@@ -139,6 +141,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
                 request.getAttribute(HttpSessionContextIntegrationFilter.FILTER_APPLIED));
     }
 
+    @Test
     public void testExistingContextContentsCopiedIntoContextHolderFromSessionAndChangesToContextCopiedBackToSession()
             throws Exception {
 
@@ -177,6 +180,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         assertEquals(updatedPrincipal, ((SecurityContext) context).getAuthentication());
     }
 
+    @Test
     public void testHttpSessionCreatedWhenContextHolderChanges() throws Exception {
         // Build an Authentication object we simulate our Authentication changed it to
         UsernamePasswordAuthenticationToken updatedPrincipal = new UsernamePasswordAuthenticationToken(
@@ -203,6 +207,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         assertEquals(updatedPrincipal, ((SecurityContext) context).getAuthentication());
     }
 
+    @Test
     public void testHttpSessionEagerlyCreatedWhenDirected() throws Exception {
         // Build a mock request
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
@@ -223,6 +228,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         assertNotNull(request.getSession(false));
     }
 
+    @Test
     public void testHttpSessionNotCreatedUnlessContextHolderChanges() throws Exception {
         // Build a mock request
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
@@ -242,6 +248,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         assertNull(request.getSession(false));
     }
 
+    @Test
     public void testHttpSessionWithNonContextInWellKnownLocationIsOverwritten() throws Exception {
         // Build an Authentication object we simulate our Authentication changed it to
         UsernamePasswordAuthenticationToken updatedPrincipal = new UsernamePasswordAuthenticationToken(
@@ -274,7 +281,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
     //~ Inner Classes ==================================================================================================
 
-    private class MockFilterChain extends TestCase implements FilterChain {
+    private class MockFilterChain implements FilterChain {
         private Authentication changeContextHolder;
         private Authentication expectedOnContextHolder;
         private IOException toThrowDuringChain;
