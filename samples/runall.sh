@@ -219,5 +219,7 @@ then
    stop_jetty
 fi
 
+cd ..
+
 cleanup
 
