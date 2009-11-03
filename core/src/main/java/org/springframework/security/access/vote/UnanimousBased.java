@@ -34,7 +34,7 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 
     /**
      * This concrete implementation polls all configured  {@link AccessDecisionVoter}s for each {@link
-     * ConfigAttribute} and grants access if <b>only</b> grant votes were received.
+     * ConfigAttribute} and grants access if <b>only</b> grant (or abstain) votes were received.
      * <p>
      * Other voting implementations usually pass the entire list of <tt>ConfigAttribute</tt>s to the
      * <code>AccessDecisionVoter</code>. This implementation differs in that each <code>AccessDecisionVoter</code>
