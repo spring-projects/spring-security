@@ -1,9 +1,19 @@
 package org.springframework.security.config.http;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
-import static org.springframework.security.config.http.AuthenticationConfigBuilder.*;
+import static org.springframework.security.config.http.AuthenticationConfigBuilder.AUTHENTICATION_PROCESSING_FILTER_CLASS;
+import static org.springframework.security.config.http.AuthenticationConfigBuilder.OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS;
+import static org.springframework.security.config.http.AuthenticationConfigBuilder.OPEN_ID_AUTHENTICATION_PROVIDER_CLASS;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -26,6 +36,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.BeanIds;
@@ -579,6 +591,11 @@ public class HttpSecurityBeanDefinitionParserTests {
         List<LogoutHandler> logoutHandlers = (List<LogoutHandler>) FieldUtils.getFieldValue(getFilter(LogoutFilter.class), "handlers");
         assertEquals(2, logoutHandlers.size());
         assertEquals(getRememberMeServices(), logoutHandlers.get(1));
+        // SEC-1281
+        Map ams = appContext.getBeansOfType(ProviderManager.class);
+        ams.remove(BeanIds.AUTHENTICATION_MANAGER);
+        RememberMeAuthenticationProvider rmp = (RememberMeAuthenticationProvider) ((ProviderManager)ams.values().toArray()[0]).getProviders().get(1);
+        assertEquals("ourkey", rmp.getKey());
     }
 
     @Test

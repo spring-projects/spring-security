@@ -118,33 +118,31 @@ final class AuthenticationConfigBuilder {
     }
 
     void createRememberMeFilter(BeanReference authenticationManager) {
+        final String ATT_KEY = "key";
+        final String DEF_KEY = "SpringSecured";
+
         // Parse remember me before logout as RememberMeServices is also a LogoutHandler implementation.
         Element rememberMeElt = DomUtils.getChildElementByTagName(httpElt, Elements.REMEMBER_ME);
 
         if (rememberMeElt != null) {
-            rememberMeFilter = (RootBeanDefinition) new RememberMeBeanDefinitionParser().parse(rememberMeElt, pc);
+        	String key = rememberMeElt.getAttribute(ATT_KEY);
+
+            if (!StringUtils.hasText(key)) {
+                key = DEF_KEY;
+            }
+
+            rememberMeFilter = (RootBeanDefinition) new RememberMeBeanDefinitionParser(key).parse(rememberMeElt, pc);
             rememberMeFilter.getPropertyValues().addPropertyValue("authenticationManager", authenticationManager);
             rememberMeServicesId = ((RuntimeBeanReference) rememberMeFilter.getPropertyValues().getPropertyValue("rememberMeServices").getValue()).getBeanName();
-            createRememberMeProvider();
+            createRememberMeProvider(key);
         }
     }
 
-    private void createRememberMeProvider() {
+    private void createRememberMeProvider(String key) {
         RootBeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
         provider.setSource(rememberMeFilter.getSource());
-        // Locate the RememberMeServices bean and read the "key" property from it
-        PropertyValue key = null;
-        if (pc.getRegistry().containsBeanDefinition(rememberMeServicesId)) {
-            BeanDefinition services = pc.getRegistry().getBeanDefinition(rememberMeServicesId);
 
-            key = services.getPropertyValues().getPropertyValue("key");
-        }
-
-        if (key == null) {
-            key = new PropertyValue("key", RememberMeBeanDefinitionParser.DEF_KEY);
-        }
-
-        provider.getPropertyValues().addPropertyValue(key);
+        provider.getPropertyValues().addPropertyValue("key", key);
 
         String id = pc.getReaderContext().registerWithGeneratedName(provider);
         pc.registerBeanComponent(new BeanComponentDefinition(provider, id));

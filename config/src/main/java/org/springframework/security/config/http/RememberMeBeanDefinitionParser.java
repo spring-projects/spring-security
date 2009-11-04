@@ -23,9 +23,6 @@ import org.w3c.dom.Element;
  * @version $Id$
  */
 class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
-    static final String ATT_KEY = "key";
-    static final String DEF_KEY = "SpringSecured";
-
     static final String ATT_DATA_SOURCE = "data-source-ref";
     static final String ATT_SERVICES_REF = "services-ref";
     static final String ATT_SERVICES_ALIAS = "services-alias";
@@ -36,6 +33,11 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
     protected final Log logger = LogFactory.getLog(getClass());
     private String servicesName;
+    private final String key;
+
+    RememberMeBeanDefinitionParser(String key) {
+    	this.key = key;
+    }
 
     public BeanDefinition parse(Element element, ParserContext pc) {
         CompositeComponentDefinition compositeDef =
@@ -44,15 +46,10 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
         String tokenRepository = element.getAttribute(ATT_TOKEN_REPOSITORY);
         String dataSource = element.getAttribute(ATT_DATA_SOURCE);
-        String key = element.getAttribute(ATT_KEY);
         String userServiceRef = element.getAttribute(ATT_USER_SERVICE_REF);
         String rememberMeServicesRef = element.getAttribute(ATT_SERVICES_REF);
         String tokenValiditySeconds = element.getAttribute(ATT_TOKEN_VALIDITY);
         Object source = pc.extractSource(element);
-
-        if (!StringUtils.hasText(key)) {
-            key = DEF_KEY;
-        }
 
         RootBeanDefinition services = null;
 
@@ -108,7 +105,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
                 services.getPropertyValues().addPropertyValue("tokenValiditySeconds", tokenValidity);
             }
             services.setSource(source);
-            services.getPropertyValues().addPropertyValue(ATT_KEY, key);
+            services.getPropertyValues().addPropertyValue("key", key);
             servicesName = pc.getReaderContext().registerWithGeneratedName(services);
             pc.registerBeanComponent(new BeanComponentDefinition(services, servicesName));
         } else {
