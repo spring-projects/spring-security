@@ -142,7 +142,10 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         super.logout(request, response, authentication);
-        tokenRepository.removeUserTokens(authentication.getName());
+
+        if (authentication != null) {
+            tokenRepository.removeUserTokens(authentication.getName());
+        }
     }
 
     protected String generateSeriesData() {

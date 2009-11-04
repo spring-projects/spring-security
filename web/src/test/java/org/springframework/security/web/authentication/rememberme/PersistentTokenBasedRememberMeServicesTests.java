@@ -121,6 +121,9 @@ public class PersistentTokenBasedRememberMeServicesTests {
         Cookie returnedCookie = response.getCookie("mycookiename");
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
+        
+        // SEC-1280
+        services.logout(request, response, null);
     }
 
     private class MockTokenRepository implements PersistentTokenRepository {
