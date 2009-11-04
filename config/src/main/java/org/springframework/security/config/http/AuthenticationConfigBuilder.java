@@ -125,7 +125,7 @@ final class AuthenticationConfigBuilder {
         Element rememberMeElt = DomUtils.getChildElementByTagName(httpElt, Elements.REMEMBER_ME);
 
         if (rememberMeElt != null) {
-        	String key = rememberMeElt.getAttribute(ATT_KEY);
+            String key = rememberMeElt.getAttribute(ATT_KEY);
 
             if (!StringUtils.hasText(key)) {
                 key = DEF_KEY;
@@ -370,9 +370,9 @@ final class AuthenticationConfigBuilder {
         Object source = pc.extractSource(httpElt);
 
         if (anonymousElt != null) {
-            grantedAuthority = httpElt.getAttribute("granted-authority");
-            username = httpElt.getAttribute("username");
-            key = httpElt.getAttribute("key");
+            grantedAuthority = anonymousElt.getAttribute("granted-authority");
+            username = anonymousElt.getAttribute("username");
+            key = anonymousElt.getAttribute("key");
             source = pc.extractSource(anonymousElt);
         }
 

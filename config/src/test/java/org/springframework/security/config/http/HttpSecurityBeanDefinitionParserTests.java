@@ -253,6 +253,18 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertThat(getFilters("/anything").get(5), not(instanceOf(AnonymousAuthenticationFilter.class)));
     }
 
+    @Test
+    public void anonymousCustomAttributesAreSetCorrectly() throws Exception {
+        setContext(
+                "<http>" +
+                "   <form-login />" +
+                "   <anonymous enabled='true' username='joe' granted-authority='anonymity' key='customKey' />" +
+                "</http>" + AUTH_PROVIDER_XML);
+        AnonymousAuthenticationFilter filter = (AnonymousAuthenticationFilter) getFilters("/anything").get(5);
+        assertEquals("customKey", filter.getKey());
+        assertEquals("joe", filter.getUserAttribute().getPassword());
+        assertEquals("anonymity", filter.getUserAttribute().getAuthorities().get(0).getAuthority());
+    }
 
     @Test(expected=BeanCreationException.class)
     public void invalidLoginPageIsDetected() throws Exception {
@@ -859,6 +871,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         setContext(
                 "    <http>" +
                 "        <intercept-url pattern='/**' access='ROLE_A'/>" +
+                "        <anonymous enabled='false' />" +
                 "        <form-login login-page='/login.jsp' default-target-url='/messageList.html'/>" +
                 "    </http>" + AUTH_PROVIDER_XML);
         closeAppContext();
