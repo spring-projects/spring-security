@@ -137,16 +137,19 @@
       <section>
         <title>Siteminder Example Configuration</title>
         <para> A typical configuration using this filter would look like this: <programlisting><![CDATA[
+  <security:http>
+    <!-- Additional http configuration omitted -->
+    <security:custom-filter ref="siteminderFilter" />
+  </security:http>
+  
 	<bean id="siteminderFilter" class=
 "org.springframework.security.web.authentication.preauth.header.RequestHeaderAuthenticationFilter">
-    <security:custom-filter position="PRE_AUTH_FILTER" />
     <property name="principalRequestHeader" value="SM_USER"/>
     <property name="authenticationManager" ref="authenticationManager" />
   </bean>
 
   <bean id="preauthAuthProvider"
 class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
-    <security:custom-authentication-provider />      
     <property name="preAuthenticatedUserDetailsService">
       <bean id="userDetailsServiceWrapper" 
           class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
@@ -155,7 +158,9 @@ class="org.springframework.security.web.authentication.preauth.PreAuthenticatedA
     </property>
 	</bean>
 	
-	<security:authentication-manager alias="authenticationManager" />
+	<security:authentication-manager alias="authenticationManager">
+	  <security:authentication-provider ref="preauthAuthProvider" />
+	</security-authentication-manager>
 ]]>  
 </programlisting> We've assumed here that the security namespace is being used for
           configuration (hence the user of the <literal>custom-filter</literal>,
