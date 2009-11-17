@@ -109,14 +109,11 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) req;
-        HttpServletResponse response = (HttpServletResponse) res;
+        final boolean debug = logger.isDebugEnabled();
+        final HttpServletRequest request = (HttpServletRequest) req;
+        final HttpServletResponse response = (HttpServletResponse) res;
 
         String header = request.getHeader("Authorization");
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Authorization header: " + header);
-        }
 
         if ((header != null) && header.startsWith("Basic ")) {
             byte[] base64Token = header.substring(6).getBytes("UTF-8");
@@ -131,6 +128,10 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
                 password = token.substring(delim + 1);
             }
 
+            if (debug) {
+                logger.debug("Basic Authentication Authorization header found for user '" + username + "'");
+            }
+
             if (authenticationIsRequired(username)) {
                 UsernamePasswordAuthenticationToken authRequest =
                         new UsernamePasswordAuthenticationToken(username, password);
@@ -142,7 +143,7 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
                     authResult = authenticationManager.authenticate(authRequest);
                 } catch (AuthenticationException failed) {
                     // Authentication failed
-                    if (logger.isDebugEnabled()) {
+                    if (debug) {
                         logger.debug("Authentication request for user: " + username + " failed: " + failed.toString());
                     }
 
@@ -162,7 +163,7 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
                 }
 
                 // Authentication success
-                if (logger.isDebugEnabled()) {
+                if (debug) {
                     logger.debug("Authentication success: " + authResult.toString());
                 }
 
