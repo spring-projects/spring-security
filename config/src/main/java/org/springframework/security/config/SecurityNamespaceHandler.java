@@ -13,6 +13,7 @@ import org.springframework.security.config.ldap.LdapServerBeanDefinitionParser;
 import org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser;
 import org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParser;
 import org.springframework.security.config.method.InterceptMethodsBeanDefinitionDecorator;
+import org.springframework.util.ClassUtils;
 
 /**
  * Registers the bean definition parsers for the "security" namespace (http://www.springframework.org/schema/security).
@@ -30,17 +31,20 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser(Elements.LDAP_PROVIDER, new LdapProviderBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.LDAP_SERVER, new LdapServerBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.LDAP_USER_SERVICE, new LdapUserServiceBeanDefinitionParser());
-        registerBeanDefinitionParser(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.USER_SERVICE, new UserServiceBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.JDBC_USER_SERVICE, new JdbcUserServiceBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.AUTHENTICATION_PROVIDER, new AuthenticationProviderBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.GLOBAL_METHOD_SECURITY, new GlobalMethodSecurityBeanDefinitionParser());
         registerBeanDefinitionParser(Elements.AUTHENTICATION_MANAGER, new AuthenticationManagerBeanDefinitionParser());
-        registerBeanDefinitionParser(Elements.FILTER_INVOCATION_DEFINITION_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
-        registerBeanDefinitionParser(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
-
-        // Decorators
         registerBeanDefinitionDecorator(Elements.INTERCEPT_METHODS, new InterceptMethodsBeanDefinitionDecorator());
-        registerBeanDefinitionDecorator(Elements.FILTER_CHAIN_MAP, new FilterChainMapBeanDefinitionDecorator());
+
+        // Web-namespace stuff
+        if (ClassUtils.isPresent("org.springframework.security.web.FilterChainProxy", ClassUtils.getDefaultClassLoader())) {
+            registerBeanDefinitionParser(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
+            registerBeanDefinitionDecorator(Elements.FILTER_CHAIN_MAP, new FilterChainMapBeanDefinitionDecorator());
+            registerBeanDefinitionParser(Elements.FILTER_INVOCATION_DEFINITION_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
+            registerBeanDefinitionParser(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
+        }
     }
+
 }
