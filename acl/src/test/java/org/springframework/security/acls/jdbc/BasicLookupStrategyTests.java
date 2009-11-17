@@ -22,6 +22,7 @@ import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.ConsoleAuditLogger;
+import org.springframework.security.acls.domain.DefaultPermissionFactory;
 import org.springframework.security.acls.domain.EhCacheBasedAclCache;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -103,6 +104,7 @@ public class BasicLookupStrategyTests {
                 new GrantedAuthorityImpl("ROLE_ADMINISTRATOR"), new GrantedAuthorityImpl("ROLE_ADMINISTRATOR"),
                 new GrantedAuthorityImpl("ROLE_ADMINISTRATOR") });
         strategy = new BasicLookupStrategy(dataSource, cache, authorizationStrategy, new ConsoleAuditLogger());
+        strategy.setPermissionFactory(new DefaultPermissionFactory());
     }
 
     @After

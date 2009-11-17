@@ -421,6 +421,16 @@ public final class BasicLookupStrategy implements LookupStrategy {
         return resultMap;
     }
 
+    /**
+     * Sets the {@code PermissionFactory} instance which will be used to convert loaded permission
+     * data values to {@code Permission}s. A {@code DefaultPermissionFactory} will be used by default.
+     *
+     * @param permissionFactory
+     */
+    public void setPermissionFactory(PermissionFactory permissionFactory) {
+        this.permissionFactory = permissionFactory;
+    }
+
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
     }
