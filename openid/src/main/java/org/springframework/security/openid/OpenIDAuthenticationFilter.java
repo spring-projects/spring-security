@@ -43,11 +43,11 @@ import org.springframework.util.StringUtils;
  *
  * The user's OpenID identity is submitted via a login form, just as it would be for a normal form login. At this stage
  * the filter will extract the identity from the submitted request (by default, the parameter is called
- * <tt>j_username</tt>, as it is for form login. It then passes the identity to the configured <tt>OpenIDConsumer</tt>,
- * which returns the URL to which the request should be redirected for authentication. A "return_to" URL is also supplied,
- * which matches the URL processed by this filter, to allow the filter to handle the request once the user has
- * been successfully authenticated. The OpenID server will then authenticate the user and redirect back to the
- * application.
+ * <tt>openid_identifier</tt>, as recommended by the OpenID 2.0 Specification). It then passes the identity to the
+ * configured <tt>OpenIDConsumer</tt>, which returns the URL to which the request should be redirected for authentication.
+ * A "return_to" URL is also supplied, which matches the URL processed by this filter, to allow the filter to handle
+ * the request once the user has been successfully authenticated. The OpenID server will then authenticate the user and
+ * redirect back to the application.
  *
  * <h2>Processing the Redirect from the OpenID Server</h2>
  *
@@ -66,7 +66,7 @@ import org.springframework.util.StringUtils;
 public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     //~ Static fields/initializers =====================================================================================
 
-    public static final String DEFAULT_CLAIMED_IDENTITY_FIELD = "j_username";
+    public static final String DEFAULT_CLAIMED_IDENTITY_FIELD = "openid_identifier";
 
     //~ Instance fields ================================================================================================
 
@@ -224,7 +224,7 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
     /**
      * The name of the request parameter containing the OpenID identity, as submitted from the initial login form.
      *
-     * @param claimedIdentityFieldName defaults to "j_username"
+     * @param claimedIdentityFieldName defaults to "openid_identifier"
      */
     public void setClaimedIdentityFieldName(String claimedIdentityFieldName) {
         this.claimedIdentityFieldName = claimedIdentityFieldName;
