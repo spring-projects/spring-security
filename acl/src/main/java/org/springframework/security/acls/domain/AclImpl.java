@@ -322,7 +322,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("AclImpl[");
         sb.append("id: ").append(this.id).append("; ");
         sb.append("objectIdentity: ").append(this.objectIdentity).append("; ");
@@ -346,6 +346,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
         sb.append("inheriting: ").append(this.entriesInheriting).append("; ");
         sb.append("parent: ").append((this.parentAcl == null) ? "Null" : this.parentAcl.getObjectIdentity().toString());
+        sb.append("; ");
         sb.append("aclAuthorizationStrategy: ").append(this.aclAuthorizationStrategy).append("; ");
         sb.append("auditLogger: ").append(this.auditLogger);
         sb.append("]");
