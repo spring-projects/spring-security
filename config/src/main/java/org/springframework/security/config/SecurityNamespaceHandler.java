@@ -5,7 +5,6 @@ import org.springframework.security.config.authentication.AuthenticationManagerB
 import org.springframework.security.config.authentication.AuthenticationProviderBeanDefinitionParser;
 import org.springframework.security.config.authentication.JdbcUserServiceBeanDefinitionParser;
 import org.springframework.security.config.authentication.UserServiceBeanDefinitionParser;
-import org.springframework.security.config.http.CustomFilterBeanDefinitionDecorator;
 import org.springframework.security.config.http.FilterChainMapBeanDefinitionDecorator;
 import org.springframework.security.config.http.FilterInvocationSecurityMetadataSourceParser;
 import org.springframework.security.config.http.HttpSecurityBeanDefinitionParser;
@@ -43,6 +42,5 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
         // Decorators
         registerBeanDefinitionDecorator(Elements.INTERCEPT_METHODS, new InterceptMethodsBeanDefinitionDecorator());
         registerBeanDefinitionDecorator(Elements.FILTER_CHAIN_MAP, new FilterChainMapBeanDefinitionDecorator());
-        registerBeanDefinitionDecorator(Elements.CUSTOM_FILTER, new CustomFilterBeanDefinitionDecorator());
     }
 }
