@@ -25,6 +25,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
     static final String ATT_LOGOUT_URL = "logout-url";
     static final String DEF_LOGOUT_URL = "/j_spring_security_logout";
+    static final String ATT_LOGOUT_HANDLER = "success-handler-ref";
 
     String rememberMeServices;
 
@@ -33,20 +34,22 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     @SuppressWarnings("unchecked")
-    public BeanDefinition parse(Element element, ParserContext parserContext) {
+    public BeanDefinition parse(Element element, ParserContext pc) {
         String logoutUrl = null;
+        String successHandlerRef = null;
         String logoutSuccessUrl = null;
         String invalidateSession = null;
 
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(LogoutFilter.class);
 
         if (element != null) {
-            Object source = parserContext.extractSource(element);
+            Object source = pc.extractSource(element);
             builder.getRawBeanDefinition().setSource(source);
             logoutUrl = element.getAttribute(ATT_LOGOUT_URL);
-            WebConfigUtils.validateHttpRedirect(logoutUrl, parserContext, source);
+            successHandlerRef = element.getAttribute(ATT_LOGOUT_HANDLER);
+            WebConfigUtils.validateHttpRedirect(logoutUrl, pc, source);
             logoutSuccessUrl = element.getAttribute(ATT_LOGOUT_SUCCESS_URL);
-            WebConfigUtils.validateHttpRedirect(logoutSuccessUrl, parserContext, source);
+            WebConfigUtils.validateHttpRedirect(logoutSuccessUrl, pc, source);
             invalidateSession = element.getAttribute(ATT_INVALIDATE_SESSION);
         }
 
@@ -55,10 +58,19 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
         }
         builder.addPropertyValue("filterProcessesUrl", logoutUrl);
 
-        if (!StringUtils.hasText(logoutSuccessUrl)) {
-            logoutSuccessUrl = DEF_LOGOUT_SUCCESS_URL;
+        if (StringUtils.hasText(successHandlerRef)) {
+            if (StringUtils.hasText(logoutSuccessUrl)) {
+                pc.getReaderContext().error("Use " + ATT_LOGOUT_URL + " or " + ATT_LOGOUT_HANDLER + ", but not both",
+                        pc.extractSource(element));
+            }
+            builder.addConstructorArgReference(successHandlerRef);
+        } else {
+            // Use the logout URL if no handler set
+            if (!StringUtils.hasText(logoutSuccessUrl)) {
+                logoutSuccessUrl = DEF_LOGOUT_SUCCESS_URL;
+            }
+            builder.addConstructorArgValue(logoutSuccessUrl);
         }
-        builder.addConstructorArgValue(logoutSuccessUrl);
 
         if (!StringUtils.hasText(invalidateSession)) {
             invalidateSession = DEF_INVALIDATE_SESSION;

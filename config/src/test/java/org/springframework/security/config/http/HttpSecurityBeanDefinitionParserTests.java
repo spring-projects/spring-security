@@ -1,19 +1,9 @@
 package org.springframework.security.config.http;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
-import static org.springframework.security.config.http.AuthenticationConfigBuilder.AUTHENTICATION_PROCESSING_FILTER_CLASS;
-import static org.springframework.security.config.http.AuthenticationConfigBuilder.OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS;
-import static org.springframework.security.config.http.AuthenticationConfigBuilder.OPEN_ID_AUTHENTICATION_PROVIDER_CLASS;
+import static org.springframework.security.config.http.AuthenticationConfigBuilder.*;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -70,6 +60,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
@@ -298,6 +289,21 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "   <logout logout-success-url='noLeadingSlash'/>" +
                 "   <form-login />" +
                 "</http>" + AUTH_PROVIDER_XML);
+    }
+
+    @Test
+    public void logoutSuccessHandlerIsSetCorrectly() throws Exception {
+        setContext(
+                "<http>" +
+                "   <logout success-handler-ref='logoutHandler' />" +
+                "   <form-login />" +
+                "</http>" +
+                "<b:bean id='logoutHandler' class='org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler' />"
+                + AUTH_PROVIDER_XML);
+
+        LogoutFilter filter = (LogoutFilter) getFilter(LogoutFilter.class);
+        LogoutSuccessHandler handler = (LogoutSuccessHandler) FieldUtils.getFieldValue(filter, "logoutSuccessHandler");
+        assertSame(appContext.getBean("logoutHandler"), handler);
     }
 
     @Test

@@ -327,6 +327,10 @@ logout.attlist &=
 logout.attlist &=
 	## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
     attribute invalidate-session {boolean}?
+logout.attlist &=
+    ## A reference to a LogoutSuccessHandler implementation which will be used to determine the destination to which the user is taken after logging out.
+    attribute success-handler-ref {xsd:token}?
+
 
 request-cache =
     ## Allow the RequestCache used for saving requests during the login process to be set
