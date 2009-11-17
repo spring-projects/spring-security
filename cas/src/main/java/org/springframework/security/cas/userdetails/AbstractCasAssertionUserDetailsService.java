@@ -18,7 +18,6 @@ import org.springframework.security.core.userdetails.AuthenticationUserDetailsSe
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
 import org.springframework.util.Assert;
 import org.jasig.cas.client.validation.Assertion;
@@ -34,7 +33,7 @@ import org.jasig.cas.client.validation.Assertion;
 public abstract class AbstractCasAssertionUserDetailsService implements AuthenticationUserDetailsService {
 
     public final UserDetails loadUserDetails(final Authentication token) throws UsernameNotFoundException {
-        Assert.isInstanceOf(CasAuthenticationToken.class, token, "The provided token MUST be an instance of CasAuthenticationToken.class");
+        Assert.isInstanceOf(CasAssertionAuthenticationToken.class, token, "The provided token MUST be an instance of CasAssertionAuthenticationToken.class");
         return loadUserDetails(((CasAssertionAuthenticationToken) token).getAssertion());
     }
 

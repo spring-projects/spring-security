@@ -195,12 +195,8 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     }
 
     public boolean supports(final Class<? extends Object> authentication) {
-        if (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication)) {
-            return true;
-        } else if (CasAuthenticationToken.class.isAssignableFrom(authentication)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication)) ||
+           (CasAuthenticationToken.class.isAssignableFrom(authentication)) ||
+           (CasAssertionAuthenticationToken.class.isAssignableFrom(authentication));
     }
 }
