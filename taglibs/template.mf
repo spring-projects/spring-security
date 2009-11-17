@@ -1,0 +1,21 @@
+Bundle-SymbolicName: org.springframework.security.taglibs
+Bundle-Name: Spring Security Taglibs
+Bundle-Vendor: SpringSource
+Bundle-Version: ${version}
+Bundle-ManifestVersion: 2
+Ignored-Existing-Headers:
+ Import-Package,
+ Export-Package
+Import-Template:
+ org.apache.commons.logging.*;version="[1.0.4, 2.0.0)",
+ org.springframework.security.core.*;version="[${version}, 3.1.0)",
+ org.springframework.security.web.*;version="[${version}, 3.1.0)",
+ org.springframework.security.access.*;version="[${version}, 3.1.0)",
+ org.springframework.security.util;version="[${version}, 3.1.0)",
+ org.springframework.security.acls;version="[${version}, 3.1.0)";resolution:=optional, 
+ org.springframework.beans.*;version="[3.0.0, 3.1.0)",
+ org.springframework.context.*;version="[3.0.0, 3.1.0)",
+ org.springframework.expression;version="[3.0.0, 3.1.0)";resolution:=optional,
+ org.springframework.web.context.*;version="[3.0.0, 3.1.0)";resolution:=optional,
+ org.springframework.web.util.*;version="[3.0.0, 3.1.0)",
+ javax.servlet.*;version="0"
