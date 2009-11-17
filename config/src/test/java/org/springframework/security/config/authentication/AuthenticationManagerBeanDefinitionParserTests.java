@@ -44,7 +44,6 @@ public class AuthenticationManagerBeanDefinitionParserTests {
         setContext(CONTEXT, "3.0");
         AuthListener listener = new AuthListener();
         appContext.addApplicationListener(listener);
-        appContext.refresh();
 
         ProviderManager pm = (ProviderManager) appContext.getBeansOfType(ProviderManager.class).values().toArray()[0];
         Object eventPublisher = FieldUtils.getFieldValue(pm, "eventPublisher");
