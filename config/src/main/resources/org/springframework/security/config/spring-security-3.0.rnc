@@ -206,7 +206,9 @@ global-method-security.attlist &=
 global-method-security.attlist &=
     ## Allows the advice "order" to be set for the method security interceptor.
     attribute order {xsd:token}?
-    
+global-method-security.attlist &=
+    attribute proxy-target-class {boolean}?
+
 after-invocation-provider =
     ## Allows addition of extra AfterInvocationProvider beans which should be called by the MethodSecurityInterceptor created by global-method-security.
     element after-invocation-provider {ref} 
@@ -325,7 +327,7 @@ logout.attlist &=
 logout.attlist &=
 	## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
     attribute invalidate-session {boolean}?
-    
+
 request-cache =
     ## Allow the RequestCache used for saving requests during the login process to be set
     element request-cache {ref}

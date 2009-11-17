@@ -538,6 +538,7 @@
         <xs:documentation>Allows the advice "order" to be set for the method security interceptor.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="proxy-target-class" type="security:boolean"/>
   </xs:attributeGroup>
   
   

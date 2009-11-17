@@ -48,7 +48,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     public void loadContext() {
         setContext(
                 "<b:bean id='target' class='org.springframework.security.access.annotation.BusinessServiceImpl'/>" +
-                "<global-method-security order='1001'>" +
+                "<global-method-security order='1001' proxy-target-class='false' >" +
                 "    <protect-pointcut expression='execution(* *.someUser*(..))' access='ROLE_USER'/>" +
                 "    <protect-pointcut expression='execution(* *.someAdmin*(..))' access='ROLE_ADMIN'/>" +
                 "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML
