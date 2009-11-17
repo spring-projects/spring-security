@@ -14,6 +14,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandlerResolver;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.core.Authentication;
@@ -72,6 +73,11 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
         }
 
         providerManagerBldr.addPropertyValue("providers", providers);
+        // Add the default event publisher
+        BeanDefinition publisher = new RootBeanDefinition(DefaultAuthenticationEventPublisher.class);
+        String id = pc.getReaderContext().registerWithGeneratedName(publisher);
+        pc.registerBeanComponent(new BeanComponentDefinition(publisher, id));
+        providerManagerBldr.addPropertyReference("authenticationEventPublisher", id);
 
         BeanDefinition authManager = providerManagerBldr.getBeanDefinition();
         pc.getRegistry().registerBeanDefinition(BeanIds.AUTHENTICATION_MANAGER, authManager);

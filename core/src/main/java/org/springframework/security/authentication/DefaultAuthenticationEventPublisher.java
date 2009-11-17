@@ -24,7 +24,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 /**
- * The default strategy used by <tt>ProviderManager</tt> for publishing authentication events.
+ * The default strategy for publishing authentication events.
  * <p>
  * Maps well-known <tt>AuthenticationException</tt> types to events and publishes them via the
  * application context. If configured as a bean, it will pick up the <tt>ApplicationEventPublisher</tt> automatically.
