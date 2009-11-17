@@ -410,6 +410,14 @@
           will be invalidated on logout. </para>
       </section>
     </section>
+    <section>
+      <title>The <literal>&lt;custom-filter></literal> Element</title>
+      <para>This element is used to add a filter to the filter chain. It doesn't create any
+        additional beans but is used to select a bean of type
+          <interfacename>javax.servlet.Filter</interfacename> which is already defined in the
+        appllication context and add that at a particular position in the filter chain maintained by
+        Spring Security. Full details can be found in the namespace chapter.</para>
+    </section>
   </section>
   <section>
     <title>Authentication Services</title>
