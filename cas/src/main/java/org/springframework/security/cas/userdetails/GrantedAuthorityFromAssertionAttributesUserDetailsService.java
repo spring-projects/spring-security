@@ -35,6 +35,8 @@ import java.util.ArrayList;
  */
 public final class GrantedAuthorityFromAssertionAttributesUserDetailsService extends AbstractCasAssertionUserDetailsService {
 
+    private static final String NON_EXISTENT_PASSWORD_VALUE = "NO_PASSWORD";
+
     private String[] attributes;
 
     private boolean convertToUpperCase = true;
@@ -70,7 +72,7 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService ext
 
         }
 
-        return new User(assertion.getPrincipal().getName(), null, true, true, true, true, grantedAuthorities);
+        return new User(assertion.getPrincipal().getName(), NON_EXISTENT_PASSWORD_VALUE, true, true, true, true, grantedAuthorities);
     }
 
     /**
