@@ -16,7 +16,7 @@
 package org.springframework.security.cas.authentication;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 
 import org.jasig.cas.client.validation.Assertion;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -60,7 +60,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
     public CasAuthenticationToken(final String key, final Object principal, final Object credentials,
-        final List<GrantedAuthority> authorities, final UserDetails userDetails, final Assertion assertion) {
+        final Collection<GrantedAuthority> authorities, final UserDetails userDetails, final Assertion assertion) {
         super(authorities);
 
         if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal) || (credentials == null)
